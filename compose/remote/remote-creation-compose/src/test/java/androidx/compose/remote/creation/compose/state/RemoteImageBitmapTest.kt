@@ -45,4 +45,14 @@ class RemoteImageBitmapTest {
 
         assertThat(constantValue).isEqualTo(imageBitmap)
     }
+
+    @Test
+    fun remoteBitmap_urlStaticFactory() {
+        val url = "https://example.com/image.png"
+        val bitmap = RemoteImageBitmap(url)
+
+        assertThat(bitmap).isNotNull()
+        assertThat(bitmap.cacheKey).isEqualTo(RemoteConstantCacheKey(url))
+        assertThat(bitmap.constantValueOrNull).isNull()
+    }
 }
