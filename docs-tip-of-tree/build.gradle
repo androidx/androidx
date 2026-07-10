@@ -325,7 +325,6 @@ dependencies {
     docs(project(":startup:startup-runtime"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))
     // androidx.test is not hosted in androidx
-    docs(project(":test:ext:junit-gtest"))
     docs(project(":test:uiautomator:uiautomator"))
     kmpDocs(project(":test:uiautomator:uiautomator-shell"))
     // androidx.textclassifier is not hosted in androidx
