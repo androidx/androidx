@@ -38,6 +38,7 @@ import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.Theme;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.Container;
@@ -687,6 +688,12 @@ public class CoreDocument implements Serializable {
     public void evaluateIntExpression(
             long expressionId, int targetId, @NonNull RemoteContext context) {
         IntegerExpression expression = mIntegerExpressions.get(expressionId);
+        if (expression == null) {
+            expression = mIntegerExpressions.get((long) Utils.idFromLong(expressionId));
+        }
+        if (expression == null) {
+            expression = mIntegerExpressions.get(expressionId & 0xFFFFFFFFL);
+        }
         if (expression != null) {
             int v = expression.evaluate(context);
             context.overrideInteger(targetId, v);
@@ -2218,7 +2225,9 @@ public class CoreDocument implements Serializable {
             }
         }
         if (context.getPaintContext().doesNeedsRepaint()
-                || (mRootLayoutComponent != null && mRootLayoutComponent.doesNeedsRepaint())) {
+                || (mRootLayoutComponent != null
+                        && (mRootLayoutComponent.doesNeedsRepaint()
+                                || mRootLayoutComponent.needsBoundsAnimation()))) {
             mRepaintNext = 1;
         }
         context.mMode = RemoteContext.ContextMode.UNSET;

@@ -52,6 +52,9 @@ import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslRcSimpleSwitchKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayout3StatesKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayoutRowToColumnKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslRcStateLayoutToggleKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslServerSideKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSmallAnimatedKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslSpreadSheetKt;
@@ -164,6 +167,8 @@ import androidx.compose.remote.integration.view.demos.examples.components.DemoMo
 import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierZIndexKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoRowKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoStateLayoutKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoStateLayoutRowKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoStateLayoutRowToColumnKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoTextAutoSizeKt;
 import androidx.compose.remote.integration.view.demos.examples.components.DemoTextKt;
 import androidx.compose.remote.integration.view.demos.examples.old.BasicProceduralDemos;
@@ -408,6 +413,15 @@ public abstract class DemosCreation {
 
 //                    get("1/0/RcScrollview", DslRcScrollviewKt::dslRcScrollview),
                     get("1/37/RcSimpleSwitch", DslRcSimpleSwitchKt::dslRcSimpleSwitchDemo),
+                    get(
+                        "1/37/RcStateLayoutToggle",
+                        DslRcStateLayoutToggleKt::dslRcStateLayoutToggleDemo),
+                    get(
+                        "1/37/RcStateLayoutRowToColumn",
+                        DslRcStateLayoutRowToColumnKt::dslRcStateLayoutRowToColumnDemo),
+                    get(
+                        "1/37/RcStateLayout3States",
+                        DslRcStateLayout3StatesKt::dslRcStateLayout3StatesDemo),
                     get("1/38/ServerClock", DslServerSideKt::dslServerClock),
 //                    getpc("1/0/SimpleShader2", () -> DslSimpleShader2Kt.dslSimpleShader2(bitmap)),
 //                    get("1/0/SlantedButton", DslSlantedButtonKt::dslSlantedButtonDemo),
@@ -701,6 +715,10 @@ public abstract class DemosCreation {
                             DemoModifierCollapsiblePriorityKt::DemoModifierCollapsiblePriority),
                     getp("9/Comp/C_StateLayout",
                             DemoStateLayoutKt::DemoStateLayout),
+                    getp("9/Comp/C_StateLayoutRow",
+                            DemoStateLayoutRowKt::DemoStateLayoutRow),
+                    getp("9/Comp/C_StateLayoutRowToColumn",
+                            DemoStateLayoutRowToColumnKt::DemoStateLayoutRowToColumn),
                     getp("9/Comp/C_Text",
                             DemoTextKt::DemoText),
                     getp("9/Comp/C_TextAutoSize",

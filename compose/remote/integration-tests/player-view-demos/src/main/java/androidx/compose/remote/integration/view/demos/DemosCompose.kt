@@ -21,6 +21,8 @@ import android.content.Context
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
 import androidx.compose.remote.integration.view.demos.examples.SimplePath
+import androidx.compose.remote.integration.view.demos.examples.StateLayoutRowToColumnDemo
+import androidx.compose.remote.integration.view.demos.examples.StateLayoutToggleDemo
 import androidx.compose.remote.integration.view.demos.examples.SwitchWidgetDemo
 import androidx.compose.remote.integration.view.demos.examples.WeatherDemo
 import androidx.compose.remote.integration.view.demos.examples.demoJson1
@@ -36,6 +38,10 @@ fun getRemoteComposable(context: Context): ArrayList<RCDoc> {
         getComposeDoc(context, "Compose/WeatherDemo") { WeatherDemo() },
         getComposeDoc(context, "Compose/Simple Clock") { RcSimpleClock1() },
         getComposeDoc(context, "Compose/Switch Widget") { SwitchWidgetDemo() },
+        getComposeDoc(context, "Compose/StateLayout Toggle") { StateLayoutToggleDemo() },
+        getComposeDoc(context, "Compose/StateLayout Row to Column") {
+            StateLayoutRowToColumnDemo()
+        },
         getComposeDoc(context, "Compose/Calendar") { ScrollViewDemo() },
     )
 }

@@ -34,6 +34,7 @@ import androidx.compose.remote.core.operations.TouchExpression;
 import androidx.compose.remote.core.operations.layout.animation.AnimateMeasure;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasurePool;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
@@ -717,6 +718,17 @@ public class Component extends PaintOperation
         if (mAnimateMeasure != null) {
             mAnimateMeasure.apply(context);
             updateComponentValues(context, mWidth, mHeight);
+            if (mAnimateMeasure.isDone()) {
+                ComponentMeasurePool pool = context.getComponentMeasurePool();
+                pool.recycle(mAnimateMeasure.getOriginal());
+                pool.recycle(mAnimateMeasure.getTarget());
+                mAnimateMeasure = null;
+                if (mParent != null) {
+                    clearNeedsBoundsAnimation();
+                }
+            } else {
+                markNeedsBoundsAnimation();
+            }
         } else {
             if (mParent != null) {
                 clearNeedsBoundsAnimation();
@@ -1551,10 +1563,29 @@ public class Component extends PaintOperation
                 needsRepaint();
             } else {
                 markNeedsBoundsAnimation();
+                needsRepaint();
             }
             return true;
         }
         return false;
+    }
+
+    /**
+     * Find an ancestor component of the specified class.
+     *
+     * @param clazz the target component class
+     * @param <T> the type of component
+     * @return the ancestor component instance if found, or null
+     */
+    public <T extends Component> @Nullable T findAncestor(@NonNull Class<T> clazz) {
+        Component p = mParent;
+        while (p != null) {
+            if (clazz.isInstance(p)) {
+                return clazz.cast(p);
+            }
+            p = p.mParent;
+        }
+        return null;
     }
 
     @Override
@@ -1579,6 +1610,18 @@ public class Component extends PaintOperation
         }
         if (applyAnimationAsNeeded(context)) {
             return;
+        }
+        if (mAnimationId != -1) {
+            StateLayout stateLayout = findAncestor(StateLayout.class);
+            if (stateLayout != null) {
+                Component shared =
+                        stateLayout.getSharedComponent(
+                                mAnimationId, stateLayout.measuredLayoutIndex);
+                if (shared != null && shared != this) {
+                    shared.paint(context);
+                    return;
+                }
+            }
         }
         if (isGone() || isInvisible()) {
             return;
