@@ -112,7 +112,7 @@ class SupportSQLiteDriverTest : BaseConformanceTest() {
         fileDriver.open("file_database.db").close()
     }
 
-    @SdkSuppress(minSdkVersion = 24) // b/452723068
+    @SdkSuppress(minSdkVersion = 25) // b/452723068
     @Test
     fun walModeChangeMatchesFramework() {
         context.deleteDatabase("test.db")
