@@ -141,12 +141,3 @@ public class A2uiDeleteSurfaceMessage(public override val surfaceId: String) :
         return "A2uiDeleteSurfaceMessage(surfaceId=$surfaceId)"
     }
 }
-
-/**
- * An internal message wrapper used to route user actions sequentially through the SurfaceActor
- * queue.
- */
-internal data class A2uiHandleActionMessage(
-    override val surfaceId: String,
-    val action: A2uiUserAction,
-) : A2uiServerToClientMessage

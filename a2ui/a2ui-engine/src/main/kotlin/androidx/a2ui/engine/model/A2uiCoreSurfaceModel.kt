@@ -68,10 +68,9 @@ public class A2uiCoreSurfaceModel(
      * Updates the registry with a batch of components.
      *
      * @param payloads The list of components to apply.
-     *
-     * TODO(annabelo): Consider running schema validation here.
      */
     internal fun updateComponents(payloads: List<A2uiComponentPayload>) {
+        // TODO(annabelo): Validate components before pushing them into the system
         componentRegistry.update(payloads)
     }
 

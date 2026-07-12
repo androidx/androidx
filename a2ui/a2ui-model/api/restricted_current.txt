@@ -248,6 +248,14 @@ package androidx.a2ui.model.catalog.functions {
 
 }
 
+package androidx.a2ui.model.processor {
+
+  public fun interface A2uiActionInterceptor {
+    method public suspend Object? onInterceptAction(androidx.a2ui.model.protocol.A2uiUserAction action, kotlin.coroutines.Continuation<? super androidx.a2ui.model.protocol.A2uiUserAction?>);
+  }
+
+}
+
 package androidx.a2ui.model.protocol {
 
   public final class A2uiClientError implements androidx.a2ui.model.protocol.A2uiClientToServerMessage {
@@ -325,7 +333,7 @@ package androidx.a2ui.model.protocol {
     ctor public A2uiException.A2uiValidationException(String message, String path);
   }
 
-  public sealed nonexhaustive interface A2uiServerToClientMessage {
+  public sealed exhaustive interface A2uiServerToClientMessage {
     method @InaccessibleFromKotlin public String getSurfaceId();
     property public abstract String surfaceId;
   }
