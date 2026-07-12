@@ -18,7 +18,9 @@ package androidx.pdf.util
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import android.net.Uri
 import android.os.Parcel
+import android.text.TextUtils
 import androidx.pdf.Dimension
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
@@ -26,6 +28,7 @@ import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.content.SelectionBoundary
+import androidx.pdf.selection.model.HyperLinkSelection
 import androidx.pdf.selection.model.TextSelection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -243,6 +246,94 @@ class SelectionUtilsTest {
             assertThat(pdfRect.top).isEqualTo(20f)
             assertThat(pdfRect.right).isEqualTo(30f)
             assertThat(pdfRect.bottom).isEqualTo(40f)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
+    @Test
+    fun hyperLinkSelection_parceling_roundTrip() {
+        val link = "https://www.google.com"
+        val linkText = "Link Text"
+        val bounds = listOf(PdfRect(1, 0f, 0f, 10f, 10f))
+        val linkUri = Uri.parse(link)
+        val hyperLinkSelection =
+            HyperLinkSelection(link = linkUri, linkText = linkText, bounds = bounds)
+        val parcel = Parcel.obtain()
+        try {
+            hyperLinkSelection.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            val actualHyperLinkSelection = hyperLinkSelectionFromParcel(parcel)
+
+            assertThat(actualHyperLinkSelection?.link).isEqualTo(linkUri)
+            assertThat(actualHyperLinkSelection?.linkText.toString()).isEqualTo(linkText)
+            assertThat(actualHyperLinkSelection?.bounds).isEqualTo(bounds)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
+    @Test
+    fun hyperLinkSelection_parcelingEmptyValues() {
+        val link = ""
+        val linkText = ""
+        val bounds = listOf<PdfRect>()
+        val linkUri = Uri.parse(link)
+        val hyperLinkSelection =
+            HyperLinkSelection(link = linkUri, linkText = linkText, bounds = bounds)
+        val parcel = Parcel.obtain()
+        try {
+            hyperLinkSelection.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            val actualHyperLinkSelection = hyperLinkSelectionFromParcel(parcel)
+
+            assertThat(actualHyperLinkSelection?.link).isEqualTo(linkUri)
+            assertThat(actualHyperLinkSelection?.linkText.toString()).isEqualTo(linkText)
+            assertThat(actualHyperLinkSelection?.bounds).isEqualTo(bounds)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
+    @Test
+    fun hyperLinkSelection_parcelingEmptyURI() {
+        val linkText = ""
+        val bounds = listOf<PdfRect>()
+        val linkUri: Uri = Uri.EMPTY
+        val hyperLinkSelection =
+            HyperLinkSelection(link = linkUri, linkText = linkText, bounds = bounds)
+        val parcel = Parcel.obtain()
+        try {
+            hyperLinkSelection.writeToParcel(parcel, 0)
+            parcel.setDataPosition(0)
+            val actualHyperLinkSelection = hyperLinkSelectionFromParcel(parcel)
+
+            assertThat(actualHyperLinkSelection?.link).isEqualTo(linkUri)
+            assertThat(actualHyperLinkSelection?.linkText.toString()).isEqualTo(linkText)
+            assertThat(actualHyperLinkSelection?.bounds).isEqualTo(bounds)
+        } finally {
+            parcel.recycle()
+        }
+    }
+
+    @Test
+    fun hyperLinkSelection_assertNullText() {
+        val link = "https://www.google.com"
+        val linkUri = Uri.parse(link)
+        val nullLinkText: CharSequence? = null
+        val bounds = listOf(PdfRect(1, 0f, 0f, 10f, 10f))
+        val parcel = Parcel.obtain()
+        try {
+            linkUri.writeToParcel(parcel, 0)
+            TextUtils.writeToParcel(nullLinkText, parcel, 0)
+            parcel.writeInt(bounds.size)
+            for (bound in bounds) {
+                bound.writeToParcel(parcel)
+            }
+            parcel.setDataPosition(0)
+            val actualHyperLinkSelection = hyperLinkSelectionFromParcel(parcel)
+
+            assertThat(actualHyperLinkSelection).isNull()
         } finally {
             parcel.recycle()
         }
