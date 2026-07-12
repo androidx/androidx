@@ -298,9 +298,10 @@ public class SandboxedPdfDocument(
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun applyEdit(record: FormEditInfo) {
-        val dirtyAreas = withDocument { document ->
-            document.applyEdit(record.pageNumber, record.toAndroidClass())
-        }
+        val dirtyAreas: List<Rect> =
+            withDocument { document ->
+                document.applyEdit(record.pageNumber, record.toAndroidClass())
+            } ?: listOf()
         onPdfContentInvalidatedListeners.forEach { (executor, listener) ->
             executor.execute { listener.onPdfContentInvalidated(record.pageNumber, dirtyAreas) }
         }
