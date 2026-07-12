@@ -170,6 +170,11 @@ internal class PdfViewAccessibilityManager(
                 formWidgetInfos[virtualViewId]?.let { populateFormWidgetNode(it, node) }
             }
         }
+        // Ensure that every node has a content description to avoid a RuntimeException in
+        // ExploreByTouchHelper.
+        if (node.contentDescription == null) {
+            node.contentDescription = DEFAULT_CONTENT_DESCRIPTION
+        }
     }
 
     private fun populateFastScrollThumbNode(node: AccessibilityNodeInfoCompat) {
@@ -300,6 +305,7 @@ internal class PdfViewAccessibilityManager(
         node.apply {
             contentDescription =
                 ExternalLinks.getDescription(linkWrapper.content.uri.toString(), pdfView.context)
+                    ?: DEFAULT_CONTENT_DESCRIPTION
             setBoundsInScreenFromBoundsInParent(node, bounds)
             isFocusable = true
         }
@@ -442,6 +448,8 @@ internal class PdfViewAccessibilityManager(
     }
 
     companion object {
+        private const val DEFAULT_CONTENT_DESCRIPTION = ""
+
         internal const val FAST_SCROLLER_OFFSET: Int = 1000001
         internal const val FORM_WIDGET_VIRTUAL_VIEW_ID_OFFSET: Int = 10000001
 
