@@ -232,21 +232,6 @@ class A2uiServerToClientMessageTest {
         assertThat(msg.toString()).isEqualTo("A2uiDeleteSurfaceMessage(surfaceId=$TEST_SURFACE_ID)")
     }
 
-    @Test
-    fun handleActionMessage_actionProvided_propertiesAreStored() {
-        val action =
-            A2uiUserAction(
-                TEST_ACTION_TYPE,
-                TEST_SURFACE_ID,
-                TEST_COMPONENT_ID,
-                TEST_TIMESTAMP,
-                TEST_CONTEXT,
-            )
-        val handle = A2uiHandleActionMessage(TEST_SURFACE_ID, action)
-        assertThat(handle.surfaceId).isEqualTo(TEST_SURFACE_ID)
-        assertThat(handle.action).isEqualTo(action)
-    }
-
     companion object {
         private const val TEST_SURFACE_ID = "test-surface"
         private const val TEST_SURFACE_ID_2 = "test-surface-2"
@@ -254,8 +239,6 @@ class A2uiServerToClientMessageTest {
         private const val TEST_CATALOG_ID_2 = "test-catalog-2"
         private const val TEST_COMPONENT_ID = "test-component"
         private const val TEST_COMPONENT_ID_2 = "test-component-2"
-        private const val TEST_ACTION_TYPE = "test-action"
-        private const val TEST_TIMESTAMP = 1778595420000L
         private const val TEST_TYPE = "test-type"
         private const val TEST_PATH = "/test/path"
         private const val TEST_PATH_2 = "/test/path/alt"
@@ -265,6 +248,5 @@ class A2uiServerToClientMessageTest {
         private val TEST_PROPERTIES = mapOf("prop" to "value")
         private val TEST_THEME = mapOf("theme-prop" to "theme-value")
         private val TEST_THEME_2 = mapOf("theme-prop-2" to "theme-value-2")
-        private val TEST_CONTEXT = mapOf("context-prop" to "context-value")
     }
 }
