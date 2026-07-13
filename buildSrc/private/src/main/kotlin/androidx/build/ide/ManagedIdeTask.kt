@@ -43,12 +43,12 @@ import org.gradle.process.ExecOperations
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * Base task for the managed IDE launchers like [androidx.build.studio.StudioTask]
+ * Launches a managed IDE configured for the AndroidX build environment.
  *
- * Encodes the lifecycle managed IDE follows: validate the environment, install a managed copy of
- * the IDE, provision it, gate on license acceptance and project scoping, and launch it with the
- * AndroidX build environment variables so that IDE-initiated Gradle builds run against the same
- * JDK, SDK, output directories, and AGP version as the command line.
+ * The task manages the full IDE lifecycle: Validates the build environment. Installs a managed copy
+ * of the IDE. Runs the [provisionAction] to configure the installation (e.g., SDK path, plugins).
+ * Prompts for license agreement acceptance. Launches the IDE with environment variables matching
+ * the command-line Gradle build
  */
 @DisableCachingByDefault(because = "the purpose of these tasks is to launch an IDE")
 abstract class ManagedIdeTask : DefaultTask() {
@@ -404,6 +404,38 @@ fun ManagedIdeTask.configureIntellijLikeIde(
         },
     )
 }
+
+fun ManagedIdeTask.installIntellijPlugins(configBaseDir: File, plugins: List<IdePlugin>) {
+    val pluginsDirFile = configBaseDir.resolve("plugins").also { it.mkdirs() }
+    plugins.forEach { plugin ->
+        val pluginInstallDir = File(pluginsDirFile, plugin.targetDirectoryName)
+        if (pluginInstallDir.exists()) return@forEach
+
+        val pluginZip = File(pluginsDirFile, plugin.zipName)
+        println("Downloading plugin from ${plugin.downloadUrl}")
+        execOperations.exec { execSpec ->
+            execSpec.executable("curl")
+            execSpec.args("-L", plugin.downloadUrl, "--output", pluginZip.absolutePath)
+        }
+
+        pluginZip.verifyChecksum(plugin.checksum)
+
+        println("Installing plugin into ${pluginsDirFile.absolutePath}")
+        fileSystemOperations.copy { copySpec ->
+            copySpec.from(archiveOperations.zipTree(pluginZip))
+            copySpec.into(pluginsDirFile)
+        }
+        pluginZip.delete()
+        println("Plugin installed successfully.")
+    }
+}
+
+data class IdePlugin(
+    val downloadUrl: String,
+    val checksum: String,
+    val zipName: String,
+    val targetDirectoryName: String,
+)
 
 /** Verifies this file against [expectedChecksum], deleting it and failing on a mismatch. */
 internal fun File.verifyChecksum(expectedChecksum: String) {

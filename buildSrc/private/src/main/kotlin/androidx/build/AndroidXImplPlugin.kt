@@ -43,7 +43,6 @@ import androidx.build.sources.configureSourceJarForAndroid
 import androidx.build.sources.configureSourceJarForJava
 import androidx.build.sources.configureSourceJarForMultiplatform
 import androidx.build.sources.registerValidateMultiplatformSourceSetNamingTask
-import androidx.build.studio.StudioTask
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.addToModuleInfo
 import androidx.build.testConfiguration.configureTestConfigGeneration
@@ -1502,7 +1501,7 @@ internal fun Project.configureTaskTimeouts() {
     tasks.configureEach { t ->
         // skip adding a timeout for some tasks that both take a long time and
         // that we can count on the user to monitor
-        if (t !is ManagedIdeTask && t !is StudioTask) {
+        if (t !is ManagedIdeTask) {
             t.timeout.set(
                 Duration.ofMinutes(if (t.path in slowTasks) 80L else TASK_TIMEOUT_MINUTES)
             )
