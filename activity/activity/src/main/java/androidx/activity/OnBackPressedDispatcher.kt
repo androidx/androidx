@@ -80,18 +80,18 @@ public class OnBackPressedDispatcher(
      */
     private val eventInput by lazy { OnBackPressedEventInput() }
 
-    /**
-     * This [OnBackPressedDispatcher] class will delegate all interactions to [eventDispatcher],
-     * which provides a KMP-compatible API while preserving behavior compatibility with existing
-     * callback mechanisms.
-     *
-     * @see [OnBackPressedCallback.eventHandlers]
-     */
-    internal val eventDispatcher
-        get() = eventInput.dispatcher
-
     @JvmOverloads
     public constructor(fallbackOnBackPressed: Runnable? = null) : this(fallbackOnBackPressed, null)
+
+    /**
+     * Bridges this [OnBackPressedDispatcher] to [NavigationEventDispatcher].
+     *
+     * Returns this [OnBackPressedDispatcher] as a [NavigationEventDispatcher]. Handlers registered
+     * on this dispatcher and back events dispatched by it are coordinated through this instance.
+     *
+     * @return this dispatcher as a [NavigationEventDispatcher]
+     */
+    public fun asNavigationEventDispatcher(): NavigationEventDispatcher = eventInput.dispatcher
 
     /**
      * Sets the [OnBackInvokedDispatcher] for handling system back for Android SDK T+.
@@ -100,11 +100,11 @@ public class OnBackPressedDispatcher(
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     public fun setOnBackInvokedDispatcher(invoker: OnBackInvokedDispatcher) {
-        eventDispatcher.addInput(
+        eventInput.dispatcher.addInput(
             OnBackInvokedDefaultInput(invoker),
             NavigationEventDispatcher.PRIORITY_DEFAULT,
         )
-        eventDispatcher.addInput(
+        eventInput.dispatcher.addInput(
             OnBackInvokedOverlayInput(invoker),
             NavigationEventDispatcher.PRIORITY_OVERLAY,
         )
@@ -126,7 +126,7 @@ public class OnBackPressedDispatcher(
     public fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
         val info = OnBackPressedCallbackInfo(onBackPressedCallback)
         val handler = onBackPressedCallback.createNavigationEventHandler(info)
-        eventDispatcher.addHandler(handler)
+        eventInput.dispatcher.addHandler(handler)
     }
 
     /**
@@ -170,7 +170,7 @@ public class OnBackPressedDispatcher(
         if (ActivityFlags.isOnBackPressedLifecycleOrderMaintained) {
             eventHandler.isLifecycleActive = false
             // Add handler immediately to fix its position in the dispatch queue.
-            eventDispatcher.addHandler(eventHandler)
+            eventInput.dispatcher.addHandler(eventHandler)
         }
 
         // This observer manages the callback's lifecycle-aware registration.
@@ -185,7 +185,7 @@ public class OnBackPressedDispatcher(
                             } else {
                                 // Legacy behavior: Re-adding moves this callback to the
                                 // top of the dispatch stack, prioritizing it over others.
-                                eventDispatcher.addHandler(eventHandler)
+                                eventInput.dispatcher.addHandler(eventHandler)
                             }
                         }
                         Event.ON_STOP -> {

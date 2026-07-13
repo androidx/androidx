@@ -115,7 +115,7 @@ constructor(context: Context, @StyleRes themeResId: Int = 0) :
      * occurs (e.g., a back gesture), it safely invokes [ComponentDialog.onBackPressed].
      */
     override val navigationEventDispatcher: NavigationEventDispatcher
-        get() = onBackPressedDispatcher.eventDispatcher
+        get() = onBackPressedDispatcher.asNavigationEventDispatcher()
 
     @CallSuper
     @Deprecated(

@@ -45,8 +45,6 @@ public abstract class OnBackPressedCallback(enabled: Boolean) {
      * This [OnBackPressedCallback] class will delegate all interactions to [eventHandlers], which
      * provides a KMP-compatible API while preserving behavior compatibility with existing callback
      * mechanisms.
-     *
-     * @see [OnBackPressedDispatcher.eventDispatcher]
      */
     private val eventHandlers: MutableList<OnBackPressedEventHandler> = mutableListOf()
 
