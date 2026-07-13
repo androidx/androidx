@@ -86,6 +86,6 @@
             <id>unused</id>
             <name>com.test.OutputData</name>
         </dataTypes>
-        <id>unused</id>
+        <id>app_level_app_functions</id>
     </AppFunctionComponentMetadataDocument>
 </appfunctions>

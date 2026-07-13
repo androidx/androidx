@@ -119,6 +119,7 @@ class AppFunctionXmlGenerator(
             packageName,
             fileName,
             outputLocation,
+            componentId = null,
         )
     }
 
@@ -158,6 +159,9 @@ class AppFunctionXmlGenerator(
             packageName,
             fileName,
             outputLocation,
+            // Use file name to ensure there is no conflict with other top-level components
+            // that would override the database document when being indexed.
+            componentId = fileName,
         )
     }
 
@@ -171,12 +175,14 @@ class AppFunctionXmlGenerator(
         packageName: String,
         fileName: String,
         outputLocation: String? = null,
+        componentId: String? = null,
     ) {
         writeXml(
             appFunctionMetadataList = appFunctionMetadataList,
             dependencies = Dependencies(aggregating = true, *sourceFiles.toTypedArray()),
             packageName = packageName,
             fileName = fileName,
+            componentId = componentId,
             outputLocation = outputLocation,
         )
     }
