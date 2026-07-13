@@ -26,13 +26,7 @@
  * <ol>
  *     <li>
  *         Views with custom attributes need to call
- *         {@link androidx.core.view.ViewCompat.saveAttributeDataForStyleable(android.view.View,
- *             android.content.Context,
- *             int[],
- *             android.util.AttributeSet,
- *             android.content.res.TypedArray,
- *             int,
- *             int)}
+ *         {@link androidx.core.view.ViewCompat#saveAttributeDataForStyleable(android.view.View, android.content.Context, int[], android.util.AttributeSet, android.content.res.TypedArray, int, int)}
  *         in their constructor. This adds custom attributes to the attribute resolution stack. The
  *         inspector consumes this information to show developers where in XML an attribute value
  *         came from, which can help debug configuration-specific resources.
