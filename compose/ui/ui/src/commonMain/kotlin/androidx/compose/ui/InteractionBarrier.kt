@@ -18,16 +18,19 @@ package androidx.compose.ui
 
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.layout.registerOnLayoutRectChanged
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
 
 /**
- * Declares that this component blocks touch/pointer input and screen reader accessibility for
- * elements geometrically behind it.
+ * Declares that this component blocks all forms of interaction (touch, keyboard/D-pad focus, and
+ * screen reader accessibility) for elements geometrically behind it.
  *
  * @sample androidx.compose.ui.samples.InteractionBarrierSample
  */
@@ -49,6 +52,24 @@ private object InteractionBarrierElement : ModifierNodeElement<InteractionBarrie
 
 internal class InteractionBarrierNode :
     Modifier.Node(), PointerInputModifierNode, SemanticsModifierNode {
+
+    private var rectChangedHandle: RegistrationHandle? = null
+
+    override fun onAttach() {
+        super.onAttach()
+        requireOwner().focusOwner.registerInteractionBarrier(this)
+        rectChangedHandle =
+            registerOnLayoutRectChanged(throttleMillis = 0, debounceMillis = 0) {
+                requireOwner().focusOwner.onBarrierPositionChanged()
+            }
+    }
+
+    override fun onDetach() {
+        rectChangedHandle?.unregister()
+        rectChangedHandle = null
+        requireOwner().focusOwner.unregisterInteractionBarrier(this)
+        super.onDetach()
+    }
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
