@@ -792,7 +792,8 @@ internal constructor(
     }
 }
 
-private val UnspecifiedSize: IntSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+private val UnspecifiedSize: IntSize
+    get() = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
 /**
  * The maximum number of interrupted states to keep in the composition tree at once.
