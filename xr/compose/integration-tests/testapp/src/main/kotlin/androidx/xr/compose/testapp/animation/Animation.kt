@@ -41,8 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -60,6 +61,7 @@ import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple80
+import androidx.xr.compose.unit.DpVolumeOffset
 
 class Animation : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -194,7 +196,13 @@ class Animation : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Orbiter(position = ContentEdge.Top, offset = 5.dp) {
+                        Orbiter(
+                            alignment =
+                                OrbiterAlignment.TopCenter(
+                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    offset = DpVolumeOffset(y = 5.dp),
+                                )
+                        ) {
                             Text(
                                 text = text,
                                 fontSize = 20.sp,

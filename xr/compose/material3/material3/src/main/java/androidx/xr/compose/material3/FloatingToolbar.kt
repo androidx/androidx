@@ -54,9 +54,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.ContentEdge
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
+import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
  * A horizontal floating toolbar displays navigation and key actions in a [Row]. It can be
@@ -453,45 +455,57 @@ private object XrFloatingToolbarTokens {
 }
 
 /**
- * The default [HorizontalOrbiterProperties] used by [HorizontalFloatingToolbar] if none is
- * specified in [LocalHorizontalFloatingToolbarOrbiterProperties].
+ * The default [OrbiterProperties] used by [HorizontalFloatingToolbar] if none is specified in
+ * [LocalHorizontalFloatingToolbarOrbiterProperties].
  */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val DefaultHorizontalFloatingToolbarOrbiterProperties: HorizontalOrbiterProperties =
-    HorizontalOrbiterProperties(
-        position = ContentEdge.Horizontal.Bottom,
-        offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterHorizontally,
+public val DefaultHorizontalFloatingToolbarOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.BottomCenter(
+                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                offset =
+                    DpVolumeOffset(
+                        0.dp,
+                        -XrFloatingToolbarTokens.OrbiterOffset,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [HorizontalOrbiterProperties] used by [HorizontalFloatingToolbar]. */
+/** The [OrbiterProperties] used by [HorizontalFloatingToolbar]. */
 @OptIn(ExperimentalMaterial3XrApi::class)
 public val LocalHorizontalFloatingToolbarOrbiterProperties:
-    ProvidableCompositionLocal<HorizontalOrbiterProperties> =
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultHorizontalFloatingToolbarOrbiterProperties
     }
 
 /**
- * The default [VerticalOrbiterProperties] used by [VerticalFloatingToolbar] if none is specified in
+ * The default [OrbiterProperties] used by [VerticalFloatingToolbar] if none is specified in
  * [LocalVerticalFloatingToolbarOrbiterProperties].
  */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val DefaultVerticalFloatingToolbarOrbiterProperties: VerticalOrbiterProperties =
-    VerticalOrbiterProperties(
-        position = ContentEdge.Vertical.End,
-        offset = XrFloatingToolbarTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterVertically,
+public val DefaultVerticalFloatingToolbarOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.CenterEnd(
+                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                offset =
+                    DpVolumeOffset(
+                        x = XrFloatingToolbarTokens.OrbiterOffset,
+                        0.dp,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [VerticalOrbiterProperties] used by [VerticalFloatingToolbar]. */
+/** The [OrbiterProperties] used by [VerticalFloatingToolbar]. */
 @OptIn(ExperimentalMaterial3XrApi::class)
 public val LocalVerticalFloatingToolbarOrbiterProperties:
-    ProvidableCompositionLocal<VerticalOrbiterProperties> =
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultVerticalFloatingToolbarOrbiterProperties
     }
