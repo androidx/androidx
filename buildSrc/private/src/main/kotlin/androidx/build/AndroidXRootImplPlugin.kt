@@ -33,7 +33,6 @@ import androidx.build.testConfiguration.registerOwnersServiceTasks
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.uptodatedness.setupConfigurationCacheValidator
-import androidx.build.vscode.registerVSCodeTask
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -176,7 +175,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
         registerStudioTask()
         registerIntelliJTask()
-        registerVSCodeTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.outputFile.set(project.getDistributionDirectory().file("task_outputs.txt"))
