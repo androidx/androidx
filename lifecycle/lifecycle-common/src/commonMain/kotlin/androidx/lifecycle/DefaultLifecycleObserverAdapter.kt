@@ -28,7 +28,7 @@ internal class DefaultLifecycleObserverAdapter(
             Lifecycle.Event.ON_STOP -> defaultLifecycleObserver.onStop(source)
             Lifecycle.Event.ON_DESTROY -> defaultLifecycleObserver.onDestroy(source)
             Lifecycle.Event.ON_ANY ->
-                throw IllegalArgumentException("ON_ANY must not been send by anybody")
+                throw IllegalArgumentException("ON_ANY must not be sent by anybody")
         }
         lifecycleEventObserver?.onStateChanged(source, event)
     }
