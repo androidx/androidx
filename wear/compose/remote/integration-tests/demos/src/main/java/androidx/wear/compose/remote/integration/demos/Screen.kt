@@ -41,4 +41,15 @@ sealed class Screen(val route: String) {
     object RemoteTitleCardDemosScreen : Screen("remoteTitleCardDemosScreen")
 
     object RemoteTextDemosScreen : Screen("remoteTextDemosScreen")
+
+    object RemoteHorizontalPageIndicator3DemoScreen :
+        Screen("remoteHorizontalPageIndicator3DemoScreen")
+
+    object RemoteHorizontalPageIndicator10DemoScreen :
+        Screen("remoteHorizontalPageIndicator10DemoScreen")
+
+    object RemoteVerticalPageIndicator3DemoScreen : Screen("remoteVerticalPageIndicator3DemoScreen")
+
+    object RemoteVerticalPageIndicator10DemoScreen :
+        Screen("remoteVerticalPageIndicator10DemoScreen")
 }
