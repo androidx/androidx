@@ -161,9 +161,11 @@ internal fun goToLinkSelectionFromParcel(source: Parcel): GoToLinkSelection {
  *
  * Not part of the public API because public APIs cannot be [android.os.Parcelable]
  */
-internal fun hyperLinkSelectionFromParcel(source: Parcel): HyperLinkSelection {
-    val link = requireNotNull(Uri.CREATOR.createFromParcel(source))
-    val text = requireNotNull(TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source))
+internal fun hyperLinkSelectionFromParcel(source: Parcel): HyperLinkSelection? {
+    val link = Uri.CREATOR.createFromParcel(source)
+    val text = TextUtils.CHAR_SEQUENCE_CREATOR.createFromParcel(source)
+    if (link == null || text == null) return null
+
     val boundsSize = source.readInt()
     val bounds = mutableListOf<PdfRect>()
     for (i in 0 until boundsSize) {

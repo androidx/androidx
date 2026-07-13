@@ -65,7 +65,7 @@ public class HyperLinkSelection(
     /** Writes a [HyperLinkSelection] to [dest]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeParcelable(link, flags)
+        Uri.writeToParcel(dest, link)
         TextUtils.writeToParcel(linkText, dest, flags)
         dest.writeInt(bounds.size)
         for (bound in bounds) {
