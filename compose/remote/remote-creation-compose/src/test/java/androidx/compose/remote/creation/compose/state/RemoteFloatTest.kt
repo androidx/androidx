@@ -44,6 +44,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -1610,5 +1611,42 @@ class RemoteFloatTest {
         val singleArgKey =
             RemoteOperationCacheKey.create(RemoteFloat.OperationKey.ToRemoteString, x)
         assertThat(singleArgKey.toDebugString()).isEqualTo("user:x.toRemoteString()")
+    }
+
+    @Ignore("b/521688885: CoreDocument.evaluateFloatExpression ignores overrides")
+    @Test
+    fun evaluateFloatExpression_respectsOverride() = runTest {
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        val document =
+            captureSingleRemoteDocument(
+                creationDisplayInfo = displayInfo,
+                context = applicationContext,
+            ) {
+                val myFloat = rememberMutableRemoteFloat { 5.rf }
+                RemoteBox(modifier = RemoteModifier.size(myFloat.asRemoteDp()))
+            }
+
+        var floatId = 0
+        val coreDoc =
+            makeAndUpdateCoreDocument(
+                RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
+            ) {
+                floatId =
+                    (it.getRootLayoutComponent()!!.list.first { it is FloatExpression }
+                            as FloatExpression)
+                        .mId
+            }
+
+        assertThat(context.getFloat(floatId)).isEqualTo(5f)
+
+        // Override the mutable variable
+        context.mRemoteComposeState.overrideFloat(floatId, 20f)
+
+        // Evaluate the variable as an expression pointing to targetId
+        val targetId = 100
+        coreDoc.evaluateFloatExpression(floatId, targetId, context)
+
+        // Should be 20f (from override), not 5f (initial value)
+        assertThat(context.getFloat(targetId)).isEqualTo(20f)
     }
 }
