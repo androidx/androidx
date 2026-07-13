@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="discard_changes_dialog_title" msgid="5744996873433756810">"အပြောင်းအလဲများကို ဖယ်ပစ်မလား။"</string>
+    <string name="discard_changes_dialog_title" msgid="5744996873433756810">"အပြောင်းအလဲများကို ဖယ်ပစ်မလား"</string>
     <string name="discard_changes_dialog_message" msgid="1531057581600971330">"သင်၏အပြောင်းအလဲများကို သိမ်းမထားပါ။"</string>
     <string name="keep_editing_button" msgid="1452730992602657656">"ဆက်လက်တည်းဖြတ်ရန်"</string>
     <string name="discard_button" msgid="8907718452026370630">"ဖယ်ပစ်ရန်"</string>
