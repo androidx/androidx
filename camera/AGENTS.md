@@ -29,7 +29,7 @@
   mark the new API with `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` comment
   right above it with the bug ID, e.g., `// TODO: b/1234567 - Make this public in next alpha`.
 - **Linting**: Ensure code quality and adherence to AndroidX standards by running
-  `./gradlew <project>:lint` after completing a meaningful set of changes.
+  `./gradlew <project>:lintRelease` after completing a meaningful set of changes.
 
 ## Testing
 
@@ -117,11 +117,18 @@ CameraX involves complex hardware interactions, making robust testing essential.
   PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble
   ```
 - **Local Test Run**:
-  - **Host Tests (Robolectric)**: Run JVM-based tests using `./gradlew <project>:test`.
-    To run a specific test class or method, use the `--tests` flag:
+  - **Host Tests (Robolectric)**: Run JVM-based tests using
+    `./gradlew <project>:test` (runs all variants).
+    To run a specific test class or method, you **must use the variant-specific
+    task** (usually `testReleaseUnitTest` in AndroidX) with the `--tests` flag
+    (as the anchor `:test` task does not support filtering):
     ```bash
-    ./gradlew :camera:camera-core:test --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"
+    ./gradlew :camera:camera-core:testReleaseUnitTest --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"
     ```
+    > [!WARNING]
+    > While running a single method is faster during development, always run the
+    > **full test class** (e.g., `--tests "androidx.camera.core.streamsharing.StreamSharingTest"`)
+    > before committing to catch inter-test leaks or side effects.
   - **Device Tests**: Run instrumented tests on a connected device using:
     ```bash
     ./gradlew <project>:connectedCheck
@@ -136,9 +143,9 @@ CameraX involves complex hardware interactions, making robust testing essential.
     --className androidx.camera.integration.core.StreamSharingTest#recordingCanProceedAfterSiblingUnbind
     ```
 - **Code Quality**: Format modified Kotlin files using `ktfmt` (see General Instructions) and run
-  Lint before committing:
+  Lint (specifically `lintRelease` to catch release-only issues) before committing:
   ```bash
-  ./gradlew <project>:lint
+  ./gradlew <project>:lintRelease
   ```
 
 #### 4. Troubleshooting Unit Test Leaks (Robolectric)
