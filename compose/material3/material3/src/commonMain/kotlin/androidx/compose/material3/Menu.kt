@@ -1719,7 +1719,8 @@ private fun WrappedLeadingIcon(content: @Composable BoxScope.() -> Unit) {
 }
 
 // Size defaults.
-internal val MenuVerticalMargin = 48.dp
+internal val MenuVerticalMargin
+    get() = 48.dp
 
 internal class MenuArrangement(val leadingSpacing: Dp, val trailingSpacing: Dp) :
     Arrangement.Horizontal {
@@ -1759,21 +1760,29 @@ internal class MenuArrangement(val leadingSpacing: Dp, val trailingSpacing: Dp) 
     }
 }
 
-internal val MenuHorizontalMargin = 8.dp
-private val MenuListItemContainerHeight = 48.dp
-internal val DropdownMenuItemHorizontalPadding = 12.dp
-internal val DropdownMenuGroupVerticalPadding = 2.dp
+internal val MenuHorizontalMargin
+    get() = 8.dp
+private val MenuListItemContainerHeight
+    get() = 48.dp
+internal val DropdownMenuItemHorizontalPadding
+    get() = 12.dp
+internal val DropdownMenuGroupVerticalPadding
+    get() = 2.dp
 
 private val DropdownMenuSelectableItemPadding = PaddingValues(horizontal = 4.dp)
 private val DropdownMenuSelectableItemWithSupportTexPadding =
     PaddingValues(horizontal = 4.dp, vertical = 2.dp)
 private val DropdownMenuIconTextPadding =
     if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
-internal val DropdownMenuVerticalPadding = 8.dp
-internal val DropdownMenuItemDefaultMinWidth = 112.dp
-internal val DropdownMenuItemDefaultMaxWidth = 280.dp
+internal val DropdownMenuVerticalPadding
+    get() = 8.dp
+internal val DropdownMenuItemDefaultMinWidth
+    get() = 112.dp
+internal val DropdownMenuItemDefaultMaxWidth
+    get() = 280.dp
 
-internal val DropdownMenuGroupDefaultMinHeight = 32.dp
+internal val DropdownMenuGroupDefaultMinHeight
+    get() = 32.dp
 
 private const val LeadingIconLayoutId = "leadingIcon"
 private const val TextLayoutId = "text"

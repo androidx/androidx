@@ -884,17 +884,24 @@ private fun DrawScope.drawArrow(
 private const val MaxProgressArc = 0.8f
 
 /** The default stroke width for [Indicator] */
-private val StrokeWidth = 2.5.dp
-private val ArcRadius = 5.5.dp
+private val StrokeWidth
+    get() = 2.5.dp
+private val ArcRadius
+    get() = 5.5.dp
 internal val SpinnerSize = 16.dp // (ArcRadius + PullRefreshIndicatorDefaults.StrokeWidth).times(2)
-internal val SpinnerContainerSize = 40.dp
-private val ArrowWidth = 10.dp
-private val ArrowHeight = 5.dp
+internal val SpinnerContainerSize
+    get() = 40.dp
+private val ArrowWidth
+    get() = 10.dp
+private val ArrowHeight
+    get() = 5.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-internal val LoaderIndicatorHeight = LoadingIndicatorDefaults.ContainerHeight
+internal val LoaderIndicatorHeight
+    get() = LoadingIndicatorDefaults.ContainerHeight
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-internal val LoaderIndicatorWidth = LoadingIndicatorDefaults.ContainerWidth
+internal val LoaderIndicatorWidth
+    get() = LoadingIndicatorDefaults.ContainerWidth
 
 // Values taken from SwipeRefreshLayout
 private const val MinAlpha = 0.3f

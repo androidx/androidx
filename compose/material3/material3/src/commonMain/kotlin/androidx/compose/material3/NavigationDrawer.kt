@@ -1336,12 +1336,17 @@ private fun calculateFraction(a: Float, b: Float, pos: Float) =
     ((pos - a) / (b - a)).coerceIn(0f, 1f)
 
 private val DrawerPositionalThreshold = 0.5f
-private val DrawerVelocityThreshold = 400.dp
-private val MinimumDrawerWidth = 240.dp
+private val DrawerVelocityThreshold
+    get() = 400.dp
+private val MinimumDrawerWidth
+    get() = 240.dp
 
-internal val PredictiveBackDrawerMaxScaleXDistanceGrow = 12.dp
-internal val PredictiveBackDrawerMaxScaleXDistanceShrink = 24.dp
-internal val PredictiveBackDrawerMaxScaleYDistance = 48.dp
+internal val PredictiveBackDrawerMaxScaleXDistanceGrow
+    get() = 12.dp
+internal val PredictiveBackDrawerMaxScaleXDistanceShrink
+    get() = 24.dp
+internal val PredictiveBackDrawerMaxScaleYDistance
+    get() = 48.dp
 
 // TODO: b/177571613 this should be a proper decay settling
 // this is taken from the DrawerLayout's DragViewHelper as a min duration.

@@ -1403,17 +1403,24 @@ internal val WNRItemNoLabelIndicatorPadding =
     (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
         NavigationRailBaselineItemTokens.IconSize) / 2
 /*@VisibleForTesting*/
-internal val WNRItemHorizontalPadding = 20.dp
+internal val WNRItemHorizontalPadding
+    get() = 20.dp
 
 // Vertical padding between the contents of the wide navigation rail and its top/bottom.
-private val WNRVerticalPadding = NavigationRailCollapsedTokens.TopSpace
+private val WNRVerticalPadding
+    get() = NavigationRailCollapsedTokens.TopSpace
 // Padding at the bottom of the rail's header. This padding will only be added when the header is
 // not null and the rail arrangement is Top.
-private val WNRHeaderPadding: Dp = NavigationRailBaselineItemTokens.HeaderSpaceMinimum
-private val CollapsedRailWidth = NavigationRailCollapsedTokens.ContainerWidth
-private val ExpandedRailMinWidth = NavigationRailExpandedTokens.ContainerWidthMinimum
-private val ExpandedRailMaxWidth = NavigationRailExpandedTokens.ContainerWidthMaximum
-private val TopIconItemMinHeight = NavigationRailBaselineItemTokens.ContainerHeight
+private val WNRHeaderPadding: Dp
+    get() = NavigationRailBaselineItemTokens.HeaderSpaceMinimum
+private val CollapsedRailWidth
+    get() = NavigationRailCollapsedTokens.ContainerWidth
+private val ExpandedRailMinWidth
+    get() = NavigationRailExpandedTokens.ContainerWidthMinimum
+private val ExpandedRailMaxWidth
+    get() = NavigationRailExpandedTokens.ContainerWidthMaximum
+private val TopIconItemMinHeight
+    get() = NavigationRailBaselineItemTokens.ContainerHeight
 private val ItemTopIconIndicatorVerticalPadding =
     (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
         NavigationRailBaselineItemTokens.IconSize) / 2
@@ -1423,8 +1430,10 @@ private val ItemTopIconIndicatorHorizontalPadding =
 private val ItemStartIconIndicatorVerticalPadding =
     (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
         NavigationRailBaselineItemTokens.IconSize) / 2
-private val PredictiveBackMaxScaleXDistance = 24.dp
-private val PredictiveBackMaxScaleYDistance = 48.dp
+private val PredictiveBackMaxScaleXDistance
+    get() = 24.dp
+private val PredictiveBackMaxScaleYDistance
+    get() = 48.dp
 
 private const val PredictiveBackPivotFractionY = 0.5f
 private const val HeaderLayoutIdTag: String = "header"

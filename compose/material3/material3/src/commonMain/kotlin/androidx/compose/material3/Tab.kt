@@ -417,22 +417,29 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
 }
 
 // Tab specifications
-private val SmallTabHeight = PrimaryNavigationTabTokens.ContainerHeight
-private val LargeTabHeight = 72.dp
+private val SmallTabHeight
+    get() = PrimaryNavigationTabTokens.ContainerHeight
+private val LargeTabHeight
+    get() = 72.dp
 
 // The horizontal padding on the left and right of text
-internal val HorizontalTextPadding = 16.dp
+internal val HorizontalTextPadding
+    get() = 16.dp
 
 // Distance from the top of the indicator to the text baseline when there is one line of text and an
 // icon
-private val SingleLineTextBaselineWithIcon = 14.dp
+private val SingleLineTextBaselineWithIcon
+    get() = 14.dp
 
 // Distance from the top of the indicator to the last text baseline when there are two lines of text
 // and an icon
-private val DoubleLineTextBaselineWithIcon = 6.dp
+private val DoubleLineTextBaselineWithIcon
+    get() = 6.dp
 
 // Distance from the first text baseline to the bottom of the icon in a combined tab
-private val IconDistanceFromBaseline = 20.sp
+private val IconDistanceFromBaseline
+    get() = 20.sp
 
 // Distance from the end of the leading icon to the start of the text
-private val TextDistanceFromLeadingIcon = 8.dp
+private val TextDistanceFromLeadingIcon
+    get() = 8.dp

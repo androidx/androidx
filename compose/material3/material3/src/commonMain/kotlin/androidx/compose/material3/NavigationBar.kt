@@ -755,13 +755,16 @@ private const val IconLayoutIdTag: String = "icon"
 
 private const val LabelLayoutIdTag: String = "label"
 
-private val NavigationBarHeight: Dp = NavigationBarTokens.TallContainerHeight
+private val NavigationBarHeight: Dp
+    get() = NavigationBarTokens.TallContainerHeight
 
 /*@VisibleForTesting*/
-internal val NavigationBarItemHorizontalPadding: Dp = 8.dp
+internal val NavigationBarItemHorizontalPadding: Dp
+    get() = 8.dp
 
 /*@VisibleForTesting*/
-internal val NavigationBarIndicatorToLabelPadding: Dp = 4.dp
+internal val NavigationBarIndicatorToLabelPadding: Dp
+    get() = 4.dp
 
 private val IndicatorHorizontalPadding: Dp =
     (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
@@ -772,10 +775,12 @@ internal val IndicatorVerticalPadding: Dp =
     (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
         NavigationBarVerticalItemTokens.IconSize) / 2
 
-private val IndicatorVerticalOffset: Dp = 12.dp
+private val IndicatorVerticalOffset: Dp
+    get() = 12.dp
 
 /*@VisibleForTesting*/
-internal val NavigationBarItemToIconMinimumPadding: Dp = 44.dp
+internal val NavigationBarItemToIconMinimumPadding: Dp
+    get() = 44.dp
 
 /**
  * Interface that allows libraries to override the behavior of the [NavigationBar] component.

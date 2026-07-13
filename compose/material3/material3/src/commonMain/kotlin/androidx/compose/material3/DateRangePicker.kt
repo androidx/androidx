@@ -1149,4 +1149,5 @@ private val DateRangePickerHeadlinePadding =
 // An offset that is applied to the token value for the RangeSelectionHeaderContainerHeight. The
 // implementation does not render a "Save" and "X" buttons by default, so we don't take those into
 // account when setting the header's max height.
-private val HeaderHeightOffset = 60.dp
+private val HeaderHeightOffset
+    get() = 60.dp
