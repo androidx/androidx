@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import kotlin.jvm.JvmInline
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -556,21 +557,11 @@ internal fun Modifier.carouselItem(
             }
 
         val placeable = measurable.measure(itemConstraints)
-        // We always want to make the current item be the one at the front.
-        // Elevate the current page's zIndex to 2f to prevent a tie with adjacent items
-        // (which can have a zIndex of 1f), ensuring the current page is always drawn on top.
-        val itemZIndex =
-            if (index == state.pagerState.currentPage) {
-                2f
-            } else {
-                if (index == 0) {
-                    0f
-                } else {
-                    // Other items should go in reverse placement order, that is, the ones with the
-                    // higher indices should behind the ones with lower indices.
-                    1f / index.toFloat()
-                }
-            }
+        // We always want to make the current focal item be the one at the front.
+        // Items to the left and right of the focal item should descend progressively in zIndex
+        // based on their distance from the focal item.
+        val distance = abs(index - state.pagerState.currentPage)
+        val itemZIndex = 1f / (1 + distance)
 
         val width = placeable.width.toFloat()
         val height = placeable.height.toFloat()
