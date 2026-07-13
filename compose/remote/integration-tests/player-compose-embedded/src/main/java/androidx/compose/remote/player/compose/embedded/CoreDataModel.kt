@@ -97,26 +97,6 @@ internal data class DrawTweenPathData(
     val stop: Float,
 )
 
-internal data class ParticlesLoopData(
-    val outEquations: IntArray?,
-    val exp: Any?,
-    val outRestart: FloatArray?,
-    val source: Any?,
-)
-
-internal data class ParticlesCompareData(
-    val source: Any?,
-    val exp: Any?,
-    val expression: Any?,
-    val outExpression: FloatArray?,
-    val equations1: IntArray?,
-    val outEquations1: IntArray?,
-    val equations2: IntArray?,
-    val outEquations2: IntArray?,
-    val outMin: FloatArray?,
-    val outMax: FloatArray?,
-)
-
 internal data class ConditionalOperationsData(
     val varAOut: Float,
     val varBOut: Float,
