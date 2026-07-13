@@ -53,7 +53,8 @@ androidXMultiplatform {
             implementation(project(":compose:material3:material3-ripple"))
             api("androidx.compose.runtime:runtime:1.12.0-beta01")
             api("androidx.compose.ui:ui:1.12.0-beta01")
-            api("androidx.compose.foundation:foundation:1.12.0-beta01")
+            // Unpinning to use Pager's bringIntoView param
+            api(project(":compose:foundation:foundation"))
             api("androidx.compose.ui:ui-text:1.12.0-beta01")
             api("androidx.graphics:graphics-shapes:1.0.1")
         }
