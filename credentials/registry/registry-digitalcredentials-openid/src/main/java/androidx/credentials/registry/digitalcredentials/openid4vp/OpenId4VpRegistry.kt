@@ -17,6 +17,8 @@
 package androidx.credentials.registry.digitalcredentials.openid4vp
 
 import android.graphics.Bitmap
+import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocEntry
 import androidx.credentials.registry.digitalcredentials.mdoc.MdocInlineIssuanceEntry
 import androidx.credentials.registry.digitalcredentials.openid4vp.OpenId4VpDefaults.DEFAULT_MATCHER
@@ -48,8 +50,8 @@ import org.json.JSONObject
  * use cases (most often you only need one) so that you can later use them to update the same
  * registry record.
  *
- * If both [credentialEntries] and [inlineIssuanceEntries], the registry will never be used to
- * answer a request.
+ * If both [credentialEntries] and [inlineIssuanceEntries] are empty, the registry will never be
+ * used to answer a request.
  *
  * @param credentialEntries the list of entries to register
  * @param id the unique id for this registry
@@ -61,6 +63,12 @@ import org.json.JSONObject
  *   different registries
  * @param inlineIssuanceEntries the list of inline issuance entries to add the user credentials on
  *   the fly, if applicable
+ * @param supportedProtocols an ordered list of [OpenId4VpProtocol] identifiers that your registry
+ *   supports, in descending order of preference (highest priority first). When an incoming
+ *   OpenID4VP request is received, the system evaluates it against each protocol in this list
+ *   sequentially, stopping immediately on the first successful match. Any protocol not included in
+ *   this list is strictly ignored. Defaults to [PROTOCOL_OPENID4VP_1_0_SIGNED],
+ *   [PROTOCOL_OPENID4VP_1_0_UNSIGNED], and [PROTOCOL_OPENID4VP_1_0_MULTISIGNED]
  * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64 characters
  */
 public class OpenId4VpRegistry
@@ -70,16 +78,45 @@ public constructor(
     id: String,
     intentAction: String = RegistryManager.ACTION_GET_CREDENTIAL,
     inlineIssuanceEntries: List<InlineIssuanceEntry> = emptyList(),
+    supportedProtocols: List<@OpenId4VpProtocol String> =
+        listOf(
+            PROTOCOL_OPENID4VP_1_0_SIGNED,
+            PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+            PROTOCOL_OPENID4VP_1_0_MULTISIGNED,
+        ),
 ) :
     DigitalCredentialRegistry(
         id = id,
-        credentials = toCredentialBytes(credentialEntries, inlineIssuanceEntries),
+        credentials =
+            toCredentialBytes(credentialEntries, inlineIssuanceEntries, supportedProtocols),
         matcher = DEFAULT_MATCHER,
         intentAction = intentAction,
     ) {
 
-    private companion object {
+    /** Protocol type for OpenID4VP registration. */
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @StringDef(
+        value =
+            [
+                PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+                PROTOCOL_OPENID4VP_1_0_SIGNED,
+                PROTOCOL_OPENID4VP_1_0_MULTISIGNED,
+            ]
+    )
+    public annotation class OpenId4VpProtocol
+
+    public companion object {
+        /** OpenID4VP 1.0 unsigned protocol identifier. */
+        public const val PROTOCOL_OPENID4VP_1_0_UNSIGNED: String = "openid4vp-v1-unsigned"
+        /** OpenID4VP 1.0 signed protocol identifier. */
+        public const val PROTOCOL_OPENID4VP_1_0_SIGNED: String = "openid4vp-v1-signed"
+        /** OpenID4VP 1.0 multi-signed protocol identifier. */
+        public const val PROTOCOL_OPENID4VP_1_0_MULTISIGNED: String = "openid4vp-v1-multisigned"
+
         private const val CREDENTIALS = "credentials"
+        private const val SUPPORTED_PROTOCOLS = "supported_protocols"
         private const val ID = "id"
         private const val TITLE = "title"
         private const val SUBTITLE = "subtitle"
@@ -205,15 +242,20 @@ public constructor(
          * Turn the credential entries into a structure understood by the default matcher.
          *
          * The OpenID4VP credential registry has the following format:
-         *
-         * |---------------------------------------| |--- (Int) offset of credential json ---|
-         * |--------- (Byte Array) Icon 1 ---------| |--------- (Byte Array) Icon 2 ---------|
-         * |------------- More Icons... -----------| |----------- Credential Json -----------|
+         * <pre>
          * |---------------------------------------|
+         * |--- (Int) offset of credential json ---|
+         * |--------- (Byte Array) Icon 1 ---------|
+         * |--------- (Byte Array) Icon 2 ---------|
+         * |------------- More Icons... -----------|
+         * |----------- Credential Json -----------|
+         * |---------------------------------------|
+         * </pre>
          */
         private fun toCredentialBytes(
             credentialEntries: List<DigitalCredentialEntry>,
             inlineIssuanceEntries: List<InlineIssuanceEntry>,
+            supportedProtocols: List<String>,
         ): ByteArray {
             val out = ByteArrayOutputStream()
 
@@ -373,6 +415,7 @@ public constructor(
             registryCredentials.put(ISSUANCE, inlineIssuanceCredentials)
             val registryJson = JSONObject()
             registryJson.put(CREDENTIALS, registryCredentials)
+            registryJson.put(SUPPORTED_PROTOCOLS, JSONArray(supportedProtocols))
             out.write(registryJson.toString().toByteArray())
             return out.toByteArray()
         }
