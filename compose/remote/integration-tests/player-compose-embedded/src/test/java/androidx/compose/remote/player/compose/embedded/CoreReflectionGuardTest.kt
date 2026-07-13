@@ -114,22 +114,10 @@ class CoreReflectionGuardTest {
             "$managers.RowLayout" to listOf("mSpacedBy"),
             "$managers.ColumnLayout" to listOf("mSpacedBy"),
             "$managers.Custom" to listOf("mConfig", "mConfigId", "mProperties"),
-            "$ops.ParticlesLoop" to
-                listOf("mOutEquations", "mExp", "mOutRestart", "mParticlesSource"),
+            // Particle rendering is bridged to the core paint() implementations; only the
+            // loop's source is read reflectively (for the once-per-document seeding).
+            "$ops.ParticlesLoop" to listOf("mParticlesSource"),
             "$ops.ConditionalOperations" to listOf("mVarAOut", "mVarBOut", "mType"),
-            "$ops.ParticlesCompare" to
-                listOf(
-                    "mParticlesSource",
-                    "mExp",
-                    "mExpression",
-                    "mOutExpression",
-                    "mEquations1",
-                    "mOutEquations1",
-                    "mEquations2",
-                    "mOutEquations2",
-                    "mOutMin",
-                    "mOutMax",
-                ),
             "$ops.layout.LoopOperation" to
                 listOf("mFromOut", "mUntilOut", "mStepOut", "mIndexVariableId"),
             "$ops.FloatFunctionCall" to listOf("mFunction", "mOutArgs"),

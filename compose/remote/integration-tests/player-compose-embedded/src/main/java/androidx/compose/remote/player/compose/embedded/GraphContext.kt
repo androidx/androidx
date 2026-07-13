@@ -71,6 +71,16 @@ internal class GraphContext(
     private val states = java.util.concurrent.ConcurrentHashMap<Int, State<Any?>>()
 
     /**
+     * Particle loops whose state has been seeded (keyed by op identity). Lives here because the
+     * GraphContext is the per-document Compose-side runtime state, remembered across frames — the
+     * particle simulation (see RcPlayerParticles) needs persistent state but runs from the draw
+     * pass, which isn't a composable.
+     */
+    @Suppress("BanConcurrentHashMap")
+    internal val particlesInitialized: MutableSet<Int> =
+        java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /**
      * The active [RcImageLoader], set by [RcPlayer]. Lives here because the canvas draw path (which
      * isn't a composable, so can't read [LocalRcImageLoader]) needs it to resolve document image
      * draws through the same pluggable loader the composable Image layout uses.

@@ -31,7 +31,6 @@ import androidx.compose.remote.core.operations.DrawTextOnPath
 import androidx.compose.remote.core.operations.DrawToBitmap
 import androidx.compose.remote.core.operations.DrawTweenPath
 import androidx.compose.remote.core.operations.FloatFunctionCall
-import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.TouchExpression
@@ -167,33 +166,13 @@ internal fun DrawTweenPath.readData(): DrawTweenPathData {
     )
 }
 
-internal fun ParticlesLoop.readData(): ParticlesLoopData {
-    return ParticlesLoopData(
-        outEquations = plOutEquationsField.get(this) as? IntArray,
-        exp = plExpField.get(this),
-        outRestart = plOutRestartField.get(this) as? FloatArray,
-        source = plSourceField.get(this),
-    )
-}
-
-internal fun ParticlesCreate.initializeParticle(particleId: Int) {
-    pcInitializeParticleMethod.invoke(this, particleId)
-}
-
-internal fun ParticlesCompare.readData(): ParticlesCompareData {
-    return ParticlesCompareData(
-        source = pcmpSourceField.get(this),
-        exp = pcmpExpField.get(this),
-        expression = pcmpExpressionField.get(this),
-        outExpression = pcmpOutExpressionField.get(this) as? FloatArray,
-        equations1 = pcmpEquations1Field.get(this) as? IntArray,
-        outEquations1 = pcmpOutEquations1Field.get(this) as? IntArray,
-        equations2 = pcmpEquations2Field.get(this) as? IntArray,
-        outEquations2 = pcmpOutEquations2Field.get(this) as? IntArray,
-        outMin = pcmpOutMinField.get(this) as? FloatArray,
-        outMax = pcmpOutMaxField.get(this) as? FloatArray,
-    )
-}
+/**
+ * The [ParticlesCreate] op a [ParticlesLoop] draws from. Particle *rendering* is bridged to the
+ * core implementation (see RcPlayerParticles); the player only needs the source to run the core
+ * seeding path once per document.
+ */
+internal val ParticlesLoop.particlesSourceReflection: ParticlesCreate?
+    get() = plSourceField.get(this) as? ParticlesCreate
 
 internal fun ConditionalOperations.readData(): ConditionalOperationsData {
     return ConditionalOperationsData(
@@ -368,41 +347,8 @@ private val dtpOutStartField =
 private val dtpOutStopField =
     DrawTweenPath::class.java.getDeclaredField("mOutStop").apply { isAccessible = true }
 
-private val plOutEquationsField =
-    ParticlesLoop::class.java.getDeclaredField("mOutEquations").apply { isAccessible = true }
-private val plExpField =
-    ParticlesLoop::class.java.getDeclaredField("mExp").apply { isAccessible = true }
-private val plOutRestartField =
-    ParticlesLoop::class.java.getDeclaredField("mOutRestart").apply { isAccessible = true }
 private val plSourceField =
     ParticlesLoop::class.java.getDeclaredField("mParticlesSource").apply { isAccessible = true }
-
-private val pcInitializeParticleMethod =
-    ParticlesCreate::class
-        .java
-        .getDeclaredMethod("initializeParticle", Int::class.javaPrimitiveType)
-        .apply { isAccessible = true }
-
-private val pcmpSourceField =
-    ParticlesCompare::class.java.getDeclaredField("mParticlesSource").apply { isAccessible = true }
-private val pcmpExpField =
-    ParticlesCompare::class.java.getDeclaredField("mExp").apply { isAccessible = true }
-private val pcmpExpressionField =
-    ParticlesCompare::class.java.getDeclaredField("mExpression").apply { isAccessible = true }
-private val pcmpOutExpressionField =
-    ParticlesCompare::class.java.getDeclaredField("mOutExpression").apply { isAccessible = true }
-private val pcmpEquations1Field =
-    ParticlesCompare::class.java.getDeclaredField("mEquations1").apply { isAccessible = true }
-private val pcmpOutEquations1Field =
-    ParticlesCompare::class.java.getDeclaredField("mOutEquations1").apply { isAccessible = true }
-private val pcmpEquations2Field =
-    ParticlesCompare::class.java.getDeclaredField("mEquations2").apply { isAccessible = true }
-private val pcmpOutEquations2Field =
-    ParticlesCompare::class.java.getDeclaredField("mOutEquations2").apply { isAccessible = true }
-private val pcmpOutMinField =
-    ParticlesCompare::class.java.getDeclaredField("mOutMin").apply { isAccessible = true }
-private val pcmpOutMaxField =
-    ParticlesCompare::class.java.getDeclaredField("mOutMax").apply { isAccessible = true }
 
 private val condAOutField =
     ConditionalOperations::class.java.getDeclaredField("mVarAOut").apply { isAccessible = true }
