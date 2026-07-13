@@ -819,6 +819,48 @@ class OpenId4VpRegistryTest {
         assertThat(issuanceJson.has("icon")).isFalse()
     }
 
+    @Test
+    fun construction_defaultSupportedProtocols() {
+        val registry = OpenId4VpRegistry(credentialEntries = emptyList(), id = "id")
+
+        val (json, _) = parseCredentialBytes(registry.credentials)
+        assertThat(json.has("supported_protocols")).isTrue()
+        val supportedProtocols = json.getJSONArray("supported_protocols")
+        val actualProtocols = List(supportedProtocols.length()) { supportedProtocols.getString(it) }
+        assertThat(actualProtocols)
+            .containsExactly(
+                OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_SIGNED,
+                OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+                OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_MULTISIGNED,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun construction_customSupportedProtocols() {
+        val registry =
+            OpenId4VpRegistry(
+                credentialEntries = emptyList(),
+                id = "id",
+                supportedProtocols =
+                    listOf(
+                        OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_SIGNED,
+                        OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+                    ),
+            )
+
+        val (json, _) = parseCredentialBytes(registry.credentials)
+        assertThat(json.has("supported_protocols")).isTrue()
+        val supportedProtocols = json.getJSONArray("supported_protocols")
+        val actualProtocols = List(supportedProtocols.length()) { supportedProtocols.getString(it) }
+        assertThat(actualProtocols)
+            .containsExactly(
+                OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_SIGNED,
+                OpenId4VpRegistry.PROTOCOL_OPENID4VP_1_0_UNSIGNED,
+            )
+            .inOrder()
+    }
+
     /** Helper to parse the custom byte format into a JSON object and a map of icon bytes. */
     private fun parseCredentialBytes(bytes: ByteArray): Pair<JSONObject, Map<String, ByteArray>> {
         val inputStream = ByteArrayInputStream(bytes)
