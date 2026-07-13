@@ -28,7 +28,6 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.graph2dDoc
 private val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug")
 
 /** Ribbon / band chart: a line with a shaded confidence band. */
-@Suppress("RestrictedApiAndroidX")
 @SuppressLint("PrimitiveInCollection", "deprecation", "UnknownNullness")
 public fun graph2dBand(): ByteArray {
     val center = listOf(50, 53, 49, 55, 60, 58, 63, 66)
@@ -47,7 +46,6 @@ public fun graph2dBand(): ByteArray {
 }
 
 /** Fan chart: a median forecast with nested 50 / 80 / 95% bands that widen over the horizon. */
-@Suppress("RestrictedApiAndroidX")
 @SuppressLint("PrimitiveInCollection", "deprecation", "UnknownNullness")
 fun graph2dFan(): ByteArray {
     val median = listOf(60, 62, 63, 65, 67, 70, 72, 75)
@@ -66,7 +64,6 @@ fun graph2dFan(): ByteArray {
 }
 
 /** Error-bar chart: measurements with ± uncertainty. */
-@Suppress("RestrictedApiAndroidX")
 fun graph2dErrorBar(): ByteArray =
     graph2dDoc(800, 500, "Measurements") {
         errorBarChart(
@@ -79,7 +76,6 @@ fun graph2dErrorBar(): ByteArray =
     }
 
 /** Forest plot: meta-analysis effect estimates with confidence intervals vs a reference. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dForest(): ByteArray =
     graph2dDoc(820, 520, "Meta-analysis") {
         forestPlot(

@@ -191,7 +191,10 @@ const val DEFAULT_DEBUG_REMOTE_COMPOSE = false
 const val DELAY_IN_MS = 2000L
 var INSTANT_RESIZE = false
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 fun launcherDoc(): RemoteComposeBuffer {
     return ExperimentRecyclerActivity.sCurrentBuffer
 }
@@ -207,7 +210,10 @@ class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
     private var buildTime: Float = 0f
 
     @Composable
-    @Suppress("RestrictedApiAndroidX")
+    @Suppress(
+        "RestrictedApiAndroidX"
+    ) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core,
+    // remote-creation, remote-creation-core, remote-player-core, remote-player-view
     override fun getDoc(): MutableState<CoreDocument?> {
         val time = System.nanoTime()
         val doc = RemoteDocument(ByteArrayInputStream(data, 0, data.size))
@@ -231,7 +237,10 @@ class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 fun getComposeDoc(
     context: Context,
     name: String,
@@ -325,7 +334,10 @@ fun getComposeDoc(
 }
 
 /** Display a list of samples and run them */
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 class ExperimentActivity : ComponentActivity() {
     val composeKey = "USE_COMPOSE"
     val showComposeKey = "SHOW_COMPOSE"
@@ -819,7 +831,10 @@ class ExperimentActivity : ComponentActivity() {
 }
 
 // ===============================end activity===================================
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, context: Context) {
     val orientation = LocalConfiguration.current.orientation
@@ -877,7 +892,10 @@ inline fun <reified Activity : ComponentActivity> Context.getActivity(): Activit
 
 val shaderControl: (String) -> Boolean = { true }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 private fun DocumentView(
     documentWidth: MutableState<Int>,
@@ -1013,7 +1031,10 @@ private fun DocumentView(
 }
 
 @SuppressLint("AutoboxingStateValueProperty")
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
     if (fileReady) {
@@ -1138,7 +1159,10 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
     if (fileReady) {
@@ -1188,7 +1212,10 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 fun DisplayMain(
     fileReady: Boolean,
@@ -1263,7 +1290,10 @@ fun DisplayMain(
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 interface RemoteComposeFunc {
     @Composable fun Run()
 
@@ -1276,7 +1306,10 @@ interface RemoteComposeFunc {
     fun getBuildTime(): Float
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 @Composable
 fun RemoteComposableMenu(
     map: List<RemoteComposeFunc>,
@@ -1373,19 +1406,28 @@ fun toRcColor(str: String, sat: Float = .5f): Color {
     return c
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 fun docSize(doc: CoreDocument): Int {
     val wb = doc.buffer.buffer
     val len = wb.size
     return len
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 fun build(doc: RemoteComposeFunc): Float {
     return doc.getBuildTime()
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
+// remote-creation-core, remote-player-core, remote-player-view
 fun compressDocSize(doc: CoreDocument): Int {
     val wb = doc.buffer.buffer
     val len = wb.size

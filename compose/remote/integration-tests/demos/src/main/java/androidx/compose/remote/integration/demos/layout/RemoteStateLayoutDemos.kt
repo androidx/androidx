@@ -35,9 +35,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.runtime.Composable
@@ -100,10 +101,10 @@ fun RemoteStateLayoutSimpleDemo() {
                         else -> Color.Black
                     }
                 RemoteBox(
-                    modifier = RemoteModifier.size(RemoteDp(100.dp)).background(RemoteColor(color)),
+                    modifier = RemoteModifier.size(RemoteDp(100.dp)).background(color.rc),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText(text = "$state", fontSize = 18.rsp)
+                    RemoteText(text = "$state".rs, fontSize = 18.rsp)
                 }
             }
         }

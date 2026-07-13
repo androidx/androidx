@@ -42,7 +42,7 @@ import kotlinx.coroutines.delay
     "RestrictedApiAndroidX",
     "COMPOSE_APPLIER_CALL_MISMATCH",
     "COMPOSE_APPLIER_PARAMETER_MISMATCH",
-)
+) // Referring to RemoteCreationDisplayInfo, remote-player-view
 class DumperActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +120,7 @@ class DumperActivity : ComponentActivity() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteCreationDisplayInfo, remote-player-view
 @Composable
 fun RemoteComposePlayAndDump(
     sample: DumperSample,

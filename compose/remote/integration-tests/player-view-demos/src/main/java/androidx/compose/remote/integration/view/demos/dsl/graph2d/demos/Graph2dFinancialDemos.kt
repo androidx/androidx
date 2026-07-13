@@ -26,7 +26,6 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.waterfallC
 /** Phase 5 demos — financial / ranking charts (waterfall, funnel, bullet, Pareto). */
 
 /** Waterfall (bridge): a running cumulative with up/down steps and a total bar. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dWaterfall(): ByteArray =
     graph2dDoc(820, 520, "Revenue Bridge") {
         waterfallChart(
@@ -44,7 +43,6 @@ public fun graph2dWaterfall(): ByteArray =
     }
 
 /** Funnel: stage-by-stage drop-off. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dFunnel(): ByteArray =
     graph2dDoc(720, 560, "Conversion Funnel") {
         funnelChart(
@@ -61,7 +59,6 @@ public fun graph2dFunnel(): ByteArray =
     }
 
 /** Bullet chart: KPI rows vs target and qualitative ranges. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dBullet(): ByteArray =
     graph2dDoc(760, 420, "KPIs vs Target") {
         bulletChart(
@@ -77,7 +74,6 @@ public fun graph2dBullet(): ByteArray =
     }
 
 /** Pareto: sorted bars + cumulative percentage line. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dPareto(): ByteArray =
     graph2dDoc(820, 520, "Defect Causes") {
         paretoChart(
