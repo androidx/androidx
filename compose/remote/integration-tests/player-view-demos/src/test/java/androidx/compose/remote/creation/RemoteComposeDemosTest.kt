@@ -1123,6 +1123,31 @@ class RemoteComposeDemosTest {
     }
 
     @Test
+    fun testRcJsonMaterialToggleButtonMacroDemoParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("material_toggle_button_macro.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "MaterialToggleButtonMacro buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+        val doc = RemoteDocument(jsonBytes)
+        val rootComp = doc.document.rootLayoutComponent
+        org.junit.Assert.assertNotNull("Root component should not be null", rootComp)
+
+        val bgOp =
+            findInComponentTree(rootComp!!) { op ->
+                op is
+                    androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
+            }
+        org.junit.Assert.assertTrue(
+            "BackgroundModifierOperation should exist in the parsed document",
+            bgOp,
+        )
+    }
+
+    @Test
     fun testRcJsonWatchfaceParsing() {
         val platform = MockPlatform()
         val json = loadAssetJson("watchface.json")
@@ -1210,6 +1235,77 @@ class RemoteComposeDemosTest {
             "PressureGauge buffer should not be empty",
             jsonBytes.isNotEmpty(),
         )
+    }
+
+    @Test
+    fun testRcJsonMaterialToggleButtonParsing() {
+        val platform = MockPlatform()
+        val json = loadAssetJson("material_toggle_button.json")
+        val jsonBuffer = RemoteComposeJsonParser.parse(json, platform)
+        val jsonBytes = jsonBuffer.array()
+        org.junit.Assert.assertTrue(
+            "MaterialToggleButton buffer should not be empty",
+            jsonBytes.isNotEmpty(),
+        )
+        val doc = RemoteDocument(jsonBytes)
+        val rootComp = doc.document.rootLayoutComponent
+        org.junit.Assert.assertNotNull("Root component should not be null", rootComp)
+        val hasStateLayout =
+            findInComponentTree(rootComp!!) { op ->
+                op is androidx.compose.remote.core.operations.layout.managers.StateLayout
+            }
+        org.junit.Assert.assertTrue("Should contain StateLayout in component tree", hasStateLayout)
+
+        val hasActionOp =
+            findInComponentTree(rootComp) { op ->
+                op.toString().contains("ValueIntegerExpressionChangeActionOperation")
+            }
+        org.junit.Assert.assertTrue(
+            "Should contain ValueIntegerExpressionChangeActionOperation in component tree",
+            hasActionOp,
+        )
+    }
+
+    private fun findInComponentTree(
+        component: androidx.compose.remote.core.operations.layout.Component,
+        predicate: (androidx.compose.remote.core.Operation) -> Boolean,
+    ): Boolean {
+        for (op in component.mList) {
+            if (predicate(op)) return true
+            if (op.toString().contains("ValueIntegerExpressionChangeActionOperation")) return true
+            if (
+                op is androidx.compose.remote.core.operations.layout.Component &&
+                    findInComponentTree(op, predicate)
+            )
+                return true
+            if (
+                op is androidx.compose.remote.core.operations.layout.Container &&
+                    findInContainer(op, predicate)
+            )
+                return true
+        }
+        return false
+    }
+
+    private fun findInContainer(
+        container: androidx.compose.remote.core.operations.layout.Container,
+        predicate: (androidx.compose.remote.core.Operation) -> Boolean,
+    ): Boolean {
+        for (op in container.list) {
+            if (predicate(op)) return true
+            if (op.toString().contains("ValueIntegerExpressionChangeActionOperation")) return true
+            if (
+                op is androidx.compose.remote.core.operations.layout.Component &&
+                    findInComponentTree(op, predicate)
+            )
+                return true
+            if (
+                op is androidx.compose.remote.core.operations.layout.Container &&
+                    findInContainer(op, predicate)
+            )
+                return true
+        }
+        return false
     }
 }
 

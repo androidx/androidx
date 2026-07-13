@@ -140,6 +140,7 @@ import androidx.compose.remote.integration.view.demos.examples.rcJsonGraphs2
 import androidx.compose.remote.integration.view.demos.examples.rcJsonLinearRegression
 import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonMacroLocalDemo
+import androidx.compose.remote.integration.view.demos.examples.rcJsonMaterialToggleButtonMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.rcJsonParticleSphere
 import androidx.compose.remote.integration.view.demos.examples.rcJsonPressureGauge
 import androidx.compose.remote.integration.view.demos.examples.rcJsonReferencedOperationsMacroDemo
@@ -410,6 +411,7 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Macro Inclusion") { RcReferencedOperationsMacroDemo() },
                     getpc("Style Macros") { RcStyleMacroDemo() },
                     getpc("JSON Macros") { rcJsonMacroDemo() },
+                    getpc("JSON Button Toggle Macro") { rcJsonMaterialToggleButtonMacroDemo() },
                     getpc("JSON Local Macros") { rcJsonMacroLocalDemo() },
                     getpc("JSON Macro Inclusion") { rcJsonReferencedOperationsMacroDemo() },
                     getpc("JSON Style Macros") { rcJsonStyleMacroDemo() },

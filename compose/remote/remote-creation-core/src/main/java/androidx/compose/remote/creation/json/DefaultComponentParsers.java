@@ -136,8 +136,9 @@ class DefaultComponentParsers {
         p.registerComponentParser("stateLayout", (component, modifier, writer, parser) -> {
             Object idxObj = component.has("indexId") ? component.get("indexId")
                     : (component.has("stateId") ? component.get("stateId")
-                    : component.get("index"));
-            int indexId = parser.resolveTextId(idxObj);
+                    : (component.has("index") ? component.get("index")
+                    : component.get("stateIndex")));
+            int indexId = parser.resolveIntegerId(idxObj);
             writer.startStateLayout(modifier, indexId);
             parser.parseChildren(component.optJSONArray("children"));
             writer.endStateLayout();

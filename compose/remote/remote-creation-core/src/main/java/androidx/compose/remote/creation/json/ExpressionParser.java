@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
+import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.json.JSONException;
@@ -108,8 +109,7 @@ class ExpressionParser {
         Stack<String> stack = new Stack<>();
         String[] tokens = tokenize(expression);
         if (DEBUG) {
-            System.out.println("### infixToRpn tokens: "
-                    + java.util.Arrays.toString(tokens));
+            System.out.println("### infixToRpn tokens: " + java.util.Arrays.toString(tokens));
         }
         boolean lastWasOperator = true;
 
@@ -223,10 +223,8 @@ class ExpressionParser {
             String t = tokens.get(i);
             if (t.equals("-") && i + 1 < tokens.size() && isNumber(tokens.get(i + 1))) {
                 String prev = merged.isEmpty() ? null : merged.get(merged.size() - 1);
-                boolean isUnary = prev == null
-                        || prev.equals("(")
-                        || prev.equals(",")
-                        || (prev.length() == 1 && isOperator(prev));
+                boolean isUnary = prev == null || prev.equals("(") || prev.equals(",") || (
+                        prev.length() == 1 && isOperator(prev));
                 if (isUnary) {
                     merged.add("-" + tokens.get(i + 1));
                     i++;
@@ -268,20 +266,18 @@ class ExpressionParser {
         if (mParser.mVariables.containsKey(token)) return true;
         if (mParser.mDeferredVariables.containsKey(token)) return true;
         if (mParser.mEmittedVariables.containsKey(token)) return true;
-        return token.equals("time") || token.equals("seconds")
-                || token.equals("timeInHr") || token.equals("timeInHr()")
-                || token.equals("timeInMin") || token.equals("timeInMin()")
-                || token.equals("timeInSec") || token.equals("timeInSec()")
-                || token.equals("continuousSec") || token.equals("continuousSec()")
-                || token.equals("width") || token.equals("height")
-                || token.equals("windowWidth") || token.equals("windowHeight")
-                || token.equals("windowWidth()") || token.equals("windowHeight()")
+        return token.equals("time") || token.equals("seconds") || token.equals("timeInHr")
+                || token.equals("timeInHr()") || token.equals("timeInMin") || token.equals(
+                "timeInMin()") || token.equals("timeInSec") || token.equals("timeInSec()")
+                || token.equals("continuousSec") || token.equals("continuousSec()") || token.equals(
+                "width") || token.equals("height") || token.equals("windowWidth") || token.equals(
+                "windowHeight") || token.equals("windowWidth()") || token.equals("windowHeight()")
                 || token.equals("componentWidth") || token.equals("componentHeight")
                 || token.equals("componentWidth()") || token.equals("componentHeight()")
                 || token.equals("touchX") || token.equals("touchY") || token.equals("fontSize")
-                || token.equals("animationTime") || token.equals("touchTime")
-                || token.equals("density") || token.equals("a[0]") || token.equals("a[1]")
-                || token.equals("a[2]") || token.equals("rand") || token.equals("rand()");
+                || token.equals("animationTime") || token.equals("touchTime") || token.equals(
+                "density") || token.equals("a[0]") || token.equals("a[1]") || token.equals("a[2]")
+                || token.equals("rand") || token.equals("rand()");
     }
 
     /**
@@ -292,9 +288,12 @@ class ExpressionParser {
      */
     public float getVariableNan(String token) {
         switch (token) {
-            case "a[0]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 70);
-            case "a[1]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 71);
-            case "a[2]": return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);
+            case "a[0]":
+                return Utils.asNan(AnimatedFloatExpression.OFFSET + 70);
+            case "a[1]":
+                return Utils.asNan(AnimatedFloatExpression.OFFSET + 71);
+            case "a[2]":
+                return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);
             case "time":
             case "continuousSec":
             case "continuousSec()":
@@ -323,24 +322,38 @@ class ExpressionParser {
             case "componentHeight":
             case "componentHeight()":
                 return mWriter.addComponentHeightValue();
-            case "touchX": return Utils.asNan(RemoteContext.ID_TOUCH_POS_X);
-            case "touchY": return Utils.asNan(RemoteContext.ID_TOUCH_POS_Y);
-            case "fontSize": return Utils.asNan(33 /* ID_FONT_SIZE */);
-            case "animationTime": return Utils.asNan(30 /* ID_ANIMATION_TIME */);
-            case "touchTime": return Utils.asNan(29 /* ID_TOUCH_EVENT_TIME */);
-            case "density": return Utils.asNan(27 /* ID_DENSITY */);
+            case "touchX":
+                return Utils.asNan(RemoteContext.ID_TOUCH_POS_X);
+            case "touchY":
+                return Utils.asNan(RemoteContext.ID_TOUCH_POS_Y);
+            case "fontSize":
+                return Utils.asNan(33 /* ID_FONT_SIZE */);
+            case "animationTime":
+                return Utils.asNan(30 /* ID_ANIMATION_TIME */);
+            case "touchTime":
+                return Utils.asNan(29 /* ID_TOUCH_EVENT_TIME */);
+            case "density":
+                return Utils.asNan(27 /* ID_DENSITY */);
             case "rand":
             case "rand()":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 39);
             default:
                 if (RemoteComposeJsonParser.isVariableRef(token)) {
                     String name = RemoteComposeJsonParser.getVariableNameFromRef(token);
+                    if (mParser.mIntegerVariables.containsKey(name)) {
+                        long intId = mParser.mIntegerVariables.get(name);
+                        return Utils.asNan((int) (intId & 0xFFFFFFFFL));
+                    }
                     Float id = mParser.mVariables.get(name);
                     if (id != null) return id;
                     if (mParser.mDeferredVariables.containsKey(name)) {
                         return mParser.resolveDeferredVariable(name);
                     }
                     throw new JSONException("Variable not found: " + name);
+                }
+                if (mParser.mIntegerVariables.containsKey(token)) {
+                    long intId = mParser.mIntegerVariables.get(token);
+                    return Utils.asNan((int) (intId & 0xFFFFFFFFL));
                 }
                 if (mParser.mVariables.containsKey(token)) {
                     return mParser.mVariables.get(token);
@@ -352,97 +365,296 @@ class ExpressionParser {
         }
     }
 
+    public long parseIntegerExpression(@NonNull String expression) {
+        List<Object> rpn = infixToIntegerRpn(expression);
+        long[] ops = new long[rpn.size()];
+        for (int i = 0; i < rpn.size(); i++) {
+            Object o = rpn.get(i);
+            if (o instanceof Long) {
+                ops[i] = (Long) o;
+            } else if (o instanceof Integer) {
+                ops[i] = (long) (Integer) o;
+            } else if (o instanceof Float) {
+                float f = (Float) o;
+                if (Float.isNaN(f)) {
+                    int rawId = Utils.idFromNan(f);
+                    ops[i] = (long) rawId + 0x100000000L;
+                } else {
+                    ops[i] = (long) f;
+                }
+            } else if (o instanceof Number) {
+                ops[i] = ((Number) o).longValue();
+            }
+        }
+        return mWriter.integerExpression(ops);
+    }
+
+    public List<Object> infixToIntegerRpn(String expression) {
+        List<Object> output = new ArrayList<>();
+        Stack<String> stack = new Stack<>();
+        String[] tokens = tokenize(expression);
+        boolean lastWasOperator = true;
+
+        for (String token : tokens) {
+            if (isNumber(token)) {
+                output.add((long) Integer.parseInt(token));
+                lastWasOperator = false;
+            } else if (isVariable(token)) {
+                String name = RemoteComposeJsonParser.isVariableRef(token)
+                        ? RemoteComposeJsonParser.getVariableNameFromRef(token) : token;
+                if (mParser.mIntegerVariables.containsKey(name)) {
+                    output.add(mParser.mIntegerVariables.get(name));
+                } else if (mParser.mVariables.containsKey(name)) {
+                    Float f = mParser.mVariables.get(name);
+                    if (f != null && Float.isNaN(f)) {
+                        int rawId = Utils.idFromNan(f);
+                        output.add((long) rawId + 0x100000000L);
+                    } else {
+                        output.add(getVariableNan(token));
+                    }
+                } else {
+                    output.add(mParser.resolveIntegerVariable(token));
+                }
+                lastWasOperator = false;
+            } else if (isFunction(token)) {
+                stack.push(token);
+                lastWasOperator = true;
+            } else if (token.equals(",")) {
+                while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                    String op = stack.pop();
+                    if (isOperator(op)) {
+                        output.add(getIntegerOperatorOp(op));
+                    } else if (isFunction(op)) {
+                        output.add(getIntegerFunctionOp(op));
+                    }
+                }
+                lastWasOperator = true;
+            } else if (isOperator(token)) {
+                if (token.equals("-") && lastWasOperator) {
+                    stack.push("u-");
+                } else {
+                    while (!stack.isEmpty() && isOperator(stack.peek())) {
+                        String topOp = stack.peek();
+                        int p1 = precedence(topOp);
+                        int p2 = precedence(token);
+                        if (p1 > p2 || (p1 == p2 && !token.equals("u-"))) {
+                            output.add(getIntegerOperatorOp(stack.pop()));
+                        } else {
+                            break;
+                        }
+                    }
+                    stack.push(token);
+                }
+                lastWasOperator = true;
+            } else if (token.equals("(")) {
+                stack.push(token);
+                lastWasOperator = true;
+            } else if (token.equals(")")) {
+                while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                    String op = stack.pop();
+                    if (isOperator(op)) {
+                        output.add(getIntegerOperatorOp(op));
+                    } else if (isFunction(op)) {
+                        output.add(getIntegerFunctionOp(op));
+                    }
+                }
+                if (stack.isEmpty()) throw new JSONException("Mismatched parentheses");
+                stack.pop();
+                if (!stack.isEmpty() && isFunction(stack.peek())) {
+                    output.add(getIntegerFunctionOp(stack.pop()));
+                }
+                lastWasOperator = false;
+            } else {
+                throw new JSONException("Unknown token in expression: " + token);
+            }
+        }
+        while (!stack.isEmpty()) {
+            String op = stack.pop();
+            if (isOperator(op)) {
+                output.add(getIntegerOperatorOp(op));
+            } else if (isFunction(op)) {
+                output.add(getIntegerFunctionOp(op));
+            }
+        }
+        return output;
+    }
+
+    private long getIntegerOperatorOp(String op) {
+        switch (op) {
+            case "+":
+                return 0x100000000L + IntegerExpressionEvaluator.I_ADD;
+            case "-":
+                return 0x100000000L + IntegerExpressionEvaluator.I_SUB;
+            case "*":
+                return 0x100000000L + IntegerExpressionEvaluator.I_MUL;
+            case "/":
+                return 0x100000000L + IntegerExpressionEvaluator.I_DIV;
+            case "%":
+                return 0x100000000L + IntegerExpressionEvaluator.I_MOD;
+            case "u-":
+                return 0x100000000L + IntegerExpressionEvaluator.I_NEG;
+            default:
+                throw new JSONException("Unsupported integer operator: " + op);
+        }
+    }
+
+    private long getIntegerFunctionOp(String fn) {
+        switch (fn) {
+            case "abs":
+                return 0x100000000L + IntegerExpressionEvaluator.I_ABS;
+            case "min":
+                return 0x100000000L + IntegerExpressionEvaluator.I_MIN;
+            case "max":
+                return 0x100000000L + IntegerExpressionEvaluator.I_MAX;
+            case "clamp":
+                return 0x100000000L + IntegerExpressionEvaluator.I_CLAMP;
+            default:
+                throw new JSONException("Unsupported integer function: " + fn);
+        }
+    }
+
     private boolean isFunction(String token) {
-        return token.equals("sin") || token.equals("cos") || token.equals("sqrt")
-                || token.equals("abs") || token.equals("min") || token.equals("max")
-                || token.equals("pow") || token.equals("tan") || token.equals("asin")
-                || token.equals("acos") || token.equals("atan") || token.equals("atan2")
-                || token.equals("floor") || token.equals("ceil") || token.equals("log")
-                || token.equals("ln") || token.equals("round") || token.equals("sign")
-                || token.equals("lerp") || token.equals("step") || token.equals("smooth_step")
-                || token.equals("clamp") || token.equals("mad")
-                || token.equals("ping_pong") || token.equals("fract")
+        return token.equals("sin") || token.equals("cos") || token.equals("sqrt") || token.equals(
+                "abs") || token.equals("min") || token.equals("max") || token.equals("pow")
+                || token.equals("tan") || token.equals("asin") || token.equals("acos")
+                || token.equals("atan") || token.equals("atan2") || token.equals("floor")
+                || token.equals("ceil") || token.equals("log") || token.equals("ln")
+                || token.equals("round") || token.equals("sign") || token.equals("lerp")
+                || token.equals("step") || token.equals("smooth_step") || token.equals("clamp")
+                || token.equals("mad") || token.equals("ping_pong") || token.equals("fract")
                 || token.equals("exp") || token.equals("hypot") || token.equals("square")
-                || token.equals("rand")
-                || token.equals("arrayMin") || token.equals("arrayMax")
-                || token.equals("spline") || token.equals("arraySpline")
-                || token.equals("splineLoop") || token.equals("anim")
-                || token.equals("arrayLength") || token.equals("arraySum")
-                || token.equals("arraySumSqr") || token.equals("arraySumXY")
-                || token.equals("arrayGet") || token.equals("ifElse");
+                || token.equals("rand") || token.equals("arrayMin") || token.equals("arrayMax")
+                || token.equals("spline") || token.equals("arraySpline") || token.equals(
+                "splineLoop") || token.equals("anim") || token.equals("arrayLength")
+                || token.equals("arraySum") || token.equals("arraySumSqr") || token.equals(
+                "arraySumXY") || token.equals("arrayGet") || token.equals("ifElse");
     }
 
     private int getFunctionOp(String token) {
         switch (token) {
-            case "sin": return AnimatedFloatExpression.OFFSET + 18;
-            case "cos": return AnimatedFloatExpression.OFFSET + 19;
-            case "tan": return AnimatedFloatExpression.OFFSET + 20;
-            case "asin": return AnimatedFloatExpression.OFFSET + 21;
-            case "acos": return AnimatedFloatExpression.OFFSET + 22;
-            case "atan": return AnimatedFloatExpression.OFFSET + 23;
-            case "atan2": return AnimatedFloatExpression.OFFSET + 24;
-            case "sqrt": return AnimatedFloatExpression.OFFSET + 9;
-            case "abs": return AnimatedFloatExpression.OFFSET + 10;
-            case "pow": return AnimatedFloatExpression.OFFSET + 8;
-            case "min": return AnimatedFloatExpression.OFFSET + 6;
-            case "max": return AnimatedFloatExpression.OFFSET + 7;
-            case "floor": return AnimatedFloatExpression.OFFSET + 14;
-            case "ceil": return AnimatedFloatExpression.OFFSET + 31;
-            case "log": return AnimatedFloatExpression.OFFSET + 15;
-            case "ln": return AnimatedFloatExpression.OFFSET + 16;
-            case "sign": return AnimatedFloatExpression.OFFSET + 11;
-            case "round": return AnimatedFloatExpression.OFFSET + 17;
-            case "lerp": return AnimatedFloatExpression.OFFSET + 49;
-            case "step": return AnimatedFloatExpression.OFFSET + 44;
-            case "smooth_step": return AnimatedFloatExpression.OFFSET + 50;
-            case "clamp": return AnimatedFloatExpression.OFFSET + 27;
-            case "ifElse": return AnimatedFloatExpression.OFFSET + 26;
-            case "mad": return AnimatedFloatExpression.OFFSET + 25;
-            case "ping_pong": return AnimatedFloatExpression.OFFSET + 54;
-            case "fract": return AnimatedFloatExpression.OFFSET + 53;
-            case "exp": return AnimatedFloatExpression.OFFSET + 13;
-            case "hypot": return AnimatedFloatExpression.OFFSET + 47;
-            case "square": return AnimatedFloatExpression.OFFSET + 45;
-            case "rand": return AnimatedFloatExpression.OFFSET + 39;
-            case "arrayMin": return AnimatedFloatExpression.OFFSET + 34;
-            case "arrayMax": return AnimatedFloatExpression.OFFSET + 33;
-            case "arrayLength": return AnimatedFloatExpression.OFFSET + 37;
-            case "arraySum": return AnimatedFloatExpression.OFFSET + 35;
-            case "arraySumSqr": return AnimatedFloatExpression.OFFSET + 78;
-            case "arraySumXY": return AnimatedFloatExpression.OFFSET + 77;
-            case "arrayGet": return AnimatedFloatExpression.OFFSET + 32;
+            case "sin":
+                return AnimatedFloatExpression.OFFSET + 18;
+            case "cos":
+                return AnimatedFloatExpression.OFFSET + 19;
+            case "tan":
+                return AnimatedFloatExpression.OFFSET + 20;
+            case "asin":
+                return AnimatedFloatExpression.OFFSET + 21;
+            case "acos":
+                return AnimatedFloatExpression.OFFSET + 22;
+            case "atan":
+                return AnimatedFloatExpression.OFFSET + 23;
+            case "atan2":
+                return AnimatedFloatExpression.OFFSET + 24;
+            case "sqrt":
+                return AnimatedFloatExpression.OFFSET + 9;
+            case "abs":
+                return AnimatedFloatExpression.OFFSET + 10;
+            case "pow":
+                return AnimatedFloatExpression.OFFSET + 8;
+            case "min":
+                return AnimatedFloatExpression.OFFSET + 6;
+            case "max":
+                return AnimatedFloatExpression.OFFSET + 7;
+            case "floor":
+                return AnimatedFloatExpression.OFFSET + 14;
+            case "ceil":
+                return AnimatedFloatExpression.OFFSET + 31;
+            case "log":
+                return AnimatedFloatExpression.OFFSET + 15;
+            case "ln":
+                return AnimatedFloatExpression.OFFSET + 16;
+            case "sign":
+                return AnimatedFloatExpression.OFFSET + 11;
+            case "round":
+                return AnimatedFloatExpression.OFFSET + 17;
+            case "lerp":
+                return AnimatedFloatExpression.OFFSET + 49;
+            case "step":
+                return AnimatedFloatExpression.OFFSET + 44;
+            case "smooth_step":
+                return AnimatedFloatExpression.OFFSET + 50;
+            case "clamp":
+                return AnimatedFloatExpression.OFFSET + 27;
+            case "ifElse":
+                return AnimatedFloatExpression.OFFSET + 26;
+            case "mad":
+                return AnimatedFloatExpression.OFFSET + 25;
+            case "ping_pong":
+                return AnimatedFloatExpression.OFFSET + 54;
+            case "fract":
+                return AnimatedFloatExpression.OFFSET + 53;
+            case "exp":
+                return AnimatedFloatExpression.OFFSET + 13;
+            case "hypot":
+                return AnimatedFloatExpression.OFFSET + 47;
+            case "square":
+                return AnimatedFloatExpression.OFFSET + 45;
+            case "rand":
+                return AnimatedFloatExpression.OFFSET + 39;
+            case "arrayMin":
+                return AnimatedFloatExpression.OFFSET + 34;
+            case "arrayMax":
+                return AnimatedFloatExpression.OFFSET + 33;
+            case "arrayLength":
+                return AnimatedFloatExpression.OFFSET + 37;
+            case "arraySum":
+                return AnimatedFloatExpression.OFFSET + 35;
+            case "arraySumSqr":
+                return AnimatedFloatExpression.OFFSET + 78;
+            case "arraySumXY":
+                return AnimatedFloatExpression.OFFSET + 77;
+            case "arrayGet":
+                return AnimatedFloatExpression.OFFSET + 32;
             case "spline":
             case "arraySpline":
                 return AnimatedFloatExpression.OFFSET + 38;
-            case "splineLoop": return AnimatedFloatExpression.OFFSET + 75;
-            case "anim": return AnimatedFloatExpression.OFFSET + 256; // PLACEHOLDER
-            default: return 0;
+            case "splineLoop":
+                return AnimatedFloatExpression.OFFSET + 75;
+            case "anim":
+                return AnimatedFloatExpression.OFFSET + 256; // PLACEHOLDER
+            default:
+                return 0;
         }
     }
 
     private boolean isOperator(String token) {
-        return token.equals("+") || token.equals("-") || token.equals("*")
-                || token.equals("/") || token.equals("%") || token.equals("u-");
+        return token.equals("+") || token.equals("-") || token.equals("*") || token.equals("/")
+                || token.equals("%") || token.equals("u-");
     }
 
     private int getOperatorOp(String token) {
         switch (token) {
-            case "+": return AnimatedFloatExpression.OFFSET + 1;
-            case "-": return AnimatedFloatExpression.OFFSET + 2;
-            case "*": return AnimatedFloatExpression.OFFSET + 3;
-            case "/": return AnimatedFloatExpression.OFFSET + 4;
-            case "%": return AnimatedFloatExpression.OFFSET + 5;
-            case "u-": return AnimatedFloatExpression.OFFSET + 73; // CHANGE_SIGN
-            default: return 0;
+            case "+":
+                return AnimatedFloatExpression.OFFSET + 1;
+            case "-":
+                return AnimatedFloatExpression.OFFSET + 2;
+            case "*":
+                return AnimatedFloatExpression.OFFSET + 3;
+            case "/":
+                return AnimatedFloatExpression.OFFSET + 4;
+            case "%":
+                return AnimatedFloatExpression.OFFSET + 5;
+            case "u-":
+                return AnimatedFloatExpression.OFFSET + 73; // CHANGE_SIGN
+            default:
+                return 0;
         }
     }
 
     private int precedence(String token) {
         switch (token) {
-            case "+": case "-": return 1;
-            case "*": case "/": case "%": return 2;
-            case "u-": return 3;
-            default: return 0;
+            case "+":
+            case "-":
+                return 1;
+            case "*":
+            case "/":
+            case "%":
+                return 2;
+            case "u-":
+                return 3;
+            default:
+                return 0;
         }
     }
 }
