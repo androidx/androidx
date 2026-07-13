@@ -34,19 +34,16 @@ private val marketShare =
     listOf("Android" to 42, "iOS" to 31, "Web" to 14, "Desktop" to 8, "Other" to 5)
 
 /** Pie chart with percentage labels and a legend. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dPie(): ByteArray =
     graph2dDoc(640, 640, "Platform Share") { pieChart(marketShare, title = "Platform Share") }
 
 /** Donut chart (hollow center). */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dDonut(): ByteArray =
     graph2dDoc(640, 640, "Platform Share") {
         donutChart(marketShare, title = "Platform Share", theme = GraphTheme.Dark)
     }
 
 /** Radar chart comparing two products across five attributes. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRadar(): ByteArray =
     graph2dDoc(680, 680, "Product Comparison") {
         radarChart(
@@ -76,7 +73,6 @@ private fun scatterPoints(n: Int, seed: Int): List<Pair<Number, Number>> {
 }
 
 /** Scatter plot showing a positive correlation. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dScatter(): ByteArray =
     graph2dDoc(720, 540, "Spend vs Revenue") {
         scatterPlot(
@@ -88,7 +84,6 @@ public fun graph2dScatter(): ByteArray =
     }
 
 /** Bubble chart: a third value sets each point's size. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dBubble(): ByteArray =
     graph2dDoc(720, 560, "Market Map") {
         bubbleChart(
@@ -110,7 +105,6 @@ public fun graph2dBubble(): ByteArray =
     }
 
 /** Connected scatter: a trajectory through (x, y) space in order. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dConnectedScatter(): ByteArray =
     graph2dDoc(720, 560, "Phase Trajectory") {
         connectedScatter(

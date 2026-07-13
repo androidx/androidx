@@ -32,7 +32,6 @@ import kotlin.math.ln
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-@Suppress("RestrictedApiAndroidX")
 @SuppressLint("PrimitiveInCollection", "deprecation", "UnknownNullness")
 private fun gaussian(n: Int, mean: Float, sd: Float, seed: Int): List<Double> {
     var s = seed
@@ -48,7 +47,6 @@ private fun gaussian(n: Int, mean: Float, sd: Float, seed: Int): List<Double> {
 }
 
 /** Squarified treemap. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dTreemap(): ByteArray =
     graph2dDoc(760, 600, "Market Caps") {
         treemap(
@@ -68,7 +66,6 @@ public fun graph2dTreemap(): ByteArray =
     }
 
 /** Confusion matrix. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dConfusion(): ByteArray =
     graph2dDoc(640, 600, "Confusion Matrix") {
         confusionMatrix(
@@ -85,7 +82,6 @@ public fun graph2dConfusion(): ByteArray =
     }
 
 /** Quadrant chart. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dQuadrant(): ByteArray =
     graph2dDoc(720, 600, "Portfolio") {
         quadrantChart(
@@ -110,7 +106,6 @@ public fun graph2dQuadrant(): ByteArray =
     }
 
 /** Function plot. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dFunction(): ByteArray =
     graph2dDoc(820, 520, "Function") {
         functionPlot(
@@ -126,14 +121,12 @@ public fun graph2dFunction(): ByteArray =
     }
 
 /** Normal Q-Q plot. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dQQ(): ByteArray =
     graph2dDoc(620, 600, "Q-Q") {
         qqPlot(sample = gaussian(120, 50f, 10f, 17), title = "Normal Q-Q Plot")
     }
 
 /** Gantt chart. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dGantt(): ByteArray =
     graph2dDoc(840, 520, "Schedule") {
         ganttChart(
@@ -151,7 +144,6 @@ public fun graph2dGantt(): ByteArray =
     }
 
 /** Ridgeline / joy plot. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRidgeline(): ByteArray =
     graph2dDoc(720, 620, "Distributions") {
         ridgelinePlot(
@@ -168,7 +160,6 @@ public fun graph2dRidgeline(): ByteArray =
     }
 
 /** Likert / diverging stacked survey. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dLikert(): ByteArray =
     graph2dDoc(820, 520, "Survey") {
         likertChart(

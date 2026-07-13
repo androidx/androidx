@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteText, background, remote-core, role, text
 
 package androidx.compose.remote.player.compose.embedded
 

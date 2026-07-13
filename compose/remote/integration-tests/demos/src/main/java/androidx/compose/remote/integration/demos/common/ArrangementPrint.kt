@@ -21,7 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBiasAbsoluteAlignment
 import kotlin.reflect.full.declaredMemberProperties
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteBiasAbsoluteAlignment
 fun RemoteAlignment.propertyName(): String =
     if (this is RemoteBiasAbsoluteAlignment)
         RemoteAbsoluteAlignment::class

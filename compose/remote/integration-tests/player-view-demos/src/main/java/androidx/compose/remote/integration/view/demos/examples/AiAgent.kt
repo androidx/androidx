@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to CUBIC_DECELERATE, FitBox, RemoteComposeCreationState, RemoteMatrix3x3,
+
+// RemotePaint, RemoteShader, RemoteText, asRemoteDp, background, clamp, interpolateRemoteFloat,
+// remote-core, remote-creation
 
 package androidx.compose.remote.integration.view.demos.examples
 

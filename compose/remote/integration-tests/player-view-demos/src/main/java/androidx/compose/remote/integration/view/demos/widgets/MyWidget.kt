@@ -42,7 +42,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 
-@SuppressLint("RestrictedApiAndroidX")
+@SuppressLint(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComposeWidget, RemoteText, background, onClick
 class MyWidget : RemoteComposeWidget() {
     @RemoteComposable
     @Composable
@@ -99,12 +101,16 @@ class MyWidget : RemoteComposeWidget() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComposeWidget, RemoteText, background, onClick
 @Preview
 @Composable
 private fun ButtonPreview() = RemoteContentPreview { MyWidget().Button("Click me") {} }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComposeWidget, RemoteText, background, onClick
 @Preview
 @Composable
 private fun ContentPreview() = RemoteContentPreview { MyWidget().Content(LocalContext.current, 0) }
