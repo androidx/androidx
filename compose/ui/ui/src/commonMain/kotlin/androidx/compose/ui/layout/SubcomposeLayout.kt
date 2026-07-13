@@ -1504,58 +1504,58 @@ private val UnspecifiedSlotId = Any()
 @JvmInline
 private value class SLOperation(val value: Int) {
     companion object {
-        val CancelPausedPrecomposition
+        inline val CancelPausedPrecomposition
             get() = SLOperation(0)
 
-        val ReuseForceSyncDeactivation
+        inline val ReuseForceSyncDeactivation
             get() = SLOperation(1)
 
-        val ReuseScheduleOutOfFrameDeactivation
+        inline val ReuseScheduleOutOfFrameDeactivation
             get() = SLOperation(2)
 
-        val ReuseSyncDeactivation
+        inline val ReuseSyncDeactivation
             get() = SLOperation(3)
 
-        val ReuseDeactivationViaHost
+        inline val ReuseDeactivationViaHost
             get() = SLOperation(4)
 
-        val TookFromPrecomposeMap
+        inline val TookFromPrecomposeMap
             get() = SLOperation(5)
 
-        val Subcompose
+        inline val Subcompose
             get() = SLOperation(6)
 
-        val SubcomposeNew
+        inline val SubcomposeNew
             get() = SLOperation(7)
 
-        val SubcomposePausable
+        inline val SubcomposePausable
             get() = SLOperation(8)
 
-        val SubcomposeForceReuse
+        inline val SubcomposeForceReuse
             get() = SLOperation(9)
 
-        val DeactivateOutOfFrame
+        inline val DeactivateOutOfFrame
             get() = SLOperation(10)
 
-        val DeactivateOutOfFrameCancelled
+        inline val DeactivateOutOfFrameCancelled
             get() = SLOperation(11)
 
-        val SlotToReusedFromOnDeactivate
+        inline val SlotToReusedFromOnDeactivate
             get() = SLOperation(12)
 
-        val SlotToReusedFromOnReuse
+        inline val SlotToReusedFromOnReuse
             get() = SLOperation(13)
 
-        val Reused
+        inline val Reused
             get() = SLOperation(14)
 
-        val ResumePaused
+        inline val ResumePaused
             get() = SLOperation(15)
 
-        val PausePaused
+        inline val PausePaused
             get() = SLOperation(16)
 
-        val ApplyPaused
+        inline val ApplyPaused
             get() = SLOperation(17)
     }
 }
