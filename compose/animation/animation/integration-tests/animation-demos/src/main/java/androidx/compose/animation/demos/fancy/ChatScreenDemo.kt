@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.fancy
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -172,7 +171,6 @@ private fun ColumnScope.TheirChatEntry(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ColumnScope.ChatEntry(
     text: String,

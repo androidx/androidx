@@ -364,7 +364,6 @@ class TransitionTest {
         assertTrue(playTime >= 800 * MillisToNanos)
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Test
     fun testMutableTransitionStateIsIdle() {
         val mutableTransitionState = MutableTransitionState(false)
@@ -404,7 +403,7 @@ class TransitionTest {
         assertTrue(mutableTransitionState.isIdle)
     }
 
-    @OptIn(ExperimentalTransitionApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun testCreateChildTransition() {
         val intState = mutableStateOf(1)
@@ -467,7 +466,6 @@ class TransitionTest {
         }
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Test
     fun addAnimationToCompletedChildTransition() {
         rule.mainClock.autoAdvance = false
@@ -657,7 +655,6 @@ class TransitionTest {
         }
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Test
     fun childTransitionStartsUninterrupted_usingTransitionState() {
 
@@ -753,7 +750,6 @@ class TransitionTest {
         rule.onNodeWithTag("currentStateText").assertTextEquals("3")
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     @Test
     fun childTransitionStartsUninterrupted_usingSeekableTransition() {
         val transitionState = SeekableTransitionState(0)

@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -111,7 +110,6 @@ private class MyModel {
         item.visible.targetState = false
     }
 
-    @OptIn(ExperimentalTransitionApi::class)
     fun pruneItems() {
         _items.removeAll(items.filter { it.visible.isIdle && !it.visible.targetState })
     }

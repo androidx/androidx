@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -55,7 +54,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
 @Preview
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ShrineCartDemo() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

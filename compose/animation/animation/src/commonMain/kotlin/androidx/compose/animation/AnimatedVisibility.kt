@@ -24,7 +24,6 @@ import androidx.compose.animation.EnterExitState.Visible
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
-import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
@@ -787,7 +786,7 @@ internal fun interface OnLookaheadMeasured {
     fun invoke(size: IntSize)
 }
 
-@OptIn(ExperimentalTransitionApi::class, InternalAnimationApi::class)
+@OptIn(InternalAnimationApi::class)
 @Composable
 internal fun <T> AnimatedEnterExitImpl(
     transition: Transition<T>,

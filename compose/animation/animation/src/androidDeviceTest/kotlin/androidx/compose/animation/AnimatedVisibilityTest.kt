@@ -81,7 +81,6 @@ class AnimatedVisibilityTest {
 
     private val frameDuration = 16
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilityExpandShrinkTest() {
         val testModifier by mutableStateOf(TestModifier())
@@ -186,7 +185,6 @@ class AnimatedVisibilityTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilitySlideTest() {
         val testModifier by mutableStateOf(TestModifier())
@@ -287,7 +285,6 @@ class AnimatedVisibilityTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun animateVisibilityContentSizeChangeTest() {
         val size = mutableStateOf(40.dp)
@@ -323,7 +320,7 @@ class AnimatedVisibilityTest {
     }
 
     // Test different animations for fade in and fade out, in a complete run without interruptions
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun animateVisibilityFadeTest() {
         var visible by mutableStateOf(false)
@@ -392,7 +389,7 @@ class AnimatedVisibilityTest {
     }
 
     // Test different animations for scale in and scale out, in a complete run without interruptions
-    @OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+    @OptIn(InternalAnimationApi::class)
     @Test
     fun animateVisibilityScaleTest() {
         var visible by mutableStateOf(false)
@@ -505,7 +502,6 @@ class AnimatedVisibilityTest {
         State3,
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testTransitionExtensionAnimatedVisibility() {
         val testModifier by mutableStateOf(TestModifier())
@@ -558,7 +554,6 @@ class AnimatedVisibilityTest {
         rule.runOnIdle { assertThat(disposed).isTrue() }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testSeekingAnimatedVisibility() {
         fun <T> spec() = tween<T>(200, easing = LinearEasing)
