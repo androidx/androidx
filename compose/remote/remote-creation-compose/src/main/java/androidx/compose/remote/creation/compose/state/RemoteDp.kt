@@ -73,7 +73,6 @@ internal constructor(
      * Function to convert this [RemoteDp] to a density-independent pixel value. It multiplies the
      * current float value by the screen\'s density.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(density: RemoteDensity): RemoteFloat {
         return density.density * value
     }
@@ -209,7 +208,6 @@ public val Float.rdp: RemoteDp
     }
 
 /** Extension property to convert a [Dp] to a [RemoteDp]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Dp.asRdp(): RemoteDp {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return RemoteDp(this.value.rf)
@@ -221,7 +219,6 @@ public fun RemoteFloat.asRemoteDp(): RemoteDp {
 }
 
 /** Converts this [RemoteFloat] representing pixels to a [RemoteDp] by dividing by density. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteFloat.toRemoteDp(): RemoteDp {
     // TODO: Optimize for constant values when value and density are constants
     return RemoteDp(
