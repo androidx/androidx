@@ -1251,8 +1251,8 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
         }
     }
     val contentTransform =
-        remember(rootScope, segment, pendingTargetState) {
-            transitionSpec(rootScope).also {
+        remember(pendingScope, rootScope, segment) {
+            transitionSpec(pendingScope ?: rootScope).also {
                 animatedContentDebug { "transitionSpec changed to ${it.toDebugString()}" }
             }
         }

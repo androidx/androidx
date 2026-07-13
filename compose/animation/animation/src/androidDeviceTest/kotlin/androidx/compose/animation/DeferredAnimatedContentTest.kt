@@ -1640,4 +1640,46 @@ class DeferredAnimatedContentTest {
             measuredOffsetX > -20f,
         )
     }
+
+    @Test
+    fun deferredTransition_evaluatesTransitionSpec_withPendingScope() {
+        val state = DeferredTransitionState("A")
+        val evaluatedSpecs = mutableListOf<Pair<String, String>>()
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    evaluatedSpecs.add(Pair(initialState, targetState))
+                    fadeIn(tween(100, easing = LinearEasing)) togetherWith
+                        fadeOut(tween(100, easing = LinearEasing))
+                }
+            ) { target ->
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.waitForIdle()
+
+        // Transition A -> B
+        rule.runOnIdle { state.animateTo("B") }
+        rule.waitForIdle()
+
+        evaluatedSpecs.clear()
+
+        // Start deferred transition back to A
+        rule.runOnIdle { state.defer("A") }
+        rule.waitForIdle()
+
+        // The transitionSpec should be evaluated using pendingScope (B -> A)
+        assertTrue(
+            "transitionSpec should evaluate using pendingScope (B -> A), but got: $evaluatedSpecs",
+            evaluatedSpecs.contains(Pair("B", "A")),
+        )
+        // It should NOT evaluate using the old rootScope segment (A -> B)
+        assertTrue(
+            "transitionSpec should not evaluate the old rootScope segment (A -> B)",
+            !evaluatedSpecs.contains(Pair("A", "B")),
+        )
+    }
 }
