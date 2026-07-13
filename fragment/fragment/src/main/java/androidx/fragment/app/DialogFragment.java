@@ -959,8 +959,8 @@ public class DialogFragment extends Fragment
      * To get a callback specifically when a Fragment activity's
      * {@link Activity#onCreate(Bundle)} is called, register a
      * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
-     * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
-     * {@link Lifecycle.State#CREATED} callback.
+     * {@link androidx.lifecycle.Lifecycle} in {@link #onAttach(Context)}, removing it when it
+     * receives the {@link androidx.lifecycle.Lifecycle.State#CREATED} callback.
      */
     @SuppressWarnings("deprecation")
     @MainThread
