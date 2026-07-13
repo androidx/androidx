@@ -31,7 +31,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.absoluteValue
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheWindow) :
     LazyGridPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
     private val cacheWindowScope = LazyGridCacheWindowScope()
@@ -59,7 +59,7 @@ internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheW
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyGridCacheWindowScope() : CacheWindowScope {
     lateinit var layoutInfo: LazyGridLayoutInfo
     lateinit var prefetchScope: LazyGridPrefetchScope

@@ -1527,17 +1527,19 @@ package androidx.compose.foundation.lazy.layout {
     property public T value;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface LazyLayoutCacheWindow {
+  @androidx.compose.runtime.Stable public interface LazyLayoutCacheWindow {
     method public default int calculateAheadWindow(androidx.compose.ui.unit.Density, int viewport);
     method public default int calculateBehindWindow(androidx.compose.ui.unit.Density, int viewport);
+    method @InaccessibleFromKotlin public default boolean getEnableNonScrollCaching();
+    property public default boolean enableNonScrollCaching;
   }
 
-  @SuppressCompatibility public final class LazyLayoutCacheWindowKt {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional androidx.compose.ui.unit.Dp ahead, optional androidx.compose.ui.unit.Dp behind);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional @FloatRange(from=0.0) float aheadFraction, optional @FloatRange(from=0.0) float behindFraction);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow$default(float, float, int, Object!);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow-YgX7TsA(float, float);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow-YgX7TsA$default(float, float, int, Object!);
+  public final class LazyLayoutCacheWindowKt {
+    method @KotlinOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional androidx.compose.ui.unit.Dp ahead, optional androidx.compose.ui.unit.Dp behind, optional boolean enableNonScrollCaching);
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional @FloatRange(from=0.0) float aheadFraction, optional @FloatRange(from=0.0) float behindFraction, optional boolean enableNonScrollCaching);
+    method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow$default(float, float, boolean, int, Object!);
+    method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow-Md-fbLM(float, float, boolean);
+    method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow-Md-fbLM$default(float, float, boolean, int, Object!);
   }
 
   public abstract class LazyLayoutIntervalContent<Interval extends androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent.Interval> {
