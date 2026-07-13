@@ -191,6 +191,7 @@ internal class PageManager(
         currentZoom: Float,
         areasToUpdate: List<RectF>,
     ) {
+        if (areasToUpdate.isEmpty()) return
         val invalidatedArea = areasToUpdate.union()
         if (invalidatedArea.intersect(visibleArea)) {
             // If there is some intersection in the visible area and the invalidated area,
