@@ -52,6 +52,7 @@ import androidx.pdf.utils.areCorePdfApisAvailableInSdk
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.pdf.utils.isFormFillingAvailable
 import androidx.pdf.utils.isGetTopObjectAvailable
+import androidx.pdf.utils.isSignatureFeatureAvailable
 import androidx.pdf.utils.toAndroidClass
 import androidx.pdf.utils.toContentClass
 import java.util.Collections
@@ -278,6 +279,13 @@ public class SandboxedPdfDocument(
         return parcelablePdfObject?.toContent()
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String {
+        val parcelableObject = newObject.toParcelable()
+
+        return withDocument { document -> document.addPageObject(pageNum, parcelableObject) }
+    }
+
     override fun addOnPdfContentInvalidatedListener(
         executor: Executor,
         listener: PdfDocument.OnPdfContentInvalidatedListener,
@@ -409,6 +417,7 @@ public class SandboxedPdfDocument(
             PdfFeature.FORM_FILLING -> isFormFillingAvailable()
             PdfFeature.ANNOTATIONS -> isAnnotationsFeatureAvailable()
             PdfFeature.IMAGE_EXTRACTION -> isGetTopObjectAvailable()
+            PdfFeature.SIGNATURE_HANDLING -> isSignatureFeatureAvailable()
             else -> false
         }
     }

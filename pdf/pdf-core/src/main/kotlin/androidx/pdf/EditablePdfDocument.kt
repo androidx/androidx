@@ -17,7 +17,9 @@
 package androidx.pdf
 
 import android.os.ParcelFileDescriptor
+import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener
+import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.models.FormEditInfo
 
 /** Represents a PDF document that allows for editing. */
@@ -48,6 +50,23 @@ public interface EditablePdfDocument : PdfDocument {
      * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
     public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
+
+    /**
+     * Adds a [PdfObject] directly to the specified page.
+     *
+     * @param pageNum The 0-based index of the page where the object should be added.
+     * @param newObject The [PdfObject] to embed into the page.
+     * @return A String representing the unique ID of the newly added object
+     * @throws IllegalStateException if the specified page fails to load or cannot be found (e.g.,
+     *   invalid page index).
+     * @throws UnsupportedOperationException if the provided [PdfObject] type is not yet supported
+     *   by the rendering engine.
+     * @throws IllegalArgumentException if the underlying native engine rejects the object's data
+     *   (e.g., invalid bitmap configurations).
+     */
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String
 
     /**
      * Creates a [PdfWriteHandle] which can be used to save the document to a

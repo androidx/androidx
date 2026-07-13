@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -29,6 +30,7 @@ import android.os.RemoteException
 import android.util.Size
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.content.ImagePdfObject
+import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.parcelSizeInBytes
 import androidx.pdf.content.PdfPageTextContent
@@ -45,6 +47,7 @@ import androidx.pdf.utils.getSampleContentStampAnnotation
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
 import androidx.pdf.utils.isFormFillingAvailable
 import androidx.pdf.utils.isGetTopObjectAvailable
+import androidx.pdf.utils.isSignatureFeatureAvailable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -853,6 +856,41 @@ class SandboxedPdfDocumentTest {
 
         // Verify that releasePage was actually called and the exception was handled
         verify(mockRemote).releasePage(0)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    @Test
+    fun addPageObject_validObject_returnsStringId() = runTest {
+        if (!isSignatureFeatureAvailable()) return@runTest
+        withEditableDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+            val bounds = RectF(0f, 0f, 100f, 100f) // Required for matrix transformation
+            val imageObject = ImagePdfObject(bitmap, bounds)
+
+            val resultId = document.addPageObject(pageNumber, imageObject)
+
+            assertNotNull(resultId)
+            assertThat(resultId).isNotEmpty()
+            assertThat(resultId).startsWith("embedded_signature_")
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    @Test
+    fun addPageObject_unsupportedObject_throwsUnsupportedOperationException() = runTest {
+        if (!isSignatureFeatureAvailable()) return@runTest
+        withEditableDocument(PDF_DOCUMENT) { document ->
+            val pageNumber = 0
+            val unsupportedObject = org.mockito.Mockito.mock(PdfObject::class.java)
+
+            val exception =
+                assertFailsWith<UnsupportedOperationException> {
+                    document.addPageObject(pageNumber, unsupportedObject)
+                }
+
+            assertThat(exception).hasMessageThat().contains("is not currently supported")
+        }
     }
 
     data class AppliedEdit(public val pageNum: Int, public val editId: String)

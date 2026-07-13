@@ -317,6 +317,10 @@ internal open class FakeEditablePdfDocument(
         TODO("Not yet implemented")
     }
 
+    override suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String {
+        return "fake_embedded_object_${System.currentTimeMillis()}"
+    }
+
     override fun addOnPdfContentInvalidatedListener(
         executor: Executor,
         listener: PdfDocument.OnPdfContentInvalidatedListener,
