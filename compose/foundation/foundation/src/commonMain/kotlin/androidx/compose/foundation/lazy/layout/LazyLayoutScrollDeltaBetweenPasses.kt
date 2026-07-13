@@ -91,4 +91,5 @@ internal class LazyLayoutScrollDeltaBetweenPasses {
     }
 }
 
-private val DeltaThresholdForScrollAnimation = 1.dp
+private val DeltaThresholdForScrollAnimation
+    get() = 1.dp

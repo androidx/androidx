@@ -304,7 +304,9 @@ private class MouseWheelScrollingLogicImpl<T>(
     }
 }
 
-private val AnimationThreshold = 6.dp // (AnimationSpeed * MaxAnimationDuration) / (1000ms / 60Hz)
-private val AnimationSpeed = 1.dp // dp / ms
+private val AnimationThreshold // (AnimationSpeed * MaxAnimationDuration) / (1000ms / 60Hz)
+    get() = 6.dp
+private val AnimationSpeed // dp / ms
+    get() = 1.dp
 private const val MaxAnimationDuration = 100 // ms
 private const val ScrollProgressTimeout = 50L // ms

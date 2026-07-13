@@ -625,7 +625,8 @@ internal class TextFieldCoreModifierNode(
     }
 }
 
-private val DefaultCursorThickness = 2.dp
+private val DefaultCursorThickness
+    get() = 2.dp
 
 /** If brush has a specified color. It's possible that [SolidColor] contains [Color.Unspecified]. */
 private val Brush.isSpecified: Boolean
