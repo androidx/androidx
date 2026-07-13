@@ -48,7 +48,10 @@ import androidx.compose.ui.unit.dp
 
 private const val CLICK_ACTION = "clickAction"
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, RemoteText, background, combinedClickable, remote-core,
+// remote-creation-core
 @Composable
 fun CombinedClickableDemo() {
     val experimentalProfile =
@@ -64,7 +67,10 @@ fun CombinedClickableDemo() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, RemoteText, background, combinedClickable, remote-core,
+// remote-creation-core
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

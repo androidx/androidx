@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to CUBIC_DECELERATE, FitBox, RemoteText, RemoteTextUnit, background, clamp,
+
+// interpolateRemoteFloat, remote-core
 
 package androidx.compose.remote.integration.view.demos.examples
 

@@ -38,7 +38,6 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.waffleChar
  */
 
 /** Matrix heatmap with cell annotations. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dHeatmap(): ByteArray {
     val cols = listOf("6a", "9a", "12p", "3p", "6p", "9p", "12a")
     val rows = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
@@ -63,7 +62,6 @@ public fun graph2dHeatmap(): ByteArray {
 }
 
 /** Waffle / unit chart of proportions. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dWaffle(): ByteArray =
     graph2dDoc(640, 680, "Energy Mix") {
         waffleChart(
@@ -73,7 +71,6 @@ public fun graph2dWaffle(): ByteArray =
     }
 
 /** Cleveland dot plot (sorted). */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dDotPlot(): ByteArray =
     graph2dDoc(760, 520, "Revenue by Region") {
         dotPlot(
@@ -85,7 +82,6 @@ public fun graph2dDotPlot(): ByteArray =
     }
 
 /** Dumbbell chart: before vs after. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dDumbbell(): ByteArray =
     graph2dDoc(760, 520, "Before vs After") {
         dumbbellChart(
@@ -103,7 +99,6 @@ public fun graph2dDumbbell(): ByteArray =
     }
 
 /** Slope chart between two periods. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dSlope(): ByteArray =
     graph2dDoc(680, 560, "2023 → 2024") {
         slopeChart(
@@ -122,7 +117,6 @@ public fun graph2dSlope(): ByteArray =
     }
 
 /** Population pyramid. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dPyramid(): ByteArray =
     graph2dDoc(720, 600, "Population") {
         populationPyramid(
@@ -144,7 +138,6 @@ public fun graph2dPyramid(): ByteArray =
     }
 
 /** Candlestick financial chart. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dCandlestick(): ByteArray {
     var s = 99
     fun rnd(): Float {
@@ -167,7 +160,6 @@ public fun graph2dCandlestick(): ByteArray {
 }
 
 /** Regression plot: scatter + OLS fit. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRegression(): ByteArray {
     var s = 7
     fun rnd(): Float {
@@ -191,7 +183,6 @@ public fun graph2dRegression(): ByteArray {
 }
 
 /** ROC curve with the chance diagonal. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRoc(): ByteArray =
     graph2dDoc(620, 600, "ROC") {
         rocCurve(

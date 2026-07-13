@@ -26,14 +26,12 @@ import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.roseChart
 /** Phase 6 demos — polar / radial charts (gauge, radial bar, rose, polar bar). */
 
 /** Radial gauge with a center readout. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dGauge(): ByteArray =
     graph2dDoc(560, 560, "Performance") {
         gaugeChart(value = 72, min = 0, max = 100, title = "Performance Index", label = "of 100")
     }
 
 /** Radial (circular) bar chart — concentric rings. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRadialBar(): ByteArray =
     graph2dDoc(620, 620, "Daily Activity") {
         radialBarChart(
@@ -45,7 +43,6 @@ public fun graph2dRadialBar(): ByteArray =
     }
 
 /** Nightingale rose / coxcomb. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dRose(): ByteArray =
     graph2dDoc(640, 640, "Monthly Rainfall") {
         roseChart(
@@ -69,7 +66,6 @@ public fun graph2dRose(): ByteArray =
     }
 
 /** Polar bar chart — radial bars around a circular grid (e.g. a wind rose). */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dPolarBar(): ByteArray =
     graph2dDoc(640, 640, "Wind by Direction") {
         polarBarChart(

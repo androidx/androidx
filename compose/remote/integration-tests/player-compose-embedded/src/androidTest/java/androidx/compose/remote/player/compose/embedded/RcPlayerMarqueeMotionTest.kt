@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress("RestrictedApiAndroidX") // Referring to background, remote-testing
 
 package androidx.compose.remote.player.compose.embedded
 

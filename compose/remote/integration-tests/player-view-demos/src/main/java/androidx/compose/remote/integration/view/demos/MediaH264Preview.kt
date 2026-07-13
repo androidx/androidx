@@ -83,7 +83,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 data class DumperOutputData(val filePath: String)
 
 /** A manually driven clock to ensure perfectly timed frame-by-frame recording. */
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 private class ManualRemoteClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 60000L) :
     RemoteClock {
     var offsetMillis: Long = 0
@@ -99,7 +101,10 @@ private class ManualRemoteClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 
         return ManualTimeSnapshot(m)
     }
 
-    @Suppress("RestrictedApiAndroidX")
+    @Suppress(
+        "RestrictedApiAndroidX"
+    ) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose,
+    // remote-player-core
     private class ManualTimeSnapshot(val m: Long) : RemoteClock.TimeSnapshot {
         override fun getMillis() = m
 
@@ -126,7 +131,9 @@ private class ManualRemoteClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 
 }
 
 /** Presentation used to render the RemoteDocument to a VirtualDisplay during recording. */
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 private class RecordingPresentation(
     context: Context,
     virtualDisplay: VirtualDisplay,
@@ -177,7 +184,9 @@ private class RecordingPresentation(
 }
 
 /** Background thread that coordinates the off-screen rendering and H264 encoding. */
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 private class VideoEncodeThread(
     private val context: Context,
     private val sampleName: String,
@@ -407,7 +416,10 @@ private class VideoEncodeThread(
     }
 }
 
-@Suppress("RestrictedApiAndroidX", "COMPOSE_APPLIER_CALL_MISMATCH")
+@Suppress(
+    "RestrictedApiAndroidX",
+    "COMPOSE_APPLIER_CALL_MISMATCH",
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 @ComposableTarget(applier = "androidx.compose.ui.UiComposable")
 @Composable
 fun mediaH264Preview(
@@ -551,7 +563,9 @@ fun mediaH264Preview(
     return outputData
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 @Composable
 fun rememberVirtualDisplay(creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
     val context = LocalContext.current
@@ -561,7 +575,9 @@ fun rememberVirtualDisplay(creationDisplayInfo: RemoteCreationDisplayInfo): Virt
 }
 
 /** API for managing a pool of [VirtualDisplay] objects. The current implementation does not */
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
 object DisplayPool {
     fun allocate(context: Context, creationDisplayInfo: RemoteCreationDisplayInfo): VirtualDisplay {
         val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager

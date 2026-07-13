@@ -36,7 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, remote-core, remote-creation-core
 private val experimentalProfile =
     Profile(
         RcPlatformProfiles.ANDROIDX.apiLevel,
@@ -45,13 +47,17 @@ private val experimentalProfile =
         RcPlatformProfiles.ANDROIDX.profileFactory,
     )
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, remote-core, remote-creation-core
 @Composable
 fun RemoteFlowRowDemo() {
     RemoteDemo(profile = experimentalProfile) { RemoteFlowRowDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, remote-core, remote-creation-core
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

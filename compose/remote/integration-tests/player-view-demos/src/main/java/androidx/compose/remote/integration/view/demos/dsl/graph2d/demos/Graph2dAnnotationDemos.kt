@@ -33,7 +33,6 @@ private val months =
     listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 /** Reference band + target line + launch event + peak callout over a monthly line. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dAnnotations(): ByteArray =
     graph2dDoc(900, 560, "Annotated KPIs") {
         chart2d("Weekly Active Users") {
@@ -48,7 +47,6 @@ public fun graph2dAnnotations(): ByteArray =
     }
 
 /** Dual-axis combo: revenue bars (left axis) + conversion-rate line (right axis). */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dDualAxis(): ByteArray =
     graph2dDoc(900, 540, "Revenue vs Conversion") {
         comboChart(
@@ -63,7 +61,6 @@ public fun graph2dDualAxis(): ByteArray =
     }
 
 /** Log10 value axis: five decades of growth stay readable. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dLogScale(): ByteArray =
     graph2dDoc(900, 540, "Log Scale") {
         chart2d("User Growth (log scale)") {
@@ -92,7 +89,6 @@ public fun graph2dLogScale(): ByteArray =
     }
 
 /** Calendar time axis (epoch-day x values): month-boundary ticks + a dated event marker. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dTimeAxis(): ByteArray =
     graph2dDoc(940, 540, "Time Axis") {
         val start = daysFromCivil(2025, 9, 1)
@@ -112,7 +108,6 @@ public fun graph2dTimeAxis(): ByteArray =
     }
 
 /** Dashed forecast line, dashed gridlines, rotated category labels and a right-hand legend. */
-@Suppress("RestrictedApiAndroidX")
 public fun graph2dStyleExtras(): ByteArray =
     graph2dDoc(940, 560, "Style Extras") {
         val theme = GraphTheme.Light.copy(gridDash = floatArrayOf(4f, 6f))

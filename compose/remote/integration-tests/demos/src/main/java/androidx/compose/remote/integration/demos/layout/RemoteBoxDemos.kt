@@ -58,7 +58,9 @@ import androidx.compose.ui.unit.dp
 
 private const val ALIGNMENT_ID = "ALIGNMENT_ID"
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, setUserLocalInt
 @Composable
 fun RemoteBoxAlignmentsDemo() {
     val alignments =
@@ -118,7 +120,9 @@ fun RemoteBoxAlignmentsDemo() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, setUserLocalInt
 @Composable
 @RemoteComposable
 private fun RemoteBoxAlignmentsDemoContent(alignments: List<Pair<Int, RemoteAlignment>>) {
@@ -146,7 +150,9 @@ private fun RemoteBoxAlignmentsDemoPreview() {
     RemoteBoxAlignmentsDemo()
 }
 
-@Suppress("RestrictedApiAndroidX")
+@Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteComponentPreview, background, setUserLocalInt
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
