@@ -22,12 +22,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
 import androidx.core.widget.TextViewCompat;
 
 /**
- * Support library implementation for ExtractButton. Used by {@link EmojiExtractViewHelper} while
+ * Support library implementation for ExtractButton. Used by {@link EmojiExtractTextLayout} while
  * inflating {@link EmojiExtractEditText} for keyboard use.
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)

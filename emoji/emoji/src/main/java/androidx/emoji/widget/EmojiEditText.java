@@ -22,6 +22,7 @@ import android.view.ActionMode;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.IntRange;
 import androidx.core.widget.TextViewCompat;

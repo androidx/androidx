@@ -70,7 +70,7 @@ public class EmojiExtractTextLayout extends LinearLayout {
     private View.OnClickListener mButtonOnClickListener;
 
     /**
-     * Prevent calling {@link #init(Context, AttributeSet, int)}} multiple times in case super()
+     * Prevent calling {@link #init(Context, AttributeSet, int, int)} multiple times in case super()
      * constructors call other constructors.
      */
     private boolean mInitialized;
