@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"por minutos"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"por hora"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Usar o modo de entrada de texto"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Mudar para o modo de rolagem"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Mudar para o modo de relógio"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Selecione o horário"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Selecionar horário"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Insira a hora"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Selecione de 0 a 59min"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Selecione de 1 a 12h"</string>
