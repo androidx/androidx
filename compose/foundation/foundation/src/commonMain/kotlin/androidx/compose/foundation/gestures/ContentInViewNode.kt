@@ -492,7 +492,8 @@ internal class ContentInViewNode(
     }
 }
 
-private val UnspecifiedIntSize = IntSize(-1, -1)
+private val UnspecifiedIntSize
+    get() = IntSize(-1, -1)
 
 private inline fun IntSize.takeOrElse(other: () -> IntSize) =
     if (this == UnspecifiedIntSize) other() else this

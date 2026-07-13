@@ -969,4 +969,5 @@ private data class TraversablePrefetchStateModifierElement(
     }
 }
 
-private val ZeroConstraints = Constraints(maxWidth = 0, maxHeight = 0)
+private val ZeroConstraints
+    get() = Constraints(maxWidth = 0, maxHeight = 0)

@@ -931,7 +931,8 @@ internal suspend fun PagerState.animateToPreviousPage() {
     if (currentPage - 1 >= 0) animateScrollToPage(currentPage - 1)
 }
 
-internal val DefaultPositionThreshold = 56.dp
+internal val DefaultPositionThreshold
+    get() = 56.dp
 private const val MaxPagesForAnimateScroll = 3
 internal const val PagesToPrefetch = 1
 
