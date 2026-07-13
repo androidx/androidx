@@ -22,18 +22,17 @@ import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
-import androidx.build.intellij.registerIntelliJTask
+import androidx.build.intellij.IntelliJTask.Companion.registerIntelliJTask
 import androidx.build.license.ValidateLicensesExistTask
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
 import androidx.build.playground.ValidateIntegrationPatches
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
-import androidx.build.studio.registerStudioTask
+import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.uptodatedness.setupConfigurationCacheValidator
-import androidx.build.vscode.registerVSCodeTask
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -176,7 +175,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         }
         registerStudioTask()
         registerIntelliJTask()
-        registerVSCodeTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.outputFile.set(project.getDistributionDirectory().file("task_outputs.txt"))
