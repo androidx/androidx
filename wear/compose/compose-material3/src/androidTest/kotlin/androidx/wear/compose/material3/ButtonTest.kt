@@ -74,6 +74,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.material3.samples.CompactButtonWithContentSample
 import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
 import androidx.wear.compose.material3.tokens.ChildButtonTokens
@@ -98,6 +99,11 @@ class ButtonTest {
     @Test
     fun filled_tonal_compact_button_sample_builds() {
         rule.setContentWithTheme { FilledTonalCompactButtonSample() }
+    }
+
+    @Test
+    fun compact_button_with_content_sample_builds() {
+        rule.setContentWithTheme { CompactButtonWithContentSample() }
     }
 
     @Test
@@ -865,6 +871,137 @@ class ButtonTest {
     }
 
     @Test
+    fun single_slot_compact_button_has_correct_default_height() {
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            CompactButton(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onRoot().assertHeightIsEqualTo(CompactButtonDefaults.Height)
+    }
+
+    @Test
+    fun single_slot_compact_button_can_be_disabled() {
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun single_slot_compact_button_responds_to_click_when_enabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = { clicked = true },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle { assertThat(clicked).isTrue() }
+    }
+
+    @Test
+    fun single_slot_compact_button_does_not_respond_to_click_when_disabled() {
+        var clicked = false
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = { clicked = true },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performClick()
+
+        rule.runOnIdle { assertThat(clicked).isFalse() }
+    }
+
+    @Test
+    fun single_slot_compact_button_responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                onLongClick = { longClicked = true },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertThat(longClicked).isTrue() }
+    }
+
+    @Test
+    fun single_slot_compact_button_does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                onLongClick = { longClicked = true },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertThat(longClicked).isFalse() }
+    }
+
+    @Test
+    fun single_slot_compact_button_onLongClickLabel_includedInSemantics() {
+        val testLabel = "Long click action"
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                onLongClick = {},
+                onLongClickLabel = testLabel,
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertOnLongClickLabelMatches(testLabel)
+    }
+
+    @Test
+    fun single_slot_compact_button_can_have_width_overridden() {
+        rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+            CompactButton(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG).width(100.dp),
+                content = { Text("Test") },
+            )
+        }
+
+        rule.onRoot().assertWidthIsEqualTo(100.dp)
+    }
+
+    @Test
     fun icon_only_compact_button_can_have_width_overridden() {
         val iconTag = "TestIcon"
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
@@ -992,6 +1129,24 @@ class ButtonTest {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() },
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gives_enabled_single_slot_compact_button_correct_colors() {
+        rule.verifySingleSlotCompactButtonColors(
+            status = Status.Enabled,
+            colors = { ButtonDefaults.buttonColors() },
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gives_disabled_single_slot_compact_button_correct_colors() {
+        rule.verifySingleSlotCompactButtonColors(
+            status = Status.Disabled,
+            colors = { ButtonDefaults.buttonColors() },
         )
     }
 
@@ -1717,10 +1872,14 @@ class ButtonTest {
             expectedColor = colors.contentColor(true)
             expectedStyle = CompactButtonTokens.LabelFont.value
 
-            CompactButton(onClick = {}, colors = colors) {
-                actualColor = LocalContentColor.current
-                actualStyle = LocalTextStyle.current
-            }
+            CompactButton(
+                onClick = {},
+                colors = colors,
+                content = {
+                    actualColor = LocalContentColor.current
+                    actualStyle = LocalTextStyle.current
+                },
+            )
         }
 
         assertEquals(expectedColor, actualColor)
@@ -2008,6 +2167,41 @@ private fun ComposeContentTestRule.verifyCompactButtonColors(
 
     assertEquals(actualLabelColor, labelColor)
     assertEquals(actualIconColor, iconColor)
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertContainsColor(
+            if (containerColor != Color.Transparent) containerColor else testBackgroundColor
+        )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.verifySingleSlotCompactButtonColors(
+    status: Status,
+    colors: @Composable () -> ButtonColors,
+) {
+    val testBackgroundColor = Color.White
+    var containerColor = Color.Transparent
+    var contentColor = Color.Transparent
+    var actualContentColor = Color.Transparent
+
+    setContentWithTheme {
+        containerColor =
+            (colors().containerColor(status.enabled())).compositeOver(testBackgroundColor)
+        contentColor = colors().contentColor(status.enabled())
+
+        Box(Modifier.fillMaxSize().background(testBackgroundColor)) {
+            CompactButton(
+                onClick = {},
+                colors = colors(),
+                enabled = status.enabled(),
+                modifier = Modifier.testTag(TEST_TAG),
+                content = { actualContentColor = LocalContentColor.current },
+            )
+        }
+    }
+
+    assertEquals(actualContentColor, contentColor)
 
     onNodeWithTag(TEST_TAG)
         .captureToImage()
