@@ -17,11 +17,11 @@
 package androidx.compose.material3.benchmark
 
 import androidx.compose.material3.ElevatedToggleButton
+import androidx.compose.material3.FilledTonalToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
-import androidx.compose.material3.TonalToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -79,8 +79,10 @@ internal class ToggleButtonTestCase(private val type: ToggleButtonType) :
                 ElevatedToggleButton(checked = checked.value, onCheckedChange = {}) {
                     Text("Button")
                 }
-            ToggleButtonType.Tonal ->
-                TonalToggleButton(checked = checked.value, onCheckedChange = {}) { Text("Button") }
+            ToggleButtonType.FilledTonal ->
+                FilledTonalToggleButton(checked = checked.value, onCheckedChange = {}) {
+                    Text("Button")
+                }
             ToggleButtonType.Outlined ->
                 OutlinedToggleButton(checked = checked.value, onCheckedChange = {}) {
                     Text("Button")
@@ -101,6 +103,6 @@ internal class ToggleButtonTestCase(private val type: ToggleButtonType) :
 enum class ToggleButtonType {
     Filled,
     Elevated,
-    Tonal,
+    FilledTonal,
     Outlined,
 }
