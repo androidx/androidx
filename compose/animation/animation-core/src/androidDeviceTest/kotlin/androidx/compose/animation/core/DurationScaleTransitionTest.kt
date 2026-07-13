@@ -32,7 +32,7 @@ import org.junit.Test
 
 @SmallTest
 class DurationScaleTransitionTest {
-    @OptIn(ExperimentalTestApi::class, ExperimentalTransitionApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun childTransitionWithDurationScale() {
         val motionDurationScale =
@@ -86,7 +86,7 @@ class DurationScaleTransitionTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalTransitionApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun childTransitionWithDurationScaleSeekableTransition() {
         val motionDurationScale =
@@ -147,7 +147,7 @@ class DurationScaleTransitionTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalTransitionApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun childTransitionWithDurationScaleSeekTransition() {
         val motionDurationScale =

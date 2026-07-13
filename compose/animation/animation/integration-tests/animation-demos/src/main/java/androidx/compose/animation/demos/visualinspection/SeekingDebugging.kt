@@ -19,7 +19,6 @@ package androidx.compose.animation.demos.visualinspection
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
@@ -111,7 +110,6 @@ fun SeekingDemo() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun Transition<Boolean>.ComplexAV() {
     AnimatedVisibility(

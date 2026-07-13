@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -53,7 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Preview
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ScaleEnterExitDemo() {
     Column {

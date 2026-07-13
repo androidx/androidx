@@ -45,7 +45,6 @@ import androidx.compose.ui.util.fastForEach
  * @param label An optional label to differentiate from other animations in Android Studio.
  * @param content A mapping from a given state to the content corresponding to that state.
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun <T> Crossfade(
     targetState: T,
@@ -59,7 +58,6 @@ public fun <T> Crossfade(
 }
 
 @Deprecated("Crossfade API now has a new label parameter added.", level = DeprecationLevel.HIDDEN)
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 public fun <T> Crossfade(
     targetState: T,
@@ -93,7 +91,6 @@ public fun <T> Crossfade(
  * @param contentKey A mapping from a given state to an object of [Any].
  * @param content A mapping from a given state to the content corresponding to that state.
  */
-@ExperimentalAnimationApi
 @Composable
 public fun <T> Transition<T>.Crossfade(
     modifier: Modifier = Modifier,

@@ -17,7 +17,6 @@
 package androidx.compose.animation.demos.layoutanimation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Preview
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedContentWithContentKeyDemo() {
     val model: ScreenModel = remember { ScreenModel() }

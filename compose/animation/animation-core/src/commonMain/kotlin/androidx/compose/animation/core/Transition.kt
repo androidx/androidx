@@ -2000,7 +2000,6 @@ public fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(
  *
  * @sample androidx.compose.animation.core.samples.CreateChildTransitionSample
  */
-@ExperimentalTransitionApi
 @Composable
 public inline fun <S, T> Transition<S>.createChildTransition(
     label: String = "ChildTransition",

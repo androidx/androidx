@@ -19,7 +19,6 @@ package androidx.compose.animation.demos.visualinspection
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.expandVertically
@@ -195,7 +194,6 @@ fun AlignmentOption(state: MutableState<Boolean>) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CenterMenu(
     modifier: Modifier = Modifier,

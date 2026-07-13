@@ -186,7 +186,6 @@ class CrossfadeTest {
         assertEquals(2, counter2)
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun crossfadeTest_contentKey() {
         var targetState by mutableStateOf(1)
