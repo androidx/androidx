@@ -248,7 +248,7 @@ class ToggleButtonTest {
     fun tonalToggleButton_defaultColors() {
         rule.setMaterialContent(lightColorScheme()) {
             assertThat(
-                    ToggleButtonDefaults.tonalToggleButtonColors(
+                    ToggleButtonDefaults.filledTonalToggleButtonColors(
                         containerColor = Color.Unspecified,
                         contentColor = Color.Unspecified,
                         disabledContainerColor = Color.Unspecified,

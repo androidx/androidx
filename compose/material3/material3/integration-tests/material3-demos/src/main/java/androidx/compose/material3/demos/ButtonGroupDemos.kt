@@ -323,12 +323,7 @@ fun ButtonGroupDemos() {
                     buttonGroupContent = {
                         ToggleButton(
                             checked = checked[4],
-                            shapes =
-                                ToggleButtonDefaults.shapes(
-                                    ToggleButtonDefaults.squareShape,
-                                    ToggleButtonDefaults.pressedShape,
-                                    ToggleButtonDefaults.checkedShape,
-                                ),
+                            shapes = ToggleButtonDefaults.shapesFor(ButtonDefaults.MinHeight),
                             onCheckedChange = { checked[4] = it },
                             interactionSource = interactionSources[4],
                             modifier = Modifier.animateWidth(interactionSources[4]),
@@ -382,12 +377,7 @@ fun ButtonGroupDemos() {
                     buttonGroupContent = {
                         ToggleButton(
                             checked = checked[5],
-                            shapes =
-                                ToggleButtonDefaults.shapes(
-                                    ToggleButtonDefaults.squareShape,
-                                    ToggleButtonDefaults.pressedShape,
-                                    ToggleButtonDefaults.checkedShape,
-                                ),
+                            shapes = ToggleButtonDefaults.shapesFor(ButtonDefaults.MinHeight),
                             onCheckedChange = { checked[5] = it },
                             interactionSource = interactionSources[5],
                             modifier = Modifier.animateWidth(interactionSources[5]),
@@ -441,12 +431,7 @@ fun ButtonGroupDemos() {
                     buttonGroupContent = {
                         ToggleButton(
                             checked = checked[6],
-                            shapes =
-                                ToggleButtonDefaults.shapes(
-                                    ToggleButtonDefaults.squareShape,
-                                    ToggleButtonDefaults.pressedShape,
-                                    ToggleButtonDefaults.checkedShape,
-                                ),
+                            shapes = ToggleButtonDefaults.shapesFor(ButtonDefaults.MinHeight),
                             onCheckedChange = { checked[6] = it },
                             interactionSource = interactionSources[6],
                             modifier = Modifier.animateWidth(interactionSources[6]),

@@ -26,13 +26,13 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedToggleButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.material3.ToggleButtonShapes
-import androidx.compose.material3.TonalToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +52,7 @@ fun ToggleButtonSample() {
 @Preview
 @Sampled
 @Composable
-fun SquareToggleButtonSample() {
+fun SquareToRoundToggleButtonSample() {
     var checked by remember { mutableStateOf(false) }
     val shapes =
         ToggleButtonShapes(
@@ -78,9 +78,9 @@ fun ElevatedToggleButtonSample() {
 @Preview
 @Sampled
 @Composable
-fun TonalToggleButtonSample() {
+fun FilledTonalToggleButtonSample() {
     var checked by remember { mutableStateOf(false) }
-    TonalToggleButton(checked = checked, onCheckedChange = { checked = it }) {
+    FilledTonalToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Text("Tonal Button")
     }
 }

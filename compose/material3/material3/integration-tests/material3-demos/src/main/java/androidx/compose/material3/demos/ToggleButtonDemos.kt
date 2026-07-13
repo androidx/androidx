@@ -34,12 +34,12 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedToggleButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
-import androidx.compose.material3.TonalToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -91,7 +91,7 @@ fun ToggleButtonDemos() {
         Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
             ToggleButtons()
             ElevatedToggleButtons()
-            TonalToggleButtons()
+            FilledTonalToggleButtons()
             OutlinedToggleButtons()
         }
     }
@@ -283,15 +283,15 @@ fun ElevatedToggleButtons() {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TonalToggleButtons() {
+fun FilledTonalToggleButtons() {
     val checked = remember { mutableStateListOf(false, false, false, false, false) }
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(horizontal = 2.dp),
     ) {
-        Text("Tonal", modifier = Modifier.height(48.dp))
+        Text("Filled Tonal", modifier = Modifier.height(48.dp))
 
-        TonalToggleButton(
+        FilledTonalToggleButton(
             checked = checked[0],
             onCheckedChange = { checked[0] = it },
             modifier = Modifier.heightIn(extraSmall),
@@ -307,7 +307,7 @@ fun TonalToggleButtons() {
             Text("Label", style = ButtonDefaults.textStyleFor(extraSmall))
         }
 
-        TonalToggleButton(
+        FilledTonalToggleButton(
             checked = checked[1],
             onCheckedChange = { checked[1] = it },
             modifier = Modifier.heightIn(small),
@@ -323,7 +323,7 @@ fun TonalToggleButtons() {
             Text("Label", style = ButtonDefaults.textStyleFor(small))
         }
 
-        TonalToggleButton(
+        FilledTonalToggleButton(
             checked = checked[2],
             onCheckedChange = { checked[2] = it },
             modifier = Modifier.heightIn(medium),
@@ -339,7 +339,7 @@ fun TonalToggleButtons() {
             Text("Label", style = ButtonDefaults.textStyleFor(medium))
         }
 
-        TonalToggleButton(
+        FilledTonalToggleButton(
             checked = checked[3],
             onCheckedChange = { checked[3] = it },
             modifier = Modifier.heightIn(large),
@@ -355,7 +355,7 @@ fun TonalToggleButtons() {
             Text("Label", style = ButtonDefaults.textStyleFor(large))
         }
 
-        TonalToggleButton(
+        FilledTonalToggleButton(
             checked = checked[4],
             onCheckedChange = { checked[4] = it },
             modifier = Modifier.heightIn(extraLarge),

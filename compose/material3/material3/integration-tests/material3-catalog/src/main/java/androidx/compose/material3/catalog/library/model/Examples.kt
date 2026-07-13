@@ -129,6 +129,7 @@ import androidx.compose.material3.samples.FilledTonalButtonSample
 import androidx.compose.material3.samples.FilledTonalButtonWithAnimatedShapeSample
 import androidx.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
+import androidx.compose.material3.samples.FilledTonalToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithCornerMorphingSample
 import androidx.compose.material3.samples.FilterChipWithCustomSpacingSample
@@ -284,7 +285,7 @@ import androidx.compose.material3.samples.SplitButtonWithIconSample
 import androidx.compose.material3.samples.SplitButtonWithTextSample
 import androidx.compose.material3.samples.SplitButtonWithUnCheckableTrailingButtonSample
 import androidx.compose.material3.samples.SquareButtonSample
-import androidx.compose.material3.samples.SquareToggleButtonSample
+import androidx.compose.material3.samples.SquareToRoundToggleButtonSample
 import androidx.compose.material3.samples.StandardListItems
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
@@ -311,7 +312,6 @@ import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.ToggleButtonSample
 import androidx.compose.material3.samples.ToggleButtonWithIconSample
 import androidx.compose.material3.samples.TonalSplitButtonSample
-import androidx.compose.material3.samples.TonalToggleButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TypographyCustomFontFamilySample
@@ -2186,12 +2186,12 @@ val ToggleButtonsExamples =
             ToggleButtonSample()
         },
         Example(
-            name = "RoundToggleButtonSample",
+            name = "SquareToRoundToggleButtonSample",
             description = ToggleButtonsExampleDescription,
             sourceUrl = ToggleButtonsExampleSourceUrl,
             isExpressive = true,
         ) {
-            SquareToggleButtonSample()
+            SquareToRoundToggleButtonSample()
         },
         Example(
             name = "ElevatedToggleButtonSample",
@@ -2202,12 +2202,12 @@ val ToggleButtonsExamples =
             ElevatedToggleButtonSample()
         },
         Example(
-            name = "TonalToggleButtonSample",
+            name = "FilledTonalToggleButtonSample",
             description = ToggleButtonsExampleDescription,
             sourceUrl = ToggleButtonsExampleSourceUrl,
             isExpressive = true,
         ) {
-            TonalToggleButtonSample()
+            FilledTonalToggleButtonSample()
         },
         Example(
             name = "OutlinedToggleButtonSample",
