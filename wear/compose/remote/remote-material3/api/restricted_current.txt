@@ -1,6 +1,17 @@
 // Signature format: 4.0
 package androidx.wear.compose.remote.material3 {
 
+  public final class DefaultRemotePageIndicatorState implements androidx.wear.compose.remote.material3.RemotePageIndicatorState {
+    ctor public DefaultRemotePageIndicatorState(int pageCount, optional androidx.compose.remote.creation.compose.state.RemoteInt selectedPage, optional androidx.compose.remote.creation.compose.state.RemoteFloat pageOffset);
+    ctor @BytecodeOnly public DefaultRemotePageIndicatorState(int, androidx.compose.remote.creation.compose.state.RemoteInt!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getPageCount();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getPageOffset();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getSelectedPage();
+    property public int pageCount;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat pageOffset;
+    property public androidx.compose.remote.creation.compose.state.RemoteInt selectedPage;
+  }
+
   public final class RemoteAppCardKt {
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteAppCard(androidx.compose.remote.creation.compose.action.Action onClick, kotlin.jvm.functions.Function0<kotlin.Unit> appName, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape, optional androidx.wear.compose.remote.material3.RemoteCardColors colors, optional androidx.compose.remote.creation.compose.layout.RemotePaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit>? appImage, optional kotlin.jvm.functions.Function0<kotlin.Unit>? time, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteAppCard(androidx.compose.remote.creation.compose.action.Action, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.remote.creation.compose.shapes.RemoteShape?, androidx.wear.compose.remote.material3.RemoteCardColors?, androidx.compose.remote.creation.compose.layout.RemotePaddingValues?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
@@ -284,6 +295,36 @@ package androidx.wear.compose.remote.material3 {
   public final class RemoteMaterialThemeKt {
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteMaterialTheme(optional androidx.wear.compose.remote.material3.RemoteColorScheme colorScheme, optional androidx.wear.compose.remote.material3.RemoteTypography typography, optional androidx.wear.compose.remote.material3.RemoteShapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteMaterialTheme(androidx.wear.compose.remote.material3.RemoteColorScheme?, androidx.wear.compose.remote.material3.RemoteTypography?, androidx.wear.compose.remote.material3.RemoteShapes?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class RemotePageIndicatorDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getIndicatorRadius();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getPageIndicatorPadding();
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteColor getSelectedColor(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteColor getUnselectedColor(androidx.compose.runtime.Composer?, int);
+    property public androidx.compose.remote.creation.compose.state.RemoteDp indicatorRadius;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp pageIndicatorPadding;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteColor selectedColor;
+    property @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.compose.remote.creation.compose.state.RemoteColor unselectedColor;
+    field public static final androidx.wear.compose.remote.material3.RemotePageIndicatorDefaults INSTANCE;
+  }
+
+  public final class RemotePageIndicatorKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteHorizontalPageIndicator(androidx.wear.compose.remote.material3.RemotePageIndicatorState state, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor selectedColor, optional androidx.compose.remote.creation.compose.state.RemoteColor unselectedColor, optional androidx.compose.remote.creation.compose.state.RemoteDp indicatorRadius, optional androidx.compose.remote.creation.compose.state.RemoteDp padding);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteHorizontalPageIndicator(androidx.wear.compose.remote.material3.RemotePageIndicatorState, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteVerticalPageIndicator(androidx.wear.compose.remote.material3.RemotePageIndicatorState state, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor selectedColor, optional androidx.compose.remote.creation.compose.state.RemoteColor unselectedColor, optional androidx.compose.remote.creation.compose.state.RemoteDp indicatorRadius, optional androidx.compose.remote.creation.compose.state.RemoteDp padding);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteVerticalPageIndicator(androidx.wear.compose.remote.material3.RemotePageIndicatorState, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.remote.material3.RemotePageIndicatorState rememberRemotePageIndicatorState(int pageCount, optional androidx.compose.remote.creation.compose.state.RemoteInt selectedPage, optional androidx.compose.remote.creation.compose.state.RemoteFloat pageOffset);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.remote.material3.RemotePageIndicatorState rememberRemotePageIndicatorState(int, androidx.compose.remote.creation.compose.state.RemoteInt?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public interface RemotePageIndicatorState {
+    method @InaccessibleFromKotlin public int getPageCount();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getPageOffset();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteInt getSelectedPage();
+    property public abstract int pageCount;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat pageOffset;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteInt selectedPage;
   }
 
   public final class RemoteProgressIndicatorColors {
