@@ -348,7 +348,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setShouldDownloadFavicons(WebSettings, boolean)}
+     * {@link androidx.webkit.WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)}
      */
     @Override
     public void setDownloadFaviconsEnabled(boolean shouldDownload) {
@@ -356,7 +356,7 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
 
     /**
      * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getShouldDownloadFavicons(WebSettings)}
+     * {@link androidx.webkit.WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}
      */
     @Override
     public boolean getDownloadFaviconsEnabled() {

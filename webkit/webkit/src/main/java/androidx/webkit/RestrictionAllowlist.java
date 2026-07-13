@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import android.webkit.WebView;
+
 import org.chromium.support_lib_boundary.WebViewBuilderBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
@@ -66,8 +68,9 @@ public final class RestrictionAllowlist {
         /**
          * Construct a RestrictionAllowlist Builder
          *
-         * <p>See {@link #addWebMessageListener(WebView, String, Set, WebMessageListener)} for the
-         * rules of the {@code originPatterns} parameter.
+         * <p>See {@link
+         * WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}
+         * for the rules of the {@code originPatterns} parameter.
          *
          * @param originPatterns List of origin patterns to allow the selected behaviors on.
          */
@@ -76,7 +79,7 @@ public final class RestrictionAllowlist {
         }
 
         /**
-         * This API is the same as {@link WebView#addJavascriptInterface(Object, String)} except it
+         * This API is the same as {@link android.webkit.WebView#addJavascriptInterface(Object, String)} except it
          * will only inject the interface into the origin patterns allowed.
          *
          * <p>A {@code name} value may only be used once per WebViewBuilder, regardless of whether
@@ -95,7 +98,7 @@ public final class RestrictionAllowlist {
 
         /**
          * Constructs a new RestrictionAllowlist that can be attached via
-         * {@link WebViewBuilder#setRestrictionAllowlist(RestrictionAllowlist)}.
+         * {@link WebViewBuilder#addAllowlist(RestrictionAllowlist)}.
          *
          * @see WebViewBuilder
          */

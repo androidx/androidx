@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * Adapter between CookieManagerCompat and
- * {@link org.chromium.support_lib_boundary.CookieManagerBoundaryInterface} (the
+ * {@link org.chromium.support_lib_boundary.WebViewCookieManagerBoundaryInterface} (the
  * corresponding interface shared with the support library glue in the WebView APK).
  */
 public class CookieManagerAdapter {

@@ -561,7 +561,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
      * This feature covers
-     * {@link ProcessGlobalConfig#setPartitionedCookiesEnabled(Context, Boolean)}
+     * {@link ProcessGlobalConfig#setPartitionedCookiesEnabled(Context, boolean)}
      */
     public static final String STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES =
             "STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES";
@@ -669,7 +669,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
+     * {@link WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
      * {@link WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
      */
     public static final String BACK_FORWARD_CACHE_SETTINGS = "BACK_FORWARD_CACHE_SETTINGS";
