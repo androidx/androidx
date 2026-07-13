@@ -19,6 +19,7 @@
 
 package androidx.navigationevent
 
+import androidx.annotation.VisibleForTesting
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -36,13 +37,19 @@ import org.w3c.dom.Window
  * This implementation uses the browser's History API to synchronize the application's internal
  * navigation state with the browser's history stack.
  */
-internal class BrowserInput(
+@ExperimentalNavigationEventApi
+public class BrowserInput
+@VisibleForTesting
+internal constructor(
     private val window: WindowCompat,
-    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    private val coroutineDispatcher: CoroutineDispatcher,
 ) : NavigationEventInput() {
 
     /** Creates a [BrowserInput] for the given [window]. */
-    constructor(window: Window) : this(WindowCompat(window))
+    public constructor(
+        window: Window,
+        coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    ) : this(WindowCompat(window), coroutineDispatcher)
 
     private var coroutineScope: CoroutineScope? = null
 

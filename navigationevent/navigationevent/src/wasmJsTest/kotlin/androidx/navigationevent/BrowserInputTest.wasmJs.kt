@@ -32,6 +32,7 @@ import kotlinx.coroutines.test.runTest
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.PopStateEventInit
 
+@OptIn(ExperimentalNavigationEventApi::class)
 internal class BrowserInputTest {
 
     private val testDispatcher = StandardTestDispatcher()
