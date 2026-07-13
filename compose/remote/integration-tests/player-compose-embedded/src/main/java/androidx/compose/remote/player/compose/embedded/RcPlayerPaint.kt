@@ -18,14 +18,23 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.graphics.BitmapShader
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.RuntimeShader
+import android.graphics.Shader
+import android.graphics.Typeface
+import android.os.Build
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -60,16 +69,22 @@ internal class ComposeLocalPaint {
     var brush: Brush? = null
     // The framework shader backing [brush] (SHADER/TEXTURE), kept so SHADER_MATRIX can set a local
     // matrix on it.
-    var nativeShader: android.graphics.Shader? = null
-    var colorFilter: androidx.compose.ui.graphics.ColorFilter? = null
-    var blendMode: androidx.compose.ui.graphics.BlendMode =
-        androidx.compose.ui.graphics.BlendMode.SrcOver
+    var nativeShader: Shader? = null
+    var colorFilter: ColorFilter? = null
+    var blendMode: BlendMode = BlendMode.SrcOver
     var isBlendModeSet: Boolean = false
 
     /**
      * Paint alpha in [0,1] from the PaintBundle ALPHA op; multiplies the draw color's own alpha.
      */
     var alpha: Float = 1f
+
+    /**
+     * The [PaintBundle]s applied to this paint state, in application order. Replayed into a core
+     * [androidx.compose.remote.core.PaintContext] when a draw op is bridged to the View player
+     * implementation (see RcPlayerParticles), so paint set outside that subtree still applies.
+     */
+    val sourceBundles: MutableList<PaintBundle> = mutableListOf()
 
     /** The fill color with the paint's [alpha] folded into its alpha channel. */
     fun effectiveColor(): Color = Color(color).let { it.copy(alpha = it.alpha * alpha) }
@@ -79,20 +94,19 @@ internal class ComposeLocalPaint {
      * on-path/anchored variants) from the current paint state: anti-aliased, the effective color,
      * the text size, and a bold/italic [android.graphics.Typeface] derived from font weight/style.
      */
-    fun toNativeTextPaint(): android.graphics.Paint {
+    fun toNativeTextPaint(): Paint {
         val style =
             when {
-                fontStyle == FontStyle.Italic && fontWeight >= 600 ->
-                    android.graphics.Typeface.BOLD_ITALIC
-                fontStyle == FontStyle.Italic -> android.graphics.Typeface.ITALIC
-                fontWeight >= 600 -> android.graphics.Typeface.BOLD
-                else -> android.graphics.Typeface.NORMAL
+                fontStyle == FontStyle.Italic && fontWeight >= 600 -> Typeface.BOLD_ITALIC
+                fontStyle == FontStyle.Italic -> Typeface.ITALIC
+                fontWeight >= 600 -> Typeface.BOLD
+                else -> Typeface.NORMAL
             }
-        return android.graphics.Paint().apply {
+        return Paint().apply {
             isAntiAlias = true
             color = effectiveColor().toArgb()
             textSize = this@ComposeLocalPaint.textSize
-            typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, style)
+            typeface = Typeface.create(Typeface.DEFAULT, style)
         }
     }
 }
@@ -118,20 +132,18 @@ internal fun mapTileMode(mode: Int): TileMode =
         else -> TileMode.Clamp
     }
 
-/** Maps a packed tile-mode index to a framework [android.graphics.Shader.TileMode]. */
-private fun nativeTileMode(index: Int): android.graphics.Shader.TileMode =
+/** Maps a packed tile-mode index to a framework [Shader.TileMode]. */
+private fun nativeTileMode(index: Int): Shader.TileMode =
     when (index) {
-        1 -> android.graphics.Shader.TileMode.REPEAT
-        2 -> android.graphics.Shader.TileMode.MIRROR
-        else -> android.graphics.Shader.TileMode.CLAMP
+        1 -> Shader.TileMode.REPEAT
+        2 -> Shader.TileMode.MIRROR
+        else -> Shader.TileMode.CLAMP
     }
 
-/**
- * Wraps a framework [android.graphics.Shader] as a Compose [Brush] for the DrawScope paint path.
- */
-private fun nativeShaderBrush(shader: android.graphics.Shader): Brush =
+/** Wraps a framework [Shader] as a Compose [Brush] for the DrawScope paint path. */
+private fun nativeShaderBrush(shader: Shader): Brush =
     object : ShaderBrush() {
-        override fun createShader(size: Size): android.graphics.Shader = shader
+        override fun createShader(size: Size): Shader = shader
     }
 
 /**
@@ -141,12 +153,9 @@ private fun nativeShaderBrush(shader: android.graphics.Shader): Brush =
  * or below API 33 (RuntimeShader is API 33+); the caller then falls back to the solid color. The
  * caller wraps it as a Compose [Brush] (and keeps it for SHADER_MATRIX).
  */
-private fun buildRuntimeShader(
-    shaderId: Int,
-    remoteContext: RemoteContext,
-): android.graphics.Shader? {
+private fun buildRuntimeShader(shaderId: Int, remoteContext: RemoteContext): Shader? {
     if (shaderId == 0) return null
-    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) return null
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     val data = remoteContext.mRemoteComposeState.getFromId(shaderId) as? ShaderData ?: return null
     val text = remoteContext.getText(data.shaderTextId) ?: return null
     // A shader that fails to compile or bind its uniforms (e.g. malformed AGSL, or a runtime that
@@ -154,7 +163,7 @@ private fun buildRuntimeShader(
     // crash the whole document draw — fall back to no shader so the rest of the frame still
     // renders.
     return try {
-        val shader = android.graphics.RuntimeShader(text)
+        val shader = RuntimeShader(text)
         for (name in data.uniformFloatNames) {
             shader.setFloatUniform(name, data.getUniformFloats(name))
         }
@@ -166,11 +175,7 @@ private fun buildRuntimeShader(
             if (bitmap != null) {
                 shader.setInputShader(
                     name,
-                    android.graphics.BitmapShader(
-                        bitmap,
-                        android.graphics.Shader.TileMode.CLAMP,
-                        android.graphics.Shader.TileMode.CLAMP,
-                    ),
+                    BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP),
                 )
             }
         }
@@ -212,7 +217,7 @@ private fun applyShaderMatrix(paintState: ComposeLocalPaint, matrixWord: Int, re
                 )
             else -> return
         }
-    shader.setLocalMatrix(android.graphics.Matrix().apply { setValues(m3x3) })
+    shader.setLocalMatrix(Matrix().apply { setValues(m3x3) })
 }
 
 internal fun mapBlendMode(mode: Int): androidx.compose.ui.graphics.BlendMode =
@@ -260,6 +265,7 @@ internal fun updatePaintFromBundle(
     remoteContext: RemoteContext,
     read: RemoteContext = remoteContext,
 ) {
+    paintState.sourceBundles.add(bundle)
     val array = bundle.getArrayReflection()
     var i = 0
     while (i < bundle.getPosReflection()) {
@@ -313,18 +319,16 @@ internal fun updatePaintFromBundle(
                 paintState.blendMode = mapBlendMode(mode)
                 paintState.isBlendModeSet = true
             }
-            androidx.compose.remote.core.operations.paint.PaintBundle.COLOR_FILTER -> {
+            PaintBundle.COLOR_FILTER -> {
                 val mode = (cmd shr 16)
                 val color = array[i++]
-                paintState.colorFilter =
-                    androidx.compose.ui.graphics.ColorFilter.tint(Color(color), mapBlendMode(mode))
+                paintState.colorFilter = ColorFilter.tint(Color(color), mapBlendMode(mode))
             }
             PaintBundle.COLOR_FILTER_ID -> {
                 val mode = (cmd shr 16)
                 val colorId = array[i++]
                 val color = read.getColor(colorId)
-                paintState.colorFilter =
-                    androidx.compose.ui.graphics.ColorFilter.tint(Color(color), mapBlendMode(mode))
+                paintState.colorFilter = ColorFilter.tint(Color(color), mapBlendMode(mode))
             }
             PaintBundle.CLEAR_COLOR_FILTER -> {
                 paintState.colorFilter = null
@@ -349,7 +353,7 @@ internal fun updatePaintFromBundle(
                 val bitmap = resolveBitmap(remoteContext, bitmapId)
                 val shader =
                     bitmap?.let {
-                        android.graphics.BitmapShader(
+                        BitmapShader(
                             it,
                             nativeTileMode(tileModes and 0xF),
                             nativeTileMode((tileModes shr 16) and 0xF),
