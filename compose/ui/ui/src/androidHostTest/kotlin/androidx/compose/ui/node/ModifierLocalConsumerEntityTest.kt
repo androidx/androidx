@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.TaskDispatchers
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -396,6 +397,9 @@ class ModifierLocalConsumerEntityTest {
             get() = TODO("Not yet implemented")
 
         override val windowInfo: WindowInfo
+            get() = TODO("Not yet implemented")
+
+        override val taskDispatchers: TaskDispatchers
             get() = TODO("Not yet implemented")
 
         override val rectManager: RectManager = RectManager()

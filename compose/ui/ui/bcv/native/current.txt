@@ -1029,6 +1029,13 @@ abstract interface androidx.compose.ui.platform/SoundEffect { // androidx.compos
     abstract fun playClickSound() // androidx.compose.ui.platform/SoundEffect.playClickSound|playClickSound(){}[0]
 }
 
+abstract interface androidx.compose.ui.platform/TaskDispatchers { // androidx.compose.ui.platform/TaskDispatchers|null[0]
+    abstract val Default // androidx.compose.ui.platform/TaskDispatchers.Default|{}Default[0]
+        abstract fun <get-Default>(): kotlinx.coroutines/CoroutineDispatcher // androidx.compose.ui.platform/TaskDispatchers.Default.<get-Default>|<get-Default>(){}[0]
+    abstract val IO // androidx.compose.ui.platform/TaskDispatchers.IO|{}IO[0]
+        abstract fun <get-IO>(): kotlinx.coroutines/CoroutineDispatcher // androidx.compose.ui.platform/TaskDispatchers.IO.<get-IO>|<get-IO>(){}[0]
+}
+
 abstract interface androidx.compose.ui.platform/TextToolbar { // androidx.compose.ui.platform/TextToolbar|null[0]
     abstract val status // androidx.compose.ui.platform/TextToolbar.status|{}status[0]
         abstract fun <get-status>(): androidx.compose.ui.platform/TextToolbarStatus // androidx.compose.ui.platform/TextToolbar.status.<get-status>|<get-status>(){}[0]
@@ -3874,6 +3881,8 @@ final val androidx.compose.ui.platform/LocalSoftwareKeyboardController // androi
     final fun <get-LocalSoftwareKeyboardController>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.platform/SoftwareKeyboardController?> // androidx.compose.ui.platform/LocalSoftwareKeyboardController.<get-LocalSoftwareKeyboardController>|<get-LocalSoftwareKeyboardController>(){}[0]
 final val androidx.compose.ui.platform/LocalSoundEffect // androidx.compose.ui.platform/LocalSoundEffect|{}LocalSoundEffect[0]
     final fun <get-LocalSoundEffect>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.platform/SoundEffect> // androidx.compose.ui.platform/LocalSoundEffect.<get-LocalSoundEffect>|<get-LocalSoundEffect>(){}[0]
+final val androidx.compose.ui.platform/LocalTaskDispatchers // androidx.compose.ui.platform/LocalTaskDispatchers|{}LocalTaskDispatchers[0]
+    final fun <get-LocalTaskDispatchers>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.platform/TaskDispatchers> // androidx.compose.ui.platform/LocalTaskDispatchers.<get-LocalTaskDispatchers>|<get-LocalTaskDispatchers>(){}[0]
 final val androidx.compose.ui.platform/LocalTextInputService // androidx.compose.ui.platform/LocalTextInputService|{}LocalTextInputService[0]
     final fun <get-LocalTextInputService>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.text.input/TextInputService?> // androidx.compose.ui.platform/LocalTextInputService.<get-LocalTextInputService>|<get-LocalTextInputService>(){}[0]
 final val androidx.compose.ui.platform/LocalTextToolbar // androidx.compose.ui.platform/LocalTextToolbar|{}LocalTextToolbar[0]
