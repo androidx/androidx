@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.state
 
 import android.graphics.BlendModeColorFilter as AndroidBlendModeColorFilter
@@ -587,9 +585,11 @@ public class ComposeRemotePaint(internal val composePaint: Paint) : RemotePaint 
 }
 
 /** Converts a [androidx.compose.ui.graphics.Paint] to a [RemotePaint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Paint.asRemotePaint(): RemotePaint = ComposeRemotePaint(this)
 
 /** Converts an [android.graphics.Paint] to a [RemotePaint]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun android.graphics.Paint.asRemotePaint(): RemotePaint =
     if (this is RemotePaintConvertible) {
         remotePaint

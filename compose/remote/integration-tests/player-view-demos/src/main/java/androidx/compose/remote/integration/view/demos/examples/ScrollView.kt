@@ -61,8 +61,8 @@ import java.text.DecimalFormat
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, RemoteRectangleShape, RemoteText, background, drawAnchoredText,
-// graphicsLayer, rememberRemoteScrollState, verticalScroll
+) // Referring to RemoteRectangleShape, RemoteText, background, drawAnchoredText, graphicsLayer,
+// rememberRemoteScrollState, verticalScroll
 @Composable
 fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 0) {
 
@@ -197,8 +197,8 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
 @SuppressLint("UnrememberedMutableState")
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, RemoteRectangleShape, RemoteText, background, drawAnchoredText,
-// graphicsLayer, rememberRemoteScrollState, verticalScroll
+) // Referring to RemoteRectangleShape, RemoteText, background, drawAnchoredText, graphicsLayer,
+// rememberRemoteScrollState, verticalScroll
 @Composable
 @RemoteComposable
 fun ScrollViewDemo() {
@@ -259,16 +259,16 @@ fun ScrollViewDemo() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, RemoteRectangleShape, RemoteText, background, drawAnchoredText,
-// graphicsLayer, rememberRemoteScrollState, verticalScroll
+) // Referring to RemoteRectangleShape, RemoteText, background, drawAnchoredText, graphicsLayer,
+// rememberRemoteScrollState, verticalScroll
 @Preview
 @Composable
 private fun CanvasCalendarMonthPreview() = RemoteContentPreview { CanvasCalendarMonth() }
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, RemoteRectangleShape, RemoteText, background, drawAnchoredText,
-// graphicsLayer, rememberRemoteScrollState, verticalScroll
+) // Referring to RemoteRectangleShape, RemoteText, background, drawAnchoredText, graphicsLayer,
+// rememberRemoteScrollState, verticalScroll
 @Preview
 @Composable
 private fun ScrollViewDemoPreview() = RemoteContentPreview { ScrollViewDemo() }
