@@ -77,7 +77,7 @@ fun rememberLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyListState {
-    return rememberSaveable(saver = LazyListState.Saver) {
+    return rememberSaveable(saver = Saver) {
         LazyListState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset)
     }
 }

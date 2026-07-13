@@ -750,7 +750,6 @@ constructor(
          * A [Saver] implementation for [LazyGridState] that handles setting a custom
          * [LazyLayoutCacheWindow].
          */
-        @ExperimentalFoundationApi
         internal fun saver(cacheWindow: LazyLayoutCacheWindow): Saver<LazyGridState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
