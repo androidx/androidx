@@ -118,12 +118,12 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         var isRotateToLookAtUserOn by remember { mutableStateOf(true) }
 
         IntegrationTestsAppTheme {
-            Subspace(modifier = SubspaceModifier.width(2100.dp).height(1400.dp)) {
+            Subspace(modifier = SubspaceModifier.width(2100.dp).height(1200.dp)) {
                 SpatialRow(
-                    modifier = SubspaceModifier.offset(y = 100.dp),
+                    modifier = SubspaceModifier.offset(y = 50.dp),
                     horizontalArrangement = SpatialArrangement.spacedBy(40.dp),
                 ) {
-                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
+                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(12.dp)) {
                         ControlPanel(
                             isRotateToLookAtUserOn = isRotateToLookAtUserOn,
                             onToggle = { isRotateToLookAtUserOn = it },
@@ -139,11 +139,11 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     @SubspaceComposable
     @Composable
     private fun ControlPanel(isRotateToLookAtUserOn: Boolean, onToggle: (Boolean) -> Unit) {
-        SpatialPanel(modifier = SubspaceModifier.width(550.dp).height(200.dp).padding(25.dp)) {
+        SpatialPanel(modifier = SubspaceModifier.width(550.dp).height(150.dp).padding(15.dp)) {
             Column(
                 modifier = Modifier.fillMaxSize().background(PurpleGrey80),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // TopBar
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -163,7 +163,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     Text(
                         "rotateToLookAtUser()",
                         color = PurpleGrey40,
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(end = 20.dp),
                     )
@@ -184,8 +184,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         isFeatureOn: Boolean,
         modifier: SubspaceModifier = SubspaceModifier,
         upVector: Vector3? = null,
-        width: Int = 400,
-        height: Int = 200,
+        width: Int = 360,
+        height: Int = 140,
         container:
             @Composable
             @SubspaceComposable
@@ -205,13 +205,13 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 modifier =
                     Modifier.fillMaxSize()
                         .background(if (isFeatureOn) Purple40 else PurpleGrey40)
-                        .padding(16.dp),
+                        .padding(12.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = title,
                     color = Color.White,
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
@@ -226,7 +226,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     private fun TestGrid(isFeatureOn: Boolean) {
         SpatialRow(horizontalArrangement = SpatialArrangement.spacedBy(20.dp)) {
             // Column 1: Core Spatial Components
-            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(12.dp)) {
                 TestPanelContainer(title = "SpatialPanel", isFeatureOn = isFeatureOn) {
                     modifier,
                     content ->
@@ -259,7 +259,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             }
 
             // Column 2: Specialized Configurations, Edge Cases & Movable Tests
-            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(30.dp)) {
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(12.dp)) {
                 // Billboard: Horizontal tracking only (upright)
                 TestPanelContainer(
                     title = "Billboard (Look + Gravity)",
@@ -325,11 +325,11 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             }
 
             // Column 3: Hierarchy & Nesting Tests
-            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(40.dp)) {
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(12.dp)) {
                 // Nested rotation test: Demonstrates a tracking child within a fixed rotated parent
                 val parentRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 10f)
                 SpatialBox(
-                    modifier = SubspaceModifier.width(400.dp).height(200.dp).rotate(parentRotation)
+                    modifier = SubspaceModifier.width(360.dp).height(140.dp).rotate(parentRotation)
                 ) {
                     SpatialPanel(modifier = SubspaceModifier.fillMaxSize()) {
                         Box(modifier = Modifier.fillMaxSize().background(PurpleGrey40)) {
@@ -345,8 +345,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     TestPanelContainer(
                         title = "CHILD (TRACKING)",
                         isFeatureOn = isFeatureOn,
-                        width = 300,
-                        height = 100,
+                        width = 260,
+                        height = 80,
                     ) { modifier, content ->
                         // Offset by 5dp on Z axis to prevent clipping with parent panel
                         SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
@@ -355,7 +355,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
 
                 // Nested offset test: Child tracks user inside a translated parent
                 SpatialBox(
-                    modifier = SubspaceModifier.width(400.dp).height(200.dp).offset(x = 200.dp)
+                    modifier = SubspaceModifier.width(360.dp).height(140.dp).offset(x = 200.dp)
                 ) {
                     SpatialPanel(modifier = SubspaceModifier.fillMaxSize()) {
                         Box(modifier = Modifier.fillMaxSize().background(PurpleGrey40)) {
@@ -371,8 +371,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     TestPanelContainer(
                         title = "CHILD (TRACKING)",
                         isFeatureOn = isFeatureOn,
-                        width = 300,
-                        height = 100,
+                        width = 260,
+                        height = 80,
                     ) { modifier, content ->
                         // Offset by 5dp on Z axis to prevent clipping with parent panel
                         SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
