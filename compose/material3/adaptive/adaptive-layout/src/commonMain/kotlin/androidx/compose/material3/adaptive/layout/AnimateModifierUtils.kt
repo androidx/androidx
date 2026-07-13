@@ -26,9 +26,11 @@ import androidx.compose.ui.unit.round
 
 // This file is a collection of shared functions and vals among animation-relevant modifiers.
 
-internal val InvalidIntSize = IntSize(-1, -1)
+internal val InvalidIntSize
+    get() = IntSize(-1, -1)
 
-internal val InvalidOffset = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
+internal val InvalidOffset
+    get() = IntOffset(Int.MIN_VALUE, Int.MIN_VALUE)
 
 internal val InvalidIntRect = IntRect(0, 0, -1, -1)
 
