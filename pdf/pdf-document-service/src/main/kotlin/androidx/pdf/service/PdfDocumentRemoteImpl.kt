@@ -203,8 +203,8 @@ internal class PdfDocumentRemoteImpl(
         }
     }
 
-    override fun applyEdit(pageNum: Int, editRecord: FormEditRecord): List<Rect>? {
-        return rendererAdapter.withPage(pageNum) { page -> page.applyEdit(editRecord) }
+    override fun applyEdit(pageNum: Int, editRecord: FormEditRecord): List<Rect> {
+        return rendererAdapter.withPage(pageNum) { page -> page.applyEdit(editRecord) } ?: listOf()
     }
 
     override fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean) {
