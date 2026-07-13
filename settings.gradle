@@ -400,7 +400,6 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
 /////////////////////////////
 
 includeProject(":a2ui:a2ui-core", [BuildType.COMPOSE])
-includeProject(":a2ui:a2ui-compose", [BuildType.COMPOSE])
 includeProject(":a2ui:a2ui-engine", [BuildType.COMPOSE])
 includeProject(":a2ui:a2ui-model", [BuildType.COMPOSE])
 includeProject(":a2ui:integration-tests:testapp", [BuildType.COMPOSE])
