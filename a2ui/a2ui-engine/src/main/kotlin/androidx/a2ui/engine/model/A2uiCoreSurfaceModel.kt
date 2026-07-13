@@ -117,8 +117,8 @@ public class A2uiCoreSurfaceModel(
 
     /** Cleans up resources and active memory. */
     internal fun dispose() {
-        dataModel.dispose()
-        componentRegistry.dispose()
+        dataModel.close()
+        componentRegistry.close()
     }
 
     override fun equals(other: Any?): Boolean {

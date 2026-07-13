@@ -29,6 +29,7 @@ import androidx.a2ui.model.protocol.A2uiUserAction
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -69,7 +70,7 @@ class A2uiCoreSurfaceGroupModelTest {
     }
 
     @Test
-    fun add_existingId_replacesAndDisposesOldSurface() {
+    fun add_existingId_throwsIllegalArgumentException() {
         val group = A2uiCoreSurfaceGroupModel()
         val dataModel1 = TestDataModel()
         val registry1 = TestComponentRegistry()
@@ -77,12 +78,11 @@ class A2uiCoreSurfaceGroupModelTest {
         val surface2 = createTestSurface(SURFACE_ID_1)
         group.add(surface1)
 
-        group.add(surface2)
+        val exception = assertFailsWith<IllegalArgumentException> { group.add(surface2) }
 
-        assertThat(group.activeSurfaces.value).containsExactly(surface2)
-        assertThat(group.getSurface(SURFACE_ID_1)).isSameInstanceAs(surface2)
-        assertThat(dataModel1.isDisposed).isTrue()
-        assertThat(registry1.isDisposed).isTrue()
+        assertThat(exception).hasMessageThat().contains("Surface '$SURFACE_ID_1' already exists.")
+        assertThat(group.activeSurfaces.value).containsExactly(surface1)
+        assertThat(group.getSurface(SURFACE_ID_1)).isSameInstanceAs(surface1)
     }
 
     @Test
@@ -309,7 +309,7 @@ class A2uiCoreSurfaceGroupModelTest {
 
         override fun get(path: A2uiDataPath): Any? = null
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }
@@ -321,7 +321,7 @@ class A2uiCoreSurfaceGroupModelTest {
 
         override fun reportError(id: String, exception: A2uiException) {}
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }

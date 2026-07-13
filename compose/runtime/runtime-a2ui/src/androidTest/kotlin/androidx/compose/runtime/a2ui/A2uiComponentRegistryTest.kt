@@ -530,9 +530,9 @@ class A2uiComponentRegistryTest {
                             registry.get("comp_${index + 1}")
                         }
                         3 -> {
-                            // Destroyer: only let the last few coroutines trigger dispose
+                            // Destroyer: only let the last few coroutines trigger close
                             if (index > 290) {
-                                registry.dispose()
+                                registry.close()
                             }
                         }
                     }
@@ -683,11 +683,11 @@ class A2uiComponentRegistryTest {
         }
 
     @Test
-    fun dispose_clearsRegistry() {
+    fun close_clearsRegistry() {
         registry.update(listOf(A2uiComponentPayload("comp_1", "Text", mapOf("text" to "Hello"))))
         assertIs<A2uiComponentRecord.Valid>(registry.get("comp_1"))
 
-        registry.dispose()
+        registry.close()
 
         assertThat(registry.get("comp_1")).isNull()
     }

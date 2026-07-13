@@ -112,7 +112,7 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
         Snapshot.sendApplyNotifications()
     }
 
-    override fun dispose() {
+    override fun close() {
         updateLock.withLock {
             registryLock.withLock {
                 Snapshot.withMutableSnapshot { registry.forEachValue { it.value = null } }

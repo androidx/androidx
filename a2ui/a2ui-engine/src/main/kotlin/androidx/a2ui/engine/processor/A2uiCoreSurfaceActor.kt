@@ -171,6 +171,11 @@ internal class A2uiCoreSurfaceActor(
     }
 
     private fun handleCreateSurface(message: A2uiCreateSurfaceMessage) {
+        if (surfaceGroup.getSurface(surfaceId) != null) {
+            throw A2uiException.A2uiRuntimeException(
+                "Surface '${message.surfaceId}' already exists."
+            )
+        }
         val catalog =
             catalogs.find { it.id == message.catalogId }
                 ?: throw A2uiException.A2uiRuntimeException(

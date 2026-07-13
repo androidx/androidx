@@ -154,6 +154,26 @@ class A2uiCoreSurfaceActorTest {
     }
 
     @Test
+    fun runProcessingLoop_surfaceCreationMessageForExistingSurface_emitsA2uiException() = runTest {
+        val actor = createActor()
+        val job = launch { actor.runProcessingLoop() }
+        actor.enqueue(A2uiEngineExternalMessage(A2uiCreateSurfaceMessage(SURFACE_ID, CATALOG_ID)))
+        advanceUntilIdle()
+
+        actor.enqueue(A2uiEngineExternalMessage(A2uiCreateSurfaceMessage(SURFACE_ID, CATALOG_ID)))
+        advanceUntilIdle()
+
+        val collectedErrors = outboundEvents.replayCache
+        assertThat(collectedErrors).hasSize(1)
+        val error = collectedErrors[0] as A2uiClientError
+        assertThat(error.code).isEqualTo("RUNTIME_ERROR")
+        assertThat(error.surfaceId).isEqualTo(SURFACE_ID)
+        assertThat(error.message).contains("Surface '$SURFACE_ID' already exists")
+
+        job.cancel()
+    }
+
+    @Test
     fun runProcessingLoop_componentUpdatesMessage_appliesToSurface() = runTest {
         val actor = createActor()
         val job = launch { actor.runProcessingLoop() }
@@ -466,7 +486,7 @@ class A2uiCoreSurfaceActorTest {
 
         override fun get(path: A2uiDataPath): Any? = updates[path.normalizedPath]
 
-        override fun dispose() {}
+        override fun close() {}
     }
 
     private class TestComponentRegistry : A2uiCoreComponentRegistry {
@@ -478,6 +498,6 @@ class A2uiCoreSurfaceActorTest {
 
         override fun reportError(id: String, exception: A2uiException) {}
 
-        override fun dispose() {}
+        override fun close() {}
     }
 }
