@@ -124,8 +124,8 @@ public class OverlayEffect extends CameraEffect implements AutoCloseable {
      *
      * @param targets       The targets the effect applies to. For example,
      *                      {@link CameraEffect#PREVIEW} | {@link CameraEffect#VIDEO_CAPTURE}. See
-     *                      {@link UseCaseGroup.Builder#addEffect} for supported targets
-     *                      combinations.
+     *                      {@link androidx.camera.core.UseCaseGroup.Builder#addEffect} for
+     *                      supported targets combinations.
      * @param queueDepth    The depth of the queue. This value indicates how many frames can be
      *                      queued before the oldest frame being automatically released.
      *                      {@link OverlayEffect} allocates an array of OpenGL 2D textures that
