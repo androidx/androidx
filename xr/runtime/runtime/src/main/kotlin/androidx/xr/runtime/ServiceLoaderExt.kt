@@ -137,21 +137,6 @@ private fun getVirtualDevice(context: Context) =
 internal fun <S : Service> selectProvider(providers: List<S>, features: Set<Feature>): S? =
     providers.firstOrNull { features.containsAll(it.requirements) }
 
-private external fun nativeIsStub(): Boolean
-
-/**
- * This method returns true only if the OpenXR stub library was loaded explicitly before calling
- * into JXR (i.e. in internal testing environments). In all other cases, it throws
- * [UnsatisfiedLinkError], which is caught and returns false.
- */
-private fun isOpenXrStubLoaded(): Boolean {
-    return try {
-        nativeIsStub()
-    } catch (_: UnsatisfiedLinkError) {
-        false
-    }
-}
-
 /** Returns the set of features available for the current context associated with the device. */
 internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
     // Short-circuit for unit tests environments.
@@ -170,11 +155,21 @@ internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
         features.add(Feature.PROJECTED)
     }
 
-    if (packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) || isOpenXrStubLoaded()) {
+    // TODO(b/398957058): Remove emulator check once the emulator has the system feature.
+    if (
+        packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) ||
+            Build.FINGERPRINT.contains("emulator") ||
+            Build.FINGERPRINT.contains("emu64") ||
+            Build.FINGERPRINT.contains("generic")
+    ) {
         features.add(Feature.OPEN_XR)
     }
 
-    if (packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)) {
+    // TODO(b/398957058): Remove emulator check once the emulator has the system feature.
+    if (
+        packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL) ||
+            Build.FINGERPRINT.contains("emulator")
+    ) {
         features.add(Feature.SPATIAL)
     }
 
