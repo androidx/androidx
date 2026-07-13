@@ -17,7 +17,6 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -26,15 +25,25 @@ import kotlin.math.roundToInt
 
 /**
  * Represents an out of viewport area of a Lazy Layout where items should be cached. Items will be
- * prepared in the Cache Window area in advance to improve scroll performance.
+ * prepared in the Lazy Layout Cache Window area in advance to improve scroll performance.
  */
-@ExperimentalFoundationApi
 @Stable
 interface LazyLayoutCacheWindow {
+    /**
+     * Determines whether the cache window populates after a non-scroll related trigger. When set to
+     * `true`, the cache window will use non-scroll triggers to start the caching process. For
+     * example, if layout data changes and causes a cache purge, the ahead window will be refilled
+     * while the layout remains idle. Other common scenarios in which the ahead window fills include
+     * initial composition and item reordering, during which the layout is in a non-scroll state,
+     * providing the opportunity to populate the window.
+     */
+    @get:Suppress("GetterSetterNames")
+    val enableNonScrollCaching: Boolean
+        get() = true
 
     /**
      * Calculates the prefetch window area in pixels for prefetching on the scroll direction, "ahead
-     * window". The prefetch window strategy will prepare items in the ahead area in advance s they
+     * window". The prefetch window strategy will prepare items in the ahead area in advance so they
      * are ready to be used when they become visible.
      *
      * @param viewport The size of the viewport in this Lazy Layout in pixels.
@@ -52,20 +61,36 @@ interface LazyLayoutCacheWindow {
 }
 
 /**
- * A Dp based [LazyLayoutCacheWindow].
+ * A Dp-based [LazyLayoutCacheWindow].
  *
  * @param ahead The size of the ahead window to be used as per
  *   [LazyLayoutCacheWindow.calculateAheadWindow].
  * @param behind The size of the behind window to be used as per
  *   [LazyLayoutCacheWindow.calculateBehindWindow].
+ * @param enableNonScrollCaching whether the cache window populates after a non-scroll related
+ *   trigger. When set to `true`, the cache window will use non-scroll triggers to start the caching
+ *   process. For example, if layout data changes and causes a cache purge, the ahead window will be
+ *   refilled while the layout remains idle. Other common scenarios in which the ahead window fills
+ *   include initial composition and item reordering, during which the layout is in a non-scroll
+ *   state, providing the opportunity to populate the window.
  */
-@ExperimentalFoundationApi
-fun LazyLayoutCacheWindow(ahead: Dp = 0.dp, behind: Dp = 0.dp): LazyLayoutCacheWindow {
-    return DpLazyLayoutCacheWindow(ahead, behind)
+fun LazyLayoutCacheWindow(
+    ahead: Dp = 0.dp,
+    behind: Dp = 0.dp,
+    enableNonScrollCaching: Boolean = true,
+): LazyLayoutCacheWindow {
+    return DpLazyLayoutCacheWindow(
+        ahead = ahead,
+        behind = behind,
+        enableNonScrollCaching = enableNonScrollCaching,
+    )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-private class DpLazyLayoutCacheWindow(val ahead: Dp, val behind: Dp) : LazyLayoutCacheWindow {
+private class DpLazyLayoutCacheWindow(
+    val ahead: Dp,
+    val behind: Dp,
+    override val enableNonScrollCaching: Boolean,
+) : LazyLayoutCacheWindow {
     override fun Density.calculateAheadWindow(viewport: Int): Int = ahead.roundToPx()
 
     override fun Density.calculateBehindWindow(viewport: Int): Int = behind.roundToPx()
@@ -88,16 +113,29 @@ private class DpLazyLayoutCacheWindow(val ahead: Dp, val behind: Dp) : LazyLayou
  *
  * @param aheadFraction The fraction of the viewport to be used for the ahead window.
  * @param behindFraction The fraction of the viewport to be used for the behind window.
+ * @param enableNonScrollCaching whether the cache window populates after a non-scroll related
+ *   trigger. When set to `true`, the cache window will use non-scroll triggers to start the caching
+ *   process. For example, if layout data changes and causes a cache purge, the ahead window will be
+ *   refilled while the layout remains idle. Other common scenarios in which the ahead window fills
+ *   include initial composition and item reordering, during which the layout is in a non-scroll
+ *   state, providing the opportunity to populate the window.
  */
-@ExperimentalFoundationApi
 fun LazyLayoutCacheWindow(
     @FloatRange(from = 0.0) aheadFraction: Float = 0.0f,
     @FloatRange(from = 0.0) behindFraction: Float = 0.0f,
-): LazyLayoutCacheWindow = FractionLazyLayoutCacheWindow(aheadFraction, behindFraction)
+    enableNonScrollCaching: Boolean = true,
+): LazyLayoutCacheWindow =
+    FractionLazyLayoutCacheWindow(
+        aheadFraction = aheadFraction,
+        behindFraction = behindFraction,
+        enableNonScrollCaching = enableNonScrollCaching,
+    )
 
-@OptIn(ExperimentalFoundationApi::class)
-private class FractionLazyLayoutCacheWindow(val aheadFraction: Float, val behindFraction: Float) :
-    LazyLayoutCacheWindow {
+private class FractionLazyLayoutCacheWindow(
+    val aheadFraction: Float,
+    val behindFraction: Float,
+    override val enableNonScrollCaching: Boolean,
+) : LazyLayoutCacheWindow {
     override fun Density.calculateAheadWindow(viewport: Int): Int =
         (viewport * aheadFraction).roundToInt()
 
