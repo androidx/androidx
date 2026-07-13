@@ -23,8 +23,6 @@ import org.gradle.api.GradleException
 
 /** Defines and enforces the environment that managed IDEs must run in. */
 object BuildEnvironment {
-    /** Environment variable carrying the path to the JDK 21. */
-    const val ANDROIDX_JDK21 = "ANDROIDX_JDK21"
 
     /** Environment variable used to scope the build to a named project subset. */
     const val ANDROIDX_PROJECTS = "ANDROIDX_PROJECTS"
