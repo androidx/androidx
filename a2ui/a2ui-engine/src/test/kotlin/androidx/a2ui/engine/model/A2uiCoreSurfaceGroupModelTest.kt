@@ -42,7 +42,6 @@ class A2uiCoreSurfaceGroupModelTest {
 
     private companion object {
         const val SURFACE_ID_1 = "surf-1"
-        const val SURFACE_ID_2 = "surf-2"
         const val SURFACE_PREFIX = "surf"
         const val NON_EXISTENT_ID = "non-existent"
 
@@ -64,9 +63,8 @@ class A2uiCoreSurfaceGroupModelTest {
         val group = A2uiCoreSurfaceGroupModel()
         val surface = createTestSurface(SURFACE_ID_1)
 
-        val added = group.add(surface)
+        group.add(surface)
 
-        assertThat(added).isTrue()
         assertThat(group.activeSurfaces.value).containsExactly(surface)
     }
 
@@ -79,13 +77,58 @@ class A2uiCoreSurfaceGroupModelTest {
         val surface2 = createTestSurface(SURFACE_ID_1)
         group.add(surface1)
 
-        val added = group.add(surface2)
+        group.add(surface2)
 
-        assertThat(added).isTrue()
         assertThat(group.activeSurfaces.value).containsExactly(surface2)
         assertThat(group.getSurface(SURFACE_ID_1)).isSameInstanceAs(surface2)
         assertThat(dataModel1.isDisposed).isTrue()
         assertThat(registry1.isDisposed).isTrue()
+    }
+
+    @Test
+    fun add_concurrentDifferentIds_addsAllSurfaces() = runBlocking {
+        val group = A2uiCoreSurfaceGroupModel()
+        val numCoroutines = 50
+
+        val jobs =
+            List(numCoroutines) { index ->
+                launch(Dispatchers.Default) {
+                    val id = "$SURFACE_PREFIX-$index"
+                    val surface = createTestSurface(id)
+                    group.add(surface)
+                }
+            }
+        jobs.joinAll()
+
+        val activeSurfaces = group.activeSurfaces.value
+        assertThat(activeSurfaces).hasSize(numCoroutines)
+
+        for (i in 0 until numCoroutines) {
+            assertThat(group.getSurface("$SURFACE_PREFIX-$i")).isNotNull()
+        }
+    }
+
+    @Test
+    fun delete_concurrentDifferentIds_removesAllSurfaces() = runBlocking {
+        val group = A2uiCoreSurfaceGroupModel()
+        val numCoroutines = 50
+
+        // Pre-populate
+        for (i in 0 until numCoroutines) {
+            group.add(createTestSurface("$SURFACE_PREFIX-$i"))
+        }
+
+        val jobs =
+            List(numCoroutines) { index ->
+                launch(Dispatchers.Default) {
+                    val id = "$SURFACE_PREFIX-$index"
+                    group.delete(id)
+                }
+            }
+        jobs.joinAll()
+
+        val activeSurfaces = group.activeSurfaces.value
+        assertThat(activeSurfaces).isEmpty()
     }
 
     @Test
@@ -113,14 +156,35 @@ class A2uiCoreSurfaceGroupModelTest {
     }
 
     @Test
-    fun add_afterDispose_returnsFalse() {
+    fun getSurface_concurrentAccess_returnsCorrectly() = runBlocking {
         val group = A2uiCoreSurfaceGroupModel()
-        val surface = createTestSurface(SURFACE_ID_1)
-        group.dispose()
+        val surface1 = createTestSurface(SURFACE_ID_1)
+        val surface2 = createTestSurface("surf-2")
+        group.add(surface1)
+        group.add(surface2)
 
-        val added = group.add(surface)
+        val numCoroutines = 100
+        val numOperationsPerCoroutine = 100
 
-        assertThat(added).isFalse()
+        val jobs =
+            List(numCoroutines) {
+                launch(Dispatchers.Default) {
+                    repeat(numOperationsPerCoroutine) {
+                        assertThat(group.getSurface(SURFACE_ID_1)).isSameInstanceAs(surface1)
+                        assertThat(group.getSurface("surf-2")).isSameInstanceAs(surface2)
+                        assertThat(group.getSurface(NON_EXISTENT_ID)).isNull()
+                    }
+                }
+            }
+        jobs.joinAll()
+    }
+
+    @Test
+    fun delete_nonExistentId_doesNothing() {
+        val group = A2uiCoreSurfaceGroupModel()
+
+        group.delete(NON_EXISTENT_ID)
+
         assertThat(group.activeSurfaces.value).isEmpty()
     }
 
@@ -141,26 +205,22 @@ class A2uiCoreSurfaceGroupModelTest {
     }
 
     @Test
-    fun delete_nonExistentId_doesNothing() {
+    fun clear_removesAllSurfacesAndReturnsThem() {
         val group = A2uiCoreSurfaceGroupModel()
+        val dataModel1 = TestDataModel()
+        val registry1 = TestComponentRegistry()
+        val surface1 = createTestSurface("id-1", dataModel1, registry1)
+        val dataModel2 = TestDataModel()
+        val registry2 = TestComponentRegistry()
+        val surface2 = createTestSurface("id-2", dataModel2, registry2)
 
-        group.delete(NON_EXISTENT_ID)
+        group.add(surface1)
+        group.add(surface2)
+
+        val removed = group.clear()
 
         assertThat(group.activeSurfaces.value).isEmpty()
-    }
-
-    @Test
-    fun delete_afterDispose_doesNothing() {
-        val group = A2uiCoreSurfaceGroupModel()
-        val dataModel = TestDataModel()
-        val registry = TestComponentRegistry()
-        val surface = createTestSurface(SURFACE_ID_1, dataModel, registry)
-        group.add(surface)
-        group.dispose()
-
-        group.delete(SURFACE_ID_1)
-
-        assertThat(group.activeSurfaces.value).isEmpty()
+        assertThat(removed).containsExactly(surface1, surface2)
     }
 
     @Test
@@ -181,43 +241,6 @@ class A2uiCoreSurfaceGroupModelTest {
         val result = group.getSurface(NON_EXISTENT_ID)
 
         assertThat(result).isNull()
-    }
-
-    @Test
-    fun dispose_activeSurfaces_clearsAndDisposesAllSurfaces() {
-        val group = A2uiCoreSurfaceGroupModel()
-        val dataModel1 = TestDataModel()
-        val registry1 = TestComponentRegistry()
-        val surface1 = createTestSurface(SURFACE_ID_1, dataModel1, registry1)
-        val dataModel2 = TestDataModel()
-        val registry2 = TestComponentRegistry()
-        val surface2 = createTestSurface(SURFACE_ID_2, dataModel2, registry2)
-        group.add(surface1)
-        group.add(surface2)
-
-        group.dispose()
-
-        assertThat(group.activeSurfaces.value).isEmpty()
-        assertThat(dataModel1.isDisposed).isTrue()
-        assertThat(registry1.isDisposed).isTrue()
-        assertThat(dataModel2.isDisposed).isTrue()
-        assertThat(registry2.isDisposed).isTrue()
-    }
-
-    @Test
-    fun dispose_calledMultipleTimes_isIdempotent() {
-        val group = A2uiCoreSurfaceGroupModel()
-        val dataModel = TestDataModel()
-        val registry = TestComponentRegistry()
-        val surface = createTestSurface(SURFACE_ID_1, dataModel, registry)
-        group.add(surface)
-
-        group.dispose()
-        group.dispose()
-
-        assertThat(group.activeSurfaces.value).isEmpty()
-        assertThat(dataModel.isDisposed).isTrue()
-        assertThat(registry.isDisposed).isTrue()
     }
 
     @Test

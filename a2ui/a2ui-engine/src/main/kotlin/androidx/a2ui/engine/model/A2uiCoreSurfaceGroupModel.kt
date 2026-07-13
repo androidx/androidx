@@ -16,10 +16,10 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.internal.SynchronizedObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * The central manager for all active surfaces on the client.
@@ -33,15 +33,10 @@ import kotlinx.coroutines.flow.asStateFlow
  * targeting the same surface ID are executed sequentially.
  */
 public class A2uiCoreSurfaceGroupModel internal constructor() {
-    // TODO(annabelo): reconsider concurrency and disposal handling (including A2uiSurfaceModel)
-    private val lock = SynchronizedObject()
     private val _activeSurfaces = MutableStateFlow<List<A2uiCoreSurfaceModel>>(emptyList())
 
     /** Exposes the currently active surfaces to the host UI framework. */
     public val activeSurfaces: StateFlow<List<A2uiCoreSurfaceModel>> = _activeSurfaces.asStateFlow()
-
-    // Guarded by lock
-    private var isDisposed = false
 
     /**
      * Resolves a specific surface model by its ID.
@@ -57,48 +52,70 @@ public class A2uiCoreSurfaceGroupModel internal constructor() {
      * Adds a surface model. If a surface with the same ID already exists, it will be replaced and
      * disposed.
      *
+     * To prevent resource race conditions, this method MUST be called from a context that
+     * guarantees sequential execution for any given surface ID.
+     *
      * @param surface The [A2uiCoreSurfaceModel] to add.
-     * @return `true` if the surface was successfully added, `false` otherwise (e.g., if the group
-     *   is already disposed).
      */
-    internal fun add(surface: A2uiCoreSurfaceModel): Boolean {
-        synchronized(lock) {
-            if (isDisposed) return false
-            val current = _activeSurfaces.value
-            val existingSurface = current.find { it.id == surface.id }
-            _activeSurfaces.value = current.filter { it.id != surface.id } + surface
-            existingSurface?.dispose()
-            return true
+    internal fun add(surface: A2uiCoreSurfaceModel) {
+        var existingSurface: A2uiCoreSurfaceModel? = null
+        _activeSurfaces.update { current ->
+            existingSurface = null
+            buildList(current.size + 1) {
+                for (item in current) {
+                    if (item.id == surface.id) {
+                        existingSurface = item
+                    } else {
+                        add(item)
+                    }
+                }
+                add(surface)
+            }
         }
+        existingSurface?.dispose()
     }
 
     /**
      * Deletes and disposes of a surface model by its ID.
      *
+     * To prevent resource race conditions, this method MUST be called from a context that
+     * guarantees sequential execution for any given surface ID.
+     *
      * @param id The unique identifier of the surface to delete.
      */
     internal fun delete(id: String) {
-        synchronized(lock) {
-            if (isDisposed) return
-            val current = _activeSurfaces.value
-            val removedSurface = current.find { it.id == id }
-            if (removedSurface != null) {
-                _activeSurfaces.value = current.filter { it.id != id }
-                removedSurface.dispose()
-            }
+        var removedSurface: A2uiCoreSurfaceModel? = null
+        _activeSurfaces.update { current ->
+            removedSurface = null
+            val newList =
+                buildList(current.size) {
+                    for (item in current) {
+                        if (item.id == id) {
+                            removedSurface = item
+                        } else {
+                            add(item)
+                        }
+                    }
+                }
+            if (removedSurface != null) newList else current
         }
+        removedSurface?.dispose()
     }
 
-    /** Cleans up all managed surfaces. */
-    internal fun dispose() {
-        synchronized(lock) {
-            if (!isDisposed) {
-                isDisposed = true
-                val currentSurfaces = _activeSurfaces.value
-                _activeSurfaces.value = emptyList()
-                currentSurfaces.forEach { it.dispose() }
-            }
+    /**
+     * Clears all surfaces from the group and returns them so they can be disposed.
+     *
+     * While this method safely updates the active surface list concurrently, the caller is
+     * responsible for ensuring that the returned surfaces are disposed of in a context that
+     * respects the sequential execution requirement for each surface ID.
+     */
+    internal fun clear(): List<A2uiCoreSurfaceModel> {
+        var removedSurfaces: List<A2uiCoreSurfaceModel> = emptyList()
+        _activeSurfaces.update { current ->
+            removedSurfaces = current
+            emptyList()
         }
+        return removedSurfaces
     }
 
     override fun equals(other: Any?): Boolean {

@@ -106,11 +106,20 @@ public class A2uiCoreMessageProcessor(
      * naturally terminated.
      */
     public suspend fun collectMessages() {
-        // We use coroutineScope to act as the parent for all surface actor jobs
-        coroutineScope {
-            for (message in inboundQueue) {
-                routeMessage(message, this)
+        try {
+            // We use coroutineScope to act as the parent for all surface actor jobs
+            coroutineScope {
+                for (message in inboundQueue) {
+                    routeMessage(message, this)
+                }
             }
+        } finally {
+            // When the scope is cancelled or completes normally, we must honor the dispose
+            // contract for all active surfaces to prevent framework-level memory leaks.
+            // Due to structured concurrency, all child actors are guaranteed to be fully
+            // terminated before this block executes, ensuring race-free disposal.
+            val surfacesToDispose = surfaceGroup.clear()
+            surfacesToDispose.forEach { surface -> surface.dispose() }
         }
     }
 
