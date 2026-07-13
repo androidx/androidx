@@ -16,9 +16,9 @@
 
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, drawAnchoredText, drawCircle, drawLine, drawPath, drawText,
+) // Referring to drawAnchoredText, drawCircle, drawLine, drawPath, drawText, remote-core,
 
-// remote-core, remote-creation
+// remote-creation
 
 package androidx.compose.remote.integration.view.demos.examples
 
@@ -79,8 +79,8 @@ const val androidShapeString =
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, drawAnchoredText, drawCircle, drawLine, drawPath, drawText,
-// remote-core, remote-creation
+) // Referring to drawAnchoredText, drawCircle, drawLine, drawPath, drawText, remote-core,
+// remote-creation
 val androidPath = RemotePath(androidShapeString)
 
 fun Color.paint(
@@ -108,8 +108,8 @@ fun Color.paint(
 @RemoteComposable
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, drawAnchoredText, drawCircle, drawLine, drawPath, drawText,
-// remote-core, remote-creation
+) // Referring to drawAnchoredText, drawCircle, drawLine, drawPath, drawText, remote-core,
+// remote-creation
 fun RcSimpleClock1(
     timeHr: RemoteFloat = RemoteFloat(FLOAT_TIME_IN_HR),
     timeMin: RemoteFloat = RemoteFloat(FLOAT_TIME_IN_MIN),

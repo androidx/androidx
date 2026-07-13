@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.tooling.preview.Preview
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemotePaint, drawPath, drawText, drawTextOnPath
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, drawText, drawTextOnPath
 @Composable
 @RemoteComposable
 fun SimplePath() {
@@ -82,7 +82,7 @@ fun SimplePath() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemotePaint, drawPath, drawText, drawTextOnPath
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, drawText, drawTextOnPath
 @Preview
 @Composable
 private fun SimplePathPreview() = RemoteContentPreview { SimplePath() }

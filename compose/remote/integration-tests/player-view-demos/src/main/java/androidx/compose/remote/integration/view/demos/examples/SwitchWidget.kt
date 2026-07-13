@@ -15,7 +15,7 @@
  */
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemotePaint, RemoteText, background, drawCircle, remote-core
+) // Referring to RemoteText, background, drawCircle, remote-core
 
 package androidx.compose.remote.integration.view.demos.examples
 
