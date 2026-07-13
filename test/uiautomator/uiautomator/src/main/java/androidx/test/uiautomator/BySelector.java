@@ -654,7 +654,8 @@ public class BySelector {
      * if it is within the display with the ID of {@code displayId} and all other criteria for
      * this selector are met.
      *
-     * @param displayId The display ID to match. Use {@link Display#getDisplayId()} to get the ID.
+     * @param displayId The display ID to match. Use {@link android.view.Display#getDisplayId()} to
+     *                  get the ID.
      * @return A reference to this {@link BySelector}.
      */
     @RequiresApi(30)

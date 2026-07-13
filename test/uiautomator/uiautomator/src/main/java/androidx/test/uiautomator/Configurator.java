@@ -19,6 +19,7 @@ package androidx.test.uiautomator;
 import static android.view.Display.INVALID_DISPLAY;
 
 import android.view.MotionEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.jspecify.annotations.NonNull;
 
