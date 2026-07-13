@@ -661,7 +661,7 @@ public open class ComponentActivity() :
      * compatibility with previous versions, but overriding this property is unsupported.
      */
     override val navigationEventDispatcher: NavigationEventDispatcher
-        get() = onBackPressedDispatcher.eventDispatcher
+        get() = onBackPressedDispatcher.asNavigationEventDispatcher()
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addObserverForBackInvoker(dispatcher: OnBackPressedDispatcher) {

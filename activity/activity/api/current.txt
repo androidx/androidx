@@ -164,6 +164,7 @@ package androidx.activity {
     ctor @BytecodeOnly public OnBackPressedDispatcher(Runnable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method public androidx.navigationevent.NavigationEventDispatcher asNavigationEventDispatcher();
     method @MainThread @VisibleForTesting public void dispatchOnBackCancelled();
     method @MainThread @VisibleForTesting public void dispatchOnBackProgressed(androidx.activity.BackEventCompat backEvent);
     method @MainThread @VisibleForTesting public void dispatchOnBackStarted(androidx.activity.BackEventCompat backEvent);
