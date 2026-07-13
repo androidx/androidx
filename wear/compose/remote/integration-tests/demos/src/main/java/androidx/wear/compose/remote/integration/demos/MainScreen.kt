@@ -168,6 +168,38 @@ fun MainScreen(
                         onClick = { navigateToRoute(Screen.RemoteTextDemosScreen.route) },
                     )
                 }
+                item {
+                    MenuButton(
+                        "RemoteHorizontalPageIndicator (3 pages)",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteHorizontalPageIndicator3DemoScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteHorizontalPageIndicator (10 pages)",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteHorizontalPageIndicator10DemoScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteVerticalPageIndicator (3 pages)",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteVerticalPageIndicator3DemoScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteVerticalPageIndicator (10 pages)",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteVerticalPageIndicator10DemoScreen.route)
+                        },
+                    )
+                }
             }
         }
     }
