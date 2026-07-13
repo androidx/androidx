@@ -1640,9 +1640,12 @@ private const val NavigationSuiteLayoutIdTag = "navigationSuite"
 private const val PrimaryActionContentLayoutIdTag = "primaryActionContent"
 private const val ContentLayoutIdTag = "content"
 
-private val ShortNavigationBarHeight = 64.dp
-private val TallNavigationBarHeight = 80.dp
-private val PrimaryActionContentPadding = 16.dp
+private val ShortNavigationBarHeight
+    get() = 64.dp
+private val TallNavigationBarHeight
+    get() = 80.dp
+private val PrimaryActionContentPadding
+    get() = 16.dp
 private val NoWindowInsets = WindowInsets(0, 0, 0, 0)
 private val AnimationSpec: SpringSpec<Float> =
     spring(dampingRatio = SpringDefaultSpatialDamping, stiffness = SpringDefaultSpatialStiffness)
