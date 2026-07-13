@@ -46,8 +46,8 @@ public class EmojiExtractEditText extends ExtractEditText {
     private EmojiEditTextHelper mEmojiEditTextHelper;
 
     /**
-     * Prevent calling {@link #init(AttributeSet, int)} multiple times in case super() constructors
-     * call other constructors.
+     * Prevent calling {@link #init(AttributeSet, int, int)} multiple times in case super()
+     * constructors call other constructors.
      */
     private boolean mInitialized;
 
