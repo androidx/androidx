@@ -41,7 +41,7 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Adapter for WebViewProviderFactoryBoundaryInterface providing static WebView functionality
- * similar to that provided by {@link android.webkit.WebViewFactoryProvider}.
+ * similar to that provided by {@code android.webkit.WebViewFactoryProvider}.
  */
 @SuppressWarnings("JavadocReference") // WebViewFactoryProvider and WebViewProvider are hidden.
 public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
@@ -62,7 +62,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for creating a new support library version of {@link
+     * Adapter method for creating a new support library version of {@code
      * android.webkit.WebViewProvider} - the class used to implement {@link
      * androidx.webkit.WebViewCompat}.
      */
@@ -84,7 +84,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing {@link
+     * Adapter method for fetching the support library class representing {@code
      * android.webkit.WebViewFactoryProvider#Statics}.
      */
     @Override
@@ -120,7 +120,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * Adapter method for fetching the support library class representing {@link
+     * Adapter method for fetching the support library class representing {@code
      * android.webkit.ProxyController}.
      */
     @Override
@@ -146,7 +146,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     }
 
     /**
-     * @deprecated Use the {@link OutcomeReceiverCompat} version instead.
+     * @deprecated Use the {@link androidx.webkit.OutcomeReceiverCompat} version instead.
      */
     @SuppressWarnings("removal")
     @WebViewCompat.ExperimentalAsyncStartUp

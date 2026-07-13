@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Exception thrown when there was an error executing JavaScript via {@link
- * JavaScriptReplyProxy#executeJavaScript(String, OutcomeReceiverCompat)}.
+ * JavaScriptReplyProxy#executeJavaScript(String, WebViewOutcomeReceiver)}.
  */
 public class JavaScriptExecutionException extends Exception {
     /** Error code for a generic/unknown error occurred while executing JavaScript. */
@@ -64,8 +64,8 @@ public class JavaScriptExecutionException extends Exception {
     }
 
     /**
-     * @return the type of error that caused this exception. See {@link ERROR_FRAME_DESTROYED}
-     * and {@link ERROR_GENERIC}.
+     * @return the type of error that caused this exception. See {@link #ERROR_FRAME_DESTROYED}
+     * and {@link #ERROR_GENERIC}.
      */
     public @ErrorType int getErrorType() {
         return mErrorType;

@@ -38,7 +38,7 @@ import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterfac
 import org.jspecify.annotations.NonNull;
 
 /**
- * Interface representing {@link android.webkit.WebViewFactoryProvider}. On device with a compatible
+ * Interface representing {@code android.webkit.WebViewFactoryProvider}. On device with a compatible
  * WebView APK this interface is implemented by a class defined in the WebView APK itself. On
  * devices without a compatible WebView APK this interface is implemented by a stub class {@link
  * androidx.webkit.internal.IncompatibleApkWebViewProviderFactory}.
@@ -50,7 +50,7 @@ public interface WebViewProviderFactory {
     @NonNull
     WebViewBuilderBoundaryInterface getWebViewBuilder();
 
-    /** Create a support library version of {@link android.webkit.WebViewProvider}. */
+    /** Create a support library version of {@code android.webkit.WebViewProvider}. */
     @NonNull
     WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview);
 
@@ -62,7 +62,7 @@ public interface WebViewProviderFactory {
     WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter();
 
     /**
-     * Fetch the boundary interface representing {@link
+     * Fetch the boundary interface representing {@code
      * android.webkit.WebViewFactoryProvider#Statics}.
      */
     @NonNull
@@ -79,7 +79,7 @@ public interface WebViewProviderFactory {
     @NonNull
     TracingControllerBoundaryInterface getTracingController();
 
-    /** Fetch the boundary interface representing {@link android.webkit.ProxyController}. */
+    /** Fetch the boundary interface representing {@code android.webkit.ProxyController}. */
     @NonNull
     ProxyControllerBoundaryInterface getProxyController();
 
@@ -92,9 +92,9 @@ public interface WebViewProviderFactory {
     ProfileStoreBoundaryInterface getProfileStore();
 
     /**
-     * @deprecated Use the {@link OutcomeReceiverCompat} version instead.
+     * @deprecated Use the {@link androidx.webkit.OutcomeReceiverCompat} version instead.
      * Fetch the boundary interface representing {@link
-     * WebViewCompat#startUpWebView(WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+     * WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
      */
     @SuppressWarnings("removal")
     @WebViewCompat.ExperimentalAsyncStartUp
