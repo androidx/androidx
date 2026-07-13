@@ -701,25 +701,45 @@ private class MenuItemVisibilityModifier(isVisible: () -> Boolean) :
 private val Placeable.isVisible: Boolean
     get() = (this.parentData as? MenuItemVisibilityModifier)?.visible?.invoke() != false
 
-private val FabInitialSize = FabBaselineTokens.ContainerHeight
-private val FabInitialCornerRadius = 16.dp
-private val FabInitialIconSize = FabBaselineTokens.IconSize
-private val FabMediumInitialSize = FabMediumTokens.ContainerHeight
-private val FabMediumInitialCornerRadius = 20.dp
-private val FabMediumInitialIconSize = FabMediumTokens.IconSize
-private val FabLargeInitialSize = FabLargeTokens.ContainerHeight
-private val FabLargeInitialCornerRadius = 28.dp
+private val FabInitialSize
+    get() = FabBaselineTokens.ContainerHeight
+private val FabInitialCornerRadius
+    get() = 16.dp
+private val FabInitialIconSize
+    get() = FabBaselineTokens.IconSize
+private val FabMediumInitialSize
+    get() = FabMediumTokens.ContainerHeight
+private val FabMediumInitialCornerRadius
+    get() = 20.dp
+private val FabMediumInitialIconSize
+    get() = FabMediumTokens.IconSize
+private val FabLargeInitialSize
+    get() = FabLargeTokens.ContainerHeight
+private val FabLargeInitialCornerRadius
+    get() = 28.dp
 private val FabLargeInitialIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
-private val FabFinalSize = FabMenuBaselineTokens.CloseButtonContainerHeight
+private val FabFinalSize
+    get() = FabMenuBaselineTokens.CloseButtonContainerHeight
 private val FabFinalCornerRadius = FabFinalSize.div(2)
-private val FabFinalIconSize = FabMenuBaselineTokens.CloseButtonIconSize
-private val FabShadowElevation = FabPrimaryContainerTokens.ContainerElevation
-private val FabMenuPaddingHorizontal = 16.dp
-private val FabMenuPaddingBottom = FabMenuBaselineTokens.CloseButtonBetweenSpace
-private val FabMenuButtonPaddingBottom = 16.dp
-private val FabMenuItemMinWidth = FabMenuBaselineTokens.ListItemContainerHeight
-private val FabMenuItemHeight = FabMenuBaselineTokens.ListItemContainerHeight
-private val FabMenuItemSpacingVertical = FabMenuBaselineTokens.ListItemBetweenSpace
-private val FabMenuItemContentPaddingStart = FabMenuBaselineTokens.ListItemLeadingSpace
-private val FabMenuItemContentPaddingEnd = FabMenuBaselineTokens.ListItemTrailingSpace
-private val FabMenuItemContentSpacingHorizontal = FabMenuBaselineTokens.ListItemIconLabelSpace
+private val FabFinalIconSize
+    get() = FabMenuBaselineTokens.CloseButtonIconSize
+private val FabShadowElevation
+    get() = FabPrimaryContainerTokens.ContainerElevation
+private val FabMenuPaddingHorizontal
+    get() = 16.dp
+private val FabMenuPaddingBottom
+    get() = FabMenuBaselineTokens.CloseButtonBetweenSpace
+private val FabMenuButtonPaddingBottom
+    get() = 16.dp
+private val FabMenuItemMinWidth
+    get() = FabMenuBaselineTokens.ListItemContainerHeight
+private val FabMenuItemHeight
+    get() = FabMenuBaselineTokens.ListItemContainerHeight
+private val FabMenuItemSpacingVertical
+    get() = FabMenuBaselineTokens.ListItemBetweenSpace
+private val FabMenuItemContentPaddingStart
+    get() = FabMenuBaselineTokens.ListItemLeadingSpace
+private val FabMenuItemContentPaddingEnd
+    get() = FabMenuBaselineTokens.ListItemTrailingSpace
+private val FabMenuItemContentSpacingHorizontal
+    get() = FabMenuBaselineTokens.ListItemIconLabelSpace

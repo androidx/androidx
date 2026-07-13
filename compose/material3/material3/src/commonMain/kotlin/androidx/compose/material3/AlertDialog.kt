@@ -434,11 +434,15 @@ private fun LayoutDirection.flip(): LayoutDirection =
         LayoutDirection.Rtl -> LayoutDirection.Ltr
     }
 
-internal val DialogMinWidth = 280.dp
-internal val DialogMaxWidth = 560.dp
+internal val DialogMinWidth
+    get() = 280.dp
+internal val DialogMaxWidth
+    get() = 560.dp
 
-private val ButtonsMainAxisSpacing = 8.dp
-private val ButtonsCrossAxisSpacing = 8.dp
+private val ButtonsMainAxisSpacing
+    get() = 8.dp
+private val ButtonsCrossAxisSpacing
+    get() = 8.dp
 
 private val IconPadding = PaddingValues(bottom = 16.dp)
 private val TitlePadding = PaddingValues(bottom = 16.dp)

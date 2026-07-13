@@ -3282,13 +3282,20 @@ class SliderColors(
 }
 
 // Internal to be referred to in tests
-internal val TrackHeight = SliderTokens.InactiveTrackHeight
-internal val ThumbWidth = SliderTokens.HandleWidth
-private val ThumbHeight = SliderTokens.HandleHeight
-private val ThumbSize = DpSize(ThumbWidth, ThumbHeight)
-private val VerticalThumbSize = DpSize(ThumbHeight, ThumbWidth)
-private val ThumbTrackGapSize: Dp = SliderTokens.ActiveHandleLeadingSpace
-private val TrackInsideCornerSize: Dp = 2.dp
+internal val TrackHeight
+    get() = SliderTokens.InactiveTrackHeight
+internal val ThumbWidth
+    get() = SliderTokens.HandleWidth
+private val ThumbHeight
+    get() = SliderTokens.HandleHeight
+private val ThumbSize
+    get() = DpSize(ThumbWidth, ThumbHeight)
+private val VerticalThumbSize
+    get() = DpSize(ThumbHeight, ThumbWidth)
+private val ThumbTrackGapSize: Dp
+    get() = SliderTokens.ActiveHandleLeadingSpace
+private val TrackInsideCornerSize: Dp
+    get() = 2.dp
 
 private enum class SliderComponents {
     THUMB,
@@ -3865,4 +3872,5 @@ internal val SliderRange.isSpecified: Boolean
 
 internal val CornerSizeAlignmentLine = VerticalAlignmentLine(::min)
 
-private val insetFocusRingPadding = 4.dp
+private val insetFocusRingPadding
+    get() = 4.dp

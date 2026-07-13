@@ -2201,11 +2201,19 @@ private fun Modifier.visualTextSemantics(visualText: CharSequence, hasAffix: Boo
         }
     )
 
-internal val TextFieldPadding = 16.dp
-internal val AboveLabelHorizontalPadding = 4.dp
-internal val AboveLabelBottomPadding = 4.dp
-internal val SupportingTopPadding = 4.dp
-internal val PrefixSuffixTextPadding = 2.dp
-internal val MinTextLineHeight = 24.dp
-internal val MinFocusedLabelLineHeight = 16.dp
-internal val MinSupportingTextLineHeight = 16.dp
+internal val TextFieldPadding
+    get() = 16.dp
+internal val AboveLabelHorizontalPadding
+    get() = 4.dp
+internal val AboveLabelBottomPadding
+    get() = 4.dp
+internal val SupportingTopPadding
+    get() = 4.dp
+internal val PrefixSuffixTextPadding
+    get() = 2.dp
+internal val MinTextLineHeight
+    get() = 24.dp
+internal val MinFocusedLabelLineHeight
+    get() = 16.dp
+internal val MinSupportingTextLineHeight
+    get() = 16.dp

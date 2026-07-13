@@ -367,7 +367,8 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
 @Immutable internal class FabPlacement(val left: Int, val width: Int, val height: Int)
 
 // FAB spacing above the bottom bar / bottom of the Scaffold
-private val FabSpacing = 16.dp
+private val FabSpacing
+    get() = 16.dp
 
 // Z-indices for the different scaffold layout contents
 private const val ContentZIndex = 0f

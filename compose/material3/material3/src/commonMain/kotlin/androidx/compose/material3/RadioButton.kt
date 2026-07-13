@@ -268,6 +268,9 @@ constructor(
     }
 }
 
-private val RadioButtonPadding = 2.dp
-private val RadioButtonDotSize = 12.dp
-private val RadioStrokeWidth = 2.dp
+private val RadioButtonPadding
+    get() = 2.dp
+private val RadioButtonDotSize
+    get() = 12.dp
+private val RadioStrokeWidth
+    get() = 2.dp

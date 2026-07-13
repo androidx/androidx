@@ -655,10 +655,14 @@ constructor(
 }
 
 /* @VisibleForTesting */
-internal val ThumbDiameter = SwitchTokens.SelectedHandleWidth
-internal val UncheckedThumbDiameter = SwitchTokens.UnselectedHandleWidth
+internal val ThumbDiameter
+    get() = SwitchTokens.SelectedHandleWidth
+internal val UncheckedThumbDiameter
+    get() = SwitchTokens.UnselectedHandleWidth
 
-private val SwitchWidth = SwitchTokens.TrackWidth
-private val SwitchHeight = SwitchTokens.TrackHeight
+private val SwitchWidth
+    get() = SwitchTokens.TrackWidth
+private val SwitchHeight
+    get() = SwitchTokens.TrackHeight
 private val ThumbPadding = (SwitchHeight - ThumbDiameter) / 2
 private val SnapSpec = SnapSpec<Float>()

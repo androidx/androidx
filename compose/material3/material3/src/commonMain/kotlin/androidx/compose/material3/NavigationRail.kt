@@ -773,25 +773,30 @@ private const val LabelLayoutIdTag: String = "label"
  * Vertical padding between the contents of the [NavigationRail] and its top/bottom, and internally
  * between items.
  */
-internal val NavigationRailVerticalPadding: Dp = 4.dp
+internal val NavigationRailVerticalPadding: Dp
+    get() = 4.dp
 
 /**
  * Padding at the bottom of the [NavigationRail]'s header. This padding will only be added when the
  * header is not null.
  */
-private val NavigationRailHeaderPadding: Dp = 8.dp
+private val NavigationRailHeaderPadding: Dp
+    get() = 8.dp
 
 /*@VisibleForTesting*/
 /** Width of an individual [NavigationRailItem]. */
-internal val NavigationRailItemWidth: Dp = NavigationRailCollapsedTokens.NarrowContainerWidth
+internal val NavigationRailItemWidth: Dp
+    get() = NavigationRailCollapsedTokens.NarrowContainerWidth
 
 /*@VisibleForTesting*/
 /** Height of an individual [NavigationRailItem]. */
-internal val NavigationRailItemHeight: Dp = NavigationRailVerticalItemTokens.ActiveIndicatorWidth
+internal val NavigationRailItemHeight: Dp
+    get() = NavigationRailVerticalItemTokens.ActiveIndicatorWidth
 
 /*@VisibleForTesting*/
 /** Vertical padding between the contents of a [NavigationRailItem] and its top/bottom. */
-internal val NavigationRailItemVerticalPadding: Dp = 4.dp
+internal val NavigationRailItemVerticalPadding: Dp
+    get() = 4.dp
 
 private val IndicatorHorizontalPadding: Dp =
     (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -

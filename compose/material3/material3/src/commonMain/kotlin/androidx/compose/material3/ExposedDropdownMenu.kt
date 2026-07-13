@@ -1549,4 +1549,5 @@ internal expect fun popupPropertiesForAnchorType(
     alwaysFocusable: Boolean,
 ): PopupProperties
 
-private val ExposedDropdownMenuItemHorizontalPadding = 16.dp
+private val ExposedDropdownMenuItemHorizontalPadding
+    get() = 16.dp

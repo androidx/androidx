@@ -524,7 +524,8 @@ private fun calculateCenteredContentHorizontalPadding(itemsCount: Int, barWidth:
 }
 
 /*@VisibleForTesting*/
-internal val TopIconItemVerticalPadding = NavigationBarVerticalItemTokens.ContainerBetweenSpace
+internal val TopIconItemVerticalPadding
+    get() = NavigationBarVerticalItemTokens.ContainerBetweenSpace
 /*@VisibleForTesting*/
 internal val TopIconIndicatorVerticalPadding =
     (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
@@ -538,9 +539,11 @@ internal val StartIconIndicatorVerticalPadding =
     (NavigationBarHorizontalItemTokens.ActiveIndicatorHeight -
         NavigationBarHorizontalItemTokens.IconSize) / 2
 /*@VisibleForTesting*/
-internal val TopIconIndicatorToLabelPadding: Dp = 4.dp
+internal val TopIconIndicatorToLabelPadding: Dp
+    get() = 4.dp
 /*@VisibleForTesting*/
 internal val StartIconIndicatorHorizontalPadding =
     NavigationBarHorizontalItemTokens.ActiveIndicatorLeadingSpace
 /*@VisibleForTesting*/
-internal val StartIconToLabelPadding = NavigationBarTokens.ItemActiveIndicatorIconLabelSpace
+internal val StartIconToLabelPadding
+    get() = NavigationBarTokens.ItemActiveIndicatorIconLabelSpace

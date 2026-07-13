@@ -915,19 +915,32 @@ value class TimePickerLayoutType internal constructor(internal val value: Int) {
 
 private const val MaxHourValue = 23
 private const val MaxMinuteValue = 59
-private val RichTimeFieldWidth = 100.dp
-private val RichTimeFieldWidthPortrait = 132.dp
-private val RichTimeFieldHeight = 120.dp
-private val RichSeparatorWidth = 16.dp
-private val RichPeriodToggleWidth = 56.dp
-private val RichPeriodToggleHeight = 120.dp
-private val RichPeriodToggleHorizontalHeight = 48.dp
-private val RichPeriodTogglePadding = 8.dp
-private val RichPeriodToggleLargePadding = 16.dp
-private val RichHorizontalTimePickerGap = 52.dp
-private val RichVerticalTimePickerGap = 36.dp
-private val RichTimePickerPaddingVertical = 12.dp
-private val RichTimePickerPaddingHorizontal = 24.dp
+private val RichTimeFieldWidth
+    get() = 100.dp
+private val RichTimeFieldWidthPortrait
+    get() = 132.dp
+private val RichTimeFieldHeight
+    get() = 120.dp
+private val RichSeparatorWidth
+    get() = 16.dp
+private val RichPeriodToggleWidth
+    get() = 56.dp
+private val RichPeriodToggleHeight
+    get() = 120.dp
+private val RichPeriodToggleHorizontalHeight
+    get() = 48.dp
+private val RichPeriodTogglePadding
+    get() = 8.dp
+private val RichPeriodToggleLargePadding
+    get() = 16.dp
+private val RichHorizontalTimePickerGap
+    get() = 52.dp
+private val RichVerticalTimePickerGap
+    get() = 36.dp
+private val RichTimePickerPaddingVertical
+    get() = 12.dp
+private val RichTimePickerPaddingHorizontal
+    get() = 24.dp
 
 /**
  * A state object that can be hoisted to observe the time picker state. It holds the current values
@@ -3178,28 +3191,43 @@ private const val RadiansPerHour: Float = FullCircle / 12f
 private const val SeparatorZIndex = 2f
 private const val MaxValueForTextField = 99
 
-private val OuterCircleToSizeRatio: Float = 101.dp / ClockDialContainerSize
-private val InnerCircleToSizeRatio: Float = 69.dp / ClockDialContainerSize
-private val ClockDisplayBottomMargin = 36.dp
-private val ClockFaceBottomMargin = 24.dp
-private val DisplaySeparatorWidth = 24.dp
+private val OuterCircleToSizeRatio: Float
+    get() = 101.dp / ClockDialContainerSize
+private val InnerCircleToSizeRatio: Float
+    get() = 69.dp / ClockDialContainerSize
+private val ClockDisplayBottomMargin
+    get() = 36.dp
+private val ClockFaceBottomMargin
+    get() = 24.dp
+private val DisplaySeparatorWidth
+    get() = 24.dp
 
-private val SupportLabelTop = 7.dp
-private val MaxDistance = 74.dp
-private val MinimumInteractiveSize = 48.dp
+private val SupportLabelTop
+    get() = 7.dp
+private val MaxDistance
+    get() = 74.dp
+private val MinimumInteractiveSize
+    get() = 48.dp
 private val Minutes = intListOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
 private val Hours = intListOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 private val ExtraHours: IntList =
     MutableIntList(Hours.size).apply { Hours.forEach { add((it % 12 + 12)) } }
 
-private val PeriodTogglePaddingOld = 12.dp
-private val PeriodTogglePaddingSmall = 4.dp
-private val PeriodTogglePaddingLarge = 16.dp
+private val PeriodTogglePaddingOld
+    get() = 12.dp
+private val PeriodTogglePaddingSmall
+    get() = 4.dp
+private val PeriodTogglePaddingLarge
+    get() = 16.dp
 
-private val TimePickerMaxHeight = 384.dp
-private val TimePickerMidHeight = 330.dp
-private val ClockDialMidContainerSize = 238.dp
-internal val ClockDialMinContainerSize = 200.dp
+private val TimePickerMaxHeight
+    get() = 384.dp
+private val TimePickerMidHeight
+    get() = 330.dp
+private val ClockDialMidContainerSize
+    get() = 238.dp
+internal val ClockDialMinContainerSize
+    get() = 200.dp
 
 /**
  * Measure the composable with 0,0 so that it stays on the screen. Necessary to correctly handle
