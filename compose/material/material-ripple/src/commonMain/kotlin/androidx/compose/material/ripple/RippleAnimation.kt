@@ -174,7 +174,8 @@ internal fun Density.getRippleEndRadius(bounded: Boolean, size: Size): Float {
     }
 }
 
-private val BoundedRippleExtraRadius = 10.dp
+private val BoundedRippleExtraRadius
+    get() = 10.dp
 
 private const val FadeInDuration = 75
 private const val RadiusDuration = 225
