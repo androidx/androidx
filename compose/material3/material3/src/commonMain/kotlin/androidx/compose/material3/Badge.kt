@@ -198,20 +198,24 @@ object BadgeDefaults {
 /*@VisibleForTesting*/
 // Leading and trailing text padding when a badge is displaying text that is too long to fit in
 // a circular badge, e.g. if badge number is greater than 9.
-internal val BadgeWithContentHorizontalPadding = 4.dp
+internal val BadgeWithContentHorizontalPadding
+    get() = 4.dp
 
 /*@VisibleForTesting*/
 // Offsets for badge when there is short or long content
 // Horizontally align start/end of text badge 12.dp from the top end corner of its anchor
 // Vertical overlap with anchor is 14.dp
-internal val BadgeWithContentHorizontalOffset = 12.dp
-internal val BadgeWithContentVerticalOffset = 14.dp
+internal val BadgeWithContentHorizontalOffset
+    get() = 12.dp
+internal val BadgeWithContentVerticalOffset
+    get() = 14.dp
 
 /*@VisibleForTesting*/
 // Offsets for badge when there is no content
 // Horizontally align start/end of icon only badge 6.dp from the end/start edge of anchor
 // Vertical overlap with anchor is 6.dp
-internal val BadgeOffset = 6.dp
+internal val BadgeOffset
+    get() = 6.dp
 
 internal val BadgeTopRuler = HorizontalRuler()
 internal val BadgeEndRuler = VerticalRuler()

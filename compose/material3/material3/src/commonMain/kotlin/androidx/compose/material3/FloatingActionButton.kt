@@ -1417,36 +1417,55 @@ private class FloatingActionButtonElevationAnimatable(
     fun asState(): State<Dp> = animatable.asState()
 }
 
-private val SmallExtendedFabMinimumWidth = ExtendedFabSmallTokens.ContainerHeight
-private val SmallExtendedFabMinimumHeight = ExtendedFabSmallTokens.ContainerHeight
-private val SmallExtendedFabPaddingStart = ExtendedFabSmallTokens.LeadingSpace
-private val SmallExtendedFabPaddingEnd = ExtendedFabSmallTokens.TrailingSpace
-private val SmallExtendedFabIconPadding = ExtendedFabSmallTokens.IconLabelSpace
+private val SmallExtendedFabMinimumWidth
+    get() = ExtendedFabSmallTokens.ContainerHeight
+private val SmallExtendedFabMinimumHeight
+    get() = ExtendedFabSmallTokens.ContainerHeight
+private val SmallExtendedFabPaddingStart
+    get() = ExtendedFabSmallTokens.LeadingSpace
+private val SmallExtendedFabPaddingEnd
+    get() = ExtendedFabSmallTokens.TrailingSpace
+private val SmallExtendedFabIconPadding
+    get() = ExtendedFabSmallTokens.IconLabelSpace
 private val SmallExtendedFabTextStyle = TypographyKeyTokens.TitleMedium
 
-private val MediumExtendedFabMinimumWidth = ExtendedFabMediumTokens.ContainerHeight
-private val MediumExtendedFabMinimumHeight = ExtendedFabMediumTokens.ContainerHeight
-private val MediumExtendedFabPaddingStart = ExtendedFabMediumTokens.LeadingSpace
-private val MediumExtendedFabPaddingEnd = ExtendedFabMediumTokens.TrailingSpace
+private val MediumExtendedFabMinimumWidth
+    get() = ExtendedFabMediumTokens.ContainerHeight
+private val MediumExtendedFabMinimumHeight
+    get() = ExtendedFabMediumTokens.ContainerHeight
+private val MediumExtendedFabPaddingStart
+    get() = ExtendedFabMediumTokens.LeadingSpace
+private val MediumExtendedFabPaddingEnd
+    get() = ExtendedFabMediumTokens.TrailingSpace
 // TODO: ExtendedFabMediumTokens.IconLabelSpace is incorrect
-private val MediumExtendedFabIconPadding = 12.dp
+private val MediumExtendedFabIconPadding
+    get() = 12.dp
 private val MediumExtendedFabTextStyle = TypographyKeyTokens.TitleLarge
 
-private val LargeExtendedFabMinimumWidth = ExtendedFabLargeTokens.ContainerHeight
-private val LargeExtendedFabMinimumHeight = ExtendedFabLargeTokens.ContainerHeight
-private val LargeExtendedFabPaddingStart = ExtendedFabLargeTokens.LeadingSpace
-private val LargeExtendedFabPaddingEnd = ExtendedFabLargeTokens.TrailingSpace
+private val LargeExtendedFabMinimumWidth
+    get() = ExtendedFabLargeTokens.ContainerHeight
+private val LargeExtendedFabMinimumHeight
+    get() = ExtendedFabLargeTokens.ContainerHeight
+private val LargeExtendedFabPaddingStart
+    get() = ExtendedFabLargeTokens.LeadingSpace
+private val LargeExtendedFabPaddingEnd
+    get() = ExtendedFabLargeTokens.TrailingSpace
 // TODO: ExtendedFabLargeTokens.IconLabelSpace is incorrect
-private val LargeExtendedFabIconPadding = 16.dp
+private val LargeExtendedFabIconPadding
+    get() = 16.dp
 private val LargeExtendedFabTextStyle = TypographyKeyTokens.HeadlineSmall
 
-private val ExtendedFabStartIconPadding = 16.dp
+private val ExtendedFabStartIconPadding
+    get() = 16.dp
 
-private val ExtendedFabEndIconPadding = 12.dp
+private val ExtendedFabEndIconPadding
+    get() = 12.dp
 
-private val ExtendedFabTextPadding = 20.dp
+private val ExtendedFabTextPadding
+    get() = 20.dp
 
-private val ExtendedFabMinimumWidth = 80.dp
+private val ExtendedFabMinimumWidth
+    get() = 80.dp
 
 @Composable
 private fun extendedFabCollapseAnimation() =

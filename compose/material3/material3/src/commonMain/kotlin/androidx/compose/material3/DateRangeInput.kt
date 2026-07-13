@@ -125,4 +125,5 @@ internal fun DateRangeInputContent(
     }
 }
 
-private val TextFieldSpacing = 8.dp
+private val TextFieldSpacing
+    get() = 8.dp

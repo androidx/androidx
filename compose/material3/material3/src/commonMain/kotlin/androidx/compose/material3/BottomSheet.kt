@@ -498,6 +498,9 @@ internal fun Modifier.contentPredictiveBackScaling(predictiveBackProgress: Float
     transformOrigin = PredictiveBackChildTransformOrigin
 }
 
-private val PredictiveBackMaxScaleXDistance = 48.dp
-private val PredictiveBackMaxScaleYDistance = 24.dp
-internal val PredictiveBackChildTransformOrigin = TransformOrigin(0.5f, 0f)
+private val PredictiveBackMaxScaleXDistance
+    get() = 48.dp
+private val PredictiveBackMaxScaleYDistance
+    get() = 24.dp
+internal val PredictiveBackChildTransformOrigin
+    get() = TransformOrigin(0.5f, 0f)

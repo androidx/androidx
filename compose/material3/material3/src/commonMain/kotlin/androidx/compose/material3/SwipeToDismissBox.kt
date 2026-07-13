@@ -400,4 +400,5 @@ fun SwipeToDismissBox(
         content = content,
     )
 
-private val DismissVelocityThreshold = 125.dp
+private val DismissVelocityThreshold
+    get() = 125.dp

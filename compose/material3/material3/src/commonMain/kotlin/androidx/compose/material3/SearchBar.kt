@@ -3824,25 +3824,38 @@ private const val LayoutIdSurface = "Surface"
 private const val LayoutIdSearchContent = "Content"
 
 // Measurement specs
-internal val SearchBarAsTopBarPadding = 8.dp
-private val AppBarWithSearchHorizontalPadding = 4.dp
-internal val AppBarWithSearchVerticalPadding = 4.dp
+internal val SearchBarAsTopBarPadding
+    get() = 8.dp
+private val AppBarWithSearchHorizontalPadding
+    get() = 4.dp
+internal val AppBarWithSearchVerticalPadding
+    get() = 4.dp
 
-@OptIn(ExperimentalMaterial3Api::class) private val SearchBarCornerRadius: Dp = InputFieldHeight / 2
-private val FullScreenExpandedHorizontalPadding = 8.dp
-internal val DockedExpandedTableMinHeight: Dp = 240.dp
+@OptIn(ExperimentalMaterial3Api::class)
+private val SearchBarCornerRadius: Dp
+    get() = InputFieldHeight / 2
+private val FullScreenExpandedHorizontalPadding
+    get() = 8.dp
+internal val DockedExpandedTableMinHeight: Dp
+    get() = 240.dp
 private const val DockedExpandedTableMaxHeightScreenRatio: Float = 2f / 3f
 private const val DockedExpandedWithGapTableMaxHeightScreenRatio: Float = 1f / 2f
-internal val SearchBarMinWidth: Dp = 360.dp
-internal val SearchBarMaxWidth: Dp = 720.dp
-internal val SearchBarVerticalPadding: Dp = 8.dp
+internal val SearchBarMinWidth: Dp
+    get() = 360.dp
+internal val SearchBarMaxWidth: Dp
+    get() = 720.dp
+internal val SearchBarVerticalPadding: Dp
+    get() = 8.dp
 
 // Search bar has 16dp padding between icons and start/end, while by default text field has 12dp.
-private val SearchBarIconOffsetX: Dp = 4.dp
+private val SearchBarIconOffsetX: Dp
+    get() = 4.dp
 private const val SearchBarPredictiveBackMinScale: Float = 9f / 10f
-private val SearchBarPredictiveBackMinMargin: Dp = 8.dp
+private val SearchBarPredictiveBackMinMargin: Dp
+    get() = 8.dp
 private const val SearchBarPredictiveBackMaxOffsetXRatio: Float = 1f / 20f
-private val SearchBarPredictiveBackMaxOffsetY: Dp = 24.dp
+private val SearchBarPredictiveBackMaxOffsetY: Dp
+    get() = 24.dp
 
 // Animation specs
 private const val AnimationEnterDurationMillis: Int = MotionTokens.DurationLong4.toInt()
