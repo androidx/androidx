@@ -1956,7 +1956,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Restore the state of the child FragmentManager. Called by either
      * {@link #onCreate(Bundle)} for non-retained instance fragments or by
-     * {@link FragmentManager#moveToState(Fragment, int, int, int, boolean)}
+     * {@link FragmentManager#moveToState(int, boolean)}
      * for retained instance fragments.
      *
      * <p><strong>Postcondition:</strong> if there were child fragments to restore,
@@ -2284,10 +2284,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
      * an interface that allows any component, including your activity itself, to add menu items
-     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
-     * this single method override. As this provides a consistent, optionally {@link Lifecycle}
-     * -aware, and modular way to handle menu creation and item selection, replace usages of this
-     * method with one or more calls to {@link #addMenuProvider(MenuProvider)} in your Activity's
+     * by calling {@link androidx.activity.ComponentActivity#addMenuProvider(MenuProvider)} without
+     * forcing all components through this single method override. As this provides a consistent,
+     * optionally {@link Lifecycle}-aware, and modular way to handle menu creation and item
+     * selection, replace usages of this method with one or more calls to
+     * {@link androidx.activity.ComponentActivity#addMenuProvider(MenuProvider)} in your Activity's
      * {@link #onCreate(Bundle)} method, having each provider override
      * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} to create their menu items.
      */
@@ -2312,12 +2313,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
      * an interface that allows any component, including your activity itself, to add menu items
-     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
-     * this single method override. The {@link MenuProvider} interface uses a single
+     * by calling {@link MenuHost#addMenuProvider(MenuProvider)} without forcing all components
+     * through this single method override. The {@link MenuProvider} interface uses a single
      * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
      * and preparation of menu items. Replace usages of this method with one or more calls to
-     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
-     * moving any preparation of menu items to {@link MenuProvider#onPrepareMenu(Menu)}.
+     * {@link MenuHost#addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
+     * method, moving any preparation of menu items to {@link MenuProvider#onPrepareMenu(Menu)}.
      */
     @MainThread
     @Deprecated
@@ -2333,14 +2334,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
      * an interface that allows any component, including your activity itself, to add menu items
-     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
-     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
-     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
-     * created by that provider. Replace usages of this method with one or more calls to
-     * {@link #removeMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
-     * method, whenever it is necessary to remove the individual {@link MenuProvider}. If a
-     * {@link MenuProvider} was added with Lifecycle-awareness, this removal will happen
-     * automatically.
+     * by calling {@link MenuHost#addMenuProvider(MenuProvider)} without forcing all components
+     * through this single method override. Each {@link MenuProvider} then provides a consistent,
+     * optionally {@link Lifecycle}-aware, and modular way to handle menu item selection for the
+     * menu items created by that provider. Replace usages of this method with one or more calls to
+     * {@link MenuHost#removeMenuProvider(MenuProvider)} in your Activity's
+     * {@link #onCreate(Bundle)} method, whenever it is necessary to remove the individual
+     * {@link MenuProvider}. If a {@link MenuProvider} was added with Lifecycle-awareness, this
+     * removal will happen automatically.
      */
     @MainThread
     @Deprecated
@@ -2367,13 +2368,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
      * an interface that allows any component, including your activity itself, to add menu items
-     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
-     * this single method override. Each {@link MenuProvider} then provides a consistent, optionally
-     * {@link Lifecycle}-aware, and modular way to handle menu item selection for the menu items
-     * created by that provider. Replace usages of this method with one or more calls to
-     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
-     * delegating menu item selection to the individual {@link MenuProvider} that created the menu
-     * items you wish to handle.
+     * by calling {@link MenuHost#addMenuProvider(MenuProvider)} without forcing all components
+     * through this single method override. Each {@link MenuProvider} then provides a consistent,
+     * optionally {@link Lifecycle}-aware, and modular way to handle menu item selection for the
+     * menu items created by that provider. Replace usages of this method with one or more calls to
+     * {@link MenuHost#addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
+     * method, delegating menu item selection to the individual {@link MenuProvider} that created
+     * the menu items you wish to handle.
      */
     @SuppressWarnings("unused")
     @MainThread
@@ -2391,12 +2392,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated {@link androidx.activity.ComponentActivity} now implements {@link MenuHost},
      * an interface that allows any component, including your activity itself, to add menu items
-     * by calling {@link #addMenuProvider(MenuProvider)} without forcing all components through
-     * this single method override. The {@link MenuProvider} interface uses a single
+     * by calling {@link MenuHost#addMenuProvider(MenuProvider)} without forcing all components
+     * through this single method override. The {@link MenuProvider} interface uses a single
      * {@link MenuProvider#onCreateMenu(Menu, MenuInflater)} method for managing both the creation
      * and preparation of menu items. Replace usages of this method with one or more calls to
-     * {@link #addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)} method,
-     * overriding {@link MenuProvider#onMenuClosed(Menu)} to delegate menu closing to the
+     * {@link MenuHost#addMenuProvider(MenuProvider)} in your Activity's {@link #onCreate(Bundle)}
+     * method, overriding {@link MenuProvider#onMenuClosed(Menu)} to delegate menu closing to the
      * individual {@link MenuProvider} that created the menu.
      */
     @SuppressWarnings("unused")
