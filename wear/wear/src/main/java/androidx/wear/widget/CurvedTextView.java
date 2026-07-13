@@ -25,6 +25,7 @@ import static java.lang.Math.sin;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -53,9 +54,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * CurvedTextView is a component allowing developers to easily write curved text following
- * the curvature of the largest circle that can be inscribed in the view. ArcLayout could be
- * used to concatenate multiple curved texts, also layout together with other widgets such as icons.
+ * CurvedTextView is a component allowing developers to easily write curved text following the
+ * curvature of the largest circle that can be inscribed in the view. ArcLayout could be used to
+ * concatenate multiple curved texts, also layout together with other widgets such as icons.
  */
 public class CurvedTextView extends View implements ArcLayout.Widget {
     private static final float UNSET_ANCHOR_DEGREE = -1f;
@@ -63,8 +64,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     private static final float MIN_SWEEP_DEGREE = 0f;
     private static final float MAX_SWEEP_DEGREE = 359.9f;
     private static final float DEFAULT_TEXT_SIZE = 24f;
-    @ColorInt
-    private static final int DEFAULT_TEXT_COLOR = Color.WHITE;
+    @ColorInt private static final int DEFAULT_TEXT_COLOR = Color.WHITE;
     private static final int DEFAULT_TEXT_STYLE = Typeface.NORMAL;
     private static final boolean DEFAULT_CLOCKWISE = true;
     private static final int FONT_WEIGHT_MAX = 1000;
@@ -85,17 +85,18 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
 
-    @ArcLayout.AnchorType
-    private int mAnchorType;
+    @ArcLayout.AnchorType private int mAnchorType;
     private float mAnchorAngleDegrees;
     private float mMinSweepDegrees;
     private float mMaxSweepDegrees;
     private String mText = "";
     private float mTextSize = DEFAULT_TEXT_SIZE;
     private @Nullable Typeface mTypeface = null;
+    private @Nullable Typeface mOriginalTypeface = null;
+    private int mTextStyle = DEFAULT_TEXT_STYLE;
+    private int mFontWeight = -1;
     private boolean mClockwise = DEFAULT_CLOCKWISE;
-    @ColorInt
-    private int mTextColor = DEFAULT_TEXT_COLOR;
+    @ColorInt private int mTextColor = DEFAULT_TEXT_COLOR;
     private TextUtils.@Nullable TruncateAt mEllipsize = null;
     private float mLetterSpacing = 0f;
     private @Nullable String mFontFeatureSettings = null;
@@ -103,7 +104,6 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
 
     // If true, it means we got the touch_down event and are receiving the touch events that follow.
     private boolean mHandlingTouch = false;
-
 
     public CurvedTextView(@NonNull Context context) {
         this(context, null);
@@ -113,18 +113,12 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         this(context, attrs, android.R.attr.textViewStyle);
     }
 
-    public CurvedTextView(
-            @NonNull Context context,
-            @Nullable AttributeSet attrs,
-            int defStyle) {
+    public CurvedTextView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         this(context, attrs, defStyle, 0);
     }
 
     public CurvedTextView(
-            @NonNull Context context,
-            @Nullable AttributeSet attrs,
-            int defStyle,
-            int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyle, int defStyleRes) {
         super(context, attrs, defStyle, defStyleRes);
 
         mPaint.setAntiAlias(true);
@@ -133,8 +127,9 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         attributes.mTextColor = ColorStateList.valueOf(DEFAULT_TEXT_COLOR);
 
         final Resources.Theme theme = context.getTheme();
-        TypedArray a = theme.obtainStyledAttributes(
-                attrs, R.styleable.TextViewAppearance, defStyle, defStyleRes);
+        TypedArray a =
+                theme.obtainStyledAttributes(
+                        attrs, R.styleable.TextViewAppearance, defStyle, defStyleRes);
 
         TypedArray appearance = null;
         int ap = a.getResourceId(R.styleable.TextViewAppearance_android_textAppearance, -1);
@@ -148,8 +143,9 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
             appearance.recycle();
         }
 
-        a = context.obtainStyledAttributes(
-                attrs, R.styleable.CurvedTextView, defStyle, defStyleRes);
+        a =
+                context.obtainStyledAttributes(
+                        attrs, R.styleable.CurvedTextView, defStyle, defStyleRes);
         // overrride the value in the appearance with explicitly specified attribute values
         readTextAppearance(a, attributes, false);
 
@@ -174,20 +170,16 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         }
 
         // read the custom CurvedTextView attributes
-        mMaxSweepDegrees =
-                a.getFloat(R.styleable.CurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
+        mMaxSweepDegrees = a.getFloat(R.styleable.CurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
         mMaxSweepDegrees = min(mMaxSweepDegrees, MAX_SWEEP_DEGREE);
-        mMinSweepDegrees =
-                a.getFloat(R.styleable.CurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
+        mMinSweepDegrees = a.getFloat(R.styleable.CurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
         if (mMinSweepDegrees > mMaxSweepDegrees) {
             throw new IllegalArgumentException(
-                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
-            );
+                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees");
         }
         mAnchorType = a.getInt(R.styleable.CurvedTextView_anchorPosition, UNSET_ANCHOR_TYPE);
-        mAnchorAngleDegrees = a.getFloat(
-                R.styleable.CurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE
-        );
+        mAnchorAngleDegrees =
+                a.getFloat(R.styleable.CurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE);
         mAnchorAngleDegrees = mAnchorAngleDegrees % 360f;
         mClockwise = a.getBoolean(R.styleable.CurvedTextView_clockwise, DEFAULT_CLOCKWISE);
 
@@ -218,35 +210,30 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     /**
-     * @throws IllegalArgumentException if the anchorType and/or anchorAngleDegrees attributes
-     *                                  were set for a widget in ArcLayout
+     * @throws IllegalArgumentException if the anchorType and/or anchorAngleDegrees attributes were
+     *     set for a widget in ArcLayout
      */
     @Override
     public void checkInvalidAttributeAsChild() {
         if (mAnchorType != UNSET_ANCHOR_TYPE) {
             throw new IllegalArgumentException(
-                    "CurvedTextView shall not set anchorType value when added into"
-                            + "ArcLayout"
-            );
+                    "CurvedTextView shall not set anchorType value when added into" + "ArcLayout");
         }
 
         if (mAnchorAngleDegrees != UNSET_ANCHOR_DEGREE) {
             throw new IllegalArgumentException(
                     "CurvedTextView shall not set anchorAngleDegrees value when added into "
-                            + "ArcLayout"
-            );
+                            + "ArcLayout");
         }
     }
 
-    /**
-     * See {@link ArcLayout.Widget#isPointInsideClickArea(float, float)}
-     */
+    /** See {@link ArcLayout.Widget#isPointInsideClickArea(float, float)} */
     @Override
     public boolean isPointInsideClickArea(float x, float y) {
-        float radius2 = min(getWidth(), getHeight()) / 2f
-                - (mClockwise ? getPaddingTop() : getPaddingBottom());
-        float radius1 =
-                radius2 - mPaint.getFontMetrics().descent + mPaint.getFontMetrics().ascent;
+        float radius2 =
+                min(getWidth(), getHeight()) / 2f
+                        - (mClockwise ? getPaddingTop() : getPaddingBottom());
+        float radius1 = radius2 - mPaint.getFontMetrics().descent + mPaint.getFontMetrics().ascent;
 
         float dx = x - getWidth() / 2;
         float dy = y - getHeight() / 2;
@@ -268,18 +255,31 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     @Override
+    protected void onConfigurationChanged(@Nullable Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (Build.VERSION.SDK_INT >= 31) {
+            if (mFontWeight >= 0) {
+                resolveStyleAndSetTypeface(mOriginalTypeface, mTextStyle, mFontWeight);
+            } else {
+                setTypeface(mOriginalTypeface, mTextStyle);
+            }
+        }
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
 
         // Note that ascent is negative.
-        mPathRadius = min(getMeasuredWidth(), getMeasuredHeight()) / 2f
-                + (mClockwise ? mPaint.getFontMetrics().ascent - getPaddingTop() :
-                -mPaint.getFontMetrics().descent - getPaddingBottom());
-        mTextSweepDegrees = min(
-                getWidthSelf() / mPathRadius / (float) Math.PI * 180f,
-                MAX_SWEEP_DEGREE);
+        mPathRadius =
+                min(getMeasuredWidth(), getMeasuredHeight()) / 2f
+                        + (mClockwise
+                                ? mPaint.getFontMetrics().ascent - getPaddingTop()
+                                : -mPaint.getFontMetrics().descent - getPaddingBottom());
+        mTextSweepDegrees =
+                min(getWidthSelf() / mPathRadius / (float) Math.PI * 180f, MAX_SWEEP_DEGREE);
         mBackgroundSweepDegrees = max(min(mMaxSweepDegrees, mTextSweepDegrees), mMinSweepDegrees);
     }
 
@@ -327,10 +327,11 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         if (mTextSweepDegrees <= mMaxSweepDegrees) {
             mTextToDraw = mText;
         } else {
-            mTextToDraw = ellipsize(
-                    (int) (mMaxSweepDegrees / 180f * Math.PI * mPathRadius) - getPaddingLeft()
-                            - getPaddingRight()
-            );
+            mTextToDraw =
+                    ellipsize(
+                            (int) (mMaxSweepDegrees / 180f * Math.PI * mPathRadius)
+                                    - getPaddingLeft()
+                                    - getPaddingRight());
             mTextSweepDegrees = mMaxSweepDegrees;
         }
 
@@ -363,17 +364,22 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
                 anchorTypeFactor = 0f;
         }
 
-        mLocalRotateAngle = (mAnchorAngleDegrees == UNSET_ANCHOR_DEGREE ? 0f : mAnchorAngleDegrees)
-                + clockwiseFactor * anchorTypeFactor * mBackgroundSweepDegrees;
+        mLocalRotateAngle =
+                (mAnchorAngleDegrees == UNSET_ANCHOR_DEGREE ? 0f : mAnchorAngleDegrees)
+                        + clockwiseFactor * anchorTypeFactor * mBackgroundSweepDegrees;
 
         // Always draw the curved text on top center, then rotate the canvas to the right position
         float backgroundStartAngle =
                 -clockwiseFactor * 0.5f * mBackgroundSweepDegrees + ANCHOR_DEGREE_OFFSET;
 
         float textStartAngle =
-                backgroundStartAngle + clockwiseFactor * (float) (
-                        alignmentFactor * (mBackgroundSweepDegrees - mTextSweepDegrees)
-                                + getPaddingLeft() / mPathRadius / Math.PI * 180);
+                backgroundStartAngle
+                        + clockwiseFactor
+                                * (float)
+                                        (alignmentFactor
+                                                        * (mBackgroundSweepDegrees
+                                                                - mTextSweepDegrees)
+                                                + getPaddingLeft() / mPathRadius / Math.PI * 180);
 
         float centerX = getWidth() / 2f;
         float centerY = getHeight() / 2f;
@@ -384,8 +390,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
                 centerX + mPathRadius,
                 centerY + mPathRadius,
                 textStartAngle,
-                clockwiseFactor * mTextSweepDegrees
-        );
+                clockwiseFactor * mTextSweepDegrees);
 
         if (withBackground) {
             mBgPath.reset();
@@ -399,16 +404,16 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
                     centerX + radius2,
                     centerY + radius2,
                     backgroundStartAngle,
-                    clockwiseFactor * mBackgroundSweepDegrees, false
-            );
+                    clockwiseFactor * mBackgroundSweepDegrees,
+                    false);
             mBgPath.arcTo(
                     centerX - radius1,
                     centerY - radius1,
                     centerX + radius1,
                     centerY + radius1,
                     backgroundStartAngle + clockwiseFactor * mBackgroundSweepDegrees,
-                    -clockwiseFactor * mBackgroundSweepDegrees, false
-            );
+                    -clockwiseFactor * mBackgroundSweepDegrees,
+                    false);
             mBgPath.close();
 
             float angle = backgroundStartAngle;
@@ -454,8 +459,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
 
         double rotAngle = -Math.toRadians(mLocalRotateAngle);
 
-        float tempX = (float)
-                ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
+        float tempX = (float) ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
         y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);
         x0 = tempX;
 
@@ -484,10 +488,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
 
         boolean withBackground = getBackground() != null;
         updatePathsIfNeeded(withBackground);
-        canvas.rotate(
-                mLocalRotateAngle,
-                getWidth() / 2f,
-                getHeight() / 2f);
+        canvas.rotate(mLocalRotateAngle, getWidth() / 2f, getHeight() / 2f);
 
         if (withBackground) {
             canvas.clipPath(mBgPath);
@@ -508,17 +509,13 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Sets the Typeface taking into account the given attributes.
      *
-     * @param familyName    Family name string, e.g. "serif"
+     * @param familyName Family name string, e.g. "serif"
      * @param typefaceIndex An index of the typeface enum, e.g. SANS, SERIF.
-     * @param style         A typeface style
-     * @param weight        A weight value for the Typeface or -1 if not specified.
+     * @param style A typeface style
+     * @param weight A weight value for the Typeface or -1 if not specified.
      */
     private void setTypefaceFromAttrs(
-            @Nullable String familyName,
-            int typefaceIndex,
-            int style,
-            int weight
-    ) {
+            @Nullable String familyName, int typefaceIndex, int style, int weight) {
         // typeface is ignored when font family is set
         if (mTypeface == null && familyName != null) {
             // Lookup normal Typeface from system font map.
@@ -544,52 +541,95 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     private void resolveStyleAndSetTypeface(@Nullable Typeface tf, int style, int weight) {
+        mOriginalTypeface = tf;
+        mTextStyle = style;
+        mFontWeight = weight;
         if (weight >= 0 && Build.VERSION.SDK_INT >= 28) {
-            int clampedWeight = min(FONT_WEIGHT_MAX, weight);
-            boolean italic = (style & Typeface.ITALIC) != 0;
-            mTypeface = Api28Impl.createTypeface(tf, clampedWeight, italic);
+            mTypeface = getAdjustedTypeface(tf, style, weight);
             mPaint.setTypeface(mTypeface);
         } else {
             setTypeface(tf, style);
         }
     }
 
-    /**
-     * Sets the typeface and style in which the text should be displayed, and turns on the fake
-     * bold and italic bits in the Paint if the Typeface that you provided does not have all the
-     * bits in the style that you specified.
-     */
-    public void setTypeface(@Nullable Typeface tf, int style) {
+    private @Nullable Typeface getAdjustedTypeface(@Nullable Typeface tf, int style, int weight) {
+        Typeface baseTf = (tf == null) ? Typeface.DEFAULT : tf;
+        if (Build.VERSION.SDK_INT >= 31) {
+            int fontWeightAdjustment =
+                    getContext().getResources().getConfiguration().fontWeightAdjustment;
+            if (fontWeightAdjustment != 0
+                    && fontWeightAdjustment != Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
+                int baseWeight;
+                if (weight >= 0) {
+                    baseWeight = weight;
+                } else if (style > 0 && (style & Typeface.BOLD) != 0) {
+                    baseWeight = 700;
+                } else {
+                    baseWeight = baseTf.getWeight();
+                }
+                boolean italic = baseTf.isItalic();
+                if (style > 0) {
+                    italic |= (style & Typeface.ITALIC) != 0;
+                }
+                int adjustedWeight =
+                        max(1, min(FONT_WEIGHT_MAX, baseWeight + fontWeightAdjustment));
+                return Typeface.create(baseTf, adjustedWeight, italic);
+            }
+        }
+        if (weight >= 0 && Build.VERSION.SDK_INT >= 28) {
+            int clampedWeight = min(FONT_WEIGHT_MAX, weight);
+            boolean italic = (style & Typeface.ITALIC) != 0;
+            return Api28Impl.createTypeface(tf, clampedWeight, italic);
+        }
         if (style > 0) {
             if (tf == null) {
-                tf = Typeface.defaultFromStyle(style);
+                return Typeface.defaultFromStyle(style);
             } else {
-                tf = Typeface.create(tf, style);
+                return Typeface.create(tf, style);
             }
-            if (!tf.equals(mPaint.getTypeface())) {
-                mPaint.setTypeface(tf);
-                mTypeface = tf;
+        }
+        return tf;
+    }
+
+    /**
+     * Sets the typeface and style in which the text should be displayed, and turns on the fake bold
+     * and italic bits in the Paint if the Typeface that you provided does not have all the bits in
+     * the style that you specified.
+     */
+    public void setTypeface(@Nullable Typeface tf, int style) {
+        mOriginalTypeface = tf;
+        mTextStyle = style;
+        mFontWeight = -1;
+
+        boolean hasAdjustment = false;
+        if (Build.VERSION.SDK_INT >= 31) {
+            int fontWeightAdjustment =
+                    getContext().getResources().getConfiguration().fontWeightAdjustment;
+            if (fontWeightAdjustment != 0
+                    && fontWeightAdjustment != Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
+                hasAdjustment = true;
             }
-            // now compute what (if any) algorithmic styling is needed
-            int typefaceStyle = tf != null ? tf.getStyle() : 0;
+        }
+
+        mTypeface = getAdjustedTypeface(tf, style, -1);
+        mPaint.setTypeface(mTypeface);
+
+        if (hasAdjustment) {
+            mPaint.setFakeBoldText(false);
+            mPaint.setTextSkewX(0f);
+        } else if (style > 0) {
+            int typefaceStyle = mTypeface != null ? mTypeface.getStyle() : 0;
             int need = style & ~typefaceStyle;
             mPaint.setFakeBoldText((need & Typeface.BOLD) != 0);
             mPaint.setTextSkewX(((need & Typeface.ITALIC) != 0) ? ITALIC_SKEW_X : 0f);
         } else {
             mPaint.setFakeBoldText(false);
             mPaint.setTextSkewX(0f);
-            if ((tf != null && !tf.equals(mPaint.getTypeface()))
-                    || (tf == null && mPaint.getTypeface() != null)) {
-                mPaint.setTypeface(tf);
-                mTypeface = tf;
-            }
         }
         doUpdate();
     }
 
-    /**
-     * Set of attribute that can be defined in a Text Appearance.
-     */
+    /** Set of attribute that can be defined in a Text Appearance. */
     private static class TextAppearanceAttributes {
         @Nullable ColorStateList mTextColor = null;
         float mTextSize = DEFAULT_TEXT_SIZE;
@@ -602,13 +642,10 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         @Nullable String mFontFeatureSettings = null;
         @Nullable String mFontVariationSettings = null;
 
-        TextAppearanceAttributes() {
-        }
+        TextAppearanceAttributes() {}
     }
 
-    /**
-     * Sets the textColor, size, style, font etc from the specified TextAppearanceAttributes
-     */
+    /** Sets the textColor, size, style, font etc from the specified TextAppearanceAttributes */
     private void applyTextAppearance(TextAppearanceAttributes attributes) {
         if (attributes.mTextColor != null) {
             mTextColor = attributes.mTextColor.getDefaultColor();
@@ -622,8 +659,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
                 attributes.mFontFamily,
                 attributes.mTypefaceIndex,
                 attributes.mTextStyle,
-                attributes.mFontWeight
-        );
+                attributes.mFontWeight);
 
         mPaint.setLetterSpacing(attributes.mLetterSpacing);
         mLetterSpacing = attributes.mLetterSpacing;
@@ -636,70 +672,80 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     /**
-     * Read the Text Appearance attributes from a given TypedArray and set its values to the
-     * given set. If the TypedArray contains a value that already set in the given attributes,
-     * that will be overridden.
+     * Read the Text Appearance attributes from a given TypedArray and set its values to the given
+     * set. If the TypedArray contains a value that already set in the given attributes, that will
+     * be overridden.
      */
     private void readTextAppearance(
-            TypedArray appearance,
-            TextAppearanceAttributes attributes,
-            boolean isTextAppearance
-    ) {
-        int attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_textColor :
-                R.styleable.CurvedTextView_android_textColor;
+            TypedArray appearance, TextAppearanceAttributes attributes, boolean isTextAppearance) {
+        int attrIndex =
+                isTextAppearance
+                        ? R.styleable.TextAppearance_android_textColor
+                        : R.styleable.CurvedTextView_android_textColor;
         if (appearance.hasValue(attrIndex)) {
             attributes.mTextColor = appearance.getColorStateList(attrIndex);
         }
 
-        attributes.mTextSize = appearance.getDimensionPixelSize(
-                isTextAppearance ? R.styleable.TextAppearance_android_textSize :
-                        R.styleable.CurvedTextView_android_textSize,
-                (int) attributes.mTextSize
-        );
+        attributes.mTextSize =
+                appearance.getDimensionPixelSize(
+                        isTextAppearance
+                                ? R.styleable.TextAppearance_android_textSize
+                                : R.styleable.CurvedTextView_android_textSize,
+                        (int) attributes.mTextSize);
 
-        attributes.mTextStyle = appearance.getInt(
-                isTextAppearance ? R.styleable.TextAppearance_android_textStyle :
-                        R.styleable.CurvedTextView_android_textStyle,
-                attributes.mTextStyle
-        );
+        attributes.mTextStyle =
+                appearance.getInt(
+                        isTextAppearance
+                                ? R.styleable.TextAppearance_android_textStyle
+                                : R.styleable.CurvedTextView_android_textStyle,
+                        attributes.mTextStyle);
 
         // make sure that the typeface attribute is read before fontFamily attribute
-        attributes.mTypefaceIndex = appearance.getInt(
-                isTextAppearance ? R.styleable.TextAppearance_android_typeface :
-                        R.styleable.CurvedTextView_android_typeface,
-                attributes.mTypefaceIndex
-        );
+        attributes.mTypefaceIndex =
+                appearance.getInt(
+                        isTextAppearance
+                                ? R.styleable.TextAppearance_android_typeface
+                                : R.styleable.CurvedTextView_android_typeface,
+                        attributes.mTypefaceIndex);
         if (attributes.mTypefaceIndex != -1 && !attributes.mFontFamilyExplicit) {
             attributes.mFontFamily = null;
         }
 
-        attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontFamily :
-                R.styleable.CurvedTextView_android_fontFamily;
+        attrIndex =
+                isTextAppearance
+                        ? R.styleable.TextAppearance_android_fontFamily
+                        : R.styleable.CurvedTextView_android_fontFamily;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontFamily = appearance.getString(attrIndex);
             attributes.mFontFamilyExplicit = !isTextAppearance;
         }
 
-        attributes.mFontWeight = appearance.getInt(
-                isTextAppearance ? R.styleable.TextAppearance_android_textFontWeight :
-                        R.styleable.CurvedTextView_android_textFontWeight,
-                attributes.mFontWeight
-        );
+        attributes.mFontWeight =
+                appearance.getInt(
+                        isTextAppearance
+                                ? R.styleable.TextAppearance_android_textFontWeight
+                                : R.styleable.CurvedTextView_android_textFontWeight,
+                        attributes.mFontWeight);
 
-        attributes.mLetterSpacing = appearance.getFloat(
-                isTextAppearance ? R.styleable.TextAppearance_android_letterSpacing :
-                        R.styleable.CurvedTextView_android_letterSpacing,
-                attributes.mLetterSpacing
-        );
+        attributes.mLetterSpacing =
+                appearance.getFloat(
+                        isTextAppearance
+                                ? R.styleable.TextAppearance_android_letterSpacing
+                                : R.styleable.CurvedTextView_android_letterSpacing,
+                        attributes.mLetterSpacing);
 
-        attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontFeatureSettings :
-                R.styleable.CurvedTextView_android_fontFeatureSettings;
+        attrIndex =
+                isTextAppearance
+                        ? R.styleable.TextAppearance_android_fontFeatureSettings
+                        : R.styleable.CurvedTextView_android_fontFeatureSettings;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontFeatureSettings = appearance.getString(attrIndex);
         }
 
-        attrIndex = isTextAppearance ? R.styleable.TextAppearance_android_fontVariationSettings :
-                R.styleable.CurvedTextView_android_fontVariationSettings;
+        attrIndex =
+                isTextAppearance
+                        ? R.styleable.TextAppearance_android_fontVariationSettings
+                        : R.styleable.CurvedTextView_android_fontVariationSettings;
         if (appearance.hasValue(attrIndex)) {
             attributes.mFontVariationSettings = appearance.getString(attrIndex);
         }
@@ -725,7 +771,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Sets the anchor type for positioning the curved text.
      *
-     * @param value the anchor type,  one of {ANCHOR_START, ANCHOR_CENTER, ANCHOR_END}
+     * @param value the anchor type, one of {ANCHOR_START, ANCHOR_CENTER, ANCHOR_END}
      */
     public void setAnchorType(@ArcLayout.AnchorType int value) {
         mAnchorType = value;
@@ -749,17 +795,16 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      * Sets the minimum and maximum sweep angle in degrees for rendering the text.
      *
      * @param minSweep Ensure the text takes at least this angle (in degrees) in the arc. Use 0f if
-     *                 you don't want to specify a minimum.
-     * @param maxSweep Limit the maximum angle (in degrees) that this curved text can take. Use
-     *                 360f if you don't want to specify a maximum.
+     *     you don't want to specify a minimum.
+     * @param maxSweep Limit the maximum angle (in degrees) that this curved text can take. Use 360f
+     *     if you don't want to specify a maximum.
      */
     public void setSweepRangeDegrees(
             @FloatRange(from = 0f, to = 360f, toInclusive = true) float minSweep,
             @FloatRange(from = 0f, to = 360f, toInclusive = true) float maxSweep) {
         if (minSweep > maxSweep) {
             throw new IllegalArgumentException(
-                    "MaxSweepDegrees cannot be smaller than MinSweepDegrees"
-            );
+                    "MaxSweepDegrees cannot be smaller than MinSweepDegrees");
         }
         mMinSweepDegrees = min(max(minSweep, MIN_SWEEP_DEGREE), MAX_SWEEP_DEGREE);
         mMaxSweepDegrees = min(maxSweep, MAX_SWEEP_DEGREE);
@@ -807,11 +852,19 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     /**
-     * Sets the typeface and style in which the text should be displayed. Note that not all
-     * Typeface families actually have bold and italic variants
+     * Sets the typeface and style in which the text should be displayed. Note that not all Typeface
+     * families actually have bold and italic variants
      */
     public void setTypeface(@Nullable Typeface value) {
-        mTypeface = value;
+        mOriginalTypeface = value;
+        mTextStyle = DEFAULT_TEXT_STYLE;
+        mFontWeight = -1;
+
+        mTypeface = getAdjustedTypeface(value, DEFAULT_TEXT_STYLE, -1);
+        mPaint.setTypeface(mTypeface);
+
+        mPaint.setFakeBoldText(false);
+        mPaint.setTextSkewX(0f);
         doUpdate();
     }
 
@@ -839,16 +892,15 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     /**
-     * Returns where, if anywhere, words that are longer than the view is wide should be
-     * ellipsized.
+     * Returns where, if anywhere, words that are longer than the view is wide should be ellipsized.
      */
     public TextUtils.@Nullable TruncateAt getEllipsize() {
         return mEllipsize;
     }
 
     /**
-     * Causes words in the text that are longer than the view's width to be ellipsized. Use null
-     * to turn off ellipsizing.
+     * Causes words in the text that are longer than the view's width to be ellipsized. Use null to
+     * turn off ellipsizing.
      */
     public void setEllipsize(TextUtils.@Nullable TruncateAt value) {
         mEllipsize = value;
@@ -856,8 +908,8 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     /**
-     * Gets the text letter-space value, which determines the spacing between characters. The
-     * value returned is in ems. Normally, this value is 0.0.
+     * Gets the text letter-space value, which determines the spacing between characters. The value
+     * returned is in ems. Normally, this value is 0.0.
      *
      * @return The text letter-space value in ems.
      */
@@ -891,7 +943,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      * attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
      *
      * @param value Font feature settings represented as CSS compatible string. This value may be
-     *              null.
+     *     null.
      */
     public void setFontFeatureSettings(@Nullable String value) {
         mPaint.setFontFeatureSettings(value);
@@ -908,7 +960,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
      * Sets TrueType or OpenType font variation settings.
      *
      * @param value Font variation settings. You can pass null or empty string as no variation
-     *              settings. This value may be null
+     *     settings. This value may be null
      */
     public void setFontVariationSettings(@Nullable String value) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -930,32 +982,24 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         event.getText().add(mText);
     }
 
-    /**
-     * Nested class to avoid verification errors for methods induces in API level 26
-     */
+    /** Nested class to avoid verification errors for methods induces in API level 26 */
     @RequiresApi(26)
     private static class Api26Impl {
-        private Api26Impl() {
-        }
+        private Api26Impl() {}
 
         static void paintSetFontVariationSettings(
-                Paint paint,
-                @Nullable String fontVariationSettings) {
+                Paint paint, @Nullable String fontVariationSettings) {
             paint.setFontVariationSettings(fontVariationSettings);
         }
     }
 
-    /**
-     * Nested class to avoid verification errors for methods induces in API level 28
-     */
+    /** Nested class to avoid verification errors for methods induces in API level 28 */
     @RequiresApi(28)
     private static class Api28Impl {
-        private Api28Impl() {
-        }
+        private Api28Impl() {}
 
         static Typeface createTypeface(@Nullable Typeface family, int weight, boolean italic) {
             return Typeface.create(family, weight, italic);
         }
     }
-
 }
