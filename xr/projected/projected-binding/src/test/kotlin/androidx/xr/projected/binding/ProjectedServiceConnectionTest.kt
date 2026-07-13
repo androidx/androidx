@@ -143,8 +143,9 @@ class ProjectedServiceConnectionTest {
         }
 
     @Test
-    fun disconnect_notConnected_throwsIllegalStateException() {
-        assertFailsWith<IllegalStateException> { projectedServiceConnection.disconnect() }
+    fun disconnect_notConnected_doesNotThrow() {
+        projectedServiceConnection.disconnect()
+        assertThat(projectedServiceConnection.isServiceConnected.value).isFalse()
     }
 
     companion object {
