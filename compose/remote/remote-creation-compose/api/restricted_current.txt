@@ -920,6 +920,14 @@ package androidx.compose.remote.creation.compose.state {
     property public androidx.compose.ui.graphics.ImageBitmap? constantValueOrNull;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat height;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion Companion;
+  }
+
+  public static final class RemoteImageBitmap.Companion {
+    method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, androidx.compose.ui.graphics.ImageBitmap!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteImageBitmap invoke(androidx.compose.ui.graphics.ImageBitmap value);
+    method public operator androidx.compose.remote.creation.compose.state.RemoteImageBitmap invoke(String url);
   }
 
   public final class RemoteImageBitmapKt {
