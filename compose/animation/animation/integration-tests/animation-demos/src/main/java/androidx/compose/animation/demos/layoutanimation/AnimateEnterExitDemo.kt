@@ -19,7 +19,6 @@ package androidx.compose.animation.demos.layoutanimation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
@@ -68,7 +67,6 @@ import androidx.compose.ui.unit.dp
  * - Modifier.animateEnterExit
  */
 @Preview
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimateEnterExitDemo() {
     Box {

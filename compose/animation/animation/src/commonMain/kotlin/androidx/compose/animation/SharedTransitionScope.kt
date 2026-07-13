@@ -31,7 +31,6 @@ import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.sca
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
-import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
@@ -1331,7 +1330,6 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
      * will add its animations to. When [parentTransition] is null, [visible] will be cast to (Unit)
      * -> Boolean, since we have no parent state to use for the query.
      */
-    @OptIn(ExperimentalTransitionApi::class)
     private fun <T> Modifier.sharedBoundsImpl(
         sharedContentState: SharedContentState,
         parentTransition: Transition<T>?,

@@ -453,7 +453,6 @@ class AnimatedContentTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun AnimatedContentSlideInAndOutOfContainerTest() {
         val transitionState = MutableTransitionState(true)
@@ -737,7 +736,6 @@ class AnimatedContentTest {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun AnimatedContentWithInterruption() {
         var flag by mutableStateOf(true)
@@ -794,7 +792,6 @@ class AnimatedContentTest {
         rule.runOnIdle { flag = false }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testExitHold() {
         var target by mutableStateOf(true)
@@ -914,7 +911,6 @@ class AnimatedContentTest {
         rule.waitForIdle()
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testExitHoldDefersUntilAllFinished() {
         var target by mutableStateOf(true)

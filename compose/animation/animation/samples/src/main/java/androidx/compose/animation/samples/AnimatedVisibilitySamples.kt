@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.DeferredAnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.MutableTransform
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.DeferredTransitionState
@@ -175,7 +174,6 @@ fun FadeTransition() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun FullyLoadedTransition() {
@@ -201,7 +199,6 @@ fun FullyLoadedTransition() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun AnimatedVisibilityWithBooleanVisibleParamNoReceiver() {
@@ -236,7 +233,6 @@ fun AnimatedVisibilityWithBooleanVisibleParamNoReceiver() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun ColumnScope.AnimatedFloatingActionButton() {
@@ -361,7 +357,6 @@ fun ColumnAnimatedVisibilitySample() {
 @Sampled
 @Composable
 fun AVScopeAnimateEnterExit() {
-    @OptIn(ExperimentalAnimationApi::class)
     @Composable
     fun AnimatedVisibilityScope.Item(modifier: Modifier, backgroundColor: Color) {
         // Creates a custom enter/exit animation for scale property.
@@ -451,7 +446,6 @@ fun AVScopeAnimateEnterExit() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Sampled
 fun AddAnimatedVisibilityToGenericTransitionSample() {
@@ -470,7 +464,6 @@ fun AddAnimatedVisibilityToGenericTransitionSample() {
         }
     }
 
-    @OptIn(ExperimentalAnimationApi::class)
     @Composable
     fun SelectableItem() {
         // This sample animates a number of properties, including AnimatedVisibility, as a part of
@@ -672,7 +665,6 @@ fun AVColumnScopeWithMutableTransitionState() {
 @Sampled
 @Composable
 fun AnimateEnterExitPartialContent() {
-    @OptIn(ExperimentalAnimationApi::class)
     @Composable
     fun FullScreenNotification(visible: Boolean) {
         AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
