@@ -243,6 +243,7 @@ internal class GapComposer(
     private var reusing = false
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
+    private var parentComposing = false
     private var compositionToken: Int = 0
 
     override var sourceMarkersEnabled =
@@ -486,6 +487,7 @@ internal class GapComposer(
 
         // parent reference management
         parentContext.startComposing()
+        parentComposing = true
         val parentProvider = parentContext.getCompositionLocalScope()
         providersInvalidStack.push(providersInvalid.asInt())
         providersInvalid = changed(parentProvider)
@@ -527,6 +529,7 @@ internal class GapComposer(
     @OptIn(InternalComposeApi::class)
     private fun endRoot() {
         endGroup()
+        parentComposing = false
         parentContext.doneComposing()
         endGroup()
         changeListWriter.endRoot()
@@ -539,6 +542,10 @@ internal class GapComposer(
     /** Discard a pending composition because an error was encountered during composition */
     @OptIn(InternalComposeApi::class)
     private fun abortRoot() {
+        if (parentComposing) {
+            parentComposing = false
+            parentContext.doneComposing()
+        }
         cleanUpCompose()
         pendingStack.clear()
         parentStateStack.clear()
