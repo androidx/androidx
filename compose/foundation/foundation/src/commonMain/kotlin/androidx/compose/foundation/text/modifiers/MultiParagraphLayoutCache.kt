@@ -529,4 +529,5 @@ private operator fun TextUnit.times(other: TextUnit): TextUnit {
     }
 }
 
-private val DefaultFontSize = 14.sp
+private val DefaultFontSize
+    get() = 14.sp

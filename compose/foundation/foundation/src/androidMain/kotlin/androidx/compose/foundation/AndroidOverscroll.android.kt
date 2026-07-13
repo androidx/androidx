@@ -1079,5 +1079,6 @@ private fun destretchMultiplier(source: NestedScrollSource): Float =
 private const val FlingDestretchFactor = 4f
 
 /** From [EdgeEffect] defaults */
-private val DefaultGlowColor = Color(0xff666666)
+private val DefaultGlowColor
+    get() = Color(0xff666666)
 private val DefaultGlowPaddingValues = PaddingValues()

@@ -20,7 +20,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
 /** Default color used is the blue from the Compose logo, b/172679845 for context */
-private val DefaultSelectionColor = Color(0xFF4286F4)
+private val DefaultSelectionColor
+    get() = Color(0xFF4286F4)
 
 @Stable
 internal actual val DefaultTextSelectionColors =

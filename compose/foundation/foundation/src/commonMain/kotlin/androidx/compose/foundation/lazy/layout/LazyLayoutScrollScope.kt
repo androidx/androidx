@@ -32,9 +32,12 @@ private class ItemFoundInScroll(
     val previousAnimation: AnimationState<Float, AnimationVector1D>,
 ) : CancellationException()
 
-private val TargetDistance = 2500.dp
-private val BoundDistance = 1500.dp
-private val MinimumDistance = 50.dp
+private val TargetDistance
+    get() = 2500.dp
+private val BoundDistance
+    get() = 1500.dp
+private val MinimumDistance
+    get() = 50.dp
 
 private const val DEBUG = false
 
