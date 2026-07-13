@@ -22,9 +22,12 @@ import androidx.collection.MutableObjectList
 import androidx.collection.emptyIntObjectMap
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InteractionBarrierNode
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.semantics.SemanticsProperties.HideFromAccessibility
 import androidx.compose.ui.semantics.SemanticsProperties.InvisibleToUser
 import androidx.compose.ui.unit.IntRect
@@ -136,6 +139,7 @@ internal fun SemanticsNode.isImportantForAccessibility() =
         isHidden -> false
         unmergedConfig.isMergingSemanticsOfDescendants -> true
         unmergedConfig.containsImportantForAccessibility() -> true
+        layoutNode.hasInteractionBarrierNode() -> true
         else -> false
     }
 
@@ -393,3 +397,14 @@ private val SemanticsNode.isScrollNode: Boolean
         return unmergedConfig.contains(SemanticsProperties.VerticalScrollAxisRange) ||
             unmergedConfig.contains(SemanticsProperties.HorizontalScrollAxisRange)
     }
+
+internal fun LayoutNode.hasInteractionBarrierNode(): Boolean {
+    val head = nodes.head(Nodes.Semantics) ?: return false
+    var curr: Modifier.Node? = head.node
+    while (curr != null) {
+        if (curr is InteractionBarrierNode) return true
+        if (curr.aggregateChildKindSet and Nodes.Semantics.mask == 0) break
+        curr = curr.child
+    }
+    return false
+}
