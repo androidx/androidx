@@ -21,12 +21,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.action.lambdaAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -75,6 +80,8 @@ import androidx.compose.remote.creation.compose.state.toDeg
 import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -163,18 +170,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -247,18 +250,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -309,18 +308,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -369,18 +364,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -435,20 +426,16 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.mainClock.autoAdvance = false
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(200.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -499,10 +486,7 @@ class RcPlayerInteractivityTest {
                             // width = height = TIME_IN_SEC * 100 (px). The embedded player bridges
                             // TIME_IN_SEC to the frame loop's elapsed millis / 1000, so this grows
                             // monotonically from 0 as the clock advances.
-                            val size =
-                                RemoteFloat(
-                                    androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
-                                ) * 100f
+                            val size = RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) * 100f
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.semantics { contentDescription = "timed".rs }
@@ -514,20 +498,16 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.mainClock.autoAdvance = false
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(300.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -636,18 +616,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(400.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -707,18 +683,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(400.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -773,18 +745,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(300.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -828,20 +796,16 @@ class RcPlayerInteractivityTest {
                     )
                     .bytes
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             var firedName: String? = null
             var firedValue: Any? = null
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
+                Box(modifier = Modifier.size(100.dp)) {
                     RcPlayer(
                         document = document,
                         autoUpdate = true,
@@ -890,18 +854,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(200.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -943,18 +903,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(300.dp).testTag("playerParent")) {
+                Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -982,19 +938,15 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
-                        setContentDescription("a weather card")
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                    setContentDescription("a weather card")
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(200.dp)) {
+                Box(modifier = Modifier.size(200.dp)) {
                     RcPlayer(document = document, autoUpdate = false)
                 }
             }
@@ -1048,18 +1000,14 @@ class RcPlayerInteractivityTest {
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(300.dp)) {
+                Box(modifier = Modifier.size(300.dp)) {
                     RcPlayer(document = document, autoUpdate = true)
                 }
             }
@@ -1079,6 +1027,68 @@ class RcPlayerInteractivityTest {
                 "Scrolling should publish the offset to the bound variable (marker width); " +
                     "before=$before after=$after"
             }
+        }
+    }
+
+    @Test
+    fun lambdaActionIsStable() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+
+            val content: @Composable @RemoteComposable () -> Unit = {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .clickable(action = lambdaAction { /* empty */ })
+                )
+            }
+
+            // Capture 1
+            val capturedDocument1 =
+                captureSingleRemoteDocument(context = context, content = content)
+
+            // Capture 2
+            val capturedDocument2 =
+                captureSingleRemoteDocument(context = context, content = content)
+
+            // Verify stability of keys/ids
+            val keys1 = mutableSetOf<Int>()
+            capturedDocument1.lambdas.forEach { key, _ -> keys1.add(key) }
+            val keys2 = mutableSetOf<Int>()
+            capturedDocument2.lambdas.forEach { key, _ -> keys2.add(key) }
+
+            assert(keys1.isNotEmpty()) { "Expected at least one lambda" }
+            assert(keys1 == keys2) { "Expected lambda IDs to be stable, but got $keys1 and $keys2" }
+        }
+    }
+
+    @Test
+    fun lambdaActionInvokesCallback() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            var lambdaCalled = false
+
+            val content: @Composable @RemoteComposable () -> Unit = {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .clickable(action = lambdaAction { lambdaCalled = true })
+                )
+            }
+
+            val capturedDocument = captureSingleRemoteDocument(context = context, content = content)
+
+            // Verify it works
+            rule.setContent {
+                Box(modifier = Modifier.size(100.dp)) {
+                    RcPlayer(capturedDocument = capturedDocument, autoUpdate = true)
+                }
+            }
+            rule.waitForIdle()
+            rule.onNode(hasClickAction()).performClick()
+            rule.waitForIdle()
+
+            assert(lambdaCalled) { "Expected lambda to be called" }
         }
     }
 }

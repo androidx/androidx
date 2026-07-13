@@ -182,7 +182,7 @@ public suspend fun captureSingleRemoteDocument(
                 creationState.document.encodeToByteArray()
             }
 
-        return CapturedDocument(document, writerEvents.pendingIntents)
+        return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
     } finally {
         composition.dispose()
         recomposer.cancel()

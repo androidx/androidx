@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.app.PendingIntent
+import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 
 /**
@@ -33,4 +34,5 @@ public class CapturedDocument
 internal constructor(
     public val bytes: ByteArray,
     public val pendingIntents: IntObjectMap<PendingIntent>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val lambdas: IntObjectMap<() -> Unit>,
 )
