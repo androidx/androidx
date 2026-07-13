@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.navigationevent:navigationevent>
+open annotation class androidx.navigationevent/ExperimentalNavigationEventApi : kotlin/Annotation { // androidx.navigationevent/ExperimentalNavigationEventApi|null[0]
+    constructor <init>() // androidx.navigationevent/ExperimentalNavigationEventApi.<init>|<init>(){}[0]
+}
+
 abstract fun interface androidx.navigationevent/OnBackCompletedFallback { // androidx.navigationevent/OnBackCompletedFallback|null[0]
     abstract fun onBackCompletedFallback() // androidx.navigationevent/OnBackCompletedFallback.onBackCompletedFallback|onBackCompletedFallback(){}[0]
 }
