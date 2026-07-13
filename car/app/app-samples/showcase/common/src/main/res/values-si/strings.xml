@@ -373,6 +373,12 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"නවතම විශේෂාංග"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"පූරණය සබල කර ඇත"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"පූරණය අබල කර ඇත"</string>
+    <!-- no translation found for app_theme_title (5002857339487981595) -->
+    <skip />
+    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
+    <skip />
+    <!-- no translation found for app_theme_disabled (947882095780434267) -->
+    <skip />
     <string name="loading_screen" msgid="4771507490730308794">"තිරය පූරණය වේ"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"වර්ණය එක් කිරීමට/ඉවත් කිරීමට ටොගල් කරන්න"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ටොගල් සහිත සිතියම් අච්චුව"</string>
@@ -384,6 +390,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"අන්තර්ගත ආදර්ශන සමග සිතියම"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"පණිවිඩ අච්චු ආදර්ශනය සමග සිතියම"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ජාල අච්චු ආදර්ශනය සමග සිතියම"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="banner_demo_title" msgid="6740573531391394513">"බැනර් ආදර්ශනය"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"වැඩි දියුණු කළ ශීර්ෂ ආදර්ශනය"</string>
 </resources>

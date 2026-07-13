@@ -373,6 +373,12 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Neueste Funktionen"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Laden aktiviert"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Laden deaktiviert"</string>
+    <!-- no translation found for app_theme_title (5002857339487981595) -->
+    <skip />
+    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
+    <skip />
+    <!-- no translation found for app_theme_disabled (947882095780434267) -->
+    <skip />
     <string name="loading_screen" msgid="4771507490730308794">"Ladebildschirm"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Schieberegler zum Hinzufügen/Entfernen von Farben"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Kartenvorlage mit Ein/Aus-Buttons"</string>
@@ -384,6 +390,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demos von Karten mit Inhalten"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Karte mit Demo der Nachrichtenvorlage"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo einer Karte mit Rastervorlage"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="banner_demo_title" msgid="6740573531391394513">"Banner-Demo"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo für erweiterten Header"</string>
 </resources>

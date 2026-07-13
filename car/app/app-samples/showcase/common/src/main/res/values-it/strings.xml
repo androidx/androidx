@@ -373,6 +373,12 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Funzionalità più recenti"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Caricamento attivato"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Caricamento disattivato"</string>
+    <!-- no translation found for app_theme_title (5002857339487981595) -->
+    <skip />
+    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
+    <skip />
+    <!-- no translation found for app_theme_disabled (947882095780434267) -->
+    <skip />
     <string name="loading_screen" msgid="4771507490730308794">"Schermata di caricamento"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Attiva/disattiva per aggiungere/rimuovere colore"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modello mappa con opzioni di attivazione/disattivazione"</string>
@@ -384,6 +390,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo mappa con contenuti"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mappa con modello messaggio"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mappa con modello griglia"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="banner_demo_title" msgid="6740573531391394513">"Demo banner"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo intestazione avanzata"</string>
 </resources>

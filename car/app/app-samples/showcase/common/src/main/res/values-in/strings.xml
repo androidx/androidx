@@ -373,6 +373,12 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Fitur Terbaru"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Pemuatan diaktifkan"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Pemuatan dinonaktifkan"</string>
+    <!-- no translation found for app_theme_title (5002857339487981595) -->
+    <skip />
+    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
+    <skip />
+    <!-- no translation found for app_theme_disabled (947882095780434267) -->
+    <skip />
     <string name="loading_screen" msgid="4771507490730308794">"Layar pemuatan"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Alihkan untuk menambahkan/menghapus warna"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Template Peta dengan Tombol"</string>
@@ -384,6 +390,6 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo Peta Dengan Konten"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo Peta Dengan Template Pesan"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo Peta Dengan Template Petak"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="banner_demo_title" msgid="6740573531391394513">"Demo Banner"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo Header yang Ditingkatkan"</string>
 </resources>
