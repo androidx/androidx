@@ -49,6 +49,7 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
+import android.hardware.camera2.CameraCharacteristics;
 import android.media.CamcorderProfile;
 import android.media.ImageReader;
 import android.os.Build;

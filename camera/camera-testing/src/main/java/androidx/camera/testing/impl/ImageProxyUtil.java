@@ -180,7 +180,7 @@ public final class ImageProxyUtil {
     }
 
     /**
-     * Creates {@link android.graphics.ImageFormat.RAW_SENSOR} image planes.
+     * Creates {@link android.graphics.ImageFormat#RAW_SENSOR} image planes.
      *
      * @param width image width.
      * @param height image height.
