@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.DrawableRes;
@@ -62,8 +63,7 @@ public class BrowserActionItem {
      * @param title The string shown for a custom item.
      * @param action The PendingIntent executed when a custom item is selected
      * @param iconUri The {@link Uri} used to access the icon file. Note: make sure this is
-     * generated from {@link BrowserServiceFileProvider.generateUri(Context, Bitmap, String,
-     * int, List<ResolveInfo>)}.
+     * generated from {@link BrowserServiceFileProvider#generateUri(Context, String)}.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public BrowserActionItem(
