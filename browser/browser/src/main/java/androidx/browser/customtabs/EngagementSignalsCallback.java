@@ -25,8 +25,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * A callback class for custom tabs clients to get messages regarding the user's engagement with the
  * webpage within their custom tabs. These methods may not be called for some webpages. In the
- * implementation, all callbacks are sent to the
- * {@link Executor} provided by the client or its UI thread if one is not provided.
+ * implementation, all callbacks are sent to the {@link java.util.concurrent.Executor} provided by
+ * the client or its UI thread if one is not provided.
  */
 public interface EngagementSignalsCallback {
     /**

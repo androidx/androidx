@@ -70,7 +70,7 @@ public class TrustedWebActivityIntentBuilder {
     /** Extra for the share data, see {@link #setShareParams}. */
     public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
 
-    /** Extra for the opened files data, see {@link #setHandledFiles}. */
+    /** Extra for the opened files data, see {@link #setFileHandlingData}. */
     public static final String EXTRA_FILE_HANDLING_DATA =
             "androidx.browser.trusted.extra.FILE_HANDLING_DATA";
 

@@ -74,7 +74,8 @@ public final class AuthTabColorSchemeParams {
     /**
      * Packs the parameters into a {@link Bundle}.
      * For backward compatibility and ease of use, the names of keys and the structure of the Bundle
-     * are the same as that of Intent extras in {@link CustomTabsIntent}.
+     * are the same as that of Intent extras in
+     * {@link androidx.browser.customtabs.CustomTabsIntent}.
      */
     @NonNull Bundle toBundle() {
         Bundle bundle = new Bundle();
@@ -135,7 +136,7 @@ public final class AuthTabColorSchemeParams {
          *
          * This color is also applied to the status bar. To ensure good contrast between status bar
          * icons and the background, Auth Tab implementations may use
-         * {@link WindowInsetsController#APPEARANCE_LIGHT_STATUS_BARS}.
+         * {@link android.view.WindowInsetsController#APPEARANCE_LIGHT_STATUS_BARS}.
          *
          * @param color The color integer. The alpha value will be ignored.
          */
@@ -148,7 +149,8 @@ public final class AuthTabColorSchemeParams {
          * Sets the navigation bar color.
          *
          * To ensure good contrast between navigation bar icons and the background, Auth Tab
-         * implementations may use {@link WindowInsetsController#APPEARANCE_LIGHT_NAVIGATION_BARS}.
+         * implementations may use
+         * {@link android.view.WindowInsetsController#APPEARANCE_LIGHT_NAVIGATION_BARS}.
          *
          * @param color The color integer. The alpha value will be ignored.
          */
