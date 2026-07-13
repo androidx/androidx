@@ -240,6 +240,14 @@
             android:label="@string/rotatetolookatuser_test_case"
             android:theme="@style/Theme.IntegrationTestsApp" />
 
+        <activity
+            android:name=".anchorable.AnchorableActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="@string/anchorable_test_case"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+
         <activity android:name=".performance.LayoutPerformance"
             android:exported="true"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
