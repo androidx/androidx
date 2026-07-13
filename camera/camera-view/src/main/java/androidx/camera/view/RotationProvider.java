@@ -37,9 +37,9 @@ import java.util.concurrent.Executor;
  * the device has changed.
  *
  * <p> This class monitors motion sensor and notifies the listener about physical orientation
- * changes in the format of {@link Surface} rotation. It's useful when the {@link Activity} is in
- * a fixed portrait or landscape orientation, while the app still wants to set the
- * {@link UseCase} target rotation based on the device's physical rotation.
+ * changes in the format of {@link Surface} rotation. It's useful when the
+ * {@link android.app.Activity} is in a fixed portrait or landscape orientation, while the app still
+ * wants to set the {@link UseCase} target rotation based on the device's physical rotation.
  *
  * <pre><code>
  * // Create a provider.

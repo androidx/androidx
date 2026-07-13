@@ -813,7 +813,7 @@ public final class CameraUtil {
     }
 
     /**
-     * Check if the camera sensor in the native orientation({@link Surface.ROTATION_0}) is portrait
+     * Check if the camera sensor in the native orientation({@link Surface#ROTATION_0}) is portrait
      * or not.
      *
      * @param lensFacing The desired camera lensFacing.
