@@ -23,7 +23,7 @@ import androidx.a2ui.model.protocol.A2uiException
  * A registry for storing UI components. Host frameworks back this with native reactive states
  * (e.g., SnapshotStateMap in Compose).
  */
-public interface A2uiCoreComponentRegistry {
+public interface A2uiCoreComponentRegistry : AutoCloseable {
     /**
      * Inserts or replaces UI components in the registry.
      *
@@ -40,5 +40,5 @@ public interface A2uiCoreComponentRegistry {
     public fun reportError(id: String, exception: A2uiException)
 
     /** Instantly clears all components from the registry for deterministic teardown. */
-    public fun dispose()
+    public override fun close()
 }

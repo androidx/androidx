@@ -333,7 +333,7 @@ class A2uiCoreSurfaceModelTest {
             return updates[path.normalizedPath]
         }
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }
@@ -353,7 +353,7 @@ class A2uiCoreSurfaceModelTest {
             reportedErrors[id] = exception
         }
 
-        override fun dispose() {
+        override fun close() {
             isDisposed = true
         }
     }

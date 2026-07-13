@@ -19,12 +19,14 @@ package androidx.a2ui.engine.platform
 import androidx.a2ui.model.protocol.A2uiDataPath
 
 /** A storage interface for the JSON data tree. */
-public interface A2uiCoreDataModel {
+public interface A2uiCoreDataModel : AutoCloseable {
     /**
      * Replaces the value at the given absolute path.
      *
      * @param path The absolute JSON pointer path to the data point to update.
-     * @param value The new value to store at the given path.
+     * @param value The new value to store at the given path. The type must correspond to a standard
+     *   JSON data type: [String], [Number], [Boolean], `null`, `Map<String, Any?>` (for JSON
+     *   objects), or `List<Any?>` (for JSON arrays).
      */
     public fun update(path: A2uiDataPath, value: Any?)
 
@@ -33,10 +35,12 @@ public interface A2uiCoreDataModel {
      *
      * @param path The absolute JSON pointer path to the data point to retrieve.
      * @return The value stored at the given path, or `null` if the path does not exist or has no
-     *   value.
+     *   value. The returned type will correspond to a standard JSON data type: [String], [Number],
+     *   [Boolean], `null`, `Map<String, Any?>` (for JSON objects), or `List<Any?>` (for JSON
+     *   arrays).
      */
     public operator fun get(path: A2uiDataPath): Any?
 
     /** Cleans up resources (e.g., clearing registries to prevent memory leaks). */
-    public fun dispose()
+    public override fun close()
 }
