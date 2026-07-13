@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
-import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,20 +51,17 @@ public fun ExperimentalRemoteContentPreview(
         }
         PlayerImpl.COMPOSE -> {
             val context = LocalContext.current
-            val remoteDocument = remember {
+            val capturedDoc = remember {
                 runBlocking {
-                    val bytes =
-                        captureSingleRemoteDocument(
-                                context = context,
-                                profile = profile,
-                                content = content,
-                            )
-                            .bytes
-                    RemoteDocument(bytes)
+                    captureSingleRemoteDocument(
+                        context = context,
+                        profile = profile,
+                        content = content,
+                    )
                 }
             }
             LaunchedEffect(Unit) {}
-            RcPlayer(document = remoteDocument.document, modifier = modifier)
+            RcPlayer(capturedDocument = capturedDoc, modifier = modifier)
         }
     }
 }
