@@ -28,6 +28,7 @@ public interface Action {
     }
 }
 
-internal abstract class RemoteAction : Action {
-    abstract fun RemoteStateScope.toRemoteAction(): CreationAction
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RemoteAction : Action {
+    internal abstract fun RemoteStateScope.toRemoteAction(): CreationAction
 }

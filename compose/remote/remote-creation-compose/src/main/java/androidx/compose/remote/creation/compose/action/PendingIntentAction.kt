@@ -50,7 +50,7 @@ public fun pendingIntentAction(pendingIntent: (Context) -> PendingIntent): Actio
 
 /** Send the [PendingIntent] when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-internal class PendingIntentAction(public val pendingIntent: () -> PendingIntent) : RemoteAction() {
+public class PendingIntentAction(public val pendingIntent: () -> PendingIntent) : RemoteAction() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
@@ -73,5 +73,17 @@ internal class PendingIntentAction(public val pendingIntent: () -> PendingIntent
 
     public companion object {
         public const val ACTION_NAME: String = "SendPendingIntent"
+        public const val PREFIX: String =
+            "pendingIntent:0x" // Assuming this is the intended prefix format
+
+        public fun parseId(name: String): Int? {
+            if (!name.startsWith(PREFIX)) return null
+            val hex = name.removePrefix(PREFIX)
+            return try {
+                hex.toLong(16).toInt()
+            } catch (e: NumberFormatException) {
+                null
+            }
+        }
     }
 }

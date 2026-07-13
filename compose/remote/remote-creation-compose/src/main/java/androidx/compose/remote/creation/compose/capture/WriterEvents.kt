@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.app.PendingIntent
+import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.ui.util.fastForEachIndexed
@@ -32,6 +33,7 @@ import androidx.compose.ui.util.fastForEachIndexed
  */
 public class WriterEvents {
     private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()
+    private val lambdaMap: MutableIntObjectMap<() -> Unit> = MutableIntObjectMap()
 
     public fun storePendingIntent(pendingIntent: PendingIntent): Int {
         val existingIndex = pendingIntentList.indexOfFirst { it === pendingIntent }
@@ -50,4 +52,13 @@ public class WriterEvents {
                     this[index] = pendingIntent
                 }
             }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun storeLambda(id: Int, lambda: () -> Unit) {
+        lambdaMap[id] = lambda
+    }
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val lambdas: IntObjectMap<() -> Unit>
+        get() = lambdaMap
 }
