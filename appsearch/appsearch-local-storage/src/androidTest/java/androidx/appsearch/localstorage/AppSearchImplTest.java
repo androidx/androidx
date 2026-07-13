@@ -101,6 +101,7 @@ import com.google.android.appsearch.proto.PackageIdentifierProto;
 import com.google.android.appsearch.proto.VisibilityConfigProto;
 import com.google.android.icing.IcingSearchEngine;
 import com.google.android.icing.IcingSearchEngineInterface;
+import com.google.android.icing.proto.BlobProto;
 import com.google.android.icing.proto.DebugInfoProto;
 import com.google.android.icing.proto.DebugInfoVerbosity;
 import com.google.android.icing.proto.DocumentGroupInfoProto;
@@ -13385,5 +13386,49 @@ public class AppSearchImplTest {
         assertThat(internalSetSchemaResponse.isSuccess()).isFalse();
         assertThat(internalSetSchemaResponse.getSetSchemaResponse().getIncompatibleTypes())
                 .containsExactly("Type");
+    }
+
+    @Test
+    public void testRetrieveFileDescriptor_pathTraversalBlocked()
+        throws Exception {
+        // This test only applies if managing blob files is enabled.
+        org.junit.Assume.assumeTrue(Flags.enableAppSearchManageBlobFiles());
+
+        setUpSuccessfulMocksForCreation();
+
+        // Mock openWriteBlob to return a BlobProto with a path traversal
+        // file name
+        BlobProto pathTraversalBlob = BlobProto.newBuilder()
+                .setStatus(StatusProto.newBuilder()
+                               .setCode(StatusProto.Code.OK).build())
+                .setFileName("../../../etc/passwd")
+                .build();
+        when(mMockIcingSearchEngine.openWriteBlob(any()))
+            .thenReturn(pathTraversalBlob);
+
+        mAppSearchImpl =
+                AppSearchImpl.create(
+                        mAppSearchDir,
+                        new AppSearchConfigImpl(
+                                new UnlimitedLimitConfig(),
+                            new LocalStorageIcingOptionsConfig()),
+                        new AppSearchUserPlugins.Builder()
+                                .setIcingSearchEngine(mMockIcingSearchEngine)
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+
+        AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
+                new byte[32], "package", "db1", "ns");
+
+        AppSearchException exception = assertThrows(AppSearchException.class,
+            () ->
+                mAppSearchImpl.openWriteBlob("package", "db1",
+                    handle, /* callStatsBuilder= */ null)
+        );
+        assertThat(exception.getResultCode())
+            .isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        assertThat(exception.getMessage()).contains("Path traversal detected");
     }
 }
