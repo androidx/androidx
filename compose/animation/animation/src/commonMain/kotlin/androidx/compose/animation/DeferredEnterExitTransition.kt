@@ -150,9 +150,11 @@ internal class TransformScopeImpl : TransformScope {
         }
 
     var isOffsetMutated = false
-    override var offset: IntOffset = IntOffset.Zero
+    private var _offset = IntOffset.Zero
+    override var offset: IntOffset
+        get() = _offset
         set(value) {
-            field = value
+            _offset = value
             isOffsetMutated = true
         }
 
@@ -175,10 +177,15 @@ internal class TransformScopeImpl : TransformScope {
         }
 
     fun reset() {
+        _alpha.floatValue = 1f
         isAlphaMutated = false
+        _scale.floatValue = 1f
         isScaleMutated = false
+        _offset = IntOffset.Zero
         isOffsetMutated = false
+        _transformOrigin.value = TransformOrigin.Center
         isTransformOriginMutated = false
+        _veil.value = Color.Transparent
         isVeilMutated = false
     }
 }
@@ -242,6 +249,7 @@ internal class SharedMutableTransformState {
         val currentPhase = mutationPhase
         if (isMutating) {
             if (currentPhase == MutationPhase.Idle || currentPhase == MutationPhase.Handoff) {
+                transformScope.reset()
                 mutationPhase =
                     if (isSettled) {
                         MutationPhase.Mutating

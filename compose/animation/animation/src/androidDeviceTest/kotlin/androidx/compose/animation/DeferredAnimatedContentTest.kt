@@ -1571,4 +1571,73 @@ class DeferredAnimatedContentTest {
             widthAfterGestureStart < 200f,
         )
     }
+
+    @Test
+    fun animatedContent_consecutiveGestures_resetsTransformScope() {
+        val state = DeferredTransitionState("C")
+        var gestureSlide by mutableStateOf(IntOffset.Zero)
+        var measuredOffsetX = 0f
+
+        rule.setContent {
+            val transition = rememberTransition(state)
+            transition.DeferredAnimatedContent(
+                transitionSpec = {
+                    slideInHorizontally(tween(1000, easing = LinearEasing)) { -it } togetherWith
+                        slideOutHorizontally(tween(1000, easing = LinearEasing)) { -it }
+                },
+                mutableTransformSpec = {
+                    when (targetState) {
+                        "B" ->
+                            MutableContentTransform {
+                                targetContentTransform { offset = gestureSlide }
+                            }
+                        else -> MutableContentTransform {}
+                    }
+                },
+            ) { target ->
+                Box(
+                    Modifier.size(100.dp).testTag("content_$target").onGloballyPositioned { coords
+                        ->
+                        if (target == "B") measuredOffsetX = coords.positionInRoot().x
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1) Initiate a gesture towards "B" and apply a manual offset mutation (-80px).
+        rule.runOnIdle {
+            gestureSlide = IntOffset(-80, 0)
+            state.defer("B")
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Disable autoAdvance so that releasing the gesture enters Handoff without settling
+        // to completion immediately (which would run clear() and mask the need for reset()).
+        rule.mainClock.autoAdvance = false
+
+        // 2) Release the gesture, transitioning into the handoff phase towards "B".
+        rule.runOnIdle { state.animateTo("B") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // 3) Immediately initiate a second gesture towards "A" while the handoff towards "B" is
+        // still running mid-flight. During this second gesture, we do not mutate offset.
+        rule.runOnIdle { state.defer("A") }
+        rule.mainClock.advanceTimeByFrame()
+
+        // Re-enable autoAdvance so layout passes update onGloballyPositioned and animate
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        // When a new gesture interrupts a running handoff mid-flight, TransformScope must be reset
+        // inside updateMutationState() so that any mutations applied during the previous gesture
+        // are cleared. Because the second gesture does not mutate offset, page "B" should not be
+        // pulled back to the previous gesture's -80px offset.
+        assertTrue(
+            "Page B should not be pulled back to leftover -80 offset. Actual X: $measuredOffsetX",
+            measuredOffsetX > -20f,
+        )
+    }
 }
