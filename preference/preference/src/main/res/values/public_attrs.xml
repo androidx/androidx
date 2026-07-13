@@ -31,12 +31,15 @@
     <public type="attr" name="disableDependentsState" />
     <public type="attr" name="dropdownPreferenceStyle" />
     <public type="attr" name="editTextPreferenceStyle" />
+    <public type="attr" name="enableCopying" />
     <public type="attr" name="enabled" />
     <public type="attr" name="entries" />
     <public type="attr" name="entryValues" />
     <public type="attr" name="fragment" />
     <public type="attr" name="icon" />
     <public type="attr" name="iconSpaceReserved" />
+    <public type="attr" name="initialExpandedChildrenCount" />
+    <public type="attr" name="isPreferenceVisible" />
     <public type="attr" name="key" />
     <public type="attr" name="layout" />
     <public type="attr" name="maxHeight" />
@@ -72,5 +75,7 @@
     <public type="attr" name="switchTextOff" />
     <public type="attr" name="switchTextOn" />
     <public type="attr" name="title" />
+    <public type="attr" name="updatesContinuously" />
+    <public type="attr" name="useSimpleSummaryProvider" />
     <public type="attr" name="widgetLayout" />
 </resources>
