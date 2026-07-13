@@ -457,3 +457,42 @@ internal fun File.verifyChecksum(expectedChecksum: String) {
         )
     }
 }
+
+fun ManagedIdeTask.installVSCodeExtensions(
+    extensionsDir: File,
+    userDataDir: File,
+    extensionIds: List<String>,
+) {
+    val binary = resolveInstallationFile(ideBinaryRelativePath.get())
+
+    val extensionsToInstall =
+        extensionIds.filter { extensionId ->
+            val alreadyInstalled =
+                extensionsDir.listFiles()?.any {
+                    it.isDirectory && it.name.lowercase().startsWith(extensionId.lowercase())
+                } ?: false
+            !alreadyInstalled
+        }
+
+    if (extensionsToInstall.isEmpty()) {
+        println("All extensions are already installed: $extensionIds")
+        return
+    }
+
+    println("Installing extensions $extensionsToInstall via VS Code CLI...")
+    execOperations.exec { execSpec ->
+        execSpec.executable(binary.absolutePath)
+        val args =
+            mutableListOf(
+                "--user-data-dir",
+                userDataDir.absolutePath,
+                "--extensions-dir",
+                extensionsDir.absolutePath,
+            )
+        extensionsToInstall.forEach { extensionId ->
+            args.add("--install-extension")
+            args.add(extensionId)
+        }
+        execSpec.args(args)
+    }
+}
