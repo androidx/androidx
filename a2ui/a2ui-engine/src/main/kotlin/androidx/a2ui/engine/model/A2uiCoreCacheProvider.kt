@@ -14,41 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.model.protocol
+package androidx.a2ui.engine.model
 
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 
-/**
- * Provides environment access, dynamic payload evaluation, and function execution capabilities
- * within the scope of a specific component.
- */
-public interface A2uiExecutionContext {
-    /**
-     * Evaluates a dynamic payload.
-     *
-     * @param dataPath base path used to resolve relative paths
-     * @param payload payload to evaluate
-     * @return evaluated result, or null if evaluation fails
-     */
-    public fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any?
-
-    /**
-     * Executes a catalog function by name.
-     *
-     * @param name name of the function to execute
-     * @param args arguments to pass to the function
-     * @return result of the function execution, or null if execution fails
-     */
-    public fun executeFunction(name: String, args: Map<String, Any>): Any?
-
-    /**
-     * Resolves a value from the data model at the given path.
-     *
-     * @param path data path to resolve
-     * @return resolved value, or null if value resolution fails
-     */
-    public fun resolveValue(path: A2uiDataPath): Any?
-
+/** Provider to retrieve or create a component-scoped cache. */
+internal interface A2uiCoreCacheProvider {
     /**
      * Gets or creates a component-scoped cache for [functionDefinition].
      *
@@ -60,11 +31,13 @@ public interface A2uiExecutionContext {
      * Warning: The cache does not refresh upon data model changes. Caching values that are based on
      * the data model will result in a stale cache.
      *
+     * @param componentId unique identifier of the component
      * @param functionDefinition definition identifying the cache
-     * @param factory factory to construct the cache if missing
+     * @param factory factory function to construct the cache if missing
      * @return cache instance
      */
-    public fun <T : Any> getOrCreateFunctionScopedCache(
+    fun <T : Any> getOrCreateFunctionScopedCache(
+        componentId: String,
         functionDefinition: A2uiFunctionDefinition,
         factory: () -> T,
     ): T

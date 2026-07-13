@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
+// ConcurrentHashMap is required for atomic compute() operations and is safe for our minSdk 24.
+@file:Suppress("BanConcurrentHashMap")
+
 package androidx.a2ui.engine.model
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUserAction
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The root domain model for a single active surface.
@@ -53,10 +58,53 @@ public class A2uiCoreSurfaceModel(
     public val theme: Map<String, Any?> = emptyMap(),
     @get:JvmName("shouldSendDataModel") public val shouldSendDataModel: Boolean = false,
     private val timeProvider: () -> Long = { System.currentTimeMillis() },
-) {
+) : A2uiCoreCacheProvider {
 
     private val dynamicEvaluator = A2uiCoreDynamicEvaluatorImpl
     private val schemaValidator = A2uiCoreSchemaValidator(catalog)
+
+    private val caches = ConcurrentHashMap<String, ConcurrentHashMap<String, Any>>()
+
+    /**
+     * Gets or creates a component-scoped cache for [functionDefinition].
+     *
+     * Each component and [functionDefinition] pair gets a separate cache that persists across
+     * function invocations and data model updates. Ideal for storing the results of heavy
+     * operations that do *not* rely on data model values (e.g., static metadata, parsed templates,
+     * compiled regexes, etc.).
+     *
+     * Warning: The cache does not refresh upon data model changes. Caching values that are based on
+     * the data model will result in a stale cache.
+     *
+     * @param componentId unique identifier of the component
+     * @param functionDefinition definition identifying the cache
+     * @param factory factory function to create the cache if missing
+     * @return cache instance
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> getOrCreateFunctionScopedCache(
+        componentId: String,
+        functionDefinition: A2uiFunctionDefinition,
+        factory: () -> T,
+    ): T {
+        val componentCaches = caches.computeIfAbsent(componentId) { ConcurrentHashMap() }
+        val existing = componentCaches[functionDefinition.name]
+        if (existing != null) {
+            return existing as T
+        }
+
+        return componentCaches.computeIfAbsent(functionDefinition.name) { factory() } as T
+    }
+
+    /**
+     * Applies a data model update to this surface.
+     *
+     * @param path The absolute JSON pointer path to update.
+     * @param value The new value to store at the path.
+     */
+    internal fun updateDataModel(path: A2uiDataPath, value: Any?) {
+        dataModel.update(path, value)
+    }
 
     /**
      * Dispatches a user action from this surface to the registered action handler callback.
@@ -130,6 +178,7 @@ public class A2uiCoreSurfaceModel(
                 dispatchError = ::dispatchError,
                 valueResolver = valueResolver,
                 dynamicEvaluator = dynamicEvaluator,
+                cacheProvider = this,
             )
         return executionContext.evaluatePayload(dataPath, payload)
     }
@@ -159,6 +208,7 @@ public class A2uiCoreSurfaceModel(
         for (payload in payloads) {
             try {
                 validateComponent(payload)
+                caches.remove(payload.id)
                 validPayloads.add(payload)
             } catch (e: A2uiException) {
                 dispatchError(exception = e, componentId = payload.id)
@@ -171,6 +221,7 @@ public class A2uiCoreSurfaceModel(
     internal fun dispose() {
         dataModel.close()
         componentRegistry.close()
+        caches.clear()
     }
 
     private fun validateDataPath(path: String) {
