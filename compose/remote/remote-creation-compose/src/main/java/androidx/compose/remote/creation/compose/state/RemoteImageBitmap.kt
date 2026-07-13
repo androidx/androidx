@@ -75,17 +75,14 @@ internal constructor(
             }
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
-         * Creates a [RemoteImageBitmap] instance from a [ImageBitmap] value. This factory method
-         * can be used with or without an explicit [RemoteComposeCreationState].
+         * Creates a [RemoteImageBitmap] instance from a [ImageBitmap] value.
          *
          * @param value The [ImageBitmap] value.
          * @return A [RemoteImageBitmap] representing the provided bitmap.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public operator fun invoke(value: ImageBitmap): MutableRemoteImageBitmap {
+        public operator fun invoke(value: ImageBitmap): RemoteImageBitmap {
             return MutableRemoteImageBitmap(value, cacheKey = RemoteConstantCacheKey(value)) {
                 creationState ->
                 creationState.document.addBitmap(value.asAndroidBitmap())
@@ -98,7 +95,6 @@ internal constructor(
          * @param url The URL of the image.
          * @return A [RemoteImageBitmap] representing the image from the URL.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public operator fun invoke(url: String): RemoteImageBitmap {
             return MutableRemoteImageBitmap(
                 constantValueOrNull = null,
