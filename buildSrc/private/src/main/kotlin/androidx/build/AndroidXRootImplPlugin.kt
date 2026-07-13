@@ -28,7 +28,7 @@ import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
 import androidx.build.playground.ValidateIntegrationPatches
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
-import androidx.build.studio.registerStudioTask
+import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
