@@ -148,7 +148,7 @@ public class Dimension {
     }
 
     /**
-     * @deprecated Use {@link #createParent(int)} instead
+     * @deprecated Use {@link #createParent()} instead
      */
     @Deprecated
     public static Dimension Parent() {
