@@ -986,8 +986,25 @@ internal class PopupLayout(
 
             type = properties.windowType
 
-            // Use windowToken if provided else get the Window token from the parent view
-            token = properties.windowToken ?: composeView.applicationWindowToken
+            val rootLayoutParams = composeView.rootView.layoutParams as? WindowManager.LayoutParams
+            // If composeView is hosted inside a sub-window (e.g. `TYPE_APPLICATION_SUB_PANEL` in an
+            // overlay service across process boundaries), calling
+            // `composeView.applicationWindowToken` returns the sub-window's token.
+            // `WindowManagerService` forbids attaching a new sub-window (such as this popup) to an
+            // existing sub-window. In that case, we must inherit the token from the root view's
+            // `layoutParams`.
+            // For normal top-level windows (where `rootLayoutParams.type` is not a sub-window), we
+            // must use `composeView.applicationWindowToken` to ensure valid window token
+            // resolution.
+            val isRootSubWindow =
+                rootLayoutParams != null &&
+                    rootLayoutParams.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW &&
+                    rootLayoutParams.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW
+
+            token =
+                properties.windowToken
+                    ?: (if (isRootSubWindow) rootLayoutParams.token else null)
+                    ?: composeView.applicationWindowToken
 
             // Wrap the frame layout which contains composable content
             width = WindowManager.LayoutParams.WRAP_CONTENT
