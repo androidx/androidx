@@ -1045,6 +1045,36 @@ class TimePickerTest {
     }
 
     @Test
+    fun timeInput_updateFocus_validInput() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Replace with new valid hour
+        rule.onNodeWithText("10").performTextReplacement("12")
+        rule.waitForIdle()
+
+        // Fire a final hardware keystroke (e.g. '0') to trigger the onKeyEvent logic
+        rule.onAllNodesWithText("12").onFirst().performKeyInput { pressKey(Key.Zero) }
+        rule.waitForIdle()
+
+        // Verify focus behavior
+        assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Minute)
+    }
+
+    @Test
+    fun timeInput_maintainFocus_invalidInput() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Replace with invalid hour
+        rule.onNodeWithText("10").performTextReplacement("27")
+        rule.waitForIdle()
+
+        // Verify focus behavior
+        assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+    }
+
+    @Test
     fun clockFace_12HourMinutes_everyValue() {
         val state =
             AnalogTimePickerState(
