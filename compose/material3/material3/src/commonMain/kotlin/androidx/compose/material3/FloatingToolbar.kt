@@ -500,7 +500,14 @@ sealed interface FloatingToolbarScrollBehavior : NestedScrollConnection {
     val flingAnimationSpec: DecayAnimationSpec<Float>
 
     /** A [Modifier] that is attached to this behavior. */
-    fun Modifier.floatingScrollBehavior(): Modifier
+    val floatingScrollBehaviorModifier: Modifier
+
+    /** A [Modifier] that is attached to this behavior. */
+    @Deprecated(
+        message = "Use floatingScrollBehaviorModifier instead.",
+        replaceWith = ReplaceWith("this.then(floatingScrollBehaviorModifier)"),
+    )
+    fun Modifier.floatingScrollBehavior(): Modifier = this.then(floatingScrollBehaviorModifier)
 }
 
 /**
@@ -547,7 +554,7 @@ private class ExitAlwaysFloatingToolbarScrollBehavior(
             settleFloatingToolbar(state, available.y, snapAnimationSpec, flingAnimationSpec)
     }
 
-    override fun Modifier.floatingScrollBehavior(): Modifier {
+    override val floatingScrollBehaviorModifier: Modifier = run {
         var isRtl = false
         val orientation =
             when (exitDirection) {
@@ -565,7 +572,7 @@ private class ExitAlwaysFloatingToolbarScrollBehavior(
             }
         }
 
-        return this.layout { measurable, constraints ->
+        Modifier.layout { measurable, constraints ->
                 isRtl = layoutDirection == LayoutDirection.Rtl
 
                 // Sets the toolbar's offset to collapse the entire bar's when content scrolled.
@@ -1478,10 +1485,7 @@ private fun HorizontalFloatingToolbarLayout(
     Row(
         modifier =
             modifier
-                .then(
-                    scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                        ?: Modifier
-                )
+                .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier)
                 .graphicsLayer {
                     this.shadowElevation = shadowElevationState.toPx()
                     this.shape = shape
@@ -1603,10 +1607,7 @@ private fun HorizontalFloatingToolbarWithFabLayout(
         modifier =
             modifier
                 .defaultMinSize(minHeight = FloatingToolbarDefaults.FabSizeRange.endInclusive)
-                .then(
-                    scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                        ?: Modifier
-                ),
+                .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier),
     ) { measurables, constraints ->
         val toolbarMeasurable = measurables[0]
         val fabMeasurable = measurables[1]
@@ -1708,10 +1709,7 @@ private fun VerticalFloatingToolbarLayout(
     Column(
         modifier =
             modifier
-                .then(
-                    scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                        ?: Modifier
-                )
+                .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier)
                 .graphicsLayer {
                     this.shadowElevation = shadowElevationState.toPx()
                     this.shape = shape
@@ -1833,10 +1831,7 @@ private fun VerticalFloatingToolbarWithFabLayout(
         modifier =
             modifier
                 .defaultMinSize(minWidth = FloatingToolbarDefaults.FabSizeRange.endInclusive)
-                .then(
-                    scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                        ?: Modifier
-                ),
+                .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier),
     ) { measurables, constraints ->
         val toolbarMeasurable = measurables[0]
         val fabMeasurable = measurables[1]

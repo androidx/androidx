@@ -1542,13 +1542,15 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public sealed nonexhaustive interface FloatingToolbarScrollBehavior extends androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
-    method public androidx.compose.ui.Modifier floatingScrollBehavior(androidx.compose.ui.Modifier);
+    method @Deprecated public default androidx.compose.ui.Modifier floatingScrollBehavior(androidx.compose.ui.Modifier);
     method @BytecodeOnly public int getExitDirection-8LIK8-E();
     method @InaccessibleFromKotlin public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getFlingAnimationSpec();
+    method @InaccessibleFromKotlin public androidx.compose.ui.Modifier getFloatingScrollBehaviorModifier();
     method @InaccessibleFromKotlin public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method @InaccessibleFromKotlin public androidx.compose.material3.FloatingToolbarState getState();
     property public abstract androidx.compose.material3.FloatingToolbarExitDirection exitDirection;
     property public abstract androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec;
+    property public abstract androidx.compose.ui.Modifier floatingScrollBehaviorModifier;
     property public abstract androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property public abstract androidx.compose.material3.FloatingToolbarState state;
   }
