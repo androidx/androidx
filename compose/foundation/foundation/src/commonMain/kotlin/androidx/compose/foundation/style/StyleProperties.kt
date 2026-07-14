@@ -219,7 +219,7 @@ private fun buildFlags() {
     ForegroundColorId.flag(DrawFlag)
     ForegroundBrushId.flag(DrawFlag)
     ClipId.flag(LayerFlag)
-    ShapeId.flag(DrawFlag)
+    ShapeId.flag(DrawFlag or LayerFlag)
     ColorFilterId.flag(LayerFlag)
     DropShadowId.flag(DrawFlag)
     InnerShadowId.flag(DrawFlag)
