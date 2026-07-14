@@ -120,13 +120,11 @@ internal actual constructor(
                         motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
                 }
             val isPinch = internalPointerEvent?.activeGesture == PointerClassification.Pinch
-            val isPinchReinterpretation =
-                isPinch && ComposeUiFlags.isTrackpadPinchReinterpretationEnabled
             return when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanStart
-                    } else if (isPinch && !isPinchReinterpretation) {
+                    } else if (isPinch) {
                         PointerEventType.ScaleStart
                     } else {
                         PointerEventType.Press
@@ -135,8 +133,6 @@ internal actual constructor(
                 MotionEvent.ACTION_POINTER_DOWN -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanStart
-                    } else if (isPinchReinterpretation) {
-                        PointerEventType.ScaleStart
                     } else if (isPinch) {
                         PointerEventType.ScaleChange
                     } else {
@@ -146,7 +142,7 @@ internal actual constructor(
                 MotionEvent.ACTION_UP -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanEnd
-                    } else if (isPinch && !isPinchReinterpretation) {
+                    } else if (isPinch) {
                         PointerEventType.ScaleEnd
                     } else {
                         PointerEventType.Release
@@ -155,8 +151,6 @@ internal actual constructor(
                 MotionEvent.ACTION_POINTER_UP -> {
                     if (isTwoFingerSwipe) {
                         PointerEventType.PanEnd
-                    } else if (isPinchReinterpretation) {
-                        PointerEventType.ScaleEnd
                     } else if (isPinch) {
                         PointerEventType.ScaleChange
                     } else {

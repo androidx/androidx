@@ -146,6 +146,8 @@ internal class MotionEventAdapter {
      */
     private var inferredCursorRawOffset: Offset? = null
 
+    private var lastHoverRawOffset: Offset? = null
+
     /** Tracks whether a two-finger trackpad pan gesture is currently ongoing. */
     internal var isTrackpadPanOngoing: Boolean = false
         private set
@@ -182,6 +184,7 @@ internal class MotionEventAdapter {
             motionEventToComposePointerIdMap.clear()
             activeHoverIds.clear()
             resetFakeFingerGesture()
+            lastHoverRawOffset = null
             return null
         }
         clearOnDeviceChange(motionEvent)
@@ -242,6 +245,9 @@ internal class MotionEventAdapter {
         if (isHover && !isAnyPointerDown) {
             val hoverId = motionEvent.getPointerId(motionEvent.actionIndex)
             activeHoverIds.put(hoverId, true)
+            if (action == ACTION_HOVER_MOVE || action == ACTION_HOVER_ENTER) {
+                lastHoverRawOffset = Offset(motionEvent.rawX, motionEvent.rawY)
+            }
         }
 
         val upIndex =
@@ -283,28 +289,16 @@ internal class MotionEventAdapter {
                 } else {
                     motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
                 }
-        if (
+        val isPinch =
             Build.VERSION.SDK_INT >= 34 &&
-                (isSwipe ||
-                    (ComposeUiFlags.isTrackpadPinchReinterpretationEnabled &&
-                        motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH))
-        ) {
-            // Skip emitting pointer input events when pointerCount is 1 for trackpad pinch
-            // gestures.
-            // This avoids reporting the cursor at an invalid offset during the fake finger
-            // touchdown
-            // and liftoff sequences, ensuring we only process the full gesture with two pointers.
-            if (
-                motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH &&
-                    motionEvent.pointerCount == 1
-            ) {
-                if (motionEvent.actionMasked == ACTION_UP) {
-                    resetFakeFingerGesture()
-                }
-                removeStaleIds(motionEvent)
-                return null
-            }
+                motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH
+        val shouldReinterpretPinch =
+            isPinch &&
+                ComposeUiFlags.isTrackpadPinchReinterpretationEnabled &&
+                ((motionEvent.actionMasked == ACTION_DOWN && lastHoverRawOffset != null) ||
+                    (motionEvent.actionMasked != ACTION_DOWN && isReinterpretingFakeFingerGesture))
 
+        if (Build.VERSION.SDK_INT >= 34 && (isSwipe || shouldReinterpretPinch)) {
             isReinterpretingFakeFingerGesture = true
             // If this is the second fake finger touching down for a pinch, we can calculate the
             // true midpoint (cursor position) and update inferredCursorRawOffset. Otherwise,
@@ -321,7 +315,12 @@ internal class MotionEventAdapter {
                         (motionEvent.getRawY(0) + motionEvent.getRawY(1)) / 2f,
                     )
             } else if (motionEvent.actionMasked == ACTION_DOWN || inferredCursorRawOffset == null) {
-                inferredCursorRawOffset = Offset(motionEvent.getRawX(0), motionEvent.getRawY(0))
+                inferredCursorRawOffset =
+                    if (motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH) {
+                        lastHoverRawOffset ?: Offset(motionEvent.getRawX(0), motionEvent.getRawY(0))
+                    } else {
+                        Offset(motionEvent.getRawX(0), motionEvent.getRawY(0))
+                    }
             }
 
             pointers.add(
@@ -615,6 +614,7 @@ internal class MotionEventAdapter {
             previousSource = source
             activeHoverIds.clear()
             motionEventToComposePointerIdMap.clear()
+            lastHoverRawOffset = null
         }
     }
 
