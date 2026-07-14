@@ -22,6 +22,7 @@ import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.DerivedState
 import androidx.compose.runtime.DerivedStateObserver
 import androidx.compose.runtime.TestOnly
+import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.collection.mutableVectorOf
@@ -383,17 +384,29 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         private var currentToken: Int = -1
 
         /** Values that have been read during the scope's [SnapshotStateObserver.observeReads]. */
-        private val valueToScopes = ScopeMap<Any, Any>()
+        private var _valueToScopes: ScopeMap<Any, Any>? = null
+        private val valueToScopes
+            get() = _valueToScopes ?: ScopeMap<Any, Any>().also { _valueToScopes = it }
 
         /** Reverse index (scope -> values) for faster scope invalidation. */
-        private val scopeToValues: MutableScatterMap<Any, MutableObjectIntMap<Any>> =
-            MutableScatterMap()
+        private var _scopeToValues: MutableScatterMap<Any, MutableObjectIntMap<Any>>? = null
+        private val scopeToValues
+            get() =
+                _scopeToValues
+                    ?: MutableScatterMap<Any, MutableObjectIntMap<Any>>().also {
+                        _scopeToValues = it
+                    }
 
         /** Scopes that were invalidated during previous apply step. */
-        private val invalidated = MutableScatterSet<Any>()
+        private var _invalidated: MutableScatterSet<Any>? = null
+        private val invalidated =
+            _invalidated ?: MutableScatterSet<Any>().also { _invalidated = it }
 
         /** Reusable vector for re-recording states inside [recordInvalidation] */
-        private val statesToReread = mutableVectorOf<DerivedState<*>>()
+        private var _statesToReread: MutableVector<DerivedState<*>>? = null
+        private val statesToReread
+            get() =
+                _statesToReread ?: mutableVectorOf<DerivedState<*>>().also { _statesToReread = it }
 
         // derived state handling
 
@@ -423,10 +436,18 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         private var deriveStateScopeCount = 0
 
         /** Invalidation index from state objects to derived states reading them. */
-        private val dependencyToDerivedStates = ScopeMap<Any, DerivedState<*>>()
+        private var _dependencyToDerivedStates: ScopeMap<Any, DerivedState<*>>? = null
+        private val dependencyToDerivedStates =
+            _dependencyToDerivedStates
+                ?: ScopeMap<Any, DerivedState<*>>().also { _dependencyToDerivedStates = it }
 
         /** Last derived state value recorded during read. */
-        private val recordedDerivedStateValues = HashMap<DerivedState<*>, Any?>()
+        private var _recordedDerivedStateValues: MutableScatterMap<DerivedState<*>, Any?>? = null
+        private val recordedDerivedStateValues =
+            _recordedDerivedStateValues
+                ?: MutableScatterMap<DerivedState<*>, Any?>().also {
+                    _recordedDerivedStateValues = it
+                }
 
         fun recordRead(value: Any) {
             val scope = currentScope!!
