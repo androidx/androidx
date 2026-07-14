@@ -15,22 +15,21 @@
  */
 
 @file:JvmName("SignatureVerification")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
 package androidx.health.platform.client.utils
 
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_DEV_CERT_SHA256
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_RELEASE_CERT_SHA256
 
-@VisibleForTesting @JvmField var sBypassSignatureCheckForTesting = false
+@VisibleForTesting @JvmField internal var sBypassSignatureCheckForTesting = false
 
 /** Returns whether the target package's signature is valid. */
-fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
+internal fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
     if (sBypassSignatureCheckForTesting) {
         return true
     }
@@ -57,4 +56,27 @@ fun isTargetSignatureValid(packageManager: PackageManager, packageName: String):
         }
     }
     return false
+}
+
+/** Returns [PackageInfo] for the specified package, or null if not found. */
+internal fun getPackageInfoCompat(
+    packageManager: PackageManager,
+    packageName: String,
+    flags: Long = 0,
+): PackageInfo? {
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(flags))
+        } else {
+            @Suppress("Deprecation") packageManager.getPackageInfo(packageName, flags.toInt())
+        }
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
+    }
+}
+
+/** Returns whether the specified package is installed and enabled. */
+internal fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
+    val packageInfo = getPackageInfoCompat(packageManager, packageName) ?: return false
+    return packageInfo.applicationInfo?.enabled == true
 }

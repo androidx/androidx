@@ -18,15 +18,30 @@ package androidx.health.connect.client.permission
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PackageInfoFlags
+import android.os.Build
 import androidx.health.platform.client.permission.Permission
 import androidx.health.platform.client.proto.PermissionProto
-import androidx.health.platform.client.service.HealthDataServiceConstants
+import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING
+import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
+import androidx.health.platform.client.utils.sBypassSignatureCheckForTesting
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 private const val TEST_PACKAGE = "com.test.app"
 
@@ -38,6 +53,12 @@ class HealthPermissionsRequestAppContractTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        sBypassSignatureCheckForTesting = true
+    }
+
+    @After
+    fun tearDown() {
+        sBypassSignatureCheckForTesting = false
     }
 
     @Test
@@ -49,16 +70,12 @@ class HealthPermissionsRequestAppContractTest {
                 setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE),
             )
 
-        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
-        Truth.assertThat(intent.`package`).isEqualTo(TEST_PACKAGE)
-        Truth.assertThat(intent.`package`).isEqualTo(TEST_PACKAGE)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        assertThat(intent.`package`).isEqualTo(TEST_PACKAGE)
+        assertThat(intent.`package`).isEqualTo(TEST_PACKAGE)
 
         @Suppress("Deprecation")
-        Truth.assertThat(
-                intent.getParcelableArrayListExtra<Permission>(
-                    HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
-                )
-            )
+        assertThat(intent.getParcelableArrayListExtra<Permission>(KEY_REQUESTED_PERMISSIONS_STRING))
             .isEqualTo(
                 arrayListOf(
                     Permission(
@@ -81,9 +98,44 @@ class HealthPermissionsRequestAppContractTest {
         val intent =
             requestPermissionContract.createIntent(context, setOf(HealthPermission.READ_STEPS))
 
-        Truth.assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
-        Truth.assertThat(intent.`package`)
-            .isEqualTo(HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
+        assertThat(intent.`package`).isEqualTo(DEFAULT_PROVIDER_PACKAGE_NAME)
+    }
+
+    @Test
+    fun createIntent_emptyProviderPackageName_throwsIllegalArgumentException() {
+        val requestPermissionContract = HealthPermissionsRequestAppContract("")
+        assertThrows(IllegalArgumentException::class.java) {
+            requestPermissionContract.createIntent(context, setOf(HealthPermission.READ_STEPS))
+        }
+    }
+
+    @Test
+    fun createIntent_packageInstalledWithInvalidSignature_throwsSecurityException() {
+        sBypassSignatureCheckForTesting = false
+        val mockContext = mock(Context::class.java)
+        val mockPackageManager = mock(PackageManager::class.java)
+        `when`(mockContext.packageManager).thenReturn(mockPackageManager)
+
+        val packageInfo =
+            PackageInfo().apply { applicationInfo = ApplicationInfo().apply { enabled = true } }
+        @Suppress("Deprecation")
+        `when`(mockPackageManager.getPackageInfo(eq(DEFAULT_PROVIDER_PACKAGE_NAME), anyInt()))
+            .thenReturn(packageInfo)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            `when`(
+                    mockPackageManager.getPackageInfo(
+                        eq(DEFAULT_PROVIDER_PACKAGE_NAME),
+                        any(PackageInfoFlags::class.java),
+                    )
+                )
+                .thenReturn(packageInfo)
+        }
+
+        val requestPermissionContract = HealthPermissionsRequestAppContract()
+        assertThrows(SecurityException::class.java) {
+            requestPermissionContract.createIntent(mockContext, setOf(HealthPermission.READ_STEPS))
+        }
     }
 
     @Test
@@ -91,7 +143,7 @@ class HealthPermissionsRequestAppContractTest {
         val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, null)
 
-        Truth.assertThat(result).isEmpty()
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -99,7 +151,7 @@ class HealthPermissionsRequestAppContractTest {
         val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, Intent())
 
-        Truth.assertThat(result).isEmpty()
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -107,7 +159,7 @@ class HealthPermissionsRequestAppContractTest {
         val requestPermissionContract = HealthPermissionsRequestAppContract(TEST_PACKAGE)
         val intent = Intent()
         intent.putParcelableArrayListExtra(
-            HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING,
+            KEY_GRANTED_PERMISSIONS_STRING,
             arrayListOf(
                 Permission(
                     PermissionProto.Permission.newBuilder()
@@ -123,7 +175,7 @@ class HealthPermissionsRequestAppContractTest {
         )
         val result = requestPermissionContract.parseResult(0, intent)
 
-        Truth.assertThat(result)
+        assertThat(result)
             .containsExactly(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE)
     }
 
@@ -136,6 +188,6 @@ class HealthPermissionsRequestAppContractTest {
                 setOf(HealthPermission.READ_STEPS),
             )
 
-        Truth.assertThat(result).isNull()
+        assertThat(result).isNull()
     }
 }
