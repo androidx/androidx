@@ -840,18 +840,28 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
 
     private var _androidViewsHandler: AndroidViewsHandler? = null
-    internal val androidViewsHandler: AndroidViewsHandler
+    // This is instantiated in [addAndroidView]. It otherwise remains null.
+    @OptIn(ExperimentalComposeUiApi::class)
+    internal val androidViewsHandler: AndroidViewsHandler?
         get() {
-            if (_androidViewsHandler == null) {
-                _androidViewsHandler = AndroidViewsHandler(context)
-                addView(_androidViewsHandler)
-                // Ensure that AndroidViewsHandler is measured and laid out after creation, so that
-                // it can report correct bounds on screen (for semantics, etc).
-                // Normally this is done by addView, but here we disabled it for optimization
-                // purposes.
-                requestLayout()
+            if (AndroidComposeUiFlags.isDelayAndroidViewsHandlerCreationEnabled) {
+                return _androidViewsHandler
+            } else {
+                if (_androidViewsHandler == null) {
+                    _androidViewsHandler =
+                        AndroidViewsHandler(context).also {
+                            addView(it)
+                            // Ensure that AndroidViewsHandler is measured and laid out after
+                            // creation, so that
+                            // it can report correct bounds on screen (for semantics, etc).
+                            // Normally this is done by addView, but here we disabled it for
+                            // optimization
+                            // purposes.
+                            requestLayout()
+                        }
+                }
+                return _androidViewsHandler
             }
-            return _androidViewsHandler!!
         }
 
     private var viewLayersContainer: DrawChildContainer? = null
@@ -1880,7 +1890,20 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * Called to inform the owner that a new Android [View] was [attached][Owner.onPreAttach] to the
      * hierarchy.
      */
+    @OptIn(ExperimentalComposeUiApi::class)
     fun addAndroidView(view: AndroidViewHolder, layoutNode: LayoutNode) {
+        val androidViewsHandler =
+            if (AndroidComposeUiFlags.isDelayAndroidViewsHandlerCreationEnabled) {
+                _androidViewsHandler
+                    ?: AndroidViewsHandler(context).also {
+                        _androidViewsHandler = it
+                        addView(it)
+                        requestLayout()
+                    }
+            } else {
+                this.androidViewsHandler!!
+            }
+
         androidViewsHandler.holderToLayoutNode[view] = layoutNode
         androidViewsHandler.addView(view)
         androidViewsHandler.layoutNodeToHolder[layoutNode] = view
@@ -1920,7 +1943,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     val beforeId =
                         composeAccessibilityDelegate.idToBeforeMap.getOrDefault(semanticsId, -1)
                     if (beforeId != -1) {
-                        val beforeView = androidViewsHandler.semanticsIdToView(beforeId)
+                        val beforeView = androidViewsHandler?.semanticsIdToView(beforeId)
                         if (beforeView != null) {
                             // If the node that should come before this one is a view, we want to
                             // pass in the "before" view itself, which is retrieved
@@ -1941,7 +1964,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     val afterId =
                         composeAccessibilityDelegate.idToAfterMap.getOrDefault(semanticsId, -1)
                     if (afterId != -1) {
-                        val afterView = androidViewsHandler.semanticsIdToView(afterId)
+                        val afterView = androidViewsHandler?.semanticsIdToView(afterId)
                         if (afterView != null) {
                             info.setTraversalAfter(afterView)
                         } else {
@@ -1963,6 +1986,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      * hierarchy.
      */
     fun removeAndroidView(view: AndroidViewHolder) {
+        val androidViewsHandler = _androidViewsHandler ?: return
         androidViewsHandler.removeViewInLayout(view)
         androidViewsHandler.layoutNodeToHolder.remove(
             androidViewsHandler.holderToLayoutNode.remove(view)
@@ -1972,7 +1996,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     /** Called to ask the owner to draw a child Android [View] to [canvas]. */
     fun drawAndroidView(view: AndroidViewHolder, canvas: android.graphics.Canvas) {
-        androidViewsHandler.drawView(view, canvas)
+        _androidViewsHandler?.drawView(view, canvas)
     }
 
     private fun scheduleMeasureAndLayout(nodeToRemeasure: LayoutNode? = null) {
@@ -2154,7 +2178,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             measureAndLayoutDelegate.measureOnly()
             setMeasuredDimension(root.width, root.height)
 
-            if (_androidViewsHandler != null) {
+            val androidViewsHandler = _androidViewsHandler
+            if (androidViewsHandler != null) {
                 trace("AndroidOwner:androidViewMeasure") {
                     androidViewsHandler.measure(
                         MeasureSpec.makeMeasureSpec(root.width, MeasureSpec.EXACTLY),
@@ -2194,7 +2219,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             // are currently wrong if you try to get the global(activity) coordinates -
             // View is not yet laid out.
             updatePositionCacheAndDispatch()
-            if (_androidViewsHandler != null) {
+            val androidViewsHandler = _androidViewsHandler
+            if (androidViewsHandler != null) {
                 // Even if we laid out during onMeasure, we want to set the bounds of the
                 // AndroidViewsHandler for accessibility and for Views making assumptions based on
                 // the size of their ancestors. Usually the Views in the hierarchy will not
