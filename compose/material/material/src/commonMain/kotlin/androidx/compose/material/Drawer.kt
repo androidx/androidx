@@ -768,9 +768,12 @@ private fun Scrim(open: Boolean, onClose: () -> Unit, fraction: () -> Float, col
     Canvas(Modifier.fillMaxSize().then(dismissDrawer)) { drawRect(color, alpha = fraction()) }
 }
 
-private val EndDrawerPadding = 56.dp
-private val DrawerPositionalThreshold = 56.dp
-private val DrawerVelocityThreshold = 400.dp
+private val EndDrawerPadding
+    get() = 56.dp
+private val DrawerPositionalThreshold
+    get() = 56.dp
+private val DrawerVelocityThreshold
+    get() = 400.dp
 
 // TODO: b/177571613 this should be a proper decay settling
 // this is taken from the DrawerLayout's DragViewHelper as a min duration.

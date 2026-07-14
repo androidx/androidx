@@ -376,5 +376,7 @@ internal const val AnimationDuration = 150
 private const val PlaceholderAnimationDuration = 83
 private const val PlaceholderAnimationDelayOrDuration = 67
 
-internal val TextFieldPadding = 16.dp
-internal val HorizontalIconPadding = 12.dp
+internal val TextFieldPadding
+    get() = 16.dp
+internal val HorizontalIconPadding
+    get() = 12.dp

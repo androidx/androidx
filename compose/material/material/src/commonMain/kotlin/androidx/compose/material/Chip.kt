@@ -704,16 +704,20 @@ private class DefaultSelectableChipColors(
  * The content padding used by a chip. Used as start padding when there's leading icon, used as eng
  * padding when there's no trailing icon.
  */
-private val HorizontalPadding = 12.dp
+private val HorizontalPadding
+    get() = 12.dp
 
 /** The size of the spacing before the leading icon when they used inside a chip. */
-private val LeadingIconStartSpacing = 4.dp
+private val LeadingIconStartSpacing
+    get() = 4.dp
 
 /** The size of the spacing between the leading icon and a text inside a chip. */
-private val LeadingIconEndSpacing = 8.dp
+private val LeadingIconEndSpacing
+    get() = 8.dp
 
 /** The size of the horizontal spacing before and after the trailing icon inside an InputChip. */
-private val TrailingIconSpacing = 8.dp
+private val TrailingIconSpacing
+    get() = 8.dp
 
 /** The color opacity used for chip's surface overlay. */
 private const val SurfaceOverlayOpacity = 0.12f
@@ -724,4 +728,5 @@ private const val SelectedOverlayOpacity = 0.16f
 /**
  * The size of a circle used to obscure the leading icon before a selected icon is displayed on top.
  */
-private val SelectedIconContainerSize = 24.dp
+private val SelectedIconContainerSize
+    get() = 24.dp
