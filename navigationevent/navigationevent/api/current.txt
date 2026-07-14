@@ -80,6 +80,11 @@ package androidx.navigationevent {
     property public abstract androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
   }
 
+  public final class NavigationEventDispatcherOwnerFactory {
+    method @KotlinOnly public static androidx.navigationevent.NavigationEventDispatcherOwner NavigationEventDispatcherOwner(androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher);
+    method @InaccessibleFromKotlin public static androidx.navigationevent.NavigationEventDispatcherOwner create(androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher);
+  }
+
   public abstract class NavigationEventHandler<T extends androidx.navigationevent.NavigationEventInfo> {
     ctor public NavigationEventHandler(T initialInfo, boolean isBackEnabled);
     ctor public NavigationEventHandler(T initialInfo, boolean isBackEnabled, boolean isForwardEnabled);
