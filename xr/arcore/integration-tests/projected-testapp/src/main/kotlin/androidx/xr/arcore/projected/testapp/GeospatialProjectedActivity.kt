@@ -39,6 +39,7 @@ import androidx.xr.arcore.VpsAvailabilityResourceExhausted
 import androidx.xr.arcore.VpsAvailabilityResult
 import androidx.xr.arcore.VpsAvailabilityUnavailable
 import androidx.xr.projected.ProjectedActivityCompat
+import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
@@ -57,7 +58,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /** Test app which tests projected perception API surface. */
-class ProjectedTestAppActivity : ComponentActivity() {
+open class GeospatialProjectedActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var geospatial: Geospatial
     private lateinit var textView: TextView
@@ -111,7 +112,13 @@ class ProjectedTestAppActivity : ComponentActivity() {
         textView = TextView(this)
         textView.setBackgroundColor(android.graphics.Color.BLACK)
         textView.setTextColor(android.graphics.Color.WHITE)
-        textView.text = "\n\n\n\nWaiting for Geospatial Pose..."
+        val density = resources.displayMetrics.density
+        val paddingPx = (16 * density).toInt()
+        val topPaddingDp = if (usesProjectedScreen()) 70 else 130
+        val topPaddingPx = (topPaddingDp * density).toInt()
+        Log.i("JetpackXR", "density: $density, paddingPx: $paddingPx, topPaddingPx: $topPaddingPx")
+        textView.setPadding(paddingPx, topPaddingPx, paddingPx, paddingPx)
+        textView.text = "Waiting for Geospatial Pose..."
         setContentView(textView)
         if (!hasPermissions()) {
             requestPermissions()
@@ -151,7 +158,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private fun requestPermissions() {
         lifecycleScope.launch(Dispatchers.Default) {
             ProjectedActivityCompat.requestPermissions(
-                this@ProjectedTestAppActivity,
+                this@GeospatialProjectedActivity,
                 permissionsRequired.toTypedArray(),
                 PERMISSION_REQUEST_CODE,
             )
@@ -213,7 +220,7 @@ class ProjectedTestAppActivity : ComponentActivity() {
     }
 
     private fun update() {
-        var newText = "\n\n\nCurrent config: ${configs[currentConfigIndex].first}\n"
+        var newText = "Current config: ${configs[currentConfigIndex].first}\n"
 
         if (exceptionMessage != null) {
             newText += "Exception: $exceptionMessage"
@@ -400,9 +407,18 @@ class ProjectedTestAppActivity : ComponentActivity() {
         }
     }
 
+    protected open fun usesProjectedScreen(): Boolean = true
+
+    @OptIn(ExperimentalProjectedApi::class)
     public suspend fun tryCreateSession() {
-        Log.i("JetpackXR", "Session.create(this)")
-        when (val result = Session.create(context = this, lifecycleOwner = this)) {
+        val sessionContext =
+            if (usesProjectedScreen()) {
+                this
+            } else {
+                ProjectedContext.createProjectedDeviceContext(this)
+            }
+        Log.i("JetpackXR", "Session.create(sessionContext)")
+        when (val result = Session.create(context = sessionContext, lifecycleOwner = this)) {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {
