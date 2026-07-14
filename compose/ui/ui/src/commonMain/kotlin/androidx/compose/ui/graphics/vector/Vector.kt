@@ -63,11 +63,16 @@ const val DefaultTrimPathStart = 0.0f
 const val DefaultTrimPathEnd = 1.0f
 const val DefaultTrimPathOffset = 0.0f
 
-val DefaultStrokeLineCap = StrokeCap.Butt
-val DefaultStrokeLineJoin = StrokeJoin.Miter
-val DefaultTintBlendMode = BlendMode.SrcIn
-val DefaultTintColor = Color.Transparent
-val DefaultFillType = PathFillType.NonZero
+val DefaultStrokeLineCap
+    get() = StrokeCap.Butt
+val DefaultStrokeLineJoin
+    get() = StrokeJoin.Miter
+val DefaultTintBlendMode
+    get() = BlendMode.SrcIn
+val DefaultTintColor
+    get() = Color.Transparent
+val DefaultFillType
+    get() = PathFillType.NonZero
 
 inline fun PathData(block: PathBuilder.() -> Unit) =
     with(PathBuilder()) {
