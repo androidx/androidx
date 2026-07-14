@@ -107,15 +107,15 @@ private class GestureNode(val gestureConnection: GestureConnection) :
 internal value class GestureState private constructor(private val status: String) {
     companion object {
         /** Gesture is enabled but no gesture is in progress. */
-        val Idle
+        inline val Idle
             get() = GestureState("idle")
 
         /** Gesture is waiting for a trigger condition (e.g. touch slop) */
-        val Waiting
+        inline val Waiting
             get() = GestureState("waiting")
 
         /** Gesture is ongoing (e.g. dragging) */
-        val Recognized
+        inline val Recognized
             get() = GestureState("recognized")
     }
 }

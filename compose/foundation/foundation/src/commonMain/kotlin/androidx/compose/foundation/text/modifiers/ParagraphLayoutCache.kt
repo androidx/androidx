@@ -422,16 +422,16 @@ internal class ParagraphLayoutCache(
 @JvmInline
 internal value class LayoutCacheOperation private constructor(val flag: Long) {
     companion object {
-        val MarkDirtyStyle
+        inline val MarkDirtyStyle
             get() = LayoutCacheOperation(0b00)
 
-        val MarkDirtyDensity
+        inline val MarkDirtyDensity
             get() = LayoutCacheOperation(0b01)
 
-        val MarkDirtyNode
+        inline val MarkDirtyNode
             get() = LayoutCacheOperation(0b10)
 
-        val LayoutWithConstraints
+        inline val LayoutWithConstraints
             get() = LayoutCacheOperation(0b11)
     }
 }

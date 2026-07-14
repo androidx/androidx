@@ -31,13 +31,13 @@ internal value class GroupKind private constructor(val value: Int) {
         get() = value != Node.value
 
     companion object {
-        val Group
+        inline val Group
             get() = GroupKind(0)
 
-        val Node
+        inline val Node
             get() = GroupKind(1)
 
-        val ReusableNode
+        inline val ReusableNode
             get() = GroupKind(2)
     }
 }
