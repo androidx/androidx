@@ -30,6 +30,15 @@
   right above it with the bug ID, e.g., `// TODO: b/1234567 - Make this public in next alpha`.
 - **Linting**: Ensure code quality and adherence to AndroidX standards by running
   `./gradlew <project>:lintRelease` after completing a meaningful set of changes.
+- **Code Elegance**: After implementing a solution and passing tests, always
+  review the code to ensure it is clean, elegant, and readable (e.g., extract
+  complex conditional logic into descriptive helper methods).
+- **Regression Prevention**: Scan the codebase and analyze the impact of your
+  changes on related components to ensure no potential regressions are
+  introduced.
+- **Standard Verification Procedure**: Never skip the verification steps.
+  Always compile (build), run related tests, run lint, and **verify code
+  elegance and regression prevention** before finalizing any code changes.
 
 ## Testing
 
