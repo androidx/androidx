@@ -1737,8 +1737,10 @@ class RecordingCanvasTest {
 
             assertThat(buffer.calls)
                 .containsExactly(
-                    "addAnimatedFloat(ID(43), [ID(42), 10.0, +])",
-                    "addAnimatedFloat(ID(45), [ID(44), 20.0, +])",
+                    "setNamedVariable(42, \"USER:varA\", 1)",
+                    "addAnimatedFloat(43) = ([42] 10.0 + )",
+                    "setNamedVariable(44, \"USER:varB\", 1)",
+                    "addAnimatedFloat(45) = ([44] 20.0 + )",
                     "addMatrixTranslate(ID(43), ID(45))",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
@@ -1761,7 +1763,8 @@ class RecordingCanvasTest {
             // They should be fused into a single rotate.
             assertThat(buffer.calls)
                 .containsExactly(
-                    "addAnimatedFloat(ID(43), [ID(42), 10.0, +])",
+                    "setNamedVariable(42, \"USER:varAngle\", 1)",
+                    "addAnimatedFloat(43) = ([42] 10.0 + )",
                     "addMatrixRotate(ID(43), NaN, NaN)",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
@@ -1785,11 +1788,214 @@ class RecordingCanvasTest {
             // They should be fused into a single scale.
             assertThat(buffer.calls)
                 .containsExactly(
-                    "addAnimatedFloat(ID(43), [ID(42), 2.0, *])",
-                    "addAnimatedFloat(ID(45), [ID(44), 3.0, *])",
+                    "setNamedVariable(42, \"USER:varSx\", 1)",
+                    "addAnimatedFloat(43) = ([42] 2.0 * )",
+                    "setNamedVariable(44, \"USER:varSy\", 1)",
+                    "addAnimatedFloat(45) = ([44] 3.0 * )",
                     "addMatrixScale(ID(43), ID(45), NaN, NaN)",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_elidedWhenNoChildCommands() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.drawConditionally(condition) {
+                // Empty block, no child commands
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).isEmpty()
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_preservedWhenHasChildCommands() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond\", 4)",
+                    "addConditionalOperations(1, ID(42), 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "endConditionalOperations",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_withExpression_elidedWhenNoChildCommands() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val expr = cond1 and cond2
+
+            canvas.drawConditionally(expr) {
+                // Empty block, elided
+            }
+            canvas.drawConditionally(expr) {
+                // Empty block, elided
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond1\", 4)",
+                    "setNamedVariable(43, \"USER:cond2\", 4)",
+                    "addIntegerExpression(44, 7, [42, 43, 65546])",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_withExpression_preservedWhenHasChildCommands() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val expr = cond1 and cond2
+
+            canvas.drawConditionally(expr) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.drawConditionally(expr) { canvas.drawRect(10f, 10f, 20f, 20f, Paint()) }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    // TODO(b/535588364): We should elide the condition too.
+                    "setNamedVariable(42, \"USER:cond1\", 4)",
+                    "setNamedVariable(43, \"USER:cond2\", 4)",
+                    "addIntegerExpression(44, 7, [42, 43, 65546])",
+                    "addConditionalOperations(1, ID(44), 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "endConditionalOperations",
+                    "addConditionalOperations(1, ID(44), 0.0)",
+                    "addPaint",
+                    "addDrawRect(10.0, 10.0, 20.0, 20.0)",
+                    "endConditionalOperations",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_elidedWhenChildCommandsAreElided() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.drawConditionally(condition) {
+                canvas.save()
+                canvas.translate(10f, 20f)
+                // No draw calls, so save/restore is elided.
+                // Then drawConditionally has no child commands, so it is elided too.
+                canvas.restore()
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).isEmpty()
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_insideSave_elidesSaveIfOnlyChild() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.drawConditionally(condition) {
+                // Empty block
+            }
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).isEmpty()
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_multipleChildSpans_preservesOnlyActiveBranches() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val cond3 = RemoteBoolean.createNamedRemoteBoolean("cond3", true)
+
+            // Child span 1: elided
+            canvas.drawConditionally(cond1) {
+                canvas.save()
+                canvas.restore()
+            }
+            // Child span 2: preserved
+            canvas.drawConditionally(cond2) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            // Child span 3: elided
+            canvas.drawConditionally(cond3) {
+                // Empty block
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond2\", 4)",
+                    "addConditionalOperations(1, ID(42), 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "endConditionalOperations",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_toString() {
+        val condition = RemoteBoolean.createNamedRemoteBoolean("myCond", true)
+        val span = CanvasOperationBuffer.Span(null, 0)
+        val op = CanvasOp.DrawConditionally(condition, span) { _, _ -> }
+        assertThat(op.toString()).isEqualTo("DrawConditionally(${condition.toDebugString()})")
+    }
+
+    @Test
+    fun testSaveTransformBeforeDrawConditionally_preserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            // Save block with transforms right before a conditional draw
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.drawRect(1f, 1f, 2f, 2f, Paint())
+            canvas.restore()
+
+            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixSave",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addPaint",
+                    "addDrawRect(1.0, 1.0, 2.0, 2.0)",
+                    "addMatrixRestore",
+                    "setNamedVariable(42, \"USER:cond\", 4)",
+                    "addConditionalOperations(1, ID(42), 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "endConditionalOperations",
                 )
         }
     }
@@ -1854,6 +2060,8 @@ class RecordingCanvasTest {
             // It should NOT discard the pivot.
             assertThat(buffer.calls)
                 .containsExactly(
+                    "setNamedVariable(42, \"USER:varPx\", 1)",
+                    "setNamedVariable(43, \"USER:varPy\", 1)",
                     "addMatrixScale(2.0, 3.0, ID($pxIdVal), ID($pyIdVal))",
                     "addPaint",
                     "addDrawRect(0.0, 0.0, 10.0, 10.0)",
@@ -2314,19 +2522,48 @@ private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>
         calls.add("endConditionalOperations")
         super.endConditionalOperations()
     }
-}
 
-private class OptimizingTestRemoteComposeBuffer(calls: ArrayList<String> = ArrayList()) :
-    RecordingTestRemoteComposeBuffer(calls) {
+    override fun setNamedVariable(id: Int, name: String, type: Int) {
+        calls.add("setNamedVariable($id, \"$name\", $type)")
+        super.setNamedVariable(id, name, type)
+    }
+
+    override fun addIntegerExpression(id: Int, mask: Int, value: IntArray) {
+        calls.add("addIntegerExpression($id, $mask, ${value.toList()})")
+        super.addIntegerExpression(id, mask, value)
+    }
+
+    override fun addColorExpression(id: Int, alpha: Float, red: Float, green: Float, blue: Float) {
+        calls.add(
+            "addColorExpression($id, ${formatFloat(alpha)}, ${formatFloat(red)}, ${formatFloat(green)}, ${formatFloat(blue)})"
+        )
+        super.addColorExpression(id, alpha, red, green, blue)
+    }
 
     override fun addAnimatedFloat(id: Int, value: FloatArray) {
-        calls.add("addAnimatedFloat(ID($id), ${value.formatToString()})")
+        val labels = arrayOfNulls<String>(value.size)
+        for (i in 0 until value.size) {
+            if (value[i].isNaN()) {
+                labels[i] = "[" + Utils.idFromNan(value[i]) + "]"
+            }
+        }
+        val exprStr = AnimatedFloatExpression.toString(value, labels)
+        calls.add("addAnimatedFloat($id) = ($exprStr)")
         super.addAnimatedFloat(id, *value)
     }
 
     override fun addAnimatedFloat(id: Int, value: FloatArray, animation: FloatArray?) {
-        val animStr = animation?.formatToString()
-        calls.add("addAnimatedFloat(ID($id), ${value.formatToString()}, $animStr)")
+        val labels = arrayOfNulls<String>(value.size)
+        for (i in 0 until value.size) {
+            if (value[i].isNaN()) {
+                labels[i] = "[" + Utils.idFromNan(value[i]) + "]"
+            }
+        }
+        val exprStr = AnimatedFloatExpression.toString(value, labels)
+        calls.add("addAnimatedFloat($id) = ($exprStr)")
         super.addAnimatedFloat(id, value, animation)
     }
 }
+
+private class OptimizingTestRemoteComposeBuffer(calls: ArrayList<String> = ArrayList()) :
+    RecordingTestRemoteComposeBuffer(calls)
