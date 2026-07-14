@@ -1682,4 +1682,65 @@ class DeferredAnimatedContentTest {
             !evaluatedSpecs.contains(Pair("A", "B")),
         )
     }
+
+    @Test
+    fun animatedContent_identicalContentKey_gestureAndTransition_isStaticWithoutOffset() {
+        data class Page(val id: String, val instance: Int)
+
+        val initialPage = Page("C", 1)
+        val targetPage = Page("C", 2)
+        val state = DeferredTransitionState(initialPage)
+
+        var measuredOffsetX = -1f
+        var measuredOffsetY = -1f
+
+        rule.setContent {
+            val transition = rememberTransition(state, label = "identicalKeyTest")
+            val mutableTransform = remember {
+                MutableContentTransform {
+                    targetContentTransform { offset = IntOffset(-100, -100) }
+                    initialContentTransform { offset = IntOffset(-100, -100) }
+                }
+            }
+
+            transition.DeferredAnimatedContent(
+                contentKey = { it.id },
+                transitionSpec = {
+                    slideInHorizontally { 500 } + slideInVertically { 500 } togetherWith
+                        slideOutHorizontally { -500 } + slideOutVertically { -500 }
+                },
+                mutableTransformSpec = { mutableTransform },
+            ) { page ->
+                Box(
+                    Modifier.size(100.dp).onGloballyPositioned { coords ->
+                        measuredOffsetX = coords.positionInRoot().x
+                        measuredOffsetY = coords.positionInRoot().y
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(0f, measuredOffsetX, 0.1f)
+        assertEquals(0f, measuredOffsetY, 0.1f)
+
+        // 1) Initiate a deferred gesture to targetPage (same contentKey "C", different object
+        // instance 2).
+        rule.runOnIdle { state.defer(targetPage) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Because initialPage and targetPage share the same contentKey ("C"),
+        // neither enter/exit transition (slide 500px) nor mutable transform (slide -100px) should
+        // run. The slot must remain static right in place (0, 0).
+        assertEquals(0f, measuredOffsetX, 0.1f)
+        assertEquals(0f, measuredOffsetY, 0.1f)
+
+        // 2) Complete the transition.
+        rule.runOnIdle { state.animateTo(targetPage) }
+        rule.waitForIdle()
+
+        assertEquals(0f, measuredOffsetX, 0.1f)
+        assertEquals(0f, measuredOffsetY, 0.1f)
+    }
 }

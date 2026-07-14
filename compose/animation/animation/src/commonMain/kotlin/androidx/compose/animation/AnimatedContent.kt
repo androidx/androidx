@@ -1093,13 +1093,15 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
 
     pendingTargetState?.let { pendingTargetState ->
         if (pendingTargetState != currentState) {
-            // Replace the target with the same key if any
-            val id =
-                currentlyVisible.indexOfFirst { contentKey(it) == contentKey(pendingTargetState) }
-            if (id == -1) {
-                currentlyVisible.add(pendingTargetState)
-            } else if (currentlyVisible[id] != pendingTargetState) {
-                currentlyVisible[id] = pendingTargetState
+            val pendingKey = contentKey(pendingTargetState)
+            if (pendingKey != contentKey(targetState)) {
+                // Replace the target with the same key if any
+                val id = currentlyVisible.indexOfFirst { contentKey(it) == pendingKey }
+                if (id == -1) {
+                    currentlyVisible.add(pendingTargetState)
+                } else if (currentlyVisible[id] != pendingTargetState) {
+                    currentlyVisible[id] = pendingTargetState
+                }
             }
         }
     }
@@ -1140,7 +1142,13 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
         }
     val mutableContentTransformData =
         remember(pendingScope, mutableTransformSpec) {
-            if (pendingScope != null) pendingScope.mutableTransformSpec() else null
+            pendingScope?.run {
+                if (contentKey(initialState) != contentKey(targetState)) {
+                    mutableTransformSpec()
+                } else {
+                    MutableContentTransform()
+                }
+            }
         }
     if (
         targetState !in contentMap ||
@@ -1210,10 +1218,12 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                             .then(
                                 childData.apply {
                                     isTarget = stateForContent == targetState
+                                    val contentKey = contentKey(stateForContent)
                                     isPendingTarget =
-                                        stateForContent == pendingTargetState &&
-                                            stateForContent != targetState &&
-                                            stateForContent != currentState
+                                        localPendingTargetState != null &&
+                                            contentKey == contentKey(localPendingTargetState) &&
+                                            contentKey != contentKey(targetState) &&
+                                            contentKey != contentKey(currentState)
                                 }
                             ),
                     shouldDisposeBlock = { currentState, targetState ->
