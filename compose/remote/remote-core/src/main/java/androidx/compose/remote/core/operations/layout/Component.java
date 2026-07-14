@@ -67,6 +67,7 @@ public class Component extends PaintOperation
     @Nullable protected Component mParent;
     protected int mAnimationId = -1;
     public int mVisibility = Visibility.VISIBLE;
+    public int mInternalLayoutIndex = -1; // index used by FlatMeasurePass
     public int mScheduledVisibility = Visibility.VISIBLE;
     @NonNull public ArrayList<Operation> mList = new ArrayList<>();
     public @Nullable PaintOperation
@@ -1364,24 +1365,17 @@ public class Component extends PaintOperation
         return false;
     }
 
-    public static boolean sEnableRelayoutBoundaries = true;
-
-    /** Returns whether relayout boundary optimizations are enabled. */
-    public static boolean isRelayoutBoundaryEnabled() {
-        return sEnableRelayoutBoundaries;
-    }
-
-    /** Enable or disable relayout boundary optimizations globally. */
-    public static void setRelayoutBoundaryEnabled(boolean enabled) {
-        sEnableRelayoutBoundaries = enabled;
+    public boolean isRelayoutBoundary() {
+        return isRelayoutBoundary((CoreDocument) null);
     }
 
     /**
      * Returns true if this node acts as a relayout boundary, meaning changes inside this node
      * do not affect the size or position of its parent.
      */
-    public boolean isRelayoutBoundary() {
-        if (!sEnableRelayoutBoundaries) {
+    public boolean isRelayoutBoundary(@Nullable CoreDocument document) {
+        boolean enabled = document == null || document.isRelayoutBoundaryEnabled();
+        if (!enabled) {
             return false;
         }
         if (hasComputedLayout()) {
