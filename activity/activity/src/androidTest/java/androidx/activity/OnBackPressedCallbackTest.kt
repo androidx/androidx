@@ -19,6 +19,7 @@ package androidx.activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -27,84 +28,64 @@ import org.junit.runner.RunWith
 class OnBackPressedCallbackTest {
 
     @Test
-    fun remove_fromMultipleDispatchers_doesNotThrowConcurrentModificationException() {
+    fun testCannotAddCallbackToMultipleDispatchers() {
         val callback =
             object : OnBackPressedCallback(enabled = true) {
-                override fun handleOnBackPressed() {
-                    error("not implemented")
-                }
+                override fun handleOnBackPressed() {}
             }
 
-        repeat(times = 5) {
-            // Adds the same callback to multiple dispatchers. This setup verifies that
-            // `OnBackPressedCallback.remove()` handles these concurrent modifications to its
-            // internal state without throwing a `ConcurrentModificationException`.
-            val dispatcher = OnBackPressedDispatcher()
-            dispatcher.addCallback(callback)
-        }
+        val dispatcher1 = OnBackPressedDispatcher()
+        dispatcher1.addCallback(callback)
 
-        callback.remove()
+        val dispatcher2 = OnBackPressedDispatcher()
+        assertThrows(IllegalStateException::class.java) { dispatcher2.addCallback(callback) }
     }
 
     @Test
-    fun remove_fromMultipleCloseables_doesNotThrowConcurrentModificationException() {
+    fun testCannotAddCallbackMultipleTimesToSameDispatcher() {
         val callback =
             object : OnBackPressedCallback(enabled = true) {
-                override fun handleOnBackPressed() {
-                    error("not implemented")
-                }
+                override fun handleOnBackPressed() {}
             }
 
-        repeat(times = 5) {
-            // Creates multiple closeables that will attempt to remove themselves from the callback
-            // when closed. This setup verifies that `OnBackPressedCallback.remove()` handles these
-            // concurrent modifications to its internal state without throwing a
-            // `ConcurrentModificationException`.
-            val closeable =
-                object : AutoCloseable {
-                    override fun close() {
-                        callback.removeCloseable(closeable = this)
-                    }
-                }
-            callback.addCloseable(closeable)
-        }
+        val dispatcher = OnBackPressedDispatcher()
+        dispatcher.addCallback(callback)
 
-        callback.remove()
+        assertThrows(IllegalStateException::class.java) { dispatcher.addCallback(callback) }
     }
 
     @Test
-    fun all_dispatchers_got_notified_for_enabled_changes() {
+    fun testDispatcherGotNotifiedForEnabledChanges() {
         val callback =
             object : OnBackPressedCallback(enabled = false) {
-                override fun handleOnBackPressed() {
-                    error("not implemented")
-                }
+                override fun handleOnBackPressed() {}
             }
-        val allHasEnabledCallbacks = mutableListOf<Boolean>()
 
-        repeat(times = 5) {
-            val dispatcher =
-                OnBackPressedDispatcher(
-                    fallbackOnBackPressed = null,
-                    onHasEnabledCallbacksChanged = { hasEnabledCallbacks ->
-                        allHasEnabledCallbacks += hasEnabledCallbacks
-                    },
-                )
+        var hasEnabledCallbacksResult = false
+        var notificationCount = 0
 
-            // This first call to addCallback on each dispatcher triggers the lazy
-            // initialization and causes an "initial state" emission.
-            dispatcher.addCallback(callback)
-        }
+        val dispatcher =
+            OnBackPressedDispatcher(
+                fallbackOnBackPressed = null,
+                onHasEnabledCallbacksChanged = { hasEnabledCallbacks ->
+                    hasEnabledCallbacksResult = hasEnabledCallbacks
+                    notificationCount++
+                },
+            )
 
-        // After the loop, we have 5 "initial state" emissions (one per dispatcher).
-        assertThat(allHasEnabledCallbacks)
-            .containsExactly(false, false, false, false, false)
-            .inOrder()
-        allHasEnabledCallbacks.clear()
+        // Adding the callback triggers the initial state emission.
+        dispatcher.addCallback(callback)
+        assertThat(notificationCount).isEqualTo(1)
+        assertThat(hasEnabledCallbacksResult).isFalse()
 
+        // Enabling the callback should notify the dispatcher.
         callback.isEnabled = true
+        assertThat(notificationCount).isEqualTo(2)
+        assertThat(hasEnabledCallbacksResult).isTrue()
 
-        // Enabling the shared callback notifies all 5 dispatchers, each emitting the new state.
-        assertThat(allHasEnabledCallbacks).containsExactly(true, true, true, true, true).inOrder()
+        // Disabling it should notify the dispatcher again.
+        callback.isEnabled = false
+        assertThat(notificationCount).isEqualTo(3)
+        assertThat(hasEnabledCallbacksResult).isFalse()
     }
 }
