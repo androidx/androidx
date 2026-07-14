@@ -16,7 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.cos
 import kotlin.math.sin
@@ -39,7 +38,6 @@ public class MutableVec(
 
     public constructor() : this(0F, 0F)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableVec = ImmutableVec(x, y)
 
     /** Fills this [MutableVec] with the same values contained in [input]. */
