@@ -126,7 +126,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val FirstLineTop = Trim(FlagTrimTop)
+            val FirstLineTop
+                get() = Trim(FlagTrimTop)
 
             /**
              * Trim the space that would be added to the bottom of the last line as a result of the
@@ -147,7 +148,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val LastLineBottom = Trim(FlagTrimBottom)
+            val LastLineBottom
+                get() = Trim(FlagTrimBottom)
 
             /**
              * Trim the space that would be added to the top of the first line and bottom of the
@@ -167,7 +169,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Both = Trim(FlagTrimTop or FlagTrimBottom)
+            val Both
+                get() = Trim(FlagTrimTop or FlagTrimBottom)
 
             /**
              * Do not trim first line top or last line bottom.
@@ -187,7 +190,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val None = Trim(0)
+            val None
+                get() = Trim(0)
         }
 
         internal fun isTrimFirstLineTop(): Boolean {
@@ -246,7 +250,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Top = Alignment(topRatio = 0f)
+            val Top
+                get() = Alignment(topRatio = 0f)
 
             /**
              * Align the line to the center of the space reserved for the line. This configuration
@@ -266,7 +271,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Center = Alignment(topRatio = 0.5f)
+            val Center
+                get() = Alignment(topRatio = 0.5f)
 
             /**
              * Align the line proportional to the ascent and descent values of the line. For example
@@ -274,7 +280,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * units will be distributed as 8 units to top, and 2 units to the bottom of the line.
              * This is the default behavior.
              */
-            val Proportional = Alignment(topRatio = -1f)
+            val Proportional
+                get() = Alignment(topRatio = -1f)
 
             /**
              * Align the line to the bottom of the space reserved for that line. This means that all
@@ -297,7 +304,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Bottom = Alignment(topRatio = 1f)
+            val Bottom
+                get() = Alignment(topRatio = 1f)
         }
     }
 
@@ -328,7 +336,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * middle lines respect the specified line height at all times and tall glyphs can
              * overflow to upper or lower lines.
              */
-            val Fixed = Mode(0)
+            val Fixed
+                get() = Mode(0)
 
             /**
              * By specifying [Mode.Minimum], when the specified line height is smaller than the
@@ -336,7 +345,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * and bottom paddings are also added. This prevents the overflow of tall glyphs in
              * middle lines.
              */
-            val Minimum = Mode(1)
+            val Minimum
+                get() = Mode(1)
 
             /**
              * Be able to use the specified line height at *all* lines, including the first and
@@ -344,7 +354,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * [Mode.Fixed]. Tall glyphs might get trimmed at top, bottom, or both when used in
              * conjunction with the corresponding [Trim] value.
              */
-            val Tight = Mode(2)
+            val Tight
+                get() = Mode(2)
         }
     }
 }

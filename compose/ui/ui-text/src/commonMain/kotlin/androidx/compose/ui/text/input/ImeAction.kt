@@ -46,7 +46,9 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * platform and keyboard to make the decision, but [Default] will take precedence when
          * merging [ImeAction]s.
          */
-        @Stable val Unspecified: ImeAction = ImeAction(-1)
+        @Stable
+        val Unspecified: ImeAction
+            get() = ImeAction(-1)
 
         /**
          * Use the platform and keyboard defaults and let the keyboard decide the action it is going
@@ -54,44 +56,60 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * single/multi line configuration. This action will never be sent as the performed action
          * to IME action callbacks.
          */
-        @Stable val Default: ImeAction = ImeAction(1)
+        @Stable
+        val Default: ImeAction
+            get() = ImeAction(1)
 
         /**
          * Represents that no action is expected from the keyboard. Keyboard might choose to show an
          * action which mostly will be newline, however this action will never be sent as the
          * performed action to IME action callbacks.
          */
-        @Stable val None: ImeAction = ImeAction(0)
+        @Stable
+        val None: ImeAction
+            get() = ImeAction(0)
 
         /**
          * Represents that the user would like to go to the target of the text in the input i.e.
          * visiting a URL.
          */
-        @Stable val Go: ImeAction = ImeAction(2)
+        @Stable
+        val Go: ImeAction
+            get() = ImeAction(2)
 
         /** Represents that the user wants to execute a search, i.e. web search query. */
-        @Stable val Search: ImeAction = ImeAction(3)
+        @Stable
+        val Search: ImeAction
+            get() = ImeAction(3)
 
         /** Represents that the user wants to send the text in the input, i.e. an SMS. */
-        @Stable val Send: ImeAction = ImeAction(4)
+        @Stable
+        val Send: ImeAction
+            get() = ImeAction(4)
 
         /**
          * Represents that the user wants to return to the previous input i.e. going back to the
          * previous field in a form.
          */
-        @Stable val Previous: ImeAction = ImeAction(5)
+        @Stable
+        val Previous: ImeAction
+            get() = ImeAction(5)
 
         /**
          * Represents that the user is done with the current input, and wants to move to the next
          * one i.e. moving to the next field in a form.
          */
-        @Stable val Next: ImeAction = ImeAction(6)
+        @Stable
+        val Next: ImeAction
+            get() = ImeAction(6)
 
         /**
          * Represents that the user is done providing input to a group of inputs. Some kind of
          * finalization behavior should now take place i.e. the field was the last element in a
          * group and the data input is finalized.
          */
-        @Stable val Done: ImeAction = ImeAction(7)
+        @Stable
+        val Done: ImeAction
+            get() = ImeAction(7)
     }
 }

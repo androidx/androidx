@@ -40,34 +40,44 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
 
     companion object {
         /** The capitalization behavior is not specified. */
-        @Stable val Unspecified = KeyboardCapitalization(-1)
+        @Stable
+        val Unspecified
+            get() = KeyboardCapitalization(-1)
 
         /**
          * Disables auto-capitalization.
          *
          * **When to use it**: Ideal for passwords, email addresses, URLs, or search filters.
          */
-        @Stable val None = KeyboardCapitalization(0)
+        @Stable
+        val None
+            get() = KeyboardCapitalization(0)
 
         /**
          * Capitalizes all characters.
          *
          * **When to use it**: Ideal for coupon codes, state abbreviations, or license plates.
          */
-        @Stable val Characters = KeyboardCapitalization(1)
+        @Stable
+        val Characters
+            get() = KeyboardCapitalization(1)
 
         /**
          * Capitalizes the first character of every word.
          *
          * **When to use it**: Ideal for mailing addresses or contact names.
          */
-        @Stable val Words = KeyboardCapitalization(2)
+        @Stable
+        val Words
+            get() = KeyboardCapitalization(2)
 
         /**
          * Capitalizes the first character of every sentence.
          *
          * **When to use it**: Ideal for chat messages, email bodies, or other free-form text.
          */
-        @Stable val Sentences = KeyboardCapitalization(3)
+        @Stable
+        val Sentences
+            get() = KeyboardCapitalization(3)
     }
 }

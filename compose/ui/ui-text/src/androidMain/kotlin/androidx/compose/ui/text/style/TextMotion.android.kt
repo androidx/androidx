@@ -79,17 +79,20 @@ internal constructor(
             /**
              * Equal to applying [android.graphics.Paint.LINEAR_TEXT_FLAG] and turning hinting off.
              */
-            val Linear = Linearity(1)
+            val Linear
+                get() = Linearity(1)
 
             /**
              * Equal to removing [android.graphics.Paint.LINEAR_TEXT_FLAG] and turning hinting on.
              */
-            val FontHinting = Linearity(2)
+            val FontHinting
+                get() = Linearity(2)
 
             /**
              * Equal to removing [android.graphics.Paint.LINEAR_TEXT_FLAG] and turning hinting off.
              */
-            val None = Linearity(3)
+            val None
+                get() = Linearity(3)
         }
 
         override fun toString(): String =
