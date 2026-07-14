@@ -49,12 +49,12 @@ import kotlinx.cinterop.toCValues
 import kotlinx.cinterop.toKString
 import kotlinx.cinterop.usePinned
 
-@OptIn(InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
 actual internal object BrushFamilySerializationNative {
 
     /**
-     * Serializes a [BrushFamily] to a [ByteArray] using the provided texture map represented in
-     * corresponding arrays of keys (client texture IDs) and values (PNG bytes).
+     * Serializes a [androidx.ink.brush.BrushFamily] to a [ByteArray] using the provided texture map
+     * represented in corresponding arrays of keys (client texture IDs) and values (PNG bytes).
      */
     actual fun encode(
         nativeBrushFamilyPointer: Long,
@@ -100,10 +100,11 @@ actual internal object BrushFamilySerializationNative {
     }
 
     /**
-     * Constructs an unowned heap-allocated native [BrushFamily] from a serialized proto, passed in
-     * as a [ByteArray]. [onDecodeTexture] is called for each client texture ID in the `BrushFamily`
-     * proto. `maxVersion` is used to determine the maximum version supported by the deserializer.
-     * Proto objects with a `min_version` of greater than `maxVersion` will be rejected.
+     * Constructs an unowned heap-allocated native [androidx.ink.brush.BrushFamily] from a
+     * serialized proto, passed in as a [ByteArray]. [onDecodeTexture] is called for each client
+     * texture ID in the `BrushFamily` proto. `maxVersion` is used to determine the maximum version
+     * supported by the deserializer. Proto objects with a `min_version` of greater than
+     * `maxVersion` will be rejected.
      */
     actual fun createFromProto(
         brushFamilyByteArray: ByteArray,
@@ -128,7 +129,7 @@ actual internal object BrushFamilySerializationNative {
     }
 }
 
-@OptIn(InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
 actual internal object MultipleBrushFamiliesNative {
     /**
      * Returns a pointer to a heap-allocated `std::vector<std::unique_ptr<BrushFamily>>`, allowing
@@ -192,6 +193,7 @@ private val onDecodeTextureCallback:
             }
     })
 
+@OptIn(ExperimentalForeignApi::class)
 private class NativeTextureMap(scope: AutofreeScope, textureMap: Map<String, ByteArray>) {
     val keysList = textureMap.keys.toList()
     val textureIds: CPointer<CPointerVar<ByteVar>> = keysList.toCStringArray(scope)
