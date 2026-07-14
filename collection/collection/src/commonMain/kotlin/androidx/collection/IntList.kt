@@ -407,29 +407,35 @@ public sealed class IntList(initialCapacity: Int) {
     }
 
     /**
-     * Searches this list the specified element in the range defined by [fromIndex] and [toIndex].
-     * The list is expected to be sorted into ascending order according to the natural ordering of
-     * its elements, otherwise the result is undefined.
+     * Searches this list for the specified [element] in the range defined by [fromIndex] and
+     * [toIndex]. The list is expected to be sorted into ascending order according to the natural
+     * ordering of its elements, otherwise the result is undefined.
      *
-     * [fromIndex] must be >= 0 and < [toIndex], and [toIndex] must be <= [size], otherwise an an
+     * [fromIndex] must be >= 0 and < [toIndex], and [toIndex] must be <= [size], otherwise an
      * [IndexOutOfBoundsException] will be thrown.
      *
-     * @return the index of the element if it is contained in the list within the specified range.
+     * @return the index of the element if it is contained in the list within the specified range,
      *   otherwise, the inverted insertion point `(-insertionPoint - 1)`. The insertion point is
      *   defined as the index at which the element should be inserted, so that the list remains
      *   sorted.
      */
     @JvmOverloads
-    public fun binarySearch(element: Int, fromIndex: Int = 0, toIndex: Int = size): Int {
-        if (fromIndex < 0 || fromIndex >= toIndex || toIndex > _size) {
-            throwIndexOutOfBoundsException("")
+    public fun binarySearch(
+        element: Int,
+        @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+        @androidx.annotation.IntRange(from = 0) toIndex: Int = _size,
+    ): Int {
+        if (fromIndex < 0 || fromIndex > toIndex || toIndex > _size) {
+            throw IndexOutOfBoundsException(
+                "fromIndex ($fromIndex) and toIndex ($toIndex) must be in range 0..$_size"
+            )
         }
 
         var low = fromIndex
         var high = toIndex - 1
 
         while (low <= high) {
-            val mid = low + high ushr 1
+            val mid = (low + high) ushr 1
             val midVal = content[mid]
             if (midVal < element) {
                 low = mid + 1
@@ -441,6 +447,39 @@ public sealed class IntList(initialCapacity: Int) {
         }
 
         return -(low + 1) // key not found.
+    }
+
+    /**
+     * Searches this [IntList] or its range for an element for which the given [comparison] function
+     * returns zero using binary search algorithm.
+     */
+    public inline fun binarySearch(
+        @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+        @androidx.annotation.IntRange(from = 0) toIndex: Int = _size,
+        comparison: (element: Int) -> Int,
+    ): Int {
+        if (fromIndex < 0 || fromIndex > toIndex || toIndex > _size) {
+            throw IndexOutOfBoundsException(
+                "fromIndex ($fromIndex) and toIndex ($toIndex) must be in range 0..$_size"
+            )
+        }
+        var low = fromIndex
+        var high = toIndex - 1
+
+        while (low <= high) {
+            val mid = (low + high) ushr 1
+            val midVal = content[mid]
+            val cmp = comparison(midVal)
+
+            if (cmp < 0) {
+                low = mid + 1
+            } else if (cmp > 0) {
+                high = mid - 1
+            } else {
+                return mid
+            }
+        }
+        return -(low + 1)
     }
 
     /**

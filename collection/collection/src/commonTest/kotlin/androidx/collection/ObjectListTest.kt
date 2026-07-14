@@ -1300,4 +1300,55 @@ class ObjectListTest {
             l.subList(1, 0)
         }
     }
+
+    @Test
+    fun sort() {
+        val l = mutableObjectListOf(3, 1, 4, 1, 5, 9, 2, 6)
+        l.sort()
+        assertEquals(mutableObjectListOf(1, 1, 2, 3, 4, 5, 6, 9), l)
+    }
+
+    @Test
+    fun sortDescending() {
+        val l = mutableObjectListOf(3, 1, 4, 1, 5, 9, 2, 6)
+        l.sortDescending()
+        assertEquals(mutableObjectListOf(9, 6, 5, 4, 3, 2, 1, 1), l)
+    }
+
+    @Test
+    fun sortWith() {
+        val l = mutableObjectListOf("banana", "apple", "cherry")
+        l.sortWith(compareBy { it.length })
+        assertEquals(mutableObjectListOf("apple", "banana", "cherry"), l)
+    }
+
+    @Test
+    fun sortBy() {
+        val l = mutableObjectListOf("banana", "a", "apple")
+        l.sortBy { it.length }
+        assertEquals(mutableObjectListOf("a", "apple", "banana"), l)
+    }
+
+    @Test
+    fun sortByDescending() {
+        val l = mutableObjectListOf("a", "banana", "apple")
+        l.sortByDescending { it.length }
+        assertEquals(mutableObjectListOf("banana", "apple", "a"), l)
+    }
+
+    @Test
+    fun binarySearch() {
+        val l = mutableObjectListOf(1, 3, 5, 7, 9)
+        assertEquals(2, l.binarySearch(5))
+        assertEquals(-1, l.binarySearch(0))
+        assertEquals(-6, l.binarySearch(10))
+    }
+
+    @Test
+    fun binarySearchBy() {
+        val l = mutableObjectListOf("a", "cat", "apple", "banana")
+        l.sortBy { it.length }
+        val index = l.binarySearchBy(3) { it.length }
+        assertEquals("cat", l[index])
+    }
 }
