@@ -279,21 +279,31 @@ private fun DrawScope.drawTrack(trackColor: Color, trackWidth: Float, strokeWidt
     )
 }
 
-internal val TrackWidth = 34.dp
-internal val TrackStrokeWidth = 14.dp
-internal val ThumbDiameter = 20.dp
+internal val TrackWidth
+    get() = 34.dp
+internal val TrackStrokeWidth
+    get() = 14.dp
+internal val ThumbDiameter
+    get() = 20.dp
 
-private val ThumbRippleRadius = 24.dp
+private val ThumbRippleRadius
+    get() = 24.dp
 
-private val DefaultSwitchPadding = 2.dp
-private val SwitchWidth = TrackWidth
-private val SwitchHeight = ThumbDiameter
-private val ThumbPathLength = TrackWidth - ThumbDiameter
+private val DefaultSwitchPadding
+    get() = 2.dp
+private val SwitchWidth
+    get() = TrackWidth
+private val SwitchHeight
+    get() = ThumbDiameter
+private val ThumbPathLength
+    get() = TrackWidth - ThumbDiameter
 
 private val AnimationSpec = TweenSpec<Float>(durationMillis = 100)
 
-private val ThumbDefaultElevation = 1.dp
-private val ThumbPressedElevation = 6.dp
+private val ThumbDefaultElevation
+    get() = 1.dp
+private val ThumbPressedElevation
+    get() = 6.dp
 
 /** Contains the default values used by [Switch] */
 object SwitchDefaults {
@@ -418,4 +428,5 @@ private class DefaultSwitchColors(
 }
 
 private const val SwitchPositionalThreshold = 0.7f
-private val SwitchVelocityThreshold = 125.dp
+private val SwitchVelocityThreshold
+    get() = 125.dp

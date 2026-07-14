@@ -152,21 +152,27 @@ fun Badge(
 }
 
 /*@VisibleForTesting*/
-internal val BadgeRadius = 4.dp
+internal val BadgeRadius
+    get() = 4.dp
 
 /*@VisibleForTesting*/
-internal val BadgeWithContentRadius = 8.dp
-private val BadgeContentFontSize = 10.sp
+internal val BadgeWithContentRadius
+    get() = 8.dp
+private val BadgeContentFontSize
+    get() = 10.sp
 
 /*@VisibleForTesting*/
 // Leading and trailing text padding when a badge is displaying text that is too long to fit in
 // a circular badge, e.g. if badge number is greater than 9.
-internal val BadgeWithContentHorizontalPadding = 4.dp
+internal val BadgeWithContentHorizontalPadding
+    get() = 4.dp
 
 /*@VisibleForTesting*/
 // Horizontally align start/end of text badge 6dp from the end/start edge of its anchor
-internal val BadgeWithContentHorizontalOffset = -6.dp
+internal val BadgeWithContentHorizontalOffset
+    get() = -6.dp
 
 /*@VisibleForTesting*/
 // Horizontally align start/end of icon only badge 4dp from the end/start edge of anchor
-internal val BadgeHorizontalOffset = -4.dp
+internal val BadgeHorizontalOffset
+    get() = -4.dp

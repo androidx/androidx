@@ -168,4 +168,5 @@ private class MinimumInteractiveComponentSizeModifier(val size: DpSize) : Layout
     }
 }
 
-private val minimumInteractiveComponentSize: DpSize = DpSize(48.dp, 48.dp)
+private val minimumInteractiveComponentSize: DpSize
+    get() = DpSize(48.dp, 48.dp)

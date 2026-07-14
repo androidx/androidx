@@ -633,9 +633,12 @@ object BackdropScaffoldDefaults {
         tween(durationMillis = 300, easing = FastOutSlowInEasing)
 }
 
-private val AnimationSlideOffset = 20.dp
-private val VelocityThreshold = 125.dp
-private val PositionalThreshold = 56.dp
+private val AnimationSlideOffset
+    get() = 20.dp
+private val VelocityThreshold
+    get() = 125.dp
+private val PositionalThreshold
+    get() = 56.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 internal fun ConsumeSwipeNestedScrollConnection(

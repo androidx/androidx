@@ -1103,11 +1103,14 @@ internal fun Modifier.drawIndicatorLine(indicatorBorder: BorderStroke): Modifier
 }
 
 /** Padding from the label's baseline to the top */
-internal val FirstBaselineOffset = 20.dp
+internal val FirstBaselineOffset
+    get() = 20.dp
 
 /** Padding from input field to the bottom */
-internal val TextFieldBottomPadding = 10.dp
+internal val TextFieldBottomPadding
+    get() = 10.dp
 
 /** Padding from label's baseline (or FirstBaselineOffset) to the input field */
 /*@VisibleForTesting*/
-internal val TextFieldTopPadding = 2.dp
+internal val TextFieldTopPadding
+    get() = 2.dp

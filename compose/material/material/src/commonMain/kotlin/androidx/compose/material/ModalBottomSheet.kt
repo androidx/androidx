@@ -584,6 +584,9 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
 
-private val ModalBottomSheetPositionalThreshold = 56.dp
-private val ModalBottomSheetVelocityThreshold = 125.dp
-private val MaxModalBottomSheetWidth = 640.dp
+private val ModalBottomSheetPositionalThreshold
+    get() = 56.dp
+private val ModalBottomSheetVelocityThreshold
+    get() = 125.dp
+private val MaxModalBottomSheetWidth
+    get() = 640.dp

@@ -483,7 +483,8 @@ private class ScrollableTabData(
         }
 }
 
-private val ScrollableTabRowMinimumTabWidth = 90.dp
+private val ScrollableTabRowMinimumTabWidth
+    get() = 90.dp
 
 /** [AnimationSpec] used when scrolling to a tab that is not fully visible. */
 private val ScrollableTabRowScrollSpec: AnimationSpec<Float> =

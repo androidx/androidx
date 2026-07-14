@@ -430,15 +430,18 @@ private val BottomNavigationAnimationSpec =
     TweenSpec<Float>(durationMillis = 300, easing = FastOutSlowInEasing)
 
 /** Height of a [BottomNavigation] component */
-private val BottomNavigationHeight = 56.dp
+private val BottomNavigationHeight
+    get() = 56.dp
 
 /** Padding at the start and end of a [BottomNavigationItem] */
-private val BottomNavigationItemHorizontalPadding = 12.dp
+private val BottomNavigationItemHorizontalPadding
+    get() = 12.dp
 
 /**
  * The space between the text baseline and the bottom of the [BottomNavigationItem], and between the
  * text baseline and the bottom of the icon placed above it.
  */
-private val CombinedItemTextBaseline = 12.dp
+private val CombinedItemTextBaseline
+    get() = 12.dp
 
 private val ZeroInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)

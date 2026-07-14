@@ -547,12 +547,15 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
 // LinearProgressIndicator Material specs
 // TODO: there are currently 3 fixed widths in Android, should this be flexible? Material says
 // the width should be 240dp here.
-private val LinearIndicatorHeight = ProgressIndicatorDefaults.StrokeWidth
-private val LinearIndicatorWidth = 240.dp
+private val LinearIndicatorHeight
+    get() = ProgressIndicatorDefaults.StrokeWidth
+private val LinearIndicatorWidth
+    get() = 240.dp
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
-private val CircularIndicatorDiameter = 40.dp
+private val CircularIndicatorDiameter
+    get() = 40.dp
 
 // Indeterminate linear indicator transition specs
 // Total duration for one cycle
