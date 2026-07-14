@@ -19,7 +19,6 @@ import androidx.annotation.MainThread
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventHandler
 import androidx.navigationevent.NavigationEventInfo
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Class for handling [OnBackPressedDispatcher.onBackPressed] callbacks without strongly coupling
@@ -42,11 +41,12 @@ import java.util.concurrent.CopyOnWriteArrayList
 public abstract class OnBackPressedCallback(enabled: Boolean) {
 
     /**
-     * This [OnBackPressedCallback] class will delegate all interactions to [eventHandlers], which
+     * This [OnBackPressedCallback] class will delegate all interactions to [eventHandler], which
      * provides a KMP-compatible API while preserving behavior compatibility with existing callback
      * mechanisms.
      */
-    private val eventHandlers: MutableList<OnBackPressedEventHandler> = mutableListOf()
+    internal var eventHandler: OnBackPressedEventHandler? = null
+        private set
 
     /**
      * The enabled state of the callback. Only when this callback is enabled will it receive
@@ -61,26 +61,26 @@ public abstract class OnBackPressedCallback(enabled: Boolean) {
     public var isEnabled: Boolean = enabled
         set(value) {
             field = value
-            for (callback in eventHandlers) {
+            eventHandler?.let {
                 // Only enable if the Lifecycle is active. isLifecycleActive is always
                 // true unless this callback was registered with a LifecycleOwner.
-                callback.isBackEnabled = callback.isLifecycleActive && value
+                it.isBackEnabled = it.isLifecycleActive && value
             }
         }
 
-    private val closeables = CopyOnWriteArrayList<AutoCloseable>()
+    internal var closeable: AutoCloseable? = null
+        set(value) {
+            check(field == null || value == null) { "Callback already has a closeable registered" }
+            field = value
+        }
 
-    /** Removes this callback from any [OnBackPressedDispatcher] it is currently added to. */
+    /** Removes this callback from the [OnBackPressedDispatcher] it is currently added to. */
     @MainThread
     public fun remove() {
-        for (closeable in closeables) {
-            closeable.close()
-        }
-        closeables.clear()
-        for (callback in eventHandlers) {
-            callback.remove()
-        }
-        eventHandlers.clear()
+        closeable?.close()
+        closeable = null
+        eventHandler?.remove()
+        eventHandler = null
     }
 
     /**
@@ -116,19 +116,12 @@ public abstract class OnBackPressedCallback(enabled: Boolean) {
     @MainThread
     public open fun handleOnBackCancelled() {}
 
-    internal fun addCloseable(closeable: AutoCloseable) {
-        closeables += closeable
-    }
-
-    internal fun removeCloseable(closeable: AutoCloseable) {
-        closeables -= closeable
-    }
-
     internal fun createNavigationEventHandler(
         info: NavigationEventInfo
     ): OnBackPressedEventHandler {
+        check(eventHandler == null) { "Callback is already registered with a dispatcher" }
         val newHandler = OnBackPressedEventHandler(onBackPressedCallback = this, info)
-        eventHandlers += newHandler
+        eventHandler = newHandler
         return newHandler
     }
 

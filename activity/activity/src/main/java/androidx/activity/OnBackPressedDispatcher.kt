@@ -124,6 +124,9 @@ public class OnBackPressedDispatcher(
      */
     @MainThread
     public fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
+        check(onBackPressedCallback.eventHandler == null) {
+            "Callback $onBackPressedCallback is already added to a dispatcher"
+        }
         val info = OnBackPressedCallbackInfo(onBackPressedCallback)
         val handler = onBackPressedCallback.createNavigationEventHandler(info)
         eventInput.dispatcher.addHandler(handler)
@@ -158,6 +161,10 @@ public class OnBackPressedDispatcher(
 
         if (lifecycle.currentState === State.DESTROYED) {
             return
+        }
+
+        check(onBackPressedCallback.eventHandler == null) {
+            "Callback $onBackPressedCallback is already added to a dispatcher"
         }
 
         val info = OnBackPressedCallbackInfo(onBackPressedCallback, owner)
@@ -209,7 +216,7 @@ public class OnBackPressedDispatcher(
             }
 
         lifecycle.addObserver(observer)
-        onBackPressedCallback.addCloseable {
+        onBackPressedCallback.closeable = AutoCloseable {
             // Stop lifecycle tracking when the callback is removed manually.
             lifecycle.removeObserver(observer)
         }
