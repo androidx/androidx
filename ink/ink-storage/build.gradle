@@ -22,28 +22,26 @@ plugins {
 }
 
 androidXMultiplatform {
-    // Only supported on non-Android JVM for Linux on x86_64
+    // Only supported on non-Android JVM for Linux on x86_64 and Mac on arm64
     jvm()
+
+    ios()
 
     androidLibrary {
         namespace = "androidx.ink.storage"
-        compileSdk { version = release(35) }
     }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":ink:ink-nativeloader"))
-        }
-
-        jvmAndAndroidMain.dependencies {
             implementation(project(":ink:ink-brush"))
+            implementation(project(":ink:ink-nativeloader"))
             implementation(project(":ink:ink-strokes"))
         }
 
-        androidMain.dependencies {
-            implementation(project(":ink:ink-rendering"))
+        nativeMain.dependencies {
+            implementation(libs.okio)
         }
 
         commonTest.dependencies {

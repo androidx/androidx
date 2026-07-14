@@ -73,8 +73,8 @@ package androidx.ink.strokes {
     method @InaccessibleFromKotlin public androidx.ink.brush.Brush getBrush();
     method @InaccessibleFromKotlin public androidx.ink.strokes.ImmutableStrokeInputBatch getInputs();
     method @InaccessibleFromKotlin public androidx.ink.geometry.PartitionedMesh getShape();
-    method @SuppressCompatibility @WorkerThread public java.util.Set<androidx.ink.strokes.Stroke> split(androidx.ink.geometry.AffineTransform strokeToWorldTransform, float tolerance);
-    method @SuppressCompatibility @WorkerThread public androidx.ink.strokes.Stroke subtract(androidx.ink.geometry.PartitionedMesh maskShape, androidx.ink.geometry.AffineTransform maskToWorldTransform, androidx.ink.geometry.AffineTransform strokeToWorldTransform);
+    method @SuppressCompatibility public java.util.Set<androidx.ink.strokes.Stroke> split(androidx.ink.geometry.AffineTransform strokeToWorldTransform, float tolerance);
+    method @SuppressCompatibility public androidx.ink.strokes.Stroke subtract(androidx.ink.geometry.PartitionedMesh maskShape, androidx.ink.geometry.AffineTransform maskToWorldTransform, androidx.ink.geometry.AffineTransform strokeToWorldTransform);
     property public androidx.ink.brush.Brush brush;
     property public androidx.ink.strokes.ImmutableStrokeInputBatch inputs;
     property public androidx.ink.geometry.PartitionedMesh shape;
