@@ -16,44 +16,50 @@
 
 package androidx.a2ui.engine.model
 
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.model.protocol.A2uiDataPath
-import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 
-/**
- * A core layer utility that evaluates dynamic bindings and client functions. Because the
- * [androidx.a2ui.engine.platform.A2uiCoreDataModel] does not expose synchronous getters, this
- * evaluator relies on a framework-provided [A2uiCoreValueResolver] to retrieve state. This
- * guarantees that frameworks can accurately track state reads during evaluation for reactive
- * updates.
- *
- * @property catalog The catalog containing registered client-side components and functions.
- */
-internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
+/** Evaluates dynamic payload by resolving data model bindings and client functions */
+internal interface A2uiCoreDynamicEvaluator {
     /**
      * Evaluates a dynamic [payload] using [dataPath] for relative path resolution.
      *
      * This function supports evaluating complex, deeply-nested dynamic structures (including
      * [Map]s, [List]s, and primitive values). It scans for and resolves:
      * - **Path bindings**: Maps containing only a single `"path"` key, e.g., `{"path":
-     *   "user/name"}`. These are resolved to actual values using [valueResolver].
+     *   "user/name"}`. These are resolved to actual values using
+     *   [A2uiExecutionContext.resolveValue].
      * - **Client function calls**: Maps containing a `"call"` key and optional `"args"` key, e.g.,
      *   `{"call": "add", "args": {"a": 1, "b": 2}}`. Arguments themselves can be nested dynamic
      *   payloads, which are fully resolved before the catalog function is executed.
      * - **Nested payloads**: Plain Maps and Lists, whose nested elements are recursively evaluated
      *   while maintaining their structural layout.
      *
-     * @param dataPath the base data path used to resolve relative paths during evaluation
-     * @param valueResolver a framework-provided class to read values from the data model
-     * @param payload the dynamic payload to evaluate, which can be a [Map], [List], or a primitive
+     * @param dataPath base data path used to resolve relative paths during evaluation
+     * @param payload dynamic payload to evaluate, which can be a [Map], [List], or a primitive
      *   literal
-     * @return the fully evaluated and resolved payload
+     * @param executionContext context to use during evaluation
+     * @return fully evaluated and resolved payload
      */
-    @Suppress("UNCHECKED_CAST")
-    internal fun evaluate(
+    fun evaluate(
         dataPath: A2uiDataPath,
-        valueResolver: A2uiCoreValueResolver,
         payload: Any?,
+        executionContext: A2uiExecutionContext,
+    ): Any?
+}
+
+/**
+ * Default implementation of [A2uiCoreDynamicEvaluator].
+ *
+ * This implementation uses a stack-based iterative approach to evaluate deeply nested dynamic
+ * payloads without risking stack overflow.
+ */
+internal object A2uiCoreDynamicEvaluatorImpl : A2uiCoreDynamicEvaluator {
+    @Suppress("UNCHECKED_CAST")
+    override fun evaluate(
+        dataPath: A2uiDataPath,
+        payload: Any?,
+        executionContext: A2uiExecutionContext,
     ): Any? {
         if (payload !is Map<*, *> && payload !is List<*>) {
             return payload
@@ -65,58 +71,72 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
         workStack.add(payload)
 
         while (workStack.isNotEmpty()) {
-            when (val current = workStack.removeAt(workStack.lastIndex)) {
-                is Map<*, *> ->
-                    processMapNode(
-                        current as Map<String, *>,
-                        dataPath,
-                        valueResolver,
-                        workStack,
-                        resultStack,
-                    )
-                is List<*> -> processListNode(current, workStack, resultStack)
-                is Frame -> processFrameNode(current, resultStack)
-                is MapFrame -> processMapFrameNode(current, resultStack)
-                is ListFrame -> processListFrameNode(current, resultStack)
-                else -> resultStack.add(current)
+            val success =
+                when (val current = workStack.removeAt(workStack.lastIndex)) {
+                    is Map<*, *> ->
+                        processMapNode(
+                            current as Map<String, *>,
+                            dataPath,
+                            workStack,
+                            resultStack,
+                            executionContext,
+                        )
+                    is List<*> -> {
+                        processListNode(current, workStack, resultStack)
+                        true // Cannot fail
+                    }
+                    is Frame -> processFrameNode(current, resultStack, executionContext)
+                    is MapFrame -> {
+                        processMapFrameNode(current, resultStack)
+                        true // Cannot fail
+                    }
+                    is ListFrame -> {
+                        processListFrameNode(current, resultStack)
+                        true // Cannot fail
+                    }
+                    else -> {
+                        resultStack.add(current)
+                        true // Cannot fail
+                    }
+                }
+            if (!success) {
+                // Stopping mid-evaluation due to failure
+                return null
             }
         }
-
         return resultStack.first()
     }
 
     /**
      * Processes a map node which could be a path, a function call, or just a raw map.
      *
-     * If it's a path node, it resolves the path using [valueResolver] and adds the result to
-     * [resultStack]. If it's a call node, it schedules the function execution by pushing a [Frame]
-     * and its arguments onto the [workStack]. Otherwise, it treats the map as a plain map and
-     * schedules nested evaluation of its values.
+     * If it's a path node, it resolves the path and adds the result to [resultStack]. If it's a
+     * call node, it schedules the function execution by pushing a [Frame] and its arguments onto
+     * the [workStack]. Otherwise, it treats the map as a plain map and schedules nested evaluation
+     * of its values.
      *
-     * @param mapNode The map payload to process.
-     * @param dataPath The base data path for relative path resolution.
-     * @param valueResolver The framework-provided class to read values from the data model.
-     * @param workStack The stack of pending nodes to process.
-     * @param resultStack The stack of fully evaluated results.
+     * @return true if the node is processed successfully, otherwise false
      */
     private fun processMapNode(
         mapNode: Map<String, *>,
         dataPath: A2uiDataPath,
-        valueResolver: A2uiCoreValueResolver,
         workStack: MutableList<Any?>,
         resultStack: MutableList<Any?>,
-    ) {
+        executionContext: A2uiExecutionContext,
+    ): Boolean {
         if (mapNode.isEmpty()) {
             resultStack.add(mapNode)
-            return
+            return true
         }
 
-        if (tryProcessPathNode(mapNode, dataPath, valueResolver, resultStack)) {
-            return
+        when (tryProcessPathNode(mapNode, dataPath, resultStack, executionContext)) {
+            PathNodeProcessingResult.PROCESSED -> return true
+            PathNodeProcessingResult.FAILED -> return false
+            PathNodeProcessingResult.NOT_MATCHED -> {}
         }
 
         if (tryProcessCallNode(mapNode, workStack)) {
-            return
+            return true
         }
 
         val keys = mapNode.keys.toTypedArray()
@@ -124,6 +144,7 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
         for (i in keys.indices.reversed()) {
             workStack.add(mapNode[keys[i]])
         }
+        return true
     }
 
     /** Schedules evaluation of [listNode] elements onto [workStack] and [resultStack]. */
@@ -143,20 +164,22 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
         }
     }
 
-    /** Resolves a [mapNode] to [resultStack] if it is a path node. Returns true if processed. */
+    /** Resolves a [mapNode] to [resultStack] if it is a path node. */
     private fun tryProcessPathNode(
         mapNode: Map<*, *>,
         dataPath: A2uiDataPath,
-        valueResolver: A2uiCoreValueResolver,
         resultStack: MutableList<Any?>,
-    ): Boolean {
+        executionContext: A2uiExecutionContext,
+    ): PathNodeProcessingResult {
         val path = mapNode[KEY_PATH] as? String
-        if (path != null && mapNode.size == 1) {
-            val resolvedPath = dataPath / path
-            resultStack.add(valueResolver.resolve(resolvedPath))
-            return true
-        }
-        return false
+
+        if (path == null || mapNode.size != 1) return PathNodeProcessingResult.NOT_MATCHED
+
+        val resolvedPath = dataPath / path
+        val result =
+            executionContext.resolveValue(resolvedPath) ?: return PathNodeProcessingResult.FAILED
+        resultStack.add(result)
+        return PathNodeProcessingResult.PROCESSED
     }
 
     /**
@@ -199,7 +222,11 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
      * Executes function in [frame] using arguments from [resultStack] and pushes the result to the
      * [resultStack].
      */
-    private fun processFrameNode(frame: Frame, resultStack: MutableList<Any?>) {
+    private fun processFrameNode(
+        frame: Frame,
+        resultStack: MutableList<Any?>,
+        executionContext: A2uiExecutionContext,
+    ): Boolean {
         val evaluatedArgs = LinkedHashMap<String, Any>(frame.keys.size)
         val startIndex = resultStack.size - frame.keys.size
 
@@ -214,13 +241,10 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
             resultStack.subList(startIndex, resultStack.size).clear()
         }
 
-        val func =
-            catalog.getFunction(frame.callName)
-                ?: throw A2uiException.A2uiRuntimeException(
-                    "Function '${frame.callName}' not found in catalog"
-                )
-
-        resultStack.add(func.execute(evaluatedArgs))
+        val funcResult =
+            executionContext.executeFunction(frame.callName, evaluatedArgs) ?: return false
+        resultStack.add(funcResult)
+        return true
     }
 
     /** Reconstructs evaluated map from [resultStack] using keys from [frame]. */
@@ -304,11 +328,21 @@ internal class A2uiCoreDynamicEvaluator(private val catalog: A2uiCoreCatalog) {
     /** Scheduled list waiting for its elements to be evaluated. Tracks the original [List]. */
     private class ListFrame(val original: List<*>)
 
-    private companion object {
-        private const val KEY_PATH = "path"
-        private const val KEY_CALL = "call"
-        private const val KEY_ARGS = "args"
-        private const val KEY_CALLABLE_FROM = "callableFrom"
-        private const val KEY_RETURN_TYPE = "returnType"
+    /** Indicates the outcome of path node processing. */
+    private enum class PathNodeProcessingResult {
+        /** The node does not match the expected path format. */
+        NOT_MATCHED,
+
+        /** The path resolved successfully. */
+        PROCESSED,
+
+        /** The path resolution failed. */
+        FAILED,
     }
+
+    private const val KEY_PATH = "path"
+    private const val KEY_CALL = "call"
+    private const val KEY_ARGS = "args"
+    private const val KEY_CALLABLE_FROM = "callableFrom"
+    private const val KEY_RETURN_TYPE = "returnType"
 }

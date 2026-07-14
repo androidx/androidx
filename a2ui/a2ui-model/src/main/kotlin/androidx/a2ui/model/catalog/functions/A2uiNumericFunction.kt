@@ -19,6 +19,7 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
@@ -58,9 +59,11 @@ public class A2uiNumericFunction private constructor() : A2uiFunction {
      * Validates that the numeric value in [args] meets range requirements.
      *
      * @param args arguments containing "value" number and optional "min" or "max" limits
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return true if the number is within bounds, false otherwise
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
         val min =
             if (args.containsKey(ARG_MIN_KEY)) {

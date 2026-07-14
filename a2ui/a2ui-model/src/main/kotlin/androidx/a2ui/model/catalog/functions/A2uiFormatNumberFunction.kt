@@ -19,6 +19,7 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicBooleanSchema
@@ -70,9 +71,11 @@ public constructor(private val localeProvider: A2uiLocaleProvider = A2uiLocalePr
      * Formats the given number using precision options in [args].
      *
      * @param args arguments containing "value" (number) and optional decimal or grouping flags
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return the formatted number string, or null if required values are missing
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getDoubleArg(args, ARG_VALUE_KEY)
         val decimals =
             if (args.containsKey(ARG_DECIMALS_KEY)) {

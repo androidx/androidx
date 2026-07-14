@@ -24,5 +24,11 @@ import androidx.a2ui.model.protocol.A2uiDataPath
  * reactive updates.
  */
 public fun interface A2uiCoreValueResolver {
+    /**
+     * Resolves a value from the data model at the given path.
+     *
+     * @param path The data path to resolve.
+     * @return The resolved value or null if the given path does not exist in the data model.
+     */
     public fun resolve(path: A2uiDataPath): Any?
 }
