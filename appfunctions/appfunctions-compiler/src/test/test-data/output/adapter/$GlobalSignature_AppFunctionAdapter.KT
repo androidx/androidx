@@ -12,6 +12,7 @@ import androidx.appfunctions.`internal`.unsafeGetParameterValue
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
+import kotlin.Suppress
 
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$GlobalSignature_AppFunctionAdapter` : AppFunctionAdapter<GlobalSignature> {
@@ -27,6 +28,7 @@ public class `$GlobalSignature_AppFunctionAdapter` : AppFunctionAdapter<GlobalSi
     }
   )
 
+  @Suppress("UNCHECKED_CAST")
   private inline fun <R> withExtractedArguments(request: ExecuteAppFunctionRequest, block: (a: Int, b: String) -> R): R {
     val a = request.functionParameters.unsafeGetParameterValue(A_PARAMETER_SPEC) as Int
     val b = request.functionParameters.unsafeGetParameterValue(B_PARAMETER_SPEC) as String
