@@ -122,7 +122,7 @@ class Rotation : ComponentActivity() {
     @Composable
     @SubspaceComposable
     private fun PanelWithClock(label: String) {
-        SpatialPanel(modifier = SubspaceModifier.width(240.dp).height(180.dp)) {
+        SpatialPanel(modifier = SubspaceModifier.width(240.dp).height(170.dp)) {
             ClockColumnWithLabel(label)
         }
     }
@@ -131,7 +131,7 @@ class Rotation : ComponentActivity() {
     @SubspaceComposable
     private fun RotatingPanelWithClock(axisAngle: Vector3, rotation: Float) {
         SpatialPanel(
-            modifier = SubspaceModifier.width(240.dp).height(180.dp).rotate(axisAngle, rotation)
+            modifier = SubspaceModifier.width(240.dp).height(170.dp).rotate(axisAngle, rotation)
         ) {
             ClockColumnWithLabel("Standalone")
         }
