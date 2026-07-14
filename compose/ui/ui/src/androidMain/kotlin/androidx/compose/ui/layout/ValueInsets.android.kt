@@ -60,7 +60,9 @@ internal inline fun ValueInsets(left: Int, top: Int, right: Int, bottom: Int): V
     )
 
 /** A [ValueInsets] with all values set to `0`. */
-internal val ZeroValueInsets = ValueInsets(0L)
+internal val ZeroValueInsets
+    get() = ValueInsets(0L)
 
 /** A [ValueInsets] representing `null` or unset values. */
-internal val UnsetValueInsets = ValueInsets(0xFFFF_FFFF_FFFF_FFFFUL.toLong())
+internal val UnsetValueInsets
+    get() = ValueInsets(0xFFFF_FFFF_FFFF_FFFFUL.toLong())
