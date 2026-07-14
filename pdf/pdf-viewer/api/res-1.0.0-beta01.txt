@@ -1,0 +1,7 @@
+attr fastScrollPageIndicatorBackgroundDrawable
+attr fastScrollPageIndicatorMarginEnd
+attr fastScrollVerticalThumbDrawable
+attr fastScrollVerticalThumbMarginEnd
+attr pdfHorizontalPageSpacing
+attr pdfPagesPerRow
+attr pdfVerticalPageSpacing
