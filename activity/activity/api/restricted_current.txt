@@ -144,6 +144,13 @@ package androidx.activity {
     property public abstract androidx.activity.FullyDrawnReporter fullyDrawnReporter;
   }
 
+  public final class NavigationEventDispatcherOwnerFactory {
+    method @KotlinOnly public static androidx.navigationevent.NavigationEventDispatcherOwner NavigationEventDispatcherOwner(androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher);
+    method @KotlinOnly public static androidx.navigationevent.NavigationEventDispatcherOwner NavigationEventDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner onBackPressedDispatcherOwner);
+    method @InaccessibleFromKotlin public static androidx.navigationevent.NavigationEventDispatcherOwner create(androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher);
+    method @InaccessibleFromKotlin public static androidx.navigationevent.NavigationEventDispatcherOwner create(androidx.activity.OnBackPressedDispatcherOwner onBackPressedDispatcherOwner);
+  }
+
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean enabled);
     method @MainThread public void handleOnBackCancelled();
