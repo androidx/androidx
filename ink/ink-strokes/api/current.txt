@@ -13,6 +13,7 @@ package androidx.ink.strokes {
   public final class InProgressStroke {
     ctor public InProgressStroke();
     method public boolean changesWithTime();
+    method public void clear();
     method public void enqueueInputs(androidx.ink.strokes.StrokeInputBatch realInputs, androidx.ink.strokes.StrokeInputBatch predictedInputs);
     method public void finishInput();
     method @InaccessibleFromKotlin public androidx.ink.brush.Brush? getBrush();
