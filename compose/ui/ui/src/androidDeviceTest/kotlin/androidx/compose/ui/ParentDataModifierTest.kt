@@ -199,16 +199,16 @@ class ParentDataModifierTest {
         class ParentInt(val x: Int) : ParentDataModifier {
             override fun Density.modifyParentData(parentData: Any?): Any = x
         }
+        var expectedSize = 10
         rule.setContent {
             Layout(
                 content = {
                     val parentInt = ParentInt(size)
-                    println("recompose: $size $parentInt")
                     Box(parentInt)
                 }
             ) { measurables, constraints ->
                 val boxSize = measurables[0].parentData as Int
-                assertEquals(size, boxSize)
+                assertEquals(expectedSize, boxSize)
                 val placeable = measurables[0].measure(constraints)
                 measuredSize = boxSize
                 layout(boxSize, boxSize) { placeable.place(0, 0) }
@@ -216,11 +216,11 @@ class ParentDataModifierTest {
         }
 
         rule.runOnIdle {
-            assertEquals(measuredSize, 10)
-            println("change size to 20")
+            assertEquals(10, measuredSize)
+            expectedSize = 20
             size = 20
         }
-        rule.runOnIdle { assertEquals(measuredSize, 20) }
+        rule.runOnIdle { assertEquals(20, measuredSize) }
     }
 }
 
