@@ -20,6 +20,7 @@ import android.os.Build
 import android.view.Choreographer
 import android.view.Display
 import android.view.View
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.R
 import androidx.compose.runtime.Composable
@@ -115,6 +116,9 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     private var isActive = false
 
     private var frameStartTimeNanos = 0L
+    private var lastDrawingTimeNanos = 0L
+    private val idleSlack
+        get() = 2 * frameIntervalNs
 
     init {
         calculateFrameIntervalIfNeeded(view)
@@ -138,16 +142,90 @@ internal class AndroidPrefetchScheduler(private val view: View) :
             prefetchScheduled = false
             return
         }
-        // Use both the view drawing time or the frameStartTime given by the choreographer.
-        // In most cases the view drawing time should be enough and equal to the frame start
-        // time given by the choreographer. These are the cases where they should differ:
-        // 1) When this handler is executed in the same frame as it was scheduled. In these cases,
-        // using view drawing time will be correct because scheduling is usually followed by a
-        // drawing operation as it happens during scroll.
-        // 2) When there wasn't enough time to complete a request in the current frame. If there
-        // isn't enough time, the handler will be executed in the next frame where there might
-        // not have been a drawing operation. Using the choreographer frame start time will be
-        // safe in these cases.
+        if (ComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
+            runNewBehavior()
+        } else {
+            runOldBehavior()
+        }
+    }
+
+    private fun runNewBehavior() {
+        // viewDrawTimeNanos is the latter between the last drawing time, and the frame start time.
+        var viewDrawTimeNanos =
+            maxOf(frameStartTimeNanos, TimeUnit.MILLISECONDS.toNanos(view.drawingTime))
+        // We calculate how many nanoseconds have elapsed
+        val elapsedSinceDraw = System.nanoTime() - viewDrawTimeNanos
+        var isFrameIdle = false
+        // Prefents us from posting with `view.post(this)` more than we need to
+        var alreadyPostScheduled = false
+
+        val frameIsIdleCandidate = elapsedSinceDraw > idleSlack
+
+        // If this is true, it means that at this point, the frame is either extremely delayed, or
+        // we have not drawn something for our idle slack duration because we are actually idle.
+        // If this is false, it means that it has not been long enough since our last draw time to
+        // qualify for a potentially idle frame, in which case, we will run the prefetch loop using
+        // the time remaining before we use up our available time allowance.
+        if (frameIsIdleCandidate) {
+            // As this callback runs on `view.post(this)`, if we compare the last recorded drawing
+            // time with the latest drawing time, and they are essentially the same, it means that
+            // we are truly idle as we have both exhausted our idle slack and used no more time
+            // doing other main thread things between this invocation and the previous.
+            if (lastDrawingTimeNanos == viewDrawTimeNanos) {
+                // If we are idle, we set the draw time to the current time such that we can
+                // prefetch for a specific duration starting from the current time.
+                viewDrawTimeNanos = System.nanoTime()
+                isFrameIdle = true
+            } else {
+                lastDrawingTimeNanos = viewDrawTimeNanos
+                view.post(this)
+                alreadyPostScheduled = true
+            }
+        }
+
+        val scheduleForNextFrame = runPrefetchLoop(viewDrawTimeNanos, isFrameIdle)
+
+        if (!alreadyPostScheduled) {
+            if (scheduleForNextFrame) {
+                // there is not enough time left in this frame. we schedule a next frame callback
+                // in which we are going to post the message in the handler again.
+                choreographer.postFrameCallback(this)
+            } else {
+                prefetchScheduled = false
+            }
+        }
+    }
+
+    private fun runPrefetchLoop(viewDrawTimeNanos: Long, isFrameIdle: Boolean): Boolean {
+        var frameIsIdle = isFrameIdle
+        scope.nextFrameTimeNs = viewDrawTimeNanos + frameIntervalNs
+        var scheduleForNextFrame = false
+
+        while (prefetchRequests.isNotEmpty()) {
+            val availableTimeNanos = scope.availableTimeNanos()
+            if (availableTimeNanos <= 0) {
+                scheduleForNextFrame = true
+                break
+            }
+
+            traceValue("compose:lazy:prefetch:available_time_nanos", availableTimeNanos)
+            val hasMoreWork =
+                if (frameIsIdle) {
+                    frameIsIdle = false
+                    trace("compose:lazy:prefetch:idle_frame") { runRequest() }
+                } else {
+                    runRequest()
+                }
+
+            if (hasMoreWork) {
+                scheduleForNextFrame = true
+                break
+            }
+        }
+        return scheduleForNextFrame
+    }
+
+    private fun runOldBehavior() {
         val viewDrawTimeNanos = TimeUnit.MILLISECONDS.toNanos(view.drawingTime)
 
         // enter idle mode if the last time we draw was 2 frames ago.
@@ -157,9 +235,9 @@ internal class AndroidPrefetchScheduler(private val view: View) :
         while (prefetchRequests.isNotEmpty() && !scheduleForNextFrame) {
             scheduleForNextFrame =
                 if (scope.isFrameIdle) {
-                    trace("compose:lazy:prefetch:idle_frame") { runRequest() }
+                    trace("compose:lazy:prefetch:idle_frame") { runRequestOld() }
                 } else {
-                    runRequest()
+                    runRequestOld()
                 }
         }
 
@@ -174,6 +252,16 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 
     private fun runRequest(): Boolean {
+        // at this point we know that prefetchRequests is not empty.
+        val request = prefetchRequests.peek()!!.request
+        val hasMoreWorkToDo = with(request) { scope.execute() }
+        if (!hasMoreWorkToDo) {
+            prefetchRequests.poll()
+        }
+        return hasMoreWorkToDo
+    }
+
+    private fun runRequestOld(): Boolean {
         var scheduleForNextFrame = false
         val availableTimeNanos = scope.availableTimeNanos()
         traceValue("compose:lazy:prefetch:available_time_nanos", availableTimeNanos)
@@ -234,22 +322,18 @@ internal class AndroidPrefetchScheduler(private val view: View) :
     }
 
     class PrefetchRequestScopeImpl() : PrefetchRequestScope {
-
-        /**
-         * If the [PrefetchRequest] execution can do "overtime". Overtime here means more time than
-         * what is available in this frame. If this is true, it [availableTimeNanos] will return
-         * [Long.MAX_VALUE] indicating that any time constraints taken into consideration to execute
-         * this will request will be ignored.
-         */
         var isFrameIdle: Boolean = false
-
         var nextFrameTimeNs: Long = 0L
 
         override fun availableTimeNanos() =
-            if (isFrameIdle) {
-                Long.MAX_VALUE
-            } else {
+            if (ComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
                 max(0, nextFrameTimeNs - System.nanoTime())
+            } else {
+                if (isFrameIdle) {
+                    Long.MAX_VALUE
+                } else {
+                    max(0, nextFrameTimeNs - System.nanoTime())
+                }
             }
     }
 
