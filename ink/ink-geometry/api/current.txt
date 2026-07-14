@@ -270,6 +270,7 @@ package androidx.ink.geometry {
 
   public final class MutableAffineTransform extends androidx.ink.geometry.AffineTransform {
     ctor public MutableAffineTransform();
+    ctor public MutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
     method public operator boolean equals(Object? other);
     method public androidx.ink.geometry.MutableAffineTransform populateFrom(androidx.ink.geometry.AffineTransform input);
     method public androidx.ink.geometry.MutableAffineTransform populateFromIdentity();
