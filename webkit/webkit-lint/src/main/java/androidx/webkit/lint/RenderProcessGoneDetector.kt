@@ -95,8 +95,7 @@ class RenderProcessGoneDetector : Detector(), SourceCodeScanner {
                         Implementation(RenderProcessGoneDetector::class.java, Scope.JAVA_FILE_SCOPE),
                 )
                 .addMoreInfo(
-                    "https://developer.android.com/reference/android/webkit/WebViewClient#onRenderProcessGone(" +
-                        "android.webkit.WebView,%20android.webkit.RenderProcessGoneDetail"
+                    "https://developer.android.com/develop/ui/views/layout/webapps/handle-termination"
                 )
     }
 }
