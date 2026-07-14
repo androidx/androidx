@@ -46,7 +46,6 @@ private constructor(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableParallelogram =
         ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
             center.toImmutable(),

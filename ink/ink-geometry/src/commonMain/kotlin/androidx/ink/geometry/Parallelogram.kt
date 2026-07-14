@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import kotlin.math.abs
 
 /**
@@ -120,7 +119,6 @@ public abstract class Parallelogram internal constructor() {
      * [Parallelogram] is immutable, the returned [ImmutableParallelogram] will be the same
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableParallelogram
 
     /**

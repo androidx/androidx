@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmStatic
 import kotlin.math.atan2
@@ -38,7 +37,6 @@ private constructor(
     override val skew: Float,
 ) : Parallelogram() {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableParallelogram = this
 
     override fun equals(other: Any?): Boolean =

@@ -131,7 +131,6 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
         return outStrokeInput
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableStrokeInputBatch
 
     // Declared as a target for extension functions.
@@ -145,7 +144,6 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
 public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Long) :
     StrokeInputBatch(nativeAlloc) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun toImmutable(): ImmutableStrokeInputBatch = this
 
     public override fun toString(): String = "ImmutableStrokeInputBatch(size=$size)"
@@ -360,7 +358,6 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
     ): Unit = MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun toImmutable(): ImmutableStrokeInputBatch =
         if (isEmpty() && getNoiseSeed() == 0 && getBaseAnimationPhase() == 0.0f) {
             ImmutableStrokeInputBatch.EMPTY

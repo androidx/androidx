@@ -103,7 +103,6 @@ public constructor(
         m21 = values[5]
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableAffineTransform =
         if (this == AffineTransform.IDENTITY) {
             AffineTransform.IDENTITY
