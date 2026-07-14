@@ -738,10 +738,6 @@ internal class TextFieldDecoratorModifierNode(
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         textLayoutState.decoratorNodeCoordinates = coordinates
-
-        if (enabled) {
-            focusableNode.onGloballyPositioned(coordinates)
-        }
     }
 
     override fun onPointerEvent(
