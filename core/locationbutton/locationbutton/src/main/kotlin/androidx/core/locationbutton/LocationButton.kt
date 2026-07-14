@@ -27,6 +27,7 @@ import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
+import android.os.LocaleList
 import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceView
@@ -135,6 +136,31 @@ constructor(
                     activityResultLauncher = null
                 }
             }
+        }
+
+    /**
+     * Sets the [LocaleList] that should be used by the button.
+     *
+     * This controls the localized string resolution of the button. If null, the button will
+     * fallback to using the host [Context]'s configuration locales.
+     */
+    public var locales: LocaleList? = null
+        set(value) {
+            field = value
+            remoteDelegate?.changeConfiguration(effectiveConfiguration)
+            syncLocalButton()
+        }
+
+    @get:RestrictTo(LIBRARY_GROUP_PREFIX)
+    internal val effectiveConfiguration: Configuration
+        get() {
+            val currentLocales = locales
+            if (currentLocales == null || currentLocales.isEmpty) {
+                return context.resources.configuration
+            }
+            val config = Configuration(context.resources.configuration)
+            config.setLocales(currentLocales)
+            return config
         }
 
     /** Once initialized, can't add more views. */
@@ -385,6 +411,7 @@ constructor(
             maxLines = maxLines,
             textAllCaps = textAllCaps,
             includeFontPadding = includeFontPadding,
+            locales = locales,
         )
     }
 

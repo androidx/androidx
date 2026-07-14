@@ -21,10 +21,12 @@ import android.app.permissionui.LocationButtonProvider
 import android.app.permissionui.LocationButtonProviderFactory
 import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.IBinder
+import android.os.LocaleList
 import android.view.SurfaceView
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
@@ -230,7 +232,7 @@ internal fun RemoteLocationButton(
 
             val request = requestBuilder.build()
 
-            sessionState.initialize(request)
+            sessionState.initialize(request, configuration)
 
             provider.openSession(
                 activity,
@@ -273,6 +275,12 @@ internal fun RemoteLocationButton(
             },
             update = { view ->
                 openedSession?.let { session ->
+                    val currentLocales = configuration.locales
+                    if (currentLocales != sessionState.locales) {
+                        session.changeConfiguration(configuration)
+                        sessionState.locales = currentLocales
+                    }
+
                     if (widthPx != sessionState.width || heightPx != sessionState.height) {
                         session.resize(widthPx, heightPx)
                         sessionState.width = widthPx
@@ -369,8 +377,9 @@ private class SessionState(
     var textType: Int = -1,
     var textColor: Color = Color.Unspecified,
     var compositionOrder: Int = LocationButtonDefaults.defaultCompositionOrder,
+    var locales: LocaleList? = null,
 ) {
-    fun initialize(request: LocationButtonRequest) {
+    fun initialize(request: LocationButtonRequest, config: Configuration) {
         this.width = request.width
         this.height = request.height
         this.paddingLeft = request.paddingLeft
@@ -385,6 +394,7 @@ private class SessionState(
         this.iconTint = Color(request.iconTint)
         this.textType = request.textType
         this.textColor = Color(request.textColor)
+        this.locales = config.locales
     }
 }
 
