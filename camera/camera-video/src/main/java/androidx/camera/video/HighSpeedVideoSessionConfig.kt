@@ -154,6 +154,8 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:Nullable
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:Nullable
         @set:JvmSynthetic
         public var preview: Preview?
             get() = _preview
@@ -169,6 +171,8 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:NonNull
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:NonNull
         @set:JvmSynthetic
         public var frameRateRange: Range<Int>
             get() = _frameRateRange
@@ -184,6 +188,8 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:NonNull
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:NonNull
         @set:JvmSynthetic
         public var isSlowMotionEnabled: Boolean
             get() = _isSlowMotionEnabled
@@ -199,6 +205,8 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:NonNull
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:NonNull
         @set:JvmSynthetic
         public var isAutoRotationEnabled: Boolean
             get() = _isAutoRotationEnabled
