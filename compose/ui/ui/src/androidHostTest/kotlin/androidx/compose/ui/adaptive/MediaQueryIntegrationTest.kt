@@ -281,7 +281,10 @@ class MediaQueryIntegrationTest {
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), true).build()
 
         rule.runOnIdle {
-            composeView.insetsListener.onApplyWindowInsets(composeView, insetsVisible)
+            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
+                composeView,
+                insetsVisible,
+            )
         }
         rule.waitForIdle()
         assertTrue(result)
@@ -289,7 +292,12 @@ class MediaQueryIntegrationTest {
         val insetsHidden =
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), false).build()
 
-        rule.runOnIdle { composeView.insetsListener.onApplyWindowInsets(composeView, insetsHidden) }
+        rule.runOnIdle {
+            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
+                composeView,
+                insetsHidden,
+            )
+        }
         rule.waitForIdle()
         assertFalse(result)
     }
@@ -321,7 +329,12 @@ class MediaQueryIntegrationTest {
 
         val insets =
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), true).build()
-        rule.runOnIdle { composeView.insetsListener.onApplyWindowInsets(composeView, insets) }
+        rule.runOnIdle {
+            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
+                composeView,
+                insets,
+            )
+        }
         rule.waitForIdle()
         assertTrue(result)
 

@@ -125,4 +125,14 @@ object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAccessibilityPerformanceEnabled: Boolean = true
+
+    /**
+     * If enabled, WindowInsetsRulers interactions will use the delayed-initialization path to
+     * improve ComposeView startup time. If disabled, the immediate-initialization path is used
+     * instead.
+     */
+    // TODO: Remove this flag once it has soaked (b/531596705)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isDelayedWindowInsetsRulersEnabled: Boolean = true
 }
