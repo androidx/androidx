@@ -81,7 +81,6 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      *
      * This includes clearing or resetting any existing inputs, mesh data, and updated region.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun clear() {
         InProgressStrokeNative.clear(nativePointer)
         this.brush = null
