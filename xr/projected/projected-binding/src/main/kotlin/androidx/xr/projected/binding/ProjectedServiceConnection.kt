@@ -107,16 +107,15 @@ public class ProjectedServiceConnection(
         return withTimeout(SERVICE_CONNECTION_TIMEOUT_MS) { serviceDeferred.await() }
     }
 
-    /**
-     * Disconnects from the [IProjectedService] by unbinding it.
-     *
-     * @throws IllegalStateException if the service connection is null.
-     */
+    /** Disconnects from the [IProjectedService] by unbinding it. */
     public fun disconnect() {
+        val connection = projectedServiceConnection ?: return
         _isServiceConnected.tryEmit(false)
-        context.unbindService(
-            checkNotNull(projectedServiceConnection, { "Service connection is null" })
-        )
+        try {
+            context.unbindService(connection)
+        } catch (_: IllegalArgumentException) {
+            // Service may have already been unbound by the OS or disconnected during standby.
+        }
         projectedServiceBinder?.unlinkToDeath(projectedServiceDeathRecipient, /* flags= */ 0)
         projectedServiceBinder = null
         projectedServiceConnection = null
