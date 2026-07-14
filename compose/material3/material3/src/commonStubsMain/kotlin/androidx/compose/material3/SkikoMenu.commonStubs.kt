@@ -65,6 +65,3 @@ internal actual fun DropdownMenuPopupImpl(
     properties: PopupProperties,
     content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
-
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-internal actual val DefaultMenuProperties: PopupProperties = implementedInJetBrainsFork()

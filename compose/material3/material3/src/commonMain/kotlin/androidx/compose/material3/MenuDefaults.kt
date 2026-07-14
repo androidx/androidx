@@ -177,7 +177,10 @@ object MenuDefaults {
      */
     val HorizontalDividerPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
 
-    /** The default horizontal padding for a menu group label. Please see [MenuDefaults.Label]. */
+    /**
+     * The default horizontal padding for a menu group label. Please see
+     * [MenuDefaults.DropdownMenuGroupLabel].
+     */
     val DropdownMenuGroupLabelHorizontalPadding = PaddingValues(start = 12.dp, end = 4.dp)
 
     /**
@@ -294,29 +297,6 @@ object MenuDefaults {
      *
      * Labels can be used to categorize parts of the group or the entire group
      *
-     * @param contentAlignment the alignment of the label's content.
-     * @param padding the padding applied to the label's content.
-     * @param content the content of the label.
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun Label(
-        contentAlignment: Alignment = Alignment.CenterStart,
-        padding: PaddingValues = DropdownMenuGroupLabelHorizontalPadding,
-        content: @Composable () -> Unit,
-    ) =
-        DropdownMenuGroupLabel(
-            modifier = Modifier,
-            contentAlignment = contentAlignment,
-            padding = padding,
-            content = content,
-        )
-
-    /**
-     * The default label recommended to be used within a [DropdownMenuGroup].
-     *
-     * Labels can be used to categorize parts of the group or the entire group
-     *
      * @param modifier the [Modifier] to be applied to this label.
      * @param contentAlignment the alignment of the label's content.
      * @param padding the padding applied to the label's content.
@@ -358,20 +338,6 @@ object MenuDefaults {
             } else {
                 PaddingValues(all = 0.dp)
             }
-
-    /**
-     * The default trailing label recommended to be used within a [DropdownMenuItem] which can be
-     * passed to its trailingIcon param.
-     *
-     * @param padding the padding applied to the label's content.
-     * @param content the content of the label.
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun DropdownMenuItemTrailingLabel(
-        padding: PaddingValues = DropdownMenuItemTrailingLabelHorizontalPadding,
-        content: @Composable () -> Unit,
-    ) = DropdownMenuItemTrailingLabel(modifier = Modifier, padding = padding, content = content)
 
     /**
      * The default trailing label recommended to be used within a [DropdownMenuItem] which can be
@@ -427,58 +393,6 @@ object MenuDefaults {
 
     /**
      * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
-     * in a standard color variant [DropdownMenuItem].
-     *
-     * @param textColor the text color of this [DropdownMenuItem] when enabled
-     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
-     *   unselected
-     * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
-     * @param trailingIconColor the trailing icon color of this [DropdownMenuItem] when enabled
-     * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
-     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
-     *   enabled
-     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItem] when not
-     *   enabled
-     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
-     *   selected
-     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
-     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun selectableItemColors(
-        textColor: Color = Color.Unspecified,
-        containerColor: Color = Color.Unspecified,
-        leadingIconColor: Color = Color.Unspecified,
-        trailingIconColor: Color = Color.Unspecified,
-        disabledTextColor: Color = Color.Unspecified,
-        disabledLeadingIconColor: Color = Color.Unspecified,
-        disabledTrailingIconColor: Color = Color.Unspecified,
-        selectedContainerColor: Color = Color.Unspecified,
-        selectedTextColor: Color = Color.Unspecified,
-        selectedLeadingIconColor: Color = Color.Unspecified,
-        selectedTrailingIconColor: Color = Color.Unspecified,
-    ): MenuItemColors =
-        selectableItemColors(
-            textColor = textColor,
-            containerColor = containerColor,
-            leadingIconColor = leadingIconColor,
-            trailingIconColor = trailingIconColor,
-            disabledTextColor = disabledTextColor,
-            disabledContainerColor = Color.Unspecified,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            selectedContainerColor = selectedContainerColor,
-            selectedTextColor = selectedTextColor,
-            selectedLeadingIconColor = selectedLeadingIconColor,
-            selectedTrailingIconColor = selectedTrailingIconColor,
-        )
-
-    /**
-     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
      * in a standard color variant [DropdownMenuItem]. This uses the Color.Unspecified to mean “use
      * the value from the source”
      *
@@ -524,58 +438,6 @@ object MenuDefaults {
             trailingIconColor = trailingIconColor,
             disabledTextColor = disabledTextColor,
             disabledContainerColor = disabledContainerColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            selectedContainerColor = selectedContainerColor,
-            selectedTextColor = selectedTextColor,
-            selectedLeadingIconColor = selectedLeadingIconColor,
-            selectedTrailingIconColor = selectedTrailingIconColor,
-        )
-
-    /**
-     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
-     * in a vibrant color variant [DropdownMenuItem].
-     *
-     * @param textColor the text color of this [DropdownMenuItem] when enabled
-     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
-     *   unselected
-     * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
-     * @param trailingIconColor the trailing icon color of this [DropdownMenuItem] when enabled
-     * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
-     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
-     *   enabled
-     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItem] when not
-     *   enabled
-     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
-     *   selected
-     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
-     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     * @param selectedTrailingIconColor the trailing icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     */
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun selectableItemVibrantColors(
-        textColor: Color = Color.Unspecified,
-        containerColor: Color = Color.Unspecified,
-        leadingIconColor: Color = Color.Unspecified,
-        trailingIconColor: Color = Color.Unspecified,
-        disabledTextColor: Color = Color.Unspecified,
-        disabledLeadingIconColor: Color = Color.Unspecified,
-        disabledTrailingIconColor: Color = Color.Unspecified,
-        selectedContainerColor: Color = Color.Unspecified,
-        selectedTextColor: Color = Color.Unspecified,
-        selectedLeadingIconColor: Color = Color.Unspecified,
-        selectedTrailingIconColor: Color = Color.Unspecified,
-    ): MenuItemColors =
-        selectableItemVibrantColors(
-            textColor = textColor,
-            containerColor = containerColor,
-            leadingIconColor = leadingIconColor,
-            trailingIconColor = trailingIconColor,
-            disabledTextColor = disabledTextColor,
-            disabledContainerColor = Color.Unspecified,
             disabledLeadingIconColor = disabledLeadingIconColor,
             disabledTrailingIconColor = disabledTrailingIconColor,
             selectedContainerColor = selectedContainerColor,
