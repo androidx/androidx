@@ -267,8 +267,305 @@ class MovableModifierTest {
 
             val expectedPose = Pose(expectedTranslation, expectedRotation)
             assertPose(entity.getPose(Space.ACTIVITY), expectedPose, TOLERANCE)
-            assertThat(entity.parent).isInstanceOf(AnchorSpace::class.java)
+            assertIs<AnchorSpace>(entity.parent)
         }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_whenAnchoredToPlaneAndRecomposed_retainsPoseAndRotation() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var planeSemantics by mutableStateOf(setOf(PlaneSemantic.Any))
+            var panelSize by mutableStateOf(200.dp)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        modifier =
+                            SubspaceModifier.testTag("panel")
+                                .size(panelSize)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy =
+                                        MovePolicy.anchor(
+                                            anchorPlaneSemantics = planeSemantics,
+                                            anchorPlaneOrientations = setOf(PlaneOrientation.Any),
+                                        ),
+                                )
+                    ) {
+                        Text(text = "Spatial Panel")
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+            val anchoredPose = entity.getPose(Space.ACTIVITY)
+            val anchoredLocalPose = entity.getPose()
+
+            // Trigger modifier update and layout pass by changing semantics and size
+            planeSemantics = setOf(PlaneSemantic.Floor)
+            panelSize = 250.dp
+            composeTestRule.waitForIdle()
+
+            // Verify that the parent is still AnchorSpace, and the pose did not change
+            assertIs<AnchorSpace>(entity.parent)
+            assertPose(entity.getPose(Space.ACTIVITY), anchoredPose, TOLERANCE)
+            assertPose(entity.getPose(), anchoredLocalPose, TOLERANCE)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_whenAnchoredToPlaneInContainerAndRecomposed_retainsPoseAndRotation() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var planeSemantics by mutableStateOf(setOf(PlaneSemantic.Any))
+            var panelSize by mutableStateOf(200.dp)
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialRow(modifier = SubspaceModifier.testTag("row")) {
+                        SpatialPanel(
+                            modifier =
+                                SubspaceModifier.testTag("panel")
+                                    .size(panelSize)
+                                    .movable(
+                                        enabled = true,
+                                        movePolicy =
+                                            MovePolicy.anchor(
+                                                anchorPlaneSemantics = planeSemantics,
+                                                anchorPlaneOrientations =
+                                                    setOf(PlaneOrientation.Any),
+                                            ),
+                                    )
+                        ) {
+                            Text(text = "Spatial Panel")
+                        }
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            assertIs<AnchorSpace>(entity.parent)
+            val anchoredPose = entity.getPose(Space.ACTIVITY)
+            val anchoredLocalPose = entity.getPose()
+
+            // Trigger modifier update and layout pass by changing semantics and size
+            planeSemantics = setOf(PlaneSemantic.Floor)
+            panelSize = 250.dp
+            composeTestRule.waitForIdle()
+
+            // Verify that the parent is still AnchorSpace, and the pose did not change
+            assertIs<AnchorSpace>(entity.parent)
+            assertPose(entity.getPose(Space.ACTIVITY), anchoredPose, TOLERANCE)
+            assertPose(entity.getPose(), anchoredLocalPose, TOLERANCE)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_moveWithoutMatchingPlane_doesNotAnchorAndUpdatesPose() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var panelSize by mutableStateOf(200.dp)
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        modifier =
+                            SubspaceModifier.testTag("panel")
+                                .size(panelSize)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy =
+                                        MovePolicy.anchor(
+                                            anchorPlaneSemantics = setOf(PlaneSemantic.Floor),
+                                            anchorPlaneOrientations = setOf(PlaneOrientation.Any),
+                                        ),
+                                )
+                    ) {
+                        Text(text = "Spatial Panel")
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+
+            // Initiate move without matching plane added to runtime
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 1f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            // Verify entity is NOT anchored to AnchorSpace
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+
+            // Change panel size to trigger layout pass / recomposition
+            panelSize = 250.dp
+            composeTestRule.waitForIdle()
+
+            // Verify layout pose updates still apply when un-anchored
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMoveAnchorPolicy::class)
+    @Test
+    fun policyAnchor_anchoredEntityLosesTracking_unanchorsAndUpdatesPose() =
+        runTest(testDispatcher) {
+            val anchorTestSession = setupAnchorTestSession()
+            var panelSize by mutableStateOf(200.dp)
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        modifier =
+                            SubspaceModifier.testTag("panel")
+                                .size(panelSize)
+                                .movable(
+                                    enabled = true,
+                                    movePolicy =
+                                        MovePolicy.anchor(
+                                            anchorPlaneSemantics = setOf(PlaneSemantic.Any),
+                                            anchorPlaneOrientations = setOf(PlaneOrientation.Any),
+                                        ),
+                                )
+                    ) {
+                        Text(text = "Spatial Panel")
+                    }
+                }
+            }
+
+            val entity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("panel")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
+
+            val originalParent = entity.parent
+            addFloorPlaneToRuntime(
+                anchorTestSession.perceptionRuntime,
+                anchorTestSession.perceptionManager,
+            )
+
+            assertSingleMovableComponentExist()
+            val rtMovableComponent =
+                assertNotNull(anchorTestSession.sceneRuntime.lastMovableComponent)
+            val movePose = Pose(Vector3(2f, 0.01f, 3f), Quaternion.fromEulerAngles(20f, 30f, 45f))
+            initiateMoveEvents(rtMovableComponent, anchorTestSession.activitySpace, movePose)
+
+            // Verify entity is anchored to AnchorSpace
+            assertIs<AnchorSpace>(entity.parent)
+
+            // Simulate loss of tracking / unanchoring by restoring parent to non-AnchorSpace
+            entity.parent = originalParent
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+
+            // Trigger recomposition and layout pass by changing panel size
+            panelSize = 250.dp
+            composeTestRule.waitForIdle()
+
+            // Verify layout pose updates work again now that entity is un-anchored
+            assertThat(entity.parent).isNotInstanceOf(AnchorSpace::class.java)
+        }
+
+    private data class AnchorTestSession(
+        val session: Session,
+        val perceptionRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime,
+        val perceptionManager: androidx.xr.arcore.testing.FakePerceptionManager,
+        val sceneRuntime: FakeSceneRuntime,
+        val activitySpace: FakeActivitySpace,
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun setupAnchorTestSession(): AnchorTestSession {
+        val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+        val session = assertIs<SessionCreateSuccess>(sessionCreateResult).session
+        session.configure(
+            Config.Builder(session.config)
+                .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                .build()
+        )
+
+        // TODO: b/494305963 Remove references to arcore-testing Fakes
+        @Suppress("DEPRECATION")
+        val perceptionRuntime =
+            session.runtimes
+                .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
+                .single()
+        @Suppress("DEPRECATION") val perceptionManager = perceptionRuntime.perceptionManager
+
+        val sceneRuntime = session.runtimes.filterIsInstance<FakeSceneRuntime>().single()
+        val activitySpace = sceneRuntime.activitySpace
+        testDispatcher.scheduler.advanceUntilIdle()
+        return AnchorTestSession(
+            session,
+            perceptionRuntime,
+            perceptionManager,
+            sceneRuntime,
+            activitySpace,
+        )
+    }
+
+    // TODO: b/494305963 Remove references to arcore-testing Fakes
+    @Suppress("DEPRECATION")
+    private fun addFloorPlaneToRuntime(
+        perceptionRuntime: androidx.xr.arcore.testing.FakePerceptionRuntime,
+        perceptionManager: androidx.xr.arcore.testing.FakePerceptionManager,
+    ) {
+        val planeCenterPosition = Vector3(1f, 0f, 2f)
+        val planeRotation = Quaternion.fromAxisAngle(Vector3.Up, -45f)
+        val planePose = Pose(planeCenterPosition, planeRotation)
+        addPlaneToRuntime(
+            perceptionRuntime,
+            perceptionManager,
+            type = Plane.Type.HORIZONTAL_UPWARD_FACING,
+            label = Plane.Label.FLOOR,
+            centerPose = planePose,
+            extents = FloatSize2d(5f, 5f),
+        )
+    }
 
     // ========================================================================
     // TESTS FOR CUSTOM MOVABLE (LEGACY OVERLOAD)
