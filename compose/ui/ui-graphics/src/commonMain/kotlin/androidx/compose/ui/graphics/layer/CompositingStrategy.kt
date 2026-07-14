@@ -39,7 +39,8 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * [androidx.compose.ui.graphics.RenderEffect] on the graphicsLayer will also render into an
          * intermediate offscreen buffer before being drawn into the destination.
          */
-        val Auto = CompositingStrategy(0)
+        val Auto
+            get() = CompositingStrategy(0)
 
         /**
          * Rendering of content will always be rendered into an offscreen buffer first then drawn to
@@ -48,7 +49,8 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * the contents can be drawn into this graphics layer and masked out by drawing additional
          * shapes with [androidx.compose.ui.graphics.BlendMode.Clear]
          */
-        val Offscreen = CompositingStrategy(1)
+        val Offscreen
+            get() = CompositingStrategy(1)
 
         /**
          * Modulates alpha for each of the drawing instructions recorded within the graphicsLayer.
@@ -59,6 +61,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * layer and alpha is applied. This should only be used if the contents of the layer are
          * known well in advance and are expected to not be overlapping.
          */
-        val ModulateAlpha = CompositingStrategy(2)
+        val ModulateAlpha
+            get() = CompositingStrategy(2)
     }
 }

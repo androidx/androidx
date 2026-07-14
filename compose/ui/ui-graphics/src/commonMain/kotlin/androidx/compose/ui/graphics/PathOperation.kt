@@ -39,7 +39,9 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [ReverseDifference], which is the same but subtracting the first path from the second.
          */
-        val Difference = PathOperation(0)
+        val Difference
+            get() = PathOperation(0)
+
         /**
          * Create a new path that is the intersection of the two paths, leaving the overlapping
          * pieces of the path.
@@ -50,7 +52,8 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Xor], which is the inverse of this operation
          */
-        val Intersect = PathOperation(1)
+        val Intersect
+            get() = PathOperation(1)
 
         /**
          * Create a new path that is the union (inclusive-or) of the two paths.
@@ -59,7 +62,8 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * centers, the result would be a figure-eight like shape matching the outer boundaries of
          * both circles.
          */
-        val Union = PathOperation(2)
+        val Union
+            get() = PathOperation(2)
 
         /**
          * Create a new path that is the exclusive-or of the two paths, leaving everything but the
@@ -71,7 +75,8 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Intersect], which is the inverse of this operation
          */
-        val Xor = PathOperation(3)
+        val Xor
+            get() = PathOperation(3)
 
         /**
          * Subtract the first path from the second path.
@@ -83,7 +88,8 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Difference], which is the same but subtracting the second path from the first.
          */
-        val ReverseDifference = PathOperation(4)
+        val ReverseDifference
+            get() = PathOperation(4)
     }
 
     override fun toString() =

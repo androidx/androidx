@@ -42,7 +42,8 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * point closest to that region.
          * ![TileMode.Clamp](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_clamp.png)
          */
-        val Clamp = TileMode(0)
+        val Clamp
+            get() = TileMode(0)
 
         /**
          * Edge is repeated from first color to last.
@@ -52,7 +53,8 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * etc).
          * ![TileMode.Repeated](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_repeated.png)
          */
-        val Repeated = TileMode(1)
+        val Repeated
+            get() = TileMode(1)
 
         /**
          * Edge is mirrored from last color to first. This is as if the stop points from 0.0 to 1.0
@@ -61,14 +63,16 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * in the negative direction).
          * ![TileMode.Mirror](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_mirror.png)
          */
-        val Mirror = TileMode(2)
+        val Mirror
+            get() = TileMode(2)
 
         /**
          * Render the shader's image pixels only within its original bounds. If the shader draws
          * outside of its original bounds, transparent black is drawn instead.
          * ![TileMode.Decal](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_decal.png)
          */
-        val Decal = TileMode(3)
+        val Decal
+            get() = TileMode(3)
     }
 
     override fun toString() =

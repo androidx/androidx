@@ -468,7 +468,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
          * Epsilon is the difference between 1.0 and the next value representable by a
          * half-precision floating-point.
          */
-        val Epsilon = Float16(0x1400.toShort())
+        val Epsilon
+            get() = Float16(0x1400.toShort())
 
         /** Maximum exponent a finite half-precision float may have. */
         const val MaxExponent = 15
@@ -476,23 +477,40 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         const val MinExponent = -14
 
         /** Smallest negative value a half-precision float may have. */
-        val LowestValue = Float16(0xfbff.toShort())
+        val LowestValue
+            get() = Float16(0xfbff.toShort())
+
         /** Maximum positive finite value a half-precision float may have. */
-        val MaxValue = Float16(0x7bff.toShort())
+        val MaxValue
+            get() = Float16(0x7bff.toShort())
+
         /** Smallest positive normal value a half-precision float may have. */
-        val MinNormal = Float16(0x0400.toShort())
+        val MinNormal
+            get() = Float16(0x0400.toShort())
+
         /** Smallest positive non-zero value a half-precision float may have. */
-        val MinValue = Float16(0x0001.toShort())
+        val MinValue
+            get() = Float16(0x0001.toShort())
+
         /** A Not-a-Number representation of a half-precision float. */
-        val NaN = Float16(0x7e00.toShort())
+        val NaN
+            get() = Float16(0x7e00.toShort())
+
         /** Negative infinity of type half-precision float. */
-        val NegativeInfinity = Float16(0xfc00.toShort())
+        val NegativeInfinity
+            get() = Float16(0xfc00.toShort())
+
         /** Negative 0 of type half-precision float. */
-        val NegativeZero = Float16(0x8000.toShort())
+        val NegativeZero
+            get() = Float16(0x8000.toShort())
+
         /** Positive infinity of type half-precision float. */
-        val PositiveInfinity = Float16(0x7c00.toShort())
+        val PositiveInfinity
+            get() = Float16(0x7c00.toShort())
+
         /** Positive 0 of type half-precision float. */
-        val PositiveZero = Float16(0x0000.toShort())
+        val PositiveZero
+            get() = Float16(0x0000.toShort())
     }
 }
 

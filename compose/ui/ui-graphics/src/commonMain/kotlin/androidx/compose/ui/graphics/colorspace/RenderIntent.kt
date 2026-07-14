@@ -36,13 +36,15 @@ value class RenderIntent internal constructor(@Suppress("unused") internal val v
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
-        val Perceptual = RenderIntent(0)
+        val Perceptual
+            get() = RenderIntent(0)
 
         /**
          * Similar to the [Absolute] render intent, this render intent matches the closest color in
          * the destination gamut but makes adjustments for the destination white point.
          */
-        val Relative = RenderIntent(1)
+        val Relative
+            get() = RenderIntent(1)
 
         /**
          * Attempts to maintain the relative saturation of colors from the source gamut to the
@@ -50,14 +52,16 @@ value class RenderIntent internal constructor(@Suppress("unused") internal val v
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
-        val Saturation = RenderIntent(2)
+        val Saturation
+            get() = RenderIntent(2)
 
         /**
          * Colors that are in the destination gamut are left unchanged. Colors that fall outside of
          * the destination gamut are mapped to the closest possible color within the gamut of the
          * destination color space (they are clipped).
          */
-        val Absolute = RenderIntent(3)
+        val Absolute
+            get() = RenderIntent(3)
     }
 
     override fun toString() =
