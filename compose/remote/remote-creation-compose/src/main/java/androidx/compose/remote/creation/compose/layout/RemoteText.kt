@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -149,6 +151,8 @@ public fun RemoteText(
         maxLines = maxLines,
         letterSpacing = letterSpacing,
         lineHeightMultiply = lineHeightMultiply,
+        lineBreak = style.lineBreak,
+        hyphens = style.hyphens,
         textDecoration = style.textDecoration,
         fontVariationSettings = fontVariationSettings,
     )
@@ -174,6 +178,8 @@ public fun RemoteText(
     letterSpacing: RemoteFloat = 0f.rf,
     lineHeightAdd: Float? = null,
     lineHeightMultiply: RemoteFloat = 1f.rf,
+    lineBreak: LineBreak = LineBreak.Unspecified,
+    hyphens: Hyphens = Hyphens.Unspecified,
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
@@ -212,6 +218,8 @@ public fun RemoteText(
             set(lineHeightAdd) { this.lineHeightAdd = it }
             set(lineHeightMultiply) { this.lineHeightMultiply = it }
             set(textDecoration ?: TextDecoration.None) { this.textDecoration = it }
+            set(lineBreak) { this.lineBreak = it }
+            set(hyphens) { this.hyphens = it }
             set(fontVariationSettings) { this.fontVariationSettings = it }
         },
     )
@@ -234,6 +242,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var lineHeightAdd: Float? = null
     var lineHeightMultiply: RemoteFloat = 1f.rf
     var textDecoration: TextDecoration = TextDecoration.None
+    var lineBreak: LineBreak = LineBreak.Unspecified
+    var hyphens: Hyphens = Hyphens.Unspecified
     var fontVariationSettings: FontVariation.Settings? = null
 
     private fun extractFontSettings(
@@ -309,8 +319,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
             letterSpacingId,
             lineHeightAdd ?: 0f,
             lineHeightMultiplyId,
-            0, // lineBreakStrategy
-            0, // hyphenationFrequency
+            lineBreak.encode(),
+            hyphens.encode(),
             0, // justificationMode
             textDecoration.contains(TextDecoration.Underline),
             textDecoration.contains(TextDecoration.LineThrough),
