@@ -365,7 +365,7 @@ expect fun DropdownMenuItem(
  *   list.
  * @param modifier the [Modifier] to be applied to this menu item.
  * @param leadingIcon optional leading icon to be displayed when the item is unchecked.
- * @param trailingIcon optional trailing icon to be displayed at the end of the item's text.
+ * @param trailingContent optional trailing content to be displayed at the end of the item's text.
  * @param supportingText optional supporting text of the menu item.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
  *   not respond to user input.
@@ -375,6 +375,7 @@ expect fun DropdownMenuItem(
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
  */
+@JvmName("DropdownMenuItemNew")
 @Composable
 fun DropdownMenuItem(
     onClick: () -> Unit,
@@ -382,7 +383,7 @@ fun DropdownMenuItem(
     shape: Shape,
     modifier: Modifier = Modifier,
     leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
     colors: MenuItemColors = MenuDefaults.itemColors(),
@@ -398,11 +399,71 @@ fun DropdownMenuItem(
         modifier = modifier.semantics { role = Role.Button },
         supportingText = supportingText,
         leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
+        trailingContent = trailingContent,
         selectedLeadingIcon = null,
         enabled = enabled,
         colors = colors,
         shapes = MenuDefaults.itemShapes(shape = shape),
+        horizontalArrangement = horizontalArrangement,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    )
+}
+
+/**
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
+ *
+ * Menus display a list of choices on a temporary surface. They appear when users interact with a
+ * button, action, or other control.
+ *
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/exposed-dropdown-menu-selectable-items.png)
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.material3.samples.GroupedMenuSample
+ * @param onClick called when this menu item is clicked
+ * @param text text of the menu item
+ * @param shape [Shape] of this menu item
+ * @param modifier the [Modifier] to be applied to this menu item
+ * @param leadingIcon optional leading icon to be displayed when the item is unchecked
+ * @param trailingIcon optional trailing icon to be displayed at the end of the item's text
+ * @param supportingText optional supporting text of the menu item
+ * @param enabled controls the enabled state of this menu item
+ * @param colors [MenuItemColors] that will be used to resolve the colors for this menu item
+ * @param horizontalArrangement the horizontal arrangement of the menu item's children
+ * @param contentPadding the padding applied to the content of this menu item
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this menu item
+ */
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@JvmName("DropdownMenuItem")
+@Composable
+fun DropdownMenuItemLegacy(
+    onClick: () -> Unit,
+    text: @Composable () -> Unit,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: MenuItemColors = MenuDefaults.itemColors(),
+    horizontalArrangement: Arrangement.Horizontal =
+        MenuDefaults.DropdownMenuItemHorizontalArrangement,
+    contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    DropdownMenuItem(
+        onClick = onClick,
+        text = text,
+        shape = shape,
+        modifier = modifier.semantics { role = Role.Button },
+        supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        trailingContent = trailingIcon,
+        enabled = enabled,
+        colors = colors,
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -437,7 +498,7 @@ fun DropdownMenuItem(
  * @param modifier the [Modifier] to be applied to this menu item.
  * @param leadingIcon optional leading icon to be displayed when the item is unchecked.
  * @param checkedLeadingIcon optional leading icon to be displayed when the item is checked.
- * @param trailingIcon optional trailing icon to be displayed at the end of the item's text.
+ * @param trailingContent optional trailing content to be displayed at the end of the item's text.
  * @param supportingText optional supporting text of the menu item.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
  *   not respond to user input.
@@ -449,8 +510,80 @@ fun DropdownMenuItem(
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
  */
+@JvmName("DropdownMenuItemChecked")
 @Composable
 fun DropdownMenuItem(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    text: @Composable () -> Unit,
+    shapes: MenuItemShapes,
+    modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    checkedLeadingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    horizontalArrangement: Arrangement.Horizontal =
+        MenuDefaults.DropdownMenuItemHorizontalArrangement,
+    contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    DropdownMenuItemContent(
+        text = text,
+        selected = checked,
+        onClick = { onCheckedChange(!checked) },
+        modifier = modifier.semantics { role = Role.Checkbox },
+        supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        trailingContent = trailingContent,
+        selectedLeadingIcon = checkedLeadingIcon,
+        enabled = enabled,
+        colors = colors,
+        shapes = shapes,
+        horizontalArrangement = horizontalArrangement,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    )
+}
+
+/**
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
+ *
+ * Menus display a list of choices on a temporary surface. They appear when users interact with a
+ * button, action, or other control.
+ *
+ * A menu item that changes its styling depending on the [checked] state.
+ *
+ * This composable is suitable for menu items that represent an on/off setting, behaving like a
+ * checkbox or switch within the menu.
+ *
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/exposed-dropdown-menu-selectable-items.png)
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.material3.samples.GroupedMenuSample
+ * @param checked whether this menu item is currently checked
+ * @param onCheckedChange called when this menu item is clicked, with the new checked state
+ * @param text text of the menu item
+ * @param shapes [MenuItemShapes] that will be used to resolve the shapes for this menu item
+ * @param modifier the [Modifier] to be applied to this menu item
+ * @param leadingIcon optional leading icon to be displayed when the item is unchecked
+ * @param checkedLeadingIcon optional leading icon to be displayed when the item is checked
+ * @param trailingIcon optional trailing icon to be displayed at the end of the item's text
+ * @param supportingText optional supporting text of the menu item
+ * @param enabled controls the enabled state of this menu item
+ * @param colors [MenuItemColors] that will be used to resolve the colors for this menu item
+ * @param horizontalArrangement the horizontal arrangement of the menu item's children
+ * @param contentPadding the padding applied to the content of this menu item
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this menu item
+ */
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@JvmName("DropdownMenuItem")
+@Composable
+fun DropdownMenuItemLegacy(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     text: @Composable () -> Unit,
@@ -467,18 +600,18 @@ fun DropdownMenuItem(
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItemContent(
+    DropdownMenuItem(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
         text = text,
-        selected = checked,
-        onClick = { onCheckedChange(!checked) },
-        modifier = modifier.semantics { role = Role.Checkbox },
-        supportingText = supportingText,
+        shapes = shapes,
+        modifier = modifier,
         leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        selectedLeadingIcon = checkedLeadingIcon,
+        checkedLeadingIcon = checkedLeadingIcon,
+        trailingContent = trailingIcon,
+        supportingText = supportingText,
         enabled = enabled,
         colors = colors,
-        shapes = shapes,
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -513,7 +646,7 @@ fun DropdownMenuItem(
  * @param modifier the [Modifier] to be applied to this menu item.
  * @param leadingIcon optional leading icon to be displayed when the item is unchecked.
  * @param selectedLeadingIcon optional leading icon to be displayed when the item is selected.
- * @param trailingIcon optional trailing icon to be displayed at the end of the item's text.
+ * @param trailingContent optional trailing content to be displayed at the end of the item's text.
  * @param supportingText optional supporting text of the menu item.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
  *   not respond to user input.
@@ -525,8 +658,80 @@ fun DropdownMenuItem(
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this menu item.
  */
+@JvmName("DropdownMenuItemSelected")
 @Composable
 fun DropdownMenuItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: @Composable () -> Unit,
+    shapes: MenuItemShapes,
+    modifier: Modifier = Modifier,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    selectedLeadingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    horizontalArrangement: Arrangement.Horizontal =
+        MenuDefaults.DropdownMenuItemHorizontalArrangement,
+    contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    DropdownMenuItemContent(
+        text = text,
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier.semantics { role = Role.RadioButton },
+        supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        trailingContent = trailingContent,
+        selectedLeadingIcon = selectedLeadingIcon,
+        enabled = enabled,
+        colors = colors,
+        shapes = shapes,
+        horizontalArrangement = horizontalArrangement,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    )
+}
+
+/**
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
+ *
+ * Menus display a list of choices on a temporary surface. They appear when users interact with a
+ * button, action, or other control.
+ *
+ * A menu item that changes its styling depending on the [selected] state.
+ *
+ * This composable is suitable for menu items that represent an on/off setting, behaving like a
+ * radio button within the menu.
+ *
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/exposed-dropdown-menu-selectable-items.png)
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.material3.samples.ExposedDropdownMenuSample
+ * @param selected whether this menu item is currently selected
+ * @param onClick called when this menu item is clicked
+ * @param text text of the menu item
+ * @param shapes [MenuItemShapes] that will be used to resolve the shapes for this menu item
+ * @param modifier the [Modifier] to be applied to this menu item
+ * @param leadingIcon optional leading icon to be displayed when the item is unchecked
+ * @param selectedLeadingIcon optional leading icon to be displayed when the item is selected
+ * @param trailingIcon optional trailing icon to be displayed at the end of the item's text
+ * @param supportingText optional supporting text of the menu item
+ * @param enabled controls the enabled state of this menu item
+ * @param colors [MenuItemColors] that will be used to resolve the colors for this menu item
+ * @param horizontalArrangement the horizontal arrangement of the menu item's children
+ * @param contentPadding the padding applied to the content of this menu item
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this menu item
+ */
+@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@JvmName("DropdownMenuItem")
+@Composable
+fun DropdownMenuItemLegacy(
     selected: Boolean,
     onClick: () -> Unit,
     text: @Composable () -> Unit,
@@ -543,18 +748,18 @@ fun DropdownMenuItem(
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItemContent(
-        text = text,
+    DropdownMenuItem(
         selected = selected,
         onClick = onClick,
-        modifier = modifier.semantics { role = Role.RadioButton },
-        supportingText = supportingText,
+        text = text,
+        shapes = shapes,
+        modifier = modifier,
         leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
         selectedLeadingIcon = selectedLeadingIcon,
+        trailingContent = trailingIcon,
+        supportingText = supportingText,
         enabled = enabled,
         colors = colors,
-        shapes = shapes,
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -1411,7 +1616,7 @@ internal fun DropdownMenuItemContent(
     supportingText: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
     selectedLeadingIcon: @Composable (() -> Unit)?,
-    trailingIcon: @Composable (() -> Unit)?,
+    trailingContent: @Composable (() -> Unit)?,
     enabled: Boolean,
     colors: MenuItemColors,
     shapes: MenuItemShapes,
@@ -1434,7 +1639,7 @@ internal fun DropdownMenuItemContent(
     val itemShape = shapeByInteraction(shapes, selected, morphSpec)
 
     val hasLeadingIcon = leadingIcon != null || selectedLeadingIcon != null
-    val hasTrailingIcon = trailingIcon != null
+    val hasTrailingContent = trailingContent != null
 
     Surface(
         selected = selected,
@@ -1515,7 +1720,7 @@ internal fun DropdownMenuItemContent(
                     }
                 }
 
-                if (hasTrailingIcon) {
+                if (hasTrailingContent) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.trailingContentColor(enabled, selected)
                     ) {
@@ -1526,7 +1731,7 @@ internal fun DropdownMenuItemContent(
                                 ),
                             contentAlignment = Alignment.Center,
                         ) {
-                            trailingIcon()
+                            trailingContent()
                         }
                     }
                 }

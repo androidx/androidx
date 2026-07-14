@@ -652,6 +652,7 @@ object MenuDefaults {
         )
 
     /**
+     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
      * in a vibrant color variant [DropdownMenuItem]. This uses the Color.Unspecified to mean “use
      * the value from the source”
      *
