@@ -456,11 +456,18 @@ class MediaRoute2Provider extends MediaRouteProvider
     }
 
     abstract static class Callback {
-        public abstract void onSelectRoute(@NonNull String routeDescriptorId,
-                @MediaRouter.UnselectReason int reason);
-        public abstract void onSelectFallbackRoute(@MediaRouter.UnselectReason int reason);
+        public abstract void onSelectRoute(
+                @NonNull String routeDescriptorId,
+                @MediaRouter.UnselectReason int reason,
+                @SelectionInfo.SelectionSource int selectionSource);
 
-        public abstract void onReleaseController(@NonNull RouteController controller);
+        public abstract void onSelectFallbackRoute(
+                @MediaRouter.UnselectReason int reason,
+                @SelectionInfo.SelectionSource int selectionSource);
+
+        public abstract void onReleaseController(
+                @NonNull RouteController controller,
+                @SelectionInfo.SelectionSource int selectionSource);
     }
 
     private class RouteCallback extends MediaRouter2.RouteCallback {
@@ -495,10 +502,23 @@ class MediaRoute2Provider extends MediaRouteProvider
         @Override
         public void onTransfer(MediaRouter2.@NonNull RoutingController oldController,
                 MediaRouter2.@NonNull RoutingController newController) {
+            @SelectionInfo.SelectionSource int selectionSource;
+            if (Build.VERSION.SDK_INT >= 35) {
+                selectionSource = Api35Impl.getSelectionSource(newController);
+            } else {
+                // Before API 35, there's no way in MR2 to differentiate between provider-initiated
+                // transfers and system-initiated transfers. We consider it an app transfer if there
+                // is a pending transfer route.
+                selectionSource =
+                        mPendingTransferRouteId != null
+                                ? SelectionInfo.SELECTION_SOURCE_APP
+                                : SelectionInfo.SELECTION_SOURCE_SYSTEM;
+            }
             mPendingTransferRouteId = null;
+
             mControllerMap.remove(oldController);
             if (newController == mMediaRouter2.getSystemController()) {
-                mCallback.onSelectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED);
+                mCallback.onSelectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED, selectionSource);
             } else {
                 List<MediaRoute2Info> selectedRoutes = newController.getSelectedRoutes();
                 if (selectedRoutes.isEmpty()) {
@@ -509,7 +529,7 @@ class MediaRoute2Provider extends MediaRouteProvider
                 String routeId = selectedRoutes.get(0).getId();
                 GroupRouteController controller = new GroupRouteController(newController, routeId);
                 mControllerMap.put(newController, controller);
-                mCallback.onSelectRoute(routeId, UNSELECT_REASON_ROUTE_CHANGED);
+                mCallback.onSelectRoute(routeId, UNSELECT_REASON_ROUTE_CHANGED, selectionSource);
                 setDynamicRouteDescriptors(newController);
             }
         }
@@ -522,10 +542,15 @@ class MediaRoute2Provider extends MediaRouteProvider
 
         @Override
         public void onStop(MediaRouter2.@NonNull RoutingController routingController) {
+            @SelectionInfo.SelectionSource
+            int selectionSource = SelectionInfo.SELECTION_SOURCE_SYSTEM;
+            // We don't call stop() so it must be the system. There's the possibility of the app
+            // calling MediaRouter2.stop() directly, but in that case there's no API that would
+            // tell us that they blindsided AndroidX MediaRouter.
             mPendingTransferRouteId = null;
             RouteController routeController = mControllerMap.remove(routingController);
             if (routeController != null) {
-                mCallback.onReleaseController(routeController);
+                mCallback.onReleaseController(routeController, selectionSource);
             } else {
                 Log.w(TAG, "onStop: No matching routeController found. routingController="
                         + routingController);
@@ -897,6 +922,24 @@ class MediaRoute2Provider extends MediaRouteProvider
                 return;
             }
             mediaRouter2.unregisterDeviceSuggestionsUpdatesCallback(adapter);
+        }
+    }
+
+    @RequiresApi(35)
+    private static final class Api35Impl {
+        private Api35Impl() {}
+
+        static @SelectionInfo.SelectionSource int getSelectionSource(
+                MediaRouter2.RoutingController controller) {
+            int reason = controller.getRoutingSessionInfo().getTransferReason();
+            if (reason == android.media.RoutingSessionInfo.TRANSFER_REASON_APP) {
+                return SelectionInfo.SELECTION_SOURCE_APP;
+            } else if (reason == android.media.RoutingSessionInfo.TRANSFER_REASON_SYSTEM_REQUEST) {
+                return SelectionInfo.SELECTION_SOURCE_SYSTEM;
+            } else if (reason == android.media.RoutingSessionInfo.TRANSFER_REASON_FALLBACK) {
+                return SelectionInfo.SELECTION_SOURCE_PROVIDER;
+            }
+            return SelectionInfo.SELECTION_SOURCE_UNKNOWN;
         }
     }
 }

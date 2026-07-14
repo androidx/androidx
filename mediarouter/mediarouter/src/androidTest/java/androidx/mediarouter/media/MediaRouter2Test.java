@@ -457,6 +457,108 @@ public class MediaRouter2Test {
         waitForRouteUnselected(StubMediaRoute2ProviderService.ROUTE_ID_GROUP);
     }
 
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R, maxSdkVersion = 34)
+    public void routeSelection_mr2Transfer_api34AndBelow_reportsSystemAttribution()
+            throws Exception {
+        String mr2DescriptorId =
+                getMediaRoute2DescriptorId(StubMediaRoute2ProviderService.MR2_ROUTE_ID1);
+        waitForRoutesAdded(mr2DescriptorId);
+        assertNotNull(mRoutes);
+        CountDownLatch onRouteSelectedLatch = new CountDownLatch(1);
+        final SelectionInfo[] selectionInfoOut = new SelectionInfo[1];
+        MediaRouter.Callback callback =
+                new MediaRouter.Callback() {
+                    @Override
+                    public void onRouteSelected(
+                            @NonNull MediaRouter router,
+                            @NonNull RouteInfo selectedRoute,
+                            @NonNull RouteInfo requestedRoute,
+                            @NonNull SelectionInfo selectionInfo) {
+                        if (TextUtils.equals(
+                                selectedRoute.getDescriptorId(),
+                                StubMediaRoute2ProviderService.ROUTE_ID_GROUP)) {
+                            selectionInfoOut[0] = selectionInfo;
+                            onRouteSelectedLatch.countDown();
+                        }
+                    }
+                };
+        addCallback(callback);
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            // On APIs 34 and older, the lack of a transfer initiator reason means
+                            // AndroidX determines the source by tracking whether the transfer was
+                            // called by this app. That means that a transfer triggered directly
+                            // through MR2 (without going through AndroidX) is deemed a system
+                            // caused transfer.
+                            MediaRouter2 router2 = MediaRouter2.getInstance(mContext);
+                            for (android.media.MediaRoute2Info mr2Route : router2.getRoutes()) {
+                                if (TextUtils.equals(mr2Route.getId(), mr2DescriptorId)) {
+                                    router2.transferTo(mr2Route);
+                                    break;
+                                }
+                            }
+                        });
+        assertTrue(onRouteSelectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertNotNull(selectionInfoOut[0]);
+        assertEquals(
+                SelectionInfo.SELECTION_SOURCE_SYSTEM, selectionInfoOut[0].getSelectionSource());
+        waitForRouteUnselected(StubMediaRoute2ProviderService.ROUTE_ID_GROUP);
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 35)
+    public void routeSelection_mr2Transfer_api35AndAbove_reportsAppAttribution() throws Exception {
+        String mr2DescriptorId =
+                getMediaRoute2DescriptorId(StubMediaRoute2ProviderService.MR2_ROUTE_ID1);
+        waitForRoutesAdded(mr2DescriptorId);
+        assertNotNull(mRoutes);
+        CountDownLatch onRouteSelectedLatch = new CountDownLatch(1);
+        final SelectionInfo[] selectionInfoOut = new SelectionInfo[1];
+        MediaRouter.Callback callback =
+                new MediaRouter.Callback() {
+                    @Override
+                    public void onRouteSelected(
+                            @NonNull MediaRouter router,
+                            @NonNull RouteInfo selectedRoute,
+                            @NonNull RouteInfo requestedRoute,
+                            @NonNull SelectionInfo selectionInfo) {
+                        if (TextUtils.equals(
+                                selectedRoute.getDescriptorId(),
+                                StubMediaRoute2ProviderService.ROUTE_ID_GROUP)) {
+                            selectionInfoOut[0] = selectionInfo;
+                            onRouteSelectedLatch.countDown();
+                        }
+                    }
+                };
+        addCallback(callback);
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            // On API 35+ we can know that this was triggered by the app even when
+                            // not going through AndroidX MediaRouter, because the transfer reason
+                            // tells us the origin of the transfer.
+                            MediaRouter2 router2 = MediaRouter2.getInstance(mContext);
+                            for (android.media.MediaRoute2Info mr2Route : router2.getRoutes()) {
+                                if (TextUtils.equals(mr2Route.getId(), mr2DescriptorId)) {
+                                    router2.transferTo(mr2Route);
+                                    break;
+                                }
+                            }
+                        });
+        assertTrue(onRouteSelectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        assertNotNull(selectionInfoOut[0]);
+        assertEquals(SelectionInfo.SELECTION_SOURCE_APP, selectionInfoOut[0].getSelectionSource());
+        waitForRouteUnselected(StubMediaRoute2ProviderService.ROUTE_ID_GROUP);
+    }
+
     private void addCallback(MediaRouter.Callback callback) {
         getInstrumentation()
                 .runOnMainSync(
