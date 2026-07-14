@@ -73,6 +73,7 @@ package androidx.compose.ui {
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class AndroidComposeUiFlags {
     property public boolean isAccessibilityPerformanceEnabled;
     property public boolean isAlwaysScrollDuringScrollCaptureEnabled;
+    property public boolean isDelayedWindowInsetsRulersEnabled;
     property public boolean isExploreByTouchHoverHandled;
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isInteractionSoundEffectsEnabled;
@@ -83,6 +84,7 @@ package androidx.compose.ui {
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityPerformanceEnabled;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
+    field public static boolean isDelayedWindowInsetsRulersEnabled;
     field public static boolean isExploreByTouchHoverHandled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isInteractionSoundEffectsEnabled;

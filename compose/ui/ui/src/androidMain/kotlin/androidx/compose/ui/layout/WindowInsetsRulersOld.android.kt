@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,6 @@ import androidx.compose.ui.layout.WindowInsetsRulers.Companion.StatusBars
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.SystemGestures
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.TappableElement
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Waterfall
-import androidx.compose.ui.node.NodeCoordinator
-import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
@@ -84,7 +82,7 @@ internal class WindowWindowInsetsAnimationValues(name: String) : PlatformWindowI
 
 internal fun RulerScope.provideWindowInsetsRulers(rulerProvider: WindowInsetsRulerProvider) {
     val size = coordinates.size
-    val insetsValues = rulerProvider.insetsListener.insetsValues
+    val insetsValues = rulerProvider.insetsValues!!
     val (width, height) = size
     AnimatableInsetsRulers.forEach { rulers ->
         val values = insetsValues[rulers]!!
@@ -95,60 +93,22 @@ internal fun RulerScope.provideWindowInsetsRulers(rulerProvider: WindowInsetsRul
         }
         provideInsetsValues(rulers.maximum, values.maximum, width, height)
     }
-    val cutoutRects = rulerProvider.cutoutRects
+    val cutoutRects = rulerProvider.cutoutRects!!
     if (cutoutRects.isNotEmpty()) {
-        val cutoutRulers = rulerProvider.cutoutRulers
+        val cutoutRulers = rulerProvider.cutoutRulers!!
         cutoutRects.forEachIndexed { index, rectState ->
-            val rulers = cutoutRulers[index]
             val rect = rectState.value
-            rulers.left provides rect.left.toFloat()
-            rulers.top provides rect.top.toFloat()
-            rulers.right provides rect.right.toFloat()
-            rulers.bottom provides rect.bottom.toFloat()
+            val rulers = cutoutRulers[index]
+            val left = rect.left.toFloat()
+            val top = rect.top.toFloat()
+            val right = rect.right.toFloat()
+            val bottom = rect.bottom.toFloat()
+            rulers.left provides left
+            rulers.top provides top
+            rulers.right provides right
+            rulers.bottom provides bottom
         }
     }
-}
-
-internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope): List<RectRulers> {
-    var node = placementScope.coordinates?.findRootCoordinates() as? NodeCoordinator
-    while (node != null) {
-        node.visitNodes(Nodes.Traversable) { traversableNode ->
-            if (traversableNode.traverseKey === RulerKey) {
-                return (traversableNode as WindowInsetsRulerProvider).cutoutRulers
-            }
-        }
-        node = node.wrapped
-    }
-    return emptyList() // it hasn't been set on the root node
-}
-
-internal actual fun findInsetsAnimationProperties(
-    placementScope: Placeable.PlacementScope,
-    windowInsetsRulers: WindowInsetsRulers,
-): WindowInsetsAnimation {
-    var node = placementScope.coordinates?.findRootCoordinates() as? NodeCoordinator
-    while (node != null) {
-        node.visitNodes(Nodes.Traversable) { traversableNode ->
-            if (traversableNode.traverseKey === RulerKey) {
-                return (traversableNode as WindowInsetsRulerProvider)
-                    .insetsValues[windowInsetsRulers] ?: NoWindowInsetsAnimation
-            }
-        }
-        node = node.wrapped
-    }
-    return NoWindowInsetsAnimation // nothing set
-}
-
-internal const val RulerKey = "androidx.compose.ui.layout.WindowInsetsRulers"
-
-internal interface WindowInsetsRulerProvider {
-    val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>
-
-    val cutoutRulers: List<RectRulers>
-
-    val insetsListener: InsetsListener
-
-    val cutoutRects: MutableObjectList<MutableState<Rect>>
 }
 
 /** Provide values for a [RectRulers]. */
