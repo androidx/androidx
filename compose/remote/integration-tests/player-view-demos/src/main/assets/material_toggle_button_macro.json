@@ -1,0 +1,142 @@
+{
+  "header": {
+    "profiles": 513
+  },
+  "resources": {
+    "integers": [
+      { "count": 0 }
+    ]
+  },
+  "root": [
+    {
+      "definePattern": {
+        "name": "CounterButton",
+        "parameters": ["targetVar", "expression", "label", "buttonColor"],
+        "children": [
+          {
+            "box": {
+              "horizontalAlignment": "center",
+              "verticalAlignment": "center",
+              "modifiers": [
+                { "width": 80 },
+                { "height": 56 },
+                { "clip": { "roundedRect": 16 } },
+                { "background": "@buttonColor" },
+                "ripple",
+                {
+                  "onClick": {
+                    "type": "valueIntegerExpressionChange",
+                    "target": "@targetVar",
+                    "expression": "@expression"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "text": {
+                    "value": "@label",
+                    "fontSize": 18,
+                    "color": "#FFFFFF"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "column": {
+        "horizontalAlignment": "center",
+        "verticalAlignment": "center",
+        "modifiers": [
+          "fillMaxSize",
+          { "background": "#121212" },
+          { "padding": 24 },
+          { "spacedBy": 32 }
+        ],
+        "children": [
+          {
+            "box": {
+              "horizontalAlignment": "center",
+              "verticalAlignment": "center",
+              "modifiers": [
+                { "width": 280 },
+                { "height": 140 },
+                { "clip": { "roundedRect": 20 } },
+                { "background": "#1E1E2E" },
+                { "padding": 16 }
+              ],
+              "children": [
+                {
+                  "column": {
+                    "horizontalAlignment": "center",
+                    "verticalAlignment": "center",
+                    "modifiers": [
+                      { "spacedBy": 8 }
+                    ],
+                    "children": [
+                      {
+                        "text": {
+                          "value": "COUNTER",
+                          "fontSize": 14,
+                          "color": "#A0A0B0"
+                        }
+                      },
+                      {
+                        "text": {
+                          "textFromFloat": {
+                            "value": "@vars.count",
+                            "whole": 1,
+                            "decimal": 0
+                          },
+                          "fontSize": 64,
+                          "color": "#FFFFFF"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "row": {
+              "horizontalAlignment": "center",
+              "verticalAlignment": "center",
+              "modifiers": [
+                { "spacedBy": 16 }
+              ],
+              "children": [
+                {
+                  "CounterButton": {
+                    "targetVar": "@vars.count",
+                    "expression": "@vars.count - 1",
+                    "label": "-",
+                    "buttonColor": "#E53935"
+                  }
+                },
+                {
+                  "CounterButton": {
+                    "targetVar": "@vars.count",
+                    "expression": "0",
+                    "label": "RESET",
+                    "buttonColor": "#757575"
+                  }
+                },
+                {
+                  "CounterButton": {
+                    "targetVar": "@vars.count",
+                    "expression": "@vars.count + 1",
+                    "label": "+",
+                    "buttonColor": "#4CAF50"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
