@@ -34,15 +34,15 @@ import kotlin.jvm.JvmInline
 internal value class StylePhase private constructor(internal val value: Int) {
     companion object {
         /** A request to compute the inherited [TextStyle] properties that affect layout. */
-        val Layout: StylePhase
+        inline val Layout: StylePhase
             get() = StylePhase(1)
 
         /** A request to compute the inherited [TextStyle] properties that affect drawing. */
-        val Draw: StylePhase
+        inline val Draw: StylePhase
             get() = StylePhase(2)
 
         /** A request to compute all the inherited [TextStyle] properties. */
-        val All: StylePhase
+        inline val All: StylePhase
             get() = StylePhase(0.inv())
     }
 }

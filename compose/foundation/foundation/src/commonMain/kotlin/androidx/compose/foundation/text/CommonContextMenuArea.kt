@@ -243,7 +243,7 @@ internal value class MenuItemsAvailability private constructor(val value: Int) {
         private const val AUTO_FILL = 0b10000
         private const val NONE = 0
 
-        val None
+        inline val None
             get() = MenuItemsAvailability(NONE)
     }
 
