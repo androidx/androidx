@@ -28,13 +28,15 @@ value class FilterQuality internal constructor(val value: Int) {
          * Fastest possible filtering, albeit also the lowest quality Typically this implies
          * nearest-neighbour filtering.
          */
-        val None = FilterQuality(0)
+        val None
+            get() = FilterQuality(0)
 
         /**
          * Better quality than [None], faster than [Medium]. Typically this implies bilinear
          * interpolation.
          */
-        val Low = FilterQuality(1)
+        val Low
+            get() = FilterQuality(1)
 
         /**
          * Better quality than [Low], faster than [High].
@@ -42,13 +44,15 @@ value class FilterQuality internal constructor(val value: Int) {
          * Typically this implies a combination of bilinear interpolation and pyramidal parametric
          * prefiltering (mipmaps).
          */
-        val Medium = FilterQuality(2)
+        val Medium
+            get() = FilterQuality(2)
 
         /**
          * Best possible quality filtering, albeit also the slowest. Typically this implies bicubic
          * interpolation or better.
          */
-        val High = FilterQuality(3)
+        val High
+            get() = FilterQuality(3)
     }
 
     override fun toString() =

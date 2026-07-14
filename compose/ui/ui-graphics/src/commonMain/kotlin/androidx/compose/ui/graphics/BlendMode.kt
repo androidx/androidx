@@ -50,21 +50,24 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
     companion object {
 
         /** Drop both the source and destination images, leaving nothing. */
-        val Clear = BlendMode(0)
+        val Clear
+            get() = BlendMode(0)
 
         /**
          * Drop the destination image, only paint the source image.
          *
          * Conceptually, the destination is first cleared, then the source image is painted.
          */
-        val Src = BlendMode(1)
+        val Src
+            get() = BlendMode(1)
 
         /**
          * Drop the source image, only paint the destination image.
          *
          * Conceptually, the source image is discarded, leaving the destination untouched.
          */
-        val Dst = BlendMode(2)
+        val Dst
+            get() = BlendMode(2)
 
         /**
          * Composite the source image over the destination image.
@@ -72,7 +75,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * This is the default value. It represents the most intuitive case, where shapes are
          * painted on top of what is below, with transparent areas showing the destination layer.
          */
-        val SrcOver = BlendMode(3)
+        val SrcOver
+            get() = BlendMode(3)
 
         /**
          * Composite the source image under the destination image.
@@ -82,7 +86,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * This is useful when the source image should have been painted before the destination
          * image, but could not be.
          */
-        val DstOver = BlendMode(4)
+        val DstOver
+            get() = BlendMode(4)
 
         /**
          * Show the source image, but only where the two images overlap. The destination image is
@@ -94,7 +99,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * To reverse the semantic of the mask (only showing the source where the destination is
          * absent, rather than where it is present), consider [SrcOut].
          */
-        val SrcIn = BlendMode(5)
+        val SrcIn
+            get() = BlendMode(5)
 
         /**
          * Show the destination image, but only where the two images overlap. The source image is
@@ -106,7 +112,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * To reverse the semantic of the mask (only showing the source where the destination is
          * present, rather than where it is absent), consider [DstOut].
          */
-        val DstIn = BlendMode(6)
+        val DstIn
+            get() = BlendMode(6)
 
         /**
          * Show the source image, but only where the two images do not overlap. The destination
@@ -120,7 +127,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * This corresponds to the "Source out Destination" Porter-Duff operator.
          */
-        val SrcOut = BlendMode(7)
+        val SrcOut
+            get() = BlendMode(7)
 
         /**
          * Show the destination image, but only where the two images do not overlap. The source
@@ -134,7 +142,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * This corresponds to the "Destination out Source" Porter-Duff operator.
          */
-        val DstOut = BlendMode(8)
+        val DstOut
+            get() = BlendMode(8)
 
         /**
          * Composite the source image over the destination image, but only where it overlaps the
@@ -146,7 +155,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * For a variant with the destination on top instead of the source, see [DstAtop].
          */
-        val SrcAtop = BlendMode(9)
+        val SrcAtop
+            get() = BlendMode(9)
 
         /**
          * Composite the destination image over the source image, but only where it overlaps the
@@ -158,13 +168,15 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * For a variant with the source on top instead of the destination, see [SrcAtop].
          */
-        val DstAtop = BlendMode(10)
+        val DstAtop
+            get() = BlendMode(10)
 
         /**
          * Apply a bitwise `xor` operator to the source and destination images. This leaves
          * transparency where they would overlap.
          */
-        val Xor = BlendMode(11)
+        val Xor
+            get() = BlendMode(11)
 
         /**
          * Sum the components of the source and destination images.
@@ -172,7 +184,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * Transparency in a pixel of one of the images reduces the contribution of that image to
          * the corresponding output pixel, as if the color of that pixel in that image was darker.
          */
-        val Plus = BlendMode(12)
+        val Plus
+            get() = BlendMode(12)
 
         /**
          * Multiply the color components of the source and destination images.
@@ -190,7 +203,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which combines [Modulate] and [Screen] to favor the destination image.
          * * [Hardlight], which combines [Modulate] and [Screen] to favor the source image.
          */
-        val Modulate = BlendMode(13)
+        val Modulate
+            get() = BlendMode(13)
 
         /**
          * Multiply the inverse of the components of the source and destination images, and inverse
@@ -215,7 +229,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which combines [Modulate] and [Screen] to favor the destination image.
          * * [Hardlight], which combines [Modulate] and [Screen] to favor the source image.
          */
-        val Screen = BlendMode(14) // The last coeff mode.
+        val Screen
+            get() = BlendMode(14) // The last coeff mode.
 
         /**
          * Multiply the components of the source and destination images after adjusting them to
@@ -235,7 +250,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Hardlight], which is similar to [Overlay] but favors the source image instead of the
          *   destination image.
          */
-        val Overlay = BlendMode(15)
+        val Overlay
+            get() = BlendMode(15)
 
         /**
          * Composite the source and destination image by choosing the lowest value from each color
@@ -243,7 +259,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The opacity of the output image is computed in the same way as for [SrcOver].
          */
-        val Darken = BlendMode(16)
+        val Darken
+            get() = BlendMode(16)
 
         /**
          * Composite the source and destination image by choosing the highest value from each color
@@ -251,7 +268,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The opacity of the output image is computed in the same way as for [SrcOver].
          */
-        val Lighten = BlendMode(17)
+        val Lighten
+            get() = BlendMode(17)
 
         /**
          * Divide the destination by the inverse of the source.
@@ -262,7 +280,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val ColorDodge = BlendMode(18)
+        val ColorDodge
+            get() = BlendMode(18)
 
         /**
          * Divide the inverse of the destination by the source, and inverse the result.
@@ -273,7 +292,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val ColorBurn = BlendMode(19)
+        val ColorBurn
+            get() = BlendMode(19)
 
         /**
          * Multiply the components of the source and destination images after adjusting them to
@@ -295,7 +315,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which is similar to [Hardlight] but favors the destination image instead of
          *   the source image.
          */
-        val Hardlight = BlendMode(20)
+        val Hardlight
+            get() = BlendMode(20)
 
         /**
          * Use [ColorDodge] for source values below 0.5 and [ColorBurn] for source values above 0.5.
@@ -307,7 +328,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * See also:
          * * [BlendMode.Color], which is a more subtle tinting effect.
          */
-        val Softlight = BlendMode(21)
+        val Softlight
+            get() = BlendMode(21)
 
         /**
          * Subtract the smaller value from the bigger value for each channel.
@@ -320,7 +342,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The effect is similar to [Exclusion] but harsher.
          */
-        val Difference = BlendMode(22)
+        val Difference
+            get() = BlendMode(22)
 
         /**
          * Subtract double the product of the two images from the sum of the two images.
@@ -333,7 +356,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The effect is similar to [Difference] but softer.
          */
-        val Exclusion = BlendMode(23)
+        val Exclusion
+            get() = BlendMode(23)
 
         /**
          * Multiply the components of the source and destination images, including the alpha
@@ -351,7 +375,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val Multiply = BlendMode(24) // The last separable mode.
+        val Multiply
+            get() = BlendMode(24) // The last separable mode.
 
         /**
          * Take the hue of the source image, and the saturation and luminosity of the destination
@@ -364,7 +389,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val Hue = BlendMode(25)
+        val Hue
+            get() = BlendMode(25)
 
         /**
          * Take the saturation of the source image, and the hue and luminosity of the destination
@@ -380,7 +406,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [BlendMode.Color], which also applies the hue of the source image.
          * * [Luminosity], which applies the luminosity of the source image to the destination.
          */
-        val Saturation = BlendMode(26)
+        val Saturation
+            get() = BlendMode(26)
 
         /**
          * Take the hue and saturation of the source image, and the luminosity of the destination
@@ -399,7 +426,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Softlight], which is a similar tinting effect but also tints white.
          * * [Saturation], which only applies the saturation of the source image.
          */
-        val Color = BlendMode(27)
+        val Color
+            get() = BlendMode(27)
 
         /**
          * Take the luminosity of the source image, and the hue and saturation of the destination
@@ -414,7 +442,8 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * See also:
          * * [Saturation], which applies the saturation of the source image to the destination.
          */
-        val Luminosity = BlendMode(28)
+        val Luminosity
+            get() = BlendMode(28)
     }
 
     override fun toString() =

@@ -37,7 +37,8 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
          *
          * See: <https://en.wikipedia.org/wiki/Nonzero-rule>
          */
-        val NonZero = PathFillType(0)
+        val NonZero
+            get() = PathFillType(0)
 
         /**
          * The interior is defined by an odd number of edge crossings.
@@ -47,7 +48,8 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
          *
          * See: <https://en.wikipedia.org/wiki/Even-odd_rule>
          */
-        val EvenOdd = PathFillType(1)
+        val EvenOdd
+            get() = PathFillType(1)
     }
 
     override fun toString() =
