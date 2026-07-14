@@ -35,6 +35,7 @@ import androidx.appfunctions.internal.PlatformAppFunctionManagerApi
 import androidx.appfunctions.internal.PlatformAppFunctionReader
 import androidx.appfunctions.internal.Translator
 import androidx.appfunctions.internal.TranslatorSelector
+import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import java.util.concurrent.Executor
@@ -476,6 +477,59 @@ public constructor(
                 cont.invokeOnCancellation { registration.unregister() }
             }
         }
+
+    /**
+     * Returns an [AppFunctionAdapter] for an interface annotated with `@AppFunctionSignature`.
+     *
+     * Retrieves a generated [AppFunctionAdapter] that bridges [ExecuteAppFunctionRequest] and
+     * [ExecuteAppFunctionResponse] with the strongly-typed signature of the passed interface.
+     *
+     * This adapter allows wrapping a concrete implementation of the passed interface into a
+     * [HandleAppFunctionRequest]. The resulting request can then be registered using
+     * [handleAppFunction] or [handleAppFunctions].
+     *
+     * ### Example
+     *
+     * ```kotlin
+     * @AppFunctionSignature(
+     *     scope = AppFunctionMetadata.SCOPE_GLOBAL,
+     *     appFunctionXmlFileName = "media_functions"
+     * )
+     * fun interface PlayMusic {
+     *     suspend fun playSong(title: String)
+     * }
+     *
+     * // Retrieve the adapter and register the implementation
+     * val adapter = appFunctionManager.getAppFunctionAdapter(PlayMusic::class.java)
+     * val request = adapter.adapt { title -> player.play(title) }
+     *
+     * coroutineScope.launch {
+     *     appFunctionManager.handleAppFunction(request)
+     * }
+     * ```
+     *
+     * @param interfaceClass The interface class annotated with `@AppFunctionSignature`.
+     * @return The [AppFunctionAdapter] for the [interfaceClass].
+     * @throws IllegalArgumentException if the adapter class for [interfaceClass] cannot be found or
+     *   instantiated.
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T : Any> getAppFunctionAdapter(interfaceClass: Class<T>): AppFunctionAdapter<T> {
+        try {
+            @Suppress("UNCHECKED_CAST")
+            return interfaceClass.findImpl(prefix = "$", suffix = "_AppFunctionAdapter")
+                as AppFunctionAdapter<T>
+        } catch (e: Exception) {
+            throw IllegalArgumentException(
+                "Failed to find or instantiate adapter class for ${interfaceClass.name}. " +
+                    "Make sure the interface is annotated with @AppFunctionSignature annotation " +
+                    "and the generated xml is referenced by the property within the <application> " +
+                    "tag of your AndroidManifest.xml.",
+                e,
+            )
+        }
+    }
 
     @IntDef(
         value =

@@ -41,6 +41,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
@@ -163,7 +164,7 @@ class DynamicRegistrationIntegrationTest {
     }
 
     @Test
-    fun executeAppFunction_dynamicSuspendRegistration_success() = doBlocking {
+    fun executeAppFunction_suspendImplementation_success() = doBlocking {
         runWithDynamicAppFunctionRegistered(
             registerAction = ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE,
             targetFunctionId = GLOBAL_SIGNATURE_FORMAT_MESSAGE,
@@ -191,6 +192,183 @@ class DynamicRegistrationIntegrationTest {
                 .isEqualTo("suspend_result_42_hello")
         }
     }
+
+    @Test
+    fun executeAppFunction_adapterAllPrimitivesImplementation_success() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES,
+            targetFunctionId = DYNAMIC_ALL_PRIMITIVES_INPUTS_SIGNATURE_ID,
+        ) {
+            val metadata = findAppFunctionMetadata(DYNAMIC_ALL_PRIMITIVES_INPUTS_SIGNATURE_ID)
+
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_ALL_PRIMITIVES_INPUTS_SIGNATURE_ID,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setInt("intValue", 42)
+                                .setLong("longValue", 100L)
+                                .setFloat("floatValue", 3.14f)
+                                .setDouble("doubleValue", 2.718)
+                                .setBoolean("booleanValue", true)
+                                .setString("stringValue", "hello")
+                                .setIntArray("intArrayValue", intArrayOf(1, 2))
+                                .setLongArray("longArrayValue", longArrayOf(10L, 20L))
+                                .setFloatArray("floatArrayValue", floatArrayOf(1.1f, 2.2f))
+                                .setDoubleArray("doubleArrayValue", doubleArrayOf(3.3, 4.4))
+                                .setBooleanArray("booleanArrayValue", booleanArrayOf(true, false))
+                                .setByteArray("byteArrayValue", byteArrayOf(5, 6))
+                                .setStringList("stringListValue", listOf("a", "b"))
+                                .build(),
+                        )
+                )
+
+            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            assertThat(
+                    successResponse.returnValue.getBoolean(
+                        ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                    )
+                )
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun executeAppFunction_adapterComplexSerializableImplementation_success() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE,
+            targetFunctionId = DYNAMIC_COMPLEX_SERIALIZABLE_SIGNATURE_ID,
+        ) {
+            val metadata = findAppFunctionMetadata(DYNAMIC_COMPLEX_SERIALIZABLE_SIGNATURE_ID)
+
+            val innerObjectType =
+                checkNotNull(
+                    metadata.components.dataTypes[
+                            "androidx.appfunctions.integration.testapp.InnerComplexData"]
+                        as? androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+                )
+            val outerObjectType =
+                checkNotNull(
+                    metadata.components.dataTypes[
+                            "androidx.appfunctions.integration.testapp.OuterComplexData"]
+                        as? androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+                )
+
+            val innerData =
+                AppFunctionData.Builder(innerObjectType, metadata.components)
+                    .setString("id", "inner1")
+                    .setIntArray("scores", intArrayOf(10, 20))
+                    .setString("optionalTag", "tag1")
+                    .build()
+
+            val innerData2 =
+                AppFunctionData.Builder(innerObjectType, metadata.components)
+                    .setString("id", "inner2")
+                    .setIntArray("scores", intArrayOf(30, 40))
+                    .build()
+
+            val outerData =
+                AppFunctionData.Builder(outerObjectType, metadata.components)
+                    .setString("title", "outerTitle")
+                    .setAppFunctionData("primaryInner", innerData)
+                    .setAppFunctionDataList("innerList", listOf(innerData, innerData2))
+                    .setString("optionalMetadata", "meta")
+                    .build()
+
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_COMPLEX_SERIALIZABLE_SIGNATURE_ID,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setAppFunctionData("input", outerData)
+                                .build(),
+                        )
+                )
+
+            val successResponse = assertIs<ExecuteAppFunctionResponse.Success>(response)
+            val outputData =
+                successResponse.returnValue.getAppFunctionData(
+                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                )
+            assertThat(outputData).isNotNull()
+            assertThat(outputData!!.getString("title")).isEqualTo("echo_outerTitle")
+            val primaryInnerResult = outputData.getAppFunctionData("primaryInner")
+            assertThat(primaryInnerResult).isNotNull()
+            assertThat(primaryInnerResult!!.getString("id")).isEqualTo("echo_inner1")
+            assertThat(primaryInnerResult.getIntArray("scores")).isEqualTo(intArrayOf(10, 20))
+            assertThat(primaryInnerResult.getString("optionalTag")).isEqualTo("tag1")
+
+            val innerListResult = outputData.getAppFunctionDataList("innerList")
+            assertThat(innerListResult).hasSize(2)
+            assertThat(innerListResult!![0].getString("id")).isEqualTo("inner1")
+            assertThat(innerListResult[1].getString("id")).isEqualTo("inner2")
+            assertThat(outputData.getString("optionalMetadata")).isEqualTo("meta")
+        }
+    }
+
+    @Test
+    fun executeAppFunction_adapterVoidImplementation_success() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_VOID,
+            targetFunctionId = DYNAMIC_VOID_RETURN_SIGNATURE_ID,
+        ) {
+            val metadata = findAppFunctionMetadata(DYNAMIC_VOID_RETURN_SIGNATURE_ID)
+
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_VOID_RETURN_SIGNATURE_ID,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setString("message", "hello")
+                                .build(),
+                        )
+                )
+
+            assertIs<ExecuteAppFunctionResponse.Success>(response)
+        }
+    }
+
+    @Test
+    fun executeAppFunction_adapterThrowingImplementation_throwsException() = doBlocking {
+        runWithDynamicAppFunctionRegistered(
+            registerAction = ACTION_REGISTER_ADAPTER_THROWING,
+            targetFunctionId = DYNAMIC_THROWING_SIGNATURE_ID,
+        ) {
+            val metadata = findAppFunctionMetadata(DYNAMIC_THROWING_SIGNATURE_ID)
+
+            val response =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            DYNAMIC_THROWING_SIGNATURE_ID,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setString("exceptionType", "invalid_arg")
+                                .build(),
+                        )
+                )
+
+            val errorResponse = assertIs<ExecuteAppFunctionResponse.Error>(response)
+            assertThat(errorResponse.error.errorMessage).contains("Simulated adapter exception")
+        }
+    }
+
+    @Test
+    fun getAppFunctionAdapter_adapterNotFound_throwsException() = doBlocking {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                appFunctionManager.getAppFunctionAdapter(UnadaptedSignature::class.java)
+            }
+        assertThat(exception.message).contains("@AppFunctionSignature")
+    }
+
+    private interface UnadaptedSignature
 
     @Test
     fun executeAppFunction_dynamicCallbackRegistration_unregisterDuringExecution() = doBlocking {
@@ -325,5 +503,24 @@ class DynamicRegistrationIntegrationTest {
             "androidx.appfunctions.integration.action.REGISTER_LONG_RUNNING"
         const val ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE =
             "androidx.appfunctions.integration.action.REGISTER_SUSPEND"
+        const val ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_ALL_PRIMITIVES"
+        const val DYNAMIC_ALL_PRIMITIVES_INPUTS_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicAllPrimitivesInputsSignature#processPrimitives"
+
+        const val ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_COMPLEX_SERIALIZABLE"
+        const val DYNAMIC_COMPLEX_SERIALIZABLE_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicComplexSerializableSignature#processComplex"
+
+        const val ACTION_REGISTER_ADAPTER_VOID =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_VOID"
+        const val DYNAMIC_VOID_RETURN_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicVoidReturnSignature#processVoid"
+
+        const val ACTION_REGISTER_ADAPTER_THROWING =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_THROWING"
+        const val DYNAMIC_THROWING_SIGNATURE_ID =
+            "androidx.appfunctions.integration.testapp.DynamicThrowingSignature#processAndThrow"
     }
 }

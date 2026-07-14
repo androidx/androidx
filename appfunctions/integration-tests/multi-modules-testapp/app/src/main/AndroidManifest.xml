@@ -21,7 +21,7 @@
         android:supportsRtl="true">
         <property
             android:name="android.app.appfunctions.v2"
-            android:value="manual_app_level_definitions.xml" />
+            android:value="dynamic_signature_definitions.xml,manual_app_level_definitions.xml" />
         <provider
             android:name=".TestContentProvider"
             android:authorities="androidx.appfunctions.integration.testapp.provider"
