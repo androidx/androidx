@@ -1,0 +1,39 @@
+<!--
+  ~ Copyright 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html>
+<body>
+<p>This demo sends 2 variables to a worker for processing (in this case
+    multiplying by 2 both numbers) via a SharedArrayBuffer.</p>
+<label for="v0">v[0]</label><input id="v0"><br>
+<label for="v1">v[1]</label><input id="v1"><br>
+<button id="send">Send to Worker</button>
+<script>
+    const sab = new SharedArrayBuffer(16);
+    const view = new Int32Array(sab);
+    const myWorker = new Worker('shared_array_buffer_worker.js');
+    myWorker.addEventListener('message', event => {
+        document.getElementById("v0").value = view[0];
+        document.getElementById("v1").value = view[1];
+    });
+    document.getElementById("send").addEventListener("click", event => {
+        view[0] = Number(document.getElementById("v0").value);
+        view[1] = Number(document.getElementById("v1").value);
+        myWorker.postMessage(sab);
+    });
+</script>
+</body>
+</html>

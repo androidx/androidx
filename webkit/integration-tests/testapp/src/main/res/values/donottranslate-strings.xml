@@ -161,4 +161,8 @@
     <string name="http_cache_quota_is_using_default">Is Default?</string>
     <string name="http_cache_quota_missing_input_warning">Please enter a quota size</string>
 
+    <!-- Shared Array Buffer -->
+    <string name="shared_array_buffer_activity_title">Shared Array Buffer Demo</string>
+
+
 </resources>

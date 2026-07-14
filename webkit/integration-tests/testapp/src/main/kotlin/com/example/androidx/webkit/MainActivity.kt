@@ -119,6 +119,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.http_cache_quota_activity_title),
                         Intent(this, HttpCacheQuotaActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.shared_array_buffer_activity_title),
+                        Intent(this, SharedArrayBufferActivity::class.java),
+                    ),
                 )
             )
     }
