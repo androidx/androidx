@@ -51,6 +51,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.BlueBox
@@ -1372,5 +1373,57 @@ class AnimatedTest {
 
         composeTestRule.onNodeWithText("first").assertIsDisplayed()
         composeTestRule.onNodeWithText("second").assertIsDisplayed()
+    }
+
+    @Test
+    fun testInterruptedConsecutivePop() {
+        var forwardTransitionCount = 0
+        var popTransitionCount = 0
+        lateinit var backStack: MutableList<Any>
+        val testDuration = DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong()
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second, third) }
+            NavDisplay(
+                backStack = backStack,
+                transitionSpec = {
+                    forwardTransitionCount++
+                    defaultTransitionSpec<Any>()(this)
+                },
+                popTransitionSpec = {
+                    popTransitionCount++
+                    defaultPopTransitionSpec<Any>()(this)
+                },
+            ) { entry ->
+                NavEntry(entry.toString()) { Text(entry.toString()) }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        forwardTransitionCount = 0
+        popTransitionCount = 0
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        // Perform first pop
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // Advance halfway through transition
+        composeTestRule.mainClock.advanceTimeBy(testDuration / 2)
+
+        // Perform second pop during interruption
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+
+        assertWithMessage(
+                "Interrupted consecutive pop should NOT be classified as forward transition"
+            )
+            .that(forwardTransitionCount)
+            .isEqualTo(0)
+        assertWithMessage("Interrupted consecutive pop SHOULD be classified as pop transition")
+            .that(popTransitionCount)
+            .isAtLeast(2)
     }
 }
