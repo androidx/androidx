@@ -183,6 +183,11 @@ package androidx.activity {
     property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
   }
 
+  public final class OnBackPressedDispatcherOwnerFactory {
+    method @KotlinOnly public static androidx.activity.OnBackPressedDispatcherOwner OnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher, androidx.lifecycle.Lifecycle lifecycle);
+    method @InaccessibleFromKotlin public static androidx.activity.OnBackPressedDispatcherOwner create(androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher, androidx.lifecycle.Lifecycle lifecycle);
+  }
+
   public final class PipHintTrackerKt {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
