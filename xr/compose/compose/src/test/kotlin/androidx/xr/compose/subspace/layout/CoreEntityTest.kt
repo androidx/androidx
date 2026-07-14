@@ -48,11 +48,15 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -310,6 +314,47 @@ class CoreEntityTest {
         coreEntity.scale = newScale
 
         assertThat(testEntity.getScale()).isEqualTo(newScale)
+    }
+
+    @Test
+    fun coreModelEntity_scaleGetterAndSetter_updatesOnlyWhenValueChanges() {
+        val session = composeTestRule.configureFakeSession()
+        val coreModelEntity = CoreModelEntity(session.scene.virtualPixelDensity)
+
+        // Initial scale is 1.0f
+        assertThat(coreModelEntity.scale).isEqualTo(1.0f)
+
+        // Branch 1: Set a different value (2.0f), should update scale
+        coreModelEntity.scale = 2.0f
+        assertThat(coreModelEntity.scale).isEqualTo(2.0f)
+
+        // Branch 2: Set the exact same value again (2.0f), no-op path where userScale == value
+        coreModelEntity.scale = 2.0f
+        assertThat(coreModelEntity.scale).isEqualTo(2.0f)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun coreModelEntity_sizeGetterAndSetter_updatesSizeAndSyncsCombinedScale() = runTest {
+        val session = composeTestRule.configureFakeSession()
+        val coreModelEntity = CoreModelEntity(session.scene.virtualPixelDensity)
+        @Suppress("NewApi")
+        val gltfModel = GltfModel.create(session, java.nio.file.Paths.get("test.glb"))
+        val gltfEntity = GltfModelEntity.create(session, gltfModel)
+        coreModelEntity.attachEntity(gltfEntity)
+
+        val newSize = IntVolumeSize(400, 400, 400)
+        coreModelEntity.size = newSize
+
+        assertThat(coreModelEntity.size).isEqualTo(newSize)
+        // modelSize is 2000x2000x2000px, so gltfUniformScale = 400/2000 = 0.2f (non-one)
+        assertThat(coreModelEntity.scale).isEqualTo(0.2f)
+
+        // Setting the exact same size again hits the no-op path (super.size == value)
+        val currentScale = coreModelEntity.scale
+        coreModelEntity.size = newSize
+        assertThat(coreModelEntity.size).isEqualTo(newSize)
+        assertThat(coreModelEntity.scale).isEqualTo(currentScale)
     }
 
     @Test
