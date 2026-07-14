@@ -300,6 +300,384 @@ class RemoteComposeDemosTest {
         assertArrayEquals("Cube3d DSL and JSON should be bit-for-bit identical", dslCopy, jsonCopy)
     }
 
+    private data class BenchmarkResult(
+        val name: String,
+        val avgTimeUs: Double,
+        val opsPerSec: Double,
+    )
+
+    @Test
+    fun runLayoutBenchmark_DslTicker() {
+        val byteBuffer = dslTicker()
+
+        val warmUpIterations = 8000
+        val benchmarkIterations = 5000
+
+        println("\n==============================================================")
+        println("   BENCHMARK 3: AUTHENTIC PRODUCTION DSL TICKER PERFORMANCE")
+        println("==============================================================")
+        println("Document: Official dslTicker() layout from player-view-demos")
+        println("Iterations: $benchmarkIterations runs (alternating viewport sizes)")
+        println("==============================================================")
+
+        val results = ArrayList<BenchmarkResult>()
+
+        // Configuration 1: No Cache, No Flat Pass (Baseline / legacy naive engine)
+        results.add(
+            runTickerBenchmark(
+                "1. Legacy Naive (No Cache, HashMap)",
+                byteBuffer,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = false,
+                useFlat = false,
+            )
+        )
+
+        // Configuration 2: Cache Enabled, HashMap Pass
+        results.add(
+            runTickerBenchmark(
+                "2. Cache Optimized (Cache, HashMap)",
+                byteBuffer,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = true,
+                useFlat = false,
+            )
+        )
+
+        // Configuration 3: Cache Enabled, Flat-Array Pass
+        results.add(
+            runTickerBenchmark(
+                "3. Flat-Array Optimized (Cache, Flat Array)",
+                byteBuffer,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = true,
+                useFlat = true,
+            )
+        )
+
+        // Print Results Table
+        println(
+            "\n=================================================================================================="
+        )
+        println(
+            String.format(
+                "| %-45s | %-15s | %-10s | %-12s |",
+                "Configuration",
+                "Avg Time (us)",
+                "Ops/Sec",
+                "Speedup",
+            )
+        )
+        println(
+            "=================================================================================================="
+        )
+        val baselineAvg = results[0].avgTimeUs
+        for (res in results) {
+            val speedup = baselineAvg / res.avgTimeUs
+            println(
+                String.format(
+                    "| %-45s | %12.2f us | %10.0f | %11.2fx |",
+                    res.name,
+                    res.avgTimeUs,
+                    res.opsPerSec,
+                    speedup,
+                )
+            )
+        }
+        println(
+            "==================================================================================================\n"
+        )
+    }
+
+    @Suppress("BanThreadSleep")
+    private fun runTickerBenchmark(
+        name: String,
+        byteBuffer: ByteArray,
+        warmUpRuns: Int,
+        measuredRuns: Int,
+        useCache: Boolean,
+        useFlat: Boolean,
+    ): BenchmarkResult {
+        // Load the document
+        val doc =
+            androidx.compose.remote.core.CoreDocument(androidx.compose.remote.core.SystemClock())
+        val mask =
+            (if (useCache)
+                (androidx.compose.remote.core.CoreDocument.OPTIMIZATION_CONSTRAINTS_CACHE or
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_MEASURE_CACHE or
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_LAYOUT_BOUNDARIES)
+            else 0) or
+                (if (useFlat)
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_FLAT_MEASURE_PASS
+                else 0)
+        doc.setOptimizationLevel(mask)
+        val buffer =
+            androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                java.io.ByteArrayInputStream(byteBuffer)
+            )
+        doc.initFromBuffer(buffer)
+
+        val debugContext = MockRemoteContext(doc)
+        debugContext.mWidth = 1000f
+        debugContext.mHeight = 1000f
+        doc.initializeContext(debugContext)
+
+        // Alternating sizes to test constraints cache hits and misses
+        val widths = floatArrayOf(1000f, 800f, 1200f)
+        val heights = floatArrayOf(1000f, 1200f, 800f)
+
+        // 1. Warm-up Phase
+        for (i in 0 until warmUpRuns) {
+            val idx = i % 3
+            debugContext.mWidth = widths[idx]
+            debugContext.mHeight = heights[idx]
+            debugContext.loadFloat(
+                androidx.compose.remote.core.RemoteContext.ID_WINDOW_WIDTH,
+                debugContext.mWidth,
+            )
+            debugContext.loadFloat(
+                androidx.compose.remote.core.RemoteContext.ID_WINDOW_HEIGHT,
+                debugContext.mHeight,
+            )
+
+            doc.measure(debugContext, 0f, debugContext.mWidth, 0f, debugContext.mHeight)
+        }
+
+        // 2. Measurement Phase
+        System.gc()
+        Thread.sleep(100) // Stabilize GC
+
+        val startTime = System.nanoTime()
+
+        for (i in 0 until measuredRuns) {
+            val idx = i % 3
+            debugContext.mWidth = widths[idx]
+            debugContext.mHeight = heights[idx]
+            debugContext.loadFloat(
+                androidx.compose.remote.core.RemoteContext.ID_WINDOW_WIDTH,
+                debugContext.mWidth,
+            )
+            debugContext.loadFloat(
+                androidx.compose.remote.core.RemoteContext.ID_WINDOW_HEIGHT,
+                debugContext.mHeight,
+            )
+
+            // Force measure invalidation if caching is disabled
+            if (!useCache) {
+                doc.rootLayoutComponent?.invalidateMeasure()
+            }
+
+            doc.measure(debugContext, 0f, debugContext.mWidth, 0f, debugContext.mHeight)
+        }
+
+        val endTime = System.nanoTime()
+        val durationNs = endTime - startTime
+        val avgTimeUs = (durationNs / measuredRuns.toDouble()) / 1000.0
+        val opsPerSec = 1_000_000_000.0 / (durationNs / measuredRuns.toDouble())
+
+        return BenchmarkResult(name, avgTimeUs, opsPerSec)
+    }
+
+    @Test
+    fun runLayoutBenchmark_DemoSuite() {
+        val demoByteArrays =
+            arrayOf(
+                androidx.compose.remote.integration.view.demos.dsl.dslTicker(),
+                androidx.compose.remote.integration.view.demos.dsl.dslStopwatchDemo(),
+                androidx.compose.remote.integration.view.demos.dsl.dslCollapsiblePriorityDemo(),
+                androidx.compose.remote.integration.view.demos.dsl.dslDemoActivityRings(),
+                androidx.compose.remote.integration.view.demos.dsl.dslDemoCalendarHeatmap(),
+                androidx.compose.remote.integration.view.demos.dsl.dslDemoStepProgressArc(),
+                androidx.compose.remote.integration.view.demos.dsl.dslServerClock(),
+                androidx.compose.remote.integration.view.demos.dsl.dslSpreadSheet(),
+                androidx.compose.remote.integration.view.demos.dsl.dslClock(),
+                androidx.compose.remote.integration.view.demos.dsl.dslCountdown(),
+            )
+
+        val warmUpIterations = 8000
+        val benchmarkIterations = 5000
+
+        println("\n==============================================================")
+        println("   BENCHMARK 4: COMPREHENSIVE PRODUCTION DEMO SUITE (10 DEMOS)")
+        println("==============================================================")
+        println("Documents: 10 authentic production-grade layouts from player-view-demos")
+        println("Iterations: $benchmarkIterations runs per document (alternating viewports)")
+        println("==============================================================")
+
+        val results = ArrayList<BenchmarkResult>()
+
+        results.add(
+            runSuiteBenchmark(
+                "1. Legacy Naive (No Cache, HashMap)",
+                demoByteArrays,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = false,
+                useFlat = false,
+            )
+        )
+        results.add(
+            runSuiteBenchmark(
+                "2. Cache Optimized (Cache, HashMap)",
+                demoByteArrays,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = true,
+                useFlat = false,
+            )
+        )
+        results.add(
+            runSuiteBenchmark(
+                "3. Flat-Array Optimized (Cache, Flat Array)",
+                demoByteArrays,
+                warmUpIterations,
+                benchmarkIterations,
+                useCache = true,
+                useFlat = true,
+            )
+        )
+
+        // Print Results Table
+        println(
+            "\n=================================================================================================="
+        )
+        println(
+            String.format(
+                "| %-45s | %-15s | %-10s | %-12s |",
+                "Configuration",
+                "Avg Suite (us)",
+                "Ops/Sec",
+                "Speedup",
+            )
+        )
+        println(
+            "=================================================================================================="
+        )
+        val baselineAvg = results[0].avgTimeUs
+        for (res in results) {
+            val speedup = baselineAvg / res.avgTimeUs
+            println(
+                String.format(
+                    "| %-45s | %12.2f us | %10.0f | %11.2fx |",
+                    res.name,
+                    res.avgTimeUs,
+                    res.opsPerSec,
+                    speedup,
+                )
+            )
+        }
+        println(
+            "==================================================================================================\n"
+        )
+    }
+
+    @Suppress("BanThreadSleep")
+    private fun runSuiteBenchmark(
+        name: String,
+        demoByteArrays: Array<ByteArray>,
+        warmUpRuns: Int,
+        measuredRuns: Int,
+        useCache: Boolean,
+        useFlat: Boolean,
+    ): BenchmarkResult {
+        val mask =
+            (if (useCache)
+                (androidx.compose.remote.core.CoreDocument.OPTIMIZATION_CONSTRAINTS_CACHE or
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_MEASURE_CACHE or
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_LAYOUT_BOUNDARIES)
+            else 0) or
+                (if (useFlat)
+                    androidx.compose.remote.core.CoreDocument.OPTIMIZATION_FLAT_MEASURE_PASS
+                else 0)
+        val docs =
+            demoByteArrays.map { bytes ->
+                val doc =
+                    androidx.compose.remote.core.CoreDocument(
+                        androidx.compose.remote.core.SystemClock()
+                    )
+                doc.setOptimizationLevel(mask)
+                val buffer =
+                    androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                        java.io.ByteArrayInputStream(bytes)
+                    )
+                doc.initFromBuffer(buffer)
+                doc
+            }
+
+        val contexts =
+            docs.map { doc ->
+                val debugContext = MockRemoteContext(doc)
+                debugContext.mWidth = 1000f
+                debugContext.mHeight = 1000f
+                doc.initializeContext(debugContext)
+                debugContext
+            }
+
+        val widths = floatArrayOf(1000f, 800f, 1200f)
+        val heights = floatArrayOf(1000f, 1200f, 800f)
+
+        // 1. Warm-up Phase
+        for (i in 0 until warmUpRuns) {
+            val sizeIdx = i % 3
+            for (docIdx in docs.indices) {
+                val doc = docs[docIdx]
+                val debugContext = contexts[docIdx]
+                debugContext.mWidth = widths[sizeIdx]
+                debugContext.mHeight = heights[sizeIdx]
+                debugContext.loadFloat(
+                    androidx.compose.remote.core.RemoteContext.ID_WINDOW_WIDTH,
+                    debugContext.mWidth,
+                )
+                debugContext.loadFloat(
+                    androidx.compose.remote.core.RemoteContext.ID_WINDOW_HEIGHT,
+                    debugContext.mHeight,
+                )
+
+                doc.measure(debugContext, 0f, debugContext.mWidth, 0f, debugContext.mHeight)
+            }
+        }
+
+        // 2. Measurement Phase
+        System.gc()
+        Thread.sleep(100) // Stabilize GC
+
+        val startTime = System.nanoTime()
+
+        for (i in 0 until measuredRuns) {
+            val sizeIdx = i % 3
+            for (docIdx in docs.indices) {
+                val doc = docs[docIdx]
+                val debugContext = contexts[docIdx]
+                debugContext.mWidth = widths[sizeIdx]
+                debugContext.mHeight = heights[sizeIdx]
+                debugContext.loadFloat(
+                    androidx.compose.remote.core.RemoteContext.ID_WINDOW_WIDTH,
+                    debugContext.mWidth,
+                )
+                debugContext.loadFloat(
+                    androidx.compose.remote.core.RemoteContext.ID_WINDOW_HEIGHT,
+                    debugContext.mHeight,
+                )
+
+                if (!useCache) {
+                    doc.rootLayoutComponent?.invalidateMeasure()
+                }
+
+                doc.measure(debugContext, 0f, debugContext.mWidth, 0f, debugContext.mHeight)
+            }
+        }
+
+        val endTime = System.nanoTime()
+        val durationNs = endTime - startTime
+        val avgTimeUs = (durationNs / measuredRuns.toDouble()) / 1000.0
+        val opsPerSec = 1_000_000_000.0 / (durationNs / measuredRuns.toDouble())
+
+        return BenchmarkResult(name, avgTimeUs, opsPerSec)
+    }
+
     @Test
     fun testRcDslTextDemo8Comparison() {
         val dslBytes = RcTextDemo8().buffer()
@@ -564,9 +942,171 @@ class RemoteComposeDemosTest {
         }
     }
 
+    private class DummyPaintContext(context: androidx.compose.remote.core.RemoteContext) :
+        androidx.compose.remote.core.PaintContext(context) {
+        override fun drawBitmap(
+            imageId: Int,
+            srcLeft: Int,
+            srcTop: Int,
+            srcRight: Int,
+            srcBottom: Int,
+            dstLeft: Int,
+            dstTop: Int,
+            dstRight: Int,
+            dstBottom: Int,
+            cdId: Int,
+        ) {}
+
+        override fun drawBitmap(id: Int, left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun scale(scaleX: Float, scaleY: Float) {}
+
+        override fun translate(translateX: Float, translateY: Float) {}
+
+        override fun drawArc(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            startAngle: Float,
+            sweepAngle: Float,
+        ) {}
+
+        override fun drawSector(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            startAngle: Float,
+            sweepAngle: Float,
+        ) {}
+
+        override fun drawCircle(centerX: Float, centerY: Float, radius: Float) {}
+
+        override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {}
+
+        override fun drawOval(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun drawPath(id: Int, start: Float, end: Float) {}
+
+        override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun savePaint() {}
+
+        override fun restorePaint() {}
+
+        override fun replacePaint(
+            paintBundle: androidx.compose.remote.core.operations.paint.PaintBundle
+        ) {}
+
+        override fun drawRoundRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            rx: Float,
+            ry: Float,
+        ) {}
+
+        override fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {}
+
+        override fun getTextBounds(p0: Int, p1: Int, p2: Int, p3: Int, p4: FloatArray) {}
+
+        override fun layoutComplexText(
+            p0: Int,
+            p1: Int,
+            p2: Int,
+            p3: Int,
+            p4: Int,
+            p5: Int,
+            p6: Float,
+            p7: Float,
+            p8: Float,
+            p9: Float,
+            p10: Float,
+            p11: Int,
+            p12: Int,
+            p13: Int,
+            p14: Boolean,
+            p15: Boolean,
+            p16: Int,
+        ): androidx.compose.remote.core.RcPlatformServices.ComputedTextLayout? = null
+
+        override fun drawTextRun(
+            textId: Int,
+            start: Int,
+            end: Int,
+            contextStart: Int,
+            contextEnd: Int,
+            x: Float,
+            y: Float,
+            isRtl: Boolean,
+        ) {}
+
+        override fun drawComplexText(
+            p0: androidx.compose.remote.core.RcPlatformServices.ComputedTextLayout?
+        ) {}
+
+        override fun drawTweenPath(
+            path1Id: Int,
+            path2Id: Int,
+            tween: Float,
+            start: Float,
+            end: Float,
+        ) {}
+
+        override fun tweenPath(out: Int, path1: Int, path2: Int, tween: Float) {}
+
+        override fun combinePath(out: Int, path1: Int, path2: Int, operation: Byte) {}
+
+        override fun applyPaint(
+            mPaintData: androidx.compose.remote.core.operations.paint.PaintBundle
+        ) {}
+
+        override fun matrixScale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {}
+
+        override fun matrixTranslate(translateX: Float, translateY: Float) {}
+
+        override fun matrixSkew(skewX: Float, skewY: Float) {}
+
+        override fun matrixRotate(rotate: Float, pivotX: Float, pivotY: Float) {}
+
+        override fun matrixSave() {}
+
+        override fun matrixRestore() {}
+
+        override fun clipRect(left: Float, top: Float, right: Float, bottom: Float) {}
+
+        override fun clipPath(pathId: Int, regionOp: Int) {}
+
+        override fun roundedClipRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            rx: Float,
+            ry: Float,
+        ) {}
+
+        override fun reset() {}
+
+        override fun startGraphicsLayer(w: Int, h: Int) {}
+
+        override fun setGraphicsLayer(attributes: java.util.HashMap<Int, Any>) {}
+
+        override fun endGraphicsLayer() {}
+
+        override fun getText(id: Int): String? = null
+
+        override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {}
+
+        override fun drawToBitmap(bitmapId: Int, mode: Int, color: Int) {}
+    }
+
     private class MockRemoteContext(document: CoreDocument) : RemoteContext(RemoteClock.SYSTEM) {
         init {
             mDocument = document
+            mPaintContext = DummyPaintContext(this)
         }
 
         override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {}

@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations.layout.managers;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
@@ -223,7 +224,12 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
             float maxHeight,
             @NonNull MeasurePass measure) {
         ComponentMeasure m = measure.get(this);
-        if (!this.mNeedsMeasure
+        RemoteContext remoteContext = context.getContext();
+        CoreDocument doc = remoteContext != null ? remoteContext.getDocument() : null;
+        boolean useConstraintsCache = doc != null && doc.isConstraintsCacheEnabled();
+        boolean useMeasureCache = doc != null && doc.isMeasureCacheEnabled();
+        if (useConstraintsCache && useMeasureCache && !this.mNeedsMeasure
+                && !hasDynamicComputes() && !hasChildWithComputedLayout()
                 && m.hasCachedConstraints(minWidth, maxWidth, minHeight, maxHeight)) {
             return;
         }

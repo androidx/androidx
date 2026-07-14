@@ -24,6 +24,20 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentMeasure {
     int mId = -1;
+
+    /**
+     * Monotonically increasing layout pass generation tag set by {@link FlatMeasurePass}.
+     * Used to verify whether this component's measurement data is fresh for the current
+     * layout pass without requiring re-computation or element comparisons.
+     */
+    public int mGeneration = 0;
+
+    /**
+     * The 0-based layout index assigned to the corresponding component in the document's layout
+     * tree (0..N-1).
+     * Maps directly to array slots in {@link FlatMeasurePass}'s flat array for O(1) array access.
+     */
+    public int mInternalLayoutIndex = -1;
     float mX;
     float mY;
     float mW;
@@ -53,22 +67,10 @@ public class ComponentMeasure {
         mHasCache = false;
     }
 
-    public static boolean sEnableMeasureCache = true;
-
-    /** Returns whether measure caching is enabled. */
-    public static boolean isMeasureCacheEnabled() {
-        return sEnableMeasureCache;
-    }
-
-    /** Enable or disable measure caching globally. */
-    public static void setMeasureCacheEnabled(boolean enabled) {
-        sEnableMeasureCache = enabled;
-    }
-
     /** Check if component has cached constraints matching specified parameters. */
     public boolean hasCachedConstraints(
             float minWidth, float maxWidth, float minHeight, float maxHeight) {
-        if (!sEnableMeasureCache || !mHasCache) {
+        if (!mHasCache) {
             return false;
         }
 
@@ -154,12 +156,6 @@ public class ComponentMeasure {
 
     /**
      * Reset the values of the ComponentMeasure, allowing us to reuse the object.
-     * @param id
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param visibility
      */
     public void reset(int id, float x, float y, float w, float h, int visibility) {
         this.mId = id;
@@ -170,6 +166,9 @@ public class ComponentMeasure {
         this.mVisibility = visibility;
         this.mAllowsAnimation = true;
         this.mHasCache = false;
+        this.mGeneration = 0;
+        this.mInternalLayoutIndex = -1;
+        clearVisibilityOverride();
     }
 
     public ComponentMeasure(int id, float x, float y, float w, float h) {
@@ -184,6 +183,7 @@ public class ComponentMeasure {
                 component.getWidth(),
                 component.getHeight(),
                 component.mVisibility);
+        this.mInternalLayoutIndex = component.mInternalLayoutIndex;
     }
 
     /**
@@ -197,6 +197,7 @@ public class ComponentMeasure {
         mW = m.mW;
         mH = m.mH;
         mVisibility = m.mVisibility;
+        mGeneration = m.mGeneration;
     }
 
     /**
