@@ -57,7 +57,6 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.DpVolumeOffset
-import androidx.xr.compose.unit.toMeter
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.runtime.PanelEntity as RtPanelEntity
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -83,6 +82,10 @@ class OrbiterTest {
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     private val parentTestTag = "parent"
+
+    private fun Dp.toMeter(): Float = this.value / 2000f
+
+    private fun Float.toM(): Float = this
 
     @Test
     fun orbiter_inFullSpace_isElevated() {
