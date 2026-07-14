@@ -269,7 +269,7 @@ class StylePropertyTest {
         properties.shape(expected)
         assertTrue(properties.onlyHasId(ShapeId))
         assertEquals(expected, properties.shape)
-        assertEquals(DrawFlag, properties.phaseFlags)
+        assertEquals(DrawFlag or LayerFlag, properties.phaseFlags)
     }
 
     @Test
