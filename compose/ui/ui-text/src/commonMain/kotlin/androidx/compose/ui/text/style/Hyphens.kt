@@ -50,7 +50,8 @@ value class Hyphens internal constructor(val value: Int) {
          * +---------+
          * </pre>
          */
-        val None = Hyphens(1)
+        val None
+            get() = Hyphens(1)
 
         /**
          * Breaks words automatically at syllable boundaries.
@@ -63,10 +64,12 @@ value class Hyphens internal constructor(val value: Int) {
          * +---------+
          * </pre>
          */
-        val Auto = Hyphens(2)
+        val Auto
+            get() = Hyphens(2)
 
         /** Represents an unset [Hyphens] value. */
-        val Unspecified = Hyphens(0)
+        val Unspecified
+            get() = Hyphens(0)
 
         /**
          * Creates [Hyphens] from [value].

@@ -41,37 +41,44 @@ value class TextAlign internal constructor(val value: Int) {
 
     companion object {
         /** Aligns text to the left edge. */
-        val Left = TextAlign(1)
+        val Left
+            get() = TextAlign(1)
 
         /** Aligns text to the right edge. */
-        val Right = TextAlign(2)
+        val Right
+            get() = TextAlign(2)
 
         /** Aligns text to the center. */
-        val Center = TextAlign(3)
+        val Center
+            get() = TextAlign(3)
 
         /**
          * Stretches lines of text to fill the container width.
          *
          * Lines ending with hard line breaks align to [Start].
          */
-        val Justify = TextAlign(4)
+        val Justify
+            get() = TextAlign(4)
 
         /**
          * Aligns text to the leading edge.
          *
          * Maps to the left edge for LTR, and the right edge for RTL.
          */
-        val Start = TextAlign(5)
+        val Start
+            get() = TextAlign(5)
 
         /**
          * Aligns text to the trailing edge.
          *
          * Maps to the right edge for LTR, and the left edge for RTL.
          */
-        val End = TextAlign(6)
+        val End
+            get() = TextAlign(6)
 
         /** Represents an unset [TextAlign] value. */
-        val Unspecified = TextAlign(0)
+        val Unspecified
+            get() = TextAlign(0)
 
         /** Return a list containing all possible values of TextAlign. */
         fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)

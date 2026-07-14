@@ -33,16 +33,24 @@ import androidx.compose.ui.util.lerp
 value class BaselineShift(val multiplier: Float) {
     companion object {
         /** Default baseline shift for superscript. */
-        @Stable val Superscript = BaselineShift(0.5f)
+        @Stable
+        val Superscript
+            get() = BaselineShift(0.5f)
 
         /** Default baseline shift for subscript */
-        @Stable val Subscript = BaselineShift(-0.5f)
+        @Stable
+        val Subscript
+            get() = BaselineShift(-0.5f)
 
         /** Constant for no baseline shift. */
-        @Stable val None = BaselineShift(0.0f)
+        @Stable
+        val None
+            get() = BaselineShift(0.0f)
 
         /** Represents an unset [BaselineShift] value. */
-        @Stable val Unspecified = BaselineShift(Float.NaN)
+        @Stable
+        val Unspecified
+            get() = BaselineShift(Float.NaN)
     }
 }
 

@@ -106,33 +106,46 @@ internal constructor(@Suppress("unused") private val value: Int) {
 
     companion object {
         /** Align the bottom of the placeholder with the baseline. */
-        val AboveBaseline = PlaceholderVerticalAlign(1)
+        val AboveBaseline
+            get() = PlaceholderVerticalAlign(1)
+
         /** Align the top of the placeholder with the top of the entire line. */
-        val Top = PlaceholderVerticalAlign(2)
+        val Top
+            get() = PlaceholderVerticalAlign(2)
+
         /** Align the bottom of the placeholder with the bottom of the entire line. */
-        val Bottom = PlaceholderVerticalAlign(3)
+        val Bottom
+            get() = PlaceholderVerticalAlign(3)
+
         /** Align the center of the placeholder with the center of the entire line. */
-        val Center = PlaceholderVerticalAlign(4)
+        val Center
+            get() = PlaceholderVerticalAlign(4)
+
         /**
          * Align the top of the placeholder with the top of the proceeding text. It is different
          * from the [Top] when there are texts with different font size, font or other styles in the
          * same line. This option will use the proceeding text's top instead of the whole line's
          * top.
          */
-        val TextTop = PlaceholderVerticalAlign(5)
+        val TextTop
+            get() = PlaceholderVerticalAlign(5)
+
         /**
          * Align the bottom of the placeholder with the bottom of the proceeding text. It is
          * different from the [TextBottom] when there are texts with different font size, font or
          * other styles in the same line. This option will use the proceeding text's bottom instead
          * of the whole line's bottom.
          */
-        val TextBottom = PlaceholderVerticalAlign(6)
+        val TextBottom
+            get() = PlaceholderVerticalAlign(6)
+
         /**
          * Align the center of the placeholder with the center of the proceeding text. It is
          * different from the [Center] when there are texts with different font size, font or other
          * styles in the same line. This option will use the proceeding text's center instead of the
          * whole line's center.
          */
-        val TextCenter = PlaceholderVerticalAlign(7)
+        val TextCenter
+            get() = PlaceholderVerticalAlign(7)
     }
 }
