@@ -34,7 +34,7 @@ dependencies {
     api(project(":xr:arcore:arcore-runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("com.google.ar:core:1.53.0")
+    implementation("com.google.ar:core:1.55.0")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
