@@ -34,7 +34,8 @@ import kotlin.js.JsName
 const val DefaultCameraDistance = 8.0f
 
 /** Default ambient shadow color for all layers. */
-val DefaultShadowColor = Color.Black
+val DefaultShadowColor
+    get() = Color.Black
 
 /**
  * A scope which can be used to define the effects to apply for the content, such as scaling
