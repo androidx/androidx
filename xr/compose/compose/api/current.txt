@@ -982,7 +982,7 @@ package androidx.xr.compose.subspace.layout {
   public static final class ResizePolicy.Companion {
     method public androidx.xr.compose.subspace.layout.ResizePolicy custom(kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
     method @InaccessibleFromKotlin public androidx.xr.compose.subspace.layout.ResizePolicy getDefault();
-    method public androidx.xr.compose.subspace.layout.ResizePolicy system(optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit> onResize);
+    method public androidx.xr.compose.subspace.layout.ResizePolicy system(optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialResizeEvent,kotlin.Unit>? onResize);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.ResizePolicy! system$default(androidx.xr.compose.subspace.layout.ResizePolicy.Companion!, kotlin.jvm.functions.Function1!, int, Object!);
     property public androidx.xr.compose.subspace.layout.ResizePolicy Default;
   }

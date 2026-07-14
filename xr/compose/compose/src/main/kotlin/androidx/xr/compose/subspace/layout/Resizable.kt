@@ -60,7 +60,7 @@ public sealed interface ResizePolicy {
          *   resize events. Since the system automatically applies the resize, this callback is
          *   strictly for monitoring changes and should not be used to update the content size.
          */
-        public fun system(onResize: (SpatialResizeEvent) -> Unit = {}): ResizePolicy =
+        public fun system(onResize: ((SpatialResizeEvent) -> Unit)? = null): ResizePolicy =
             SystemResizePolicy(onResize)
 
         /**
@@ -77,7 +77,7 @@ public sealed interface ResizePolicy {
     }
 }
 
-internal data class SystemResizePolicy(val onResize: (SpatialResizeEvent) -> Unit) : ResizePolicy
+internal data class SystemResizePolicy(val onResize: ((SpatialResizeEvent) -> Unit)?) : ResizePolicy
 
 internal data class CustomResizePolicy(val onResize: (SpatialResizeEvent) -> Unit) : ResizePolicy
 
@@ -366,7 +366,7 @@ internal class ResizableNode(
         val event = SpatialResizeEvent(eventType, size)
 
         when (policy) {
-            is SystemResizePolicy -> policy.onResize.invoke(event)
+            is SystemResizePolicy -> policy.onResize?.invoke(event)
             is CustomResizePolicy -> policy.onResize.invoke(event)
         }
     }
