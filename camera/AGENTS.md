@@ -59,6 +59,10 @@ CameraX involves complex hardware interactions, making robust testing essential.
   (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
   tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
   SDK levels.
+- **Internal Testing (Googlers Only)**: For developers with access to the internal testing
+  infrastructure, please refer to the internal documentation (`AGENTS_INTERNAL.md`) located in the
+  internal repository for detailed instructions on triggering verification runs and parsing test
+  results.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
