@@ -140,6 +140,86 @@ class DynamicRegistrationService : Service() {
                         )
                     }
             }
+            ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES -> {
+                val adapter =
+                    appFunctionManager.getAppFunctionAdapter(
+                        DynamicAllPrimitivesInputsSignature::class.java
+                    )
+                val implementation =
+                    DynamicAllPrimitivesInputsSignature {
+                        intValue,
+                        longValue,
+                        floatValue,
+                        doubleValue,
+                        booleanValue,
+                        stringValue,
+                        intArrayValue,
+                        longArrayValue,
+                        floatArrayValue,
+                        doubleArrayValue,
+                        booleanArrayValue,
+                        byteArrayValue,
+                        stringListValue ->
+                        intValue == 42 &&
+                            longValue == 100L &&
+                            floatValue == 3.14f &&
+                            doubleValue == 2.718 &&
+                            booleanValue &&
+                            stringValue == "hello" &&
+                            intArrayValue.contentEquals(intArrayOf(1, 2)) &&
+                            longArrayValue.contentEquals(longArrayOf(10L, 20L)) &&
+                            floatArrayValue.contentEquals(floatArrayOf(1.1f, 2.2f)) &&
+                            doubleArrayValue.contentEquals(doubleArrayOf(3.3, 4.4)) &&
+                            booleanArrayValue.contentEquals(booleanArrayOf(true, false)) &&
+                            byteArrayValue.contentEquals(byteArrayOf(5, 6)) &&
+                            stringListValue == listOf("a", "b")
+                    }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob =
+                    scope.launch { appFunctionManager.handleAppFunction(request) }
+            }
+            ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE -> {
+                val adapter =
+                    appFunctionManager.getAppFunctionAdapter(
+                        DynamicComplexSerializableSignature::class.java
+                    )
+                val implementation = DynamicComplexSerializableSignature { input ->
+                    OuterComplexData(
+                        title = "echo_${input.title}",
+                        primaryInner =
+                            InnerComplexData(
+                                id = "echo_${input.primaryInner.id}",
+                                scores = input.primaryInner.scores,
+                                optionalTag = input.primaryInner.optionalTag,
+                            ),
+                        innerList = input.innerList,
+                        optionalMetadata = input.optionalMetadata,
+                    )
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob =
+                    scope.launch { appFunctionManager.handleAppFunction(request) }
+            }
+            ACTION_REGISTER_ADAPTER_VOID -> {
+                val adapter =
+                    appFunctionManager.getAppFunctionAdapter(DynamicVoidReturnSignature::class.java)
+                val implementation = DynamicVoidReturnSignature { message ->
+                    // Do nothing, void return
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob =
+                    scope.launch { appFunctionManager.handleAppFunction(request) }
+            }
+            ACTION_REGISTER_ADAPTER_THROWING -> {
+                val adapter =
+                    appFunctionManager.getAppFunctionAdapter(DynamicThrowingSignature::class.java)
+                val implementation = DynamicThrowingSignature { _ ->
+                    throw AppFunctionInvalidArgumentException("Simulated adapter exception")
+                }
+                val request = adapter.adapt(implementation)
+                suspendRegistrationJob =
+                    scope.launch { appFunctionManager.handleAppFunction(request) }
+            }
             ACTION_UNREGISTER -> {
                 registration?.unregister()
                 registration = null
@@ -208,5 +288,14 @@ class DynamicRegistrationService : Service() {
 
         const val ACTION_REGISTER_SUSPEND_FORMAT_MESSAGE =
             "androidx.appfunctions.integration.action.REGISTER_SUSPEND"
+
+        const val ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_ALL_PRIMITIVES"
+        const val ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_COMPLEX_SERIALIZABLE"
+        const val ACTION_REGISTER_ADAPTER_VOID =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_VOID"
+        const val ACTION_REGISTER_ADAPTER_THROWING =
+            "androidx.appfunctions.integration.action.REGISTER_ADAPTER_THROWING"
     }
 }

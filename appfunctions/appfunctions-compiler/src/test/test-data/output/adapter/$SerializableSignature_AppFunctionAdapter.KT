@@ -11,6 +11,7 @@ import androidx.appfunctions.`internal`.unsafeBuildReturnValue
 import androidx.appfunctions.`internal`.unsafeGetParameterValue
 import javax.`annotation`.processing.Generated
 import kotlin.String
+import kotlin.Suppress
 
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
 public class `$SerializableSignature_AppFunctionAdapter` : AppFunctionAdapter<SerializableSignature> {
@@ -26,6 +27,7 @@ public class `$SerializableSignature_AppFunctionAdapter` : AppFunctionAdapter<Se
     }
   )
 
+  @Suppress("UNCHECKED_CAST")
   private inline fun <R> withExtractedArguments(request: ExecuteAppFunctionRequest, block: (input: InputData) -> R): R {
     val input = request.functionParameters.unsafeGetParameterValue(INPUT_PARAMETER_SPEC) as InputData
     return block(input)
