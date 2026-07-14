@@ -26,24 +26,22 @@ import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.unit.IntSize
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
-import kotlin.math.ceil
-import kotlin.math.sqrt
 import org.intellij.lang.annotations.Language
 
 /**
- * API 34+ implementation of a [MeshGradientRenderer] that renders a mesh gradient using Android's
- * `Mesh` API (available from API 34).
+ * API 34+ [BaseShaderMeshGradientRenderer] that renders a mesh gradient using Android's `Mesh` API
+ * (available from API 34).
  *
  * This API leverages Android's `Mesh` API to render a bicubic Bezier patch mesh. Each patch is
  * defined by 4 corner points of a cell in the grid, 8 bezier control points (2 per side), and 16
- * color points (4x4 grid around the patch).
+ * color points (4x4 grid around the patch). The per-pixel shading is done by the [meshSpec] vertex
+ * and fragment shaders; the platform-neutral setup lives in [BaseShaderMeshGradientRenderer].
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-internal class MeshGradientRendererV34Impl : MeshGradientRenderer {
+internal class MeshGradientRendererV34Impl : BaseShaderMeshGradientRenderer() {
     private val paint = Paint()
 
     private val attributes =
@@ -66,406 +64,92 @@ internal class MeshGradientRendererV34Impl : MeshGradientRenderer {
 
     // Mesh instances once created for a patch are stored here for reuse in subsequent draw calls.
     private var meshObjects: Array<Mesh>? = null
-    private var lastMeshSize: Size? = null
+
+    private var vertexDataBuffer: ByteBuffer? = null
+    private var indexBuffer: ShortBuffer? = null
 
     // In case the canvas is not hardware-accelerated, we use this renderer instance that uses
     // `drawVertices` to draw the mesh.
     private var meshGradientFallbackRendererImpl: MeshGradientRenderer? = null
 
-    // More subdivisions make the mesh more detailed (high poly) but also affect the performance.
-    // Since the mesh is a tessellation of a bicubic Bezier patch, fewer subdivisions can make the
-    // curved edges look not smooth enough.
-    // Additionally, note that `android.graphics.Mesh`'s index buffer is a ShortBuffer,
-    // which means that if the total number of vertices in a patch is more than the range of
-    // unsigned Short, the indexing will be incorrect because of overflow.
-    // It is also worth noting that since we are doing per pixel shading, this subdivisionFactor has
-    // no
-    // effect on color interpolation whatsoever.
-    // The subdivisions are dynamically calculated based on the size of the gradient.
-    private var lastSubdivisionU: Int = -1
-    private var lastSubdivisionV: Int = -1
+    override fun DrawScope.drawFallbackIfNeeded(config: MeshGradientConfig): Boolean {
+        if (drawContext.canvas.nativeCanvas.isHardwareAccelerated) return false
+        // Fallback to `drawVertices` since it is supported on a software backed canvas.
+        val fallback =
+            meshGradientFallbackRendererImpl
+                ?: MeshGradientRendererImpl().also { meshGradientFallbackRendererImpl = it }
+        with(fallback) { draw(config) }
+        return true
+    }
 
-    private var uvBuffArray: FloatArray? = null
-    private var indicesArray: ShortArray? = null
-    private var vertexDataBuffer: ByteBuffer? = null
-    private var indexBuffer: ShortBuffer? = null
-
-    // Reusable set of float arrays to hold data for each patch
-    private val patchPointsLBO = FloatArray(8)
-    private val patchPointsRBO = FloatArray(8)
-    private val patchPointsTBO = FloatArray(8)
-    private val patchPointsBBO = FloatArray(8)
-    private val patchPointsLocation = FloatArray(8)
-    private val patchAndNeighborsColors = FloatArray(64)
-
-    private var baseMeshColorsOkLab = FloatArray(0)
-
-    // Cached colors array from the last draw call to compare against and avoid color conversions if
-    // a point's color is unchanged
-    private var cachedBaseMeshColors: IntArray? = null
-
-    private fun buildVertexAndIndexBuffer(tesselationFactorU: Int, tesselationFactorV: Int) {
-        val vertexCount = tesselationFactorU * tesselationFactorV
-        val uvBuffArray = FloatArray(vertexCount * 2)
-        val indicesArray = ShortArray((tesselationFactorU - 1) * (tesselationFactorV - 1) * 6)
-
-        var indicesWriteIndex = 0
-        for (u in 0..<tesselationFactorU) {
-            for (v in 0..<tesselationFactorV) {
-                val uvWriteIndex = (u * (tesselationFactorV) + v) * 2
-                uvBuffArray[uvWriteIndex] = u.toFloat() / (tesselationFactorU - 1).toFloat()
-                uvBuffArray[uvWriteIndex + 1] = v.toFloat() / (tesselationFactorV - 1).toFloat()
-
-                if (u < tesselationFactorU - 1 && v < tesselationFactorV - 1) {
-                    indicesArray[indicesWriteIndex] = (u * (tesselationFactorV) + v).toShort()
-                    indicesArray[indicesWriteIndex + 1] =
-                        ((u + 1) * (tesselationFactorV) + v).toShort()
-                    indicesArray[indicesWriteIndex + 2] =
-                        (u * (tesselationFactorV) + (v + 1)).toShort()
-
-                    indicesArray[indicesWriteIndex + 3] =
-                        (u * (tesselationFactorV) + (v + 1)).toShort()
-                    indicesArray[indicesWriteIndex + 4] =
-                        ((u + 1) * (tesselationFactorV) + v).toShort()
-                    indicesArray[indicesWriteIndex + 5] =
-                        ((u + 1) * (tesselationFactorV) + (v + 1)).toShort()
-                    indicesWriteIndex += 6
-                }
-            }
-        }
-
+    override fun onGeometryChanged(
+        uvBuffer: FloatArray,
+        indexBuffer: ShortArray,
+        subdivisionsU: Int,
+        subdivisionsV: Int,
+    ) {
         vertexDataBuffer =
-            ByteBuffer.allocateDirect(uvBuffArray.size * 4).apply {
+            ByteBuffer.allocateDirect(uvBuffer.size * 4).apply {
                 order(ByteOrder.nativeOrder())
-                asFloatBuffer().put(uvBuffArray)
+                asFloatBuffer().put(uvBuffer)
                 position(0)
             }
-        indexBuffer =
-            ByteBuffer.allocateDirect(indicesArray.size * 2)
+        this.indexBuffer =
+            ByteBuffer.allocateDirect(indexBuffer.size * 2)
                 .apply {
                     order(ByteOrder.nativeOrder())
-                    asShortBuffer().put(indicesArray)
+                    asShortBuffer().put(indexBuffer)
                     position(0)
                 }
                 .asShortBuffer()
-
-        this.uvBuffArray = uvBuffArray
-        this.indicesArray = indicesArray
     }
 
-    private fun drawInternal(
-        canvas: android.graphics.Canvas,
-        config: MeshGradientConfig,
-        size: Size,
+    override fun onMeshInstancesChanged(
+        subdivisionsU: Int,
+        subdivisionsV: Int,
+        patchCount: Int,
+        bounds: Size,
     ) {
-
-        val (subdivisionsU, subdivisionsV) =
-            calculateSubdivisions(config.rows, config.columns, config.positions, size)
-
-        val subdivisionsHaveChanged =
-            (lastSubdivisionU != subdivisionsU || lastSubdivisionV != subdivisionsV)
-
-        if (uvBuffArray == null || indicesArray == null || subdivisionsHaveChanged) {
-            buildVertexAndIndexBuffer(subdivisionsU, subdivisionsV)
-            lastSubdivisionU = subdivisionsU
-            lastSubdivisionV = subdivisionsV
-        }
-
-        val currentVertexDataBuffer = this.vertexDataBuffer ?: return
-        val currentIndexBuffer = this.indexBuffer ?: return
-
-        val colorsArraySize = (config.rows + 1) * (config.columns + 1) * 4
-        if (baseMeshColorsOkLab.size != colorsArraySize) {
-            baseMeshColorsOkLab = FloatArray(colorsArraySize)
-            cachedBaseMeshColors = null
-        }
-        convertBaseMeshColorsToOkLab(config.colors, baseMeshColorsOkLab)
-
-        val numberOfPatches = config.rows * config.columns
-        var meshes = meshObjects
-
-        if (
-            meshes == null ||
-                meshes.size != numberOfPatches ||
-                size != lastMeshSize ||
-                subdivisionsHaveChanged
-        ) {
-            meshes =
-                Array(numberOfPatches) {
-                    Mesh(
-                        meshSpec,
-                        Mesh.TRIANGLES,
-                        currentVertexDataBuffer,
-                        subdivisionsU * subdivisionsV,
-                        currentIndexBuffer,
-                        RectF(0f, 0f, size.width, size.height),
-                    )
-                }
-            meshObjects = meshes
-            lastMeshSize = size
-        }
-
-        for (patchIdx in 0..<config.rows * config.columns) {
-            val mesh = meshObjects!![patchIdx]
-
-            mesh.setIntUniform("useBicubicColorInterpolation", if (config.hasBicubicColor) 1 else 0)
-
-            readLocationDataOfPatchPoints(
-                patchIdx,
-                config.columns,
-                config.positions,
-                size,
-                patchPointsLocation,
-            )
-            readColorDataOfPatchPointsAndNeighbors(
-                patchIdx,
-                config.rows,
-                config.columns,
-                baseMeshColorsOkLab,
-                patchAndNeighborsColors,
-            )
-            readLocationDataOfPatchPoints(
-                patchIdx,
-                config.columns,
-                config.leftBezierOffsets,
-                size,
-                patchPointsLBO,
-            )
-            readLocationDataOfPatchPoints(
-                patchIdx,
-                config.columns,
-                config.rightBezierOffsets,
-                size,
-                patchPointsRBO,
-            )
-            readLocationDataOfPatchPoints(
-                patchIdx,
-                config.columns,
-                config.topBezierOffsets,
-                size,
-                patchPointsTBO,
-            )
-            readLocationDataOfPatchPoints(
-                patchIdx,
-                config.columns,
-                config.bottomBezierOffsets,
-                size,
-                patchPointsBBO,
-            )
-
-            mesh.setFloatUniform("baseMeshPointLocations", patchPointsLocation)
-            mesh.setFloatUniform("baseMeshPointColors", patchAndNeighborsColors)
-            mesh.setFloatUniform("baseMeshPointLeftBezierOffsets", patchPointsLBO)
-            mesh.setFloatUniform("baseMeshPointRightBezierOffsets", patchPointsRBO)
-            mesh.setFloatUniform("baseMeshPointTopBezierOffsets", patchPointsTBO)
-            mesh.setFloatUniform("baseMeshPointBottomBezierOffsets", patchPointsBBO)
-
-            // Using BlendMode.DST since this argument dictates blending with mesh primitives as the
-            // destination color and paint's color/shader as the source color.
-            canvas.drawMesh(mesh, BlendMode.DST, paint)
-        }
-    }
-
-    override fun DrawScope.draw(config: MeshGradientConfig) {
-        if (this.drawContext.canvas.nativeCanvas.isHardwareAccelerated) {
-            drawInternal(this.drawContext.canvas.nativeCanvas, config, size)
-        } else {
-            // Fallback to `drawVertices` since it is supported on a software backed canvas.
-            val fallback =
-                meshGradientFallbackRendererImpl
-                    ?: MeshGradientRendererImpl().also { meshGradientFallbackRendererImpl = it }
-            with(fallback) { draw(config) }
-        }
-    }
-
-    private fun convertBaseMeshColorsToOkLab(inputArray: IntArray, outArray: FloatArray) {
-        val cache = cachedBaseMeshColors
-        if (cache == null) {
-            // Since we do not have any cached color, convert all colors without any comparison.
-            // This will usually be the case when drawing the gradient for the first time.
-            val newCache = IntArray(inputArray.size)
-            for (i in inputArray.indices) {
-                val color = Color(inputArray[i]).convert(ColorSpaces.Oklab)
-                outArray[i * 4 + 0] = color.red // L
-                outArray[i * 4 + 1] = color.green // a
-                outArray[i * 4 + 2] = color.blue // b
-                outArray[i * 4 + 3] = color.alpha
-                newCache[i] = inputArray[i]
+        val vertexDataBuffer = this.vertexDataBuffer ?: return
+        val indexBuffer = this.indexBuffer ?: return
+        val vertexCount = subdivisionsU * subdivisionsV
+        meshObjects =
+            Array(patchCount) {
+                Mesh(
+                    meshSpec,
+                    Mesh.TRIANGLES,
+                    vertexDataBuffer,
+                    vertexCount,
+                    indexBuffer,
+                    RectF(0f, 0f, bounds.width, bounds.height),
+                )
             }
-            cachedBaseMeshColors = newCache
-        } else {
-            for (i in inputArray.indices) {
-                if (cache[i] == inputArray[i]) continue
-                val color = Color(inputArray[i]).convert(ColorSpaces.Oklab)
-                outArray[i * 4 + 0] = color.red // L
-                outArray[i * 4 + 1] = color.green // a
-                outArray[i * 4 + 2] = color.blue // b
-                outArray[i * 4 + 3] = color.alpha
-                cache[i] = inputArray[i]
-            }
-        }
     }
 
-    /**
-     * Dynamically calculates the number of subdivisions (segments) for the mesh grid based on the
-     * physical size of the largest patch. This is to avoid over tessellations when a higher LOD is
-     * not necessarily required.
-     *
-     * @param rows The number of rows in the mesh.
-     * @param columns The number of columns in the mesh.
-     * @param positions The array of mesh positions.
-     * @param size The total size of the area where the gradient is being drawn.
-     */
-    private fun calculateSubdivisions(
-        rows: Int,
-        columns: Int,
-        positions: FloatArray,
-        size: Size,
-    ): IntSize {
-        var maxW = 0f
-        var maxH = 0f
-        for (patchIdx in 0 until rows * columns) {
-            val patchRow = patchIdx / columns
-            val patchColumn = patchIdx % columns
-            val topLeft = getPointIndex(patchRow, patchColumn, columns) * 2
-            val topRight = getPointIndex(patchRow, patchColumn + 1, columns) * 2
-            val bottomLeft = getPointIndex(patchRow + 1, patchColumn, columns) * 2
-            val bottomRight = getPointIndex(patchRow + 1, patchColumn + 1, columns) * 2
-
-            val patchWidth =
-                (dist(
-                    positions[topLeft] * size.width,
-                    positions[topLeft + 1] * size.height,
-                    positions[topRight] * size.width,
-                    positions[topRight + 1] * size.height,
-                ) +
-                    dist(
-                        positions[bottomLeft] * size.width,
-                        positions[bottomLeft + 1] * size.height,
-                        positions[bottomRight] * size.width,
-                        positions[bottomRight + 1] * size.height,
-                    )) * 0.5f
-            val patchHeight =
-                (dist(
-                    positions[topLeft] * size.width,
-                    positions[topLeft + 1] * size.height,
-                    positions[bottomLeft] * size.width,
-                    positions[bottomLeft + 1] * size.height,
-                ) +
-                    dist(
-                        positions[topRight] * size.width,
-                        positions[topRight + 1] * size.height,
-                        positions[bottomRight] * size.width,
-                        positions[bottomRight + 1] * size.height,
-                    )) * 0.5f
-
-            maxW = maxOf(maxW, patchWidth)
-            maxH = maxOf(maxH, patchHeight)
-        }
-
-        val subdivisionsU =
-            ceil(maxW / TargetPxPerSegment).toInt().coerceIn(MinSubdivision, MaxSubdivision)
-        val subdivisionsV =
-            ceil(maxH / TargetPxPerSegment).toInt().coerceIn(MinSubdivision, MaxSubdivision)
-        return IntSize(subdivisionsU, subdivisionsV)
-    }
-
-    /**
-     * Reads location/offset data for the four corner points of a specific patch from a given input
-     * array. The data is scaled by the provided [size] and stored in the [outArray].
-     *
-     * @param patchIdx The index of the current patch.
-     * @param columns The total number of columns in the mesh.
-     * @param inArray The input [FloatArray] containing the data (e.g., positions or bezier
-     *   offsets).
-     * @param size The [Size] object used for scaling the data.
-     * @param outArray The output [FloatArray] where the scaled data for the patch's corner points
-     *   will be stored. It is expected to have a size of 8 (4 points * 2 components).
-     */
-    private fun readLocationDataOfPatchPoints(
-        patchIdx: Int,
-        columns: Int,
-        inArray: FloatArray,
-        size: Size,
-        outArray: FloatArray,
+    override fun drawPatch(
+        canvas: Canvas,
+        patchIndex: Int,
+        hasBicubicColor: Boolean,
+        pointLocations: FloatArray,
+        pointColors: FloatArray,
+        leftBezierOffsets: FloatArray,
+        rightBezierOffsets: FloatArray,
+        topBezierOffsets: FloatArray,
+        bottomBezierOffsets: FloatArray,
     ) {
-        val patchRow = patchIdx / columns
-        val patchCol = patchIdx % columns
-        val strideWidth = columns + 1
+        val mesh = meshObjects!![patchIndex]
 
-        val topLeftIdx = (patchRow * strideWidth + patchCol) * 2
-        val topRightIdx = (patchRow * strideWidth + patchCol + 1) * 2
-        val bottomLeftIdx = ((patchRow + 1) * strideWidth + patchCol) * 2
-        val bottomRightIdx = ((patchRow + 1) * strideWidth + patchCol + 1) * 2
+        mesh.setIntUniform("useBicubicColorInterpolation", if (hasBicubicColor) 1 else 0)
+        mesh.setFloatUniform("baseMeshPointLocations", pointLocations)
+        mesh.setFloatUniform("baseMeshPointColors", pointColors)
+        mesh.setFloatUniform("baseMeshPointLeftBezierOffsets", leftBezierOffsets)
+        mesh.setFloatUniform("baseMeshPointRightBezierOffsets", rightBezierOffsets)
+        mesh.setFloatUniform("baseMeshPointTopBezierOffsets", topBezierOffsets)
+        mesh.setFloatUniform("baseMeshPointBottomBezierOffsets", bottomBezierOffsets)
 
-        outArray[0] = inArray[topLeftIdx] * size.width
-        outArray[1] = inArray[topLeftIdx + 1] * size.height
-        outArray[2] = inArray[topRightIdx] * size.width
-        outArray[3] = inArray[topRightIdx + 1] * size.height
-        outArray[4] = inArray[bottomLeftIdx] * size.width
-        outArray[5] = inArray[bottomLeftIdx + 1] * size.height
-        outArray[6] = inArray[bottomRightIdx] * size.width
-        outArray[7] = inArray[bottomRightIdx + 1] * size.height
-    }
-
-    /**
-     * Reads color data for a 4x4 grid of points centered around a specific patch, including its
-     * neighbors. The color data is read from the input [colors] list and stored in the [outArray].
-     *
-     * The 4x4 grid includes the patch itself, its immediate neighbors, and the diagonal neighbors.
-     *
-     * @param patchIdx The index of the current patch.
-     * @param rows The total number of rows in the mesh.
-     * @param columns The total number of columns in the mesh.
-     * @param colors The input [FloatArray] containing the color data (RGBA, 4 components per
-     *   point).
-     * @param outArray The output [FloatArray] where the color data for the 4x4 grid will be stored.
-     *   It is expected to have a size of at least 64 (16 points * 4 components).
-     */
-    private fun readColorDataOfPatchPointsAndNeighbors(
-        patchIdx: Int,
-        rows: Int,
-        columns: Int,
-        colors: FloatArray,
-        outArray: FloatArray,
-    ) {
-        val patchRow = patchIdx / columns
-        val patchCol = patchIdx % columns
-
-        for (r in 0 until 4) {
-            for (c in 0 until 4) {
-                val row = (patchRow - 1 + r).coerceIn(0, rows)
-                val col = (patchCol - 1 + c).coerceIn(0, columns)
-                val writeIndex = (r * 4 + c) * 4
-                val readIndex = (row * (columns + 1) + col) * 4
-                outArray[writeIndex] = colors[readIndex]
-                outArray[writeIndex + 1] = colors[readIndex + 1]
-                outArray[writeIndex + 2] = colors[readIndex + 2]
-                outArray[writeIndex + 3] = colors[readIndex + 3]
-            }
-        }
-    }
-
-    /**
-     * Calculates the flat index into a vertex-based array (like positions or colors) based on the
-     * [row] and [col] in a grid with a specific number of [columns].
-     *
-     * Since a mesh with N columns has N+1 vertices horizontally, the stride used is (columns + 1).
-     */
-    private fun getPointIndex(row: Int, col: Int, columns: Int): Int {
-        return row * (columns + 1) + col
-    }
-
-    private fun dist(x1: Float, y1: Float, x2: Float, y2: Float): Float {
-        val dx = x2 - x1
-        val dy = y2 - y1
-        return sqrt(dx * dx + dy * dy)
-    }
-
-    companion object {
-        private const val MinSubdivision = 4
-        private const val MaxSubdivision = 64
-        private const val TargetPxPerSegment = 8f
+        // Using BlendMode.DST since this argument dictates blending with mesh primitives as the
+        // destination color and paint's color/shader as the source color.
+        canvas.nativeCanvas.drawMesh(mesh, BlendMode.DST, paint)
     }
 }
 
