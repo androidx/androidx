@@ -474,8 +474,13 @@ private const val BoxInDuration = 50
 private const val BoxOutDuration = 100
 private const val CheckAnimationDuration = 100
 
-private val CheckboxRippleRadius = 24.dp
-private val CheckboxDefaultPadding = 2.dp
-private val CheckboxSize = 20.dp
-private val StrokeWidth = 2.dp
-private val RadiusSize = 2.dp
+private val CheckboxRippleRadius
+    get() = 24.dp
+private val CheckboxDefaultPadding
+    get() = 2.dp
+private val CheckboxSize
+    get() = 20.dp
+private val StrokeWidth
+    get() = 2.dp
+private val RadiusSize
+    get() = 2.dp

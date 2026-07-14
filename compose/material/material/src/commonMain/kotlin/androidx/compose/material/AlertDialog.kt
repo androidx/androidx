@@ -441,9 +441,12 @@ internal fun AlertDialogFlowRow(
 private val TitlePadding = Modifier.padding(start = 24.dp, end = 24.dp)
 private val TextPadding = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 28.dp)
 // Baseline distance from the first line of the title to the top of the dialog
-private val TitleBaselineDistanceFromTop = 40.sp
+private val TitleBaselineDistanceFromTop
+    get() = 40.sp
 // Baseline distance from the first line of the text to the last line of the title
-private val TextBaselineDistanceFromTitle = 36.sp
+private val TextBaselineDistanceFromTitle
+    get() = 36.sp
 // For dialogs with no title, baseline distance from the first line of the text to the top of the
 // dialog
-private val TextBaselineDistanceFromTop = 38.sp
+private val TextBaselineDistanceFromTop
+    get() = 38.sp

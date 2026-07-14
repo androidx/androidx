@@ -719,17 +719,21 @@ private fun AppBar(
     }
 }
 
-private val AppBarHeight = 56.dp
+private val AppBarHeight
+    get() = 56.dp
 // TODO: this should probably be part of the touch target of the start and end icons, clarify this
-private val AppBarHorizontalPadding = 4.dp
+private val AppBarHorizontalPadding
+    get() = 4.dp
 // Start inset for the title when there is no navigation icon provided
 private val TitleInsetWithoutIcon = Modifier.width(16.dp - AppBarHorizontalPadding)
 // Start inset for the title when there is a navigation icon provided
 private val TitleIconModifier = Modifier.fillMaxHeight().width(72.dp - AppBarHorizontalPadding)
 
 // The gap on all sides between the FAB and the cutout
-private val BottomAppBarCutoutOffset = 8.dp
+private val BottomAppBarCutoutOffset
+    get() = 8.dp
 // How far from the notch the rounded edges start
-private val BottomAppBarRoundedEdgeRadius = 4.dp
+private val BottomAppBarRoundedEdgeRadius
+    get() = 4.dp
 
 private val ZeroInsets = WindowInsets(0.dp)

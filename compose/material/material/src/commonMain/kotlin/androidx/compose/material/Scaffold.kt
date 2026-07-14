@@ -574,7 +574,8 @@ internal class FabPlacement(val isDocked: Boolean, val left: Int, val width: Int
 internal val LocalFabPlacement = staticCompositionLocalOf<FabPlacement?> { null }
 
 // FAB spacing above the bottom bar / bottom of the Scaffold
-private val FabSpacing = 16.dp
+private val FabSpacing
+    get() = 16.dp
 
 private enum class ScaffoldLayoutContent {
     TopBar,

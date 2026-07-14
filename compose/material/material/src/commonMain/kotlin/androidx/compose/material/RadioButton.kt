@@ -214,9 +214,14 @@ private class DefaultRadioButtonColors(
 
 private const val RadioAnimationDuration = 100
 
-private val RadioButtonRippleRadius = 24.dp
-private val RadioButtonPadding = 2.dp
-private val RadioButtonSize = 20.dp
+private val RadioButtonRippleRadius
+    get() = 24.dp
+private val RadioButtonPadding
+    get() = 2.dp
+private val RadioButtonSize
+    get() = 20.dp
 private val RadioRadius = RadioButtonSize / 2
-private val RadioButtonDotSize = 12.dp
-private val RadioStrokeWidth = 2.dp
+private val RadioButtonDotSize
+    get() = 12.dp
+private val RadioStrokeWidth
+    get() = 2.dp

@@ -123,4 +123,5 @@ fun IconToggleButton(
 }
 
 // Default radius of an unbounded ripple in an IconButton
-private val RippleRadius = 24.dp
+private val RippleRadius
+    get() = 24.dp

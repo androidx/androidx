@@ -1246,15 +1246,22 @@ private class DefaultSliderColors(
 }
 
 // Internal to be referred to in tests
-internal val ThumbRadius = 10.dp
-private val ThumbRippleRadius = 24.dp
-private val ThumbDefaultElevation = 1.dp
-private val ThumbPressedElevation = 6.dp
+internal val ThumbRadius
+    get() = 10.dp
+private val ThumbRippleRadius
+    get() = 24.dp
+private val ThumbDefaultElevation
+    get() = 1.dp
+private val ThumbPressedElevation
+    get() = 6.dp
 
 // Internal to be referred to in tests
-internal val TrackHeight = 4.dp
-private val SliderHeight = 48.dp
-private val SliderMinWidth = 144.dp // TODO: clarify min width
+internal val TrackHeight
+    get() = 4.dp
+private val SliderHeight
+    get() = 48.dp
+private val SliderMinWidth // TODO: clarify min width
+    get() = 144.dp
 private val DefaultSliderConstraints =
     Modifier.widthIn(min = SliderMinWidth).heightIn(max = SliderHeight)
 
