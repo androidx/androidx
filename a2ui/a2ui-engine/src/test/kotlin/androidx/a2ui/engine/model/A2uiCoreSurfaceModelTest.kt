@@ -231,6 +231,63 @@ class A2uiCoreSurfaceModelTest {
     }
 
     @Test
+    fun evaluatePayload_pathPayload_resolvesPathUsingValueResolver() {
+        val dataModel = TestDataModel()
+        val surface = createTestSurface(dataModel = dataModel)
+        var capturedResolvedPath: A2uiDataPath? = null
+        val valueResolver = A2uiCoreValueResolver { path ->
+            capturedResolvedPath = path
+            "evaluated_val"
+        }
+        val path = "/test"
+        val payload = mapOf("path" to path)
+
+        val result =
+            surface.evaluatePayload(COMPONENT_ID_1, valueResolver, A2uiDataPath("/"), payload)
+
+        assertThat(result).isEqualTo("evaluated_val")
+        assertThat(capturedResolvedPath?.path).isEqualTo(path)
+    }
+
+    @Test
+    fun evaluatePayload_callPayload_executesFunctionFromCatalog() {
+        var functionCapturedCallArgs: Map<String, Any>? = null
+        val function =
+            object : A2uiFunction {
+                override val definition =
+                    object : androidx.a2ui.model.catalog.A2uiFunctionDefinition {
+                        override val name = "test_func"
+                        override val description = "test func"
+                        override val argumentSchema =
+                            androidx.a2ui.model.schema.A2uiAnySchema.INSTANCE
+                        override val returnType =
+                            androidx.a2ui.model.catalog.A2uiFunctionReturnType.STRING
+                    }
+
+                override fun execute(
+                    args: Map<String, Any>,
+                    executionContext: androidx.a2ui.model.protocol.A2uiExecutionContext,
+                ): Any {
+                    functionCapturedCallArgs = args
+                    return "func_result"
+                }
+            }
+
+        val catalog = TestCatalog(listOf(function))
+        val surface = createTestSurface(catalog = catalog)
+        val valueResolver = A2uiCoreValueResolver { null }
+
+        val functionArgs = mapOf("arg1" to "val")
+        val payload = mapOf("call" to "test_func", "args" to mapOf("arg1" to "val"))
+
+        val result =
+            surface.evaluatePayload(COMPONENT_ID_1, valueResolver, A2uiDataPath("/"), payload)
+
+        assertThat(functionCapturedCallArgs).isEqualTo(functionArgs)
+        assertThat(result).isEqualTo("func_result")
+    }
+
+    @Test
     fun equalsAndHashCode_differentInstances_behavesCorrectly() {
         val dataModel1 = TestDataModel()
         val registry1 = TestComponentRegistry()
@@ -304,15 +361,16 @@ class A2uiCoreSurfaceModelTest {
         )
     }
 
-    private class TestCatalog : A2uiCoreCatalog {
+    private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :
+        A2uiCoreCatalog {
         override val id: String = "test_catalog"
         override val components: List<A2uiCoreComponentDefinition> = emptyList()
-        override val functions: List<A2uiFunction> = emptyList()
         override val themeSchema: A2uiSchema? = null
 
         override fun getComponent(name: String): A2uiCoreComponentDefinition? = null
 
-        override fun getFunction(name: String): A2uiFunction? = null
+        override fun getFunction(name: String): A2uiFunction? =
+            functions.find { it.definition.name == name }
 
         override fun equals(other: Any?): Boolean = other is TestCatalog
 

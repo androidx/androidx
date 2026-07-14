@@ -2,7 +2,7 @@
 package androidx.a2ui.model.catalog {
 
   public interface A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
   }
@@ -35,7 +35,7 @@ package androidx.a2ui.model.catalog {
 package androidx.a2ui.model.catalog.functions {
 
   public final class A2uiAndFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiAndFunction.Companion Companion;
@@ -47,7 +47,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiEmailFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiEmailFunction.Companion Companion;
@@ -62,7 +62,7 @@ package androidx.a2ui.model.catalog.functions {
     ctor public A2uiFormatCurrencyFunction();
     ctor public A2uiFormatCurrencyFunction(optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
     ctor @BytecodeOnly public A2uiFormatCurrencyFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatCurrencyFunction.Companion Companion;
@@ -77,7 +77,7 @@ package androidx.a2ui.model.catalog.functions {
     ctor public A2uiFormatDateFunction();
     ctor public A2uiFormatDateFunction(optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
     ctor @BytecodeOnly public A2uiFormatDateFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatDateFunction.Companion Companion;
@@ -92,7 +92,7 @@ package androidx.a2ui.model.catalog.functions {
     ctor public A2uiFormatNumberFunction();
     ctor public A2uiFormatNumberFunction(optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
     ctor @BytecodeOnly public A2uiFormatNumberFunction(androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction.Companion Companion;
@@ -141,7 +141,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiLengthFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiLengthFunction.Companion Companion;
@@ -163,7 +163,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiNotFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiNotFunction.Companion Companion;
@@ -175,7 +175,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiNumericFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiNumericFunction.Companion Companion;
@@ -188,7 +188,7 @@ package androidx.a2ui.model.catalog.functions {
 
   public final class A2uiOpenUrlFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     ctor public A2uiOpenUrlFunction(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener);
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiOpenUrlFunction.Companion Companion;
@@ -198,7 +198,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiOrFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiOrFunction.Companion Companion;
@@ -213,13 +213,13 @@ package androidx.a2ui.model.catalog.functions {
     ctor public A2uiPluralizeFunction(android.content.Context context);
     ctor public A2uiPluralizeFunction(android.content.Context context, optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
     ctor @BytecodeOnly public A2uiPluralizeFunction(android.content.Context!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
   }
 
   public final class A2uiRegexFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRegexFunction.Companion Companion;
@@ -231,7 +231,7 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiRequiredFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    method public Object? execute(java.util.Map<java.lang.String,?> args);
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
     field public static final androidx.a2ui.model.catalog.functions.A2uiRequiredFunction.Companion Companion;
@@ -331,6 +331,12 @@ package androidx.a2ui.model.protocol {
 
   public static final class A2uiException.A2uiValidationException extends androidx.a2ui.model.protocol.A2uiException {
     ctor public A2uiException.A2uiValidationException(String message, String path);
+  }
+
+  public interface A2uiExecutionContext {
+    method public Object? evaluatePayload(androidx.a2ui.model.protocol.A2uiDataPath dataPath, Object? payload);
+    method public Object? executeFunction(String name, java.util.Map<java.lang.String,?> args);
+    method public Object? resolveValue(androidx.a2ui.model.protocol.A2uiDataPath path);
   }
 
   public sealed exhaustive interface A2uiServerToClientMessage {
