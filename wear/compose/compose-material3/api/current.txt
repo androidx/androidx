@@ -758,6 +758,11 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void FadingExpandingLabel-oiE5lR0(String, androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontFamily?, long, androidx.compose.ui.text.style.TextDecoration?, androidx.compose.ui.text.style.TextAlign?, long, boolean, int, int, androidx.compose.ui.text.TextStyle?, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int, int);
   }
 
+  public final class GlobalStatusBarKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalGlobalStatusBarEnabled();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalGlobalStatusBarEnabled;
+  }
+
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
     ctor @KotlinOnly public IconButtonColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color contentColor, androidx.compose.ui.graphics.Color disabledContainerColor, androidx.compose.ui.graphics.Color disabledContentColor);
     ctor @BytecodeOnly public IconButtonColors(long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
