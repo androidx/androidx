@@ -373,12 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"ฟีเจอร์ล่าสุด"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"เปิดใช้การโหลดอยู่"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ปิดใช้การโหลดอยู่"</string>
-    <!-- no translation found for app_theme_title (5002857339487981595) -->
-    <skip />
-    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
-    <skip />
-    <!-- no translation found for app_theme_disabled (947882095780434267) -->
-    <skip />
+    <string name="app_theme_title" msgid="5002857339487981595">"ใช้ธีมของแอป"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"เปิดใช้ธีมของแอปแล้ว"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"ปิดใช้ธีมของแอปแล้ว"</string>
     <string name="loading_screen" msgid="4771507490730308794">"การโหลดหน้าจอ"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"ปุ่มสลับเพื่อเพิ่มหรือนำสีออก"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"เทมเพลตแผนที่พร้อมปุ่มเปิด/ปิด"</string>

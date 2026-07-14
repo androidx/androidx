@@ -373,12 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Fitur Terbaru"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Pemuatan diaktifkan"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Pemuatan dinonaktifkan"</string>
-    <!-- no translation found for app_theme_title (5002857339487981595) -->
-    <skip />
-    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
-    <skip />
-    <!-- no translation found for app_theme_disabled (947882095780434267) -->
-    <skip />
+    <string name="app_theme_title" msgid="5002857339487981595">"Gunakan Tema Aplikasi"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Tema Aplikasi diaktifkan"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Tema Aplikasi dinonaktifkan"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Layar pemuatan"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Alihkan untuk menambahkan/menghapus warna"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Template Peta dengan Tombol"</string>
