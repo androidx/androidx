@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.a2ui.engine.model
+package androidx.a2ui.model.catalog.functions
 
+import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 
-/**
- * A callback interface provided by the framework layer during evaluation. Allows the core to read
- * from the data model synchronously while enabling the framework to track data accesses for
- * reactive updates.
- */
-public fun interface A2uiCoreValueResolver {
-    /**
-     * Resolves a value from the data model at the given path.
-     *
-     * @param path The data path to resolve.
-     * @return The resolved value or null if the given path does not exist in the data model.
-     */
-    public fun resolve(path: A2uiDataPath): Any?
+internal object FakeA2uiExecutionContext : A2uiExecutionContext {
+    override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? = null
+
+    override fun executeFunction(name: String, args: Map<String, Any>): Any? = null
+
+    override fun resolveValue(path: A2uiDataPath): Any? = null
+}
+
+internal fun A2uiFunction.execute(args: Map<String, Any>): Any? {
+    return this.execute(args, FakeA2uiExecutionContext)
 }

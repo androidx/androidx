@@ -18,6 +18,8 @@
 
 package androidx.a2ui.model.catalog
 
+import androidx.a2ui.model.protocol.A2uiExecutionContext
+
 /** Represents a function supported by A2UI including its definition and implementation. */
 public interface A2uiFunction {
     /** The definition of the function. */
@@ -26,9 +28,10 @@ public interface A2uiFunction {
     /**
      * Executes the function logic.
      *
-     * @param args The statically resolved arguments. All dynamic properties should be resolved by
-     *   the DynamicEvaluator before populating this argument.
-     * @return The raw evaluated result.
+     * @param args statically resolved arguments where dynamic properties are resolved beforehand
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
+     * @return raw evaluated result
      */
-    public fun execute(args: Map<String, Any>): Any?
+    public fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any?
 }

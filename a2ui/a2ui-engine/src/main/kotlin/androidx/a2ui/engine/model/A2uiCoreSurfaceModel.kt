@@ -54,6 +54,8 @@ public class A2uiCoreSurfaceModel(
     private val timeProvider: () -> Long = { System.currentTimeMillis() },
 ) {
 
+    private val dynamicEvaluator = A2uiCoreDynamicEvaluatorImpl
+
     /**
      * Applies a data model update to this surface.
      *
@@ -113,6 +115,32 @@ public class A2uiCoreSurfaceModel(
                 context = exception.context,
             )
         onDispatchError(error)
+    }
+
+    /**
+     * Evaluates a dynamic payload for a specific component.
+     *
+     * @param componentId unique identifier of the UI component
+     * @param valueResolver resolver to retrieve values from the data model
+     * @param dataPath base path used to resolve relative paths
+     * @param payload payload to evaluate
+     * @return evaluated result, or null if evaluation fails
+     */
+    public fun evaluatePayload(
+        componentId: String,
+        valueResolver: A2uiCoreValueResolver,
+        dataPath: A2uiDataPath,
+        payload: Any?,
+    ): Any? {
+        val executionContext =
+            A2uiCoreExecutionContext(
+                componentId = componentId,
+                catalog = catalog,
+                dispatchError = ::dispatchError,
+                valueResolver = valueResolver,
+                dynamicEvaluator = dynamicEvaluator,
+            )
+        return executionContext.evaluatePayload(dataPath, payload)
     }
 
     /** Cleans up resources and active memory. */

@@ -20,6 +20,7 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
@@ -60,9 +61,11 @@ public class A2uiRegexFunction private constructor() : A2uiFunction {
      * Validates that the input matches the pattern in [args].
      *
      * @param args arguments containing "value" string and "pattern" regex string
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return true if the string matches the pattern, false otherwise
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
         val pattern = A2uiFunctionArgParser.getStringArg(args, ARG_PATTERN_KEY)
 

@@ -19,6 +19,7 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
@@ -51,9 +52,11 @@ public class A2uiEmailFunction private constructor() : A2uiFunction {
      * Runs email format validation on the given [args].
      *
      * @param args arguments containing the "value" string to validate
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return true if the value matches the email regex, false otherwise
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val value = A2uiFunctionArgParser.getStringArg(args, ARG_VALUE_KEY)
 
         return PatternsCompat.EMAIL_ADDRESS.matcher(value).matches()

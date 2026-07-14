@@ -22,11 +22,10 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiDataPath
-import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,14 +36,32 @@ class A2uiCoreDynamicEvaluatorTest {
 
     private lateinit var evaluator: A2uiCoreDynamicEvaluator
     private lateinit var basePath: A2uiDataPath
-    private lateinit var mockResolver: A2uiCoreValueResolver
     private lateinit var mockAddFunction: A2uiFunction
     private lateinit var mockCatalog: A2uiCoreCatalog
+    private lateinit var mockContext: A2uiExecutionContext
 
     @Before
     fun setUp() {
         basePath = A2uiDataPath(BASE_PATH)
-        mockResolver = A2uiCoreValueResolver { path -> "$RESOLVED_PATH_PREFIX ${path.path}" }
+
+        mockContext =
+            object : A2uiExecutionContext {
+                override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? {
+                    return null
+                }
+
+                override fun resolveValue(path: A2uiDataPath): Any? {
+                    return "$RESOLVED_PATH_PREFIX ${path.path}"
+                }
+
+                override fun executeFunction(name: String, args: Map<String, Any>): Any? {
+                    val catalogFunction = mockCatalog.getFunction(name)
+                    if (catalogFunction != null) {
+                        return catalogFunction.execute(args, this)
+                    }
+                    return null
+                }
+            }
 
         mockAddFunction =
             object : A2uiFunction {
@@ -57,7 +74,10 @@ class A2uiCoreDynamicEvaluatorTest {
                             A2uiFunctionReturnType.NUMBER
                     }
 
-                override fun execute(args: Map<String, Any>): Any? {
+                override fun execute(
+                    args: Map<String, Any>,
+                    executionContext: A2uiExecutionContext,
+                ): Any? {
                     val a = args[ARG_A] as? Int ?: return null
                     val b = args[ARG_B] as? Int ?: return null
                     return a + b
@@ -75,7 +95,10 @@ class A2uiCoreDynamicEvaluatorTest {
                             A2uiFunctionReturnType.STRING
                     }
 
-                override fun execute(args: Map<String, Any>): Any? {
+                override fun execute(
+                    args: Map<String, Any>,
+                    executionContext: A2uiExecutionContext,
+                ): Any? {
                     return "${args[ARG_A]}-${args[ARG_B]}"
                 }
             }
@@ -94,57 +117,72 @@ class A2uiCoreDynamicEvaluatorTest {
                     functions.find { it.definition.name == name }
             }
 
-        evaluator = A2uiCoreDynamicEvaluator(mockCatalog)
+        evaluator = A2uiCoreDynamicEvaluatorImpl
     }
 
     @Test
     fun evaluate_literalPrimitiveValue_returnsLiteralString() {
         val payload = "hello"
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(payload)
     }
 
     @Test
     fun evaluate_literalListValue_returnsLiteralList() {
         val listPayload = listOf(1, 2, 3)
-        val result = evaluator.evaluate(basePath, mockResolver, listPayload)
+        val result = evaluator.evaluate(basePath, listPayload, mockContext)
         assertThat(result).isEqualTo(listPayload)
     }
 
     @Test
     fun evaluate_literalMapValue_returnsLiteralMap() {
         val payload = mapOf("other" to "value")
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(payload)
     }
 
     @Test
     fun evaluate_pathPayloadWithRelativePath_resolvesCorrectly() {
         val payload = mapOf(KEY_PATH to RELATIVE_PATH)
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo("$RESOLVED_PATH_PREFIX ${BASE_PATH}/${RELATIVE_PATH}")
     }
 
     @Test
     fun evaluate_pathPayloadWithAbsolutePath_resolvesCorrectly() {
         val payload = mapOf(KEY_PATH to ABSOLUTE_PATH)
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo("$RESOLVED_PATH_PREFIX $ABSOLUTE_PATH")
     }
 
     @Test
-    fun evaluate_callPayloadWithUnregisteredFunction_throwsA2uiRuntimeException() {
+    fun evaluate_pathPayloadWithMissingValue_returnsUnresolved() {
+        val missingResolverContext =
+            object : A2uiExecutionContext {
+                override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? = null
+
+                override fun resolveValue(path: A2uiDataPath): Any? = null
+
+                override fun executeFunction(name: String, args: Map<String, Any>): Any? = null
+            }
+        val payload = mapOf(KEY_PATH to RELATIVE_PATH)
+
+        val result = evaluator.evaluate(basePath, payload, missingResolverContext)
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun evaluate_callPayloadWithUnregisteredFunction_returnsUnresolved() {
         val payload = mapOf(KEY_CALL to "someFunction")
 
-        assertThrows(A2uiException.A2uiRuntimeException::class.java) {
-            evaluator.evaluate(basePath, mockResolver, payload)
-        }
+        val result = evaluator.evaluate(basePath, payload, mockContext)
+        assertThat(result).isNull()
     }
 
     @Test
     fun evaluate_callPayloadWithRegisteredFunction_executesFunction() {
         val payload = mapOf(KEY_CALL to FUNC_ADD, KEY_ARGS to mapOf(ARG_A to 5, ARG_B to 15))
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(20)
     }
 
@@ -157,7 +195,7 @@ class A2uiCoreDynamicEvaluatorTest {
                 KEY_CALLABLE_FROM to "clientOnly",
                 KEY_RETURN_TYPE to "number",
             )
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(20)
     }
 
@@ -169,14 +207,14 @@ class A2uiCoreDynamicEvaluatorTest {
                 KEY_ARGS to mapOf(ARG_A to 5, ARG_B to 15),
                 "unrecognized" to "value",
             )
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(payload)
     }
 
     @Test
     fun evaluate_callPayloadWithInvalidArgsType_returnsLiteralMap() {
         val payload = mapOf(KEY_CALL to FUNC_ADD, KEY_ARGS to "not_a_map")
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo(payload)
     }
 
@@ -188,7 +226,7 @@ class A2uiCoreDynamicEvaluatorTest {
                 KEY_ARGS to
                     mapOf(ARG_A to mapOf(KEY_PATH to "/arg1"), ARG_B to mapOf(KEY_PATH to "/arg2")),
             )
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isEqualTo("$RESOLVED_PATH_PREFIX /arg1-$RESOLVED_PATH_PREFIX /arg2")
     }
 
@@ -200,14 +238,14 @@ class A2uiCoreDynamicEvaluatorTest {
                 mapOf(KEY_CALL to FUNC_ADD, KEY_ARGS to mapOf(ARG_A to nestedPayload, ARG_B to 1))
         }
 
-        val result = evaluator.evaluate(basePath, mockResolver, nestedPayload)
+        val result = evaluator.evaluate(basePath, nestedPayload, mockContext)
         assertThat(result).isEqualTo(100_000)
     }
 
     @Test
     fun evaluate_nestedMapPayload_resolvesCorrectly() {
         val payload = mapOf("user" to mapOf("name" to mapOf(KEY_PATH to "/username")))
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result)
             .isEqualTo(mapOf("user" to mapOf("name" to "$RESOLVED_PATH_PREFIX /username")))
     }
@@ -215,7 +253,7 @@ class A2uiCoreDynamicEvaluatorTest {
     @Test
     fun evaluate_nestedListPayload_resolvesCorrectly() {
         val payload = listOf(mapOf(KEY_PATH to "/item1"), mapOf(KEY_PATH to "/item2"))
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result)
             .isEqualTo(listOf("$RESOLVED_PATH_PREFIX /item1", "$RESOLVED_PATH_PREFIX /item2"))
     }
@@ -236,7 +274,7 @@ class A2uiCoreDynamicEvaluatorTest {
                             )
                     )
             )
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result)
             .isEqualTo(
                 mapOf("user" to mapOf("scores" to listOf("$RESOLVED_PATH_PREFIX /score1", 15)))
@@ -250,7 +288,7 @@ class A2uiCoreDynamicEvaluatorTest {
                 "user" to mapOf("name" to "Alice", "roles" to listOf("admin", "user")),
                 "settings" to mapOf("theme" to "dark"),
             )
-        val result = evaluator.evaluate(basePath, mockResolver, payload)
+        val result = evaluator.evaluate(basePath, payload, mockContext)
         assertThat(result).isSameInstanceAs(payload)
     }
 
@@ -263,7 +301,7 @@ class A2uiCoreDynamicEvaluatorTest {
         val user = mapOf("name" to mapOf(KEY_PATH to "/username"), "roles" to roles)
         val payload = mapOf("user" to user, "settings" to settings)
 
-        val result = evaluator.evaluate(basePath, mockResolver, payload) as Map<*, *>
+        val result = evaluator.evaluate(basePath, payload, mockContext) as Map<*, *>
 
         // The root map and "user" map should be new instances because "name" changed referentially
         assertThat(result).isNotSameInstanceAs(payload)

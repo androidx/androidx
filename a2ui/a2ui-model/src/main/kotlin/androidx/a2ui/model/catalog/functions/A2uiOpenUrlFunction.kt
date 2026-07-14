@@ -20,6 +20,7 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
@@ -70,9 +71,11 @@ public class A2uiOpenUrlFunction(private val urlOpener: A2uiUrlOpener) : A2uiFun
      * Hands over the URL to open in [args] to the platform-specific URL opener.
      *
      * @param args arguments containing the "url" string to open
+     * @param executionContext context allowing to execute other functions, evaluate dynamic
+     *   payloads and resolving data bindings
      * @return null as this operation does not produce a return value
      */
-    override fun execute(args: Map<String, Any>): Any? {
+    override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? {
         val url = A2uiFunctionArgParser.getStringArg(args, ARG_URL_KEY)
         if (url.isEmpty()) {
             throw A2uiException.A2uiRuntimeException(
