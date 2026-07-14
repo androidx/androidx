@@ -482,7 +482,7 @@ private constructor(
                 themeResId,
                 initialState,
                 factory,
-                android.R.id.content,
+                R.id.androidx_fragment_testing_container,
             )
 
         internal fun <F : Fragment> internalLaunch(

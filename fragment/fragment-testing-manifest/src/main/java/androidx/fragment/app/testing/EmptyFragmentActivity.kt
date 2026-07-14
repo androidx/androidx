@@ -17,8 +17,10 @@
 package androidx.fragment.app.testing
 
 import android.os.Bundle
+import android.view.ViewGroup.LayoutParams
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.testing.manifest.R
 
 /**
@@ -40,6 +42,14 @@ public class EmptyFragmentActivity : FragmentActivity() {
         if (factory != null) {
             supportFragmentManager.fragmentFactory = factory
         }
+
+        val container =
+            FragmentContainerView(this).apply {
+                id = R.id.androidx_fragment_testing_container
+                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            }
+
+        setContentView(container)
 
         // FragmentFactory needs to be set before calling the super.onCreate, otherwise the
         // Activity crashes when it is recreating and there is a fragment which has no
