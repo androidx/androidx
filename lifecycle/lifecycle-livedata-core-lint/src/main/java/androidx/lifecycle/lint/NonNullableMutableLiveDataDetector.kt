@@ -150,14 +150,14 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 }
                 if (isGeneric) return
 
+                if (!isKotlin(node.lang) || !methods.contains(node.methodName)) return
+                val resolved = node.resolve() ?: return
                 if (
-                    !isKotlin(node.lang) ||
-                        !methods.contains(node.methodName) ||
-                        !context.evaluator.isMemberInSubClassOf(
-                            node.resolve()!!,
-                            "androidx.lifecycle.LiveData",
-                            false,
-                        )
+                    !context.evaluator.isMemberInSubClassOf(
+                        resolved,
+                        "androidx.lifecycle.LiveData",
+                        false,
+                    )
                 )
                     return
 
@@ -211,17 +211,18 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
         if (classType == null) {
             return null
         }
-        val cls = classType.resolve().getUastParentOfType<UClass>()
-        if (cls != null && !isKotlin(cls.lang)) {
+        val resolved = classType.resolve() ?: return null
+        val cls = resolved.getUastParentOfType<UClass>() ?: return null
+        if (!isKotlin(cls.lang)) {
             // If the type argument refers to a Java type,
             // we won't get KtTypeReference anyway, so bail out early.
             return null
         }
-        val parentPsiType = cls?.superClassType as PsiClassType
+        val parentPsiType = cls.superClassType as? PsiClassType ?: return null
         if (parentPsiType.hasParameters()) {
-            val parentTypeReference = cls.uastSuperTypes[0]
-            val superType = (parentTypeReference.sourcePsi as KtTypeReference).typeElement
-            return superType!!.typeArgumentsAsTypes[0]
+            val parentTypeReference = cls.uastSuperTypes.firstOrNull() ?: return null
+            val superType = (parentTypeReference.sourcePsi as? KtTypeReference)?.typeElement
+            return superType?.typeArgumentsAsTypes?.firstOrNull()
         }
         return getTypeArg(parentPsiType)
     }
