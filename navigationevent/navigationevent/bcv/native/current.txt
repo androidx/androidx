@@ -198,3 +198,5 @@ sealed class androidx.navigationevent/NavigationEventTransitionState { // androi
         final fun toString(): kotlin/String // androidx.navigationevent/NavigationEventTransitionState.Idle.toString|toString(){}[0]
     }
 }
+
+final fun androidx.navigationevent/NavigationEventDispatcherOwner(androidx.navigationevent/NavigationEventDispatcher): androidx.navigationevent/NavigationEventDispatcherOwner // androidx.navigationevent/NavigationEventDispatcherOwner|NavigationEventDispatcherOwner(androidx.navigationevent.NavigationEventDispatcher){}[0]
