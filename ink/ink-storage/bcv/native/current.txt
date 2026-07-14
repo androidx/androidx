@@ -1,0 +1,20 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.ink:ink-storage>
+abstract fun interface androidx.ink.storage/OnDecodeTexturePngBytes { // androidx.ink.storage/OnDecodeTexturePngBytes|null[0]
+    abstract fun onDecodeTexture(kotlin/String, kotlin/ByteArray?): kotlin/String // androidx.ink.storage/OnDecodeTexturePngBytes.onDecodeTexture|onDecodeTexture(kotlin.String;kotlin.ByteArray?){}[0]
+}
+
+abstract fun interface androidx.ink.storage/TexturePngBytesLookup { // androidx.ink.storage/TexturePngBytesLookup|null[0]
+    abstract fun getTexturePngBytes(kotlin/String): kotlin/ByteArray? // androidx.ink.storage/TexturePngBytesLookup.getTexturePngBytes|getTexturePngBytes(kotlin.String){}[0]
+}
+
+final fun (androidx.ink.brush/BrushFamily).androidx.ink.storage/encode(androidx.ink.storage/TexturePngBytesLookup? = ...): kotlin/ByteArray // androidx.ink.storage/encode|encode@androidx.ink.brush.BrushFamily(androidx.ink.storage.TexturePngBytesLookup?){}[0]
+final fun (androidx.ink.brush/BrushFamily.Companion).androidx.ink.storage/decode(kotlin/ByteArray, androidx.ink.brush/Version = ..., androidx.ink.storage/OnDecodeTexturePngBytes? = ...): androidx.ink.brush/BrushFamily // androidx.ink.storage/decode|decode@androidx.ink.brush.BrushFamily.Companion(kotlin.ByteArray;androidx.ink.brush.Version;androidx.ink.storage.OnDecodeTexturePngBytes?){}[0]
+final fun (androidx.ink.strokes/StrokeInputBatch).androidx.ink.storage/encode(): kotlin/ByteArray // androidx.ink.storage/encode|encode@androidx.ink.strokes.StrokeInputBatch(){}[0]
+final fun (androidx.ink.strokes/StrokeInputBatch.Companion).androidx.ink.storage/decode(kotlin/ByteArray): androidx.ink.strokes/ImmutableStrokeInputBatch // androidx.ink.storage/decode|decode@androidx.ink.strokes.StrokeInputBatch.Companion(kotlin.ByteArray){}[0]

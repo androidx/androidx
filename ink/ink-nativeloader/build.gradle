@@ -29,7 +29,7 @@ def nativePrebuiltsDir = new File(prebuiltsRoot, "androidx/ink/native").path
 def nativeHeadersDir = new File(nativePrebuiltsDir, "headers").path
 
 androidXMultiplatform {
-  // Only supported on non-Android JVM for Linux on x86_64
+  // Only supported on non-Android JVM for Linux on x86_64 and Mac on arm64
   jvm()
 
   androidLibrary {
