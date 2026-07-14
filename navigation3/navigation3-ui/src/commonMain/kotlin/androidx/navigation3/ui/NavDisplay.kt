@@ -35,6 +35,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -615,9 +616,6 @@ public fun <T : Any> NavDisplay(
     val transition = rememberTransition(transitionState, label = "scene")
 
     // Transition Handling
-    /** Keep track of the previous entries for the transition's current scene. */
-    val transitionCurrentStateEntries =
-        remember(transition.currentState) { sceneState.entries.toList() }
 
     // Set up Gesture Back tracking
     val previousScene = sceneState.previousScenes.lastOrNull()
@@ -634,15 +632,18 @@ public fun <T : Any> NavDisplay(
             is Idle -> NavigationEvent.EDGE_NONE
             is InProgress -> gestureTransition.latestEvent.swipeEdge
         }
+    // Determine if this should be a pop or not.
+    // Keep track of the previous entries for the current scene.
+    val previousEntries = remember { mutableStateOf(sceneState.entries.map { it.contentKey }) }
 
     val isPop =
-        isPop(
-            // Consider this a pop if the current entries match the previous entries we have
-            // recorded
-            // from the current state of the transition
-            transitionCurrentStateEntries.map { it.contentKey },
-            sceneState.entries.map { it.contentKey },
-        )
+        remember(sceneState.entries) {
+            val oldBackStack = previousEntries.value
+            val newBackStack = sceneState.entries.map { it.contentKey }
+            val result = isPop(oldBackStack, newBackStack)
+            previousEntries.value = newBackStack
+            result
+        }
 
     // Track currently rendered Scenes and their ZIndices
     val sceneMap = remember { mutableStateMapOf<AnimatedSceneKey, Scene<T>>() }
