@@ -364,10 +364,12 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:Nullable
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:Nullable
+        @set:JvmSynthetic
         public var viewPort: ViewPort?
             get() = _viewPort
-            @JvmSynthetic
-            set(@Nullable value) {
+            set(value) {
                 _viewPort = value
             }
 
@@ -381,10 +383,12 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:NonNull
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:NonNull
+        @set:JvmSynthetic
         public var frameRateRange: Range<Int>
             get() = _frameRateRange
-            @JvmSynthetic
-            set(@NonNull value) {
+            set(value) {
                 _frameRateRange = value
             }
 
@@ -399,10 +403,12 @@ constructor(
         // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
         @get:NonNull
         @get:JvmSynthetic
+        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+        @set:NonNull
+        @set:JvmSynthetic
         public var isAutoRotationEnabled: Boolean
             get() = _isAutoRotationEnabled
-            @JvmSynthetic
-            set(@NonNull value) {
+            set(value) {
                 _isAutoRotationEnabled = value
             }
 

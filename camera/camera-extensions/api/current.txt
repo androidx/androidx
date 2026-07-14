@@ -39,12 +39,12 @@ package androidx.camera.extensions {
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder addUseCase(androidx.camera.core.UseCase useCase);
     method public androidx.camera.extensions.ExtensionSessionConfig build();
-    method @BytecodeOnly public androidx.camera.core.ViewPort? getViewPort();
-    method @BytecodeOnly public boolean isAutoRotationEnabled();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.ViewPort? getViewPort();
+    method @BytecodeOnly @Deprecated public boolean isAutoRotationEnabled();
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder setAutoRotationEnabled(boolean autoRotationEnabled);
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder setViewPort(androidx.camera.core.ViewPort viewPort);
-    property @kotlin.jvm.JvmSynthetic public boolean isAutoRotationEnabled;
-    property @kotlin.jvm.JvmSynthetic public androidx.camera.core.ViewPort? viewPort;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isAutoRotationEnabled;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.ViewPort? viewPort;
   }
 
   public final class ExtensionSessionConfigKt {
