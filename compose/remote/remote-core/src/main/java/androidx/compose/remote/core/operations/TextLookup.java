@@ -164,7 +164,10 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
         }
 
         int id = context.getCollectionsAccess().getId(mDataSetId, (int) mOutIndex);
-        context.loadText(mTextId, context.getText(id));
+        String text = context.getText(id);
+        if (text != null) {
+            context.loadText(mTextId, text);
+        }
     }
 
     @NonNull

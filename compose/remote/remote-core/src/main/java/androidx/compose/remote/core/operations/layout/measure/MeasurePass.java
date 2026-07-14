@@ -91,6 +91,22 @@ public class MeasurePass {
     }
 
     /**
+     * Retrieve or create a ComponentMeasure for a component.
+     *
+     * @param c the Component
+     * @param x the x position
+     * @param y the y position
+     * @param w the width
+     * @param h the height
+     * @param visibility the visibility state
+     * @return the ComponentMeasure instance
+     */
+    public @NonNull ComponentMeasure obtain(
+            @NonNull Component c, float x, float y, float w, float h, int visibility) {
+        return obtain(c.getComponentId(), x, y, w, h, visibility);
+    }
+
+    /**
      * return the ComponentMeasure associated with a given component
      *
      * @param c the Component
@@ -100,8 +116,8 @@ public class MeasurePass {
         int id = c.getComponentId();
         ComponentMeasure measure = mList.get(id);
         if (measure == null) {
-            measure = obtain(id, c.getX(), c.getY(), c.getWidth(), c.getHeight(),
-                    Component.Visibility.VISIBLE);
+            measure = obtain(c, c.getX(), c.getY(), c.getWidth(), c.getHeight(),
+                    c.mVisibility);
             mList.put(id, measure);
         }
         return measure;
