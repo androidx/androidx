@@ -29,15 +29,18 @@ value class VertexMode internal constructor(@Suppress("unused") private val valu
 
     companion object {
         /** Draw each sequence of three points as the vertices of a triangle. */
-        val Triangles = VertexMode(0)
+        val Triangles
+            get() = VertexMode(0)
 
         /** Draw each sliding window of three points as the vertices of a triangle. */
-        val TriangleStrip = VertexMode(1)
+        val TriangleStrip
+            get() = VertexMode(1)
 
         /**
          * Draw the first point and each sliding window of two points as the vertices of a triangle.
          */
-        val TriangleFan = VertexMode(2)
+        val TriangleFan
+            get() = VertexMode(2)
     }
 
     override fun toString() =

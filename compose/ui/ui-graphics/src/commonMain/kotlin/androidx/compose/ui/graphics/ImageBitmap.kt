@@ -149,14 +149,16 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *    (R and 0xff)
          * ```
          */
-        val Argb8888 = ImageBitmapConfig(0)
+        val Argb8888
+            get() = ImageBitmapConfig(0)
 
         /**
          * Each pixel is stored as a single translucency (alpha) channel. This is very useful to
          * efficiently store masks for instance. No color information is stored. With this
          * configuration, each pixel requires 1 byte of memory.
          */
-        val Alpha8 = ImageBitmapConfig(1)
+        val Alpha8
+            get() = ImageBitmapConfig(1)
 
         /**
          * Each pixel is stored on 2 bytes and only the RGB channels are encoded: red is stored with
@@ -178,7 +180,8 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *      (B and 0x1f)
          * ```
          */
-        val Rgb565 = ImageBitmapConfig(2)
+        val Rgb565
+            get() = ImageBitmapConfig(2)
 
         /**
          * Each pixel is stored on 8 bytes. Each channel (RGB and alpha for translucency) is stored
@@ -195,7 +198,8 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *      (R and 0xffff)
          * ```
          */
-        val F16 = ImageBitmapConfig(3)
+        val F16
+            get() = ImageBitmapConfig(3)
 
         /**
          * Special configuration, when an ImageBitmap is stored only in graphic memory. ImageBitmaps
@@ -204,7 +208,8 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          * It is optimal for cases, when the only operation with the ImageBitmap is to draw it on a
          * screen.
          */
-        val Gpu = ImageBitmapConfig(4)
+        val Gpu
+            get() = ImageBitmapConfig(4)
     }
 
     override fun toString() =

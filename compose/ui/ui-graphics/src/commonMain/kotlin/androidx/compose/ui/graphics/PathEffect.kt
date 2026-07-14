@@ -110,7 +110,8 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * repeatedly with the top left corner of each stamped square along the curvature of the
          * circle.
          */
-        val Translate = StampedPathEffectStyle(0)
+        val Translate
+            get() = StampedPathEffectStyle(0)
 
         /**
          * Rotates the path shape its center along the curvature of the drawn geometry. This does
@@ -120,7 +121,8 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * repeatedly with the center of each stamped square along the curvature of the circle as
          * well as each square being rotated along the circumference.
          */
-        val Rotate = StampedPathEffectStyle(1)
+        val Rotate
+            get() = StampedPathEffectStyle(1)
 
         /**
          * Modifies the points within the path such that they fit within the drawn geometry. This
@@ -130,7 +132,8 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * of the square paths to be curves such that each stamped square is rendered as an arc
          * around the curvature of the circle.
          */
-        val Morph = StampedPathEffectStyle(2)
+        val Morph
+            get() = StampedPathEffectStyle(2)
     }
 
     override fun toString() =
