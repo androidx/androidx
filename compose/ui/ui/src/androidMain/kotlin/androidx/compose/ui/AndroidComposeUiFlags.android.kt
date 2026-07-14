@@ -67,6 +67,15 @@ object AndroidComposeUiFlags {
     var isFrameworkVelocityTrackerEnabled: Boolean = false
 
     /**
+     * If enabled, the creation of the container for AndroidViews is delayed until an AndroidView is
+     * added.
+     */
+    // TODO: b/529483648
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isDelayAndroidViewsHandlerCreationEnabled: Boolean = false
+
+    /**
      * This flag forces scroll capture to center the content being rendered even if it's already
      * visible.
      */
