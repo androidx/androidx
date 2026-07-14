@@ -18,6 +18,7 @@
 
 package androidx.compose.ui.semantics
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,6 +91,7 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -328,6 +330,9 @@ class SemanticsTests {
             )
     }
 
+    // FillableData.createFromText() returns null on SDK versions lower than
+    // Oreo (API 26) because Autofill APIs were introduced in API 26.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun fillableDataProperty() {
         rule.setContent {
@@ -355,6 +360,9 @@ class SemanticsTests {
             )
     }
 
+    // FillableData.createFromText() returns null on SDK versions lower than
+    // Oreo (API 26) because Autofill APIs were introduced in API 26.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun onFillDataAction() {
         val actionLabel = "fill"
