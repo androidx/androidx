@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isUnspecified
-import androidx.compose.ui.internal.requirePrecondition
 import kotlin.jvm.JvmName
 
 /**
