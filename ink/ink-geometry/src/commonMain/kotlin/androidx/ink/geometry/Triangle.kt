@@ -18,7 +18,6 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 
 /**
  * A triangle defined by its three corners [p0], [p1] and [p2]. The order of these points matter - a
@@ -112,7 +111,6 @@ public abstract class Triangle internal constructor() {
      * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableTriangle
 
     public fun isAlmostEqual(other: Triangle, @FloatRange(from = 0.0) tolerance: Float): Boolean =

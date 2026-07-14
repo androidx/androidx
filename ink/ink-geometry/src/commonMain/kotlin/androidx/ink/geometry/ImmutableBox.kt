@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmStatic
 import kotlin.math.max
@@ -45,7 +44,6 @@ public class ImmutableBox internal constructor(x1: Float, y1: Float, x2: Float, 
     /** The upper bound in the `Y` direction. */
     override val yMax: Float = max(y1, y2)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableBox = this
 
     override fun equals(other: Any?): Boolean =

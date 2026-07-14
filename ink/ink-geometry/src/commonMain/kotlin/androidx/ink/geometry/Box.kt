@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import kotlin.math.abs
 
 /**
@@ -122,7 +121,6 @@ public abstract class Box internal constructor() {
      * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableBox
 
     /**

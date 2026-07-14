@@ -78,7 +78,6 @@ public abstract class AffineTransform internal constructor() {
      * Returns an immutable equivalent of this object. This will return itself if called on an
      * immutable instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract fun toImmutable(): ImmutableAffineTransform
 
     /**
