@@ -38,6 +38,7 @@ import androidx.compose.remote.core.Operations.COMPONENT_START
 import androidx.compose.remote.core.Operations.COMPONENT_VALUE
 import androidx.compose.remote.core.Operations.CONDITIONAL_OPERATIONS
 import androidx.compose.remote.core.Operations.CONTAINER_END
+import androidx.compose.remote.core.Operations.CORE_TEXT
 import androidx.compose.remote.core.Operations.DATA_BITMAP
 import androidx.compose.remote.core.Operations.DATA_BOOLEAN
 import androidx.compose.remote.core.Operations.DATA_FLOAT
@@ -177,6 +178,7 @@ public object GlanceWearProfiles {
             COMPONENT_VALUE,
             CONDITIONAL_OPERATIONS,
             CONTAINER_END,
+            CORE_TEXT,
             DATA_BITMAP,
             DATA_BOOLEAN,
             DATA_FLOAT,
