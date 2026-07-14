@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.internal.requirePrecondition
 
 /**
  * A scope for configuring a mesh gradient.
@@ -83,7 +82,7 @@ sealed interface MeshGradientScope {
  * is [Offset.Unspecified], the renderer automatically infers a tangent based on the neighboring
  * vertices to ensure C1 continuity (smooth transitions) across patches.
  *
- * @sample androidx.compose.ui.samples.MeshGradientPainterSample
+ * @sample androidx.compose.ui.graphics.samples.MeshGradientPainterSample
  * @param rows The number of patches along the vertical axis. Must be at least 1.
  * @param columns The number of patches along the horizontal axis. Must be at least 1.
  * @param hasBicubicColor When true, uses Catmull-Rom interpolation for colors, resulting in

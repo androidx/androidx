@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.samples
+package androidx.compose.ui.graphics.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
