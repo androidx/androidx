@@ -76,6 +76,7 @@ class ResourceParser {
             parseResourceByKey(resources, "paths");
             parseResourceByKey(resources, "floatArrays");
             parseResourceByKey(resources, "variables");
+            parseResourceByKey(resources, "integers");
             parseResourceByKey(resources, "matrices");
         }
     }
@@ -222,6 +223,31 @@ class ResourceParser {
                     mParser.mVariables.put(name, id);
                 });
                 break;
+            case "integers":
+                parseOrderedResource(resources, key, (obj, name, value) -> {
+                    boolean named = obj == null || obj.optBoolean("export", true);
+                    Object valObj = value;
+                    if (value instanceof JSONObject) {
+                        JSONObject vo = (JSONObject) value;
+                        if (vo.has("export")) {
+                            named = vo.optBoolean("export", true);
+                        }
+                        if (vo.has("value")) {
+                            valObj = vo.get("value");
+                        }
+                    }
+                    int intVal = ((Number) valObj).intValue();
+                    long intId;
+                    if (named) {
+                        intId = mWriter.addNamedInt(name, intVal);
+                    } else {
+                        intId = mWriter.addInteger(intVal);
+                    }
+                    mParser.mIntegerVariables.put(name, intId);
+                    int rawId = (int) (intId & 0xFFFFFFFFL);
+                    mParser.mVariables.put(name, Utils.asNan(rawId));
+                });
+                break;
             case "variables":
                 parseOrderedResource(resources, key, (obj, name, value) -> {
                     boolean named = false;
@@ -233,6 +259,21 @@ class ResourceParser {
                         JSONObject vo = (JSONObject) value;
                         if (vo.has("export")) {
                             named = vo.optBoolean("export", false);
+                        }
+                        String typeStr = vo.optString("type", "");
+                        if (typeStr.equalsIgnoreCase("integer")
+                                || typeStr.equalsIgnoreCase("int")) {
+                            int intVal = vo.optInt("value", 0);
+                            long intId;
+                            if (named) {
+                                intId = mWriter.addNamedInt(name, intVal);
+                            } else {
+                                intId = mWriter.addInteger(intVal);
+                            }
+                            mParser.mIntegerVariables.put(name, intId);
+                            int rawId = (int) (intId & 0xFFFFFFFFL);
+                            mParser.mVariables.put(name, Utils.asNan(rawId));
+                            return;
                         }
                         if (vo.has("type") && vo.getString("type").equals("textFromFloat")) {
                             float val = mParser.parseFloat(vo.get("value"));
@@ -350,6 +391,7 @@ class ResourceParser {
         if (key.equalsIgnoreCase("colors")) return "colors";
         if (key.equalsIgnoreCase("paths")) return "paths";
         if (key.equalsIgnoreCase("variables")) return "variables";
+        if (key.equalsIgnoreCase("integers")) return "integers";
         if (key.equalsIgnoreCase("matrices")) return "matrices";
         if (key.equalsIgnoreCase("floatArrays")) return "floatArrays";
         return key;
