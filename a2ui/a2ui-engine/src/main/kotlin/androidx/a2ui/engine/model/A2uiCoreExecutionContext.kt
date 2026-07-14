@@ -33,7 +33,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 internal class A2uiCoreExecutionContext(
     private val componentId: String,
     private val catalog: A2uiCoreCatalog,
-    private val dispatchError: (String, A2uiException) -> Unit,
+    private val dispatchError: (A2uiException, String?) -> Unit,
     private val valueResolver: A2uiCoreValueResolver,
     private val dynamicEvaluator: A2uiCoreDynamicEvaluator,
 ) : A2uiExecutionContext {
@@ -45,13 +45,13 @@ internal class A2uiCoreExecutionContext(
         if (catalogFunction == null) {
             val exception =
                 A2uiException.A2uiRuntimeException("Function '$name' not found in catalog.")
-            dispatchError(componentId, exception)
+            dispatchError(exception, componentId)
             return null
         }
         return try {
             catalogFunction.execute(args, this)
         } catch (e: A2uiException) {
-            dispatchError(componentId, e)
+            dispatchError(e, componentId)
             null
         } catch (e: Exception) {
             val exception =
@@ -59,7 +59,7 @@ internal class A2uiCoreExecutionContext(
                     message = "Function '$name' execution failed",
                     context = mapOf("originalErrorMessage" to e.message),
                 )
-            dispatchError(componentId, exception)
+            dispatchError(exception, componentId)
             null
         }
     }

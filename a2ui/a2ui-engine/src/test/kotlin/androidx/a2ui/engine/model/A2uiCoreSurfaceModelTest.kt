@@ -26,7 +26,9 @@ import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUserAction
+import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiStringSchema
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -41,6 +43,7 @@ class A2uiCoreSurfaceModelTest {
         const val SURFACE_ID_1 = "surf-1"
         const val COMPONENT_ID_1 = "btn-1"
         const val COMPONENT_ID_2 = "input-1"
+        const val COMPONENT_ID_3 = "btn-3"
 
         val emptyActionHandler: (A2uiUserAction) -> Unit = {}
         val emptyErrorHandler: (A2uiClientError) -> Unit = {}
@@ -97,7 +100,7 @@ class A2uiCoreSurfaceModelTest {
         val dataModel = TestDataModel()
         val surface = createTestSurface(dataModel = dataModel)
 
-        surface.updateDataModel(A2uiDataPath("/settings/volume"), 10)
+        surface.updateDataModel("/settings/volume", 10)
 
         assertThat(dataModel.updates["/settings/volume"]).isEqualTo(10)
     }
@@ -107,13 +110,52 @@ class A2uiCoreSurfaceModelTest {
         val dataModel = TestDataModel()
         val surface = createTestSurface(dataModel = dataModel)
 
-        surface.updateDataModel(A2uiDataPath("/settings/volume"), null)
+        surface.updateDataModel("/settings/volume", null)
 
         assertThat(dataModel.updates["/settings/volume"]).isNull()
     }
 
     @Test
-    fun updateComponent_validComponentDetails_propagatesToRegistry() {
+    fun updateDataModel_relativeDataPath_dispatchesError() {
+        var dispatchedError: A2uiClientError? = null
+        val surface = createTestSurface(onDispatchError = { dispatchedError = it })
+
+        surface.updateDataModel("settings/volume", 10)
+
+        assertThat(dispatchedError).isNotNull()
+        assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
+        assertThat(dispatchedError?.message).contains("absolute")
+        assertThat(dispatchedError?.context?.get("path")).isEqualTo("settings/volume")
+    }
+
+    @Test
+    fun updateDataModel_invalidEscapeSequence_dispatchesError() {
+        var dispatchedError: A2uiClientError? = null
+        val surface = createTestSurface(onDispatchError = { dispatchedError = it })
+
+        surface.updateDataModel("/~2/volume", 10)
+
+        assertThat(dispatchedError).isNotNull()
+        assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
+        assertThat(dispatchedError?.message).contains("escape sequence")
+        assertThat(dispatchedError?.context?.get("path")).isEqualTo("/~2/volume")
+    }
+
+    @Test
+    fun updateDataModel_trailingEscapeSequence_dispatchesError() {
+        var dispatchedError: A2uiClientError? = null
+        val surface = createTestSurface(onDispatchError = { dispatchedError = it })
+
+        surface.updateDataModel("/volume~", 10)
+
+        assertThat(dispatchedError).isNotNull()
+        assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
+        assertThat(dispatchedError?.message).contains("escape sequence")
+        assertThat(dispatchedError?.context?.get("path")).isEqualTo("/volume~")
+    }
+
+    @Test
+    fun updateComponents_validComponentDetails_propagatesToRegistry() {
         val registry = TestComponentRegistry()
         val surface = createTestSurface(componentRegistry = registry)
         val props = mapOf<String, Any?>("text" to "Click Me")
@@ -127,7 +169,7 @@ class A2uiCoreSurfaceModelTest {
     }
 
     @Test
-    fun updateComponent_emptyProperties_propagatesToRegistry() {
+    fun updateComponents_emptyProperties_propagatesToRegistry() {
         val registry = TestComponentRegistry()
         val surface = createTestSurface(componentRegistry = registry)
 
@@ -136,6 +178,80 @@ class A2uiCoreSurfaceModelTest {
         val component = registry.components[COMPONENT_ID_1]
         assertThat(component).isNotNull()
         assertThat(component?.properties).isEmpty()
+    }
+
+    @Test
+    fun updateComponents_componentNotInCatalog_dispatchesErrorAndSkipsComponent() {
+        val registry = TestComponentRegistry()
+        var dispatchedError: A2uiClientError? = null
+        val errorHandler: (A2uiClientError) -> Unit = { dispatchedError = it }
+        val surface =
+            createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
+        val props = mapOf<String, Any?>("text" to "Click Me")
+
+        surface.updateComponents(
+            listOf(A2uiComponentPayload(COMPONENT_ID_1, "unknown_type", props))
+        )
+
+        assertThat(registry.components).isEmpty()
+        assertThat(dispatchedError).isNotNull()
+        assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
+        assertThat(dispatchedError?.message).contains("unknown_type")
+        assertThat(dispatchedError?.context?.get("path")).isEqualTo("/components/$COMPONENT_ID_1")
+    }
+
+    @Test
+    fun updateComponents_invalidSchema_dispatchesErrorAndSkipsComponent() {
+        val registry = TestComponentRegistry()
+        var dispatchedError: A2uiClientError? = null
+        val errorHandler: (A2uiClientError) -> Unit = { dispatchedError = it }
+        val catalog = TestCatalog()
+        val surface =
+            createTestSurface(
+                catalog = catalog,
+                componentRegistry = registry,
+                onDispatchError = errorHandler,
+            )
+        // "text" property is expected by "button" schema, but we'll provide an integer instead of a
+        // string
+        val invalidProps = mapOf<String, Any?>("text" to 123)
+
+        surface.updateComponents(
+            listOf(A2uiComponentPayload(COMPONENT_ID_1, "button", invalidProps))
+        )
+
+        assertThat(registry.components).isEmpty()
+        assertThat(dispatchedError).isNotNull()
+        assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
+        assertThat(dispatchedError?.context?.get("path"))
+            .isEqualTo("/components/$COMPONENT_ID_1.text")
+    }
+
+    @Test
+    fun updateComponents_mixedValidAndInvalid_updatesValidAndDispatchesErrors() {
+        val registry = TestComponentRegistry()
+        val dispatchedErrors = mutableListOf<A2uiClientError>()
+        val errorHandler: (A2uiClientError) -> Unit = { dispatchedErrors.add(it) }
+        val surface =
+            createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
+        val validProps = mapOf<String, Any?>("text" to "Click Me")
+        val invalidProps = mapOf<String, Any?>("text" to 123)
+
+        surface.updateComponents(
+            listOf(
+                A2uiComponentPayload(COMPONENT_ID_1, "button", validProps),
+                A2uiComponentPayload(COMPONENT_ID_2, "button", invalidProps),
+                A2uiComponentPayload(COMPONENT_ID_3, "unknown_type", validProps),
+            )
+        )
+
+        assertThat(registry.components).hasSize(1)
+        assertThat(registry.components[COMPONENT_ID_1]).isNotNull()
+        assertThat(dispatchedErrors).hasSize(2)
+        assertThat(dispatchedErrors.map { it.code })
+            .containsExactly("VALIDATION_FAILED", "VALIDATION_FAILED")
+        assertThat(dispatchedErrors.map { it.context["path"] })
+            .containsExactly("/components/$COMPONENT_ID_2.text", "/components/$COMPONENT_ID_3")
     }
 
     @Test
@@ -195,7 +311,7 @@ class A2uiCoreSurfaceModelTest {
             createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
         val exception = A2uiException.A2uiValidationException("invalid name", "user/name")
 
-        surface.dispatchError(COMPONENT_ID_2, exception)
+        surface.dispatchError(exception, COMPONENT_ID_2)
 
         assertThat(registry.reportedErrors[COMPONENT_ID_2]).isEqualTo(exception)
         assertThat(dispatchedError).isNotNull()
@@ -364,10 +480,19 @@ class A2uiCoreSurfaceModelTest {
     private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :
         A2uiCoreCatalog {
         override val id: String = "test_catalog"
-        override val components: List<A2uiCoreComponentDefinition> = emptyList()
+        override val components =
+            listOf(
+                object : A2uiCoreComponentDefinition {
+                    override val name = "button"
+                    override val description = "A test button"
+                    override val propertySchema =
+                        A2uiObjectSchema(properties = mapOf("text" to A2uiStringSchema()))
+                }
+            )
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String): A2uiCoreComponentDefinition? = null
+        override fun getComponent(name: String): A2uiCoreComponentDefinition? =
+            components.find { it.name == name }
 
         override fun getFunction(name: String): A2uiFunction? =
             functions.find { it.definition.name == name }
