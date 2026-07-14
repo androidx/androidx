@@ -47,7 +47,8 @@ value class FontLoadingStrategy private constructor(val value: Int) {
          * This should typically not be used for fonts that are fetched from a remote source such as
          * over http, as it will block all rendering until the font loads. Instead use [Async].
          */
-        val Blocking = FontLoadingStrategy(0)
+        val Blocking
+            get() = FontLoadingStrategy(0)
 
         /**
          * Resolving this font is best-effort and will attempt to load from a local resource that
@@ -70,7 +71,8 @@ value class FontLoadingStrategy private constructor(val value: Int) {
          * This should typically not be used for fonts that are fetched from a remote source such as
          * over http, as it will block all rendering until the font loads. Instead use [Async].
          */
-        val OptionalLocal = FontLoadingStrategy(1)
+        val OptionalLocal
+            get() = FontLoadingStrategy(1)
 
         /**
          * Loading this font will never block, and will load on a background thread.
@@ -91,6 +93,7 @@ value class FontLoadingStrategy private constructor(val value: Int) {
          * This should always be used for fonts that are fetched from a remote source such as over
          * http.
          */
-        val Async = FontLoadingStrategy(2)
+        val Async
+            get() = FontLoadingStrategy(2)
     }
 }

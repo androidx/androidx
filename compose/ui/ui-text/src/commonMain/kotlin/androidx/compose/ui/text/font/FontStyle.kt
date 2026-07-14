@@ -39,10 +39,14 @@ constructor(val value: Int) {
 
     companion object {
         /** Use the upright glyphs */
-        @Suppress("DEPRECATION") val Normal = FontStyle(0)
+        @Suppress("DEPRECATION")
+        val Normal
+            get() = FontStyle(0)
 
         /** Use glyphs designed for slanting */
-        @Suppress("DEPRECATION") val Italic = FontStyle(1)
+        @Suppress("DEPRECATION")
+        val Italic
+            get() = FontStyle(1)
 
         /** Returns a list of possible values of [FontStyle]. */
         fun values(): List<FontStyle> = listOf(Normal, Italic)

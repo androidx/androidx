@@ -59,25 +59,29 @@ value class FontSynthesis internal constructor(val value: Int) {
          * Turns off font synthesis. Neither bold nor slanted faces are synthesized if they don't
          * exist in the [FontFamily]
          */
-        val None = FontSynthesis(0)
+        val None
+            get() = FontSynthesis(0)
 
         /**
          * Only a bold font is synthesized, if it is not available in the [FontFamily]. Slanted
          * fonts will not be synthesized.
          */
-        val Weight = FontSynthesis(WeightFlag)
+        val Weight
+            get() = FontSynthesis(WeightFlag)
 
         /**
          * Only an slanted font is synthesized, if it is not available in the [FontFamily]. Bold
          * fonts will not be synthesized.
          */
-        val Style = FontSynthesis(StyleFlag)
+        val Style
+            get() = FontSynthesis(StyleFlag)
 
         /**
          * The system synthesizes both bold and slanted fonts if either of them are not available in
          * the [FontFamily]
          */
-        val All = FontSynthesis(AllFlags)
+        val All
+            get() = FontSynthesis(AllFlags)
 
         /**
          * Creates a FontSynthesis from the given integer value. This can be useful if you need to
