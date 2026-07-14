@@ -1170,6 +1170,68 @@ Fix for src/com/example/test.kt line 9: Add non-null asserted (!!) call:
             .expectClean()
     }
 
+    @Test
+    fun bug_b_525093263_pattern1() {
+        check(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class ExampleViewModel {
+                    // Pattern 1: Anonymous subclass with setValue override
+                    private val liveData1 = object : MutableLiveData<String?>() {
+                        override fun setValue(value: String?) {
+                            super.setValue(value)
+                        }
+                    }
+                }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
+    }
+
+    @Test
+    fun bug_b_525093263_pattern2() {
+        check(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class ExampleViewModel {
+                    // Pattern 2: Non-null MutableLiveData initialized with nullable value
+                    private val nullableSource: Boolean? = null
+                    val liveData2 = MutableLiveData<Boolean>(nullableSource)
+                }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
+    }
+
+    @Test
+    fun unresolvedSetValueCall() {
+        check(
+                kotlin(
+                        """
+                package com.example
+
+                fun foo(unresolved: UnresolvedType) {
+                    unresolved.setValue(42)
+                }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
+    }
+
     private companion object {
         val DATA_LIB: TestFile =
             bytecode(
