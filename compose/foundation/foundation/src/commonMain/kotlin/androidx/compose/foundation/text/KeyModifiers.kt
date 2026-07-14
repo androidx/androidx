@@ -75,34 +75,34 @@ internal value class KeyModifiers private constructor(private val flags: Int) {
 
         /** A [KeyModifiers] instance representing no key modifiers being pressed. */
         @JvmStatic
-        val None
+        inline val None
             get() = KeyModifiers(0)
 
         /** A [KeyModifiers] instance representing only the "Alt" key modifier being pressed. */
         @JvmStatic
-        val Alt
+        inline val Alt
             get() = KeyModifiers(ALT_FLAG)
 
         /** A [KeyModifiers] instance representing only the "Ctrl" key modifier being pressed. */
         @JvmStatic
-        val Ctrl
+        inline val Ctrl
             get() = KeyModifiers(CTRL_FLAG)
 
         /** A [KeyModifiers] instance representing only the "Meta" key modifier being pressed. */
         @JvmStatic
-        val Meta
+        inline val Meta
             get() = KeyModifiers(META_FLAG)
 
         /** A [KeyModifiers] instance representing only the "Shift" key modifier being pressed. */
         @JvmStatic
-        val Shift
+        inline val Shift
             get() = KeyModifiers(SHIFT_FLAG)
 
         /**
          * A [KeyModifiers] instance representing the "Alt" and "Shift" key modifiers being pressed.
          */
         @JvmStatic
-        val AltShift: KeyModifiers
+        inline val AltShift: KeyModifiers
             get() = Alt + Shift
 
         /**
@@ -110,7 +110,7 @@ internal value class KeyModifiers private constructor(private val flags: Int) {
          * pressed.
          */
         @JvmStatic
-        val CtrlShift: KeyModifiers
+        inline val CtrlShift: KeyModifiers
             get() = Ctrl + Shift
 
         /**
@@ -118,28 +118,28 @@ internal value class KeyModifiers private constructor(private val flags: Int) {
          * pressed.
          */
         @JvmStatic
-        val ShiftMeta: KeyModifiers
+        inline val ShiftMeta: KeyModifiers
             get() = Meta + Shift
 
         /**
          * A [KeyModifiers] instance representing the "Ctrl" and "Alt" key modifiers being pressed.
          */
         @JvmStatic
-        val CtrlAlt: KeyModifiers
+        inline val CtrlAlt: KeyModifiers
             get() = Ctrl + Alt
 
         /**
          * A [KeyModifiers] instance representing the "Ctrl" and "Meta" key modifiers being pressed.
          */
         @JvmStatic
-        val CtrlMeta: KeyModifiers
+        inline val CtrlMeta: KeyModifiers
             get() = Ctrl + Meta
 
         /**
          * A [KeyModifiers] instance representing the "Alt" and "Meta" key modifiers being pressed.
          */
         @JvmStatic
-        val AltMeta: KeyModifiers
+        inline val AltMeta: KeyModifiers
             get() = Meta + Shift
     }
 }
