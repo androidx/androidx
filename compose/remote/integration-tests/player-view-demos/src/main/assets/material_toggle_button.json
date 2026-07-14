@@ -1,0 +1,101 @@
+{
+  "header": {
+    "apiLevel": 7,
+    "width": 400,
+    "height": 450,
+    "contentDescription": "Material Button Toggle Example",
+    "fps": 60
+  },
+  "resources": {
+    "integers": [
+      { "state": 0 }
+    ]
+  },
+  "root": [
+    {
+      "column": {
+        "horizontalAlignment": "center",
+        "verticalAlignment": "center",
+        "modifiers": [
+          "fillMaxSize",
+          { "background": "#121212" },
+          { "padding": 24 }
+        ],
+        "children": [
+          {
+            "box": {
+              "horizontalAlignment": "center",
+              "verticalAlignment": "center",
+              "modifiers": [
+                { "width": 260 },
+                { "height": 100 },
+                { "clip": { "roundedRect": 16 } },
+                { "background": "#1E1E2E" },
+                { "padding": 16 }
+              ],
+              "children": [
+                {
+                  "stateLayout": {
+                    "index": "@vars.state",
+                    "children": [
+                      {
+                        "text": {
+                          "value": "STATUS: OFF",
+                          "fontSize": 28,
+                          "color": "#FF5252"
+                        }
+                      },
+                      {
+                        "text": {
+                          "value": "STATUS: ON",
+                          "fontSize": 28,
+                          "color": "#4CAF50"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "spacer": {
+              "modifiers": [
+                { "height": 36 }
+              ]
+            }
+          },
+          {
+            "box": {
+              "horizontalAlignment": "center",
+              "verticalAlignment": "center",
+              "modifiers": [
+                { "width": 200 },
+                { "height": 56 },
+                { "clip": { "roundedRect": 28 } },
+                { "background": "#6200EE" },
+                "ripple",
+                {
+                  "onClick": {
+                    "type": "valueIntegerExpressionChange",
+                    "target": "@vars.state",
+                    "expression": "(@vars.state + 1) % 2"
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "text": {
+                    "value": "TOGGLE STATE",
+                    "fontSize": 16,
+                    "color": "#FFFFFF"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

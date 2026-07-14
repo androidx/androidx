@@ -420,7 +420,8 @@ class DefaultModifierParsers {
     private static Action parseAction(
             JSONObject obj, RemoteComposeJsonParser parser) throws JSONException {
         String type = obj.getString("type").toLowerCase();
-        int targetId = obj.has("targetId") ? parser.resolveTextId(obj.get("targetId")) : -1;
+        int targetId = obj.has("targetId") ? parser.resolveTextId(obj.get("targetId"))
+                : (obj.has("target") ? parser.resolveTextId(obj.get("target")) : -1);
         switch (type) {
             case "hostaction":
             case "hostnamedaction":
@@ -446,7 +447,8 @@ class DefaultModifierParsers {
                 }
             }
             case "valuefloatexpressionchange": {
-                float valNan = parser.parseFloat(obj.get("value"));
+                Object valObj = obj.has("value") ? obj.get("value") : obj.get("expression");
+                float valNan = parser.parseFloat(valObj);
                 int valId = androidx.compose.remote.core.operations.Utils.idFromNan(valNan);
                 return new ValueFloatExpressionChange(targetId, valId);
             }
@@ -459,8 +461,16 @@ class DefaultModifierParsers {
                 return new ValueIntegerChange(targetId, val);
             }
             case "valueintegerexpressionchange": {
-                long val = obj.getLong("value");
-                return new ValueIntegerExpressionChange(targetId, val);
+                Object targetObj = obj.has("targetId") ? obj.get("targetId") : obj.get("target");
+                long intTargetId = parser.resolveIntegerVariable(targetObj);
+                Object valObj = obj.has("value") ? obj.get("value") : obj.get("expression");
+                long exprId;
+                if (valObj instanceof String) {
+                    exprId = parser.getExpressionParser().parseIntegerExpression((String) valObj);
+                } else {
+                    exprId = obj.getLong("value");
+                }
+                return new ValueIntegerExpressionChange(intTargetId, exprId);
             }
             case "valuestringchange": {
                 Object valObj = obj.get("value");
