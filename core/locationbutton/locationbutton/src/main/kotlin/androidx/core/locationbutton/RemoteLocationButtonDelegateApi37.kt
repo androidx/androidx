@@ -102,7 +102,7 @@ internal class RemoteLocationButtonDelegateApi37(
 
     fun createButtonRequest(): LocationButtonRequest {
         val builder =
-            LocationButtonRequest.Builder(view.width, view.height, view.resources.configuration)
+            LocationButtonRequest.Builder(view.width, view.height, view.effectiveConfiguration)
                 .setPaddingLeft(view.safePaddingLeft)
                 .setPaddingTop(view.safePaddingTop)
                 .setPaddingRight(view.safePaddingRight)

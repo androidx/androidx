@@ -18,11 +18,13 @@ package androidx.core.locationbutton
 
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.StateListDrawable
+import android.os.LocaleList
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
@@ -62,6 +64,7 @@ constructor(
     private var backgroundDrawable: StateListDrawable? = null
     private var iconDrawable: Drawable? = null
     private var isConfigDirty = true
+    private var locales: LocaleList? = null
 
     // Internal cache of the resolved corner radiuses after applying M3 Expressive tokens.
     // These are dynamically calculated during measurement and used to build the background.
@@ -87,8 +90,14 @@ constructor(
         maxLines: Int,
         textAllCaps: Boolean,
         includeFontPadding: Boolean,
+        locales: LocaleList?,
     ) {
-        val textChanged = this.textType != textType
+        val localesChanged = this.locales != locales
+        if (localesChanged) {
+            this.locales = locales
+        }
+
+        val textChanged = this.textType != textType || localesChanged
         // Check if background or shape metrics have changed to trigger a drawable rebuild
         val visualChanged =
             (this.backgroundColor != backgroundColor ||
@@ -141,6 +150,11 @@ constructor(
         } else if (visualChanged) {
             invalidate()
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        text = getTextForType(textType)
     }
 
     private fun updateBackgroundIfDirty() {
@@ -364,7 +378,19 @@ constructor(
                     R.string.location_button_near_your_precise_location
                 else -> return ""
             }
-        return context.getString(resId)
+
+        val currentLocales = locales
+        if (
+            currentLocales == null ||
+                currentLocales.isEmpty ||
+                currentLocales == context.resources.configuration.locales
+        ) {
+            return context.getString(resId)
+        }
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocales(currentLocales)
+        return context.createConfigurationContext(config).getString(resId)
     }
 
     companion object {
