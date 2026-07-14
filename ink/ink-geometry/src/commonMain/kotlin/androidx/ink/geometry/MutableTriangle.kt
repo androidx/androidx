@@ -16,8 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents a mutable triangle, defined by its three corners [p0], [p1] and [p2] in order. See
  * [ImmutableTriangle] for the immutable version.
@@ -57,7 +55,6 @@ public class MutableTriangle(
         return this
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableTriangle = ImmutableTriangle(this.p0, this.p1, this.p2)
 
     /**

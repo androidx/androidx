@@ -61,7 +61,6 @@ public constructor(
         @Size(min = 6) values: FloatArray
     ) : this(values[0], values[1], values[2], values[3], values[4], values[5])
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public override fun toImmutable(): ImmutableAffineTransform = this
 
     /**

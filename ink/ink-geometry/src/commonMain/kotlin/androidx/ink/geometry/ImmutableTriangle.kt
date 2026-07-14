@@ -16,8 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
-
 /**
  * An immutable triangle, defined by its three corners [p0], [p1] and [p2] in order. This object is
  * immutable, so it is inherently thread-safe. See [MutableTriangle] for the mutable version.
@@ -28,7 +26,6 @@ public class ImmutableTriangle(p0: Vec, p1: Vec, p2: Vec) : Triangle() {
     override val p1: ImmutableVec = p1.toImmutable()
     override val p2: ImmutableVec = p2.toImmutable()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableTriangle = this
 
     /**

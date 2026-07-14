@@ -16,8 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents a mutable directed line segment between two points. See [ImmutableSegment] for the
  * immutable alternative.
@@ -52,7 +50,6 @@ public class MutableSegment(override var start: MutableVec, override var end: Mu
         return this
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun toImmutable(): ImmutableSegment = ImmutableSegment(this.start, this.end)
 
     override fun equals(other: Any?): Boolean =
