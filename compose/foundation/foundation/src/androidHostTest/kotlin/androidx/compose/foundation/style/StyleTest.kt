@@ -459,7 +459,7 @@ class StyleTest {
 
     @Test
     fun diff_shape() {
-        diff({ shape(RectangleShape) }, { shape(CircleShape) }, DrawFlag)
+        diff({ shape(RectangleShape) }, { shape(CircleShape) }, DrawFlag or LayerFlag)
     }
 
     @Test
