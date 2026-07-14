@@ -652,8 +652,23 @@ private class DialogWrapper(
         window?.let { window ->
             val attrs = window.attributes
             attrs.type = properties.windowType
-            // Use windowToken if provided else let the framework handle it.
-            properties.windowToken?.let { token -> attrs.token = token }
+
+            val rootLayoutParams = composeView.rootView.layoutParams as? WindowManager.LayoutParams
+            // If composeView is hosted inside a sub-window (e.g. `TYPE_APPLICATION_SUB_PANEL` in an
+            // overlay service across process boundaries), calling `mContext.getActivityToken()`
+            // inside Dialog returns null or invalid tokens across process boundaries.
+            // `WindowManagerService` forbids attaching a new sub-window or dialog to an existing
+            // sub-window without the host application window token. In that case, we must inherit
+            // the token from the root view's layoutParams.
+            // For normal top-level windows, we let the framework handle token resolution.
+            val isRootSubWindow =
+                rootLayoutParams != null &&
+                    rootLayoutParams.type >= WindowManager.LayoutParams.FIRST_SUB_WINDOW &&
+                    rootLayoutParams.type <= WindowManager.LayoutParams.LAST_SUB_WINDOW
+
+            val token =
+                properties.windowToken ?: (if (isRootSubWindow) rootLayoutParams.token else null)
+            token?.let { attrs.token = it }
             window.attributes = attrs
         }
     }
