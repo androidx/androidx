@@ -253,7 +253,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         uri: Uri,
     ): ParcelFileDescriptor? {
         return try {
-            contentResolver.openFileDescriptor(uri, "rwt")
+            contentResolver.openFileDescriptor(uri, "rw")
         } catch (e: IOException) {
             null
         }
