@@ -572,6 +572,25 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
     val nodes: List<GltfModelNode>
         get() = (entity as? GltfModelEntity)?.nodes ?: emptyList()
 
+    /** Scale factor calculated to uniformly fit the [GltfModelEntity] within container bounds. */
+    private var gltfUniformScale = 1f
+
+    /** Explicit scale factor applied by modifiers such as [SubspaceModifier.movable]. */
+    private var userScale = 1f
+
+    /** Sets the user-defined scale factor and applies it to the [GltfModelEntity]. */
+    override var scale: Float
+        get() = super.scale
+        set(value) {
+            // CoreEntityAccumulator calls coreEntity.scale = it when modifiers (e.g. .scale(),
+            // .movable())  are applied during recomposition. Overriding scale intercepts those
+            // calls to update userScale, preserving gltfUniformScale.
+            if (userScale != value) {
+                userScale = value
+                syncCoreEntityCombinedScale()
+            }
+        }
+
     /**
      * The size of the glTF entity will be scaled uniformly such that it fits within the most
      * restrictive dimension according to the constraints.
@@ -584,7 +603,8 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
                     val heightScale = value.height / (modelSize.height.toFloat().coerceAtLeast(1f))
                     val widthScale = value.width / (modelSize.width.toFloat().coerceAtLeast(1f))
                     val depthScale = value.depth / (modelSize.depth.toFloat().coerceAtLeast(1f))
-                    scale = minOf(heightScale, widthScale, depthScale)
+                    gltfUniformScale = minOf(heightScale, widthScale, depthScale)
+                    syncCoreEntityCombinedScale()
                 }
                 super.size = value
             }
@@ -601,6 +621,14 @@ internal class CoreModelEntity(pixelDensity: PixelDensity) : CoreEntity(pixelDen
     @OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
     val animations: List<GltfAnimation>?
         @RequiresApi(Build.VERSION_CODES.O) get() = (entity as? GltfModelEntity)?.getAnimations()
+
+    /**
+     * Combines [gltfUniformScale] and [userScale] to update [CoreEntity.scale], delegating to
+     * [CoreEntity]'s setter which updates [GltfModelEntity] scale in SceneCore.
+     */
+    private fun syncCoreEntityCombinedScale() {
+        super.scale = gltfUniformScale * userScale
+    }
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
         onEntityAttached { entity -> (entity as GltfModelEntity).action() }

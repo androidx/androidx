@@ -34,6 +34,7 @@ import androidx.xr.compose.subspace.SpatialGltfModelStatus.Failed
 import androidx.xr.compose.subspace.SpatialGltfModelStatus.Loaded
 import androidx.xr.compose.subspace.SpatialGltfModelStatus.Loading
 import androidx.xr.compose.subspace.draw.alpha
+import androidx.xr.compose.subspace.draw.scale
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.offset
@@ -603,6 +604,149 @@ class SpatialGltfModelTest {
         // meter) into the 200.dp space.
         assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
             .isEqualTo(0.1f)
+    }
+
+    @Test
+    fun spatialModel_withExplicitSizeAndScaleModifier_combinesScaleToFitAndUserScale() {
+        // Apply both `SubspaceModifier.size(200.dp)` and `.scale(2f)` to `SpatialGltfModel`.
+        // Verify that the entity's final scale (`super.scale`) is the product of the uniform fit
+        // scale
+        // (`0.1f`) and the explicit user scale (`2f`), resulting in `0.2f`.
+        configureFakeSessionWithModelBoundingBox()
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp).scale(2f),
+                )
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("model")
+            .assertWidthIsEqualTo(200.dp)
+            .assertHeightIsEqualTo(200.dp)
+            .assertDepthIsEqualTo(200.dp)
+
+        // gltfUniformScale = 0.1f, userScale = 2f, so combined scale = 0.2f
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.2f)
+    }
+
+    @Test
+    fun spatialModel_withExplicitSizeModifier_maintainsScaleOnRecomposition() {
+        // Verify that when a `SpatialGltfModel` undergoes recomposition, the computed fit scale
+        // (`0.1f`)
+        // is preserved and does not reset or blow up when modifiers are re-applied.
+        var recomposeTrigger by mutableStateOf(0)
+
+        configureFakeSessionWithModelBoundingBox()
+
+        composeTestRule.setContent {
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp),
+                )
+            }
+        }
+
+        // Initial check: scale is 0.1f
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
+
+        // Trigger recomposition
+        recomposeTrigger++
+        composeTestRule.waitForIdle()
+
+        // Verify scale remains 0.1f after recomposition
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
+    }
+
+    @Test
+    fun spatialModel_whenScaleModifierChanges_updatesScaleWithoutResettingFitScale() {
+        // Verify that dynamically updating the explicit scale modifier on a SpatialGltfModel across
+        // recompositions correctly updates the combined scale while preserving the underlying fit
+        // scale (`0.1f`).
+        var dynamicScale by mutableStateOf(1f)
+
+        configureFakeSessionWithModelBoundingBox()
+
+        composeTestRule.setContent {
+            val currentScale = dynamicScale
+            Subspace(
+                modifier =
+                    SubspaceModifier.requiredSizeIn(
+                        maxWidth = Dp.Infinity,
+                        maxHeight = Dp.Infinity,
+                        maxDepth = Dp.Infinity,
+                    )
+            ) {
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp).scale(currentScale),
+                )
+            }
+        }
+
+        // Initial check: gltfUniformScale = 0.1f, userScale = 1f -> combined = 0.1f
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.1f)
+
+        // Update the scale modifier dynamically across recomposition
+        dynamicScale = 3f
+        composeTestRule.waitForIdle()
+
+        // Verify combined scale updates to 0.1f * 3f = 0.3f
+        assertThat(composeTestRule.onSubspaceNodeWithTag("model").fetchSemanticsNode().scale)
+            .isEqualTo(0.3f)
+    }
+
+    private fun configureFakeSessionWithModelBoundingBox(
+        boundingBox: BoundingBox = BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
+    ) {
+        composeTestRule.configureFakeSession(
+            defaultDpPerMeter = pixelsPerMeter,
+            renderingRuntime = {
+                object : RenderingRuntime by it {
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        val entity = it.createGltfEntity(pose, loadedGltf, parentEntity)
+                        return object : GltfEntity by entity {
+                            override val gltfModelBoundingBox: BoundingBox = boundingBox
+                        }
+                    }
+                }
+            },
+        )
     }
 
     @Test
