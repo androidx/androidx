@@ -572,6 +572,58 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_pathEmptyStringArgument() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/{name}/{age}"),
+                serializer<SimpleKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com//30")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+        assertThat(result?.key?.name).isEqualTo("")
+        assertThat(result!!.key.age).isEqualTo(30)
+    }
+
+    @Test
+    fun matchRequest_pathEmptyNullableIntWithNullFallback() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/{name}/{age}"),
+                serializer<NullableDefaultKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/john/")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+        assertThat(result?.key?.name).isEqualTo("john")
+        assertThat(result!!.key.age).isNull()
+    }
+
+    @Test
+    fun matchRequest_pathEmptyNullableIntNoFallbackFails() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/{name}/{age}"),
+                serializer<NullableKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/john/")
+        val result = matcher.match(request)
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun matchRequest_pathEmptyNonNullableIntFails() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/{name}/{age}"),
+                serializer<SimpleKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/john/")
+        val result = matcher.match(request)
+        assertThat(result).isNull()
+    }
+
+    @Test
     fun matchRequest_queryEmptyStringArgument() {
         val matcher =
             UriDeepLinkMatcher(

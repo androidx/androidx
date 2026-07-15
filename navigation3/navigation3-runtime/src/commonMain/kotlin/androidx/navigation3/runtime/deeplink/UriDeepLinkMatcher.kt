@@ -243,12 +243,6 @@ public open class UriDeepLinkMatcher<out T : Any>(
         if (!schemeRegex.matches(uri.getScheme().orEmpty())) return null
         if (!uri.getAuthority().equals(normalizedUriPattern.getAuthority(), ignoreCase = true))
             return null
-        val pathSegments = normalizedUriPattern.getPathSegments()
-        if (
-            pathSegments.lastIndexOf(".*") != pathSegments.lastIndex &&
-                uri.getPathSegments().size != pathSegments.size
-        )
-            return null
 
         /**
          * This section mainly extracts arguments. Unless path regex mismatches, we won't know if
