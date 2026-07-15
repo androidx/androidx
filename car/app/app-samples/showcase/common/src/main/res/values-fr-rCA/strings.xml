@@ -373,12 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Dernières fonctionnalités"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Chargement activé"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Chargement désactivé"</string>
-    <!-- no translation found for app_theme_title (5002857339487981595) -->
-    <skip />
-    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
-    <skip />
-    <!-- no translation found for app_theme_disabled (947882095780434267) -->
-    <skip />
+    <string name="app_theme_title" msgid="5002857339487981595">"Utiliser le thème de l\'appli"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Thème de l\'appli activé"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Thème de l\'appli désactivé"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Écran de chargement"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Basculer pour ajouter ou retirer une couleur"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modèle de carte avec commutateurs"</string>
