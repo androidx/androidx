@@ -1,192 +1,19 @@
 #!/usr/bin/env bash
 
+cd "$(dirname $0)"
+source development/ide-common.sh
+
 function usage() {
-  echo "Usage: studiow [--clear-caches] [--clean] [--reinstall] <project subset>|<comma-separated project prefixes>"
-  echo
-  echo "OPTIONS"
-  echo
-  echo " --clear-caches"
-  echo "   Clear generated caches (but not user settings) before launching"
-  echo
-  echo " --clean"
-  echo "   Clear (with backup) generated files (settings, caches, etc) before launching"
-  echo "   Also implies --clear-caches"
-  echo
-  echo " --reinstall"
-  echo "   Remove and re-download Studio itself. Also implies --clean"
-  echo
-  echo "Project subsets:"
-  echo " m, main"
-  echo "  Open the project subset main: non-Compose Jetpack libraries"
-  echo
-  echo " c, compose"
-  echo "  Open the project subset compose"
-  echo
-  echo " ca, camera"
-  echo "  Open the project subset camera"
-  echo
-  echo " f, flan"
-  echo "  Open the project subset flan: Fragment, Lifecycle, Activity, and Navigation"
-  echo
-  echo " m3, material3"
-  echo "  Open the project subset material3 and material catalog"
-  echo
-  echo " media"
-  echo "  Open the project subset media: Media, Media2, and MediaRouter"
-  echo
-  echo " kmp"
-  echo "  Open the project subset KMP: Projects that have KMP builds"
-  echo
-  echo " w, wear"
-  echo "  Open the project subset for Wear OS libraries"
-  echo
-  echo " g, glance"
-  echo "  Open the project subset for glance projects"
-  echo
-  echo " x, xr"
-  echo "  Open the project subset for XR projects"
-  echo
-  echo
-  echo " native"
-  echo "  Open the project subset for native projects"
-  echo
-  echo " a, all"
-  echo "  Open the project subset all"
-  echo
-  echo "Or use project prefixes to scope down even further. For example:"
-  echo " studiow :palette:palette"
-  echo " studiow :room3,:sqlite"
-  echo
+  show_usage "studiow"
   exit 1
 }
 
-cd "$(dirname $0)"
-
-subsetArg=""
-clearCaches=false
-cleanSettings=false
-reinstall=false
-projectSubset=""
-projectPrefix=""
-acceptTos=false
-while [ "$1" != "" ]; do
-  arg="$1"
-  shift
-  # parse options
-  if [ "$arg" == "--acceptTos" ]; then
-    acceptTos=true
-    continue
-  fi
-  if [ "$arg" == "--clear-caches" ]; then
-    clearCaches=true
-    continue
-  fi
-  if [ "$arg" == "--clean" ]; then
-    clearCaches=true
-    cleanSettings=true
-    continue
-  fi
-  if [ "$arg" == "--reinstall" ]; then
-    clearCaches=true
-    cleanSettings=true
-    reinstall=true
-    continue
-  fi
-  # parse arguments
-  subsetArg="$arg"
-  newSubset=""
-  newPrefix=""
-  if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
-    newSubset=main
-  fi
-  if [ "$subsetArg" == "c" -o "$subsetArg" == "compose" ]; then
-    newSubset=compose
-  fi
-  if [ "$subsetArg" == "ca" -o "$subsetArg" == "camera" ]; then
-    newSubset=camera
-  fi
-  if [ "$subsetArg" == "f" -o "$subsetArg" == "flan" ]; then
-    newSubset=flan
-  fi
-  if [ "$subsetArg" == "m3" -o "$subsetArg" == "material3" ]; then
-    newPrefix=":compose:material3,:compose:integration-tests:material-catalog"
-  fi
-  if [ "$subsetArg" == "media" ]; then
-    newSubset=media
-  fi
-  if [ "$subsetArg" == "w" -o "$subsetArg" == "wear" ]; then
-    newSubset=wear
-  fi
-  if [ "$subsetArg" == "g" -o "$subsetArg" == "glance" ]; then
-      newSubset=glance
-  fi
-  if [ "$subsetArg" == "k" -o "$subsetArg" == "kmp" ]; then
-      newSubset=kmp
-  fi
-  if [ "$subsetArg" == "native" ]; then
-    newSubset=native
-  fi
-  if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
-    newSubset=all
-  fi
-  if [ "$subsetArg" == "t" -o "$subsetArg" == "tools" ]; then
-    newSubset=tools
-  fi
-  if [ "$subsetArg" == "wm" -o "$subsetArg" == "window" ]; then
-    newSubset=window
-  fi
-  if [ "$subsetArg" == "x" -o "$subsetArg" == "xr" ]; then
-      newSubset=xr
-  fi
-  if [[ $subsetArg == :* ]]; then
-    newPrefix=$subsetArg
-  fi
-  if [ "$newSubset" == "" ] && [ "$newPrefix" == "" ]; then
-    echo "Unrecognized argument: '$subsetArg'"
-    usage
-  fi
-  if [ "$projectSubset" != "" ]; then
-    echo "Unrecognized argument '$subsetArg', cannot specify project subset more than once"
-    usage
-  fi
-  if [ "$projectPrefix" != "" ]; then
-    echo "Unrecognized argument '$subsetArg', cannot specify project prefix more than once"
-    usage
-  fi
-  projectSubset=$newSubset
-  projectPrefix=$newPrefix
-done
-
-if [ "$projectSubset" == "" ] && [ "$projectPrefix" == "" ]; then
-  echo "Project subset or project prefix is required"
+if ! parse_ide_args "$@"; then
   usage
 fi
 
-if [ "$projectSubset" != "" ]; then
-  unset PROJECT_PREFIX
-  export ANDROIDX_PROJECTS=$projectSubset
-  echo "Tip: Opening a full project subset ('$projectSubset') can be slow and memory-intensive."
-  echo "     If you only need a specific module or set of modules, specify them using project prefixes to speed up launch time."
-  echo "     Studiow will automatically load all required dependencies for you."
-  echo "     Example: ./studiow :compose:material"
-  echo "     Example: ./studiow :compose:material,:paging:paging-common"
-  echo
-else
-  unset ANDROIDX_PROJECTS
-  export PROJECT_PREFIX=$projectPrefix
-fi
+setup_env "studiow"
 
-# ensures the nonexistence of a file or directory, and makes a backup
-function remove() {
-  path="$1"
-  backup="$(dirname $path)/studio-backup/$(basename $path)"
-  if [ -e "$path" ]; then
-    echo "Moving $path to $backup"
-    rm -rf "$backup"
-    mkdir -p "$(dirname $backup)"
-    mv "$path" "$backup"
-  fi
-}
 
 if [ "$reinstall" == "true" ]; then
   # remove Studio itself so Gradle will re-download it
@@ -196,9 +23,14 @@ fi
 # remove studio-specific caches
 if [ "$cleanSettings" == "true" ]; then
   # make backups of files that users might have customized
-  remove ~/.AndroidStudioAndroidX
-  remove ~/.AndroidStudioAndroidXPlayground
-  remove ~/.android
+  backup_and_remove ~/.AndroidStudioAndroidX "studio-backup"
+  backup_and_remove ~/.AndroidStudioAndroidXPlayground "studio-backup"
+  backup_and_remove ~/.android "studio-backup"
+fi
+
+extraArgs=()
+if [ "$acceptTos" == "true" ]; then
+  extraArgs+=("--acceptTos")
 fi
 
 if [ "$clearCaches" == "true" ]; then
@@ -206,12 +38,8 @@ if [ "$clearCaches" == "true" ]; then
   git clean -fdX .idea/
 
   # remove gradle caches too and build
-  ./cleanBuild.sh -y studio
+  ./cleanBuild.sh -y :studio "${extraArgs[@]}"
 else
   # ask gradle to launch studio
-  if [ "$acceptTos" == "true" ]; then
-    ./gradlew :studio --acceptTos
-  else
-    ./gradlew :studio
-  fi
+  ./gradlew :studio "${extraArgs[@]}"
 fi
