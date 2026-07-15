@@ -48,19 +48,33 @@ class ImportMavenPlugin : Plugin<Project> {
         val redownload = project.providers.gradleProperty("redownload").isPresent
 
         val supportDirectory = File(project.rootDir, "../../").toOkioPath()
-        val downloadDirectory = supportDirectory / "../../prebuilts/androidx/"
+        val overridePrebuiltsPath =
+            project.providers.gradleProperty("overridePrebuiltsPath").orNull?.let {
+                File(it).toOkioPath()
+            }
+        val (internalFolder, externalFolder) =
+            if (overridePrebuiltsPath != null) {
+                // Treat the override path as both the internal and external prebuilts folder
+                overridePrebuiltsPath to overridePrebuiltsPath
+            } else {
+                val downloadDirectory = supportDirectory / "../../prebuilts/androidx/"
+                downloadDirectory / "internal" to downloadDirectory / "external"
+            }
+
         val downloader =
             LocalMavenRepoDownloader(
                 fileSystem = FileSystem.SYSTEM,
-                internalFolder = downloadDirectory / "internal",
-                externalFolder = downloadDirectory / "external",
+                internalFolder = internalFolder,
+                externalFolder = externalFolder,
             )
 
         val artifactsToBeResolved =
             if (project.providers.gradleProperty("importToml").isPresent) {
                 ImportVersionCatalog.load(project)
             } else {
-                project.providers.gradleProperty("artifacts").get().split(",").filterNot { it.isBlank() }
+                project.providers.gradleProperty("artifacts").get().split(",").filterNot {
+                    it.isBlank()
+                }
             }
         println("Artifacts: ")
         artifactsToBeResolved.forEach { println(it) }
@@ -120,10 +134,10 @@ class ImportMavenPlugin : Plugin<Project> {
             if (!result.dependenciesPassedVerification) {
                 println(
                     """
-                   [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys.
-                   To trust these artifacts, you might need run `development/update-verification-metadata.sh`
-                   later if Gradle's dependency verification fails when you run a Gradle command. [0m
-                   """
+                    [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys.
+                    To trust these artifacts, you might need run `development/update-verification-metadata.sh`
+                    later if Gradle's dependency verification fails when you run a Gradle command. [0m
+                    """
                         .trimIndent()
                 )
             }
@@ -150,8 +164,8 @@ class ImportMavenPlugin : Plugin<Project> {
             (supportDirectory / "playground-common/playground.properties").toFile()
         check(playgroundPropertiesFile.exists()) {
             """
-                Cannot find playground properties file. This is needed to update metalava in
-                playground to match AndroidX.
+            Cannot find playground properties file. This is needed to update metalava in
+            playground to match AndroidX.
             """
                 .trimIndent()
         }
