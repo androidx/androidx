@@ -27,10 +27,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.DeviceFontFamilyName
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
@@ -48,14 +52,27 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
     val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
 
-    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
-    val fontFamily =
-        when (fontFamilyType) {
-            1 -> FontFamily.SansSerif
-            2 -> FontFamily.Serif
-            3 -> FontFamily.Monospace
-            else -> FontFamily.Default
+    val remoteContext = LocalRemoteContext.current
+    val fontVariationSettings =
+        if (data.fontAxis != null && data.fontAxisValues != null) {
+            val settings =
+                data.fontAxis.asList().mapIndexedNotNull { index, id ->
+                    val name = remoteContext.getText(id)
+                    if (name != null) {
+                        FontVariation.Setting(name, data.fontAxisValues[index])
+                    } else {
+                        null
+                    }
+                }
+            if (settings.isNotEmpty()) {
+                FontVariation.Settings(*settings.toTypedArray())
+            } else {
+                null
+            }
+        } else {
+            null
         }
+
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
         else FontWeight(data.fontWeightValue.toInt())
@@ -63,6 +80,42 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
         if (paintState.isTypefaceSet) paintState.fontStyle
         else {
             if (data.fontStyle == 1) FontStyle.Italic else FontStyle.Normal
+        }
+
+    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
+    val fontFamily =
+        if (fontVariationSettings != null) {
+            val familyNameStr =
+                when (fontFamilyType) {
+                    1 -> "sans-serif"
+                    2 -> "serif"
+                    3 -> "monospace"
+                    else -> "sans-serif"
+                }
+            FontFamily(
+                Font(
+                    DeviceFontFamilyName(familyNameStr),
+                    weight = fontWeight,
+                    style = fontStyle,
+                    variationSettings = fontVariationSettings,
+                )
+            )
+        } else {
+            when (fontFamilyType) {
+                1 -> FontFamily.SansSerif
+                2 -> FontFamily.Serif
+                3 -> FontFamily.Monospace
+                else -> FontFamily.Default
+            }
+        }
+
+    val textDecoration =
+        when {
+            data.underline && data.strikethrough ->
+                TextDecoration.combine(listOf(TextDecoration.Underline, TextDecoration.LineThrough))
+            data.underline -> TextDecoration.Underline
+            data.strikethrough -> TextDecoration.LineThrough
+            else -> TextDecoration.None
         }
 
     Text(
@@ -100,6 +153,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             } else {
                 TextUnit.Unspecified
             },
+        textDecoration = textDecoration,
     )
 }
 

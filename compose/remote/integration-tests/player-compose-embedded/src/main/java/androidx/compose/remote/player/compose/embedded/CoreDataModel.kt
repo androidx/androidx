@@ -251,6 +251,10 @@ internal data class CoreTextData(
     val letterSpacing: Float,
     val lineHeightMultiplier: Float,
     val lineHeightAdd: Float,
+    val underline: Boolean,
+    val strikethrough: Boolean,
+    val fontAxis: IntArray?,
+    val fontAxisValues: FloatArray?,
 )
 
 internal data class TextLayoutData(
