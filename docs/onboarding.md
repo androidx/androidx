@@ -3,7 +3,8 @@
 [TOC]
 
 This page describes how to set up your workstation to check out source code,
-make simple changes in Android Studio, and upload commits to Gerrit for review.
+make simple changes in Android Studio or VS Code, and upload commits to Gerrit
+for review.
 
 This page does **not** cover best practices for the content of changes. Please
 see [Life of a Jetpack Feature](/docs/loaf.md) for details on
@@ -291,6 +292,48 @@ dependencies {
 
 Then,
 [use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
+
+## Develop in VS Code {#vscode}
+
+For developers looking for a lightweight and fast alternative to Android Studio,
+AndroidX supports development in VS Code. Note that VS Code support is
+**best-effort and minimal**. Android Studio remains the recommended IDE for
+full-stack Android development.
+
+VS Code also serves as a companion for the Jetski AI workflow in AndroidX. You
+can use the standalone **Jetski Web** interface to manage AI agents, while using
+**VS Code** (launched via `./codew`) for viewing, editing, and manually building
+code.
+
+### Launching VS Code with `codew` {#vscode-launch}
+
+Similar to `./studiow`, we provide a `./codew` helper script in the
+`frameworks/support` directory to manage and launch a pre-configured VS Code
+environment. To launch VS Code scoped to specific projects (recommended), run:
+
+```shell
+./codew :core:,:work:
+```
+
+### Limitations {#vscode-limitations}
+
+Because VS Code support is minimal, keep in mind the following tooling
+limitations:
+
+*   **Kotlin LSP**: The Kotlin LSP extension (`jetbrains.kotlin-server`) is
+    currently in **Alpha**. KMP projects indexing is also not yet supported by
+    the extension
+
+### Using your system VS Code {#vscode-system}
+
+If you prefer to use your own globally installed version of VS Code instead of
+the managed version, you can pass the `--system` flag:
+
+```shell
+./codew --system :core:,:work:
+```
+
+This requires the `code` binary to be available in your `PATH`.
 
 ## Making changes {#changes}
 
