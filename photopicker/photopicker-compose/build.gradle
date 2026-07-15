@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
 
     // Compose test dependencies
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))

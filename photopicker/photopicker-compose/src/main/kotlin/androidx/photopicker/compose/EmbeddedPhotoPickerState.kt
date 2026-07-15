@@ -46,6 +46,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.withContext
@@ -316,14 +317,16 @@ internal class EmbeddedPhotoPickerStateImpl(
         val innerClientCallback: EmbeddedPhotoPickerClient =
             createEmbeddedPhotoPickerClient(
                 onSessionOpened = {
-                    // Hoist the open session up to the main composable so that it can
-                    // be attached to the surface view.
-                    onReceiveSession(it)
-                    // Pass the session up to the state object for callback purposes.
                     openSession.set(it)
-                    // And finally, pass it to this suspend fun which will use it to run
-                    // the client.
-                    deferredSession.complete(it)
+                    if (deferredSession.complete(it)) {
+                        // Hoist the open session up to the main composable so that it can
+                        // be attached to the surface view.
+                        onReceiveSession(it)
+                    } else {
+                        // The coroutine was canceled before the session was opened.
+                        // Close the session immediately to prevent a leak.
+                        openSession.getAndSet(null)?.close()
+                    }
                 },
                 onSessionError = ::onSessionError,
                 onUriPermissionGranted = {
@@ -374,39 +377,43 @@ internal class EmbeddedPhotoPickerStateImpl(
                 }
                 .build()
 
-        provider.openSession(
-            /* hostToken =       */ checkNotNull(surfaceHostToken) {
-                "Expected surfaceHostToken to not be null"
-            },
-            /* displayId =       */ displayId,
-            /* width =           */ surfaceSize.width,
-            /* height =          */ surfaceSize.height,
-            /* featureInfo =     */ featureInfoWithLocalState,
-            @OptIn(ExperimentalStdlibApi::class)
-            // Fallback to Main.immediate if the dispatcher in this context is null.
-            // (i.e.) for Instrumented tests.
-            /* clientExecutor =  */ coroutineContext[CoroutineDispatcher]?.asExecutor()
-                ?: Dispatchers.Main.immediate.asExecutor(),
-            /* callback =        */ innerClientCallback,
-        )
-
-        // Acquire the session from the provider before starting the client.
-        val session = deferredSession.await()
-
-        // Pass the initial expanded state as the session starts for older extensions.
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < SDK_EXT_21) {
-            session.notifyPhotoPickerExpanded(isExpanded)
-        }
-
         try {
+            provider.openSession(
+                /* hostToken =       */ checkNotNull(surfaceHostToken) {
+                    "Expected surfaceHostToken to not be null"
+                },
+                /* displayId =       */ displayId,
+                /* width =           */ surfaceSize.width,
+                /* height =          */ surfaceSize.height,
+                /* featureInfo =     */ featureInfoWithLocalState,
+                @OptIn(ExperimentalStdlibApi::class)
+                // Fallback to Main.immediate if the dispatcher in this context is null.
+                // (i.e.) for Instrumented tests.
+                /* clientExecutor =  */ coroutineContext[CoroutineDispatcher]?.asExecutor()
+                    ?: Dispatchers.Main.immediate.asExecutor(),
+                /* callback =        */ innerClientCallback,
+            )
+
+            // Acquire the session from the provider before starting the client.
+            val session = deferredSession.await()
+
+            // Pass the initial expanded state as the session starts for older extensions.
+            if (
+                SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) < SDK_EXT_21
+            ) {
+                session.notifyPhotoPickerExpanded(isExpanded)
+            }
             awaitCancellation()
         } finally {
             // Clear the openSession reference to prevent any late calls (like isExpanded setter)
             // from attempting to interact with a closed session.
-            openSession.set(null)
-
-            // When this suspended function is cancelled clean up the session by closing it.
-            withContext(Dispatchers.Main.immediate) { session.close() }
+            openSession.getAndSet(null)?.let {
+                // When this suspended function is canceled clean up the session by closing it.
+                // NonCancellable is required here because withContext is a suspending function
+                // and would otherwise throw CancellationException during cancellation cleanup,
+                // preventing the session from being closed.
+                withContext(NonCancellable + Dispatchers.Main.immediate) { it.close() }
+            }
         }
     }
 
