@@ -54,7 +54,8 @@ internal fun Modifier.height(op: HeightModifierOperation): Modifier {
 
 @Composable
 internal fun Modifier.heightIn(op: HeightInModifierOperation): Modifier {
-    val heightMinDp = rememberRemoteFloatAsState(op.min).value.dp
-    val heightMaxDp = rememberRemoteFloatAsState(op.max).value.dp
-    return this.heightIn(heightMinDp.minusOneUnspecified(), heightMaxDp.minusOneUnspecified())
+    val density = LocalDensity.current.density
+    val heightMinDp = rememberRemoteFloatAsState(op.min).value.constraintPxToDp(density)
+    val heightMaxDp = rememberRemoteFloatAsState(op.max).value.constraintPxToDp(density)
+    return this.heightIn(heightMinDp, heightMaxDp)
 }

@@ -75,7 +75,9 @@ import androidx.compose.remote.creation.compose.state.rememberNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.state.tween
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.BlendMode
@@ -84,7 +86,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -104,7 +105,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerPrimitivesTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
     private val experimentalProfile =
         Profile(
@@ -153,6 +154,17 @@ class RcPlayerPrimitivesTest {
 
             rule.onNodeWithText("Hello Remote").assertExists()
         }
+    }
+
+    @Test
+    fun testRemoteTextWithLineHeightRenders() {
+        rule.setRemoteContent(autoUpdate = false) {
+            RemoteText(text = "Hello Line Height", style = RemoteTextStyle(lineHeight = 24.rsp))
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithText("Hello Line Height").assertExists()
     }
 
     @Test
