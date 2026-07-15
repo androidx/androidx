@@ -164,10 +164,11 @@ package androidx.navigation3.runtime.deeplink {
   }
 
   public final class DeepLinkRequest {
+    ctor public DeepLinkRequest();
     ctor @BytecodeOnly public DeepLinkRequest(android.net.Uri!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public DeepLinkRequest(android.net.Uri? uri, optional java.util.Map<java.lang.String,?> extras);
+    ctor public DeepLinkRequest(optional android.net.Uri? uri, optional java.util.Map<java.lang.String,?> extras);
     ctor @BytecodeOnly public DeepLinkRequest(String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public DeepLinkRequest(String uriString, optional java.util.Map<java.lang.String,?> extras);
+    ctor public DeepLinkRequest(String uri, optional java.util.Map<java.lang.String,?> extras);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object> getExtras();
     method @InaccessibleFromKotlin public android.net.Uri? getUri();
     property public java.util.Map<java.lang.String,java.lang.Object> extras;
