@@ -44,7 +44,15 @@ androidXMultiplatform {
         configureEachTarget { nativeCompilation ->
             // add C++ sources
             nativeCompilation.sources.from(fileTree("src/androidMain/cpp/shared"))
-            nativeCompilation.freeArgs.addAll("-Wall", "-Werror", "-std=c++17")
+            // Enable stack canaries, PIC, and symbol stripping.
+            nativeCompilation.freeArgs.addAll(
+                "-Wall",
+                "-Werror",
+                "-std=c++17",
+                "-fstack-protector-strong",         // Stack canary
+                "-fPIC"                             // Position Independent Code
+            )
+            nativeCompilation.linkerArgs.add("-Wl,-s") // Strip symbols
             // Konan target android_arm32's clang compiler triple is: arm-unknown-linux-androideabi
             // This maps to an ARM architecture that lacks instructions for lock-free atomics causing
             // compilation failure:
@@ -68,7 +76,15 @@ androidXMultiplatform {
             nativeCompilation.include(sharedCounterCompilation)
             // add our JNI sources
             nativeCompilation.sources.from(fileTree("src/androidMain/cpp/jni"))
-            nativeCompilation.freeArgs.addAll("-Wall", "-Werror", "-std=c++17")
+            // Enable stack canaries, PIC, and symbol stripping.
+            nativeCompilation.freeArgs.addAll(
+                "-Wall",
+                "-Werror",
+                "-std=c++17",
+                "-fstack-protector-strong",         // Stack canary
+                "-fPIC"                             // Position Independent Code
+            )
+            nativeCompilation.linkerArgs.add("-Wl,-s") // Strip symbols
         }
         configureTargets(supportedKonanTargets.collect { it.INSTANCE })
     }
