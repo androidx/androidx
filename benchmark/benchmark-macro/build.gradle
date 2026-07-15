@@ -68,7 +68,7 @@ androidComponents {
 
 dependencies {
     api(project(":benchmark:benchmark-common"))
-    api("androidx.test.uiautomator:uiautomator:2.4.0-beta02")
+    api("androidx.test.uiautomator:uiautomator:2.4.0")
     api(libs.jspecify)
     api(libs.junit)
     api("androidx.annotation:annotation:1.8.1")
