@@ -156,7 +156,7 @@ final class <#A: out kotlin/Any> androidx.navigation3.runtime.deeplink/StaticKey
 }
 
 final class androidx.navigation3.runtime.deeplink/DeepLinkRequest { // androidx.navigation3.runtime.deeplink/DeepLinkRequest|null[0]
-    constructor <init>(androidx.navigation3.runtime.deeplink/DeepLinkUri?, kotlin.collections/Map<kotlin/String, kotlin/Any> = ...) // androidx.navigation3.runtime.deeplink/DeepLinkRequest.<init>|<init>(androidx.navigation3.runtime.deeplink.DeepLinkUri?;kotlin.collections.Map<kotlin.String,kotlin.Any>){}[0]
+    constructor <init>(androidx.navigation3.runtime.deeplink/DeepLinkUri? = ..., kotlin.collections/Map<kotlin/String, kotlin/Any> = ...) // androidx.navigation3.runtime.deeplink/DeepLinkRequest.<init>|<init>(androidx.navigation3.runtime.deeplink.DeepLinkUri?;kotlin.collections.Map<kotlin.String,kotlin.Any>){}[0]
     constructor <init>(kotlin/String, kotlin.collections/Map<kotlin/String, kotlin/Any> = ...) // androidx.navigation3.runtime.deeplink/DeepLinkRequest.<init>|<init>(kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.Any>){}[0]
 
     final val extras // androidx.navigation3.runtime.deeplink/DeepLinkRequest.extras|{}extras[0]
