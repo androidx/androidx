@@ -1,0 +1,153 @@
+// Signature format: 4.0
+package androidx.xr.runtime.interfaces {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class DepthEstimationMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.interfaces.DepthEstimationMode.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.DepthEstimationMode DISABLED;
+    field public static final androidx.xr.runtime.interfaces.DepthEstimationMode RAW_ONLY;
+    field public static final androidx.xr.runtime.interfaces.DepthEstimationMode SMOOTH_AND_RAW;
+    field public static final androidx.xr.runtime.interfaces.DepthEstimationMode SMOOTH_ONLY;
+  }
+
+  public static final class DepthEstimationMode.Companion {
+    property public androidx.xr.runtime.interfaces.DepthEstimationMode DISABLED;
+    property public androidx.xr.runtime.interfaces.DepthEstimationMode RAW_ONLY;
+    property public androidx.xr.runtime.interfaces.DepthEstimationMode SMOOTH_AND_RAW;
+    property public androidx.xr.runtime.interfaces.DepthEstimationMode SMOOTH_ONLY;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class DisplayBlendMode {
+    field public static final androidx.xr.runtime.interfaces.DisplayBlendMode.Companion Companion;
+  }
+
+  public static final class DisplayBlendMode.Companion {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.interfaces.DisplayBlendMode getADDITIVE();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.interfaces.DisplayBlendMode getALPHA_BLEND();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.interfaces.DisplayBlendMode getNO_DISPLAY();
+    property public androidx.xr.runtime.interfaces.DisplayBlendMode ADDITIVE;
+    property public androidx.xr.runtime.interfaces.DisplayBlendMode ALPHA_BLEND;
+    property public androidx.xr.runtime.interfaces.DisplayBlendMode NO_DISPLAY;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EyeTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.interfaces.EyeTrackingMode COARSE_TRACKING;
+    field public static final androidx.xr.runtime.interfaces.EyeTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.EyeTrackingMode DISABLED;
+    field public static final androidx.xr.runtime.interfaces.EyeTrackingMode FINE_TRACKING;
+  }
+
+  public static final class EyeTrackingMode.Companion {
+    property public androidx.xr.runtime.interfaces.EyeTrackingMode COARSE_TRACKING;
+    property public androidx.xr.runtime.interfaces.EyeTrackingMode DISABLED;
+    property public androidx.xr.runtime.interfaces.EyeTrackingMode FINE_TRACKING;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Feature {
+    field public static final androidx.xr.runtime.interfaces.Feature.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.Feature FULLSTACK;
+    field public static final androidx.xr.runtime.interfaces.Feature OPEN_XR;
+    field public static final androidx.xr.runtime.interfaces.Feature PROJECTED;
+    field public static final androidx.xr.runtime.interfaces.Feature SPATIAL;
+  }
+
+  public static final class Feature.Companion {
+    property public androidx.xr.runtime.interfaces.Feature FULLSTACK;
+    property public androidx.xr.runtime.interfaces.Feature OPEN_XR;
+    property public androidx.xr.runtime.interfaces.Feature PROJECTED;
+    property public androidx.xr.runtime.interfaces.Feature SPATIAL;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GeospatialMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode DISABLED;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode INERTIAL;
+    field public static final androidx.xr.runtime.interfaces.GeospatialMode SPATIAL;
+  }
+
+  public static final class GeospatialMode.Companion {
+    property public androidx.xr.runtime.interfaces.GeospatialMode DISABLED;
+    property public androidx.xr.runtime.interfaces.GeospatialMode INERTIAL;
+    property public androidx.xr.runtime.interfaces.GeospatialMode SPATIAL;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class HandTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.interfaces.HandTrackingMode BOTH;
+    field public static final androidx.xr.runtime.interfaces.HandTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.HandTrackingMode DISABLED;
+  }
+
+  public static final class HandTrackingMode.Companion {
+    property public androidx.xr.runtime.interfaces.HandTrackingMode BOTH;
+    property public androidx.xr.runtime.interfaces.HandTrackingMode DISABLED;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class RenderingMode {
+    field public static final androidx.xr.runtime.interfaces.RenderingMode.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.RenderingMode MONO;
+    field public static final androidx.xr.runtime.interfaces.RenderingMode STEREO;
+  }
+
+  public static final class RenderingMode.Companion {
+    property public androidx.xr.runtime.interfaces.RenderingMode MONO;
+    property public androidx.xr.runtime.interfaces.RenderingMode STEREO;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Service {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.interfaces.Feature> getRequirements();
+    property public abstract java.util.Set<androidx.xr.runtime.interfaces.Feature> requirements;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProvider extends androidx.lifecycle.LifecycleOwner {
+    method @InaccessibleFromKotlin public android.content.Context getContext();
+    method public androidx.xr.runtime.interfaces.DisplayBlendMode getPreferredDisplayBlendMode();
+    method public boolean isDepthEstimationModeSupported(androidx.xr.runtime.interfaces.DepthEstimationMode mode);
+    method public boolean isEyeTrackingModeSupported(androidx.xr.runtime.interfaces.EyeTrackingMode mode);
+    method public boolean isGeospatialModeSupported(androidx.xr.runtime.interfaces.GeospatialMode mode);
+    method public boolean isHandTrackingModeSupported(androidx.xr.runtime.interfaces.HandTrackingMode mode);
+    method public boolean isRenderingModeSupported(androidx.xr.runtime.interfaces.RenderingMode mode);
+    property public abstract android.content.Context context;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProviderFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.xr.runtime.interfaces.XrNativeInstanceProvider? nativeInstanceProvider);
+    method @BytecodeOnly public static androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider! create$default(androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.xr.runtime.interfaces.XrNativeInstanceProvider!, int, Object!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrNativeInstanceProvider extends androidx.xr.runtime.interfaces.Service {
+    method @InaccessibleFromKotlin public long getXrInstanceHandle();
+    method @InaccessibleFromKotlin public long getXrInstanceProcAddr();
+    method public void initialize(android.content.Context context, optional java.util.List<java.lang.String> extraExtensions);
+    method @BytecodeOnly public static void initialize$default(androidx.xr.runtime.interfaces.XrNativeInstanceProvider!, android.content.Context!, java.util.List!, int, Object!);
+    property public abstract long xrInstanceHandle;
+    property public abstract long xrInstanceProcAddr;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequester {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType getServiceType();
+    method public suspend Object? requestXrServiceUpdate(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    property public abstract androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType serviceType;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class XrServiceUpdateRequester.ServiceType {
+    field public static final androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType PROJECTED;
+  }
+
+  public static final class XrServiceUpdateRequester.ServiceType.Companion {
+    property public androidx.xr.runtime.interfaces.XrServiceUpdateRequester.ServiceType PROJECTED;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequesterFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.interfaces.XrServiceUpdateRequester create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+  }
+
+}
+

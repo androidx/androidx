@@ -1,0 +1,282 @@
+// Signature format: 4.0
+package androidx.xr.scenecore.testing {
+
+  public final class ActivityPanelEntityTester {
+    method @InaccessibleFromKotlin public android.content.Intent? getStartActivityIntent();
+    method @InaccessibleFromKotlin public android.app.Activity? getTransferredActivity();
+    property public android.content.Intent? startActivityIntent;
+    property public android.app.Activity? transferredActivity;
+  }
+
+  public final class ActivitySpaceTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
+    method @InaccessibleFromKotlin public void setHitTestResult(androidx.xr.scenecore.HitTestResult?);
+    method @InaccessibleFromKotlin public void setRecommendedContentBoxInFullSpace(androidx.xr.runtime.math.BoundingBox);
+    method public void triggerOnBoundsChanged(androidx.xr.runtime.math.FloatSize3d bounds);
+    method public void triggerOnOriginChanged();
+    property public androidx.xr.scenecore.HitTestResult? hitTestResult;
+    property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
+  }
+
+  public final class AnchorSpaceTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.AnchorSpace.State? getState();
+    method @InaccessibleFromKotlin public void setState(androidx.xr.scenecore.AnchorSpace.State?);
+    method public void triggerOnOriginChanged();
+    property public androidx.xr.scenecore.AnchorSpace.State? state;
+  }
+
+  public final class BoundsComponentTester {
+    method public void triggerOnBoundsUpdate(androidx.xr.runtime.math.BoundingBox boundingBox);
+  }
+
+  public final class GltfModelEntityTester {
+    method public void addAnimation(androidx.xr.scenecore.testing.TestGltfAnimation animation);
+    method public void addNode(androidx.xr.scenecore.testing.TestGltfModelNode node);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
+    method @InaccessibleFromKotlin public void setGltfModelBoundingBox(androidx.xr.runtime.math.BoundingBox);
+    property public androidx.xr.runtime.math.BoundingBox gltfModelBoundingBox;
+  }
+
+  public final class GltfModelTester {
+    method @InaccessibleFromKotlin public byte[] getAssetData();
+    method @InaccessibleFromKotlin public String getAssetKey();
+    method @InaccessibleFromKotlin public String getAssetPath();
+    property public byte[] assetData;
+    property public String assetKey;
+    property public String assetPath;
+  }
+
+  public final class ImageBasedLightingAssetTester {
+    method @InaccessibleFromKotlin public byte[] getAssetData();
+    method @InaccessibleFromKotlin public String getAssetKey();
+    method @InaccessibleFromKotlin public String getAssetPath();
+    property public byte[] assetData;
+    property public String assetKey;
+    property public String assetPath;
+  }
+
+  public final class InteractableComponentTester {
+    method public void triggerOnInputEvent(androidx.xr.scenecore.InputEvent inputEvent);
+  }
+
+  public final class MainPanelEntityTester extends androidx.xr.scenecore.testing.PanelEntityTester {
+    method public void triggerOnPerceivedResolutionChanged(androidx.xr.runtime.math.IntSize2d dimensions);
+  }
+
+  public final class MeshEntityTester {
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.math.Matrix4> getBoneTransforms();
+    property public java.util.List<androidx.xr.runtime.math.Matrix4> boneTransforms;
+  }
+
+  public final class MovableComponentTester {
+    method @InaccessibleFromKotlin public boolean isAnchorable();
+    method @InaccessibleFromKotlin public boolean isScaleInZ();
+    method @InaccessibleFromKotlin public boolean isSystemMovable();
+    method public void triggerOnMoveEnd(androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, androidx.xr.runtime.math.Vector3 finalScale);
+    method public void triggerOnMoveEnd(androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, androidx.xr.runtime.math.Vector3 finalScale, optional androidx.xr.scenecore.Entity? updatedParent);
+    method @BytecodeOnly public static void triggerOnMoveEnd$default(androidx.xr.scenecore.testing.MovableComponentTester!, androidx.xr.runtime.math.Ray!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Vector3!, androidx.xr.scenecore.Entity!, int, Object!);
+    method public void triggerOnMoveStart(androidx.xr.runtime.math.Ray initialInputRay, androidx.xr.runtime.math.Pose initialPose, androidx.xr.runtime.math.Vector3 initialScale, androidx.xr.scenecore.Entity initialParent);
+    method public void triggerOnMoveUpdate(androidx.xr.runtime.math.Ray currentInputRay, androidx.xr.runtime.math.Pose currentPose, androidx.xr.runtime.math.Vector3 currentScale);
+    property public boolean isAnchorable;
+    property public boolean isScaleInZ;
+    property public boolean isSystemMovable;
+  }
+
+  public class PanelEntityTester {
+    method @InaccessibleFromKotlin public final androidx.xr.scenecore.PerceivedResolutionResult getPerceivedResolutionResult();
+    method @InaccessibleFromKotlin public final void setPerceivedResolutionResult(androidx.xr.scenecore.PerceivedResolutionResult);
+    property public final androidx.xr.scenecore.PerceivedResolutionResult perceivedResolutionResult;
+  }
+
+  public final class PerceptionSpaceTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.HitTestResult? getHitTestResult();
+    method @InaccessibleFromKotlin public void setHitTestResult(androidx.xr.scenecore.HitTestResult?);
+    property public androidx.xr.scenecore.HitTestResult? hitTestResult;
+  }
+
+  public final class PointerCaptureComponentTester {
+    method public void triggerOnInputEvent(androidx.xr.scenecore.InputEvent event);
+    method public void triggerOnStateChanged(androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState newState);
+  }
+
+  public final class PositionalAudioComponentTester {
+    method @InaccessibleFromKotlin public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams getPointSourceParams();
+    method @InaccessibleFromKotlin public void setAudioOutputProvider(androidx.media3.exoplayer.audio.AudioOutputProvider);
+    property public androidx.media3.exoplayer.audio.AudioOutputProvider audioOutputProvider;
+    property public androidx.xr.scenecore.PointSourceParams pointSourceParams;
+  }
+
+  public final class ResizableComponentTester {
+    method public void triggerOnResizeEvent(androidx.xr.scenecore.ResizeEvent resizeEvent);
+  }
+
+  public final class SceneCoreTestRule extends org.junit.rules.ExternalResource {
+    ctor public SceneCoreTestRule();
+    method public androidx.xr.scenecore.testing.SpatialMediaPlayerTester createTester(android.media.MediaPlayer mediaPlayer);
+    method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Component component);
+    method @KotlinOnly public inline <reified T> T createTester(androidx.xr.scenecore.Entity entity);
+    method public androidx.xr.scenecore.testing.GltfModelTester createTester(androidx.xr.scenecore.GltfModel gltfModel);
+    method public androidx.xr.scenecore.testing.ImageBasedLightingAssetTester createTester(androidx.xr.scenecore.ImageBasedLightingAsset asset);
+    method public androidx.xr.scenecore.testing.SoundEffectPoolTester createTester(androidx.xr.scenecore.SoundEffectPool soundEffectPool);
+    method public androidx.xr.scenecore.testing.TextureTester createTester(androidx.xr.scenecore.Texture texture);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.ActivitySpaceTester getActivitySpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.MainPanelEntityTester getMainPanelEntityTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.PerceptionSpaceTester getPerceptionSpaceTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SceneTester getSceneTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialAudioTrackBuilderTester getSpatialAudioTrackBuilderTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialAudioTrackTester getSpatialAudioTrackTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialEnvironmentTester getSpatialEnvironmentTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialSoundPoolTester getSpatialSoundPoolTester();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.SpatialWindowTester getSpatialWindowTester();
+    method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Component component);
+    method @kotlin.PublishedApi internal Object? resolveTesterInternal(androidx.xr.scenecore.Entity entity);
+    property public androidx.xr.scenecore.testing.ActivitySpaceTester activitySpaceTester;
+    property public androidx.xr.scenecore.testing.MainPanelEntityTester mainPanelEntityTester;
+    property public androidx.xr.scenecore.testing.PerceptionSpaceTester perceptionSpaceTester;
+    property public androidx.xr.scenecore.testing.SceneTester sceneTester;
+    property public androidx.xr.scenecore.testing.SpatialAudioTrackBuilderTester spatialAudioTrackBuilderTester;
+    property public androidx.xr.scenecore.testing.SpatialAudioTrackTester spatialAudioTrackTester;
+    property public androidx.xr.scenecore.testing.SpatialEnvironmentTester spatialEnvironmentTester;
+    property public androidx.xr.scenecore.testing.SpatialSoundPoolTester spatialSoundPoolTester;
+    property public androidx.xr.scenecore.testing.SpatialWindowTester spatialWindowTester;
+  }
+
+  public final class SceneTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PanelClippingConfig getPanelClippingConfig();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
+    method @InaccessibleFromKotlin public void setSpatialCapabilities(java.util.Set<androidx.xr.scenecore.SpatialCapability>);
+    method public void triggerSpaceChanged(androidx.xr.scenecore.SpaceChangeEvent spaceChangeEvent);
+    method public void triggerSpatialVisibilityChanged(androidx.xr.scenecore.SpatialVisibility spatialVisibility);
+    property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
+    property public java.util.Set<androidx.xr.scenecore.SpatialCapability> spatialCapabilities;
+  }
+
+  public final class SoundEffectPoolComponentTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastPausedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams? getLastPlayedPointSourceParams();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastPlayedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastResumedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.Stream? getLastStoppedStream();
+    method @IntRange(from=0L) public int getPriority(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.SoundEffect getSoundEffect(androidx.xr.scenecore.Stream stream);
+    method @FloatRange(from=0.0, to=1.0) public float getVolume(androidx.xr.scenecore.Stream stream);
+    method public boolean isLooping(androidx.xr.scenecore.Stream stream);
+    property public androidx.xr.scenecore.Stream? lastPausedStream;
+    property public androidx.xr.scenecore.PointSourceParams? lastPlayedPointSourceParams;
+    property public androidx.xr.scenecore.Stream? lastPlayedStream;
+    property public androidx.xr.scenecore.Stream? lastResumedStream;
+    property public androidx.xr.scenecore.Stream? lastStoppedStream;
+  }
+
+  public final class SoundEffectPoolTester {
+    method public boolean isAssetLoaded(android.content.res.AssetFileDescriptor assetFileDescriptor);
+    method public boolean isResourceLoaded(int resourceId);
+    method public void triggerLoadCompleteListener(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
+  }
+
+  public final class SpatialAudioTrackBuilderTester {
+    method public androidx.xr.scenecore.PointSourceParams? getPointSourceParams(android.media.AudioTrack.Builder builder);
+    method public androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes(android.media.AudioTrack.Builder builder);
+    method public boolean isCurrentPointSource(android.media.AudioTrack.Builder builder, androidx.xr.scenecore.Entity entity);
+  }
+
+  public final class SpatialAudioTrackTester {
+    method public boolean isCurrentPointSource(android.media.AudioTrack track, androidx.xr.scenecore.Entity entity);
+    method public void setSoundFieldAttributes(android.media.AudioTrack track, androidx.xr.scenecore.SoundFieldAttributes soundFieldAttributes);
+    method public void setSpatialSourceType(android.media.AudioTrack track, androidx.xr.scenecore.SpatializerConstants.SourceType sourceType);
+  }
+
+  public final class SpatialEnvironmentTester {
+    method public void triggerPassthroughOpacityChanged(@FloatRange(from=0.0, to=1.0) float opacity);
+    method public void triggerSpatialEnvironmentChanged(boolean active);
+  }
+
+  public final class SpatialMediaPlayerTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PointSourceParams? getPointSourceParams();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes();
+    method public boolean isCurrentPointSource(androidx.xr.scenecore.Entity entity);
+    property public androidx.xr.scenecore.PointSourceParams? pointSourceParams;
+    property public androidx.xr.scenecore.SoundFieldAttributes? soundFieldAttributes;
+  }
+
+  public final class SpatialSoundPoolTester {
+    method @InaccessibleFromKotlin public int getPlayAsPointSourceResult();
+    method @InaccessibleFromKotlin public int getPlayAsSoundFieldResult();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatializerConstants.SourceType getSpatialSourceType();
+    method @InaccessibleFromKotlin public void setPlayAsPointSourceResult(int);
+    method @InaccessibleFromKotlin public void setPlayAsSoundFieldResult(int);
+    method @InaccessibleFromKotlin public void setSpatialSourceType(androidx.xr.scenecore.SpatializerConstants.SourceType);
+    property public int playAsPointSourceResult;
+    property public int playAsSoundFieldResult;
+    property public androidx.xr.scenecore.SpatializerConstants.SourceType spatialSourceType;
+  }
+
+  public final class SpatialWindowTester {
+    method @InaccessibleFromKotlin public float getPreferredAspectRatio();
+    property public float preferredAspectRatio;
+  }
+
+  public final class SurfaceEntityTester {
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.PerceivedResolutionResult getPerceivedResolutionResult();
+    method @InaccessibleFromKotlin public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public void setPerceivedResolutionResult(androidx.xr.scenecore.PerceivedResolutionResult);
+    method @InaccessibleFromKotlin public void setSurface(android.view.Surface);
+    property public androidx.xr.scenecore.PerceivedResolutionResult perceivedResolutionResult;
+    property public android.view.Surface surface;
+  }
+
+  public final class TestGltfAnimation {
+    method @InaccessibleFromKotlin public float getAnimationDuration();
+    method @InaccessibleFromKotlin public int getAnimationIndex();
+    method @InaccessibleFromKotlin public String? getAnimationName();
+    method @InaccessibleFromKotlin public float getSeekStartTime();
+    method @InaccessibleFromKotlin public float getSpeed();
+    method @InaccessibleFromKotlin public boolean shouldLoop();
+    property public float animationDuration;
+    property public int animationIndex;
+    property public String? animationName;
+    property public float seekStartTime;
+    property public boolean shouldLoop;
+    property public float speed;
+  }
+
+  public static final class TestGltfAnimation.Builder {
+    ctor public TestGltfAnimation.Builder();
+    method public androidx.xr.scenecore.testing.TestGltfAnimation build();
+    method public androidx.xr.scenecore.testing.TestGltfAnimation.Builder setAnimationDuration(float animationDuration);
+    method public androidx.xr.scenecore.testing.TestGltfAnimation.Builder setAnimationIndex(int animationIndex);
+    method public androidx.xr.scenecore.testing.TestGltfAnimation.Builder setAnimationName(String? animationName);
+  }
+
+  public final class TestGltfModelNode {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getLocalPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getLocalScale();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getModelPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getModelScale();
+    method @InaccessibleFromKotlin public String? getName();
+    property public androidx.xr.runtime.math.Pose localPose;
+    property public androidx.xr.runtime.math.Vector3 localScale;
+    property public androidx.xr.runtime.math.Pose modelPose;
+    property public androidx.xr.runtime.math.Vector3 modelScale;
+    property public String? name;
+  }
+
+  public static final class TestGltfModelNode.Builder {
+    ctor public TestGltfModelNode.Builder();
+    method public androidx.xr.scenecore.testing.TestGltfModelNode build();
+    method public androidx.xr.scenecore.testing.TestGltfModelNode.Builder setLocalPose(androidx.xr.runtime.math.Pose localPose);
+    method public androidx.xr.scenecore.testing.TestGltfModelNode.Builder setLocalScale(androidx.xr.runtime.math.Vector3 localScale);
+    method public androidx.xr.scenecore.testing.TestGltfModelNode.Builder setModelPose(androidx.xr.runtime.math.Pose modelPose);
+    method public androidx.xr.scenecore.testing.TestGltfModelNode.Builder setModelScale(androidx.xr.runtime.math.Vector3 modelScale);
+    method public androidx.xr.scenecore.testing.TestGltfModelNode.Builder setName(String? name);
+  }
+
+  public final class TextureTester {
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.O) public java.nio.file.Path getPath();
+    property @RequiresApi(android.os.Build.VERSION_CODES.O) public java.nio.file.Path path;
+  }
+
+}
+
