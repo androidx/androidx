@@ -401,7 +401,7 @@ private val nonPublicMarkers =
         "androidx.window.core.ExperimentalWindowCoreApi",
     )
 
-const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"
+const val NEW_ISSUE_URL = "https://issuetracker.google.com/issues/new?component=1102332"
 
 private fun KotlinNativeTarget.compileDependencyFiles(): FileCollection =
     compilations.getByName(MAIN_COMPILATION_NAME).compileDependencyFiles.filter {
