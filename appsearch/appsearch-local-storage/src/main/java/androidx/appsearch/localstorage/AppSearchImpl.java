@@ -2159,7 +2159,7 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(result.getStatus());
             mNeedsPersistToDisk.set(true);
             if (Flags.enableAppSearchManageBlobFiles()) {
-                File blobFileToRemove = new File(mBlobFilesDir, result.getFileName());
+                File blobFileToRemove = getSafeBlobFileLocked(result.getFileName());
                 if (!blobFileToRemove.delete()) {
                     throw new AppSearchException(AppSearchResult.RESULT_IO_ERROR,
                             "Cannot delete the blob file: " + blobFileToRemove.getName());
@@ -2201,7 +2201,7 @@ public final class AppSearchImpl implements Closeable {
                 BlobHandleToProtoConverter.toBlobHandleProto(handle));
         checkSuccess(result.getStatus());
         mNeedsPersistToDisk.set(true);
-        File blobFile = new File(mBlobFilesDir, result.getFileName());
+        File blobFile = getSafeBlobFileLocked(result.getFileName());
         boolean fileExists = blobFile.exists();
         boolean digestMatches = false;
 
@@ -2238,7 +2238,7 @@ public final class AppSearchImpl implements Closeable {
                 throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
                         "Cannot find the blob for handle: " + handle);
             } else {
-                File blobFileToRemove = new File(mBlobFilesDir, removeResult.getFileName());
+                File blobFileToRemove = getSafeBlobFileLocked(removeResult.getFileName());
                 if (!blobFileToRemove.delete()) {
                     throw new AppSearchException(AppSearchResult.RESULT_IO_ERROR,
                             "Cannot delete the blob file: " + blobFileToRemove.getName());
@@ -2507,6 +2507,33 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
+     * Resolves the given blob file name to a {@link File} object, verifying that it resides inside
+     * the designated blob files directory to prevent path traversal attempts.
+     *
+     * @param fileName The name of the blob file to resolve.
+     * @return The resolved {@link File} object.
+     * @throws AppSearchException if a path traversal attempt is detected.
+     * @throws IOException if an I/O error occurs while resolving canonical paths.
+     */
+    @NonNull
+    @GuardedBy("mReadWriteLock")
+    private File getSafeBlobFileLocked(@NonNull String fileName)
+            throws AppSearchException, IOException {
+        File blobFile = new File(mBlobFilesDir, fileName);
+        String canonicalBlobFilePath = blobFile.getCanonicalPath();
+        String canonicalBlobFilesDirPath = mBlobFilesDir.getCanonicalPath();
+        if (!canonicalBlobFilesDirPath.endsWith(File.separator)) {
+            canonicalBlobFilesDirPath += File.separator;
+        }
+        if (!canonicalBlobFilePath.startsWith(canonicalBlobFilesDirPath)) {
+            throw new AppSearchException(
+                    AppSearchResult.RESULT_SECURITY_ERROR,
+                    "Path traversal detected in blob file name: " + fileName);
+        }
+        return blobFile;
+    }
+
+    /**
      * Retrieves the {@link ParcelFileDescriptor} from a {@link BlobProto}.
      *
      * <p>This method handles retrieving the actual file descriptor from the provided
@@ -2525,7 +2552,7 @@ public final class AppSearchImpl implements Closeable {
             BlobProto blobProto, int mode) throws AppSearchException, IOException {
         checkSuccess(blobProto.getStatus());
         if (Flags.enableAppSearchManageBlobFiles()) {
-            File blobFile = new File(mBlobFilesDir, blobProto.getFileName());
+            File blobFile = getSafeBlobFileLocked(blobProto.getFileName());
             return ParcelFileDescriptor.open(blobFile, mode);
         } else {
             return ParcelFileDescriptor.adoptFd(blobProto.getFileDescriptor());
@@ -4311,8 +4338,18 @@ public final class AppSearchImpl implements Closeable {
                 if (Flags.enableAppSearchManageBlobFiles()) {
                     List<String> blobFileNames = blobStorageInfoProto.getBlobFileNamesList();
                     for (int j = 0; j < blobFileNames.size(); j++) {
-                        File blobFile = new File(mBlobFilesDir, blobFileNames.get(j));
-                        blobSizeBytes += blobFile.length();
+                        String blobFileName = blobFileNames.get(j);
+                        try {
+                            File blobFile = getSafeBlobFileLocked(blobFileName);
+                            blobSizeBytes += blobFile.length();
+                        } catch (AppSearchException | IOException e) {
+                            Log.e(
+                                    TAG,
+                                    "Path traversal/resolution error for blob storage info file"
+                                            + " name: "
+                                            + blobFileName,
+                                    e);
+                        }
                     }
                     blobCount += blobFileNames.size();
                 } else {
@@ -5117,10 +5154,22 @@ public final class AppSearchImpl implements Closeable {
                 List<String> blobFileNamesToRemove =
                         optimizeResultProto.getBlobFileNamesToRemoveList();
                 for (int i = 0; i < blobFileNamesToRemove.size(); i++) {
-                    File blobFileToRemove = new File(mBlobFilesDir, blobFileNamesToRemove.get(i));
-                    if (!blobFileToRemove.delete()) {
-                        Log.e(TAG, "Cannot delete the optimized blob file: "
-                                + blobFileToRemove.getName());
+                    String blobFileNameToRemove = blobFileNamesToRemove.get(i);
+                    try {
+                        File blobFileToRemove = getSafeBlobFileLocked(blobFileNameToRemove);
+                        if (!blobFileToRemove.delete()) {
+                            Log.e(
+                                    TAG,
+                                    "Cannot delete the optimized blob file: "
+                                            + blobFileToRemove.getName());
+                        }
+                    } catch (AppSearchException | IOException e) {
+                        Log.e(
+                                TAG,
+                                "Path traversal/resolution error for optimized blob file to"
+                                        + " remove: "
+                                        + blobFileNameToRemove,
+                                e);
                     }
                 }
             }
