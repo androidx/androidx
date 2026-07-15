@@ -79,9 +79,10 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                 Constraints(
                     maxHeight = Constraints.Infinity,
                     maxWidth =
-                        containerConstraints.maxWidth -
-                            measurementStrategy.leftContentPadding -
-                            measurementStrategy.rightContentPadding,
+                        (containerConstraints.maxWidth -
+                                measurementStrategy.leftContentPadding -
+                                measurementStrategy.rightContentPadding)
+                            .coerceAtLeast(0),
                 )
             val itemProvider = itemProviderLambda()
 
