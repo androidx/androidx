@@ -454,7 +454,7 @@ class SliderTest {
             val start = left + offset
             val end = right - offset
 
-            ((pos - start) / (end - start)).coerceIn(0f, 1f)
+            ((pos - start) / (end - start + 1)).coerceIn(0f, 1f)
         }
 
     @Test
