@@ -245,8 +245,10 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
                         ?: entryProvider?.metadata?.invoke(key)
                         ?: emptyMap()
                 }
-            entryClassProvider?.run { NavEntry(key, clazzContentKey(key), cachedMetadata, content) }
-                ?: entryProvider?.run { NavEntry(key, contentKey, cachedMetadata, content) }
+            entryProvider?.run { NavEntry(key, contentKey, cachedMetadata, content) }
+                ?: entryClassProvider?.run {
+                    NavEntry(key, clazzContentKey(key), cachedMetadata, content)
+                }
                 ?: fallback.invoke(key)
         }
     }
