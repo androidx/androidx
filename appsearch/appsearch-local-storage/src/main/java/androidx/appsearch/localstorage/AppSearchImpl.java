@@ -230,8 +230,6 @@ public final class AppSearchImpl implements Closeable {
     @VisibleForTesting
     IcingSearchEngineInterface mIcingSearchEngineLocked;
 
-    private boolean mResetVisibilityStore;
-
     @NonNull private final LaunchVmFeatures mLaunchVmFeatures;
 
     @GuardedBy("mReadWriteLock")
@@ -421,8 +419,6 @@ public final class AppSearchImpl implements Closeable {
                 mIcingSearchEngineLocked = appSearchUserPlugins.getIcingSearchEngine();
                 maxInitRetries = 2;
             }
-            mResetVisibilityStore =
-                    Flags.enableResetVisibilityStore() || mLaunchVmFeatures.isVmEnabled();
 
             // The core initialization procedure. If any part of this fails, we bail into
             // resetLocked(), deleting all data (but hopefully allowing AppSearchImpl to come up).
@@ -596,12 +592,10 @@ public final class AppSearchImpl implements Closeable {
                                     - prepareSchemaAndNamespacesLatencyStartMillis));
                 }
 
-                if (mResetVisibilityStore) {
-                    // Move initialize Visibility Store in the try-catch reset block. We will
-                    // trigger reset if we cannot create Visibility Store properly.
-                    visibilityStoreMap = initializeVisibilityStore(mRevocableFileDescriptorStore,
-                            initStatsBuilder, callStatsBuilder);
-                }
+                // Move initialize Visibility Store in the try-catch reset block. We will
+                // trigger reset if we cannot create Visibility Store properly.
+                visibilityStoreMap = initializeVisibilityStore(mRevocableFileDescriptorStore,
+                        initStatsBuilder, callStatsBuilder);
 
                 if (Flags.enableSchemasWipeoutAccountPropertyPaths()) {
                     mAccountStoreLocked = AccountStore.create(icingDir);
@@ -616,14 +610,7 @@ public final class AppSearchImpl implements Closeable {
                     initStatsBuilder.setStatusCode(e.getResultCode());
                 }
                 resetLocked(initStatsBuilder, callStatsBuilder);
-                if (mResetVisibilityStore) {
-                    // After reset Icing, we should build and initialize VisibilityStore as well.
-                    visibilityStoreMap = initializeVisibilityStore(mRevocableFileDescriptorStore,
-                            initStatsBuilder, callStatsBuilder);
-                }
-            }
-            if (!mResetVisibilityStore) {
-                // Keep the old behaviour when flags are off.
+                // After reset Icing, we should build and initialize VisibilityStore as well.
                 visibilityStoreMap = initializeVisibilityStore(mRevocableFileDescriptorStore,
                         initStatsBuilder, callStatsBuilder);
             }
@@ -735,7 +722,6 @@ public final class AppSearchImpl implements Closeable {
             IcingSearchEngineInterface previousIcingSearchEngine = mIcingSearchEngineLocked;
             mIcingSearchEngineLocked = icingSearchEngineLocked;
             mLaunchVmFeatures.setVmEnabled(isVm1Enabled);
-            mResetVisibilityStore = Flags.enableResetVisibilityStore() || isVm1Enabled;
             return previousIcingSearchEngine;
         } finally {
             mReadWriteLock.writeLock().unlock();
