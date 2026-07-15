@@ -1219,7 +1219,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
                     shouldDisposeBlock = { currentState, targetState ->
                         currentState == EnterExitState.PostExit &&
                             targetState == EnterExitState.PostExit &&
-                            !exit.data.hold
+                            !exit.config.hold
                     },
                     mutableTransformData =
                         mutableContentTransformData?.let { transform ->
