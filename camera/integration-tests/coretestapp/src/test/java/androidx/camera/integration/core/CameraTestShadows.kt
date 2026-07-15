@@ -253,7 +253,7 @@ class TestShadowCameraManager : ShadowCameraManager() {
     }
 
     @Implementation
-    fun registerAvailabilityCallback(
+    override fun registerAvailabilityCallback(
         executor: Executor,
         callback: CameraManager.AvailabilityCallback,
     ) {

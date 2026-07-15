@@ -57,9 +57,9 @@ internal class Camera2CaptureSequenceProcessorTest {
 
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
     private val cameraId =
-        RobolectricCameras.create(
-            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
-        )
+        RobolectricCameras.create {
+            set(INFO_SUPPORTED_HARDWARE_LEVEL, INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+        }
     private val testCamera = RobolectricCameras.open(cameraId)
 
     private val stream1Config = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)

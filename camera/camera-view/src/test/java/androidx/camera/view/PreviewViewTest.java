@@ -62,11 +62,7 @@ public class PreviewViewTest {
     @Before
     public void setUp() {
         mPreviewView = new PreviewView(mAppContext);
-        try {
-            mWindow = ShadowWindow.create(mAppContext);
-        } catch (ClassNotFoundException e) {
-            Assume.assumeTrue("Failed to create shadow window", false);
-        }
+        mWindow = ShadowWindow.create(mAppContext);
     }
 
     @After

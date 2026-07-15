@@ -48,26 +48,26 @@ internal class Camera2MetadataCacheTest {
     @Test
     fun metadataIsCachedAndShimmed() = runTest {
         val camera0 =
-            RobolectricCameras.create(
-                mapOf(
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                    CameraCharacteristics.SENSOR_ORIENTATION to 90,
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                    CameraCharacteristics.FLASH_INFO_AVAILABLE to true,
+            RobolectricCameras.create {
+                set(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                 )
-            )
+                set(CameraCharacteristics.SENSOR_ORIENTATION, 90)
+                set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK)
+                set(CameraCharacteristics.FLASH_INFO_AVAILABLE, true)
+            }
 
         val camera1 =
-            RobolectricCameras.create(
-                mapOf(
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
-                    CameraCharacteristics.SENSOR_ORIENTATION to 0,
-                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-                    CameraCharacteristics.FLASH_INFO_AVAILABLE to false,
+            RobolectricCameras.create {
+                set(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
                 )
-            )
+                set(CameraCharacteristics.SENSOR_ORIENTATION, 0)
+                set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_FRONT)
+                set(CameraCharacteristics.FLASH_INFO_AVAILABLE, false)
+            }
         val cache =
             Camera2MetadataCache(
                 RobolectricCameras.application,

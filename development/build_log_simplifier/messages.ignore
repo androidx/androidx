@@ -690,3 +690,5 @@ e: Incremental compilation failed: The following LookupSymbols are not yet conve
 warning: lifecycle\-compiler is deprecated\. Use DefaultLifecycleObserver or LifecycleEventObserver instead\.
 # TODO: remove when AGP upgrades to Gradle 9.7.0
 w: .*/test/java/com/android/build/gradle/internal/fixtures/FakeGradleExecOperations\.kt:120:15 Suppression of error 'NOTHING_TO_OVERRIDE' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED.*
+# Robolectric 4.17 images logs this
+.*HWUI    : Using FreeType backend \(prop=Auto\)
