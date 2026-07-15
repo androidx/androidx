@@ -1007,19 +1007,6 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
             it.from(sources.values)
             it.into(sourceOutput)
             it.exclude("META-INF/*")
-            // TODO(b/418945918): Remove when the files below are deduped:
-            // benchmark/benchmark-traceprocessor/src/androidMain/kotlin/perfetto/protos/package-info.java
-            // tracing/tracing-wire/src/androidMain/kotlin/perfetto/protos/package-info.java
-            var seenPath = false
-            it.eachFile { file ->
-                val relPath = file.relativePath.pathString
-                if (relPath == "androidMain/perfetto/protos/package-info.java") {
-                    if (seenPath) {
-                        file.exclude()
-                    }
-                    seenPath = true
-                }
-            }
             it.rewriteSamplesTags()
             it.filterColGroup()
         }
