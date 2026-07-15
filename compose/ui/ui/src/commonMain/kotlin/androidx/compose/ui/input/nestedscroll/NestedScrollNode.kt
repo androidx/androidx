@@ -65,8 +65,7 @@ internal class NestedScrollNode(
 
     override val traverseKey: Any = "androidx.compose.ui.input.nestedscroll.NestedScrollNode"
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val nestedCoroutineScope: CoroutineScope
+    private val nestedCoroutineScope: CoroutineScope?
         get() {
             val parentCoroutineScope = parentNestedScrollNode?.nestedCoroutineScope
             return if (
@@ -77,10 +76,6 @@ internal class NestedScrollNode(
                 parentCoroutineScope
             } else {
                 resolvedDispatcher.scope
-                    ?: throw IllegalStateException(
-                        "in order to access nested coroutine scope you need to attach dispatcher to the " +
-                            "`Modifier.nestedScroll` first."
-                    )
             }
         }
 

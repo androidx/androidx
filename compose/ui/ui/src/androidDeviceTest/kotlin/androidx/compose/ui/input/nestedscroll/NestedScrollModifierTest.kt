@@ -34,11 +34,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -54,6 +56,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.sign
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -1740,6 +1743,55 @@ class NestedScrollModifierTest {
         }
 
         assertThat(listState.firstVisibleItemIndex).isGreaterThan(0)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun nestedScroll_coroutineScopeOrNull_duringParentDetach_doesNotThrow() {
+        val childDispatcher = NestedScrollDispatcher()
+        var parentAttached by mutableStateOf(true)
+        var exceptionDuringDetach: Throwable? = null
+        var scopeDuringDetach: CoroutineScope? = null
+
+        val testNode =
+            object : Modifier.Node() {
+                override fun onDetach() {
+                    try {
+                        scopeDuringDetach = childDispatcher.coroutineScopeOrNull()
+                    } catch (t: Throwable) {
+                        exceptionDuringDetach = t
+                    }
+                }
+            }
+
+        rule.setContent {
+            if (parentAttached) {
+                Box(Modifier.nestedScroll(object : NestedScrollConnection {})) {
+                    Box(
+                        Modifier.nestedScroll(object : NestedScrollConnection {}, childDispatcher)
+                            .then(
+                                object : ModifierNodeElement<Modifier.Node>() {
+                                    override fun create(): Modifier.Node = testNode
+
+                                    override fun update(node: Modifier.Node) {}
+
+                                    override fun hashCode(): Int = 0
+
+                                    override fun equals(other: Any?): Boolean = true
+                                }
+                            )
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.runOnIdle { parentAttached = false }
+        rule.runOnIdle {
+            assertThat(exceptionDuringDetach).isNull()
+            assertThat(scopeDuringDetach).isNotNull()
+        }
     }
 }
 
