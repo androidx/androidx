@@ -97,6 +97,33 @@ public final class CarAppServiceTest {
         assertThat(mCarAppService.getSession(clusterSessionInfo)).isNull();
     }
 
+    @Test
+    public void onRebind_destroysSession_onSubsequentUnbind() {
+        Intent bindIntent = new Intent();
+        SessionInfo clusterSessionInfo = new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-id");
+        SessionInfoIntentEncoder.encode(clusterSessionInfo, bindIntent);
+        CarAppBinder binder = bindAndStart(bindIntent);
+
+        // First unbind
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
+        assertThat(binder.getCurrentSession()).isNull();
+
+        // Rebind using cached binder
+        binder.onAppCreate(
+                mMockCarHost,
+                bindIntent,
+                mContext.getResources().getConfiguration(),
+                mMockOnDoneCallback);
+        binder.onAppStart(mMockOnDoneCallback);
+        assertThat(binder.getCurrentSession()).isNotNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNotNull();
+
+        // Second unbind
+        assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
+        assertThat(binder.getCurrentSession()).isNull();
+        assertThat(mCarAppService.getSession(clusterSessionInfo)).isNull();
+    }
+
     // Tests old host with new client
     @Test
     @SuppressWarnings("deprecation") // Testing a deprecated method
