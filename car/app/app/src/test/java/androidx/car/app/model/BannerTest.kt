@@ -40,7 +40,6 @@ class BannerTest {
         assertThat(banner.leadingElement).isNull()
         assertThat(banner.trailingElements).isEmpty()
         assertThat(banner.belowActions).isEmpty()
-        assertThat(banner.progressBar).isNull()
     }
 
     @Test
@@ -56,7 +55,6 @@ class BannerTest {
         val trailingImage = CarIcon.APP_ICON
         val trailingAction = Action.Builder().setTitle("TrailingAction").build()
         val belowAction = Action.Builder().setTitle("BelowAction").build()
-        val progressBar = CarProgressBar.Builder(0.5f).build()
 
         val banner =
             Banner.Builder()
@@ -67,7 +65,6 @@ class BannerTest {
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
-                .setProgressBar(progressBar)
                 .addBelowAction(belowAction)
                 .build()
 
@@ -84,7 +81,6 @@ class BannerTest {
         assertThat(banner.trailingElements[1].type).isEqualTo(BannerElement.TYPE_IMAGE)
         assertThat(banner.trailingElements[1].icon).isEqualTo(trailingImage)
 
-        assertThat(banner.progressBar).isEqualTo(progressBar)
         assertThat(banner.belowActions).containsExactly(belowAction)
     }
 
@@ -150,7 +146,6 @@ class BannerTest {
         val trailingImage = CarIcon.APP_ICON
         val trailingAction = Action.Builder().setTitle("TrailingAction").build()
         val belowAction = Action.Builder().setTitle("BelowAction").build()
-        val progressBar = CarProgressBar.Builder(0.5f).build()
 
         val banner1 =
             Banner.Builder()
@@ -161,7 +156,6 @@ class BannerTest {
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
-                .setProgressBar(progressBar)
                 .addBelowAction(belowAction)
                 .build()
 
@@ -174,7 +168,6 @@ class BannerTest {
                 .setLeadingIcon(leadingIcon)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
-                .setProgressBar(progressBar)
                 .addBelowAction(belowAction)
                 .build()
 
@@ -237,15 +230,6 @@ class BannerTest {
         val style2 = BannerStyle.Builder().setShape(Shape.CORNER_LARGE).build()
         val banner1 = Banner.Builder().setTitle("Title").setStyle(style1).build()
         val banner2 = Banner.Builder().setTitle("Title").setStyle(style2).build()
-        assertThat(banner1).isNotEqualTo(banner2)
-    }
-
-    @Test
-    fun equals_differentProgressBar_returnsFalse() {
-        val bar1 = CarProgressBar.Builder(0.5f).build()
-        val bar2 = CarProgressBar.Builder(0.6f).build()
-        val banner1 = Banner.Builder().setTitle("Title").setProgressBar(bar1).build()
-        val banner2 = Banner.Builder().setTitle("Title").setProgressBar(bar2).build()
         assertThat(banner1).isNotEqualTo(banner2)
     }
 }

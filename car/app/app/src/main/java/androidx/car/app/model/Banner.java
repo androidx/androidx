@@ -54,7 +54,6 @@ public final class Banner implements Item {
     private final @Nullable BannerStyle mStyle;
     private final @Nullable BannerElement mLeadingElement;
     private final List<BannerElement> mTrailingElements;
-    private final @Nullable CarProgressBar mProgressBar;
     private final List<Action> mBelowActions;
 
     Banner(Builder builder) {
@@ -64,7 +63,6 @@ public final class Banner implements Item {
         mStyle = builder.mStyle;
         mLeadingElement = builder.mLeadingElement;
         mTrailingElements = Collections.unmodifiableList(builder.mTrailingElements);
-        mProgressBar = builder.mProgressBar;
         mBelowActions = Collections.unmodifiableList(builder.mBelowActions);
     }
 
@@ -76,7 +74,6 @@ public final class Banner implements Item {
         mStyle = null;
         mLeadingElement = null;
         mTrailingElements = Collections.emptyList();
-        mProgressBar = null;
         mBelowActions = Collections.emptyList();
     }
 
@@ -150,15 +147,6 @@ public final class Banner implements Item {
      *
      * @see Builder#addBelowAction(Action)
      */
-    /**
-     * Returns the {@link CarProgressBar} of the banner, or {@code null} if not set.
-     *
-     * @see Builder#setProgressBar(CarProgressBar)
-     */
-    public @Nullable CarProgressBar getProgressBar() {
-        return mProgressBar;
-    }
-
     public @NonNull List<Action> getBelowActions() {
         return mBelowActions;
     }
@@ -169,14 +157,14 @@ public final class Banner implements Item {
                 + CarText.toShortString(mSubtitle) + ", has click listener: "
                 + (mOnClickDelegate != null) + ", style: "
                 + mStyle + ", leading element: " + mLeadingElement
-                + ", trailing elements: " + mTrailingElements + ", progressBar: "
-                + mProgressBar + ", below actions: " + mBelowActions + " }";
+                + ", trailing elements: " + mTrailingElements + ", below actions: "
+                + mBelowActions + " }";
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mSubtitle, mOnClickDelegate == null, mStyle,
-                mLeadingElement, mTrailingElements, mProgressBar, mBelowActions);
+                mLeadingElement, mTrailingElements, mBelowActions);
     }
 
     @Override
@@ -196,7 +184,6 @@ public final class Banner implements Item {
                 && Objects.equals(mStyle, otherBanner.mStyle)
                 && Objects.equals(mLeadingElement, otherBanner.mLeadingElement)
                 && Objects.equals(mTrailingElements, otherBanner.mTrailingElements)
-                && Objects.equals(mProgressBar, otherBanner.mProgressBar)
                 && Objects.equals(mBelowActions, otherBanner.mBelowActions);
     }
 
@@ -210,7 +197,6 @@ public final class Banner implements Item {
         @Nullable BannerStyle mStyle;
         @Nullable BannerElement mLeadingElement;
         List<BannerElement> mTrailingElements = new ArrayList<>();
-        @Nullable CarProgressBar mProgressBar;
         List<Action> mBelowActions = new ArrayList<>();
 
         /**
@@ -402,16 +388,6 @@ public final class Banner implements Item {
          * @throws IllegalArgumentException if {@code action} does not conform to
          * {@link ActionsConstraints#ACTION_CONSTRAINTS_BANNER_BELOW}
          */
-        /**
-         * Sets the {@link CarProgressBar} to display in the banner.
-         *
-         * @throws NullPointerException if {@code progressBar} is {@code null}
-         */
-        public @NonNull Builder setProgressBar(@NonNull CarProgressBar progressBar) {
-            mProgressBar = requireNonNull(progressBar);
-            return this;
-        }
-
         public @NonNull Builder addBelowAction(@NonNull Action action) {
             List<Action> actionsCopy = new ArrayList<>(mBelowActions);
             actionsCopy.add(requireNonNull(action));
