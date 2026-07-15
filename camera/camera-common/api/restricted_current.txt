@@ -238,8 +238,8 @@ package androidx.camera.common {
     method public <T> T? unwrapAs(Class<T> type);
   }
 
-  public final class UnsafeWrapperKt {
-    method @KotlinOnly public static inline <reified T> T? unwrapAs(androidx.camera.common.UnsafeWrapper);
+  public final class UnsafeWrappers {
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public static inline <reified T> T? unwrapAs(androidx.camera.common.UnsafeWrapper);
   }
 
 }
