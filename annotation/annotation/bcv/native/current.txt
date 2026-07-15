@@ -186,3 +186,7 @@ open annotation class androidx.annotation/VisibleForTesting : kotlin/Annotation 
             final fun <get-PROTECTED>(): kotlin/Int // androidx.annotation/VisibleForTesting.Companion.PROTECTED.<get-PROTECTED>|<get-PROTECTED>(){}[0]
     }
 }
+
+open annotation class androidx.annotation/WorkerThread : kotlin/Annotation { // androidx.annotation/WorkerThread|null[0]
+    constructor <init>() // androidx.annotation/WorkerThread.<init>|<init>(){}[0]
+}
