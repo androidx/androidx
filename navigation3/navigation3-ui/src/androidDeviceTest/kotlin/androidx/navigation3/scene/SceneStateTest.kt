@@ -74,14 +74,52 @@ internal class SceneStateTest {
         rule.waitForIdle()
 
         assertThat(sceneState.currentScene).isInstanceOf<SinglePaneScene<Any>>()
-        assertThat(sceneState.previousScenes).hasSize(1)
+        assertThat(sceneState.previousScenes).hasSize(0)
         assertThat(sceneState.overlayScenes).hasSize(1)
 
         rule.runOnIdle { backStack.add(Third) }
 
         assertThat(sceneState.currentScene).isInstanceOf<SinglePaneScene<Any>>()
-        assertThat(sceneState.previousScenes).hasSize(1)
+        assertThat(sceneState.previousScenes).hasSize(0)
         assertThat(sceneState.overlayScenes).hasSize(1)
+    }
+
+    @Test
+    fun testSceneStatePreviousScenes() {
+        lateinit var backStack: MutableList<Any>
+        lateinit var sceneState: SceneState<Any>
+
+        rule.setContent {
+            backStack = remember { mutableStateListOf(First, Second, Third) }
+            val entries =
+                rememberDecoratedNavEntries(
+                    backStack,
+                    emptyList(),
+                    entryProvider {
+                        entry<First> { Text("First") }
+                        entry<Second> { Text("Second") }
+                        entry<Third>(metadata = DialogSceneStrategy.dialog()) { Text("Third") }
+                    },
+                )
+            sceneState =
+                rememberSceneState(entries, listOf(DialogSceneStrategy())) {
+                    backStack.removeAt(backStack.lastIndex)
+                }
+        }
+
+        assertThat(sceneState.overlayScenes.size).isEqualTo(1)
+        assertThat(sceneState.overlayScenes.first().entries.size).isEqualTo(1)
+        assertThat(sceneState.overlayScenes.first().entries.first().contentKey)
+            .isEqualTo(Third.toString())
+
+        assertThat(sceneState.currentScene).isInstanceOf<SinglePaneScene<Any>>()
+        assertThat(sceneState.currentScene.entries.size).isEqualTo(1)
+        assertThat(sceneState.currentScene.entries.first().contentKey).isEqualTo(Second.toString())
+
+        assertThat(sceneState.previousScenes.size).isEqualTo(1)
+        assertThat(sceneState.previousScenes.first().entries.size).isEqualTo(1)
+        assertThat(sceneState.previousScenes.first().entries.first().contentKey)
+            .isEqualTo(First.toString())
     }
 
     @Suppress("DEPRECATION")
