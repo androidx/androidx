@@ -57,17 +57,23 @@ internal class DeepLinkDecoder(private val arguments: Map<String, List<String>>)
                 )
             }
 
-            // primitive, enums, and lists expects argument to be provided in the args map
-            if (
-                (kind is PrimitiveKind || kind == SerialKind.ENUM || kind == StructureKind.LIST) &&
-                    !arguments.containsKey(name)
-            ) {
-                if (descriptor.isElementOptional(currentIndex)) {
-                    // otherwise, skip deserializing this element and fall back to default value
-                    currentIndex++
-                    continue
-                } else {
-                    throw DeepLinkDecoderException("Missing argument for required field [$name]")
+            // For non-nested structures
+            if (kind is PrimitiveKind || kind == SerialKind.ENUM || kind == StructureKind.LIST) {
+                val hasDefaultValue = descriptor.isElementOptional(currentIndex)
+                if (
+                    !arguments.containsKey(name) ||
+                        kind != PrimitiveKind.STRING && arguments[name]?.first()?.isEmpty() == true
+                ) {
+                    // not a required argument if there is a default value
+                    if (hasDefaultValue) {
+                        currentIndex++
+                        continue
+                    } else {
+                        // missing required argument
+                        throw DeepLinkDecoderException(
+                            "Missing argument for required field [$name]"
+                        )
+                    }
                 }
             }
 
