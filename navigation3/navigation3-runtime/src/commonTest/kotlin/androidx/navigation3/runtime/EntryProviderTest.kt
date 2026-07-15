@@ -137,6 +137,18 @@ class EntryProviderTest {
         assertThat(entry1).isEqualTo(entry2)
         assertThat(metadata1).isEqualTo(metadata2)
     }
+
+    @Test
+    fun entryProvider_prioritizeKeyInstance() {
+        val provider = entryProvider {
+            entry(MyKey("testArg"), "first") {}
+            entry<MyKey>(clazzContentKey = { "second" }) {}
+        }
+
+        val entry = provider.invoke(MyKey("testArg"))
+
+        assertThat(entry.contentKey).isEqualTo("first")
+    }
 }
 
 private object TestNavMetadataKey : NavMetadataKey<() -> String>
