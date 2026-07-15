@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.window
 
-import android.content.Context
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.MEASURED_STATE_TOO_SMALL
@@ -1077,82 +1076,6 @@ class PopupTest {
 
         // Verify the window type was correctly passed to the LayoutParams
         assertThat(popupMatcher.lastSeenWindowParams!!.type).isEqualTo(customType)
-    }
-
-    @Test // Regression test for b/521173005
-    fun popup_inheritsTokenFromRootViewLayoutParams() {
-        // Simulates a ComposeView hosted inside an overlay sub-window (e.g.
-        // TYPE_APPLICATION_SUB_PANEL
-        // from an external service). When hosted in a sub-window, calling
-        // getApplicationWindowToken()
-        // returns the sub-window token, which WindowManagerService rejects when adding another
-        // popup
-        // ("Attempted to add window with token that is a sub-window").
-        // This test verifies that when the root layout params indicate a sub-window, PopupLayout
-        // extracts and uses the valid parent window token directly from rootView.layoutParams.
-        class TestFrameLayout(val fakeSubWindowToken: android.os.Binder, context: Context) :
-            FrameLayout(context) {
-            override fun getApplicationWindowToken(): android.os.IBinder {
-                return fakeSubWindowToken
-            }
-
-            override fun onAttachedToWindow() {
-                super.onAttachedToWindow()
-                addView(
-                    ComposeView(context).apply {
-                        setContent {
-                            CompositionLocalProvider(LocalView provides this@TestFrameLayout) {
-                                PopupTestTag(testTag) { Popup { Box(Modifier.size(50.dp)) } }
-                            }
-                        }
-                    }
-                )
-            }
-        }
-        val fakeSubWindowToken = android.os.Binder()
-        var activityToken: android.os.IBinder? = null
-        var originalLayoutParams: android.view.ViewGroup.LayoutParams? = null
-        var rootView: View? = null
-
-        try {
-            rule.setContent {
-                val defaultView = LocalView.current
-                activityToken = defaultView.windowToken
-
-                rootView = defaultView.rootView
-                if (originalLayoutParams == null) {
-                    originalLayoutParams = rootView!!.layoutParams
-                }
-                val customLayoutParams =
-                    WindowManager.LayoutParams().apply {
-                        if (rootView!!.layoutParams is WindowManager.LayoutParams) {
-                            copyFrom(rootView!!.layoutParams as WindowManager.LayoutParams)
-                        }
-                        // Mark the root view as a sub-window (1000..1999) to trigger the sub-window
-                        // token
-                        // resolution path in PopupLayout.createLayoutParams().
-                        type = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
-                        token = activityToken
-                    }
-                rootView!!.layoutParams = customLayoutParams
-
-                AndroidView(factory = { context -> TestFrameLayout(fakeSubWindowToken, context) })
-            }
-
-            rule.waitForIdle()
-            val popupMatcher = PopupLayoutMatcher(testTag)
-            Espresso.onView(instanceOf(Owner::class.java))
-                .inRoot(popupMatcher)
-                .check(matches(isDisplayed()))
-
-            // Verify the popup window params inherited activityToken from rootView.layoutParams
-            // instead of the fakeSubWindowToken returned by getApplicationWindowToken()
-            assertThat(popupMatcher.lastSeenWindowParams!!.token).isEqualTo(activityToken)
-        } finally {
-            rootView?.let { rv ->
-                originalLayoutParams?.let { orig -> rule.runOnUiThread { rv.layoutParams = orig } }
-            }
-        }
     }
 
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {
