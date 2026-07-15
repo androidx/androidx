@@ -81,6 +81,13 @@ Typically, this means either:
   # Creates/overwrites local.properties with sdk.dir and cmake.dir to avoid invalidating configuration cache
   $support_root/development/write_sdk_path.sh
 
+  # Google Auth SDK resolves ADC relative to System.getProperty("user.home"). Because gradlew
+  # overrides user.home to $GRADLE_USER_HOME, DefaultCredentialsProvider fails to find ADC
+  # Fallback to the user's ~/.config ADC file if GOOGLE_APPLICATION_CREDENTIALS is not set.
+  if [ -z "$GOOGLE_APPLICATION_CREDENTIALS" ] && [ -f "$HOME/.config/gcloud/application_default_credentials.json" ]; then
+    export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.config/gcloud/application_default_credentials.json"
+  fi
+
   ANDROIDX_PROJECT_CACHE_DIR="$OUT_DIR/gradle-project-cache"
 }
 
