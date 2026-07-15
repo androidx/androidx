@@ -135,7 +135,6 @@ expect fun AlertDialog(
  * @param content the content of the dialog
  */
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-@ExperimentalMaterial3Api
 @Composable
 fun BasicAlertDialog(
     onDismissRequest: () -> Unit,
@@ -159,7 +158,6 @@ fun BasicAlertDialog(
  *
  * [BasicAlertDialogOverride] used when no override is specified.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3ComponentOverrideApi
 object DefaultBasicAlertDialogOverride : BasicAlertDialogOverride {
     @Composable
@@ -208,7 +206,6 @@ object DefaultBasicAlertDialogOverride : BasicAlertDialogOverride {
     "Use BasicAlertDialog instead",
     replaceWith = ReplaceWith("BasicAlertDialog(onDismissRequest, modifier, properties, content)"),
 )
-@ExperimentalMaterial3Api
 @Composable
 fun AlertDialog(
     onDismissRequest: () -> Unit,
@@ -260,7 +257,6 @@ object AlertDialogDefaults {
         get() = if (shouldUsePrecisionPointerComponentSizing.value) 16.dp else 24.dp
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AlertDialogImpl(
     onDismissRequest: () -> Unit,
