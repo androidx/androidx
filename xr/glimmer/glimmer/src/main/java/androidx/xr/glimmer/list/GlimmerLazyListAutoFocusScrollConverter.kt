@@ -332,7 +332,7 @@ internal fun GlimmerLazyListAutoFocusScrollConverter.convertContentScrollToUserS
  * proportion of the list's viewport size, using [ProportionalThresholdFactor].
  *
  * For example, if the visible list height is 500dp and [ProportionalThresholdFactor] is 0.6f, the
- * focus will reach the center after scrolling 300dp of the content — that is, sixth of the viewport
+ * focus will reach the center after scrolling 300dp of the content — that is, 60% of the viewport
  * height.
  *
  * Note that this behavior only applies to lists with enough content to scroll. If the list is too
