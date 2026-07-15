@@ -373,12 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"ఇటీవలి ఫీచర్‌లు"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"లోడింగ్ ఎనేబుల్ చేయబడింది"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"లోడింగ్ డిజేబుల్ చేయబడింది"</string>
-    <!-- no translation found for app_theme_title (5002857339487981595) -->
-    <skip />
-    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
-    <skip />
-    <!-- no translation found for app_theme_disabled (947882095780434267) -->
-    <skip />
+    <string name="app_theme_title" msgid="5002857339487981595">"యాప్ థీమ్‌ను ఉపయోగించండి"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"యాప్ థీమ్ ఎనేబుల్ అయ్యింది"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"యాప్ థీమ్ డిజేబుల్ అయ్యింది"</string>
     <string name="loading_screen" msgid="4771507490730308794">"లోడింగ్ స్క్రీన్"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"రంగును జోడించడానికి/తీసివేయడానికి టోగుల్ చేయండి"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"టోగుల్స్‌తో మ్యాప్ టెంప్లేట్"</string>

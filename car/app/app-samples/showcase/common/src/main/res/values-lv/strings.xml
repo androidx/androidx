@@ -373,12 +373,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Jaunākās funkcijas"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Ielāde iespējota"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Ielāde atspējota"</string>
-    <!-- no translation found for app_theme_title (5002857339487981595) -->
-    <skip />
-    <!-- no translation found for app_theme_enabled (3146649362736130743) -->
-    <skip />
-    <!-- no translation found for app_theme_disabled (947882095780434267) -->
-    <skip />
+    <string name="app_theme_title" msgid="5002857339487981595">"Izmantojiet lietotnes motīvu"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Lietotnes motīvs ir iespējots"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Lietotnes motīvs ir atspējots"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Ielādes ekrāns"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Slēdzis krāsu pievienošanai/noņemšanai"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Kartes veidne ar slēdžiem"</string>
