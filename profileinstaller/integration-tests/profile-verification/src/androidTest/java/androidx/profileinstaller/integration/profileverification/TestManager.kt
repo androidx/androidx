@@ -107,7 +107,7 @@ class WithPackageBlock internal constructor(private val packageName: String) {
 
             // This mimes the behaviour of `adb install-multiple` using an install session.
             // For reference:
-            // https://source.corp.google.com/android-internal/packages/modules/adb/client/adb_install.cpp
+            // https://cs.android.com/android/platform/superproject/+/android-latest-release:packages/modules/adb/client/adb_install.cpp
 
             // Adds the base apk to the install session
             val successBaseApk =
