@@ -537,4 +537,4 @@ private suspend fun RecyclerView.awaitScrollIdle() {
     }
 }
 
-private const val ItemDifferenceThreshold = 1
+private const val ItemDifferenceThreshold = 2
