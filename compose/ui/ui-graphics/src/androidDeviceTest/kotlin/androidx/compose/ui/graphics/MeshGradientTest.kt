@@ -19,6 +19,7 @@ package androidx.compose.ui.graphics
 import android.os.Build
 import android.view.View
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
@@ -48,8 +49,9 @@ import org.junit.runner.RunWith
 class MeshGradientTest {
 
     @get:Rule val rule = createComposeRule()
+    private val useSoftwareLayer = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testSimpleMeshGradient() {
         val width = 300
@@ -60,8 +62,9 @@ class MeshGradientTest {
             setVertex(row = 1, column = 0, position = Offset(0f, 1f), color = Color.Green)
             setVertex(row = 1, column = 1, position = Offset(1f, 1f), color = Color.Yellow)
         }
-
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(width, height), block)
+        }
         rule.waitForIdle()
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
         assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.05f)
@@ -70,11 +73,11 @@ class MeshGradientTest {
         assertEqualsWithTolerance(Color.Yellow, pixelMap[width - 1, height - 1], 0.05f)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientWithControlPoints() {
-        val width = 200
-        val height = 50
+        val width = 100
+        val height = 25
         val block: MeshGradientScope.() -> Unit = {
             // Creating a gradient of a solid red color and using the bezier offsets to pull the
             // mesh down at the top edge
@@ -95,7 +98,9 @@ class MeshGradientTest {
             setVertex(row = 1, column = 0, position = Offset(0f, 1f), color = Color.Red)
             setVertex(row = 1, column = 1, position = Offset(1f, 1f), color = Color.Red)
         }
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(width, height), block)
+        }
         val meshGradientPixelMap = rule.onRoot().captureToImage().toPixelMap()
         // This path draws a rect whose top edge is a cubic bezier with control points exactly equal
         // to what is given in the mesh gradient above
@@ -143,8 +148,8 @@ class MeshGradientTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testSoftwareLayerMeshGradientWithControlPoints() {
-        val width = 200
-        val height = 50
+        val width = 100
+        val height = 25
         val block: MeshGradientScope.() -> Unit = {
             // Creating a gradient of a solid red color and using the bezier offsets to pull the
             // mesh down at the top edge
@@ -166,8 +171,14 @@ class MeshGradientTest {
             setVertex(row = 1, column = 1, position = Offset(1f, 1f), color = Color.Red)
         }
         rule.setContent {
-            LocalView.current.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-            MeshGradientTestContent(1, 1, false, IntSize(width, height), block)
+            MeshGradientTestContent(
+                useSoftwareLayer = true,
+                1,
+                1,
+                false,
+                IntSize(width, height),
+                block,
+            )
         }
         val meshGradientPixelMap = rule.onRoot().captureToImage().toPixelMap()
         // This path draws a rect whose top edge is a cubic bezier with control points exactly equal
@@ -213,7 +224,7 @@ class MeshGradientTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientBilinearInterpolation() {
         val width = 200
@@ -224,7 +235,9 @@ class MeshGradientTest {
             setVertex(row = 1, column = 0, position = Offset(0f, 1f), color = Color.Yellow)
             setVertex(row = 1, column = 1, position = Offset(1f, 1f), color = Color.Magenta)
         }
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(width, height), block)
+        }
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
         assertEqualsWithTolerance(Color.Red, pixelMap[0, 0], 0.05f)
         assertEqualsWithTolerance(Color.Blue, pixelMap[width - 1, 0], 0.05f)
@@ -239,15 +252,15 @@ class MeshGradientTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testMeshGradientInvalidRows() {
-        rule.setContent { MeshGradientTestContent(0, 1, false, IntSize(1, 1)) {} }
+        rule.setContent { MeshGradientTestContent(useSoftwareLayer, 0, 1, false, IntSize(1, 1)) {} }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testMeshGradientInvalidColumns() {
-        rule.setContent { MeshGradientTestContent(1, 0, false, IntSize(1, 1)) {} }
+        rule.setContent { MeshGradientTestContent(useSoftwareLayer, 1, 0, false, IntSize(1, 1)) {} }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientWithUnspecifiedColorIsTransparent() {
         val block: MeshGradientScope.() -> Unit = {
@@ -262,20 +275,22 @@ class MeshGradientTest {
                 }
             }
         }
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(100, 100), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(100, 100), block)
+        }
         val imageBitmap = rule.onRoot().captureToImage()
         imageBitmap.assertPixels { Color.White }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientInfersControlPointIfNotProvided() {
         val colors =
             listOf(Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Yellow, Color.Magenta)
         val rows = 5
         val columns = 6
-        val width = 200
-        val height = 200
+        val width = 100
+        val height = 100
 
         // Uniformly distributing the points
         val setPositionAndColor: MeshGradientScope.() -> Unit = {
@@ -312,6 +327,7 @@ class MeshGradientTest {
             Layout(
                 content = {
                     MeshGradientTestContent(
+                        useSoftwareLayer,
                         rows,
                         columns,
                         false,
@@ -319,6 +335,7 @@ class MeshGradientTest {
                         setPositionAndColor,
                     )
                     MeshGradientTestContent(
+                        useSoftwareLayer,
                         rows,
                         columns,
                         false,
@@ -356,10 +373,10 @@ class MeshGradientTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientWithAlpha() {
-        val width = 200
+        val width = 50
         val height = 10
         val block: MeshGradientScope.() -> Unit = {
             // Creating a linear horizontal gradient
@@ -368,7 +385,9 @@ class MeshGradientTest {
             setVertex(1, 0, position = Offset(0f, 1f), color = Color.Red.copy(alpha = 0.5f))
             setVertex(1, 1, position = Offset(1f, 1f), color = Color.Blue.copy(alpha = 0.5f))
         }
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(width, height), block)
+        }
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
 
         val compositedRedColor = Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
@@ -384,7 +403,7 @@ class MeshGradientTest {
         assertEqualsWithTolerance(compositedMiddleColor, pixelMap[width / 2, height / 2], 0.03f)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testMeshGradientConvertsColorSpaceToSRGB() {
         val sRGBColors =
@@ -392,8 +411,8 @@ class MeshGradientTest {
         val okLabColors = sRGBColors.map { it.convert(ColorSpaces.Oklab) }
         val rows = 3
         val columns = 3
-        val width = 200
-        val height = 200
+        val width = 50
+        val height = 50
 
         // Uniformly distributing the points
         fun MeshGradientScope.setPositionAndColor(colors: List<Color>) {
@@ -413,8 +432,16 @@ class MeshGradientTest {
         rule.setContent {
             Layout(
                 content = {
-                    MeshGradientTestContent(rows, columns, false, IntSize(width, height), sRGBBlock)
                     MeshGradientTestContent(
+                        useSoftwareLayer,
+                        rows,
+                        columns,
+                        false,
+                        IntSize(width, height),
+                        sRGBBlock,
+                    )
+                    MeshGradientTestContent(
+                        useSoftwareLayer,
                         rows,
                         columns,
                         false,
@@ -451,13 +478,19 @@ class MeshGradientTest {
         }
     }
 
+    // Suppressed on API 28 since it was failing with OutOfMemoryError while throwing
+    // IllegalArgumentException on test
+    // emulators
+    @SdkSuppress(excludedSdks = [Build.VERSION_CODES.P])
     @Test(expected = IllegalArgumentException::class)
     fun testMeshGradientInvalidIndices() {
         val width = 1
         val height = 1
         val block: MeshGradientScope.() -> Unit = { setVertex(2, 0, Offset.Zero, Color.Red) }
 
-        rule.setContent { MeshGradientTestContent(1, 1, false, IntSize(width, height), block) }
+        rule.setContent {
+            MeshGradientTestContent(useSoftwareLayer, 1, 1, false, IntSize(width, height), block)
+        }
     }
 
     fun ImageBitmap.drawInto(block: DrawScope.() -> Unit) =
@@ -479,6 +512,7 @@ class MeshGradientTest {
 
     @Composable
     private fun MeshGradientTestContent(
+        useSoftwareLayer: Boolean = false,
         rows: Int,
         columns: Int,
         hasBicubicColor: Boolean = false,
@@ -488,6 +522,15 @@ class MeshGradientTest {
         val gradientPainter = remember {
             MeshGradientPainter(rows, columns, hasBicubicColor, block)
         }
+        if (useSoftwareLayer) {
+            val view = LocalView.current
+            DisposableEffect(view) {
+                val previousLayerType = view.layerType
+                view.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+                onDispose { view.setLayerType(previousLayerType, null) }
+            }
+        }
+
         Layout(Modifier.drawBehind { with(gradientPainter) { draw(size.toSize()) } }) { _, _ ->
             layout(size.width, size.height) {}
         }

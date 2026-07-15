@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-import android.os.Build
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
@@ -24,7 +23,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +30,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MeshGradientRendererTest {
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMeshGradientRendererDraw() {
         val renderer = MeshGradientRenderer()
