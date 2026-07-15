@@ -43,6 +43,15 @@ while [[ "$#" -gt 0 ]]; do
             ARGUMENTS="$ARGUMENTS -PallowJetbrainsDev"
             shift # Shift past the flag
             ;;
+        --override-prebuilts-path)
+            if [[ -d "$2" ]]; then
+                ARGUMENTS="$ARGUMENTS -PoverridePrebuiltsPath=$2"
+                shift 2
+            else
+                echo "Error: Argument for --override-prebuilts-path is missing or is not a directory"
+                exit 1
+            fi
+            ;;
         *)
             # Any argument that doesn't match the flags above is treated as the ARTIFACTS
             # We assume only one required argument is allowed.
@@ -61,7 +70,7 @@ done
 # Check if the required ARTIFACTS argument was set
 if [[ -z "$ARTIFACTS" ]]; then
     echo "Error: Missing required argument 'ARTIFACTS'"
-    echo "Usage: $0 [import-toml] [--metalava-build-id ID] [--androidx-build-id ID] [--redownload] [--allow-jetbrains-dev] ARTIFACTS"
+    echo "Usage: $0 [import-toml] [--metalava-build-id ID] [--androidx-build-id ID] [--redownload] [--allow-jetbrains-dev] [--override-prebuilts-path /path/to/prebuilts] ARTIFACTS"
     exit 1
 fi
 

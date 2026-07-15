@@ -2,9 +2,10 @@
 set -e
 
 DOKKA_VERSION="$1"
+DACKKA_CHECKOUT_PATH="$2"
 
-if [[ $# -eq 0 ]] ; then
-    echo "Usage ./development/update_dokka.sh <dokka_version>"
+if [[ $# -ne 2 ]] ; then
+    echo "Usage ./development/update_dokka.sh <dokka_version> <path_to_dackka_checkout>"
     exit 1
 fi
 
@@ -23,4 +24,7 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.dokka:android-documentation-plugin:$DOKKA_
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.dokka:all-modules-page-plugin:$DOKKA_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.dokka:templating-plugin:$DOKKA_VERSION"
 
-./development/importMaven/importMaven.sh "$ARTIFACTS_TO_DOWNLOAD" --allow-jetbrains-dev
+# Location of dackka prebuilts relative to the checkout root
+DACKKA_PREBUILTS_PATH="$DACKKA_CHECKOUT_PATH/prebuilts/dokka-devsite-plugin"
+
+./development/importMaven/importMaven.sh "$ARTIFACTS_TO_DOWNLOAD" --allow-jetbrains-dev --override-prebuilts-path $DACKKA_PREBUILTS_PATH
