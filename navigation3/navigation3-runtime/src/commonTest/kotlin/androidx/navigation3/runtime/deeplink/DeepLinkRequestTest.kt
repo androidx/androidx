@@ -19,6 +19,7 @@ package androidx.navigation3.runtime.deeplink
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.IgnoreAndroidHostTestTarget
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 @IgnoreAndroidHostTestTarget
 class DeepLinkRequestTest {
@@ -49,5 +50,10 @@ class DeepLinkRequestTest {
 
         assertThat(request.uri).isNull()
         assertThat(request.extras["wrongKey"]).isNull()
+    }
+
+    @Test
+    fun testEmptyRequestFails() {
+        assertFailsWith<IllegalArgumentException> { DeepLinkRequest() }
     }
 }
