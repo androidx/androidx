@@ -579,6 +579,50 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testDrawToOffscreenBitmap_OuterSaveRestorePreserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(100, 100)
+
+            // 1. Outer canvas pushes 2 matrix transforms/saves
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.save()
+            canvas.scale(2f, 2f)
+            assertThat(canvas.saveCounter).isEqualTo(2)
+
+            // 2. Draw to offscreen bitmap (creates a childSpan)
+            canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
+                // Simulate offscreen drawing that pushes/pops canvas transforms
+                canvas.save()
+                canvas.translate(5f, 5f)
+                canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+                canvas.restore()
+            }
+
+            // 3. Back in outer canvas, pop both outer saves
+            canvas.restore()
+            canvas.restore()
+            assertThat(canvas.saveCounter).isEqualTo(0)
+
+            // 4. Flush operations to document
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // 5. Regression verification: verify that both outer matrixRestore operations are
+            // preserved after returning from drawToOffscreenBitmap and are not inlined or absorbed
+            // across canvas spans or shared saveCounter mismatches.
+            val calls = buffer.calls
+            val returnToMainCanvasIndex = calls.indexOf("drawOnBitmap(0, 1, 0)")
+            val outerRestoresAfterOffscreen =
+                calls.subList(returnToMainCanvasIndex + 1, calls.size).count {
+                    it == "addMatrixRestore"
+                }
+
+            assertThat(outerRestoresAfterOffscreen).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun testRemoteStringLengthHoisted_InTree() {
         val str = RemoteString.createNamedRemoteString("str", "hello")
         val length = str.length
@@ -2437,6 +2481,11 @@ private fun FloatArray.formatToString(): String {
 
 private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>) :
     RemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
+
+    override fun drawOnBitmap(bitmapId: Int, mode: Int, color: Int) {
+        calls.add("drawOnBitmap($bitmapId, $mode, $color)")
+        super.drawOnBitmap(bitmapId, mode, color)
+    }
 
     override fun addMatrixSave() {
         calls.add("addMatrixSave")
