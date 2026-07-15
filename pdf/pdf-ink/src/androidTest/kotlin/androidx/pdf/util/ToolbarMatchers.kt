@@ -19,7 +19,7 @@ package androidx.pdf.util
 import android.graphics.RectF
 import android.view.View
 import androidx.ink.authoring.InProgressStrokesView
-import androidx.pdf.ink.view.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbar
 import androidx.test.espresso.matcher.BoundedMatcher
 import org.hamcrest.Matcher
 

@@ -31,17 +31,16 @@ import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.pdf.PdfPoint
 import androidx.pdf.R as PdfR
-import androidx.pdf.ink.R
-import androidx.pdf.ink.view.AnnotationToolbar
-import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.ink.util.ToolbarViewActions
+import androidx.pdf.ink.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.util.FragmentTestUtils.scenarioLoadDocument
 import androidx.pdf.util.ToolbarMatchers.matchesToolbarMask
 import androidx.pdf.util.ToolbarMatchers.withDockState
-import androidx.pdf.util.ToolbarViewActions
-import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.view.PdfView
+import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.pdf.viewer.fragment.R as PdfFragmentR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -152,26 +151,26 @@ class EditablePdfViewerFragmentTests {
         loadDocumentAndSetupFragment()
         enterEditMode()
 
-        onView(withId(R.id.annotationToolbar))
+        onView(withId(PdfR.id.annotationToolbar))
             .check(matches(isDisplayed()))
             .check(matches(withDockState(DOCK_STATE_BOTTOM)))
 
         // Initiate drag event
-        onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
+        onView(withId(PdfR.id.annotationToolbar)).perform(ViewActions.longClick())
 
         // Drag to the left side of the screen
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         )
         onIdle()
 
         // Verify toolbar docked to the left side
-        onView(withId(R.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_START)))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_START)))
 
         // Verify tool tray orientation is vertical
         scenario.onFragment { fragment ->
-            val toolTray = fragment.view?.findViewById<LinearLayout>(R.id.tool_tray)
+            val toolTray = fragment.view?.findViewById<LinearLayout>(PdfR.id.tool_tray)
             assertThat(toolTray?.orientation).isEqualTo(LinearLayout.VERTICAL)
         }
     }
@@ -184,9 +183,9 @@ class EditablePdfViewerFragmentTests {
         enterEditMode()
 
         // Move toolbar to the END (Right) side
-        onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
+        onView(withId(PdfR.id.annotationToolbar)).perform(ViewActions.longClick())
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.RIGHT,
         )
         onIdle()
@@ -198,7 +197,7 @@ class EditablePdfViewerFragmentTests {
         onIdle()
 
         // Verify it remains on the END side after rotation
-        onView(withId(R.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_END)))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_END)))
     }
 
     @Test
@@ -210,22 +209,22 @@ class EditablePdfViewerFragmentTests {
 
         var toolbar: AnnotationToolbar? = null
         scenario.onFragment { fragment ->
-            toolbar = fragment.view?.findViewById(R.id.annotationToolbar)
+            toolbar = fragment.view?.findViewById(PdfR.id.annotationToolbar)
         }
 
         // Initial check: Toolbar is at bottom, mask should be at bottom
-        onView(withId(R.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
+        onView(withId(PdfR.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
 
         // Move the toolbar to the START (Left) side
-        onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
+        onView(withId(PdfR.id.annotationToolbar)).perform(ViewActions.longClick())
         performDragAndDrop(
-            R.id.annotationToolbar,
+            PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         ) // Using the helper from previous step
         onIdle()
 
         // Verify the mask path updated to the new location (START side)
-        onView(withId(R.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
+        onView(withId(PdfR.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
     }
 
     @Test
@@ -236,15 +235,15 @@ class EditablePdfViewerFragmentTests {
         enterEditMode()
 
         // Perform Long Press but do NOT call performDragAndDrop
-        onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
+        onView(withId(PdfR.id.annotationToolbar)).perform(ViewActions.longClick())
         onIdle()
 
         // Simulate releasing the touch (Action Up)
-        onView(withId(R.id.annotationToolbar)).perform(click())
+        onView(withId(PdfR.id.annotationToolbar)).perform(click())
         // Since we didn't move, it should re-expand at same dock position
-        onView(withId(R.id.tool_tray)).check(matches(isDisplayed()))
-        onView(withId(R.id.collapsed_tool)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_BOTTOM)))
+        onView(withId(PdfR.id.tool_tray)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.collapsed_tool)).check(matches(not(isDisplayed())))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_BOTTOM)))
     }
 
     @Test
@@ -294,7 +293,7 @@ class EditablePdfViewerFragmentTests {
 
         assertThat(pdfView?.currentSelection).isNull()
         onView(withId(PdfR.id.edit_fab)).check(matches(not(isDisplayed())))
-        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(isDisplayed()))
     }
 
     @Test
@@ -342,9 +341,9 @@ class EditablePdfViewerFragmentTests {
         enterEditMode()
 
         // assert annotation toolbar is visible in edit mode
-        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(isDisplayed()))
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         )
         onIdle()
@@ -353,13 +352,13 @@ class EditablePdfViewerFragmentTests {
         scenario.onFragment { fragment -> fragment.isTextSearchActive = true }
 
         // assert annotation toolbar is hidden when search is initiated
-        onView(withId(R.id.annotationToolbar)).check(matches(not(isDisplayed())))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(not(isDisplayed())))
 
         // disable search on fragment
         scenario.onFragment { fragment -> fragment.isTextSearchActive = false }
 
         // assert toolbar is shown again at the previous position
-        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(isDisplayed()))
         scenario.onFragment { fragment ->
             assertEquals(DOCK_STATE_START, fragment.annotationToolbar.dockState)
         }
@@ -406,7 +405,7 @@ class EditablePdfViewerFragmentTests {
         onIdle()
 
         // assert annotation toolbar is hidden
-        onView(withId(R.id.annotationToolbar)).check(matches(not(isDisplayed())))
+        onView(withId(PdfR.id.annotationToolbar)).check(matches(not(isDisplayed())))
     }
 
     private fun longClickAtCenter() {

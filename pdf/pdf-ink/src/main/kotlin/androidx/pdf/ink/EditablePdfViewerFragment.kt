@@ -43,6 +43,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.pdf.PdfSandboxHandle
 import androidx.pdf.PdfWriteHandle
+import androidx.pdf.R as PdfR
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.AnnotationsView
 import androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener
@@ -60,12 +61,12 @@ import androidx.pdf.ink.state.PdfEditMode
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
 import androidx.pdf.ink.util.toInkBrush
-import androidx.pdf.ink.view.AnnotationToolbar
-import androidx.pdf.ink.view.draganddrop.ToolbarCoordinator
-import androidx.pdf.ink.view.tool.AnnotationToolInfo
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
+import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.draganddrop.ToolbarCoordinator
+import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
@@ -312,18 +313,19 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
 
         wetStrokesView =
             InProgressStrokesView(requireContext()).apply {
-                id = R.id.pdf_wet_strokes_view
+                id = PdfR.id.pdf_wet_strokes_view
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
                 visibility = VISIBLE
             }
 
         annotationView =
             AnnotationsView(requireContext()).apply {
-                id = R.id.pdf_annotation_view
+                id = PdfR.id.pdf_annotation_view
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             }
         annotationToolbar =
-            inflater.inflate(R.layout.annotation_toolbar_layout, null, false) as AnnotationToolbar
+            inflater.inflate(PdfR.layout.annotation_toolbar_layout, null, false)
+                as AnnotationToolbar
         toolbarCoordinator =
             ToolbarCoordinator(requireContext()).apply {
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -673,7 +675,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         val right = left + annotationToolbar.width
         val bottom = top + annotationToolbar.height
 
-        val cornerRadiusPx = resources.getDimension(R.dimen.annotation_toolbar_corner_radius)
+        val cornerRadiusPx = resources.getDimension(PdfR.dimen.annotation_toolbar_corner_radius)
 
         return Path().apply {
             addRoundRect(
