@@ -35,7 +35,8 @@ private const val STRICT_SCHEME_PATTERN = "https://"
 private val EXPECTED_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+\\-.]*:")
 
 /**
- * Represents a deep link that can be deep linked into when matched with a [DeepLinkRequest]
+ * A [DeepLinkMatcher] implementation that matches based on [DeepLinkUri]. Returns a
+ * [UriMatchResult] upon a successful match.
  *
  * If the matcher constructed with this overload matches a [DeepLinkRequest], the provided
  * [serializer] will be used to instantiate the deep link target's navigation key.
@@ -345,24 +346,26 @@ public open class UriMatchResult<out T : Any>(
      * @see [UriMatchResult] for matching priority
      */
     override fun compareTo(other: DeepLinkMatcher.MatchResult<@UnsafeVariance T>): Int {
-        if (other !is UriMatchResult) return 1
-        if (isExactPath && !other.isExactPath) {
+        val otherResult = if (other is WrappedMatchResult<T>) other.matchResult else other
+        if (otherResult !is UriMatchResult) return 1
+        if (isExactPath && !otherResult.isExactPath) {
             return 1
-        } else if (!isExactPath && other.isExactPath) {
+        } else if (!isExactPath && otherResult.isExactPath) {
             return -1
         }
-        val pathSegmentDifference = matchingPathArgumentCount - other.matchingPathArgumentCount
+        val pathSegmentDifference =
+            matchingPathArgumentCount - otherResult.matchingPathArgumentCount
         if (pathSegmentDifference > 0) {
             return 1
         } else if (pathSegmentDifference < 0) {
             return -1
         }
-        if (this.arguments.isNotEmpty() && other.arguments.isEmpty()) {
+        if (this.arguments.isNotEmpty() && otherResult.arguments.isEmpty()) {
             return 1
-        } else if (this.arguments.isEmpty() && other.arguments.isNotEmpty()) {
+        } else if (this.arguments.isEmpty() && otherResult.arguments.isNotEmpty()) {
             return -1
         }
-        val argCountDifference = arguments.size - other.arguments.size
+        val argCountDifference = arguments.size - otherResult.arguments.size
         if (argCountDifference > 0) {
             return 1
         } else if (argCountDifference < 0) {
