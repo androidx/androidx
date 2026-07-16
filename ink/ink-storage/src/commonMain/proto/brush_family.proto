@@ -420,6 +420,17 @@ message BrushPaint {
       BLEND_MODE_XOR = 12 [(ink.proto.enum_value_min_version) = 0];
     }
 
+    oneof layer {
+      TilingTexture tiling_texture = 24
+          [(ink.proto.field_min_version) = 2147483647];
+      StampingTexture stamping_texture = 25
+          [(ink.proto.field_min_version) = 2147483647];
+    }
+
+    // TODO(b/534290635): Deprecate the below `TextureLayer` fields, except for
+    // `blend_mode`, in favor of the `oneof` above, once the `oneof` fields are
+    // assigned a non-development `field_min_version`.
+
     // String id that will be used by renderers to retrieve the color texture.
     optional string client_texture_id = 1 [(ink.proto.field_min_version) = 0];
 
@@ -483,6 +494,75 @@ message BrushPaint {
     reserved 21;
     reserved 22;
     reserved 23;
+  }
+
+  // A texture that will repeat according to a 2D affine transformation of
+  // vertex positions. Each copy of the texture will have the same size and
+  // shape, modulo reflections.
+  message TilingTexture {
+    option (ink.proto.message_min_version) = 2147483647;
+
+    // String id that will be used by renderers to retrieve the color texture.
+    optional string client_texture_id = 1
+        [(ink.proto.field_min_version) = 2147483647];
+
+    // The origin point to use for the texture
+    optional TextureLayer.Origin origin = 2 [
+      default = ORIGIN_STROKE_SPACE_ORIGIN,
+      (ink.proto.field_min_version) = 2147483647
+    ];
+
+    // The unit for size_x and size_y.
+    optional TextureLayer.SizeUnit size_unit = 3 [
+      default = SIZE_UNIT_STROKE_COORDINATES,
+      (ink.proto.field_min_version) = 2147483647
+    ];
+
+    // How points outside the texture in the x direction are treated for this
+    // texture layer
+    optional TextureLayer.Wrap wrap_x = 4
+        [default = WRAP_REPEAT, (ink.proto.field_min_version) = 2147483647];
+
+    // How points outside the texture in the y direction are treated for this
+    // texture layer
+    optional TextureLayer.Wrap wrap_y = 5
+        [default = WRAP_REPEAT, (ink.proto.field_min_version) = 2147483647];
+
+    // The x-dimension of size of (one animation frame of) the texture,
+    // specified in  `size_unit`s
+    optional float size_x = 6
+        [default = 1, (ink.proto.field_min_version) = 2147483647];
+
+    // The y-dimension of size of (one animation frame of) the texture,
+    // specified in  `size_unit`s
+    optional float size_y = 7
+        [default = 1, (ink.proto.field_min_version) = 2147483647];
+
+    // An x-offset into the texture, specified as fractions of the texture size.
+    optional float offset_x = 8 [(ink.proto.field_min_version) = 2147483647];
+
+    // A y-offset into the texture, specified as fractions of the texture size.
+    optional float offset_y = 9 [(ink.proto.field_min_version) = 2147483647];
+
+    // Angle in radians specifying the rotation of the texture. The rotation is
+    // carried out about the center of the texture's first repetition along both
+    // axes.
+    optional float rotation_in_radians = 10
+        [(ink.proto.field_min_version) = 2147483647];
+  }
+
+  // A texture intended for use with particle brush coats (i.e. with a brush tip
+  // with a nonzero particle gap). A copy of the texture (or one animation frame
+  // thereof) will be "stamped" onto each particle of the stroke, scaled or
+  // rotated appropriately to cover the whole particle.
+  message StampingTexture {
+    option (ink.proto.message_min_version) = 2147483647;
+
+    // String id that will be used by renderers to retrieve the color texture.
+    optional string client_texture_id = 1
+        [(ink.proto.field_min_version) = 2147483647];
+
+    reserved 2 to 5;
   }
 
   // Specifies how parts of the stroke that intersect itself should be treated
