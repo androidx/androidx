@@ -281,6 +281,7 @@ class EmbeddedPhotoPickerViewTest {
 
         val uri1 = Uri.fromParts("content", "1234", null)
 
+        testSession.selectUris(listOf(uri1))
         testSession.deselectUris(listOf(uri1))
         assertThat(deselectedUris).containsExactly(uri1)
     }
