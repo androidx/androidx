@@ -29,6 +29,7 @@ class WearWidgetIssueRegistry : IssueRegistry() {
         listOf(
             WearWidgetServiceAssociationDetector.SERVICE_ASSOCIATION_ANNOTATION_ISSUE,
             WearWidgetBackgroundDetector.EMPTY_BACKGROUND_ISSUE,
+            WearWidgetBackgroundDetector.INVALID_BACKGROUND_ISSUE,
         )
 
     override val vendor =
