@@ -24,10 +24,14 @@ import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
 import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
 import androidx.tracing.Tracer
 import androidx.tracing.wire.protos.MutableCallstack
+import androidx.tracing.wire.protos.MutableTrace
 import androidx.tracing.wire.protos.MutableTraceAttributes
 import androidx.tracing.wire.protos.MutableTracePacket
 import androidx.tracing.wire.protos.MutableTrackDescriptor
 import androidx.tracing.wire.protos.MutableTrackEvent
+import com.squareup.wire.ProtoReader
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import kotlin.concurrent.thread
 import kotlin.test.BeforeTest
 import kotlin.test.Ignore
@@ -47,6 +51,8 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.blackholeSink
 import okio.buffer
+import okio.sink
+import okio.source
 
 class TestSink : AbstractTraceSink() {
     internal val packets = mutableListOf<MutableTracePacket>()
@@ -462,6 +468,67 @@ class TracingTest {
             actual = sink.packetCountOnDroppedTracePacket,
             message = "Unexpected number of packets",
         )
+    }
+
+    @Test
+    internal fun validateDroppedPackets() {
+        val dispatcher = StandardTestDispatcher()
+        val output = ByteArrayOutputStream()
+        val sink =
+            TraceSink(
+                sequenceId = 1,
+                sinkProvider = { output.sink().buffer() },
+                coroutineContext = dispatcher,
+            )
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
+        // Create the Tracer
+        val tracer = driver.tracer
+        // Manually report a dropped trace packet
+        sink.onDroppedTraceEvent()
+        output.use {
+            driver.use {
+                tracer.trace(category = "category", name = "name") {
+                    // Does nothing
+                }
+            }
+            val bytes = output.toByteArray()
+            val input = ByteArrayInputStream(bytes)
+            input.use {
+                val reader = ProtoReader(source = input.source().buffer())
+                val trace = MutableTrace.ADAPTER.decode(reader)
+                val packets = trace.packet
+                // There has to be at-least one dropped trace packet.
+                assertNotNull(packets.find { it.previous_packet_dropped == true })
+            }
+        }
+    }
+
+    @Test
+    internal fun validateDroppedPackets_inMemoryRingBufferSink() {
+        val sink = InMemoryRingBufferTraceSink(sequenceId = 1, capacityInBytes = 10 * 1024L)
+        val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
+        val tracer = driver.tracer
+        val output = ByteArrayOutputStream()
+        driver.use {
+            output.use {
+                // Manually report a dropped trace packet
+                sink.onDroppedTraceEvent()
+                tracer.trace(category = "category", name = "name") {
+                    // Does nothing
+                }
+                driver.flush()
+                sink.flushTo(output.sink().buffer())
+                val bytes = output.toByteArray()
+                val input = ByteArrayInputStream(bytes)
+                input.use {
+                    val reader = ProtoReader(source = input.source().buffer())
+                    val trace = MutableTrace.ADAPTER.decode(reader)
+                    val packets = trace.packet
+                    // There has to be at-least one dropped trace packet.
+                    assertNotNull(packets.find { it.previous_packet_dropped == true })
+                }
+            }
+        }
     }
 
     @Test

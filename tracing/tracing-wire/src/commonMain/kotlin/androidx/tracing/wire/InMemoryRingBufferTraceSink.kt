@@ -134,16 +134,22 @@ public class InMemoryRingBufferTraceSink(
             var index = readIndex
 
             val reportDroppedTraceEvent = isDroppedTraceEvent
-            isDroppedTraceEvent = false
-            var firstEventInFlush = true
+            var firstEvent = true
+            // This is set to true only iff we managed to report the dropped event.
+            // Sometimes we may not be able to do it right away, if you only have preamble
+            // packets coming next.
+            var reported = false
 
             val protoWriter = sink?.let { ProtoWriter(it) }
 
             repeat(count) {
                 val event = events[index]
-                val isDropped = if (firstEventInFlush) reportDroppedTraceEvent else false
-                firstEventInFlush = false
-
+                val isPreamble = event.trackDescriptor != null
+                val isDropped = if (!isPreamble && firstEvent) reportDroppedTraceEvent else false
+                // Only treat the first non-preamble event as the first event in a batch.
+                if (!isPreamble) {
+                    firstEvent = false
+                }
                 if (protoWriter != null) {
                     wireTraceEventSerializer.writeTraceEvent(
                         protoWriter = protoWriter,
@@ -151,15 +157,19 @@ public class InMemoryRingBufferTraceSink(
                         reportDroppedTraceEvent = isDropped,
                     )
                 }
-
+                reported = reported || isDropped
                 // Reset the event to free up memory (strings, arrays, etc.)
                 // since it's no longer logically in the ring buffer.
                 event.reset()
-
-                index++
+                index += 1
                 if (index == countLimit) {
                     index = 0
                 }
+            }
+
+            // If there was a dropped event, and we reported it, we can clear the state.
+            if (reported) {
+                isDroppedTraceEvent = false
             }
 
             count = 0
