@@ -160,4 +160,73 @@ class LiveEditRegressionTests {
             observedButtonClicked,
         )
     }
+
+    /**
+     * Once the subcomposition has failed, the recomposer keeps it in its failed list. On the next
+     * reload [invalidateGroupsWithKey] runs `retryFailedCompositions`, which re-invokes the failed
+     * composition's *stored* content lambda. After the block is commented out, the hot-swap has
+     * removed that lambda's backing method, so re-invoking it throws a [LinkageError] (a
+     * [NoSuchMethodError]) rather than the original error. This test simulates exactly that: the
+     * stored content lambda throws [NoSuchMethodError] once [commentedOut] is set, while the
+     * current content stops emitting the block at all.
+     *
+     * If we retry that failed composition, the recomposer wedges and the parent never recomposes
+     * again, so the final click does not toggle 'buttonClicked' and this assertion fails.
+     */
+    @Test
+    @MediumTest
+    fun commentingOutErroringBoxWithConstraints() {
+        val commentedOut = mutableStateOf(false)
+        val reloadTick = mutableStateOf("iteration=0")
+        var observedButtonClicked = false
+
+        composeTestRule.setContent {
+            // The root observes 'reloadTick' so it recomposes on every simulated reload.
+            reloadTick.value
+            var buttonClicked by remember { mutableStateOf(false) }
+            // The root observes 'buttonClicked'. If this observation survives, the button toggles
+            // it.
+            observedButtonClicked = buttonClicked
+            Column {
+                Button(
+                    modifier = Modifier.testTag("button"),
+                    onClick = { buttonClicked = !buttonClicked },
+                ) {}
+                if (!commentedOut.value) {
+                    BoxWithConstraints {
+                        BoxWithConstraints {
+                            // Re-invoking this stored lambda after the block is commented out
+                            // simulates calling a composable whose method the hot-swap removed.
+                            // This is only reached via retryFailedCompositions; the current content
+                            // stops emitting the block once 'commentedOut' is set.
+                            if (commentedOut.value) {
+                                throw NoSuchMethodError("simulated: composable removed by hot-swap")
+                            }
+                            error("boom in nested BoxWithConstraints subcomposition")
+                        }
+                    }
+                }
+            }
+        }
+        // The block errored during its initial subcomposition, so it is now a failed composition.
+        composeTestRule.waitForIdle()
+
+        // "Comment out the whole BoxWithConstraints block and reload": the current content no
+        // longer emits it
+        composeTestRule.runOnUiThread {
+            commentedOut.value = true
+            reloadTick.value = "iteration=1"
+            invalidateGroupsWithKey(-1)
+        }
+        composeTestRule.waitForIdle()
+
+        // The parent must stay interactive: clicking toggles 'buttonClicked', which must recompose.
+        composeTestRule.onNodeWithTag("button").performClick()
+        composeTestRule.waitForIdle()
+        assertTrue(
+            "root must stay interactive after commenting out an erroring BoxWithConstraints block " +
+                "(retrying the removed subcomposition's stale lambda throws a LinkageError)",
+            observedButtonClicked,
+        )
+    }
 }

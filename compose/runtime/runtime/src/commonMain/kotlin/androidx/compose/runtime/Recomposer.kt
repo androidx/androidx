@@ -813,9 +813,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
 
                 errorState.value = RecomposerErrorState(isRecoverable = recoverable, cause = e)
 
-                if (failedInitialComposition != null) {
-                    recordFailedCompositionLocked(failedInitialComposition)
-                }
+                failedInitialComposition?.let { recordFailedCompositionChainLocked(it) }
 
                 if (deriveStateLocked() != null) {
                     composeImmediateRuntimeError(
@@ -978,8 +976,15 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                 ?: return
         try {
             while (compositionsToRetry.isNotEmpty()) {
-                val composition = compositionsToRetry.removeLastKt()
+                val composition = compositionsToRetry.removeNextCompositionToRetry()
                 if (composition !is CompositionImpl) continue
+                if (
+                    composition.isDisposed ||
+                        composition.isRemoved ||
+                        composition.hasRemovedAncestor
+                ) {
+                    continue
+                }
 
                 composition.invalidateAll()
                 composition.setContent(composition.composable)
@@ -994,6 +999,43 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                     compositionsToRetry.fastForEach { recordFailedCompositionLocked(it) }
                 }
             }
+        }
+    }
+
+    private fun MutableList<ControlledComposition>.removeNextCompositionToRetry():
+        ControlledComposition {
+        val nextIndex = indexOfLast { composition ->
+            composition !is CompositionImpl || !composition.hasFailedAncestorIn(this)
+        }
+        return if (nextIndex >= 0) removeAt(nextIndex) else removeLastKt()
+    }
+
+    private fun CompositionImpl.hasFailedAncestorIn(
+        failedCompositions: List<ControlledComposition>
+    ): Boolean = anyAncestor { it in failedCompositions }
+
+    private val CompositionImpl.hasRemovedAncestor: Boolean
+        get() = anyAncestor { it.isRemoved }
+
+    private inline fun CompositionImpl.anyAncestor(
+        predicate: (CompositionImpl) -> Boolean
+    ): Boolean {
+        var parent = parent.composition as? CompositionImpl
+        while (parent != null) {
+            if (predicate(parent)) return true
+            parent = parent.parent.composition as? CompositionImpl
+        }
+        return false
+    }
+
+    private val ControlledComposition.isRemoved: Boolean
+        get() = synchronized(stateLock) { compositionsRemoved?.contains(this) == true }
+
+    private fun recordFailedCompositionChainLocked(composition: ControlledComposition) {
+        var current: ControlledComposition? = composition
+        while (current != null) {
+            recordFailedCompositionLocked(current)
+            current = (current as? CompositionImpl)?.parent?.composition as? ControlledComposition
         }
     }
 
