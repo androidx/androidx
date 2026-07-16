@@ -34,12 +34,7 @@ import kotlin.random.Random
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomShapeWorkflowApi
 @OptIn(ExperimentalInkAnimationApi::class)
-public class InkInProgressShape
-@ExperimentalInkAnimationApi
-public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
-    InProgressShape<Brush, Stroke> {
-
-    public constructor() : this(strokePaintAnimator = null)
+public class InkInProgressShape : InProgressShape<Brush, Stroke> {
 
     internal val inProgressStroke = InProgressStroke()
 
@@ -67,6 +62,14 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
 
     private var startSystemElapsedTimeMillis = Long.MIN_VALUE
 
+    /**
+     * The most recent value passed to [update]. Acts as the current time for all calculations.
+     *
+     * TODO(b/512471476): Use a `StrokePaintAnimator` instead.
+     */
+    internal var lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
+        private set
+
     /** Used by [getUpdatedRegion]. */
     private val scratchUpdatedRegion = BoxAccumulator()
 
@@ -85,9 +88,12 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
         }
+        // TODO(b/512471476): Get clock state from a `StrokePaintAnimator` instead of using
+        // `systemElapsedTimeMillis`.
+        val animatorClockStateMillis = systemElapsedTimeMillis
         val baseAnimationPhase =
             StrokePaintAnimator.calculateBasePhaseForNewStroke(
-                clockStateMillis = strokePaintAnimator?.getClockStateMillis() ?: 0L,
+                clockStateMillis = animatorClockStateMillis,
                 animationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis,
             )
         inProgressStroke.start(
@@ -105,7 +111,11 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
             inProgressStroke.enqueueInputs(realInputs, predictedInputs)
         } catch (t: Throwable) {
             // TODO(b/306361370): Throw here once input is more sanitized.
-            Log.w("InkInProgressShape", "Error during InProgressStroke.enqueueInputs", t)
+            Log.w(
+                InkInProgressShape::class.simpleName,
+                "Error during InProgressStroke.enqueueInputs",
+                t,
+            )
         }
     }
 
@@ -116,6 +126,7 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
         // Update these values even if the underlying [InProgressStroke] doesn't need updating, so
         // that
         // texture animations can be properly rendered.
+        lastUpdateSystemElapsedTimeMillis = startSystemElapsedTimeMillis + shapeDurationMillis
         updateSinceResetUpdatedRegion = true
         runCatching { inProgressStroke.updateShape(shapeDurationMillis) }
             .exceptionOrNull()
@@ -191,6 +202,7 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
 
     override fun prepareToRecycle() {
         startSystemElapsedTimeMillis = Long.MIN_VALUE
+        lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
         updateSinceResetUpdatedRegion = false
         cancelSinceResetUpdatedRegion = false
         canceled = false

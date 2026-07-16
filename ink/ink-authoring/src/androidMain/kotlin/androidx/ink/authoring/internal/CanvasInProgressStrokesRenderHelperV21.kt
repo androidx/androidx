@@ -25,7 +25,6 @@ import android.graphics.PorterDuffXfermode
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.UiThread
-import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withMatrix
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalInkLatencyDataApi
@@ -125,7 +124,6 @@ internal class CanvasInProgressStrokesRenderHelperV21<
         mainView.addOnAttachStateChangeListener(viewListener)
     }
 
-    @VisibleForTesting
     override fun executeOnRenderThread(runnable: Runnable) {
         // This implementation renders asynchronously on the UI thread.
         mainView.post(runnable)

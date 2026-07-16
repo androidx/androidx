@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.InkShapeWorkflow
 import androidx.ink.brush.Brush
-import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
@@ -134,7 +133,7 @@ public fun InProgressStrokes(
 
 @VisibleForTesting
 @Composable
-@OptIn(ExperimentalInkAnimationApi::class, InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class)
 internal fun InProgressStrokesImpl(
     nextBrush: () -> Brush?,
     nextPointerEventToWorldTransform: () -> Matrix = { IDENTITY_MATRIX },
@@ -146,11 +145,7 @@ internal fun InProgressStrokesImpl(
 ) {
     @OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
     InProgressShapesImpl(
-        // TODO(b/512471476): Support paint animation with Compose.
-        customShapeWorkflow =
-            InkShapeWorkflow(strokePaintAnimator = null) {
-                CanvasStrokeRenderer.create(textureBitmapStore)
-            },
+        customShapeWorkflow = InkShapeWorkflow { CanvasStrokeRenderer.create(textureBitmapStore) },
         nextShapeSpec = nextBrush,
         nextPointerEventToWorldTransform = nextPointerEventToWorldTransform,
         nextShapeToWorldTransform = nextStrokeToWorldTransform,
