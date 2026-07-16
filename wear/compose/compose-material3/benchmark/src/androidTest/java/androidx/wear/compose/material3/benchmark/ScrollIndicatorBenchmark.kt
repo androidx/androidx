@@ -20,12 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
-import androidx.compose.testutils.benchmark.benchmarkDrawPerf
-import androidx.compose.testutils.benchmark.benchmarkFirstCompose
-import androidx.compose.testutils.benchmark.benchmarkFirstDraw
-import androidx.compose.testutils.benchmark.benchmarkFirstLayout
-import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
-import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -46,36 +40,6 @@ class ScrollIndicatorBenchmark {
     @Test
     fun first_pixel() {
         benchmarkRule.benchmarkToFirstPixel(testCaseFactory)
-    }
-
-    @Test
-    fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(testCaseFactory)
-    }
-
-    @Test
-    fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(testCaseFactory)
-    }
-
-    @Test
-    fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(testCaseFactory)
-    }
-
-    @Test
-    fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(testCaseFactory)
-    }
-
-    @Test
-    fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(testCaseFactory)
-    }
-
-    @Test
-    fun draw() {
-        benchmarkRule.benchmarkDrawPerf(testCaseFactory)
     }
 }
 
