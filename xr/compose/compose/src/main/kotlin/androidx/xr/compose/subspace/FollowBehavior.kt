@@ -40,12 +40,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.TestOnly
@@ -668,16 +666,12 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     val offset: Pose = DEFAULT_OFFSET
 
     override val poseUpdates: Flow<Pose> =
-        ArDevice.getInstance(session = session)
-            .state
-            // TODO(b/448689233): Initial head pose data is not reliable.
-            .onStart { delay(INITIAL_POSE_DELAY_MS) }
-            .map { state ->
-                session.scene.perceptionSpace.transformPoseTo(
-                    pose = state.devicePose,
-                    destination = session.scene.activitySpace,
-                )
-            }
+        ArDevice.getInstance(session = session).state.map { state ->
+            session.scene.perceptionSpace.transformPoseTo(
+                pose = state.devicePose,
+                destination = session.scene.activitySpace,
+            )
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -691,7 +685,6 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
     }
 
     internal companion object {
-        const val INITIAL_POSE_DELAY_MS: Long = 1000
         // Distance to stay away from the target in meters.
         val DEFAULT_OFFSET: Pose = Pose(translation = Vector3(x = 0f, y = 0f, z = -.5f))
     }
