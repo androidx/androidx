@@ -49,7 +49,7 @@ import kotlin.jvm.JvmStatic
 @OptIn(InkInternalOnlyApi::class, ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmStatic
     public val predictionFadeOutBehavior: BrushBehavior by lazy {
