@@ -16,7 +16,10 @@
 
 package androidx.xr.glimmer.pager
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
@@ -26,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -35,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.lerp
+import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.internal.SingleItemScrollConstraintConnection
+import androidx.xr.glimmer.surface
 import kotlin.math.abs
 
 /**
@@ -71,6 +77,7 @@ import kotlin.math.abs
  * @param reverseLayout reverse the direction of scrolling and layout.
  * @param key a stable and unique key representing the item. When specified, the scroll position
  *   will be maintained based on the key. If null, the position in the pager will represent the key.
+ * @param pageIndicator a page indicator that represents the currently selected page to the user.
  * @param pageContent a block that describes the content of a single page.
  */
 @Composable
@@ -84,6 +91,7 @@ public fun GlimmerHorizontalPager(
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((page: Int) -> Any)? = null,
+    pageIndicator: @Composable () -> Unit = { GlimmerHorizontalPagerDefaults.PageIndicator(state) },
     pageContent: @Composable GlimmerPagerScope.(page: Int) -> Unit,
 ) {
     val singleItemScrollConstraintConnection =
@@ -91,28 +99,36 @@ public fun GlimmerHorizontalPager(
             SingleItemScrollConstraintConnection(state.foundationPagerState)
         }
 
-    HorizontalPager(
-        state = state.foundationPagerState,
-        modifier =
-            modifier
-                .horizontalPagerScrim(state)
-                .nestedScroll(singleItemScrollConstraintConnection)
-                .pagerAutoFocus(state),
-        contentPadding = contentPadding,
-        pageSize = PageSize.Fill,
-        beyondViewportPageCount = beyondViewportPageCount,
-        pageSpacing = pageSpacing,
-        verticalAlignment = verticalAlignment,
-        userScrollEnabled = userScrollEnabled,
-        flingBehavior =
-            PagerDefaults.flingBehavior(
-                state = state.foundationPagerState,
-                pagerSnapDistance = PagerSnapDistance.atMost(1),
-            ),
-        reverseLayout = reverseLayout,
-        key = key,
-    ) { page ->
-        PageItemLayout(state, page) { GlimmerPagerScopeImpl.pageContent(page) }
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(GlimmerTheme.componentSpacingValues.medium),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        HorizontalPager(
+            state = state.foundationPagerState,
+            modifier =
+                Modifier.weight(1f)
+                    .horizontalPagerScrim(state)
+                    .nestedScroll(singleItemScrollConstraintConnection)
+                    .pagerAutoFocus(state),
+            contentPadding = contentPadding,
+            pageSize = PageSize.Fill,
+            beyondViewportPageCount = beyondViewportPageCount,
+            pageSpacing = pageSpacing,
+            verticalAlignment = verticalAlignment,
+            userScrollEnabled = userScrollEnabled,
+            flingBehavior =
+                PagerDefaults.flingBehavior(
+                    state = state.foundationPagerState,
+                    pagerSnapDistance = PagerSnapDistance.atMost(1),
+                ),
+            reverseLayout = reverseLayout,
+            key = key,
+        ) { page ->
+            PageItemLayout(state, page) { GlimmerPagerScopeImpl.pageContent(page) }
+        }
+
+        pageIndicator()
     }
 }
 
@@ -164,6 +180,75 @@ private fun PageItemLayout(state: GlimmerPagerState, page: Int, content: @Compos
             }
         }
     }
+}
+
+/** Default values and helper methods to be used with the [GlimmerHorizontalPager]. */
+public object GlimmerHorizontalPagerDefaults {
+    /**
+     * A page indicator for a [GlimmerHorizontalPager], representing the currently active page and
+     * total pages using a dot-based visual style
+     *
+     * The color of the dot indicating the currently selected page is extracted by retrieving the
+     * content color from the nearest [surface], while the remaining dots are the content color with
+     * an alpha of [UnselectedIndicatorAlpha] applied. To provide custom colors, see the overload of
+     * [PageIndicator] with additional color parameters
+     *
+     * @param state state object to be used to observe the Pager's state
+     * @param modifier modifier to be applied to the page indicator
+     */
+    @Composable
+    public fun PageIndicator(state: GlimmerPagerState, modifier: Modifier = Modifier) {
+        Spacer(
+            modifier =
+                modifier.then(
+                    PageIndicatorElement(
+                        state = state,
+                        selectedIndicatorColor = Color.Unspecified,
+                        unselectedIndicatorColor = Color.Unspecified,
+                    )
+                )
+        )
+    }
+
+    /**
+     * A page indicator for a [GlimmerHorizontalPager], representing the currently active page and
+     * total pages using a dot-based visual style
+     *
+     * This version of the indicator supports passing in a [selectedIndicatorColor] to color the dot
+     * representing the currently selected page, while the remaining dots are colored with
+     * [unselectedIndicatorColor]
+     *
+     * @param state state object to be used to observe the Pager's state
+     * @param selectedIndicatorColor color of the selected page indicator dot
+     * @param unselectedIndicatorColor color of the unselected page indicator dots. This value
+     *   should typically be the [selectedIndicatorColor] with the alpha [UnselectedIndicatorAlpha]
+     *   applied
+     * @param modifier modifier to be applied to the page indicator
+     */
+    @Composable
+    public fun PageIndicator(
+        state: GlimmerPagerState,
+        selectedIndicatorColor: Color,
+        unselectedIndicatorColor: Color,
+        modifier: Modifier = Modifier,
+    ) {
+        Spacer(
+            modifier =
+                modifier.then(
+                    PageIndicatorElement(
+                        state = state,
+                        selectedIndicatorColor = selectedIndicatorColor,
+                        unselectedIndicatorColor = unselectedIndicatorColor,
+                    )
+                )
+        )
+    }
+
+    /**
+     * The alpha that is applied to the selected page indicator dot color, to color the remaining
+     * (unselected) page indicator dots
+     */
+    public val UnselectedIndicatorAlpha: Float = 0.3f
 }
 
 /** The minimum scale applied to a page when it is scrolled away from the snapped position. */
