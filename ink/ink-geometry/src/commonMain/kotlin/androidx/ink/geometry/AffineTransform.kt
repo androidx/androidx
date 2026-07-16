@@ -19,7 +19,6 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
-import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -55,44 +54,25 @@ import kotlin.math.abs
  * [ImmutableAffineTransform] and [MutableAffineTransform] are the two concrete implementations of
  * this.
  */
-@OptIn(InkInternalOnlyApi::class)
 public abstract class AffineTransform internal constructor() {
     /** Value in the first row, first column of the transform matrix. */
-    internal abstract val m00: Float
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m00: Float
     /** Value in the first row, second column of the transform matrix. */
-    internal abstract val m10: Float
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m10: Float
     /** Value in the first row, third column of the transform matrix. */
-    internal abstract val m20: Float
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m20: Float
     /** Value in the second row, first column of the transform matrix. */
-    internal abstract val m01: Float
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m01: Float
     /** Value in the second row, second column of the transform matrix. */
-    internal abstract val m11: Float
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m11: Float
     /** Value in the second row, third column of the transform matrix. */
-    internal abstract val m21: Float
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM00(): Float = m00
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM10(): Float = m10
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM20(): Float = m20
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM01(): Float = m01
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM11(): Float = m11
-
-    @InkInternalOnlyApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun getM21(): Float = m21
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    public abstract val m21: Float
 
     /**
      * Returns an immutable equivalent of this object. This will return itself if called on an
