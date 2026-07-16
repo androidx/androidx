@@ -71,6 +71,9 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * container for more opinionated [Button] components that take specific content such as icons and
  * labels.
  *
+ * For a button with a predefined layout that applies Material3 UX guidelines to the label,
+ * secondaryLabel and icon, see the overload of Button with those parameters.
+ *
  * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
  * text. With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in
  * which case, the [Button] height adjusts to accommodate the contents.
@@ -154,6 +157,9 @@ public fun Button(
 /**
  * Base level Wear Material3 [Button] that offers parameters for container image backgrounds, with a
  * single slot to take any content.
+ *
+ * For a button with a predefined layout that applies Material3 UX guidelines to the label,
+ * secondaryLabel and icon, see the overload of Button with those parameters.
  *
  * An Image background is a means to reinforce the meaning of information in a Button. Buttons
  * should have a content color that contrasts with the background image and scrim.
@@ -248,6 +254,9 @@ public fun Button(
  * as the container for more opinionated [FilledTonalButton] components that take specific content
  * such as icons and labels.
  *
+ * For a filled tonal button with a predefined layout that applies Material3 UX guidelines to the
+ * label, secondaryLabel and icon, see the overload of FilledTonalButton with those parameters.
+ *
  * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
  * more than two lines of text. With localisation and/or large font sizes, the text can extend to a
  * maximum of 3 lines in which case, the [FilledTonalButton] height adjusts to accommodate the
@@ -336,6 +345,9 @@ public fun FilledTonalButton(
  * the container for more opinionated [OutlinedButton] components that take specific content such as
  * icons and labels.
  *
+ * For an outlined button with a predefined layout that applies Material3 UX guidelines to the
+ * label, secondaryLabel and icon, see the overload of OutlinedButton with those parameters.
+ *
  * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
  * than two lines of text. With localisation and/or large font sizes, the text can extend to a
  * maximum of 3 lines in which case, the [OutlinedButton] height adjusts to accommodate the
@@ -422,6 +434,9 @@ public fun OutlinedButton(
  * Base level Wear Material3 [ChildButton] that offers a single slot to take any content. Used as
  * the container for more opinionated [ChildButton] components that take specific content such as
  * icons and labels.
+ *
+ * For a child button with a predefined layout that applies Material3 UX guidelines to the label,
+ * secondaryLabel and icon, see the overload of ChildButton with those parameters.
  *
  * The [ChildButton] is stadium-shaped by default and its standard height is designed to take 2
  * lines of text. With localisation and/or large font sizes, the text can extend to a maximum of 3
@@ -1117,6 +1132,9 @@ public fun ChildButton(
  * label. Both the icon and label are optional however it is expected that at least one will be
  * provided.
  *
+ * For a compact button with a single content slot, see the overload of CompactButton with a content
+ * parameter.
+ *
  * The [CompactButton] is Stadium shaped and has a max height designed to take no more than one line
  * of text and/or one icon. The default max height is [CompactButtonDefaults.Height]. This includes
  * a visible button height of 32.dp and 8.dp of padding above and below the button in order to meet
@@ -1141,8 +1159,7 @@ public fun ChildButton(
  *
  * Other recommended [ButtonColors] for different levels of emphasis are:
  * [ButtonDefaults.filledTonalButtonColors], [ButtonDefaults.outlinedButtonColors] and
- * [ButtonDefaults.childButtonColors]. Buttons can also take an image background using
- * [ButtonDefaults.buttonWithContainerPainterColors].
+ * [ButtonDefaults.childButtonColors].
  *
  * [CompactButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
@@ -1270,6 +1287,100 @@ public fun CompactButton(
             enabled = enabled,
             colors = colors,
             label = label,
+        )
+    }
+}
+
+/**
+ * Base level Wear Material3 [CompactButton] that offers a single slot to take any content.
+ *
+ * For a compact button with a predefined layout that applies Material3 UX guidelines to the icon
+ * and label, see the overload of CompactButton with those parameters.
+ *
+ * The [CompactButton] is Stadium shaped and has a max height designed to take no more than one line
+ * of text and/or one icon. The default max height is [CompactButtonDefaults.Height]. This includes
+ * a visible button height of 32.dp and 8.dp of padding above and below the button in order to meet
+ * accessibility guidelines that request a minimum of 48.dp height and width of tappable area.
+ *
+ * [CompactButton] takes the [ButtonDefaults.buttonColors] color scheme by default, with colored
+ * background, contrasting content color and no border. This is a high-emphasis button for the
+ * primary, most important or most common action on a screen.
+ *
+ * Other recommended [ButtonColors] for different levels of emphasis are:
+ * [ButtonDefaults.filledTonalButtonColors], [ButtonDefaults.outlinedButtonColors] and
+ * [ButtonDefaults.childButtonColors].
+ *
+ * [CompactButton] can be enabled or disabled. A disabled button will not respond to click events.
+ *
+ * Example of a [CompactButton] with a single content slot:
+ *
+ * @sample androidx.wear.compose.material3.samples.CompactButtonWithContentSample
+ * @param onClick Will be called when the user clicks the button
+ * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable.
+ * @param shape Defines the button's shape. It is strongly recommended to use the default as this
+ *   shape is a key characteristic of the Wear Material3 Theme
+ * @param colors [ButtonColors] that will be used to resolve the background and content color for
+ *   this button in different states. See [ButtonDefaults.buttonColors].
+ * @param border Optional [BorderStroke] that will be used to resolve the border for this button in
+ *   different states.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ *   content
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
+ * @param transformation Transformation to be used when button appears inside a container that needs
+ *   to dynamically change its content separately from the background.
+ * @param content Slot for composable body content displayed on the CompactButton
+ */
+// TODO(b/261838497) Add Material3 UX guidance links
+@Composable
+public fun CompactButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    enabled: Boolean = true,
+    shape: Shape = CompactButtonDefaults.shape,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = CompactButtonDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+    transformation: SurfaceTransformation? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val contentColor = colors.contentColor(enabled)
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides CompactButtonTokens.LabelFont.value,
+    ) {
+        val buttonModifier =
+            modifier
+                .compactButtonModifier()
+                .padding(CompactButtonDefaults.TapTargetPadding)
+                .buttonContainerModifier(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                    onLongClickLabel = onLongClickLabel,
+                    enabled = enabled,
+                    shape = shape,
+                    colors = colors,
+                    border = border,
+                    contentPadding = contentPadding,
+                    interactionSource = interactionSource,
+                    transformation = transformation,
+                    containerPainter = null,
+                    disabledContainerPainter = null,
+                )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = buttonModifier,
+            content = content,
         )
     }
 }
