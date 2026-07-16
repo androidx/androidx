@@ -161,14 +161,31 @@ public class StreamSharing extends UseCase {
         mSecondaryCompositionSettings = secondaryCompositionSettings;
         mVirtualCameraAdapter = new VirtualCameraAdapter(
                 camera, secondaryCamera, children, useCaseConfigFactory,
-                (jpegQuality, rotationDegrees) -> {
-                    SurfaceProcessorNode sharingNode = mSharingNode;
-                    if (sharingNode != null) {
-                        return sharingNode.getSurfaceProcessor().snapshot(
-                                jpegQuality, rotationDegrees);
-                    } else {
-                        return Futures.immediateFailedFuture(new Exception(
-                                "Failed to take picture: pipeline is not ready."));
+                new Control() {
+                    @Override
+                    public @NonNull ListenableFuture<Void> jpegSnapshot(
+                            @IntRange(from = 0, to = 100) int jpegQuality,
+                            @IntRange(from = 0, to = 359) int rotationDegrees) {
+                        SurfaceProcessorNode sharingNode = mSharingNode;
+                        if (sharingNode != null) {
+                            return sharingNode.getSurfaceProcessor().snapshot(
+                                    jpegQuality, rotationDegrees);
+                        } else {
+                            return Futures.immediateFailedFuture(new Exception(
+                                    "Failed to take picture: pipeline is not ready."));
+                        }
+                    }
+
+                    @Override
+                    public void resetPipeline() {
+                        checkMainThread();
+                        if (getCamera() == null || getAttachedStreamSpec() == null) {
+                            return;
+                        }
+                        StreamSharing.this.resetPipeline(
+                                getCameraId(), getSecondaryCameraId(), getCurrentConfig(),
+                                getAttachedStreamSpec(),
+                                getSecondaryAttachedStreamSpec());
                     }
                 });
 
@@ -311,6 +328,8 @@ public class StreamSharing extends UseCase {
             @NonNull StreamSpec primaryStreamSpec,
             @Nullable StreamSpec secondaryStreamSpec) {
         checkMainThread();
+
+        mVirtualCameraAdapter.updateChildrenPipelineConfigs();
 
         if (secondaryStreamSpec == null) {
             // primary
@@ -682,25 +701,36 @@ public class StreamSharing extends UseCase {
             mCloseableErrorListener.close();
         }
         mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
-                (sessionConfig, error) -> {
-                    // Do nothing when the use case has been unbound.
-                    if (getCamera() == null) {
-                        return;
-                    }
-
-                    // Clear both StreamSharing and the children.
-                    clearPipeline();
-                    updateSessionConfig(
-                            createPipelineAndUpdateChildrenSpecs(cameraId, secondaryCameraId,
-                                    config, primaryStreamSpec, secondaryStreamSpec));
-                    notifyReset();
-                    // Connect the latest {@link Surface} to newly created children edges.
-                    // Currently children UseCase does not have additional logic in SessionConfig
-                    // error listener so this is OK. If they do, we need to invoke the children's
-                    // SessionConfig error listeners instead.
-                    mVirtualCameraAdapter.resetChildren();
-                });
+                (sessionConfig, error) -> resetPipeline(cameraId, secondaryCameraId, config,
+                        primaryStreamSpec, secondaryStreamSpec));
         sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
+    }
+
+    @MainThread
+    private void resetPipeline(
+            @NonNull String cameraId,
+            @Nullable String secondaryCameraId,
+            @NonNull UseCaseConfig<?> config,
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        checkMainThread();
+
+        // Do nothing when the use case has been unbound.
+        if (getCamera() == null) {
+            return;
+        }
+
+        // Clear both StreamSharing and the children.
+        clearPipeline();
+        updateSessionConfig(
+                createPipelineAndUpdateChildrenSpecs(cameraId, secondaryCameraId,
+                        config, primaryStreamSpec, secondaryStreamSpec));
+        notifyReset();
+        // Connect the latest {@link Surface} to newly created children edges.
+        // Currently children UseCase does not have additional logic in SessionConfig
+        // error listener so this is OK. If they do, we need to invoke the children's
+        // SessionConfig error listeners instead.
+        mVirtualCameraAdapter.resetChildren();
     }
 
     private void clearPipeline() {
@@ -709,6 +739,8 @@ public class StreamSharing extends UseCase {
             mCloseableErrorListener.close();
             mCloseableErrorListener = null;
         }
+
+        mVirtualCameraAdapter.clearChildrenPipelineConfigs();
 
         if (mCameraEdge != null) {
             mCameraEdge.close();
@@ -774,6 +806,12 @@ public class StreamSharing extends UseCase {
         @NonNull ListenableFuture<Void> jpegSnapshot(
                 @IntRange(from = 0, to = 100) int jpegQuality,
                 @IntRange(from = 0, to = 359) int rotationDegrees);
+
+        /**
+         * Resets the StreamSharing pipeline.
+         */
+        default void resetPipeline() {
+        }
     }
 
     @VisibleForTesting

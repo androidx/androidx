@@ -44,6 +44,7 @@ import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -55,7 +56,6 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
-import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
@@ -86,7 +86,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -341,9 +340,9 @@ class StreamSharingTest {
 
         // Act: invoke the parent camera's callbacks.
         val parentCallback = sessionConfig.deviceStateCallbacks.single()
-        parentCallback.onOpened(Mockito.mock(CameraDevice::class.java))
-        parentCallback.onError(Mockito.mock(CameraDevice::class.java), 0)
-        parentCallback.onDisconnected(Mockito.mock(CameraDevice::class.java))
+        parentCallback.onOpened(mock(CameraDevice::class.java))
+        parentCallback.onError(mock(CameraDevice::class.java), 0)
+        parentCallback.onDisconnected(mock(CameraDevice::class.java))
 
         // Assert: the child receives the callbacks.
         assertThat(childCameraStateCallback.onOpenedCalled).isTrue()
@@ -499,7 +498,7 @@ class StreamSharingTest {
         shadowOf(getMainLooper()).idle()
         assertThat(transformationInfo).isNotNull()
         assertThat(transformationInfo!!.rotationDegrees).isEqualTo(SENSOR_ROTATION)
-        assertThat(transformationInfo!!.isMirroring).isTrue()
+        assertThat(transformationInfo.isMirroring).isTrue()
         // Act: unbind StreamSharing.
         streamSharing.unbindFromCamera(frontCamera)
         shadowOf(getMainLooper()).idle()
@@ -886,7 +885,7 @@ class StreamSharingTest {
         val config = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
 
         assertThat(useCaseConfigFactory.lastRequestedCaptureType)
-            .isEqualTo(UseCaseConfigFactory.CaptureType.STREAM_SHARING)
+            .isEqualTo(CaptureType.STREAM_SHARING)
         assertThat(config.retrieveOption(OPTION_TARGET_CLASS, null))
             .isEqualTo(StreamSharing::class.java)
         assertThat(config.retrieveOption(OPTION_TARGET_NAME, null))
@@ -1085,5 +1084,44 @@ class StreamSharingTest {
                     .targetFrameRate
             )
             .isEqualTo(expectedFrameRate)
+    }
+
+    @Test
+    fun childConfigChanged_triggersPipelineReset() {
+        // Arrange: Set up StreamSharing with a FakeUseCase child
+        val initialConfig =
+            FakeUseCaseConfig.Builder().setMirrorMode(MirrorMode.MIRROR_MODE_OFF).useCaseConfig
+        val fakeUseCase = FakeUseCase(initialConfig)
+
+        streamSharing =
+            StreamSharing(
+                camera,
+                secondaryCamera,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(fakeUseCase),
+                useCaseConfigFactory,
+            )
+
+        // Bind and activate
+        streamSharing.bindToCamera(camera, null, null, defaultConfig)
+        streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(size).build(), null)
+        fakeUseCase.notifyActiveForTesting()
+        shadowOf(getMainLooper()).idle()
+
+        val cameraEdge1 = streamSharing.cameraEdge
+        assertThat(cameraEdge1).isNotNull()
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenActiveState[fakeUseCase]).isTrue()
+
+        // Act: Change the child's configuration (mirror mode)
+        fakeUseCase.mirrorMode = MirrorMode.MIRROR_MODE_ON
+        fakeUseCase.notifyUpdatedForTesting()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: The pipeline should have been reset, meaning a new cameraEdge is created
+        val cameraEdge2 = streamSharing.cameraEdge
+        assertThat(cameraEdge2).isNotNull()
+        assertThat(cameraEdge2).isNotEqualTo(cameraEdge1)
+        assertThat(cameraEdge1!!.isClosed).isTrue()
     }
 }
