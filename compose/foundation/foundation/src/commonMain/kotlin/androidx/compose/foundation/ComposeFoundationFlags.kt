@@ -258,6 +258,16 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isPrefetchSchedulerLateFrameDetectionEnabled: Boolean = true
+
+    /**
+     * This flag controls whether [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     * checks if the number of visible items has changed across iterations without scroll deltas
+     * (such as when changing lookahead window sizes) and refills the cache window if needed.
+     */
+    // TODO: b/535884139
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isCacheWindowVisibleItemCountCheckEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
