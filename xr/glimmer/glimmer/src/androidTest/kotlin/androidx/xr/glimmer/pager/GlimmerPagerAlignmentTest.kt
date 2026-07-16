@@ -55,6 +55,7 @@ class GlimmerPagerAlignmentTest(private val config: GlimmerPagerParamConfig) :
                 state = state,
                 modifier = Modifier.size(100.dp),
                 verticalAlignment = Alignment.Top,
+                pageIndicator = {},
             ) {
                 Box(Modifier.size(20.dp).background(Color.Red).testTag("page-0"))
             }
@@ -73,6 +74,7 @@ class GlimmerPagerAlignmentTest(private val config: GlimmerPagerParamConfig) :
                 state = state,
                 modifier = Modifier.size(100.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                pageIndicator = {},
             ) {
                 Box(Modifier.size(20.dp).background(Color.Red).testTag("page-0"))
             }
@@ -91,6 +93,7 @@ class GlimmerPagerAlignmentTest(private val config: GlimmerPagerParamConfig) :
                 state = state,
                 modifier = Modifier.size(100.dp),
                 verticalAlignment = Alignment.Bottom,
+                pageIndicator = {},
             ) {
                 Box(Modifier.size(20.dp).background(Color.Red).testTag("page-0"))
             }

@@ -47,6 +47,9 @@ open class BaseParameterizedGlimmerPagerTest {
         beyondViewportPageCount: Int = 0,
         verticalAlignment: Alignment.Vertical = Alignment.Bottom,
         userScrollEnabled: Boolean = true,
+        pageIndicator: @Composable (() -> Unit) = {
+            GlimmerHorizontalPagerDefaults.PageIndicator(state)
+        },
         pageContent: @Composable GlimmerPagerScope.(page: Int) -> Unit,
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides config.layoutDirection) {
@@ -59,6 +62,7 @@ open class BaseParameterizedGlimmerPagerTest {
                 beyondViewportPageCount = beyondViewportPageCount,
                 verticalAlignment = verticalAlignment,
                 userScrollEnabled = userScrollEnabled,
+                pageIndicator = pageIndicator,
                 pageContent = pageContent,
             )
         }
