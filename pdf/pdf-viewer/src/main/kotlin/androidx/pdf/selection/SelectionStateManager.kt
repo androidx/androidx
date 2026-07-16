@@ -54,6 +54,7 @@ import androidx.pdf.util.toImageSelection
 import androidx.pdf.util.toViewSelection
 import androidx.pdf.view.PageManager
 import androidx.pdf.view.layout.PageLayoutManager
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -64,6 +65,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Owns and updates all mutable state related to content selection in [androidx.pdf.view.PdfView]
@@ -131,6 +133,20 @@ internal class SelectionStateManager(
                         draggedPoint = endPoint,
                     )
                 }
+            }
+            return null
+        }
+
+        if (initialSelection.isPlaceholder) {
+            val startPoint = initialSelection.startBoundary.location
+            val endPoint = initialSelection.endBoundary.location
+            backgroundScope.launch {
+                // This prevents the selection highlights from abruptly popping into the UI several
+                // seconds late after the user has already resumed interacting with the document.
+                withTimeoutOrNull(RESTORE_SELECTION_TIMEOUT_MS.milliseconds) {
+                    updateTextSelection(startPoint, endPoint)
+                    setSelectionJob?.join()
+                } ?: run { setSelectionJob?.cancel() }
             }
             return null
         }
@@ -672,8 +688,7 @@ internal class SelectionStateManager(
     }
 
     private fun updateTextSelection(fixedPoint: PdfPoint, draggedPoint: PdfPoint) {
-        val oldSelectionModel = selectionModel.value
-        if (oldSelectionModel == null || fixedPoint.pageNum == draggedPoint.pageNum) {
+        if (fixedPoint.pageNum == draggedPoint.pageNum) {
             return updateSinglePageSelection(fixedPoint, draggedPoint)
         }
         updateMultiplePageSelection(fixedPoint, draggedPoint)
@@ -820,6 +835,11 @@ internal class SelectionStateManager(
                 this.start.point != null &&
                 this.stop.point != null
         }
+
+    companion object {
+        private const val RESTORE_SELECTION_TIMEOUT_MS = 1000L
+        private const val MAX_RESTORE_SELECTION_TIMEOUT_MS = 10000L
+    }
 }
 
 /**

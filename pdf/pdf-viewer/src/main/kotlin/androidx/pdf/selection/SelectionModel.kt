@@ -25,6 +25,7 @@ import androidx.pdf.PdfPoint
 import androidx.pdf.content.PageSelection
 import androidx.pdf.leftCenter
 import androidx.pdf.rightCenter
+import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.util.pdfPointFromParcel
 import androidx.pdf.util.toViewSelection
 import androidx.pdf.util.writeToParcel
@@ -36,6 +37,7 @@ internal class SelectionModel(
     val startBoundary: UiSelectionBoundary,
     val endBoundary: UiSelectionBoundary,
     val isOcr: Boolean = false,
+    val isPlaceholder: Boolean = false,
 ) : Parcelable {
     constructor(
         parcel: Parcel
@@ -44,6 +46,7 @@ internal class SelectionModel(
         startBoundary = UiSelectionBoundary(parcel),
         endBoundary = UiSelectionBoundary(parcel),
         isOcr = parcel.readInt() == 1,
+        isPlaceholder = parcel.readInt() == 1,
     )
 
     override fun describeContents(): Int = 0
@@ -53,6 +56,7 @@ internal class SelectionModel(
         startBoundary.writeToParcel(dest, flags)
         endBoundary.writeToParcel(dest, flags)
         dest.writeInt(if (isOcr) 1 else 0)
+        dest.writeInt(if (isPlaceholder) 1 else 0)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -63,6 +67,7 @@ internal class SelectionModel(
         if (other.startBoundary != startBoundary) return false
         if (other.endBoundary != endBoundary) return false
         if (other.isOcr != isOcr) return false
+        if (other.isPlaceholder != isPlaceholder) return false
         return true
     }
 
@@ -71,7 +76,25 @@ internal class SelectionModel(
         result = 31 * result + startBoundary.hashCode()
         result = 31 * result + endBoundary.hashCode()
         result = 31 * result + isOcr.hashCode()
+        result = 31 * result + isPlaceholder.hashCode()
         return result
+    }
+
+    fun toPlaceholder(): SelectionModel {
+        if (isPlaceholder) return this
+        val selection = documentSelection.selection
+        if (selection is ImageSelection) {
+            // ImageSelection already strips the bitmap and converts to a 20-byte placeholder
+            // in writeToParcel / imageSelectionFromParcel during IPC.
+            return this
+        }
+        return SelectionModel(
+            documentSelection = DocumentSelection(SparseArray()),
+            startBoundary = startBoundary,
+            endBoundary = endBoundary,
+            isOcr = isOcr,
+            isPlaceholder = true,
+        )
     }
 
     companion object {
