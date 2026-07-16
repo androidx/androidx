@@ -95,5 +95,5 @@ public interface ImagePlane : UnsafeWrapper {
     public val pixelStride: Int
 
     /** @see [android.media.Image.Plane.getBuffer] */
-    public val buffer: ByteBuffer?
+    public val buffer: ByteBuffer
 }
