@@ -202,18 +202,18 @@ private constructor(
             StrokeNative.createWithSubtract(
                 nativePointer,
                 maskShape.nativePointer,
-                maskToWorldTransform.m00,
-                maskToWorldTransform.m10,
-                maskToWorldTransform.m20,
-                maskToWorldTransform.m01,
-                maskToWorldTransform.m11,
-                maskToWorldTransform.m21,
-                strokeToWorldTransform.m00,
-                strokeToWorldTransform.m10,
-                strokeToWorldTransform.m20,
-                strokeToWorldTransform.m01,
-                strokeToWorldTransform.m11,
-                strokeToWorldTransform.m21,
+                maskToWorldTransform.getM00(),
+                maskToWorldTransform.getM10(),
+                maskToWorldTransform.getM20(),
+                maskToWorldTransform.getM01(),
+                maskToWorldTransform.getM11(),
+                maskToWorldTransform.getM21(),
+                strokeToWorldTransform.getM00(),
+                strokeToWorldTransform.getM10(),
+                strokeToWorldTransform.getM20(),
+                strokeToWorldTransform.getM01(),
+                strokeToWorldTransform.getM11(),
+                strokeToWorldTransform.getM21(),
             )
         }
 
@@ -320,12 +320,12 @@ private constructor(private val brush: Brush, pointerAlloc: () -> Long) {
             MultipleStrokes(targetStroke.brush) {
                     MultipleStrokesNative.createWithSplit(
                         targetStroke.nativePointer,
-                        transform.m00,
-                        transform.m10,
-                        transform.m20,
-                        transform.m01,
-                        transform.m11,
-                        transform.m21,
+                        transform.getM00(),
+                        transform.getM10(),
+                        transform.getM20(),
+                        transform.getM01(),
+                        transform.getM11(),
+                        transform.getM21(),
                         tolerance,
                     )
                 }

@@ -33,6 +33,7 @@ import android.view.ViewGroup
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.core.graphics.withMatrix
 import androidx.graphics.lowlatency.CanvasFrontBufferedRenderer
@@ -360,6 +361,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
         }
     }
 
+    @VisibleForTesting
     @UiThread
     override fun executeOnRenderThread(runnable: Runnable) {
         assertOnUiThread()

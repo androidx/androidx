@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(InkInternalOnlyApi::class)
+
 package androidx.ink.geometry.compose
 
 import androidx.compose.ui.geometry.MutableRect
@@ -31,6 +33,7 @@ import androidx.ink.geometry.MutableBox
 import androidx.ink.geometry.MutableVec
 import androidx.ink.geometry.Vec
 import androidx.ink.geometry.compose.internal.threadLocal
+import androidx.ink.nativeloader.InkInternalOnlyApi
 
 /** Scratch space to be used as the argument to [BoxAccumulator.add]. */
 private val boxAccumulatorScratchMutableBox by threadLocal { MutableBox() }
@@ -162,7 +165,26 @@ private fun isAffineMatrix(matrix: Matrix): Boolean {
  * Performance-sensitive code should still use this because [Matrix] is an inline value class.
  */
 public fun AffineTransform.toMatrix(): Matrix =
-    Matrix(floatArrayOf(m00, m01, 0f, 0f, m10, m11, 0f, 0f, 0f, 0f, 1f, 0f, m20, m21, 0f, 1f))
+    Matrix(
+        floatArrayOf(
+            getM00(),
+            getM01(),
+            0f,
+            0f,
+            getM10(),
+            getM11(),
+            0f,
+            0f,
+            0f,
+            0f,
+            1f,
+            0f,
+            getM20(),
+            getM21(),
+            0f,
+            1f,
+        )
+    )
 
 /**
  * Writes the values from this [AffineTransform] to [out]. Note the conversion from a 3x3
@@ -174,12 +196,12 @@ public fun AffineTransform.toMatrix(): Matrix =
  */
 public fun AffineTransform.populateMatrix(out: Matrix): Matrix {
     out.reset()
-    out.values[Matrix.ScaleX] = m00
-    out.values[Matrix.SkewY] = m01
-    out.values[Matrix.SkewX] = m10
-    out.values[Matrix.ScaleY] = m11
-    out.values[Matrix.TranslateX] = m20
-    out.values[Matrix.TranslateY] = m21
+    out.values[Matrix.ScaleX] = getM00()
+    out.values[Matrix.SkewY] = getM01()
+    out.values[Matrix.SkewX] = getM10()
+    out.values[Matrix.ScaleY] = getM11()
+    out.values[Matrix.TranslateX] = getM20()
+    out.values[Matrix.TranslateY] = getM21()
     return out
 }
 
@@ -219,11 +241,13 @@ public fun MutableAffineTransform.populateFrom(matrix: Matrix): MutableAffineTra
     if (!isAffineMatrix(matrix)) {
         throw IllegalArgumentException("Matrix is not affine")
     }
-    m00 = matrix.values[Matrix.ScaleX]
-    m10 = matrix.values[Matrix.SkewX]
-    m20 = matrix.values[Matrix.TranslateX]
-    m01 = matrix.values[Matrix.SkewY]
-    m11 = matrix.values[Matrix.ScaleY]
-    m21 = matrix.values[Matrix.TranslateY]
+    setValues(
+        m00 = matrix.values[Matrix.ScaleX],
+        m10 = matrix.values[Matrix.SkewX],
+        m20 = matrix.values[Matrix.TranslateX],
+        m01 = matrix.values[Matrix.SkewY],
+        m11 = matrix.values[Matrix.ScaleY],
+        m21 = matrix.values[Matrix.TranslateY],
+    )
     return this
 }
