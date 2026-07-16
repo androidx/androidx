@@ -162,6 +162,10 @@ package androidx.a2ui.model.catalog.functions {
     property public androidx.a2ui.model.catalog.functions.A2uiLocaleProvider Default;
   }
 
+  public fun interface A2uiMessageFormatter {
+    method public String format(String pattern, java.util.Locale locale, java.util.Map<java.lang.String,?> arguments);
+  }
+
   public final class A2uiNotFunction implements androidx.a2ui.model.catalog.A2uiFunction {
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
@@ -210,9 +214,9 @@ package androidx.a2ui.model.catalog.functions {
   }
 
   public final class A2uiPluralizeFunction implements androidx.a2ui.model.catalog.A2uiFunction {
-    ctor public A2uiPluralizeFunction(android.content.Context context);
-    ctor public A2uiPluralizeFunction(android.content.Context context, optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
-    ctor @BytecodeOnly public A2uiPluralizeFunction(android.content.Context!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiPluralizeFunction(androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter);
+    ctor public A2uiPluralizeFunction(androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider);
+    ctor @BytecodeOnly public A2uiPluralizeFunction(androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
     property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
