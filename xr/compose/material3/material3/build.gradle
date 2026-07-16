@@ -32,7 +32,7 @@ plugins {
 dependencies {
     // Add dependencies here
     implementation("androidx.compose.ui:ui-unit:1.8.0")
-    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation(project(":compose:material3:material3"))
     implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
     implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.5.0-alpha22")
