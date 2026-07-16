@@ -16,10 +16,14 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.collection.IntList
+import androidx.collection.emptyIntList
+import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
@@ -28,6 +32,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.trace
 import kotlinx.coroutines.CoroutineScope
 
@@ -127,6 +132,9 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                 scrollToBeConsumed = state.scrollToBeConsumed
             }
 
+            val pinnedItems =
+                itemProvider.calculateLazyLayoutPinnedIndices(pinnedItemList = state.pinnedItems)
+
             Snapshot.withMutableSnapshot {
                     trace("wear-compose:tlc:measure") {
                         measurementStrategy.measure(
@@ -142,6 +150,7 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                             lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
                             coroutineScope = coroutineScope,
                             density = this,
+                            pinnedItems = pinnedItems,
                             layout = { width, height, placement ->
                                 layout(
                                     containerConstraints.constrainWidth(width),
@@ -169,4 +178,43 @@ internal enum class MeasurementDirection {
      * [TransformingLazyColumnItemScrollProgress.upwardMeasuredItemScrollProgress].
      */
     UPWARD,
+}
+
+private fun TransformingLazyColumnItemProvider.calculateLazyLayoutPinnedIndices(
+    pinnedItemList: LazyLayoutPinnedItemList
+): IntList {
+    if (pinnedItemList.isEmpty()) {
+        return emptyIntList()
+    } else {
+        val pinnedItems = mutableIntListOf()
+        pinnedItemList.fastForEach {
+            val index = findIndexByKey(it.key, it.index)
+            if (index in 0 until itemCount) {
+                pinnedItems.add(index)
+            }
+        }
+        pinnedItems.sort()
+        return pinnedItems
+    }
+}
+
+/**
+ * Finds the position of the item with the given key in the lists. This logic allows us to detect
+ * when there were items added or removed before our current first item.
+ */
+private fun TransformingLazyColumnItemProvider.findIndexByKey(key: Any?, lastKnownIndex: Int): Int {
+    if (key == null || itemCount == 0) {
+        // there were no real items during the previous measure
+        return lastKnownIndex
+    }
+    if (lastKnownIndex < itemCount && key == getKey(lastKnownIndex)) {
+        // this item is still at the same index
+        return lastKnownIndex
+    }
+    val newIndex = getIndex(key)
+    if (newIndex != -1) {
+        return newIndex
+    }
+    // fallback to the previous index if we don't know the new index of the item
+    return lastKnownIndex
 }

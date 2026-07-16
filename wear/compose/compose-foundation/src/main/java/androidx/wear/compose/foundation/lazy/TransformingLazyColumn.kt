@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnableItem
 import androidx.compose.foundation.lazy.layout.getDefaultLazyLayoutKey
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberOverscrollEffect
@@ -76,6 +77,11 @@ import androidx.wear.compose.foundation.rotary.rotaryScrollable
  * Example of a [TransformingLazyColumn] that snaps items to the center of the viewport:
  *
  * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnWithSnapSample
+ *
+ * Example of a [TransformingLazyColumn] that uses [androidx.compose.ui.layout.PinnableContainer] to
+ * pin items:
+ *
+ * @sample androidx.wear.compose.foundation.samples.TransformingLazyColumnPinnableContainerSample
  * @param modifier The modifier to be applied to the layout.
  * @param state The state object to be used to control the list and the applied layout.
  * @param contentPadding The padding around the whole content. This will add padding for the content
@@ -491,6 +497,7 @@ public object TransformingLazyColumnDefaults {
     }
 }
 
+@OptIn(ExperimentalWearFoundationApi::class)
 internal class TransformingLazyColumnItemProvider(
     val intervalContent: LazyLayoutIntervalContent<TransformingLazyColumnInterval>,
     val state: TransformingLazyColumnState,
@@ -511,8 +518,16 @@ internal class TransformingLazyColumnItemProvider(
                     reduceMotionEnabled = reduceMotionEnabled,
                 )
             }
-        intervalContent.withInterval(index) { localIndex, content ->
-            content.item(itemScope, localIndex)
+        if (WearComposeFoundationFlags.isTransformingLazyColumnPinnableContainerEnabled) {
+            LazyLayoutPinnableItem(key, index, state.pinnedItems) {
+                intervalContent.withInterval(index) { localIndex, content ->
+                    content.item(itemScope, localIndex)
+                }
+            }
+        } else {
+            intervalContent.withInterval(index) { localIndex, content ->
+                content.item(itemScope, localIndex)
+            }
         }
     }
 

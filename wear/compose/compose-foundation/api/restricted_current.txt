@@ -576,9 +576,11 @@ package androidx.wear.compose.foundation {
 
   @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class WearComposeFoundationFlags {
     property public boolean isTransformingLazyColumnClickableThresholdEnabled;
+    property public boolean isTransformingLazyColumnPinnableContainerEnabled;
     property public boolean isWarpingCurvedTextEnabled;
     field public static final androidx.wear.compose.foundation.WearComposeFoundationFlags INSTANCE;
     field public static boolean isTransformingLazyColumnClickableThresholdEnabled;
+    field public static boolean isTransformingLazyColumnPinnableContainerEnabled;
     field public static boolean isWarpingCurvedTextEnabled;
   }
 
