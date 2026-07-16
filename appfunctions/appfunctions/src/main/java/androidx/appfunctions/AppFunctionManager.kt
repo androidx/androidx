@@ -417,7 +417,6 @@ public constructor(
      * @param appFunction The implementation of the app function to handle execution requests.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun handleAppFunction(
         functionIdentifier: String,
         appFunction: SuspendingAppFunction,
@@ -436,7 +435,6 @@ public constructor(
      * @param request The request containing the function identifier and implementation.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun handleAppFunction(request: HandleAppFunctionRequest): Nothing =
         handleAppFunctions(listOf(request))
 
@@ -453,7 +451,6 @@ public constructor(
      * @param requests The list of requests containing the function identifiers and implementations.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun handleAppFunctions(requests: List<HandleAppFunctionRequest>): Nothing =
         coroutineScope {
             val dispatcher =

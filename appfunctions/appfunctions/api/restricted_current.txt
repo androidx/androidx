@@ -167,6 +167,9 @@ package androidx.appfunctions {
   public final class AppFunctionManager {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
     method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunction(androidx.appfunctions.HandleAppFunctionRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunction(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunctions(java.util.List<androidx.appfunctions.HandleAppFunctionRequest> requests, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? isAppFunctionEnabled(String packageName, String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? isAppFunctionEnabled(String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.ObserveAppFunctionsEvent> observeAppFunctions();
@@ -353,6 +356,14 @@ package androidx.appfunctions {
     property public static String PROPERTY_RETURN_VALUE;
   }
 
+  public final class HandleAppFunctionRequest {
+    ctor public HandleAppFunctionRequest(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction);
+    method @InaccessibleFromKotlin public androidx.appfunctions.SuspendingAppFunction getAppFunction();
+    method @InaccessibleFromKotlin public String getFunctionIdentifier();
+    property public androidx.appfunctions.SuspendingAppFunction appFunction;
+    property public String functionIdentifier;
+  }
+
   public abstract class ObserveAppFunctionsEvent {
   }
 
@@ -366,6 +377,10 @@ package androidx.appfunctions {
     ctor public ObserveAppFunctionsEvent.StatesChanged(java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames);
     method @InaccessibleFromKotlin public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> getChangedFunctionNames();
     property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
+  }
+
+  public fun interface SuspendingAppFunction {
+    method public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
   }
 
 }
