@@ -32,6 +32,16 @@ package androidx.a2ui.model.catalog {
 
 }
 
+package androidx.a2ui.model.catalog.basiccatalog {
+
+  public final class A2uiBasicCatalogFunctions {
+    method public static java.util.List<androidx.a2ui.model.catalog.A2uiFunction> createBasicCatalogFunctions(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter);
+    method public static java.util.List<androidx.a2ui.model.catalog.A2uiFunction> createBasicCatalogFunctions(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, optional androidx.a2ui.model.catalog.functions.A2uiLocaleProvider? localeProvider);
+    method @BytecodeOnly public static java.util.List! createBasicCatalogFunctions$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, int, Object!);
+  }
+
+}
+
 package androidx.a2ui.model.catalog.functions {
 
   public final class A2uiAndFunction implements androidx.a2ui.model.catalog.A2uiFunction {
