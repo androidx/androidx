@@ -138,6 +138,10 @@ object ComposeUiFlags {
     @JvmField
     var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = false
 
+    /** Fixes trackpad pan gestures (CLASSIFICATION_TWO_FINGER_SWIPE). */
+    // TODO: b/535296682 - Cleanup feature flag
+    @field:Suppress("MutableBareField") @JvmField var isTrackpadPanHoverFixEnabled: Boolean = false
+
     /**
      * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
      * scale factor, rather than passing through fake finger touch events.
