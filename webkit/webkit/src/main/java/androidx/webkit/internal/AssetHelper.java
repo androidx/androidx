@@ -150,8 +150,8 @@ public class AssetHelper {
     }
 
     /**
-     * Returns the canonical path for the given directory with a {@code "/"} at the end if doesn't
-     * have one.
+     * Returns the canonical path for the given directory with a {@code "/"} or {@code "\"}
+     * (depending on the file system) at the end if it doesn't have one.
      * <p>
      * Having a slash {@code "/"} at the end of a directory path is important when checking if a
      * directory is a parent of another child directory or a file.
@@ -160,7 +160,7 @@ public class AssetHelper {
      */
     public static @NonNull String getCanonicalDirPath(@NonNull File file) throws IOException {
         String canonicalPath = file.getCanonicalPath();
-        if (!canonicalPath.endsWith("/")) canonicalPath += "/";
+        if (!canonicalPath.endsWith(File.separator)) canonicalPath += File.separator;
         return canonicalPath;
     }
 
