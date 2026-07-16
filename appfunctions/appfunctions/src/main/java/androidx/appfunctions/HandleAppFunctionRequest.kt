@@ -16,15 +16,12 @@
 
 package androidx.appfunctions
 
-import androidx.annotation.RestrictTo
-
 /**
  * A request to register a [SuspendingAppFunction] implementation, provided to
  * [AppFunctionManager.handleAppFunction].
  *
  * This encapsulates the information needed to register a single app function.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HandleAppFunctionRequest(
     /** The unique identifier of the app function. */
     public val functionIdentifier: String,
