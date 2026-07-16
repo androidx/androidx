@@ -237,4 +237,15 @@ class EmbeddedPhotoPickerStateImplTest {
         assertThat(state.selectedMedia).isEmpty()
         assertThat(session.selectedUris).isEmpty()
     }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerStateImplDeselectBeforeSessionOpenedThrows() = runTest {
+        lateinit var state: EmbeddedPhotoPickerState
+
+        composeTestRule.setContent { state = rememberEmbeddedPhotoPickerState() }
+
+        val uri = Uri.parse("content://media/picker/1")
+        assertThrows(IllegalStateException::class.java) { runBlocking { state.deselectUri(uri) } }
+    }
 }
