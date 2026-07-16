@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("UnsafeWrappers")
+
 package androidx.camera.common
 
 import java.lang.Class
@@ -45,4 +47,5 @@ public interface UnsafeWrapper {
  *
  * @see UnsafeWrapper.unwrapAs
  */
+@kotlin.jvm.JvmSynthetic
 public inline fun <reified T : Any> UnsafeWrapper.unwrapAs(): T? = unwrapAs(T::class.java)
