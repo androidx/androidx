@@ -40,7 +40,7 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.isNotDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
@@ -481,7 +481,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
         onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
 
-        rule.onNodeWithTag("0").isNotDisplayed()
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
     }
 
     @Test

@@ -26,7 +26,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.os.bundleOf
@@ -95,7 +95,7 @@ class AndroidFragmentTest {
         testRule.runOnIdle { stateChanger = 1 }
 
         testRule.waitForIdle()
-        testRule.onNodeWithText("No Fragment here").isDisplayed()
+        testRule.onNodeWithText("No Fragment here").assertIsDisplayed()
 
         testRule.runOnIdle { stateChanger = 2 }
 
