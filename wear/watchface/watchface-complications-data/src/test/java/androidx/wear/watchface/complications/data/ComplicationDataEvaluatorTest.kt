@@ -32,6 +32,8 @@ import androidx.wear.protolayout.expression.pipeline.StateStore
 import androidx.wear.watchface.complications.data.ComplicationDataEvaluator.Companion.INVALID_DATA
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -473,6 +475,36 @@ class ComplicationDataEvaluatorTest {
         // Bind-phase exception is safely caught, emitting null and invalidating the data.
         val result = runBlocking { customEvaluator.evaluate(malformedData).first() }
         assertThat(result.type).isEqualTo(TYPE_NO_DATA)
+    }
+
+    private class CancellingPlatformDataProvider : PlatformDataProvider {
+        override fun setReceiver(
+            executor: java.util.concurrent.Executor,
+            receiver: androidx.wear.protolayout.expression.pipeline.PlatformDataReceiver,
+        ) {
+            throw CancellationException("Bind-phase cancellation!")
+        }
+
+        override fun clearReceiver() {}
+    }
+
+    @Test
+    fun evaluate_cancellingPlatformSource_throwsCancellationException() {
+        val cancellingProvider = CancellingPlatformDataProvider()
+        val key = PlatformHealthSources.Keys.HEART_RATE_BPM
+        val customEvaluator =
+            ComplicationDataEvaluator(
+                platformDataProviders = mapOf(cancellingProvider to setOf(key))
+            )
+
+        val data =
+            WireComplicationData.Builder(TYPE_NO_DATA)
+                .setLongText(WireComplicationText(DynamicFloat.from(key).format()))
+                .build()
+
+        assertFailsWith<CancellationException> {
+            runBlocking { customEvaluator.evaluate(data).first() }
+        }
     }
 
     private companion object {

@@ -40,6 +40,7 @@ import java.util.concurrent.Executor
 import java.util.function.Supplier
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -357,6 +358,9 @@ constructor(
                             boundDynamicType.close()
                         }
                     }
+                } catch (e: CancellationException) {
+                    // Allow CancellationException to propagate.
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed or rejected binding dynamic type for complication", e)
                     channel.trySend(null)
