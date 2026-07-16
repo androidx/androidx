@@ -222,7 +222,7 @@ public abstract class CarAppService extends Service {
                 : SessionInfo.DEFAULT_SESSION_INFO;
         runOnMain(() -> {
             synchronized (mBinders) {
-                CarAppBinder binder = mBinders.remove(sessionInfo);
+                CarAppBinder binder = mBinders.get(sessionInfo);
                 if (binder != null) {
                     // We call onDestroyLifecycle() instead of destroy() here because Service
                     // caches the binder returned by onBind() for a given Intent meaning this
