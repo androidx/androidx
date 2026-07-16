@@ -231,6 +231,7 @@ internal class MultiParagraphLayoutCache(
         val multiParagraph = layoutText(finalConstraints, layoutDirection)
 
         layoutCache = textLayoutResult(layoutDirection, finalConstraints, multiParagraph)
+        isLayoutCacheStale = false
         return true
     }
 
@@ -279,8 +280,15 @@ internal class MultiParagraphLayoutCache(
     /** The natural height of text at [width] in [layoutDirection] */
     fun intrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         val localWidth = cachedIntrinsicHeightInputWidth
-        val localHeght = cachedIntrinsicHeight
-        if (width == localWidth && localWidth != -1) return localHeght
+        val localHeight = cachedIntrinsicHeight
+        if (
+            width == localWidth &&
+                localWidth != -1 &&
+                layoutDirection == intrinsicsLayoutDirection &&
+                paragraphIntrinsics?.hasStaleResolvedFonts != true
+        ) {
+            return localHeight
+        }
         val constraints = Constraints(0, width, 0, Constraints.Infinity)
         val finalConstraints =
             if (minLines > 1) {
@@ -324,6 +332,9 @@ internal class MultiParagraphLayoutCache(
         markDirty()
     }
 
+    /** Forces text layout recalculation on next measure pass after font resolution. */
+    private var isLayoutCacheStale: Boolean = false
+
     /**
      * Minimum information required to compute [MultiParagraphIntrinsics].
      *
@@ -337,7 +348,13 @@ internal class MultiParagraphLayoutCache(
                     layoutDirection != intrinsicsLayoutDirection ||
                     localIntrinsics.hasStaleResolvedFonts
             ) {
+                if (localIntrinsics != null) {
+                    isLayoutCacheStale = true
+                }
                 intrinsicsLayoutDirection = layoutDirection
+                cachedIntrinsicHeightInputWidth = -1
+                cachedIntrinsicHeight = -1
+                mMinLinesConstrainer = null
                 MultiParagraphIntrinsics(
                     annotatedString = text,
                     style = resolveDefaults(style, layoutDirection),
@@ -391,6 +408,8 @@ internal class MultiParagraphLayoutCache(
         // no layout yet
         if (this == null) return true
 
+        if (isLayoutCacheStale) return true
+
         // async typeface changes
         if (this.multiParagraph.intrinsics.hasStaleResolvedFonts) return true
 
@@ -418,6 +437,7 @@ internal class MultiParagraphLayoutCache(
         layoutCache = null
         cachedIntrinsicHeight = -1
         cachedIntrinsicHeightInputWidth = -1
+        isLayoutCacheStale = false
         _textAutoSizeLayoutScope = null
     }
 
@@ -427,6 +447,7 @@ internal class MultiParagraphLayoutCache(
         layoutCache = null
         cachedIntrinsicHeight = -1
         cachedIntrinsicHeightInputWidth = -1
+        isLayoutCacheStale = false
     }
 
     /** The width at which increasing the width of the text no longer decreases the height. */
