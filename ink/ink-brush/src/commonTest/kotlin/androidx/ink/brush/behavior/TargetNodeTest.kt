@@ -16,7 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -25,7 +24,7 @@ import kotlin.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-@OptIn(ExperimentalInkAnimationApi::class, InkInternalOnlyApi::class)
+@OptIn(InkInternalOnlyApi::class)
 class TargetNodeTest {
 
     @Test

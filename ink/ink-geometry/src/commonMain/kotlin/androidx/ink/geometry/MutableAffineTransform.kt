@@ -18,7 +18,6 @@ package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
-import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -38,15 +37,26 @@ import kotlin.math.sin
  *   passed in here, use [AffineTransform.getValues]. To construct this object using an array as
  *   input, there is another public constructor for that.
  */
-@OptIn(InkInternalOnlyApi::class)
 public class MutableAffineTransform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m00: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m10: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m20: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m01: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m11: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override var m21: Float,
 ) : AffineTransform() {
 

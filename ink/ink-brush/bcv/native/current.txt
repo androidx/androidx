@@ -461,6 +461,8 @@ final class androidx.ink.brush.behavior/TargetNode : androidx.ink.brush.behavior
                 final fun <get-SIZE_MULTIPLIER>(): androidx.ink.brush.behavior/TargetNode.Target // androidx.ink.brush.behavior/TargetNode.Target.Companion.SIZE_MULTIPLIER.<get-SIZE_MULTIPLIER>|<get-SIZE_MULTIPLIER>(){}[0]
             final val SLANT_OFFSET_IN_RADIANS // androidx.ink.brush.behavior/TargetNode.Target.Companion.SLANT_OFFSET_IN_RADIANS|{}SLANT_OFFSET_IN_RADIANS[0]
                 final fun <get-SLANT_OFFSET_IN_RADIANS>(): androidx.ink.brush.behavior/TargetNode.Target // androidx.ink.brush.behavior/TargetNode.Target.Companion.SLANT_OFFSET_IN_RADIANS.<get-SLANT_OFFSET_IN_RADIANS>|<get-SLANT_OFFSET_IN_RADIANS>(){}[0]
+            final val TEXTURE_ANIMATION_PROGRESS_OFFSET // androidx.ink.brush.behavior/TargetNode.Target.Companion.TEXTURE_ANIMATION_PROGRESS_OFFSET|{}TEXTURE_ANIMATION_PROGRESS_OFFSET[0]
+                final fun <get-TEXTURE_ANIMATION_PROGRESS_OFFSET>(): androidx.ink.brush.behavior/TargetNode.Target // androidx.ink.brush.behavior/TargetNode.Target.Companion.TEXTURE_ANIMATION_PROGRESS_OFFSET.<get-TEXTURE_ANIMATION_PROGRESS_OFFSET>|<get-TEXTURE_ANIMATION_PROGRESS_OFFSET>(){}[0]
             final val WIDTH_MULTIPLIER // androidx.ink.brush.behavior/TargetNode.Target.Companion.WIDTH_MULTIPLIER|{}WIDTH_MULTIPLIER[0]
                 final fun <get-WIDTH_MULTIPLIER>(): androidx.ink.brush.behavior/TargetNode.Target // androidx.ink.brush.behavior/TargetNode.Target.Companion.WIDTH_MULTIPLIER.<get-WIDTH_MULTIPLIER>|<get-WIDTH_MULTIPLIER>(){}[0]
         }
