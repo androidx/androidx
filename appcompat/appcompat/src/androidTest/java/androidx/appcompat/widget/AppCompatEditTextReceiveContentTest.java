@@ -355,7 +355,7 @@ public class AppCompatEditTextReceiveContentTest {
             // This ends up returning true whenever the command is sent, regardless of the return
             // value of the underlying operation.
             // Relevant code links:
-            // https://osscs.corp.google.com/androidx/platform/frameworks/support/+/androidx-master-dev:core/core/src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java;l=294;drc=0c365e84832f5ec5e393be28ab1c618eb18bab1e
+            // https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java;l=303;drc=5c86afb33905d66b89a29ce66362859bc48651e5
             // https://cs.android.com/android/platform/superproject/+/android-7.0.0_r6:frameworks/base/core/java/com/android/internal/widget/EditableInputConnection.java;l=168
             assertThat(result1).isTrue();
             assertThat(result2).isTrue();

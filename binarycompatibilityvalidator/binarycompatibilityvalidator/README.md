@@ -19,7 +19,7 @@ is not compatible is assumed to be incompatible and will result in a check failu
 
 If you believe that a change is incorrectly marked compatible, or have a feature request for a type
 of compatible change that is not implemented,
-[please file a bug](https://b.corp.google.com/issues/new?component=1102332).
+[please file a bug](https://issuetracker.google.com/issues/new?component=1102332).
 
 ### Compatible Changes
 
