@@ -38,7 +38,7 @@ object EmulatorUtils {
                 .getOrDefault(false)
 
         // Hardware check (ranchu, goldfish, cutf_cvm)
-        val hardwareCheck = Build.HARDWARE in listOf("ranchu", "goldfish", "cutf_cvm")
+        val hardwareCheck = Build.HARDWARE in listOf("ranchu", "goldfish", "cutf_cvm", "gce_x86")
         return qemuCheck || hardwareCheck
     }
 }
