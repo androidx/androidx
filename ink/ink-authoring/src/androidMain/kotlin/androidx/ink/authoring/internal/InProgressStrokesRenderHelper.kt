@@ -20,7 +20,6 @@ import android.graphics.Matrix
 import android.graphics.Path
 import androidx.annotation.AnyThread
 import androidx.annotation.UiThread
-import androidx.annotation.VisibleForTesting
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressShape
@@ -100,7 +99,7 @@ internal abstract class InProgressStrokesRenderHelper<
      * This is not synchronous, the [runnable] should not be executed immediately even if the render
      * thread is the same as the UI thread.
      */
-    @VisibleForTesting @UiThread abstract fun executeOnRenderThread(runnable: Runnable)
+    @UiThread abstract fun executeOnRenderThread(runnable: Runnable)
 
     /**
      * Called by [InProgressStrokesManager] when new content must be drawn. Will lead to

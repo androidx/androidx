@@ -32,7 +32,6 @@ import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
@@ -77,9 +76,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     init {
         inProgressShapesView.customShapeWorkflowFactory = {
-            InkShapeWorkflow(inProgressShapesView.strokePaintAnimator) {
-                CanvasStrokeRenderer.create(textureBitmapStore)
-            }
+            InkShapeWorkflow { CanvasStrokeRenderer.create(textureBitmapStore) }
         }
         inProgressShapesView.addCompletedShapesListener(shapesCompletedListener)
     }
@@ -158,13 +155,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     @VisibleForTesting
     internal var awaitAfterStartOfHandoffTestLatch: CountDownLatch? by
         inProgressShapesView::awaitAfterStartOfHandoffTestLatch
-
-    // TODO(b/512471476): Simplify this function to a `public var` when it's no longer experimental.
-    @ExperimentalInkAnimationApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    public fun setPaintAnimator(strokePaintAnimator: StrokePaintAnimator) {
-        inProgressShapesView.setPaintAnimator(strokePaintAnimator)
-    }
 
     /**
      * An optional callback for reporting latency of the processing of input events for in-progress
