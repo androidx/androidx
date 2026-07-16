@@ -122,7 +122,7 @@ androidXMultiplatform {
             implementation(project(":appcompat:appcompat"))
             implementation("androidx.activity:activity:1.9.1")
             implementation("androidx.transition:transition:1.7.0")
-            implementation("androidx.core:core:1.16.0-beta01")
+            implementation("androidx.core:core:1.16.0")
             implementation(libs.testUiautomator)
             implementation(libs.testRules)
             implementation(libs.testRunner)
