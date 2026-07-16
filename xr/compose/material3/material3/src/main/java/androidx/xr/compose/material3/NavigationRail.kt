@@ -24,13 +24,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.NavigationRailOverride
-import androidx.compose.material3.NavigationRailOverrideScope
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -41,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.material3.XrNavigationRailOverride.NavigationRail
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
@@ -58,7 +53,7 @@ import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
  * screens.
  *
  * The navigation rail should be used to display three to seven app destinations and, optionally, a
- * [FloatingActionButton] or a logo header. Each destination is typically represented by an icon and
+ * `FloatingActionButton` or a logo header. Each destination is typically represented by an icon and
  * an optional text label.
  *
  * [NavigationRail] should contain multiple [NavigationRailItem]s, each representing a singular
@@ -73,7 +68,7 @@ import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
  * @param contentColor the preferred color for content inside this navigation rail. Defaults to
  *   either the matching content color for [containerColor], or to the current [LocalContentColor]
  *   if [containerColor] is not a color from the theme.
- * @param header optional header that may hold a [FloatingActionButton] or a logo
+ * @param header optional header that may hold a `FloatingActionButton` or a logo
  * @param content the content of this navigation rail, typically 3-7 [NavigationRailItem]s
  */
 // TODO(kmost): Link to XR-specific NavRail image asset when available
@@ -130,22 +125,6 @@ internal object XrNavigationRailTokens {
     val VerticalPadding: Dp = 20.dp
 
     val ContainerWidth = 96.0.dp
-}
-
-/** [NavigationRailOverride] that uses the XR-specific [NavigationRail]. */
-@ExperimentalMaterial3XrApi
-@OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-internal object XrNavigationRailOverride : NavigationRailOverride {
-    @Composable
-    override fun NavigationRailOverrideScope.NavigationRail() {
-        NavigationRail(
-            modifier = modifier,
-            containerColor = containerColor,
-            contentColor = contentColor,
-            header = header,
-            content = content,
-        )
-    }
 }
 
 /**
