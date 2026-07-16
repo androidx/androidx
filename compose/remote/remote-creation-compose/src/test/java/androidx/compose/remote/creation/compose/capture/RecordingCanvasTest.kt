@@ -579,6 +579,132 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testDrawToOffscreenBitmap_OuterSaveRestorePreserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(100, 100)
+
+            // 1. Outer canvas pushes 2 matrix transforms/saves
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.save()
+            canvas.scale(2f, 2f)
+            assertThat(canvas.saveCounter).isEqualTo(2)
+
+            // 2. Draw to offscreen bitmap (creates a childSpan)
+            canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
+                // Simulate offscreen drawing that pushes/pops canvas transforms
+                canvas.save()
+                canvas.translate(5f, 5f)
+                canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+                canvas.restore()
+            }
+
+            // 3. Back in outer canvas, pop both outer saves
+            canvas.restore()
+            canvas.restore()
+            assertThat(canvas.saveCounter).isEqualTo(0)
+
+            // 4. Flush operations to document
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // 5. Regression verification: verify that both outer matrixRestore operations are
+            // preserved after returning from drawToOffscreenBitmap and are not inlined or absorbed
+            // across canvas spans or shared saveCounter mismatches.
+            val calls = buffer.calls
+            val returnToMainCanvasIndex = calls.indexOf("drawOnBitmap(0, 1, 0)")
+            val outerRestoresAfterOffscreen =
+                calls.subList(returnToMainCanvasIndex + 1, calls.size).count {
+                    it == "addMatrixRestore"
+                }
+
+            assertThat(outerRestoresAfterOffscreen).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun testEliminateRedundantSavesAndRestoresAcrossOffscreenBitmaps() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val paint = Paint()
+
+            // 1. Push multiple saves where only one actually translates
+            canvas.save() // Identity save 1 (should be pruned/collapsed)
+            canvas.save() // Identity save 2 (should be pruned/collapsed)
+            canvas.save()
+            canvas.translate(100f, 100f)
+            canvas.save() // Identity save 3 (should be pruned/collapsed)
+
+            val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(200, 200)
+
+            // 2. Draw into offscreen bitmap (creates childSpan)
+            canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
+                // Child span re-applies parent state + new local transform
+                canvas.save()
+                canvas.save()
+                canvas.save()
+                canvas.translate(100f, 100f)
+                canvas.save()
+                canvas.save()
+                canvas.translate(4f, 4f)
+                canvas.drawLine(10f, 10f, 20f, 20f, paint)
+                canvas.restore()
+                canvas.restore()
+                canvas.restore()
+                canvas.restore()
+                canvas.restore()
+            }
+
+            // 3. Temporarily pop all transforms on main canvas to draw offscreenBitmap in clean
+            // screen space
+            canvas.restore()
+            canvas.restore()
+            canvas.restore()
+            canvas.restore()
+            canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, paint)
+
+            // 4. Reinstate parent transforms and draw
+            canvas.save()
+            canvas.save()
+            canvas.save()
+            canvas.translate(100f, 100f)
+            canvas.save()
+            canvas.drawLine(10f, 10f, 100f, 100f, paint)
+            canvas.restore()
+            canvas.restore()
+            canvas.restore()
+            canvas.restore()
+
+            canvas.flush()
+
+            val bitmapId = offscreenBitmap.getIdForCreationState(canvas.creationState)
+            val expectedOptimizedOps =
+                listOf(
+                    "addMatrixSave",
+                    "addMatrixTranslate(100.0, 100.0)",
+                    // Inside offscreen bitmap span:
+                    "drawOnBitmap($bitmapId, 0, 0)",
+                    "addMatrixSave",
+                    "addMatrixTranslate(100.0, 100.0)",
+                    "addMatrixSave",
+                    "addMatrixTranslate(4.0, 4.0)",
+                    "addPaint",
+                    "addDrawLine(10.0, 10.0, 20.0, 20.0)",
+                    "addMatrixRestore",
+                    "addMatrixRestore",
+                    // Back on main canvas:
+                    "drawOnBitmap(0, 1, 0)",
+                    "addMatrixRestore", // Pops the initial (100, 100) translation cleanly
+                    "addPaint",
+                    "addDrawBitmap($bitmapId)",
+                    "addMatrixTranslate(100.0, 100.0)",
+                    "addDrawLine(10.0, 10.0, 100.0, 100.0)",
+                )
+
+            assertThat(buffer.calls).isEqualTo(expectedOptimizedOps)
+        }
+    }
+
+    @Test
     fun testRemoteStringLengthHoisted_InTree() {
         val str = RemoteString.createNamedRemoteString("str", "hello")
         val length = str.length
@@ -2438,6 +2564,11 @@ private fun FloatArray.formatToString(): String {
 private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>) :
     RemoteComposeBuffer(CoreDocument.DOCUMENT_API_LEVEL) {
 
+    override fun drawOnBitmap(bitmapId: Int, mode: Int, color: Int) {
+        calls.add("drawOnBitmap($bitmapId, $mode, $color)")
+        super.drawOnBitmap(bitmapId, mode, color)
+    }
+
     override fun addMatrixSave() {
         calls.add("addMatrixSave")
         super.addMatrixSave()
@@ -2489,6 +2620,25 @@ private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>
             "addDrawRect(${formatFloat(left)}, ${formatFloat(top)}, ${formatFloat(right)}, ${formatFloat(bottom)})"
         )
         super.addDrawRect(left, top, right, bottom)
+    }
+
+    override fun addDrawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+        calls.add(
+            "addDrawLine(${formatFloat(x1)}, ${formatFloat(y1)}, ${formatFloat(x2)}, ${formatFloat(y2)})"
+        )
+        super.addDrawLine(x1, y1, x2, y2)
+    }
+
+    override fun addDrawBitmap(
+        bitmapId: Int,
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        descriptionId: Int,
+    ) {
+        calls.add("addDrawBitmap($bitmapId)")
+        super.addDrawBitmap(bitmapId, left, top, right, bottom, descriptionId)
     }
 
     override fun addPaint(paint: PaintBundle) {
