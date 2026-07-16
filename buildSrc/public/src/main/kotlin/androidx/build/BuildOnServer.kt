@@ -18,6 +18,7 @@ package androidx.build
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 
 const val BUILD_ON_SERVER_TASK = "buildOnServer"
@@ -30,4 +31,9 @@ fun <T : Task> Project.addToBuildOnServer(taskProvider: TaskProvider<T>) {
 /** Configures the project's buildOnServer task to run the specified task. */
 fun Project.addToBuildOnServer(taskPath: String) {
     tasks.named(BUILD_ON_SERVER_TASK).configure { it.dependsOn(taskPath) }
+}
+
+/** Configures the project's buildOnServer task to run the specified dependency provider. */
+fun Project.addToBuildOnServer(dependencyProvider: Provider<*>) {
+    tasks.named(BUILD_ON_SERVER_TASK).configure { it.dependsOn(dependencyProvider) }
 }

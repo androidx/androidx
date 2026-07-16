@@ -80,12 +80,26 @@ class BinaryCompatibilityValidation(
             val checkAll: TaskProvider<Task> = project.tasks.register(CHECK_NAME)
             val updateAll: TaskProvider<Task> = project.tasks.register(UPDATE_NAME)
             configureKlibTasks(project, checkAll, updateAll)
-            if (project.multiplatformExtension?.hasUnsupportedTargets() == false) {
-                project.addToCheckTask(checkAll)
-                project.addToBuildOnServer(checkAll)
-                project.tasks.named("updateApi", UpdateApiTask::class.java) {
-                    it.dependsOn(updateAll)
+            val hasUnsupportedTargets =
+                project.multiplatformExtension?.hasUnsupportedTargets() ?: false
+            val canCrossCompile = project.isKlibCrossCompilationEnabled()
+            val isAbiValidationEnabledProvider =
+                canCrossCompile.map { enabled -> !hasUnsupportedTargets || enabled }
+
+            val abiCheckDependencyProvider =
+                isAbiValidationEnabledProvider.map { enabled ->
+                    if (enabled) checkAll else emptyList<Any>()
                 }
+            val abiUpdateDependencyProvider =
+                isAbiValidationEnabledProvider.map { enabled ->
+                    if (enabled) updateAll else emptyList<Any>()
+                }
+
+            project.addToCheckTask(abiCheckDependencyProvider)
+            project.addToBuildOnServer(abiCheckDependencyProvider)
+
+            project.tasks.named("updateApi", UpdateApiTask::class.java).configure { updateApiTask ->
+                updateApiTask.dependsOn(abiUpdateDependencyProvider)
             }
         }
 
