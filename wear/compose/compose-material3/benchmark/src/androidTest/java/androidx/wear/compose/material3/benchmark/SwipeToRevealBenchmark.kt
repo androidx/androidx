@@ -26,13 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
-import androidx.compose.testutils.benchmark.benchmarkDrawPerf
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
-import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkLayout
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkMeasure
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -64,36 +58,6 @@ class SwipeToRevealBenchmark {
     @Test
     fun first_compose() {
         benchmarkRule.benchmarkFirstCompose(testCaseFactory)
-    }
-
-    @Test
-    fun update_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(testCaseFactory, assertOneRecomposition = false)
-    }
-
-    @Test
-    fun update_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(testCaseFactory, assertOneRecomposition = false)
-    }
-
-    @Test
-    fun update_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(testCaseFactory, assertOneRecomposition = false)
-    }
-
-    @Test
-    fun update_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(testCaseFactory, assertOneRecomposition = false)
-    }
-
-    @Test
-    fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(testCaseFactory)
-    }
-
-    @Test
-    fun draw() {
-        benchmarkRule.benchmarkDrawPerf(testCaseFactory)
     }
 }
 
