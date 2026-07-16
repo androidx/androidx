@@ -1530,13 +1530,13 @@ package androidx.compose.foundation.lazy.layout {
   @androidx.compose.runtime.Stable public interface LazyLayoutCacheWindow {
     method public default int calculateAheadWindow(androidx.compose.ui.unit.Density, int viewport);
     method public default int calculateBehindWindow(androidx.compose.ui.unit.Density, int viewport);
-    method @InaccessibleFromKotlin public default boolean getEnableNonScrollCaching();
-    property public default boolean enableNonScrollCaching;
+    method @InaccessibleFromKotlin public default boolean isNonScrollCachingEnabled();
+    property public default boolean isNonScrollCachingEnabled;
   }
 
   public final class LazyLayoutCacheWindowKt {
-    method @KotlinOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional androidx.compose.ui.unit.Dp ahead, optional androidx.compose.ui.unit.Dp behind, optional boolean enableNonScrollCaching);
-    method public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional @FloatRange(from=0.0) float aheadFraction, optional @FloatRange(from=0.0) float behindFraction, optional boolean enableNonScrollCaching);
+    method @KotlinOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional androidx.compose.ui.unit.Dp ahead, optional androidx.compose.ui.unit.Dp behind, optional boolean isNonScrollCachingEnabled);
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow(optional @FloatRange(from=0.0) float aheadFraction, optional @FloatRange(from=0.0) float behindFraction, optional boolean isNonScrollCachingEnabled);
     method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow$default(float, float, boolean, int, Object!);
     method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow LazyLayoutCacheWindow-Md-fbLM(float, float, boolean);
     method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow! LazyLayoutCacheWindow-Md-fbLM$default(float, float, boolean, int, Object!);
