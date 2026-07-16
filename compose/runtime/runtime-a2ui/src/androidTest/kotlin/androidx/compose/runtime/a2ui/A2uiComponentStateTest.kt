@@ -22,6 +22,7 @@ import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiException.A2uiValidationException
@@ -379,6 +380,7 @@ class A2uiComponentStateTest {
     private fun createComponentScope(surface: A2uiCoreSurfaceModel): A2uiComponentScope =
         A2uiComponentScopeImpl(
             id = "TestScope",
+            baseDataPath = A2uiDataPath("/"),
             surface = surface,
             surfaceScope =
                 object : CoroutineScope {

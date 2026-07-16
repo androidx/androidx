@@ -20,6 +20,7 @@ import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
@@ -102,6 +103,7 @@ class A2uiComponentModelTest {
     private fun createComponentScope(surface: A2uiCoreSurfaceModel): A2uiComponentScope =
         A2uiComponentScopeImpl(
             id = "TestScope",
+            baseDataPath = A2uiDataPath("/"),
             surface = surface,
             surfaceScope =
                 object : CoroutineScope {
