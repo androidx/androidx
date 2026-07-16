@@ -16,7 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.Size
 import kotlin.jvm.JvmStatic
 import kotlin.math.cos
@@ -39,17 +38,11 @@ import kotlin.math.sin
  */
 public class ImmutableAffineTransform
 public constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m00: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m10: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m20: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m01: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m11: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override val m21: Float,
 ) : AffineTransform() {
 

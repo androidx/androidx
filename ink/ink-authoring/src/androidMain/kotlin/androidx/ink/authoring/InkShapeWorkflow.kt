@@ -17,25 +17,37 @@ package androidx.ink.authoring
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.Stroke
 
 /** Internal implementation of [ShapeWorkflow] for constructing Ink's standard [Stroke]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomShapeWorkflowApi
-public class InkShapeWorkflow(customRendererFactory: () -> CanvasStrokeRenderer) :
-    ShapeWorkflow<Brush, InkInProgressShape, Stroke> {
+@OptIn(ExperimentalInkAnimationApi::class)
+public class InkShapeWorkflow
+@ExperimentalInkAnimationApi
+public constructor(
+    private val strokePaintAnimator: StrokePaintAnimator?,
+    customRendererFactory: () -> CanvasStrokeRenderer,
+) : ShapeWorkflow<Brush, InkInProgressShape, Stroke> {
+
+    public constructor(
+        customRendererFactory: () -> CanvasStrokeRenderer
+    ) : this(strokePaintAnimator = null, customRendererFactory)
 
     // Only one shape type for now, backed by InProgressStroke. But theoretically, if the underlying
     // resources of InProgressShape are tailored to specific brush types (e.g. particles vs.
     // continuous), then that could be differentiated here for further optimization.
     override fun getShapeType(shapeSpec: Brush): Int = 9_14_11 // INK
 
-    override fun create(shapeType: Int): InkInProgressShape = InkInProgressShape()
+    override fun create(shapeType: Int): InkInProgressShape =
+        InkInProgressShape(strokePaintAnimator)
 
     // Creates its own instance of CanvasStrokeRenderer to be used on the render thread.
     override val inProgressShapeRenderer: InProgressShapeRenderer<InkInProgressShape> =
-        InkInProgressShapeRenderer(customRendererFactory())
+        InkInProgressShapeRenderer(strokePaintAnimator, customRendererFactory())
 
     // Creates its own instance of CanvasStrokeRenderer to be used on the UI thread.
     override val completedShapeRenderer: CompletedShapeRenderer<Stroke> =

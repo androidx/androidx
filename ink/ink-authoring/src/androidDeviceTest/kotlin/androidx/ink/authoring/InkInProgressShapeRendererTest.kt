@@ -25,6 +25,7 @@ import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -40,15 +41,18 @@ import org.mockito.kotlin.verify
 class InkInProgressShapeRendererTest {
 
     private val canvas = mock<Canvas> {}
+    private val strokePaintAnimator = StrokePaintAnimator()
     private val canvasStrokeRenderer = mock<CanvasStrokeRenderer> {}
-    private val shapeRenderer = InkInProgressShapeRenderer(canvasStrokeRenderer)
+    private val shapeRenderer =
+        InkInProgressShapeRenderer(strokePaintAnimator, canvasStrokeRenderer)
 
     private val identityTransform = Matrix()
 
     @Test
     fun draw_callsCanvasStrokeRenderer() {
+        strokePaintAnimator.advanceByMillis(100L)
         val shape =
-            InkInProgressShape().apply {
+            InkInProgressShape(strokePaintAnimator).apply {
                 start(
                     Brush.createWithColorIntArgb(
                         family =
@@ -76,6 +80,7 @@ class InkInProgressShapeRendererTest {
             }
 
         // 100ms + 140ms = 240ms, which loops back to progress 0 of the 240ms animation duration
+        strokePaintAnimator.advanceByMillis(140L)
         shape.update(shapeDurationMillis = 140)
         shapeRenderer.draw(canvas, shape, identityTransform)
         verify(canvasStrokeRenderer)
@@ -87,6 +92,7 @@ class InkInProgressShapeRendererTest {
             )
 
         // 100ms + 260ms = 360ms - half of the looped 240ms animation duration
+        strokePaintAnimator.advanceByMillis(120L)
         shape.update(shapeDurationMillis = 260)
         shapeRenderer.draw(canvas, shape, identityTransform)
         verify(canvasStrokeRenderer)
@@ -99,6 +105,7 @@ class InkInProgressShapeRendererTest {
 
         // 100ms + 320ms = 420ms - 3/4 of the looped 240ms animation duration
         // 180 more than initial update value - 3/4 of 240ms animation duration
+        strokePaintAnimator.advanceByMillis(60L)
         shape.update(shapeDurationMillis = 320)
         shapeRenderer.draw(canvas, shape, identityTransform)
         verify(canvasStrokeRenderer)

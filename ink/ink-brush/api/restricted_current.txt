@@ -918,7 +918,7 @@ package androidx.ink.brush.behavior {
     field public static final androidx.ink.brush.behavior.TargetNode.Target SATURATION_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target SIZE_MULTIPLIER;
     field public static final androidx.ink.brush.behavior.TargetNode.Target SLANT_OFFSET_IN_RADIANS;
-    field public static final androidx.ink.brush.behavior.TargetNode.Target TEXTURE_ANIMATION_PROGRESS_OFFSET;
+    field @SuppressCompatibility public static final androidx.ink.brush.behavior.TargetNode.Target TEXTURE_ANIMATION_PROGRESS_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target WIDTH_MULTIPLIER;
   }
 
@@ -937,7 +937,7 @@ package androidx.ink.brush.behavior {
     property public androidx.ink.brush.behavior.TargetNode.Target SATURATION_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target SIZE_MULTIPLIER;
     property public androidx.ink.brush.behavior.TargetNode.Target SLANT_OFFSET_IN_RADIANS;
-    property public androidx.ink.brush.behavior.TargetNode.Target TEXTURE_ANIMATION_PROGRESS_OFFSET;
+    property @SuppressCompatibility public androidx.ink.brush.behavior.TargetNode.Target TEXTURE_ANIMATION_PROGRESS_OFFSET;
     property public androidx.ink.brush.behavior.TargetNode.Target WIDTH_MULTIPLIER;
   }
 
