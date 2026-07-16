@@ -537,7 +537,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         val childConstraints =
             Constraints(
                 maxHeight = Constraints.Infinity,
-                maxWidth = containerConstraints.maxWidth - leftContentPadding - rightContentPadding,
+                maxWidth =
+                    (containerConstraints.maxWidth - leftContentPadding - rightContentPadding)
+                        .coerceAtLeast(0),
             )
 
         actuallyVisibleItems.fastForEach { it.markMeasured() }

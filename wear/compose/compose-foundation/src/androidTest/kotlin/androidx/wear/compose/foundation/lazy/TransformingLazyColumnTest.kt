@@ -1409,6 +1409,18 @@ class TransformingLazyColumnTest {
             .assertTopPositionInRootIsEqualTo(containerHeight - padding - itemSize)
     }
 
+    @Test
+    fun bigPaddingsDontCrash() {
+        rule.setContent {
+            TransformingLazyColumn(
+                modifier = Modifier.size(300.dp),
+                contentPadding = PaddingValues(400.dp),
+            ) {
+                items(10) { Box(Modifier.size(50.dp)) }
+            }
+        }
+    }
+
     private fun setupTlcWithMutableList(
         items: MutableList<String>,
         itemSize: Dp,
