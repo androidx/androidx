@@ -16,7 +16,6 @@
 
 package androidx.xr.glimmer.pager
 
-import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -52,7 +51,15 @@ internal fun Modifier.horizontalPagerScrim(state: GlimmerPagerState): Modifier =
             onDrawWithContent {
                 drawContent()
 
-                val transitionProgress = state.transitionProgress
+                val continuousPosition = state.continuousPosition
+                val pageCount = state.pageCount
+                val transitionProgress =
+                    getTransitionProgress(
+                        continuousPosition = continuousPosition,
+                        closestPageFromStart =
+                            getClosestPageFromStart(continuousPosition, pageCount),
+                        pageCount = pageCount,
+                    )
 
                 // To maintain a consistent visual effect whether transitioning forward or backward,
                 // the alpha progression must be symmetrical across the first and last halves of the
@@ -92,34 +99,6 @@ internal fun Modifier.horizontalPagerScrim(state: GlimmerPagerState): Modifier =
                 }
             }
         }
-
-/**
- * Calculates the continuous fractional progress between pages during a transition, in the range
- * `[0.0, 1.0]`.
- *
- * This property normalizes the [GlimmerPagerState.currentPageOffsetFraction] to provide a
- * continuous progression relative to the anchored page of the transition.
- *
- * For example:
- * - During a transition from page `n` to `n+1`, `continuousOffsetFraction` progresses from `0.0` to
- *   `1.0`.
- * - Conversely, transitioning from page `n+1` to `n`, `continuousOffsetFraction` progresses from
- *   `1.0` to `0.0`.
- */
-private val GlimmerPagerState.transitionProgress: Float
-    @FrequentlyChangingValue
-    get() {
-        if (pageCount <= 1) return 0f
-
-        // Combine the current page and offset to get a continuous fractional position.
-        val continuousPosition = currentPage + currentPageOffsetFraction
-
-        // Calculate the lower index of the two pages currently involved in the transition. The
-        // maximum valid base page index is (pageCount - 2).
-        val anchoredPage = continuousPosition.toInt().coerceIn(0, (pageCount - 2).coerceAtLeast(0))
-
-        return continuousPosition - anchoredPage
-    }
 
 @Suppress("PrimitiveInCollection")
 private val StartScrimColors = listOf(Color.Black, Color.Transparent)

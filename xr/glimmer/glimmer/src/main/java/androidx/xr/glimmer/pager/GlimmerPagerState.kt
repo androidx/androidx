@@ -290,3 +290,43 @@ constructor(
             )
     }
 }
+
+/** Combine the current page and offset to get a continuous fractional position. */
+internal val GlimmerPagerState.continuousPosition: Float
+    @FrequentlyChangingValue get() = currentPage + currentPageOffsetFraction
+
+/**
+ * Calculate the lower index of the two pages currently involved in the transition. The maximum
+ * valid base page index is (pageCount - 2).
+ *
+ * @param continuousPosition the value calculated from [GlimmerPagerState.continuousPosition]
+ * @param pageCount the [pageCount] of the [GlimmerPagerState]
+ */
+internal fun getClosestPageFromStart(continuousPosition: Float, pageCount: Int): Int =
+    continuousPosition.toInt().coerceIn(0, (pageCount - 2).coerceAtLeast(0))
+
+/**
+ * Calculates the continuous fractional progress between pages during a transition, in the range
+ * `[0.0, 1.0]`.
+ *
+ * This property normalizes the [GlimmerPagerState.currentPageOffsetFraction] to provide a
+ * continuous progression relative to the anchored page of the transition.
+ *
+ * For example:
+ * - During a transition from page `n` to `n+1`, `transitionProgress` progresses from `0.0` to
+ *   `1.0`.
+ * - Conversely, transitioning from page `n+1` to `n`, `transitionProgress` progresses from `1.0` to
+ *   `0.0`.
+ *
+ * @param continuousPosition the value calculated from [GlimmerPagerState.continuousPosition]
+ * @param closestPageFromStart the value calculated from [getClosestPageFromStart]
+ * @param pageCount the [pageCount] of the [GlimmerPagerState]
+ */
+internal fun getTransitionProgress(
+    continuousPosition: Float,
+    closestPageFromStart: Int,
+    pageCount: Int,
+): Float {
+    if (pageCount <= 1) return 0f
+    return continuousPosition - closestPageFromStart
+}
