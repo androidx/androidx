@@ -137,10 +137,35 @@ suspend fun AwaitPointerEventScope.drag(
 suspend fun AwaitPointerEventScope.awaitDragOrCancellation(
     pointerId: PointerId
 ): PointerInputChange? {
+    // Delegate to an expect function (instead of making this function itself expect) to avoid
+    // breaking binary compatibility (the containing class is different if the actual is
+    // *.android.kt)
+    return awaitDragOrCancellationImpl(pointerId)
+}
+
+// The reason this is an expect/actual is to allow CMP their own implementation which reacts to drag
+// events where the change reported by positionChangeInternal (via positionChangedIgnoreConsumed) is
+// zero.
+// This is needed to allow "dragging" when the pointer doesn't physically move, but the target
+// element is moved/scrolled (such as with scrolling during a drag-to-select text gesture). When
+// this happens, CMP generates synthetic pointer-move events which allow this scenario to work.
+// But for them, positionChangeInternal() is still zero because of b/343917640, so the code needs to
+// not ignore them.
+// Android doesn't currently generate such synthetic events, so it's safer to ignore them.
+// Once b/343917640 is fixed, this can be removed and all targets can use the default
+// implementation (`defaultAwaitDragOrCancellation`).
+internal expect suspend fun AwaitPointerEventScope.awaitDragOrCancellationImpl(
+    pointerId: PointerId
+): PointerInputChange?
+
+/** The default implementation of [AwaitPointerEventScope.awaitDragOrCancellation]. */
+internal suspend fun AwaitPointerEventScope.defaultAwaitDragOrCancellationImpl(
+    pointerId: PointerId
+): PointerInputChange? {
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
     }
-    val change = awaitDragOrUp(pointerId) { it.positionChangedIgnoreConsumed() }
+    val change = awaitDragOrUp(pointerId) { _, change -> change.positionChangedIgnoreConsumed() }
     return if (change?.isConsumed == false) change else null
 }
 
@@ -517,7 +542,8 @@ suspend fun AwaitPointerEventScope.awaitVerticalDragOrCancellation(
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
     }
-    val change = awaitDragOrUp(pointerId) { it.positionChangeIgnoreConsumed().y != 0f }
+    val change =
+        awaitDragOrUp(pointerId) { _, change -> change.positionChangeIgnoreConsumed().y != 0f }
     return if (change?.isConsumed == false) change else null
 }
 
@@ -686,7 +712,8 @@ suspend fun AwaitPointerEventScope.awaitHorizontalDragOrCancellation(
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
     }
-    val change = awaitDragOrUp(pointerId) { it.positionChangeIgnoreConsumed().x != 0f }
+    val change =
+        awaitDragOrUp(pointerId) { _, change -> change.positionChangeIgnoreConsumed().x != 0f }
     return if (change?.isConsumed == false) change else null
 }
 
@@ -769,8 +796,8 @@ internal suspend inline fun AwaitPointerEventScope.drag(
     var pointer = pointerId
     while (true) {
         val change =
-            awaitDragOrUp(pointer) {
-                val positionChange = it.positionChangeIgnoreConsumed()
+            awaitDragOrUp(pointer) { _, change ->
+                val positionChange = change.positionChangeIgnoreConsumed()
                 val motionChange =
                     if (orientation == null) {
                         positionChange.getDistance()
@@ -802,25 +829,27 @@ internal suspend inline fun AwaitPointerEventScope.drag(
  *
  * `null` is returned if there was an error in the pointer input stream and the pointer that was
  * down was dropped before the 'up' was received.
+ *
+ * Note: this is `internal` because it's used by CMP.
  */
-private suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
+internal suspend inline fun AwaitPointerEventScope.awaitDragOrUp(
     pointerId: PointerId,
-    hasDragged: (PointerInputChange) -> Boolean,
+    hasDragged: (PointerEvent, PointerInputChange) -> Boolean,
 ): PointerInputChange? {
     var pointer = pointerId
     while (true) {
         val event = awaitPointerEvent()
-        val dragEvent = event.changes.fastFirstOrNull { it.id == pointer } ?: return null
-        if (dragEvent.changedToUpIgnoreConsumed()) {
+        val change = event.changes.fastFirstOrNull { it.id == pointer } ?: return null
+        if (change.changedToUpIgnoreConsumed()) {
             val otherDown = event.changes.fastFirstOrNull { it.pressed }
             if (otherDown == null) {
                 // This is the last "up"
-                return dragEvent
+                return change
             } else {
                 pointer = otherDown.id
             }
-        } else if (hasDragged(dragEvent)) {
-            return dragEvent
+        } else if (hasDragged(event, change)) {
+            return change
         }
     }
 }
@@ -1108,7 +1137,8 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
     }
 }
 
-private fun PointerEvent.isPointerUp(pointerId: PointerId): Boolean =
+// Note: this is `internal` because it's used by CMP.
+internal fun PointerEvent.isPointerUp(pointerId: PointerId): Boolean =
     changes.fastFirstOrNull { it.id == pointerId }?.pressed != true
 
 // This value was determined using experiments and common sense.
