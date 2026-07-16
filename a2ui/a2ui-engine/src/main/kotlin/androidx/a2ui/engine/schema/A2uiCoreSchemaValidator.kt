@@ -16,6 +16,7 @@
 
 package androidx.a2ui.engine.schema
 
+import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.schema.A2uiAllOfSchema
 import androidx.a2ui.model.schema.A2uiAnyOfSchema
@@ -37,7 +38,26 @@ import androidx.a2ui.model.schema.A2uiStringSchema
  * that incoming JSON payloads from the agent structurally conform to the expected UI component
  * schemas *before* they are allowed into the reactive data models.
  */
-internal object A2uiCoreSchemaValidator {
+internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
+
+    // TODO(nimrodp): remove this once functions expose their own schema
+    private val anyFunctionSchema: A2uiSchema =
+        A2uiOneOfSchema(
+            schemas =
+                (catalog?.functions ?: emptyList()).map { function ->
+                    A2uiObjectSchema(
+                        properties =
+                            mapOf(
+                                "call" to A2uiConstSchema(function.definition.name),
+                                "args" to function.definition.argumentSchema,
+                                "returnType" to
+                                    A2uiConstSchema(function.definition.returnType.value),
+                            ),
+                        required = setOf("call"),
+                        isAdditionalPropertiesAllowed = true,
+                    )
+                }
+        )
 
     /**
      * Validates that the given payload conforms to the provided schema.
@@ -70,7 +90,7 @@ internal object A2uiCoreSchemaValidator {
             is A2uiAllOfSchema -> validateAllOf(payload, schema, path)
             is A2uiAnyOfSchema -> validateAnyOf(payload, schema, path)
             is A2uiConstSchema -> validateConst(payload, schema, path)
-            is A2uiRefSchema -> validateRef(path)
+            is A2uiRefSchema -> validateRef(payload, schema, path)
             is A2uiCompositeSchema -> validateSchemaInternal(payload, schema.getDefinition(), path)
         }
     }
@@ -215,12 +235,21 @@ internal object A2uiCoreSchemaValidator {
         }
     }
 
-    private fun validateRef(path: String) {
+    private fun validateRef(payload: Any?, schema: A2uiRefSchema, path: String) {
+        if (schema.ref == "catalog.json#/\$defs/anyFunction") {
+            validateAnyFunctionRef(payload, path)
+            return
+        }
+
         throw A2uiException.A2uiValidationException(
-            "Ref validation is not supported. " +
+            "Ref validation is not supported besides specific cases. " +
                 "Use A2uiCompositeSchema to handle references gracefully.",
             path,
         )
+    }
+
+    private fun validateAnyFunctionRef(payload: Any?, path: String) {
+        validateSchemaInternal(payload, anyFunctionSchema, path)
     }
 
     /**

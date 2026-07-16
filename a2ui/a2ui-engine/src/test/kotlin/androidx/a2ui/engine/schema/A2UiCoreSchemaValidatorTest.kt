@@ -16,7 +16,13 @@
 
 package androidx.a2ui.engine.schema
 
+import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiAllOfSchema
 import androidx.a2ui.model.schema.A2uiAnyOfSchema
 import androidx.a2ui.model.schema.A2uiAnySchema
@@ -37,10 +43,12 @@ import org.junit.Test
 
 class A2UiCoreSchemaValidatorTest {
 
+    private val validator = A2uiCoreSchemaValidator()
+
     @Test
     fun validateSchema_stringTypeWithValidString_returnsTrue() {
         val schema = A2uiStringSchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema("hello", schema)).isTrue()
+        assertThat(validator.validateSchema("hello", schema)).isTrue()
     }
 
     @Test
@@ -48,7 +56,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiStringSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(123, schema)
+                validator.validateSchema(123, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -58,7 +66,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiStringSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(true, schema)
+                validator.validateSchema(true, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -66,13 +74,13 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_numberTypeWithValidInteger_returnsTrue() {
         val schema = A2uiNumberSchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123, schema)).isTrue()
+        assertThat(validator.validateSchema(123, schema)).isTrue()
     }
 
     @Test
     fun validateSchema_numberTypeWithValidDouble_returnsTrue() {
         val schema = A2uiNumberSchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123.45, schema)).isTrue()
+        assertThat(validator.validateSchema(123.45, schema)).isTrue()
     }
 
     @Test
@@ -80,7 +88,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiNumberSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("123", schema)
+                validator.validateSchema("123", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -90,7 +98,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiNumberSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("abc", schema)
+                validator.validateSchema("abc", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -100,7 +108,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiNumberSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(true, schema)
+                validator.validateSchema(true, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -108,13 +116,13 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_booleanTypeWithValidTrue_returnsTrue() {
         val schema = A2uiBooleanSchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(true, schema)).isTrue()
+        assertThat(validator.validateSchema(true, schema)).isTrue()
     }
 
     @Test
     fun validateSchema_booleanTypeWithValidFalse_returnsTrue() {
         val schema = A2uiBooleanSchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(false, schema)).isTrue()
+        assertThat(validator.validateSchema(false, schema)).isTrue()
     }
 
     @Test
@@ -122,7 +130,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiBooleanSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("true", schema)
+                validator.validateSchema("true", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -132,7 +140,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiBooleanSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("abc", schema)
+                validator.validateSchema("abc", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -142,33 +150,27 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiBooleanSchema()
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(123, schema)
+                validator.validateSchema(123, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
 
     @Test
     fun validateSchema_objectTypeWithAllProperties_returnsTrue() {
-        assertThat(
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("name" to "Alice", "age" to 30),
-                    OBJECT_SCHEMA,
-                )
-            )
+        assertThat(validator.validateSchema(mapOf("name" to "Alice", "age" to 30), OBJECT_SCHEMA))
             .isTrue()
     }
 
     @Test
     fun validateSchema_objectTypeWithOnlyRequiredProperties_returnsTrue() {
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("name" to "Alice"), OBJECT_SCHEMA))
-            .isTrue()
+        assertThat(validator.validateSchema(mapOf("name" to "Alice"), OBJECT_SCHEMA)).isTrue()
     }
 
     @Test
     fun validateSchema_objectTypeMissingRequiredProperty_throwsValidationExceptionWithCorrectPath() {
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("age" to 30), OBJECT_SCHEMA)
+                validator.validateSchema(mapOf("age" to 30), OBJECT_SCHEMA)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -177,7 +179,7 @@ class A2UiCoreSchemaValidatorTest {
     fun validateSchema_objectTypeWithInvalidPropertyType_throwsValidationExceptionWithCorrectPath() {
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("name" to 123), OBJECT_SCHEMA)
+                validator.validateSchema(mapOf("name" to 123), OBJECT_SCHEMA)
             }
         assertThat(ex.context["path"]).isEqualTo("$.name")
     }
@@ -191,7 +193,7 @@ class A2UiCoreSchemaValidatorTest {
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
+                validator.validateSchema(
                     mapOf("name" to "Alice", "extra" to true),
                     strictObjectSchema,
                 )
@@ -204,10 +206,7 @@ class A2UiCoreSchemaValidatorTest {
         val nestedSchema = A2uiObjectSchema(properties = mapOf("user" to OBJECT_SCHEMA))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("user" to mapOf("name" to 123)),
-                    nestedSchema,
-                )
+                validator.validateSchema(mapOf("user" to mapOf("name" to 123)), nestedSchema)
             }
         assertThat(ex.context["path"]).isEqualTo("$.user.name")
     }
@@ -215,7 +214,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_arrayTypeWithValidItems_returnsTrue() {
         val schema = A2uiArraySchema(items = A2uiNumberSchema())
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf(1, 2, 3), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf(1, 2, 3), schema)).isTrue()
     }
 
     @Test
@@ -223,7 +222,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiArraySchema(items = A2uiNumberSchema())
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(listOf(1, "abc", 3), schema)
+                validator.validateSchema(listOf(1, "abc", 3), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$[1]")
     }
@@ -236,7 +235,7 @@ class A2UiCoreSchemaValidatorTest {
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("list" to listOf("a", 2, "c")), schema)
+                validator.validateSchema(mapOf("list" to listOf("a", 2, "c")), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$.list[1]")
     }
@@ -246,7 +245,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiArraySchema(items = A2uiNumberSchema())
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("items" to listOf(1, 2, 3)), schema)
+                validator.validateSchema(mapOf("items" to listOf(1, 2, 3)), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -254,9 +253,9 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingStringValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf("a", "b", "c"))
-        assertThat(A2uiCoreSchemaValidator.validateSchema("a", schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema("b", schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema("c", schema)).isTrue()
+        assertThat(validator.validateSchema("a", schema)).isTrue()
+        assertThat(validator.validateSchema("b", schema)).isTrue()
+        assertThat(validator.validateSchema("c", schema)).isTrue()
     }
 
     @Test
@@ -264,7 +263,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf("a", "b", "c"))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("d", schema)
+                validator.validateSchema("d", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -272,9 +271,9 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingNumberValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(1, 2, 3))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(1, schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(2, schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(3, schema)).isTrue()
+        assertThat(validator.validateSchema(1, schema)).isTrue()
+        assertThat(validator.validateSchema(2, schema)).isTrue()
+        assertThat(validator.validateSchema(3, schema)).isTrue()
     }
 
     @Test
@@ -282,7 +281,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(1, 2, 3))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(4, schema)
+                validator.validateSchema(4, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -290,8 +289,8 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingBooleanValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(true, false))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(true, schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(false, schema)).isTrue()
+        assertThat(validator.validateSchema(true, schema)).isTrue()
+        assertThat(validator.validateSchema(false, schema)).isTrue()
     }
 
     @Test
@@ -299,7 +298,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(true))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(false, schema)
+                validator.validateSchema(false, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -307,8 +306,8 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingListValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(listOf("a", "b"), listOf("c", "d")))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf("a", "b"), schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf("c", "d"), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf("a", "b"), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf("c", "d"), schema)).isTrue()
     }
 
     @Test
@@ -316,7 +315,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(listOf("a", "b")))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(listOf("a", "c"), schema)
+                validator.validateSchema(listOf("a", "c"), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -324,9 +323,8 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingMapValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(mapOf("key1" to "value"), mapOf("key2" to 1)))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("key1" to "value"), schema))
-            .isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("key2" to 1), schema)).isTrue()
+        assertThat(validator.validateSchema(mapOf("key1" to "value"), schema)).isTrue()
+        assertThat(validator.validateSchema(mapOf("key2" to 1), schema)).isTrue()
     }
 
     @Test
@@ -334,7 +332,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(mapOf("key" to "value")))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("key" to "different"), schema)
+                validator.validateSchema(mapOf("key" to "different"), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -342,9 +340,8 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingNestedListValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(listOf(listOf("a", "b")), listOf(listOf(1, 2))))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf(listOf("a", "b")), schema))
-            .isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf(listOf(1, 2)), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf(listOf("a", "b")), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf(listOf(1, 2)), schema)).isTrue()
     }
 
     @Test
@@ -352,7 +349,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(listOf(listOf("a", "b"))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(listOf(listOf("a", "c")), schema)
+                validator.validateSchema(listOf(listOf("a", "c")), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -360,12 +357,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_enumTypeWithMatchingNestedMapValue_returnsTrue() {
         val schema = A2uiEnumSchema(listOf(mapOf("outer" to mapOf("inner" to "value"))))
-        assertThat(
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("outer" to mapOf("inner" to "value")),
-                    schema,
-                )
-            )
+        assertThat(validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema))
             .isTrue()
     }
 
@@ -374,10 +366,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiEnumSchema(listOf(mapOf("outer" to mapOf("inner" to "value"))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("outer" to mapOf("inner" to "wrong")),
-                    schema,
-                )
+                validator.validateSchema(mapOf("outer" to mapOf("inner" to "wrong")), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -385,26 +374,26 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_anyTypeWithObject_returnsTrue() {
         val schema = A2uiAnySchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("some" to "data"), schema)).isTrue()
+        assertThat(validator.validateSchema(mapOf("some" to "data"), schema)).isTrue()
     }
 
     @Test
     fun validateSchema_anyTypeWithNumber_returnsTrue() {
         val schema = A2uiAnySchema()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123, schema)).isTrue()
+        assertThat(validator.validateSchema(123, schema)).isTrue()
     }
 
     @Test
     fun validateSchema_oneOfTypeMatchingExactlyOne_returnsTrue() {
         val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(A2uiCoreSchemaValidator.validateSchema("hello", schema)).isTrue()
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123, schema)).isTrue()
+        assertThat(validator.validateSchema("hello", schema)).isTrue()
+        assertThat(validator.validateSchema(123, schema)).isTrue()
     }
 
     @Test
     fun validateSchema_oneOfTypeWithMixedTypesAndStringifiedValue_returnsTrue() {
         val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(A2uiCoreSchemaValidator.validateSchema("123", schema)).isTrue()
+        assertThat(validator.validateSchema("123", schema)).isTrue()
     }
 
     @Test
@@ -412,7 +401,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(true, schema)
+                validator.validateSchema(true, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -434,10 +423,7 @@ class A2UiCoreSchemaValidatorTest {
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("name" to "Alice", "age" to 30),
-                    schema,
-                )
+                validator.validateSchema(mapOf("name" to "Alice", "age" to 30), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -457,13 +443,7 @@ class A2UiCoreSchemaValidatorTest {
                     ),
                 )
             )
-        assertThat(
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("name" to "Alice", "age" to 30),
-                    schema,
-                )
-            )
-            .isTrue()
+        assertThat(validator.validateSchema(mapOf("name" to "Alice", "age" to 30), schema)).isTrue()
     }
 
     @Test
@@ -483,10 +463,7 @@ class A2UiCoreSchemaValidatorTest {
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("name" to "Alice"),
-                    schema,
-                ) // Missing age
+                validator.validateSchema(mapOf("name" to "Alice"), schema) // Missing age
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -494,9 +471,8 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_anyOfTypeMatchingAtLeastOne_returnsTrue() {
         val schema = A2uiAnyOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(A2uiCoreSchemaValidator.validateSchema("hello", schema))
-            .isTrue() // Matches String
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123, schema)).isTrue() // Matches Number
+        assertThat(validator.validateSchema("hello", schema)).isTrue() // Matches String
+        assertThat(validator.validateSchema(123, schema)).isTrue() // Matches Number
     }
 
     @Test
@@ -504,7 +480,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiAnyOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(true, schema) // Boolean matches neither
+                validator.validateSchema(true, schema) // Boolean matches neither
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -512,7 +488,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingStringValue_returnsTrue() {
         val schema = A2uiConstSchema("a")
-        assertThat(A2uiCoreSchemaValidator.validateSchema("a", schema)).isTrue()
+        assertThat(validator.validateSchema("a", schema)).isTrue()
     }
 
     @Test
@@ -520,7 +496,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema("a")
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("b", schema)
+                validator.validateSchema("b", schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -528,7 +504,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingNumberValue_returnsTrue() {
         val schema = A2uiConstSchema(123)
-        assertThat(A2uiCoreSchemaValidator.validateSchema(123, schema)).isTrue()
+        assertThat(validator.validateSchema(123, schema)).isTrue()
     }
 
     @Test
@@ -536,7 +512,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(123)
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(456, schema)
+                validator.validateSchema(456, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -544,7 +520,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingBooleanValue_returnsTrue() {
         val schema = A2uiConstSchema(true)
-        assertThat(A2uiCoreSchemaValidator.validateSchema(true, schema)).isTrue()
+        assertThat(validator.validateSchema(true, schema)).isTrue()
     }
 
     @Test
@@ -552,7 +528,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(true)
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(false, schema)
+                validator.validateSchema(false, schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -560,7 +536,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingListValue_returnsTrue() {
         val schema = A2uiConstSchema(listOf("a", true, 3))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(listOf("a", true, 3), schema)).isTrue()
+        assertThat(validator.validateSchema(listOf("a", true, 3), schema)).isTrue()
     }
 
     @Test
@@ -568,7 +544,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(listOf("a", "b", 3))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(listOf("a", "c", 3), schema)
+                validator.validateSchema(listOf("a", "c", 3), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -576,8 +552,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingMapValue_returnsTrue() {
         val schema = A2uiConstSchema(mapOf("a" to "b", "c" to 1))
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("a" to "b", "c" to 1), schema))
-            .isTrue()
+        assertThat(validator.validateSchema(mapOf("a" to "b", "c" to 1), schema)).isTrue()
     }
 
     @Test
@@ -585,7 +560,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(mapOf("a" to "b"))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("a" to "c"), schema)
+                validator.validateSchema(mapOf("a" to "c"), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -593,12 +568,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingNestedListValue_returnsTrue() {
         val schema = A2uiConstSchema(listOf(listOf("a", "b"), listOf(1, 2)))
-        assertThat(
-                A2uiCoreSchemaValidator.validateSchema(
-                    listOf(listOf("a", "b"), listOf(1, 2)),
-                    schema,
-                )
-            )
+        assertThat(validator.validateSchema(listOf(listOf("a", "b"), listOf(1, 2)), schema))
             .isTrue()
     }
 
@@ -607,10 +577,7 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(listOf(listOf("a", "b"), listOf(1, 2)))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    listOf(listOf("a", "c"), listOf(1, 2)),
-                    schema,
-                )
+                validator.validateSchema(listOf(listOf("a", "c"), listOf(1, 2)), schema)
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -618,12 +585,7 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_constTypeWithMatchingNestedMapValue_returnsTrue() {
         val schema = A2uiConstSchema(mapOf("outer" to mapOf("inner" to "value")))
-        assertThat(
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("outer" to mapOf("inner" to "value")),
-                    schema,
-                )
-            )
+        assertThat(validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema))
             .isTrue()
     }
 
@@ -632,8 +594,100 @@ class A2UiCoreSchemaValidatorTest {
         val schema = A2uiConstSchema(mapOf("outer" to mapOf("inner" to "value")))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(
-                    mapOf("outer" to mapOf("inner" to "wrong")),
+                validator.validateSchema(mapOf("outer" to mapOf("inner" to "wrong")), schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("$")
+    }
+
+    @Test
+    fun validateSchema_refTypeUnsupported_throwsValidationException() {
+        val schema = A2uiRefSchema("some_ref")
+        // Ref validation is not supported and always throws.
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema("anything", schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("$")
+    }
+
+    @Test
+    fun validateSchema_refTypeAnyFunctionWithUnknownFunction_throwsValidationException() {
+        val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
+        val customValidator = A2uiCoreSchemaValidator(createTestCatalog())
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                customValidator.validateSchema(mapOf("call" to "unknownFunction"), schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("$")
+    }
+
+    @Test
+    fun validateSchema_refTypeAnyFunctionMissingCall_throwsValidationException() {
+        val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
+        val customValidator = A2uiCoreSchemaValidator(createTestCatalog())
+
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                customValidator.validateSchema(mapOf("other" to "value"), schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("$")
+    }
+
+    @Test
+    fun validateSchema_refTypeAnyFunctionWithValidPayload_returnsTrue() {
+        val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
+        val catalog =
+            createTestCatalog(
+                listOf(
+                    object : A2uiFunctionDefinition {
+                        override val name = "myFunction"
+                        override val description = "test"
+                        override val argumentSchema =
+                            A2uiObjectSchema(
+                                properties = mapOf("myArg" to A2uiStringSchema()),
+                                required = setOf("myArg"),
+                            )
+                        override val returnType = A2uiFunctionReturnType.STRING
+                    }
+                )
+            )
+        val customValidator = A2uiCoreSchemaValidator(catalog)
+        assertThat(
+                customValidator.validateSchema(
+                    mapOf(
+                        "call" to "myFunction",
+                        "args" to mapOf("myArg" to "value"),
+                        "returnType" to "string",
+                    ),
+                    schema,
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun validateSchema_refTypeAnyFunctionWithInvalidArgs_throwsValidationException() {
+        val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
+        val catalog =
+            createTestCatalog(
+                listOf(
+                    object : A2uiFunctionDefinition {
+                        override val name = "myFunction"
+                        override val description = "test"
+                        override val argumentSchema =
+                            A2uiObjectSchema(
+                                properties = mapOf("myArg" to A2uiStringSchema()),
+                                required = setOf("myArg"),
+                            )
+                        override val returnType = A2uiFunctionReturnType.STRING
+                    }
+                )
+            )
+        val customValidator = A2uiCoreSchemaValidator(catalog)
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                customValidator.validateSchema(
+                    mapOf("call" to "myFunction", "args" to mapOf("myArg" to 123)),
                     schema,
                 )
             }
@@ -641,12 +695,26 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_refType_throwsValidationException() {
-        val schema = A2uiRefSchema("some_ref")
-        // Ref validation is not supported and always throws.
+    fun validateSchema_refTypeAnyFunctionWithInvalidReturnType_throwsValidationException() {
+        val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
+        val catalog =
+            createTestCatalog(
+                listOf(
+                    object : A2uiFunctionDefinition {
+                        override val name = "myFunction"
+                        override val description = "test"
+                        override val argumentSchema = A2uiObjectSchema()
+                        override val returnType = A2uiFunctionReturnType.NUMBER
+                    }
+                )
+            )
+        val customValidator = A2uiCoreSchemaValidator(catalog)
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema("anything", schema)
+                customValidator.validateSchema(
+                    mapOf("call" to "myFunction", "returnType" to "string"),
+                    schema,
+                )
             }
         assertThat(ex.context["path"]).isEqualTo("$")
     }
@@ -664,7 +732,7 @@ class A2UiCoreSchemaValidatorTest {
                     )
                 }
             }
-        assertThat(A2uiCoreSchemaValidator.validateSchema(mapOf("id" to 123), composite)).isTrue()
+        assertThat(validator.validateSchema(mapOf("id" to 123), composite)).isTrue()
     }
 
     @Test
@@ -682,9 +750,37 @@ class A2UiCoreSchemaValidatorTest {
             }
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
-                A2uiCoreSchemaValidator.validateSchema(mapOf("id" to "abc"), composite)
+                validator.validateSchema(mapOf("id" to "abc"), composite)
             }
         assertThat(ex.context["path"]).isEqualTo("$.id")
+    }
+
+    private fun createTestCatalog(
+        functionsList: List<A2uiFunctionDefinition> = emptyList()
+    ): A2uiCoreCatalog {
+        val wrappedFunctions =
+            functionsList.map { def ->
+                object : A2uiFunction {
+                    override val definition = def
+
+                    override fun execute(
+                        args: Map<String, Any>,
+                        executionContext: A2uiExecutionContext,
+                    ) = null
+                }
+            }
+        return object : A2uiCoreCatalog {
+            override val id = "test"
+            override val components = emptyList<A2uiCoreComponentDefinition>()
+            override val functions = wrappedFunctions
+            override val themeSchema: A2uiSchema? = null
+
+            override fun getComponent(name: String) = null
+
+            override fun getFunction(name: String): A2uiFunction? {
+                return functions.find { it.definition.name == name }
+            }
+        }
     }
 
     companion object {
