@@ -34,7 +34,7 @@ abstract class <#A: out kotlin/Any> androidx.navigation3.runtime.deeplink/DeepLi
         abstract fun filterRequest(androidx.navigation3.runtime.deeplink/DeepLinkRequest): kotlin/Boolean // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.Filter.filterRequest|filterRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest){}[0]
     }
 
-    open class <#A1: out kotlin/Any?> MatchResult : kotlin/Comparable<androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A1>> { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult|null[0]
+    open class <#A1: out kotlin/Any> MatchResult : kotlin/Comparable<androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A1>> { // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult|null[0]
         constructor <init>(#A1) // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.<init>|<init>(1:0){}[0]
 
         final val key // androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult.key|{}key[0]
