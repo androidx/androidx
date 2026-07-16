@@ -572,6 +572,58 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_queryEmptyStringArgument() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/user?name={name}&age={age}"),
+                serializer<SimpleKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=&age=30")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+        assertThat(result?.key?.name).isEqualTo("")
+        assertThat(result!!.key.age).isEqualTo(30)
+    }
+
+    @Test
+    fun matchRequest_queryEmptyNullableIntWithNullFallback() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/user?name={name}&age={age}"),
+                serializer<NullableDefaultKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=john&age=")
+        val result = matcher.match(request)
+        assertThat(result).isNotNull()
+        assertThat(result?.key?.name).isEqualTo("john")
+        assertThat(result!!.key.age).isNull()
+    }
+
+    @Test
+    fun matchRequest_queryEmptyNullableIntNoFallbackFails() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/user?name={name}&age={age}"),
+                serializer<NullableKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=john&age=")
+        val result = matcher.match(request)
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun matchRequest_queryEmptyNonNullableIntFails() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/user?name={name}&age={age}"),
+                serializer<SimpleKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=john&age=")
+        val result = matcher.match(request)
+        assertThat(result).isNull()
+    }
+
+    @Test
     fun matchRequest_missingRequiredArgument() {
         val matcher =
             UriDeepLinkMatcher(

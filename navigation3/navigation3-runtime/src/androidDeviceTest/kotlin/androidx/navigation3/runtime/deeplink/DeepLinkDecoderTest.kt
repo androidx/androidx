@@ -346,4 +346,39 @@ class DeepLinkDecoderTest {
             decoder.decodeSerializableValue(serializer<MapKey>())
         }
     }
+
+    @Test
+    fun testDecodeEmptyString() {
+        val arguments = mapOf("name" to listOf(""), "age" to listOf("30"))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<SimpleKey>())
+
+        assertThat(result).isEqualTo(SimpleKey("", 30))
+    }
+
+    @Test
+    fun testDecodeEmptyString_nullableIntFieldWithNullFallback() {
+        val arguments = mapOf("name" to listOf("john"), "age" to listOf(""))
+        val decoder = DeepLinkDecoder(arguments)
+        val result = decoder.decodeSerializableValue(serializer<NullableDefaultKey>())
+        assertThat(result).isEqualTo(NullableDefaultKey("john", null))
+    }
+
+    @Test
+    fun testDecodeEmptyString_nullableIntFieldNoFallbackFails() {
+        val arguments = mapOf("name" to listOf("john"), "age" to listOf(""))
+        val decoder = DeepLinkDecoder(arguments)
+        assertFailsWith<DeepLinkDecoderException> {
+            decoder.decodeSerializableValue(serializer<NullableKey>())
+        }
+    }
+
+    @Test
+    fun testDecodeEmptyString_nonNullableIntFails() {
+        val arguments = mapOf("name" to listOf("john"), "age" to listOf(""))
+        val decoder = DeepLinkDecoder(arguments)
+        assertFailsWith<DeepLinkDecoderException> {
+            decoder.decodeSerializableValue(serializer<SimpleKey>())
+        }
+    }
 }
