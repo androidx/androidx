@@ -30,9 +30,9 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
-import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -278,7 +278,7 @@ class ModalWideNavigationRailTest {
         // Assert rail is expanded.
         assertThat(state.targetValue.isExpanded).isTrue()
         // Assert rail is displayed.
-        rule.onNodeWithTag("rail").isDisplayed()
+        rule.onNodeWithTag("rail").assertIsDisplayed()
         // Assert rail's offset.
         rule.onNodeWithTag("rail").assertLeftPositionInRootIsEqualTo(0.dp)
     }
