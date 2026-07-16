@@ -196,20 +196,38 @@ public class TraceSink(
             // We are not trying to be accurate about exactly which specific event has the
             // dropped flag set.
             val reportDroppedTraceEvent = queue.isDroppedTraceEvent
-            queue.setDroppedTraceEvent(false)
             val pooledPacketArray = queue.firstOrNull()
             if (pooledPacketArray != null) {
-                var firstEventInBatch = true
-                pooledPacketArray.forEach {
-                    // Only emit the packet dropped signal as part of the first write in a batch.
+                // This is meant to represent the first trace event in a batch.
+                var firstEvent = true
+                // This is set to true only iff we managed to report the dropped event.
+                // Sometimes we may not be able to do it right away, if you only have preamble
+                // packets coming next.
+                var reported = false
+                pooledPacketArray.forEach { event ->
+                    val isPreamble = event.trackDescriptor != null
+                    // Only emit the packet dropped signal as part of the first non preamble
+                    // write event in a batch.
                     val reportDroppedEvent =
-                        if (firstEventInBatch) reportDroppedTraceEvent else false
+                        if (!isPreamble && firstEvent) {
+                            reportDroppedTraceEvent
+                        } else {
+                            false
+                        }
                     wireTraceEventSerializer.writeTraceEvent(
                         protoWriter = protoWriter,
-                        event = it,
+                        event = event,
                         reportDroppedTraceEvent = reportDroppedEvent,
                     )
-                    firstEventInBatch = false
+                    reported = reported || reportDroppedEvent
+                    // Only treat the first non-preamble event as the first event in a batch.
+                    if (!isPreamble) {
+                        firstEvent = false
+                    }
+                }
+                // If there was a dropped event, and we reported it, we can clear the state.
+                if (reported) {
+                    queue.setDroppedTraceEvent(false)
                 }
                 pooledPacketArray.recycle()
                 // Remove the item from the Queue to denote that we have written the underlying
