@@ -48,6 +48,15 @@ abstract class <#A: out kotlin/Any> androidx.navigation3.runtime.deeplink/DeepLi
     }
 }
 
+abstract class <#A: out kotlin/Any> androidx.navigation3.runtime.deeplink/WrappedMatchResult : androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A> { // androidx.navigation3.runtime.deeplink/WrappedMatchResult|null[0]
+    constructor <init>(androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A>) // androidx.navigation3.runtime.deeplink/WrappedMatchResult.<init>|<init>(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<1:0>){}[0]
+
+    final val matchResult // androidx.navigation3.runtime.deeplink/WrappedMatchResult.matchResult|{}matchResult[0]
+        final fun <get-matchResult>(): androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A> // androidx.navigation3.runtime.deeplink/WrappedMatchResult.matchResult.<get-matchResult>|<get-matchResult>(){}[0]
+
+    open fun compareTo(androidx.navigation3.runtime.deeplink/DeepLinkMatcher.MatchResult<#A>): kotlin/Int // androidx.navigation3.runtime.deeplink/WrappedMatchResult.compareTo|compareTo(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<1:0>){}[0]
+}
+
 abstract class androidx.navigation3.runtime.deeplink/DeepLinkUri { // androidx.navigation3.runtime.deeplink/DeepLinkUri|null[0]
     constructor <init>() // androidx.navigation3.runtime.deeplink/DeepLinkUri.<init>|<init>(){}[0]
 
@@ -239,6 +248,7 @@ final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_dee
 final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop[0]
 final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop|#static{}androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop[0]
 final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop|#static{}androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop[0]
+final val androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop|#static{}androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop|#static{}androidx_navigation3_runtime_result_LocalResultEventBus$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBus$stableprop[0]
 final val androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop|#static{}androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop[0]
@@ -269,6 +279,7 @@ final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_dee
 final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_deeplink_StaticKeyDeepLinkMatcher$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter|androidx_navigation3_runtime_deeplink_UriDeepLinkMatcher$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter|androidx_navigation3_runtime_deeplink_UriMatchResult$stableprop_getter(){}[0]
+final fun androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.deeplink/androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop_getter|androidx_navigation3_runtime_deeplink_WrappedMatchResult$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter|androidx_navigation3_runtime_result_LocalResultEventBus$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBus$stableprop_getter(){}[0]
 final fun androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(): kotlin/Int // androidx.navigation3.runtime.result/androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter|androidx_navigation3_runtime_result_ResultEventBusNavEntryDecorator$stableprop_getter(){}[0]
