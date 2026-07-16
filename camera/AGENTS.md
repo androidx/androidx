@@ -59,10 +59,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
   (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
   tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
   SDK levels.
-- **Internal Testing (Googlers Only)**: For developers with access to the internal testing
-  infrastructure, please refer to the internal documentation (`AGENTS_INTERNAL.md`) located in the
-  internal repository for detailed instructions on triggering verification runs and parsing test
-  results.
+- **Internal Testing (Googlers Only)**: If you are in a Google-internal environment
+  (e.g., you have access to Google-internal search or repositories), you MUST
+  load `AGENTS_INTERNAL.md`. If your environment is set up, this file can be
+  found in the directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment
+  variable. Follow its instructions to actively use the lab device testing
+  infrastructure to verify your changes on physical devices before finalizing
+  any code modifications.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
