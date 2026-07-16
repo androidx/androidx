@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.CheckResult
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsNode
@@ -421,17 +422,22 @@ fun SemanticsNodeInteractionCollection.assertAll(
  *
  * @sample androidx.compose.ui.test.samples.waitForDisplayed
  * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
+ * @see assertIsDisplayed
  */
+@CheckResult(suggest = "assertIsDisplayed()")
 fun SemanticsNodeInteraction.isDisplayed(): Boolean = checkIsDisplayed(assertIsFullyVisible = false)
 
 /**
- * Asserts that the current semantics node is not displayed on screen.
+ * Returns true if no matching node is displayed on screen.
  *
- * If no matching node is found, returns true. If multiple nodes match, throws an [AssertionError].
+ * Returns false if a matching node is currently displayed. If multiple nodes match, throws an
+ * [AssertionError].
  *
  * @sample androidx.compose.ui.test.samples.waitForNotDisplayed
  * @throws AssertionError If multiple nodes match this [SemanticsNodeInteraction].
+ * @see assertIsNotDisplayed
  */
+@CheckResult(suggest = "assertIsNotDisplayed()")
 fun SemanticsNodeInteraction.isNotDisplayed(): Boolean =
     !checkIsDisplayed(assertIsFullyVisible = true)
 

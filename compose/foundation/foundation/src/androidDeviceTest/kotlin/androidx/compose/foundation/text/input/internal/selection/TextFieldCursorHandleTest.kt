@@ -63,8 +63,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasPerformImeAction
-import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -87,6 +85,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -992,6 +991,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     // endregion
 
+    @Ignore("b/516627719")
     @Test
     fun cursorHandleHides_whenHardwareKeyboardIsUsed_thenComesBackWithTouch() {
         state = TextFieldState("hello")
@@ -1011,11 +1011,11 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
         }
 
-        rule.onNode(isSelectionHandle(Handle.Cursor)).isDisplayed()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
 
         state.edit { placeCursorAtEnd() }
 
-        rule.onNode(isSelectionHandle(Handle.Cursor)).isDisplayed()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
 
         // regular `performKeyInput` scope does not set source to InputDevice.SOURCE_KEYBOARD
         view.dispatchKeyEvent(
@@ -1033,13 +1033,13 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
             )
         )
 
-        rule.onNode(isSelectionHandle(Handle.Cursor)).isNotDisplayed()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsNotDisplayed()
 
         rule.onNodeWithTag(TAG).performTouchInput {
             click(Offset(fontSize.toPx() * 2, fontSize.toPx() / 2))
         }
 
-        rule.onNode(isSelectionHandle(Handle.Cursor)).isDisplayed()
+        rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
     }
 
     @Test

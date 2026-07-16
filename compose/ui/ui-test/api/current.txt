@@ -90,8 +90,8 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, boolean, int, Object!);
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.SemanticsNodeInteraction! assertTextEquals$default(androidx.compose.ui.test.SemanticsNodeInteraction!, String![]!, boolean, int, Object!);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.compose.ui.test.SemanticsNodeInteraction, String value);
-    method public static boolean isDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method public static boolean isNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult(suggest="assertIsDisplayed()") public static boolean isDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
+    method @CheckResult(suggest="assertIsNotDisplayed()") public static boolean isNotDisplayed(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
   public final class BoundsAssertionsKt {
