@@ -20,6 +20,7 @@ import android.app.UiModeManager
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.testing.test.R.id.view_tag_id
 import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
@@ -98,6 +99,7 @@ class FragmentScenarioTest {
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
                 assertThat(fragment.isViewAttachedToWindow).isTrue()
                 assertThat(fragment.numberOfRecreations).isEqualTo(0)
+                assertThat(fragment.view?.parent).isInstanceOf(FragmentContainerView::class.java)
             }
         }
     }
