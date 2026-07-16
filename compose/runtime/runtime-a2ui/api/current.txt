@@ -17,11 +17,11 @@ package androidx.compose.runtime.a2ui {
   }
 
   @androidx.compose.runtime.Immutable public final class A2uiComponentReference {
-    ctor public A2uiComponentReference(String id, optional String? dataScopePath);
+    ctor public A2uiComponentReference(String id, optional String? baseDataPath);
     ctor @BytecodeOnly public A2uiComponentReference(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public String? getDataScopePath();
+    method @InaccessibleFromKotlin public String? getBaseDataPath();
     method @InaccessibleFromKotlin public String getId();
-    property public String? dataScopePath;
+    property public String? baseDataPath;
     property public String id;
   }
 
@@ -33,7 +33,7 @@ package androidx.compose.runtime.a2ui {
     method @KotlinOnly @androidx.compose.runtime.Composable public <T> kotlin.jvm.functions.Function1<T?,kotlin.Unit>? bindUpdater(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T> property);
     method @BytecodeOnly @androidx.compose.runtime.Composable public <T> kotlin.jvm.functions.Function1<T,kotlin.Unit!>? bindUpdater(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T>, androidx.compose.runtime.Composer?, int);
     method public void dispatchAction(java.util.Map<java.lang.String,? extends java.lang.Object?> actionPayload);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String id, optional String? dataScopePath);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String id, optional String? baseDataPath);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String, String?, androidx.compose.runtime.Composer?, int);
     method public void reportError(androidx.a2ui.model.protocol.A2uiException exception);
   }

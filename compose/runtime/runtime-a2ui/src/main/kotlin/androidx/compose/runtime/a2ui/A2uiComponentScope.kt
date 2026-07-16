@@ -34,14 +34,14 @@ public sealed interface A2uiComponentScope {
      * future updates.
      *
      * @param id The unique ID of the component to resolve.
-     * @param dataScopePath An optional relative or absolute data path to override the component's
+     * @param baseDataPath An optional relative or absolute data path to override the component's
      *   data context.
      * @return The [A2uiComponentState] of the requested component.
      */
     @Composable
     public fun observeA2uiComponentState(
         id: String,
-        dataScopePath: String? = null,
+        baseDataPath: String? = null,
     ): A2uiComponentState
 
     /**
@@ -146,4 +146,4 @@ public sealed interface A2uiComponentScope {
 @Composable
 public fun A2uiComponentScope.observeA2uiComponentState(
     reference: A2uiComponentReference
-): A2uiComponentState = observeA2uiComponentState(reference.id, reference.dataScopePath)
+): A2uiComponentState = observeA2uiComponentState(reference.id, reference.baseDataPath)
