@@ -564,6 +564,28 @@ class UseCaseTest {
         assertThat(videoCapture.isVideoStabilizationEnabled).isFalse()
     }
 
+    @Test
+    fun setMirrorModeInternal_updatesConfigAndReturnsTrue() {
+        val useCase = createFakeUseCase()
+        assertThat(useCase.mirrorMode).isEqualTo(MirrorMode.MIRROR_MODE_UNSPECIFIED)
+
+        val changed = useCase.setMirrorMode(MirrorMode.MIRROR_MODE_ON)
+
+        assertThat(changed).isTrue()
+        assertThat(useCase.mirrorMode).isEqualTo(MirrorMode.MIRROR_MODE_ON)
+    }
+
+    @Test
+    fun setMirrorModeInternal_sameValue_returnsFalse() {
+        val useCase = createFakeUseCase()
+        useCase.setMirrorMode(MirrorMode.MIRROR_MODE_ON)
+
+        val changed = useCase.setMirrorMode(MirrorMode.MIRROR_MODE_ON)
+
+        assertThat(changed).isFalse()
+        assertThat(useCase.mirrorMode).isEqualTo(MirrorMode.MIRROR_MODE_ON)
+    }
+
     private fun createFakeUseCase(
         targetRotation: Int = Surface.ROTATION_0,
         mirrorMode: Int? = null,

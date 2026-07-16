@@ -291,4 +291,18 @@ public class FakeUseCase extends UseCase {
     public void clearLastRotation() {
         mLastRotation = INVALID_ROTATION;
     }
+
+    /**
+     * Sets the mirror mode.
+     */
+    public boolean setMirrorMode(int mirrorMode) {
+        return setMirrorModeInternal(mirrorMode);
+    }
+
+    /**
+     * Gets the mirror mode.
+     */
+    public int getMirrorMode() {
+        return getMirrorModeInternal();
+    }
 }
