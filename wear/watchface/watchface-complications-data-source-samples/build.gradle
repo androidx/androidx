@@ -23,7 +23,7 @@ dependencies {
     api(project(":wear:watchface:watchface-complications-data-source"))
     api(libs.guavaAndroid)
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
+    implementation("androidx.wear.protolayout:protolayout-expression:1.0.0")
 }
 
 android {
