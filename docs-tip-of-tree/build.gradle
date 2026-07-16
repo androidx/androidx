@@ -283,6 +283,7 @@ dependencies {
     docs(project(":pdf:pdf-viewer"))
     docs(project(":pdf:pdf-viewer-fragment"))
     docs(project(":photopicker:photopicker"))
+    docs(project(":photopicker:photopicker-activity"))
     docs(project(":photopicker:photopicker-compose"))
     docs(project(":photopicker:photopicker-testing"))
     docs(project(":preference:preference"))

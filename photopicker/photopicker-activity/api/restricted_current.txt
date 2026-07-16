@@ -1,0 +1,143 @@
+// Signature format: 4.0
+package androidx.photopicker.activity {
+
+  public class PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.photopicker.activity.PickVisualMediaRequest,java.util.List<android.net.Uri>> {
+    ctor public PickMultipleVisualMedia();
+    ctor public PickMultipleVisualMedia(optional int maxItems);
+    ctor @BytecodeOnly public PickMultipleVisualMedia(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.photopicker.activity.PickVisualMediaRequest input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.photopicker.activity.PickVisualMediaRequest input);
+    method public final java.util.List<android.net.Uri> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+  public class PickVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.photopicker.activity.PickVisualMediaRequest,android.net.Uri?> {
+    ctor public PickVisualMedia();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.photopicker.activity.PickVisualMediaRequest input);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri?>? getSynchronousResult(android.content.Context context, androidx.photopicker.activity.PickVisualMediaRequest input);
+    method @Deprecated public static final boolean isPhotoPickerAvailable();
+    method public static final boolean isPhotoPickerAvailable(android.content.Context context);
+    method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
+    field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
+    field public static final androidx.photopicker.activity.PickVisualMedia.Companion Companion;
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR = "androidx.activity.result.contract.extra.PICK_IMAGES_ACCENT_COLOR";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER = "androidx.activity.result.contract.extra.PICK_IMAGES_IN_ORDER";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB = "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
+  }
+
+  public static final class PickVisualMedia.Companion {
+    method @Deprecated public boolean isPhotoPickerAvailable();
+    method public boolean isPhotoPickerAvailable(android.content.Context context);
+    property public static String ACTION_SYSTEM_FALLBACK_PICK_IMAGES;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX;
+  }
+
+  public abstract static class PickVisualMedia.DefaultTab {
+    method @InaccessibleFromKotlin public abstract int getValue();
+    property public abstract int value;
+  }
+
+  public static final class PickVisualMedia.DefaultTab.AlbumsTab extends androidx.photopicker.activity.PickVisualMedia.DefaultTab {
+    method @InaccessibleFromKotlin public int getValue();
+    property public int value;
+    field public static final androidx.photopicker.activity.PickVisualMedia.DefaultTab.AlbumsTab INSTANCE;
+  }
+
+  public static final class PickVisualMedia.DefaultTab.PhotosTab extends androidx.photopicker.activity.PickVisualMedia.DefaultTab {
+    method @InaccessibleFromKotlin public int getValue();
+    property public int value;
+    field public static final androidx.photopicker.activity.PickVisualMedia.DefaultTab.PhotosTab INSTANCE;
+  }
+
+  public static final class PickVisualMedia.ImageAndVideo implements androidx.photopicker.activity.PickVisualMedia.VisualMediaType {
+    field public static final androidx.photopicker.activity.PickVisualMedia.ImageAndVideo INSTANCE;
+  }
+
+  public static final class PickVisualMedia.ImageOnly implements androidx.photopicker.activity.PickVisualMedia.VisualMediaType {
+    field public static final androidx.photopicker.activity.PickVisualMedia.ImageOnly INSTANCE;
+  }
+
+  public static final class PickVisualMedia.MediaCapabilities {
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.Integer> getSupportedHdrTypes();
+    property public java.util.Set<java.lang.Integer> supportedHdrTypes;
+    field public static final androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion Companion;
+    field public static final int TYPE_DOLBY_VISION = 3; // 0x3
+    field public static final int TYPE_HDR10 = 1; // 0x1
+    field public static final int TYPE_HDR10_PLUS = 2; // 0x2
+    field public static final int TYPE_HLG10 = 0; // 0x0
+  }
+
+  public static final class PickVisualMedia.MediaCapabilities.Builder {
+    ctor public PickVisualMedia.MediaCapabilities.Builder();
+    method public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Builder addSupportedHdrType(int hdrType);
+    method public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities build();
+  }
+
+  public static final class PickVisualMedia.MediaCapabilities.Companion {
+    property public static int TYPE_DOLBY_VISION;
+    property public static int TYPE_HDR10;
+    property public static int TYPE_HDR10_PLUS;
+    property public static int TYPE_HLG10;
+  }
+
+  public static final class PickVisualMedia.SingleMimeType implements androidx.photopicker.activity.PickVisualMedia.VisualMediaType {
+    ctor public PickVisualMedia.SingleMimeType(String mimeType);
+    method @InaccessibleFromKotlin public String getMimeType();
+    property public String mimeType;
+  }
+
+  public static final class PickVisualMedia.VideoOnly implements androidx.photopicker.activity.PickVisualMedia.VisualMediaType {
+    field public static final androidx.photopicker.activity.PickVisualMedia.VideoOnly INSTANCE;
+  }
+
+  public static sealed exhaustive interface PickVisualMedia.VisualMediaType {
+  }
+
+  public final class PickVisualMediaRequest {
+    method @InaccessibleFromKotlin public long getAccentColor();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.DefaultTab getDefaultTab();
+    method @InaccessibleFromKotlin public int getMaxItems();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
+    method @InaccessibleFromKotlin public boolean isCustomAccentColorApplied();
+    method @InaccessibleFromKotlin public boolean isOrderedSelection();
+    property public long accentColor;
+    property public androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab;
+    property public boolean isCustomAccentColorApplied;
+    property public boolean isOrderedSelection;
+    property public int maxItems;
+    property public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding;
+    property public androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType;
+  }
+
+  public static final class PickVisualMediaRequest.Builder {
+    ctor public PickVisualMediaRequest.Builder();
+    method public androidx.photopicker.activity.PickVisualMediaRequest build();
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setAccentColor(long accentColor);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setDefaultTab(androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMaxItems(@IntRange(from=2L) int maxItems);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaCapabilitiesForTranscoding(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilities);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaType(androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setOrderedSelection(boolean isOrderedSelection);
+  }
+
+  public final class PickVisualMediaRequestKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.photopicker.activity.PickVisualMediaRequest PickVisualMediaRequest(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding, optional androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.photopicker.activity.PickVisualMediaRequest PickVisualMediaRequest(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding, long accentColor, optional androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!);
+    method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, @IntRange(from=2L) int);
+    method public static androidx.photopicker.activity.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method public static androidx.photopicker.activity.PickVisualMediaRequest PickVisualMediaRequest(long accentColor, optional androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities!, androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, boolean, androidx.photopicker.activity.PickVisualMedia.DefaultTab!, int, Object!);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities!, long, androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, boolean, androidx.photopicker.activity.PickVisualMedia.DefaultTab!, int, Object!);
+    method @BytecodeOnly public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, boolean, androidx.photopicker.activity.PickVisualMedia.DefaultTab!, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, Object!);
+    method @BytecodeOnly public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(long, androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, boolean, androidx.photopicker.activity.PickVisualMedia.DefaultTab!, int, Object!);
+  }
+
+}
+
