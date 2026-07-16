@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -36,11 +38,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
@@ -279,9 +286,33 @@ fun CompactButtonSample(modifier: Modifier = Modifier) {
             )
         },
         modifier = modifier,
-    ) {
-        Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
+        label = { Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+    )
+}
+
+@Sampled
+@Composable
+fun CompactButtonWithContentSample(modifier: Modifier = Modifier) {
+    CompactButton(
+        onClick = { /* Do something */ },
+        modifier = modifier,
+        content = {
+            Box(
+                Modifier.size(CompactButtonDefaults.ExtraSmallIconSize)
+                    .clip(CircleShape)
+                    .background(Color.Green)
+            )
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text(
+                "Custom content",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                letterSpacing = 0.5.sp,
+            )
+        },
+    )
 }
 
 @Sampled
@@ -319,9 +350,10 @@ fun FilledTonalCompactButtonSample(modifier: Modifier = Modifier) {
         },
         colors = ButtonDefaults.filledTonalButtonColors(),
         modifier = modifier,
-    ) {
-        Text("Filled Tonal Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
+        label = {
+            Text("Filled Tonal Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+    )
 }
 
 @Sampled
@@ -340,27 +372,28 @@ fun OutlinedCompactButtonSample(modifier: Modifier = Modifier) {
             colors = ButtonDefaults.outlinedButtonColors(),
             border = ButtonDefaults.outlinedButtonBorder(enabled = true),
             modifier = modifier,
-        ) {
-            if (expanded) {
-                Text("Show Less", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            } else {
-                Text("Show More", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            if (expanded) {
-                Icon(
-                    Icons.Filled.KeyboardArrowUp,
-                    contentDescription = "Collapse",
-                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
-                )
-            } else {
-                Icon(
-                    Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Expand",
-                    modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
-                )
-            }
-        }
+            content = {
+                if (expanded) {
+                    Text("Show Less", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                } else {
+                    Text("Show More", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                if (expanded) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowUp,
+                        contentDescription = "Collapse",
+                        modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
+                    )
+                } else {
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Expand",
+                        modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
+                    )
+                }
+            },
+        )
     }
 }
 
@@ -385,26 +418,27 @@ fun ButtonContentWithOneHandedGestureSample() {
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
                 ),
-        ) {
-            OneHandedGestureIndicator(
-                gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
-                gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                ButtonDefaults.Content(
-                    secondaryLabel = { Text("Secondary Label") },
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_favorite_rounded),
-                            contentDescription = "Favorite icon",
-                            modifier = Modifier.size(ButtonDefaults.IconSize),
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(),
-                    label = { Text(label) },
-                )
-            }
-        }
+            content = {
+                OneHandedGestureIndicator(
+                    gestureConfiguration = gestureConfig,
+                    indicatorState = indicatorState,
+                    gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    ButtonDefaults.Content(
+                        secondaryLabel = { Text("Secondary Label") },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_favorite_rounded),
+                                contentDescription = "Favorite icon",
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(),
+                        label = { Text(label) },
+                    )
+                }
+            },
+        )
     }
 }
 
@@ -429,24 +463,25 @@ fun CompactButtonContentWithOneHandedGestureSample() {
                     onGestureAvailable = { indicatorState.isIndicatorActive = true },
                     onGesture = onClick,
                 ),
-        ) {
-            OneHandedGestureIndicator(
-                gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
-                gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
-            ) {
-                CompactButtonDefaults.Content(
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_favorite_rounded),
-                            contentDescription = "Favorite icon",
-                            modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(),
-                    label = { Text(label) },
-                )
-            }
-        }
+            content = {
+                OneHandedGestureIndicator(
+                    gestureConfiguration = gestureConfig,
+                    indicatorState = indicatorState,
+                    gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    CompactButtonDefaults.Content(
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_favorite_rounded),
+                                contentDescription = "Favorite icon",
+                                modifier = Modifier.size(CompactButtonDefaults.ExtraSmallIconSize),
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(),
+                        label = { Text(label) },
+                    )
+                }
+            },
+        )
     }
 }
