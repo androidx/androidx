@@ -820,7 +820,6 @@ private class TopBarHeightChangingScaffoldTestCase : LayeredComposeTestCase(), T
 
     val tracker = CompositionTracker()
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
         state = remember { mutableStateOf(0.dp) }
