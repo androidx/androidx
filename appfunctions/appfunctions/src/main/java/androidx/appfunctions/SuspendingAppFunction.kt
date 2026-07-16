@@ -16,14 +16,11 @@
 
 package androidx.appfunctions
 
-import androidx.annotation.RestrictTo
-
 /**
  * An implementation of an app function that supports suspend execution.
  *
  * This interface is expected as part of [HandleAppFunctionRequest].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface SuspendingAppFunction {
     /**
      * Called when the app function is invoked using [AppFunctionManager.executeAppFunction].
