@@ -138,6 +138,18 @@ private val EXPECTED_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+\\-.]*:")
  *     - Request: `#section_123`
  *     - Extracted values: None extracted.
  *
+ * **Note on empty query values** If the provided value in the query is an empty string, for example
+ *
+ * ```kotlin
+ * val request = "...?name=&age="
+ * ```
+ *
+ * It is handled depending on whether the argument type is a String
+ * - Strings: Treated as a literal empty string ""
+ * - Non-Strings (Primitive or Non-Primitive): Treated as no provided value. Falls back to default
+ *   value if there is one. Otherwise, this is considered as a missing required value and matching
+ *   would fail.
+ *
  * **Note on Non-Primitive Arguments** [T] that contain non-primitive argument type, such as the
  * Profile class below:
  * ```kotlin
