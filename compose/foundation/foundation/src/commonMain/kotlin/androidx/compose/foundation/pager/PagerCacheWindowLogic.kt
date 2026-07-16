@@ -88,7 +88,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
             return itemIndex.coerceAtLeast(0L).toInt()
         }
 
-    override val visibleLineCount: Int
+    override val visibleItemsCount: Int
         get() =
             layoutInfo.extraPagesBefore.size +
                 layoutInfo.visiblePagesInfo.size +
@@ -130,8 +130,8 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
         perLaneFirstVisibleItemIndex[0] = firstVisibleItemIndex
     }
 
-    override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {
-        perLaneVisibleItemIndexes[0] = lastVisibleItemIndex
+    override fun updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndexes: IntArray) {
+        perLaneLastVisibleItemIndexes[0] = lastVisibleItemIndex
     }
 
     override fun schedulePrefetch(
