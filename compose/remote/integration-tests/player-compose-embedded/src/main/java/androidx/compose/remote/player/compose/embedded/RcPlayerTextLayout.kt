@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
@@ -92,7 +92,14 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             },
         maxLines = data.maxLines,
         letterSpacing = data.letterSpacing.em,
-        lineHeight = (data.fontSizeValue * data.lineHeightMultiplier + data.lineHeightAdd).sp,
+        lineHeight =
+            if (data.lineHeightMultiplier != 1f || data.lineHeightAdd != 0f) {
+                with(LocalDensity.current) {
+                    (data.fontSizeValue * data.lineHeightMultiplier + data.lineHeightAdd).toSp()
+                }
+            } else {
+                TextUnit.Unspecified
+            },
     )
 }
 

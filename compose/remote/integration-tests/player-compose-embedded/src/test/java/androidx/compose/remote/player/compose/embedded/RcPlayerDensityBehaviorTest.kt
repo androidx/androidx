@@ -25,9 +25,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.contentDescription
+import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -237,6 +239,118 @@ class RcPlayerDensityBehaviorTest {
         val gap = spacingGapDp(columnWith(CoreDocument.DENSITY_BEHAVIOR_LEGACY))
         assert(abs(gap - paddingUnits / renderDensity) < 1f) {
             "LEGACY behavior should space by ${paddingUnits / renderDensity}dp, got ${gap}dp"
+        }
+    }
+
+    private val constraintMin = 20f
+    private val constraintMax = 80f
+
+    // --- WidthIn / HeightIn ---
+
+    private fun documentWithWidthIn(behavior: Int): CoreDocument = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val doc =
+            captureRule.captureDocument(
+                context = context,
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.widthIn(min = constraintMin.rdp, max = constraintMax.rdp)
+                                .semantics { contentDescription = "box".rs }
+                    )
+                },
+            )
+        doc.apply { setDensityBehavior(behavior) }
+    }
+
+    private fun widthInDp(document: CoreDocument): Float {
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+            }
+        }
+        rule.waitForIdle()
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        return bounds.right.value - bounds.left.value
+    }
+
+    @Test
+    fun dpBehaviorScalesWidthInByDensity() {
+        val width = widthInDp(documentWithWidthIn(CoreDocument.DENSITY_BEHAVIOR_DP))
+        assert(abs(width - constraintMin) < 1f) {
+            "DP behavior should constrain min width to ${constraintMin}dp, got ${width}dp"
+        }
+    }
+
+    @Test
+    fun pixelsBehaviorTreatsWidthInAsPixels() {
+        val width = widthInDp(documentWithWidthIn(CoreDocument.DENSITY_BEHAVIOR_PIXELS))
+        assert(abs(width - constraintMin / renderDensity) < 1f) {
+            "PIXELS behavior should constrain min width to ${constraintMin / renderDensity}dp, got ${width}dp"
+        }
+    }
+
+    @Test
+    fun legacyBehaviorScalesWidthInByDensity() {
+        // LEGACY for DimensionIn (which WidthIn inherits from) scales by density.
+        val width = widthInDp(documentWithWidthIn(CoreDocument.DENSITY_BEHAVIOR_LEGACY))
+        assert(abs(width - constraintMin) < 1f) {
+            "LEGACY behavior should constrain min width to ${constraintMin}dp, got ${width}dp"
+        }
+    }
+
+    private fun documentWithHeightIn(behavior: Int): CoreDocument = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val doc =
+            captureRule.captureDocument(
+                context = context,
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.heightIn(
+                                    min = constraintMin.rdp,
+                                    max = constraintMax.rdp,
+                                )
+                                .semantics { contentDescription = "box".rs }
+                    )
+                },
+            )
+        doc.apply { setDensityBehavior(behavior) }
+    }
+
+    private fun heightInDp(document: CoreDocument): Float {
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+            }
+        }
+        rule.waitForIdle()
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        return bounds.bottom.value - bounds.top.value
+    }
+
+    @Test
+    fun dpBehaviorScalesHeightInByDensity() {
+        val height = heightInDp(documentWithHeightIn(CoreDocument.DENSITY_BEHAVIOR_DP))
+        assert(abs(height - constraintMin) < 1f) {
+            "DP behavior should constrain min height to ${constraintMin}dp, got ${height}dp"
+        }
+    }
+
+    @Test
+    fun pixelsBehaviorTreatsHeightInAsPixels() {
+        val height = heightInDp(documentWithHeightIn(CoreDocument.DENSITY_BEHAVIOR_PIXELS))
+        assert(abs(height - constraintMin / renderDensity) < 1f) {
+            "PIXELS behavior should constrain min height to ${constraintMin / renderDensity}dp, got ${height}dp"
+        }
+    }
+
+    @Test
+    fun legacyBehaviorScalesHeightInByDensity() {
+        // LEGACY for DimensionIn (which HeightIn inherits from) scales by density.
+        val height = heightInDp(documentWithHeightIn(CoreDocument.DENSITY_BEHAVIOR_LEGACY))
+        assert(abs(height - constraintMin) < 1f) {
+            "LEGACY behavior should constrain min height to ${constraintMin}dp, got ${height}dp"
         }
     }
 }

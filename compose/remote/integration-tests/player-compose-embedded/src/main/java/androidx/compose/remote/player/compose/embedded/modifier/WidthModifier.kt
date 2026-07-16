@@ -68,17 +68,14 @@ internal fun Modifier.width(op: WidthModifierOperation): Modifier {
 
 @Composable
 internal fun Modifier.widthIn(op: WidthInModifierOperation): Modifier {
-    val widthMinDp = rememberRemoteFloatAsState(op.min).value.dp
-    val widthMaxDp = rememberRemoteFloatAsState(op.max).value.dp
-    return this.widthIn(widthMinDp.minusOneUnspecified(), widthMaxDp.minusOneUnspecified())
+    val density = LocalDensity.current.density
+    val widthMinDp = rememberRemoteFloatAsState(op.min).value.constraintPxToDp(density)
+    val widthMaxDp = rememberRemoteFloatAsState(op.max).value.constraintPxToDp(density)
+    return this.widthIn(widthMinDp, widthMaxDp)
 }
 
-internal fun Dp.minusOneUnspecified(): Dp =
-    if (value == -1f) {
-        Dp.Unspecified
-    } else {
-        this
-    }
+internal fun Float.constraintPxToDp(density: Float): Dp =
+    if (this == -1f) Dp.Unspecified else (this / density).dp
 
 /**
  * Maps a [DimensionConstraintsModifierOperation] (emitted by `widthIn`/`heightIn`) to a Compose
@@ -88,8 +85,9 @@ internal fun Dp.minusOneUnspecified(): Dp =
  */
 @Composable
 internal fun Modifier.dimensionConstraints(op: DimensionConstraintsModifierOperation): Modifier {
-    val minDp = rememberRemoteFloatAsState(op.min).value.dp.minusOneUnspecified()
-    val maxDp = rememberRemoteFloatAsState(op.max).value.dp.minusOneUnspecified()
+    val density = LocalDensity.current.density
+    val minDp = rememberRemoteFloatAsState(op.min).value.constraintPxToDp(density)
+    val maxDp = rememberRemoteFloatAsState(op.max).value.constraintPxToDp(density)
     return when (dimensionConstraintsType(op)) {
         DimensionConstraintsModifierOperation.HORIZONTAL_CONSTRAINTS,
         DimensionConstraintsModifierOperation.REQUIRED_HORIZONTAL_CONSTRAINTS ->
