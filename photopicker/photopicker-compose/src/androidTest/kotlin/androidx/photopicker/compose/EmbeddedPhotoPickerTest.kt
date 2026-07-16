@@ -18,6 +18,7 @@ package androidx.photopicker.compose
 
 import android.content.res.Configuration
 import android.os.Build
+import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -243,6 +244,48 @@ class EmbeddedPhotoPickerTest {
                 session.lastExpandedState == false
             }
             assertThat(state.isExpanded).isFalse()
+        }
+
+    @Test
+    @ExperimentalPhotoPickerComposeApi
+    fun testEmbeddedPhotoPickerFeatureInfoPropagation() =
+        runTest(testDispatcher) {
+            val testProvider = TestEmbeddedPhotoPickerProvider.get()
+
+            val maxSelectionLimit = 5
+            val mimeTypes = listOf("image/jpeg", "video/mp4")
+            val accentColor = 0xFF00FF00L
+            val themeNightMode = Configuration.UI_MODE_NIGHT_YES
+            val orderedSelection = true
+
+            val customFeatureInfo =
+                EmbeddedPhotoPickerFeatureInfo.Builder()
+                    .setMaxSelectionLimit(maxSelectionLimit)
+                    .setMimeTypes(mimeTypes)
+                    .setAccentColor(accentColor)
+                    .setThemeNightMode(themeNightMode)
+                    .setOrderedSelection(orderedSelection)
+                    .build()
+
+            composeTestRule.setContent {
+                EmbeddedPhotoPicker(
+                    state = rememberEmbeddedPhotoPickerState(),
+                    provider = testProvider,
+                    embeddedPhotoPickerFeatureInfo = customFeatureInfo,
+                )
+            }
+
+            composeTestRule.waitUntil(WAIT_TIMEOUT_DURATION_MILLIS) {
+                testProvider.sessions.isNotEmpty()
+            }
+            val session = testProvider.lastTestSession
+            val featureInfo = session.featureInfo
+
+            assertThat(featureInfo.maxSelectionLimit).isEqualTo(maxSelectionLimit)
+            assertThat(featureInfo.mimeTypes).containsExactlyElementsIn(mimeTypes)
+            assertThat(featureInfo.accentColor).isEqualTo(accentColor)
+            assertThat(featureInfo.themeNightMode).isEqualTo(themeNightMode)
+            assertThat(featureInfo.isOrderedSelection).isEqualTo(orderedSelection)
         }
 }
 
