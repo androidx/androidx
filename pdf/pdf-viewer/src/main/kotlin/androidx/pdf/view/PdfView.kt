@@ -17,7 +17,9 @@
 package androidx.pdf.view
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Configuration.ORIENTATION_UNDEFINED
@@ -944,7 +946,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         AccessibilityManager.AccessibilityStateChangeListener { isEnabled ->
             isAccessibilityEnabled = isEnabled
         }
-    private var selectionStateManager: SelectionStateManager? = null
+    @get:VisibleForTesting
+    @set:VisibleForTesting
+    internal var selectionStateManager: SelectionStateManager? = null
     private val selectionRenderer = SelectionRenderer(context)
 
     // True if the zoom was calculated before the layouting completed and needs to be recalculated
@@ -1607,9 +1611,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         state.paginationModel = pageLayoutManager?.paginationModel
         state.layoutStrategy = pageLayoutManager?.layoutStrategy
         state.pdfFormFillingState = pageLayoutManager?.pdfFormFillingState
-        state.selectionModel = selectionStateManager?.selectionModel?.value
+        val isChangingConfigurations = context.findActivity()?.isChangingConfigurations == true
+        state.selectionModel =
+            selectionStateManager?.selectionModel?.value?.let {
+                if (isChangingConfigurations) it else it.toPlaceholder()
+            }
         state.pdfFormFillingEditTextState = getFormFillingEditTextState()
-
         return state
     }
 
@@ -2918,6 +2925,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 "Property must be set on the main thread"
             }
         }
+
+        internal tailrec fun Context.findActivity(): Activity? =
+            when (this) {
+                is Activity -> this
+                is ContextWrapper -> baseContext.findActivity()
+                else -> null
+            }
 
         /**
          * Converts a one-dimensional coordinate in View space (scaled, offset by scroll position)

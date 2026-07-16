@@ -46,6 +46,7 @@ import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
 import androidx.pdf.util.isImageSelectionAvailableInSdk
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -62,8 +63,10 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -928,6 +931,93 @@ class SelectionStateManagerTest {
             )
 
         // Verify the selection model remains null
+        assertNull(manager.selectionModel.value)
+    }
+
+    @Test
+    fun processInitialSelection_withPlaceholderTextSelection_returnsNullAndStartsRefetch() =
+        runTest {
+            val startPoint = PdfPoint(0, 10f, 10f)
+            val endPoint = PdfPoint(0, 90f, 90f)
+            val placeholderSelection =
+                SelectionModel(
+                    documentSelection = DocumentSelection(SparseArray()),
+                    startBoundary = UiSelectionBoundary(startPoint, false),
+                    endBoundary = UiSelectionBoundary(endPoint, false),
+                    isPlaceholder = true,
+                )
+
+            val manager =
+                SelectionStateManager(
+                    pdfDocument,
+                    testScope,
+                    initialSelection = placeholderSelection,
+                    handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                    errorFlow = errorFlow,
+                    pageLayoutManager = null,
+                    pageManager = null,
+                )
+
+            // Verify the initial state is null, as placeholders are filtered out
+            assertNull(manager.selectionModel.value)
+
+            // Advance the coroutine to allow the background re-fetch to complete
+            testDispatcher.scheduler.runCurrent()
+
+            // Verify the selection was re-fetched from pdfDocument
+            assertNotNull(manager.selectionModel.value)
+            assertThat(manager.selectionModel.value?.isPlaceholder).isFalse()
+            verify(pdfDocument, atLeastOnce())
+                .getSelectionBounds(eq(0), any<PointF>(), any<PointF>())
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun processInitialSelection_withPlaceholderTextSelection_timesOutAfterOneSecond() = runTest {
+        val slowPdfDocument =
+            object : FakePdfDocument() {
+                override suspend fun getSelectionBounds(
+                    pageNumber: Int,
+                    start: PointF,
+                    stop: PointF,
+                ): PageSelection {
+                    kotlinx.coroutines.delay(2000L)
+                    return PageSelection(
+                        0,
+                        SelectionBoundary(index = 0),
+                        SelectionBoundary(index = 10),
+                        emptyList(),
+                    )
+                }
+            }
+        val startPoint = PdfPoint(0, 10f, 10f)
+        val endPoint = PdfPoint(0, 90f, 90f)
+        val placeholderSelection =
+            SelectionModel(
+                documentSelection = DocumentSelection(SparseArray()),
+                startBoundary = UiSelectionBoundary(startPoint, false),
+                endBoundary = UiSelectionBoundary(endPoint, false),
+                isPlaceholder = true,
+            )
+
+        val manager =
+            SelectionStateManager(
+                slowPdfDocument,
+                testScope,
+                initialSelection = placeholderSelection,
+                handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
+                errorFlow = errorFlow,
+                pageLayoutManager = null,
+                pageManager = null,
+            )
+
+        assertNull(manager.selectionModel.value)
+
+        // Advance virtual time past the 1000ms timeout
+        testScheduler.advanceTimeBy(1500L)
+        testScheduler.runCurrent()
+
+        // Verify selection model remains null due to timeout cancellation
         assertNull(manager.selectionModel.value)
     }
 
