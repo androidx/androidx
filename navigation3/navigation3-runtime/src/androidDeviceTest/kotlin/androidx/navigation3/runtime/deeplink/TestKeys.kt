@@ -24,6 +24,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable data class DefaultKey(val name: String = "default", val age: Int = 0)
 
+@Serializable data class NullableDefaultKey(val name: String? = null, val age: Int? = null)
+
 @Serializable data class NullableKey(val name: String?, val age: Int?)
 
 @Serializable data class NestedKey(val user: SimpleKey, val flag: Boolean)
