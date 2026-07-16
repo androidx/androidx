@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.collection.IntList
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -63,6 +64,7 @@ internal interface TransformingLazyColumnMeasurementStrategy {
         coroutineScope: CoroutineScope,
         density: Density,
         scrollToBeConsumed: Float,
+        pinnedItems: IntList,
         layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     ): TransformingLazyColumnMeasureResult
 
@@ -108,6 +110,7 @@ internal fun emptyMeasureResult(
         anchorItemIndex = 0,
         anchorItemScrollOffset = 0,
         visibleItems = emptyList(),
+        positionedItems = emptyList(),
         totalItemsCount = 0,
         lastMeasuredItemHeight = Int.MIN_VALUE,
         canScrollForward = false,

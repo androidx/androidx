@@ -48,6 +48,8 @@ internal class TransformingLazyColumnMeasureResult(
     val coroutineScope: CoroutineScope,
     /** Layout information for the visible items. */
     override val visibleItems: List<TransformingLazyColumnVisibleItemInfo>,
+    /** All items positioned during measurement pass, including extra pinned items. */
+    val positionedItems: List<TransformingLazyColumnVisibleItemInfo>,
     /** see [TransformingLazyColumnLayoutInfo.totalItemsCount] */
     override val totalItemsCount: Int,
     /** The spacing between items in the direction of scrolling. */

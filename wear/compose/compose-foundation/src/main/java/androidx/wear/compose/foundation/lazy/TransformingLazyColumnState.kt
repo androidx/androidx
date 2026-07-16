@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -226,6 +227,7 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
     internal val prefetchStrategy: TransformingLazyColumnPrefetchStrategy =
         TransformingLazyColumnPrefetchStrategy()
     internal val prefetchState = LazyLayoutPrefetchState()
+    internal val pinnedItems = LazyLayoutPinnedItemList()
 
     private val prefetchScope: TransformingLazyColumnPrefetchScope =
         object : TransformingLazyColumnPrefetchScope {
@@ -448,6 +450,7 @@ private val EmptyTransformingLazyColumnMeasureResult =
         anchorItemIndex = 0,
         anchorItemScrollOffset = 0,
         visibleItems = emptyList(),
+        positionedItems = emptyList(),
         totalItemsCount = 0,
         lastMeasuredItemHeight = Int.MIN_VALUE,
         canScrollForward = false,

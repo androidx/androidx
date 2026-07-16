@@ -250,14 +250,16 @@ internal class TransformingLazyColumnItemScopeImpl(
     private val _scrollProgress: TransformingLazyColumnItemScrollProgress
         get() =
             trace("wear-compose:tlc:scrollProgress") {
-                val visibleItems = state.layoutInfo.visibleItems
+                val layoutInfo = state.layoutInfoState.value
+                val visibleItems = layoutInfo.visibleItems
                 val fastResolvedItemByIndex =
                     visibleItems.getOrNull(index - (visibleItems.firstOrNull()?.index ?: 0))
                 val resolvedItem =
                     if (fastResolvedItemByIndex?.key == key) {
                         fastResolvedItemByIndex
                     } else {
-                        visibleItems.fastFirstOrNull { it.key == key }
+                        // Search all positioned items including pinned off-screen items
+                        layoutInfo.positionedItems.fastFirstOrNull { it.key == key }
                     }
                 if (resolvedItem != null) {
                     return@trace resolvedItem.scrollProgress

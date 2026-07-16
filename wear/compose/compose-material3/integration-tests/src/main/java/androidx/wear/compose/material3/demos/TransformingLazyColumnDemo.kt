@@ -32,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -55,9 +57,7 @@ import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.lazy.TransformationSpec
-import androidx.wear.compose.material3.lazy.firstVisibleItemLayoutItemInfo
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
-import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnFirstLayoutItemProvider
 import androidx.wear.compose.material3.lazy.transformedHeight
 
 @Composable
@@ -387,17 +387,24 @@ fun TransformingLazyColumnAnimationSample() {
                 EdgeButton(onClick = { elements = elements.shuffled() }) { Text("Shuffle") }
             },
         ) { contentPadding ->
-            TransformingLazyColumn(
-                state = state,
-                contentPadding = contentPadding,
-                firstLayoutItemProvider =
-                    rememberTransformingLazyColumnFirstLayoutItemProvider {
-                        state.firstVisibleItemLayoutItemInfo
-                    },
-            ) {
+            TransformingLazyColumn(state = state, contentPadding = contentPadding) {
                 itemsIndexed(elements, key = { _, key -> key }) { index, cardKey ->
+                    var isPinned by remember { mutableStateOf(false) }
+                    var pinHandle by remember {
+                        mutableStateOf<PinnableContainer.PinnedHandle?>(null)
+                    }
+                    val pinnableContainer = LocalPinnableContainer.current
                     Card(
-                        onClick = {},
+                        onClick = {
+                            if (isPinned) {
+                                pinHandle?.release()
+                                pinHandle = null
+                                isPinned = false
+                            } else {
+                                pinHandle = pinnableContainer?.pin()
+                                isPinned = true
+                            }
+                        },
                         modifier =
                             Modifier.minimumVerticalContentPadding(
                                     CardDefaults.minimumVerticalListContentPadding
@@ -406,7 +413,7 @@ fun TransformingLazyColumnAnimationSample() {
                                 .animateItem(),
                         transformation = SurfaceTransformation(transformationSpec),
                     ) {
-                        Text("Card $cardKey")
+                        Text("Card $cardKey" + if (isPinned) " - Pinned" else "")
                         Row {
                             CompactButton(onClick = { moveCardToEnd(index) }) { Text(ArrowDown) }
                             CompactButton(onClick = { moveCardToStart(index) }) { Text(ArrowUp) }
