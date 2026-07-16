@@ -22,10 +22,11 @@ package androidx.a2ui.engine.model
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
+import androidx.a2ui.engine.processor.fromPayload
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.processor.A2uiSurfaceModel
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -55,7 +56,7 @@ public class A2uiCoreSurfaceModel(
     public val dataModel: A2uiCoreDataModel,
     public val componentRegistry: A2uiCoreComponentRegistry,
     private val onDispatchAction: (A2uiUserAction) -> Unit,
-    private val onDispatchError: (A2uiClientError) -> Unit,
+    private val onDispatchError: (A2uiClientErrorMessage) -> Unit,
     public val theme: Map<String, Any?> = emptyMap(),
     @get:JvmName("shouldSendDataModel") public val shouldSendDataModel: Boolean = false,
     private val timeProvider: () -> Long = { System.currentTimeMillis() },
@@ -114,18 +115,7 @@ public class A2uiCoreSurfaceModel(
      * @param actionDefinition A map containing details about the action (e.g., name, context).
      */
     public fun dispatchAction(componentId: String, actionDefinition: Map<String, Any?>) {
-        // TODO(annabelo): Should we fail here?
-        val type = (actionDefinition["type"] as? String) ?: "unknown_action"
-        @Suppress("UNCHECKED_CAST")
-        val context = (actionDefinition["context"] as? Map<String, Any?>) ?: emptyMap()
-        val action =
-            A2uiUserAction(
-                type = type,
-                surfaceId = id,
-                componentId = componentId,
-                timestamp = timeProvider(),
-                context = context,
-            )
+        val action = A2uiUserAction.fromPayload(id, componentId, timeProvider(), actionDefinition)
         onDispatchAction(action)
     }
 
@@ -148,7 +138,7 @@ public class A2uiCoreSurfaceModel(
             componentRegistry.reportError(componentId, exception)
         }
         val error =
-            A2uiClientError(
+            A2uiClientErrorMessage(
                 code = exception.code,
                 surfaceId = id,
                 message = exception.message ?: "",

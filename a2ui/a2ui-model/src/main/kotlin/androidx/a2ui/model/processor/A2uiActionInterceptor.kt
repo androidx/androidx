@@ -23,7 +23,7 @@ import androidx.a2ui.model.protocol.A2uiUserAction
  *
  * This acts as a middleware pipeline. Multiple interceptors can be registered. The output of one
  * interceptor is passed as the input to the next in the chain. The order of registration dictates
- * the order of execution.
+ * the order of execution. It can process both local function actions and server event actions.
  */
 public fun interface A2uiActionInterceptor {
     /**
