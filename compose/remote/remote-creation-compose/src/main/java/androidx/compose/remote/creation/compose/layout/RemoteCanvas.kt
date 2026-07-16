@@ -539,15 +539,21 @@ public class RemoteCanvas(
 
         val op =
             internalCanvas.recordRenderingOp(
-                CanvasOp.Draw { writer ->
-                    writer.conditionalOperations(
-                        ConditionalOperations.TYPE_NEQ,
-                        condition.toRemoteInt().toRemoteFloat().floatId,
-                        0f,
-                    ) {
-                        internalCanvas.forceSendingPaint = true
-                        childSpan.record(writer, internalCanvas.creationState)
-                        internalCanvas.forceSendingPaint = true
+                CanvasOp.DrawConditionally(condition, childSpan) { writer, creationState ->
+                    if (condition.hasConstantValue) {
+                        if (condition.constantValue) {
+                            childSpan.record(writer, creationState)
+                        }
+                    } else {
+                        writer.conditionalOperations(
+                            ConditionalOperations.TYPE_NEQ,
+                            condition.toRemoteInt().toRemoteFloat().floatId,
+                            0f,
+                        ) {
+                            internalCanvas.forceSendingPaint = true
+                            childSpan.record(writer, creationState)
+                            internalCanvas.forceSendingPaint = true
+                        }
                     }
                 }
             )
