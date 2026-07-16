@@ -26,6 +26,12 @@ package androidx.compose.runtime.a2ui {
   }
 
   @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiComponentScope {
+    method @KotlinOnly @androidx.compose.runtime.Composable public <T> T? bind(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T> property);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public <T> T? bind(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public java.util.List<androidx.compose.runtime.a2ui.A2uiComponentReference>? bindChildReferences(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.ChildListA2uiProperty property);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public java.util.List<androidx.compose.runtime.a2ui.A2uiComponentReference!>? bindChildReferences(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.ChildListA2uiProperty, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public <T> kotlin.jvm.functions.Function1<T?,kotlin.Unit>? bindUpdater(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T> property);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public <T> kotlin.jvm.functions.Function1<T,kotlin.Unit!>? bindUpdater(androidx.compose.runtime.a2ui.A2uiComponentProperties, androidx.compose.runtime.a2ui.DynamicA2uiProperty<T>, androidx.compose.runtime.Composer?, int);
     method public void dispatchAction(java.util.Map<java.lang.String,? extends java.lang.Object?> actionPayload);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String id, optional String? dataScopePath);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.runtime.a2ui.A2uiComponentState observeA2uiComponentState(String, String?, androidx.compose.runtime.Composer?, int);
@@ -112,10 +118,6 @@ package androidx.compose.runtime.a2ui {
     method @BytecodeOnly public static androidx.compose.runtime.a2ui.StaticA2uiProperty! stringEnum$default(androidx.compose.runtime.a2ui.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
     method public androidx.compose.runtime.a2ui.StaticA2uiProperty<java.util.List<java.lang.String>> stringList(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.compose.runtime.a2ui.StaticA2uiProperty! stringList$default(androidx.compose.runtime.a2ui.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
-  }
-
-  @androidx.compose.runtime.Stable public fun interface A2uiPropertyUpdater<T> {
-    method public operator void invoke(T? value);
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class ChildListA2uiProperty extends androidx.compose.runtime.a2ui.A2uiProperty<java.util.List<? extends androidx.compose.runtime.a2ui.A2uiComponentReference>> {

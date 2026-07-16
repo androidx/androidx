@@ -391,7 +391,7 @@ public sealed class A2uiProperty<out T> {
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
          * @return A [ChildListA2uiProperty] to be handled via
-         *   `A2uiComponentProperties.bindChildren()`.
+         *   `A2uiComponentProperties.bindChildReferences()`.
          */
         public fun childList(
             key: String,

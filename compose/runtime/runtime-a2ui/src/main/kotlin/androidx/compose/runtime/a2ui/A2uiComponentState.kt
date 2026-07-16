@@ -17,6 +17,7 @@
 package androidx.compose.runtime.a2ui
 
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
+import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -88,15 +89,19 @@ public sealed interface A2uiComponentState {
  */
 @Composable
 public fun observeA2uiComponentState(surface: A2uiCoreSurfaceModel): A2uiComponentState {
-    // TODO(b/524122705): add the root data context once the data context type is defined.
     val surfaceScope = rememberCoroutineScope()
-
-    return observeA2uiComponentState(id = "root", surface = surface, surfaceScope = surfaceScope)
+    return observeA2uiComponentState(
+        id = RootComponentId,
+        baseDataPath = RootComponentDataPath,
+        surface = surface,
+        surfaceScope = surfaceScope,
+    )
 }
 
 @Composable
 internal fun observeA2uiComponentState(
     id: String,
+    baseDataPath: A2uiDataPath,
     surface: A2uiCoreSurfaceModel,
     surfaceScope: CoroutineScope,
 ): A2uiComponentState {
@@ -107,7 +112,10 @@ internal fun observeA2uiComponentState(
             )
     val record = registry.get(id)
 
-    val scope = remember(id, surface) { A2uiComponentScopeImpl(id, surface, surfaceScope) }
+    val scope =
+        remember(id, baseDataPath, surface) {
+            A2uiComponentScopeImpl(id, baseDataPath, surface, surfaceScope)
+        }
 
     val state =
         remember(record, surface, scope) {
@@ -131,3 +139,6 @@ internal fun observeA2uiComponentState(
 
     return state
 }
+
+private const val RootComponentId = "root"
+private val RootComponentDataPath = A2uiDataPath("/")

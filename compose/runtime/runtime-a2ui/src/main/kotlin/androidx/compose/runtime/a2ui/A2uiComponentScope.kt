@@ -59,6 +59,81 @@ public sealed interface A2uiComponentScope {
      * @param exception The exception detailing the error.
      */
     public fun reportError(exception: A2uiException)
+
+    /**
+     * Evaluates a dynamic property against the surface's reactive data model and subscribes the
+     * component to future updates.
+     *
+     * This method resolves various payload types sent by the agent:
+     * - Literal values.
+     * - Data model bindings via JSON pointer paths (e.g., `{"path": "/user/name"}`).
+     * - Local client-side function executions (e.g., `{"call": "formatString", ...}`).
+     *
+     * If the agent provides an invalid payload or a type mismatch occurs, this method returns
+     * `null` to prevent crashes and automatically dispatches a runtime error back to the agent,
+     * facilitating an explicit feedback loop for self-correction. During progressive rendering
+     * (when the required data has not yet arrived to the data model), this will also evaluate to
+     * `null`.
+     *
+     * @param property The [DynamicA2uiProperty] definition to evaluate and bind.
+     * @return The fully evaluated value cast to [T], or `null` if the property is missing, the data
+     *   is pending, or an evaluation/type error occurred.
+     */
+    @Composable
+    public fun <T : Any> A2uiComponentProperties.bind(property: DynamicA2uiProperty<T>): T?
+
+    /**
+     * Resolves a structural list of child component references based on the provided property and
+     * subscribes the component to future updates.
+     *
+     * This method supports both static and dynamic component hierarchies as defined by the
+     * protocol:
+     * - Static Lists: Direct arrays of component IDs.
+     * - Dynamic Templates: An object defining a `componentId` and a data `path` (e.g., `{"path":
+     *   "/items", "componentId": "item_template"}`). The list will reactively expand or contract
+     *   based on the underlying data model array, injecting the correct relative base data paths
+     *   into the resulting component references.
+     *
+     * Note: This method only resolves the references. It does not observe the state of the child
+     * components themselves. The returned component references can be used to call
+     * [observeA2uiComponentState] to observe and render the children. This separation allows for
+     * lazy observation of child states in lazy layouts like `LazyColumn`.
+     *
+     * If the agent hallucinates a malformed structure or points a template to a non-list data node,
+     * an error is automatically dispatched to the agent for self-correction and `null` is returned.
+     *
+     * @param property The [ChildListA2uiProperty] definition to evaluate and bind.
+     * @return A list of resolved [A2uiComponentReference]s ready to be rendered, or `null` if the
+     *   property is missing or malformed.
+     */
+    @Suppress("NullableCollection") // Need to distinguish empty lists and null
+    @Composable
+    public fun A2uiComponentProperties.bindChildReferences(
+        property: ChildListA2uiProperty
+    ): List<A2uiComponentReference>?
+
+    /**
+     * Establishes a two-way data binding by providing a stable callback that updates the underlying
+     * data model for the given dynamic property.
+     *
+     * This method is useful for interactive components (like text fields or checkboxes) that must
+     * write local user input back to the surface's reactive data model. The component may pass
+     * `null` to the returned lambda to erase the data in the data model for the specified property.
+     *
+     * If the agent binds the property to a writable JSON pointer path (e.g., `{"path":
+     * "/form/name"}`), this returns a lambda that mutates the model at that path. If the agent
+     * instead provides a read-only payload (such as a literal string or a function call), this
+     * method returns `null`. Components should utilize a `null` result to degrade into a read-only
+     * or disabled state, preventing user input that cannot be synchronized.
+     *
+     * @param property The [DynamicA2uiProperty] to create a two-way binding updater for.
+     * @return A stable lambda that writes updates back to the data model, or `null` if the property
+     *   is not bound to a writable data path.
+     */
+    @Composable
+    public fun <T : Any> A2uiComponentProperties.bindUpdater(
+        property: DynamicA2uiProperty<T>
+    ): ((T?) -> Unit)?
 }
 
 /**
@@ -72,14 +147,3 @@ public sealed interface A2uiComponentScope {
 public fun A2uiComponentScope.observeA2uiComponentState(
     reference: A2uiComponentReference
 ): A2uiComponentState = observeA2uiComponentState(reference.id, reference.dataScopePath)
-
-/** A stable updater for two-way dynamic A2UI property bindings. */
-@Stable
-public fun interface A2uiPropertyUpdater<T> {
-    /**
-     * Pushes a local update back to the data model.
-     *
-     * @param value The new value to write to the model.
-     */
-    public operator fun invoke(value: T?)
-}
