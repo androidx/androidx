@@ -34,6 +34,8 @@ import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.TouchExpression
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.Custom
@@ -1619,4 +1621,12 @@ internal fun sortWithPriorities(
     @Suppress("UNCHECKED_CAST")
     return sortWithPrioritiesMethod.invoke(null, children, orientation)
         as ArrayList<androidx.compose.remote.core.operations.layout.Component>
+}
+
+// 11. LayoutComponent Content Reflection
+private val layoutContentField =
+    LayoutComponent::class.java.getDeclaredField("mContent").apply { isAccessible = true }
+
+internal fun LayoutComponent.getContentReflection(): LayoutComponentContent? {
+    return layoutContentField.get(this) as? LayoutComponentContent
 }
