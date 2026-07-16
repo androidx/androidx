@@ -103,6 +103,7 @@ public class StrokeDrawScope private constructor(private val renderer: CanvasStr
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
         @InkInternalOnlyApi

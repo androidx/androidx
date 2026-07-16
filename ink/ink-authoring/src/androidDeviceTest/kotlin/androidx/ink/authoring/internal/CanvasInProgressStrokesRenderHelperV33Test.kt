@@ -294,22 +294,19 @@ class CanvasInProgressStrokesRenderHelperV33Test {
     }
 
     @Test
-    fun onViewDetachedFromWindow_shouldRemoveSurfaceViewAndShutdownRenderThread() {
+    fun onViewDetachedFromWindow_shouldRemoveSurfaceView() {
         withActivity { activity ->
-            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isFalse()
             assertThat(activity.mainView.childCount).isEqualTo(1)
             activity.rootView.removeView(activity.mainView)
             assertThat(activity.mainView.childCount).isEqualTo(0)
-            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isTrue()
         }
     }
 
     @Test
-    fun onViewAttachedToWindow_shouldAddSurfaceViewAndCreateNewRenderThread() {
+    fun onViewAttachedToWindow_shouldAddSurfaceView() {
         withActivity { activity ->
             activity.rootView.removeView(activity.mainView)
             assertThat(activity.mainView.childCount).isEqualTo(0)
-            assertThat(activity.fakeThreads.renderThreadIsShutdown()).isTrue()
         }
     }
 

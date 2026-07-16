@@ -17,6 +17,7 @@
 package androidx.ink.brush.behavior
 
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
@@ -182,6 +183,7 @@ private constructor(
              * final progress offset is not clamped, but is effectively normalized (mod 1). If
              * multiple behaviors have this target, they stack additively.
              */
+            @ExperimentalInkAnimationApi
             @JvmField
             public val TEXTURE_ANIMATION_PROGRESS_OFFSET: Target =
                 Target(11, "TEXTURE_ANIMATION_PROGRESS_OFFSET")
