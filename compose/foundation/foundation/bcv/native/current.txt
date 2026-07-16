@@ -329,8 +329,8 @@ abstract interface androidx.compose.foundation.lazy.grid/GridCells { // androidx
 }
 
 abstract interface androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow { // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow|null[0]
-    open val enableNonScrollCaching // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.enableNonScrollCaching|{}enableNonScrollCaching[0]
-        open fun <get-enableNonScrollCaching>(): kotlin/Boolean // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.enableNonScrollCaching.<get-enableNonScrollCaching>|<get-enableNonScrollCaching>(){}[0]
+    open val isNonScrollCachingEnabled // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.isNonScrollCachingEnabled|{}isNonScrollCachingEnabled[0]
+        open fun <get-isNonScrollCachingEnabled>(): kotlin/Boolean // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.isNonScrollCachingEnabled.<get-isNonScrollCachingEnabled>|<get-isNonScrollCachingEnabled>(){}[0]
 
     open fun (androidx.compose.ui.unit/Density).calculateAheadWindow(kotlin/Int): kotlin/Int // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.calculateAheadWindow|calculateAheadWindow@androidx.compose.ui.unit.Density(kotlin.Int){}[0]
     open fun (androidx.compose.ui.unit/Density).calculateBehindWindow(kotlin/Int): kotlin/Int // androidx.compose.foundation.lazy.layout/LazyLayoutCacheWindow.calculateBehindWindow|calculateBehindWindow@androidx.compose.ui.unit.Density(kotlin.Int){}[0]
