@@ -16,6 +16,7 @@
 
 package androidx.ink.authoring.internal
 
+import android.annotation.SuppressLint
 import android.graphics.Matrix
 import android.view.MotionEvent
 import androidx.annotation.AnyThread
@@ -1458,6 +1459,7 @@ internal class InProgressStrokesManager<
         // Test-only hook to allow blocking the render thread immediately after stroke cohort
         // handoffs
         // are paused.
+        @SuppressLint("VisibleForTests")
         awaitAfterStartOfHandoffTestLatch?.apply {
             inProgressStrokesRenderHelper.executeOnRenderThread {
                 check(await(10, TimeUnit.SECONDS)) {
