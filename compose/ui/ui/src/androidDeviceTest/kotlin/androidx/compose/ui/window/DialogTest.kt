@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.window
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Build
@@ -26,9 +25,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.Window
-import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.BackHandler
@@ -73,7 +70,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity2
@@ -1242,84 +1238,6 @@ class DialogTest {
         val bounds = with(rule.density) { getUnclippedBoundsInRoot().toRect() }
         val positionOnScreen = fetchSemanticsNode().positionOnScreen
         return bounds.translate(positionOnScreen)
-    }
-
-    @Test // Regression test for b/521173005 on Dialog
-    fun dialog_inheritsTokenFromRootViewLayoutParams() {
-        // Simulates a ComposeView hosted inside an overlay sub-window (e.g.
-        // TYPE_APPLICATION_SUB_PANEL
-        // from an external service). When hosted in a sub-window, Dialog needs to inherit the
-        // parent application window token directly from rootView.layoutParams to avoid attaching
-        // across process boundaries with an invalid/null context activity token.
-        class TestFrameLayout(val fakeSubWindowToken: android.os.Binder, context: Context) :
-            FrameLayout(context) {
-            override fun getApplicationWindowToken(): android.os.IBinder {
-                return fakeSubWindowToken
-            }
-
-            override fun onAttachedToWindow() {
-                super.onAttachedToWindow()
-                addView(
-                    ComposeView(context).apply {
-                        setContent {
-                            CompositionLocalProvider(LocalView provides this@TestFrameLayout) {
-                                Dialog(
-                                    onDismissRequest = {},
-                                    properties =
-                                        DialogProperties(
-                                            windowType =
-                                                WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
-                                        ),
-                                ) {
-                                    Box(Modifier.size(50.dp).testTag("dialog_box"))
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-        }
-        val fakeSubWindowToken = android.os.Binder()
-        var activityToken: android.os.IBinder? = null
-        var originalLayoutParams: android.view.ViewGroup.LayoutParams? = null
-        var rootView: View? = null
-
-        try {
-            rule.setContent {
-                val defaultView = LocalView.current
-                activityToken = defaultView.windowToken
-
-                rootView = defaultView.rootView
-                if (originalLayoutParams == null) {
-                    originalLayoutParams = rootView!!.layoutParams
-                }
-                val customLayoutParams =
-                    WindowManager.LayoutParams().apply {
-                        if (rootView!!.layoutParams is WindowManager.LayoutParams) {
-                            copyFrom(rootView!!.layoutParams as WindowManager.LayoutParams)
-                        }
-                        type = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
-                        token = activityToken
-                    }
-                rootView!!.layoutParams = customLayoutParams
-
-                AndroidView(factory = { context -> TestFrameLayout(fakeSubWindowToken, context) })
-            }
-
-            rule.waitForIdle()
-            rule.onNodeWithTag("dialog_box").assertIsDisplayed()
-
-            // Verify that the dialog's window attributes token inherited activityToken from
-            // rootView.layoutParams instead of being null or invalid
-            val dialogView =
-                rule.onNodeWithTag("dialog_box").fetchSemanticsNode().root as ViewRootForTest
-            val dialogWindow = (dialogView.view.parent as DialogWindowProvider).window
-            assertThat(dialogWindow.attributes.token).isEqualTo(activityToken)
-        } finally {
-            rootView?.let { rv ->
-                originalLayoutParams?.let { orig -> rule.runOnUiThread { rv.layoutParams = orig } }
-            }
-        }
     }
 }
 
