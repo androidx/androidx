@@ -57,6 +57,7 @@ android {
 androidx {
     name = "Compose A2ui Runtime"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    mavenVersion = LibraryVersions.COMPOSE_RUNTIME_A2UI_QUARANTINE
     inceptionYear = "2026"
     description = "The Compose A2UI renderer runtime"
 }
