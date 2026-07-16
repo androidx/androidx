@@ -1561,6 +1561,11 @@ fun <T : Task> Project.addToCheckTask(task: TaskProvider<T>) {
     project.tasks.named("check").configure { it.dependsOn(task) }
 }
 
+/** Sets the specified [dependencyProvider] as a dependency of the top-level `check` task. */
+fun Project.addToCheckTask(dependencyProvider: Provider<*>) {
+    project.tasks.named("check").configure { it.dependsOn(dependencyProvider) }
+}
+
 fun Project.validateMultiplatformPluginHasNotBeenApplied() {
     if (plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
         throw GradleException(
