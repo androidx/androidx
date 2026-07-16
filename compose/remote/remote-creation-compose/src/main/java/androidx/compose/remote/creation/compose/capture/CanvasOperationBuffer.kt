@@ -214,7 +214,10 @@ internal sealed class CanvasOp {
 
         override fun hasTransformsOrClips(): Boolean {
             for (i in 0 until children.size) {
-                if (children[i].hasTransformsOrClips()) return true
+                val child = children[i]
+                // Ignore child Save nodes; any transforms inside them self-balance upon restore
+                // and do not leak net state changes into this parent scope.
+                if (child !is Save && child.hasTransformsOrClips()) return true
             }
             return false
         }
@@ -361,7 +364,10 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
         fun hasTransformsOrClips(): Boolean {
             for (i in 0 until operations.size) {
-                if (operations[i].op.hasTransformsOrClips()) return true
+                val op = operations[i].op
+                // Ignore child Save nodes; any transforms inside them self-balance upon restore
+                // and do not leak net state changes into this span.
+                if (op !is CanvasOp.Save && op.hasTransformsOrClips()) return true
             }
             var currentChild = child
             while (currentChild != null) {
@@ -965,15 +971,6 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         // Empty save block with no drawing anywhere in its tree; safely discard.
                         CanvasOp.ElisionMode.DISCARD
                     }
-                    op.switchesCanvas() -> {
-                        // Save block spans across a target canvas switch (e.g.
-                        // drawToOffscreenBitmap).
-                        // Must preserve save/restore bounds on the outer canvas around the
-                        // transition.
-                        elisionPass(op.children, false, isRootSpan)
-                        currentSeenDrawCall = true
-                        CanvasOp.ElisionMode.PRESERVE
-                    }
                     !op.hasTransformsOrClips() -> {
                         // Save block has drawing but zero state changes (no transforms or clips).
                         // Safe to inline its children anywhere without needing matching
@@ -981,6 +978,15 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         currentSeenDrawCall =
                             elisionPass(op.children, currentSeenDrawCall, isRootSpan)
                         CanvasOp.ElisionMode.INLINE
+                    }
+                    op.switchesCanvas() -> {
+                        // Save block has transforms/clips AND spans across a target canvas switch
+                        // (e.g. drawToOffscreenBitmap).
+                        // Must preserve save/restore bounds on the outer canvas around the
+                        // transition.
+                        elisionPass(op.children, false, isRootSpan)
+                        currentSeenDrawCall = true
+                        CanvasOp.ElisionMode.PRESERVE
                     }
                     !currentSeenDrawCall && isRootSpan -> {
                         // Save block has transforms/clips, but no drawing occurs after it on the
