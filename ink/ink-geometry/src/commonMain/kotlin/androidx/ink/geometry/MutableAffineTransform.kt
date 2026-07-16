@@ -38,7 +38,6 @@ import kotlin.math.sin
  *   input, there is another public constructor for that.
  */
 public class MutableAffineTransform
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
