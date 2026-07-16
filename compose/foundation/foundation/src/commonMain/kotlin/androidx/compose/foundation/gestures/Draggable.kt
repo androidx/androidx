@@ -54,6 +54,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
@@ -449,6 +450,8 @@ internal abstract class DragGestureNode(
 
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
+    private var rootOffset = Offset.Zero
+    private var previousRootPositionOnScreen = Offset.Unspecified
     private var velocityTrackerMulti: LongSparseArray<VelocityTracker>? = null
     private var touchSlopDetector: TouchSlopDetector? = null
     private var indirectPointerInputDragCycleDetector: IndirectPointerInputDragCycleDetector? = null
@@ -557,6 +560,8 @@ internal abstract class DragGestureNode(
         disposeInteractionSource()
         if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
             nodeOffset = Offset.Zero
+        } else {
+            rootOffset = Offset.Zero
         }
 
         resetGestureNodes()
@@ -1121,6 +1126,8 @@ internal abstract class DragGestureNode(
             // or in this case the event that triggered the touch slop minus
             // the post slop offset
             nodeOffset = Offset.Zero // restart node offset
+        } else {
+            rootOffset = Offset.Zero
         }
         if (canDrag(down.type)) {
             if (!isListeningForEvents) {
@@ -1131,6 +1138,9 @@ internal abstract class DragGestureNode(
             }
             if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
                 previousPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
+            } else {
+                previousRootPositionOnScreen =
+                    requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
             }
             requireChannel().trySend(DragStarted(dragStartedOffset))
         }
@@ -1152,7 +1162,17 @@ internal abstract class DragGestureNode(
                 previousPositionOnScreen = currentPositionOnScreen
                 requireVelocityTracker().addPointerInputChange(event = change, offset = nodeOffset)
             } else {
-                requireVelocityTracker().addPointerInputChange(change)
+                val currentRootPositionOnScreen =
+                    requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
+                if (
+                    previousRootPositionOnScreen != Offset.Unspecified &&
+                        currentRootPositionOnScreen != previousRootPositionOnScreen
+                ) {
+                    val delta = currentRootPositionOnScreen - previousRootPositionOnScreen
+                    rootOffset += delta
+                }
+                previousRootPositionOnScreen = currentRootPositionOnScreen
+                requireVelocityTracker().addPointerInputChange(change, rootOffset)
             }
         }
         requireChannel().trySend(DragDelta(dragAmount, false))

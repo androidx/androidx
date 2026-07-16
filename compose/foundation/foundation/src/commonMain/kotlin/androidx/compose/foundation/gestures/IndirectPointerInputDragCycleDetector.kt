@@ -34,6 +34,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireLayoutCoordinates
@@ -90,6 +91,8 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
 
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
+    private var rootOffset = Offset.Zero
+    private var previousRootPositionOnScreen = Offset.Unspecified
     private var touchSlopDetector: TouchSlopDetector? = null
 
     /**
@@ -496,6 +499,8 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         if (velocityTracker == null) velocityTracker = VelocityTracker()
         if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
             nodeOffset = Offset.Zero // restart node offset
+        } else {
+            rootOffset = Offset.Zero
         }
         if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
             requireVelocityTracker()
@@ -507,7 +512,12 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                 )
         } else {
             requireVelocityTracker()
-                .addIndirectPointerInputChange(down, node.orientation, primaryDirectionalMotionAxis)
+                .addIndirectPointerInputChange(
+                    down,
+                    node.orientation,
+                    primaryDirectionalMotionAxis,
+                    rootOffset,
+                )
         }
         val dragStartedOffset =
             slopTriggerChange.primaryAxisPosition(node.orientation, primaryDirectionalMotionAxis) -
@@ -518,6 +528,9 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         if (node.canDrag(PointerType.Touch)) {
             if (!ComposeFoundationFlags.isDragNodeOffsetDoubleCountingFixEnabled) {
                 previousPositionOnScreen = node.requireLayoutCoordinates().positionOnScreen()
+            } else {
+                previousRootPositionOnScreen =
+                    node.requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
             }
             node.onDragEvent(DragStarted(dragStartedOffset))
         }
@@ -540,6 +553,17 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                 nodeOffset += delta
             }
             previousPositionOnScreen = currentPositionOnScreen
+        } else {
+            val currentRootPositionOnScreen =
+                node.requireLayoutCoordinates().findRootCoordinates().positionOnScreen()
+            if (
+                previousRootPositionOnScreen != Offset.Unspecified &&
+                    currentRootPositionOnScreen != previousRootPositionOnScreen
+            ) {
+                val delta = currentRootPositionOnScreen - previousRootPositionOnScreen
+                rootOffset += delta
+            }
+            previousRootPositionOnScreen = currentRootPositionOnScreen
         }
 
         if (dragAmount.toFloat(node.orientation!!).absoluteValue > PixelSensibility) {
@@ -557,6 +581,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                         event = change,
                         node.orientation,
                         primaryDirectionalMotionAxis,
+                        nodeOffset = rootOffset,
                     )
             }
             node.onDragEvent(DragDelta(dragAmount, true))
@@ -582,6 +607,7 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
                     change,
                     node.orientation,
                     primaryDirectionalMotionAxis,
+                    rootOffset,
                 )
         }
         val maximumVelocity = node.currentValueOf(LocalViewConfiguration).maximumFlingVelocity
