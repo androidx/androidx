@@ -23,12 +23,12 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi
+import androidx.xr.compose.subspace.layout.PitchLimits
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.gravityAligned
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.rotateToLookAtUser
 import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 
 /**
  * A sample demonstrating how to combine [rotateToLookAtUser] and [gravityAligned] to achieve
@@ -48,21 +48,23 @@ public fun RotateToLookAtUserBillboardSample() {
 }
 
 /**
- * A sample showing how to use the 'upDirection' parameter. By providing a custom up vector, you can
- * change the reference frame for the content's orientation.
+ * A sample showing how to use rotation constraints with [rotateToLookAtUser]. By providing pitch
+ * limits and enabling/disabling yaw tracking, you can restrict how much the content rotates to face
+ * the user.
  */
 @Sampled
 @OptIn(ExperimentalRotateToLookAtUserApi::class)
 @Composable
-public fun RotateToLookAtUserWithUpVectorSample() {
+public fun RotateToLookAtUserWithConstraintsSample() {
     Subspace {
         SpatialPanel(
             modifier =
                 SubspaceModifier.rotateToLookAtUser(
-                    upDirection = Vector3(0f, 1f, 2f)
-                ) // A slightly tilted "up" reference
+                    isYawUpdateEnabled = true,
+                    pitchLimits = PitchLimits(minimumPitch = -15f, maximumPitch = 15f),
+                )
         ) {
-            Text("I have a custom 'Up' vector.")
+            Text("I track your yaw, but my pitch is restricted between -15 and 15 degrees.")
         }
     }
 }
