@@ -95,11 +95,31 @@ fun TimePickerDialog(
  * [Material Design rich time picker
  * dialog](https://m3.material.io/components/time-pickers/overview)
  *
- * A dialog for displaying a [TimePicker]. Time pickers let people select a time.
+ * [RichTimePickerDialog] is a dialog container for a time picker. It is only responsible for the
+ * dialog's window chrome and actions (e.g. buttons) and does not include the time picker controls
+ * themselves. The time picker controls (e.g. [TimePicker], [TimeInput], or [TimeScroll]) should be
+ * provided in the [content] slot.
  *
  * Rich time picker dialogs have a more prominent layout and are suitable for larger screens or
  * situations where the time picker is the main focus of the UI.
  *
+ * A rich TimePicker with clock display input looks like:
+ *
+ * @sample androidx.compose.material3.samples.RichTimePickerSample
+ *
+ * A rich TimePicker with a UI of a text input mode looks like:
+ *
+ * @sample androidx.compose.material3.samples.RichTimeInputSample
+ *
+ * A rich TimePicker with an initial UI of a clock display input that can switch to a text input
+ * mode looks like:
+ *
+ * @sample androidx.compose.material3.samples.RichTimePickerSwitchableSample
+ *
+ * A rich TimePicker with an initial UI of a scrollable time input that can switch to a text input
+ * mode looks like:
+ *
+ * @sample androidx.compose.material3.samples.RichTimePickerScrollSample
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
  *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param confirmButton button which is meant to confirm a proposed action, thus resolving what
