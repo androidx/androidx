@@ -82,7 +82,7 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
     override val density: Density?
         get() = (layoutInfo as? LazyGridMeasureResult)?.density
 
-    override val visibleLineCount: Int
+    override val visibleItemsCount: Int
         get() = lastVisibleItemIndex - firstVisibleItemIndex + 1
 
     val LazyGridItemInfo.lineIndex: Int
@@ -116,8 +116,8 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
         perLaneFirstVisibleItemIndex[0] = firstVisibleItemIndex
     }
 
-    override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {
-        perLaneVisibleItemIndexes[0] = lastVisibleItemIndex
+    override fun updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndexes: IntArray) {
+        perLaneLastVisibleItemIndexes[0] = lastVisibleItemIndex
     }
 
     override fun schedulePrefetch(

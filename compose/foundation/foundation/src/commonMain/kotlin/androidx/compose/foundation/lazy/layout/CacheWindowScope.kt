@@ -30,8 +30,8 @@ internal interface CacheWindowScope {
     /** Returns the total number of items in the layout. */
     val totalItemsCount: Int
 
-    /** Returns the number of currently visible lines. */
-    val visibleLineCount: Int
+    /** Returns the number of currently visible items (or lines for Grid layout). */
+    val visibleItemsCount: Int
 
     /** Returns `true` if the layout contains visible items. */
     val hasVisibleItems: Boolean
@@ -76,11 +76,11 @@ internal interface CacheWindowScope {
     fun updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex: IntArray)
 
     /**
-     * Populates [perLaneVisibleItemIndexes] with the last visible item index per lane.
+     * Populates [perLaneLastVisibleItemIndexes] with the last visible item index per lane.
      *
-     * @param perLaneVisibleItemIndexes array to populate with item indexes
+     * @param perLaneLastVisibleItemIndexes array to populate with item indexes
      */
-    fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray)
+    fun updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndexes: IntArray)
 
     /**
      * Schedules a prefetch for the specified [itemIndex] and [lane].
@@ -156,13 +156,13 @@ internal interface CacheWindowScope {
      *
      * @param itemIndex item index
      */
-    fun isSpanLine(itemIndex: Int) = false
+    fun isSpanItem(itemIndex: Int) = false
 }
 
 internal inline fun CacheWindowScope.forEachVisibleItem(
     action: (itemIndex: Int, itemKey: Any, mainAxisSize: Int, lane: Int) -> Unit
 ) {
-    repeat(visibleLineCount) {
+    repeat(visibleItemsCount) {
         action(
             getVisibleItemIndex(it),
             getVisibleItemKey(it),

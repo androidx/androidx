@@ -76,7 +76,7 @@ class CacheWindowLogicTest {
 
     private class FakeCacheWindowScope(
         override val totalItemsCount: Int = 10,
-        override val visibleLineCount: Int = 2,
+        override val visibleItemsCount: Int = 2,
         override val hasVisibleItems: Boolean = true,
         override val firstVisibleItemIndex: Int = 0,
         override val lastVisibleItemIndex: Int = 1,
@@ -91,7 +91,7 @@ class CacheWindowLogicTest {
 
         override fun updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex: IntArray) {}
 
-        override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {}
+        override fun updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndexes: IntArray) {}
 
         override fun schedulePrefetch(
             lane: Int,
