@@ -32,7 +32,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Test
@@ -50,7 +49,7 @@ class CustomEffectContextTest {
     @Test
     fun effectContextPropagatedToComposition_runComposeUiTest() {
         val testElement = TestCoroutineContextElement()
-        runComposeUiTest(effectContext = testElement) {
+        runComposeUiTest(config = ComposeUiTestConfig(effectContext = testElement)) {
             lateinit var compositionScope: CoroutineScope
             setContent { compositionScope = rememberCoroutineScope() }
 
@@ -80,7 +79,7 @@ class CustomEffectContextTest {
                 override val scaleFactor: Float
                     get() = 0f
             }
-        runComposeUiTest(effectContext = motionDurationScale) {
+        runComposeUiTest(config = ComposeUiTestConfig(effectContext = motionDurationScale)) {
             var lastRecordedMotionDurationScale: Float? = null
             setContent {
                 val context = rememberCoroutineScope().coroutineContext
@@ -112,7 +111,7 @@ class CustomEffectContextTest {
 
         // The custom dispatcher is not a TestDispatcher, so should be completely discarded.
         // The custom dispatcher throws when it is used, so running the below is enough
-        runComposeUiTest(effectContext = notATestDispatcher) {
+        runComposeUiTest(config = ComposeUiTestConfig(effectContext = notATestDispatcher)) {
             setContent {
                 LaunchedEffect(Unit) {
                     withFrameNanos {}
@@ -126,7 +125,7 @@ class CustomEffectContextTest {
     fun customDispatcher_StandardTestDispatcher() {
         val counter = TestCounter()
 
-        runAndroidComposeUiTest<ComponentActivity>(effectContext = StandardTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity> {
             // b/328299124: sometimes the timing of window focus can change the order or execution
             waitForWindowFocus()
 
@@ -150,7 +149,9 @@ class CustomEffectContextTest {
     fun customDispatcher_UnconfinedTestDispatcher() {
         val counter = TestCounter()
 
-        runAndroidComposeUiTest<ComponentActivity>(effectContext = UnconfinedTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity>(
+            config = ComposeUiTestConfig(effectContext = UnconfinedTestDispatcher())
+        ) {
             // b/328299124: sometimes the timing of window focus can change the order or execution
             waitForWindowFocus()
 
@@ -177,7 +178,7 @@ class CustomEffectContextTest {
         val startTime = scheduler.currentTime
 
         // We don't need any content, we only need to trigger the scheduler
-        runComposeUiTest(scheduler) {
+        runComposeUiTest(config = ComposeUiTestConfig(effectContext = scheduler)) {
             setContent { rememberCoroutineScope().launch { withFrameNanos {} } }
         }
 
