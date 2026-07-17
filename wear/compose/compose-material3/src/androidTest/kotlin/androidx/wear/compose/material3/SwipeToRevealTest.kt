@@ -1647,8 +1647,9 @@ class SwipeToRevealTest {
                 }
                 .value
 
+        val halfPixelInDp = with(rule.density) { 0.5f.toDp().value }
         // actions are center vertical aligned when their centerY
-        assertEquals(0f, abs(primaryActionCenterY - secondaryActionCenterY), 0.1f)
+        assertEquals(0f, abs(primaryActionCenterY - secondaryActionCenterY), halfPixelInDp)
     }
 
     @Test
