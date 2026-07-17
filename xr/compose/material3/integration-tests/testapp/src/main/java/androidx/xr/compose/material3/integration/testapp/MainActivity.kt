@@ -69,31 +69,25 @@ class MainActivity : ComponentActivity() {
 private fun Content() {
     var navSuiteType: NavigationSuiteType? by remember { mutableStateOf(null) }
     var orbiterPosition: OrbiterPosition by remember { mutableStateOf(OrbiterPosition.Outside) }
-    val orbiterOffsetType = orbiterPosition.getOffsetType()
-    val orbiterOffset = navSuiteType.calculateOffsetForPosition(orbiterPosition)
 
     var navSuiteSelectedItem by remember { mutableStateOf(NavSuiteItem.HOME) }
 
     CompositionLocalProvider(
         LocalNavigationBarOrbiterProperties provides
             DefaultNavigationBarOrbiterProperties.copy(
-                offset = orbiterOffset,
-                offsetType = orbiterOffsetType,
+                alignment = orbiterPosition.toHorizontalAlignment()
             ),
         LocalNavigationRailOrbiterProperties provides
             DefaultNavigationRailOrbiterProperties.copy(
-                offset = orbiterOffset,
-                offsetType = orbiterOffsetType,
+                alignment = orbiterPosition.toVerticalAlignment()
             ),
         LocalShortNavigationBarOrbiterProperties provides
             DefaultNavigationBarOrbiterProperties.copy(
-                offset = orbiterOffset,
-                offsetType = orbiterOffsetType,
+                alignment = orbiterPosition.toHorizontalAlignment()
             ),
         LocalWideNavigationRailOrbiterProperties provides
             DefaultWideNavigationRailOrbiterProperties.copy(
-                offset = orbiterOffset,
-                offsetType = orbiterOffsetType,
+                alignment = orbiterPosition.toVerticalAlignment()
             ),
     ) {
         NavigationSuiteScaffold(

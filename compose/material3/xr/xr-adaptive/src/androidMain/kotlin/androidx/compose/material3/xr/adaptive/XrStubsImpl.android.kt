@@ -40,15 +40,15 @@ private object XrHorizontalOrbiterStubImpl : XrHorizontalOrbiterStub {
         properties: HorizontalOrbiterProperties,
         content: @Composable (() -> Unit),
     ) {
-        @Suppress("DEPRECATION")
         androidx.xr.compose.spatial.Orbiter(
-            position = properties.position.toXrPositionHorizontal(),
-            offset = properties.offset,
-            offsetType = properties.offsetType.toXrOrbiterOffsetType(),
-            alignment = properties.alignment,
+            alignment =
+                properties.position.toXrOrbiterAlignment(
+                    offset = properties.offset,
+                    offsetType = properties.offsetType,
+                    alignment = properties.alignment,
+                    elevation = properties.elevation,
+                ),
             shape = properties.shape.toXrSpatialShape(),
-            elevation = properties.elevation,
-            shouldRenderInNonSpatial = false,
             content = content,
         )
     }
@@ -56,16 +56,16 @@ private object XrHorizontalOrbiterStubImpl : XrHorizontalOrbiterStub {
 
 private object XrVerticalOrbiterStubImpl : XrVerticalOrbiterStub {
     @Composable
-    @Suppress("DEPRECATION")
     override fun Orbiter(properties: VerticalOrbiterProperties, content: @Composable () -> Unit) {
         androidx.xr.compose.spatial.Orbiter(
-            position = properties.position.toXrPositionVertical(),
-            offset = properties.offset,
-            offsetType = properties.offsetType.toXrOrbiterOffsetType(),
-            alignment = properties.alignment,
+            alignment =
+                properties.position.toXrOrbiterAlignment(
+                    offset = properties.offset,
+                    offsetType = properties.offsetType,
+                    alignment = properties.alignment,
+                    elevation = properties.elevation,
+                ),
             shape = properties.shape.toXrSpatialShape(),
-            elevation = properties.elevation,
-            shouldRenderInNonSpatial = false,
             content = content,
         )
     }

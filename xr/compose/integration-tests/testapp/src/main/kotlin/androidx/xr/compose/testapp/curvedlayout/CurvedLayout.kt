@@ -55,8 +55,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.SpatialColumn
@@ -78,6 +79,7 @@ import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.Purple80
+import androidx.xr.compose.unit.DpVolumeOffset
 
 class CurvedLayout : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +190,13 @@ class CurvedLayout : ComponentActivity() {
                         Text(text = item, fontSize = 20.sp, color = Color.Black)
                     }
                 }
-                Orbiter(position = ContentEdge.End, offset = 30.dp) {
+                Orbiter(
+                    alignment =
+                        OrbiterAlignment.CenterEnd(
+                            edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                            offset = DpVolumeOffset(x = 30.dp),
+                        )
+                ) {
                     IconButton(
                         onClick = { addHighlight = !addHighlight },
                         modifier = Modifier.background(Purple40),

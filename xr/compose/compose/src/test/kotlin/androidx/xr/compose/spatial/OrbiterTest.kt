@@ -1548,6 +1548,33 @@ class OrbiterTest {
             .of(-55.dp.toMeter().toM())
     }
 
+    @Test
+    fun alignment_layoutDirectionRtl_withOffset_positionsCorrectly() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(100.dp)) {
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                        Orbiter(
+                            alignment =
+                                OrbiterAlignment.TopStart(
+                                    offset = DpVolumeOffset((-20).dp, 10.dp, 5.dp),
+                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                )
+                        ) {
+                            Box(modifier = Modifier.size(10.dp))
+                        }
+                    }
+                }
+            }
+        }
+        val density = composeTestRule.density
+        val orbiterEntity = getOrbiterEntity(10.dp, density)
+
+        assertThat(orbiterEntity.getPose().translation.x).isWithin(0.001f).of(75.dp.toMeter().toM())
+        assertThat(orbiterEntity.getPose().translation.y).isWithin(0.001f).of(65.dp.toMeter().toM())
+        assertThat(orbiterEntity.getPose().translation.z).isWithin(0.001f).of(5.dp.toMeter().toM())
+    }
+
     private fun getOrbiterEntity(size: Dp, density: Density): PanelEntity {
         val sizePx = with(density) { size.roundToPx() }
         val session = checkNotNull(composeTestRule.session)

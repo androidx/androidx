@@ -18,57 +18,39 @@ package androidx.xr.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.Dp
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 /**
- * XR-specific properties for components that use horizontally-aligned [Orbiter]s.
+ * XR-specific properties for components that use aligned [androidx.xr.compose.spatial.Orbiter]s.
  *
  * These properties should be provided via a `CompositionLocal` for the given component.
  *
- * The component should also define a publicly-visible default instance of
- * [HorizontalOrbiterProperties] and use it if the `CompositionLocal` is not set.
+ * The component should also define a publicly-visible default instance of [OrbiterProperties] and
+ * use it if the `CompositionLocal` is not set.
  */
 @ExperimentalMaterial3XrApi
 @Immutable
-public class HorizontalOrbiterProperties(
-    public val offset: Dp,
-    public val offsetType: OrbiterEdgeOffsetType,
-    public val position: ContentEdge.Horizontal,
-    public val alignment: Alignment.Horizontal,
+public class OrbiterProperties(
+    public val alignment: OrbiterAlignment,
     public val shape: SpatialShape,
 ) {
     /**
-     * Returns a new [HorizontalOrbiterProperties] with one or more properties changed.
+     * Returns a new [OrbiterProperties] with one or more properties changed.
      *
      * If `null` is provided for any value, the existing value will be used.
      */
     public fun copy(
-        offset: Dp? = null,
-        offsetType: OrbiterEdgeOffsetType? = null,
-        position: ContentEdge.Horizontal? = null,
-        alignment: Alignment.Horizontal? = null,
+        alignment: OrbiterAlignment? = null,
         shape: SpatialShape? = null,
-    ): HorizontalOrbiterProperties =
-        HorizontalOrbiterProperties(
-            offset = offset ?: this.offset,
-            offsetType = offsetType ?: this.offsetType,
-            position = position ?: this.position,
-            alignment = alignment ?: this.alignment,
-            shape = shape ?: this.shape,
-        )
+    ): OrbiterProperties =
+        OrbiterProperties(alignment = alignment ?: this.alignment, shape = shape ?: this.shape)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is HorizontalOrbiterProperties) return false
+        if (other !is OrbiterProperties) return false
 
-        if (offset != other.offset) return false
-        if (offsetType != other.offsetType) return false
-        if (position != other.position) return false
         if (alignment != other.alignment) return false
         if (shape != other.shape) return false
 
@@ -76,134 +58,24 @@ public class HorizontalOrbiterProperties(
     }
 
     override fun hashCode(): Int {
-        var result = offset.hashCode()
-        result = 31 * result + offsetType.hashCode()
-        result = 31 * result + position.hashCode()
-        result = 31 * result + alignment.hashCode()
+        var result = alignment.hashCode()
         result = 31 * result + shape.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "HorizontalOrbiterProperties(" +
-            "offset=$offset, " +
-            "offsetType=$offsetType, " +
-            "position=$position, " +
-            "alignment=$alignment, " +
-            "shape=$shape" +
-            ")"
-    }
-}
-
-/**
- * XR-specific properties for components that use vertically-aligned [Orbiter]s.
- *
- * These properties should be provided via a `CompositionLocal` for the given component.
- *
- * The component should also define a publicly-visible default instance of
- * [VerticalOrbiterProperties] and use it if the `CompositionLocal` is not set.
- */
-@ExperimentalMaterial3XrApi
-@Immutable
-public class VerticalOrbiterProperties(
-    public val offset: Dp,
-    public val offsetType: OrbiterEdgeOffsetType,
-    public val position: ContentEdge.Vertical,
-    public val alignment: Alignment.Vertical,
-    public val shape: SpatialShape,
-) {
-    /**
-     * Returns a new [VerticalOrbiterProperties] with one or more properties changed.
-     *
-     * If `null` is provided for any value, the existing value will be used.
-     */
-    public fun copy(
-        offset: Dp? = null,
-        offsetType: OrbiterEdgeOffsetType? = null,
-        position: ContentEdge.Vertical? = null,
-        alignment: Alignment.Vertical? = null,
-        shape: SpatialShape? = null,
-    ): VerticalOrbiterProperties =
-        VerticalOrbiterProperties(
-            offset = offset ?: this.offset,
-            offsetType = offsetType ?: this.offsetType,
-            position = position ?: this.position,
-            alignment = alignment ?: this.alignment,
-            shape = shape ?: this.shape,
-        )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is VerticalOrbiterProperties) return false
-
-        if (offset != other.offset) return false
-        if (offsetType != other.offsetType) return false
-        if (position != other.position) return false
-        if (alignment != other.alignment) return false
-        if (shape != other.shape) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = offset.hashCode()
-        result = 31 * result + offsetType.hashCode()
-        result = 31 * result + position.hashCode()
-        result = 31 * result + alignment.hashCode()
-        result = 31 * result + shape.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "VerticalOrbiterProperties(" +
-            "offset=$offset, " +
-            "offsetType=$offsetType, " +
-            "position=$position, " +
-            "alignment=$alignment, " +
-            "shape=$shape" +
-            ")"
+        return "OrbiterProperties(alignment=$alignment, shape=$shape)"
     }
 }
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 @Composable
-internal fun VerticalOrbiter(
-    properties: VerticalOrbiterProperties,
-    content: @Composable () -> Unit,
-) {
-    @Suppress("DEPRECATION")
-    Orbiter(
-        position = properties.position,
-        offset = properties.offset,
-        offsetType = properties.offsetType.toDeprecatedType(),
-        alignment = properties.alignment,
-        shape = properties.shape,
-        content = content,
-    )
+internal fun VerticalOrbiter(properties: OrbiterProperties, content: @Composable () -> Unit) {
+    Orbiter(alignment = properties.alignment, shape = properties.shape, content = content)
 }
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 @Composable
-internal fun HorizontalOrbiter(
-    properties: HorizontalOrbiterProperties,
-    content: @Composable () -> Unit,
-) {
-    @Suppress("DEPRECATION")
-    Orbiter(
-        position = properties.position,
-        offset = properties.offset,
-        offsetType = properties.offsetType.toDeprecatedType(),
-        alignment = properties.alignment,
-        shape = properties.shape,
-        content = content,
-    )
+internal fun HorizontalOrbiter(properties: OrbiterProperties, content: @Composable () -> Unit) {
+    Orbiter(alignment = properties.alignment, shape = properties.shape, content = content)
 }
-
-@Suppress("DEPRECATION")
-private fun OrbiterEdgeOffsetType.toDeprecatedType():
-    androidx.xr.compose.spatial.OrbiterOffsetType =
-    when (this) {
-        OrbiterEdgeOffsetType.OuterEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.OuterEdge
-        OrbiterEdgeOffsetType.InnerEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.InnerEdge
-        else -> androidx.xr.compose.spatial.OrbiterOffsetType.Overlap
-    }

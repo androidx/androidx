@@ -117,8 +117,8 @@ class SpatialElevation : ComponentActivity() {
         Orbiter(
             alignment =
                 OrbiterAlignment.CenterStart(
-                    edgeOffsetType = OrbiterEdgeOffsetType.None,
-                    offset = DpVolumeOffset(x = (-8).dp, y = 0.dp, z = 0.dp),
+                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    offset = DpVolumeOffset(x = (0).dp, y = 0.dp, z = 0.dp),
                 )
         ) {
             NavigationRail(
@@ -164,7 +164,7 @@ class SpatialElevation : ComponentActivity() {
             alignment =
                 OrbiterAlignment.CenterEnd(
                     edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-                    offset = DpVolumeOffset(x = 80.dp, y = 0.dp, z = 0.dp),
+                    offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = 0.dp),
                 )
         ) {
             Row(
