@@ -41,7 +41,6 @@ import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 // This file should be moved to commonTest once the infrastructure for running common tests on
 // device is set up. Currently, it fails presubmit when placed in commonTest because that attempts
@@ -422,7 +421,7 @@ class CommonTextFieldKeyEventTest {
         initClipboardText: String? = null,
         sequence: suspend SequenceScope.() -> Unit,
     ) {
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             val tag = "TextFieldTestTag"
             val state = TextFieldState(initText, initSelection)
             val clipboard = FakeClipboard(initClipboardText)

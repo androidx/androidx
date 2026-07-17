@@ -253,7 +253,9 @@ class ComposeUiTestTest {
 
     @Test
     fun shouldKeepCustomCoroutineContextElements() =
-        runComposeUiTest(runTestContext = MyCustomElement("testElement")) {
+        runComposeUiTest(
+            config = ComposeUiTestConfig(runTestContext = MyCustomElement("testElement"))
+        ) {
             val frameClock = coroutineContext[MonotonicFrameClock.Key]
             assertThat(frameClock).isNotNull()
             assertThat(coroutineContext[MyCustomElement.Key]!!.value).isEqualTo("testElement")
@@ -271,7 +273,9 @@ class ComposeUiTestTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun canOverrideRunTestDispatcher() =
-        runComposeUiTest(runTestContext = UnconfinedTestDispatcher()) {
+        runComposeUiTest(
+            config = ComposeUiTestConfig(runTestContext = UnconfinedTestDispatcher())
+        ) {
             var i = 0
             CoroutineScope(coroutineContext).launch { i = 10 }
             assertThat(i).isEqualTo(10)
@@ -281,7 +285,9 @@ class ComposeUiTestTest {
     fun timeoutInAndroidComposeUiTestEnvironment() =
         ActivityScenario.launch(ComponentActivity::class.java).use { scenario ->
             val testEnvironment =
-                AndroidComposeUiTestEnvironment<ComponentActivity>(testTimeout = 1.milliseconds) {
+                AndroidComposeUiTestEnvironment<ComponentActivity>(
+                    config = ComposeUiTestConfig(testTimeout = 1.milliseconds)
+                ) {
                     scenario.getActivity()
                 }
 
