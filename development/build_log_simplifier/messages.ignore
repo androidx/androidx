@@ -200,7 +200,6 @@ WARN: Couldn't resolve link: \[dynamicLightColorScheme\] in 'androidx\.compose\.
 WARN: Couldn't resolve link: \[e\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/foundation\/lazy\/layout\/PrefetchScheduler\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[Envelope\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/ink\/geometry\/BoxAccumulator\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[ExerciseUpdateListener\] in .*\/unzippedJvmSources\/androidx\/health\/services\/client\/impl\/event\/ExerciseUpdateListenerEvent\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
-WARN: Couldn't resolve link: \[colorPrimary\] in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/cast/MediaRouteButton\.kt:[0-9]+:[0-9]+ \(androidx/main\)
 WARN: Couldn't resolve link: \[expandedSubtitle\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/AppBar\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[f\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/foundation\/lazy\/layout\/PrefetchScheduler\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[findViewTreeNavigationEventDispatcherOwner\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/navigationevent\/compose\/LocalNavigationEventDispatcherOwner\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
