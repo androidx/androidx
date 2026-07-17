@@ -20,8 +20,10 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.RadioButton
@@ -34,11 +36,14 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.ResizeEvent
+import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialWindow
 import androidx.xr.scenecore.createBundleForFullSpaceLaunch
@@ -65,6 +70,8 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
     private var skybox: ImageBasedLightingAsset? = null
     private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
         null
+    private var testPanel: PanelEntity? = null
+    private var testTextView: TextView? = null
     private lateinit var defaultPanelSize: IntSize2d
 
     private fun mainPanelPixelDimensionsString(): String {
@@ -301,6 +308,14 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
 
                 // Set visibility of components per mode
                 componentVisibility()
+
+                if (inFsm) {
+                    updateTestPanelPose()
+                } else {
+                    testPanel?.parent = null
+                    testPanel = null
+                    testTextView = null
+                }
             }
 
             skybox =
@@ -345,6 +360,63 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
         // the
         // same as "launch in FSM" button.
         buttonLaunchInFSMWithEnv.visibility = if (inFsm && skyboxActive) View.VISIBLE else View.GONE
+    }
+
+    private fun updateTestPanelPose() {
+        val session = this.session ?: return
+        val targetWorldPose = Pose(Vector3(0f, 1.5f, -1.0f))
+        val poseInActivitySpace =
+            session.scene.perceptionSpace.transformPoseTo(
+                targetWorldPose,
+                session.scene.activitySpace,
+            )
+        @Suppress("DEPRECATION", "RestrictedApiAndroidX")
+        val activitySpacePoseInWorld = session.scene.activitySpace.getPose(Space.REAL_WORLD)
+
+        val localX = poseInActivitySpace.translation.x.format(2)
+        val localY = poseInActivitySpace.translation.y.format(2)
+        val localZ = poseInActivitySpace.translation.z.format(2)
+        val actSpaceX = activitySpacePoseInWorld.translation.x.format(2)
+        val actSpaceY = activitySpacePoseInWorld.translation.y.format(2)
+        val actSpaceZ = activitySpacePoseInWorld.translation.z.format(2)
+
+        val panelText =
+            "Panel in FSM\n" +
+                "1. Target World ( 2 + 3): (0.00, 1.50, -1.00)\n" +
+                "2. Pose in ActivitySpace: ($localX, $localY, $localZ)\n" +
+                "3. ActivitySpace in World: ($actSpaceX, $actSpaceY, $actSpaceZ)"
+
+        if (testPanel == null) {
+            val textView =
+                TextView(this).apply {
+                    text = panelText
+                    textSize = 14f
+                    setTextColor(Color.RED)
+                    setBackgroundColor(Color.WHITE)
+                    gravity = Gravity.CENTER
+                }
+            testTextView = textView
+            testPanel =
+                PanelEntity.create(
+                    session = session,
+                    view = textView,
+                    pixelDimensions = IntSize2d(600, 300),
+                    name = "verificationPanel",
+                    pose = poseInActivitySpace,
+                    parent = session.scene.activitySpace,
+                )
+            Log.d(
+                TAG,
+                "Created test panel. Local: $poseInActivitySpace, ActSpace: $activitySpacePoseInWorld",
+            )
+        } else {
+            testPanel?.setPose(poseInActivitySpace)
+            testTextView?.text = panelText
+            Log.d(
+                TAG,
+                "Updated test panel. Local: $poseInActivitySpace, ActSpace: $activitySpacePoseInWorld",
+            )
+        }
     }
 
     companion object {
