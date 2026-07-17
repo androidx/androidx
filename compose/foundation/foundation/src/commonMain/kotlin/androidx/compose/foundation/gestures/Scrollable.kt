@@ -361,7 +361,7 @@ internal class ScrollableNode(
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
         if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             // Indirect pointer Events should be reverted to account for the reverse we
             // do in Scrollable. Regular touchscreen events are inverted in scrollable, but
             // that shouldn't happen for indirect pointer events, so we cancel the reverse
@@ -375,13 +375,13 @@ internal class ScrollableNode(
     }
 
     private fun onMouseWheelScrollStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(velocity, isMouseWheel = true)
         }
     }
 
     private fun onTrackpadScrollStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(velocity, isMouseWheel = false)
         }
     }
