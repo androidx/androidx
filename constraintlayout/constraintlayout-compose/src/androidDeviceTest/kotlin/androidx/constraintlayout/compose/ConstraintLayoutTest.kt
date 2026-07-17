@@ -293,10 +293,11 @@ class ConstraintLayoutTest {
                 // Divider has percent height so it should spread to fill 0.8 of the height of the
                 // CL,
                 // which in turns is given by the size of the aspect ratio box.
-                assertEquals(
-                    (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
-                    dividerSize.value!!.height,
-                )
+                val boxHeight = aspectRatioBoxSize.value!!.height
+                val margin = (boxHeight - boxHeight * 0.8f) / 2f
+                val expectedDividerHeight =
+                    (margin + boxHeight * 0.8f).roundToInt() - margin.roundToInt()
+                assertEquals(expectedDividerHeight, dividerSize.value!!.height)
             }
         }
 
