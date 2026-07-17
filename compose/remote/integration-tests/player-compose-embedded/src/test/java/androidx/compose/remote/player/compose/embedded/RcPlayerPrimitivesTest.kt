@@ -21,7 +21,13 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
@@ -29,6 +35,7 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -81,6 +88,7 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
@@ -96,6 +104,8 @@ import androidx.wear.compose.remote.material3.RemoteButton
 import java.io.ByteArrayInputStream
 import kotlin.OptIn
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -3996,6 +4006,75 @@ class RcPlayerPrimitivesTest {
             rule.mainClock.advanceTimeBy(100)
 
             rule.onNodeWithTag("colorIdParent").assertExists()
+        }
+    }
+
+    @Test
+    fun testColorOverride() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+
+            val documentBytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val namedColor = rememberNamedRemoteColor("myColor", Color.Red)
+                            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                                val paint = RemotePaint().apply { color = namedColor }
+                                drawRect(
+                                    paint,
+                                    RemoteOffset(0f.rf, 0f.rf),
+                                    RemoteSize(100f.rf, 100f.rf),
+                                )
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document =
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    }
+                }
+
+            val overrides = androidx.collection.mutableObjectIntMapOf<String>()
+            overrides["myColor"] = 0xFF00FF00.toInt() // Green
+
+            rule.setContent {
+                RcPlayer(document = document, autoUpdate = false, namedColorOverrides = overrides)
+            }
+
+            rule.mainClock.advanceTimeBy(100)
+
+            val state = document.remoteComposeState
+
+            fun findNamedVariable(ops: Collection<Operation>, name: String): NamedVariable? {
+                for (op in ops) {
+                    if (op is NamedVariable && op.mVarName == name) {
+                        return op
+                    }
+                    if (op is Container) {
+                        val found = findNamedVariable(op.getList(), name)
+                        if (found != null) return found
+                    }
+                    if (op is LayoutComponent) {
+                        val canvasOps = op.getCanvasOperations()
+                        if (canvasOps != null) {
+                            val found = findNamedVariable(listOf(canvasOps), name)
+                            if (found != null) return found
+                        }
+                    }
+                }
+                return null
+            }
+
+            val namedVar = findNamedVariable(document.getOperationsReflection(), "USER:myColor")
+            assertNotNull(namedVar)
+            val varId = namedVar!!.mVarId
+
+            val resolvedColor = state.getColor(varId)
+            assertEquals(0xFF00FF00.toInt(), resolvedColor)
         }
     }
 
