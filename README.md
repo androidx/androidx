@@ -54,7 +54,7 @@ development workflow!
 Before uploading your first contribution, you will need setup a password and agree to the contribution agreement:
 
 Generate a HTTPS password:
-https://android-review.googlesource.com/new-password
+https://android.googlesource.com/new-password
 
 Agree to the Google Contributor Licenses Agreement:
 https://android-review.googlesource.com/settings/new-agreement
