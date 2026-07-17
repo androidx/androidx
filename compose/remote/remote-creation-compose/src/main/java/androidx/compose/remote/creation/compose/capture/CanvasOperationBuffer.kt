@@ -39,8 +39,14 @@ internal sealed class PendingOp {
     /** Flushes this transformation to the [writer]. */
     abstract fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState)
 
+    /** Returns true if this transformation is a no-op identity transform. */
+    abstract val isIdentity: Boolean
+
     /** Represents a translation transformation. */
     class Translate(val dx: RemoteFloat, val dy: RemoteFloat) : PendingOp() {
+        override val isIdentity: Boolean
+            get() = dx.constantValueOrNull == 0f && dy.constantValueOrNull == 0f
+
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixTranslate(
                 dx.getFloatIdForCreationState(creationState),
@@ -56,6 +62,9 @@ internal sealed class PendingOp {
         val px: RemoteFloat?,
         val py: RemoteFloat?,
     ) : PendingOp() {
+        override val isIdentity: Boolean
+            get() = sx.constantValueOrNull == 1f && sy.constantValueOrNull == 1f
+
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixScale(
                 sx.getFloatIdForCreationState(creationState),
@@ -68,6 +77,9 @@ internal sealed class PendingOp {
 
     /** Represents a rotation transformation. */
     class Rotate(val angle: RemoteFloat, val px: RemoteFloat?, val py: RemoteFloat?) : PendingOp() {
+        override val isIdentity: Boolean
+            get() = angle.constantValueOrNull == 0f
+
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixRotate(
                 angle.getFloatIdForCreationState(creationState),
@@ -79,6 +91,9 @@ internal sealed class PendingOp {
 
     /** Represents a skew transformation. */
     class Skew(val sx: RemoteFloat, val sy: RemoteFloat) : PendingOp() {
+        override val isIdentity: Boolean
+            get() = sx.constantValueOrNull == 0f && sy.constantValueOrNull == 0f
+
         override fun write(writer: RemoteComposeBuffer, creationState: RemoteComposeCreationState) {
             writer.addMatrixSkew(
                 sx.getFloatIdForCreationState(creationState),
@@ -579,6 +594,63 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             optimizeSpan(currentChild)
             currentChild = currentChild.next
         }
+
+        if (span == spanTreeRoot) {
+            elideUnusedExpressions(spanTreeRoot)
+        }
+    }
+
+    /**
+     * Traverses the span tree to elide [CanvasOp.Expression] operations whose consumers (such as
+     * [CanvasOp.DrawConditionally] blocks or drawing operations) have all been elided or removed.
+     */
+    private fun elideUnusedExpressions(root: Span) {
+        val neededExpressions = HashSet<SpanOp>()
+        val visited = HashSet<SpanOp>()
+
+        fun markDependencies(op: SpanOp) {
+            if (!visited.add(op)) return
+            if (op.op is CanvasOp.Expression) {
+                neededExpressions.add(op)
+            }
+            for (i in 0 until op.deps.size) {
+                markDependencies(op.deps[i])
+            }
+        }
+
+        fun traverseAndMark(span: Span) {
+            for (i in 0 until span.operations.size) {
+                val spanOp = span.operations[i]
+                if (spanOp.op !is CanvasOp.Expression) {
+                    markDependencies(spanOp)
+                }
+            }
+            var child = span.child
+            while (child != null) {
+                traverseAndMark(child)
+                child = child.next
+            }
+        }
+
+        traverseAndMark(root)
+
+        fun traverseAndRemove(span: Span) {
+            span.operations.removeAll { spanOp ->
+                if (spanOp.op is CanvasOp.Expression && spanOp !in neededExpressions) {
+                    routeDependenciesAround(root, spanOp)
+                    true
+                } else {
+                    false
+                }
+            }
+            var child = span.child
+            while (child != null) {
+                traverseAndRemove(child)
+                child = child.next
+            }
+        }
+
+        traverseAndRemove(root)
     }
 
     internal fun maybeElide(span: Span) {
@@ -741,10 +813,24 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     /**
      * Pushes a skew operation into the pending operations list.
      *
-     * Skew operations are not fused because consecutive skews in different axes cannot be
-     * mathematically combined by simply adding their factors.
+     * Skew operations in different axes cannot be mathematically combined by simply adding their
+     * factors. However, consecutive skews along the exact same axis (e.g. both horizontal with
+     * sy==0 or both vertical with sx==0) commute and add linearly.
      */
     private fun MutableList<PendingOp>.pushSkew(sx: RemoteFloat, sy: RemoteFloat) {
+        if (isNotEmpty()) {
+            val last = last()
+            if (last is PendingOp.Skew) {
+                if (last.sy.constantValueOrNull == 0f && sy.constantValueOrNull == 0f) {
+                    this[size - 1] = PendingOp.Skew(last.sx + sx, sy)
+                    return
+                }
+                if (last.sx.constantValueOrNull == 0f && sx.constantValueOrNull == 0f) {
+                    this[size - 1] = PendingOp.Skew(sx, last.sy + sy)
+                    return
+                }
+            }
+        }
         add(PendingOp.Skew(sx, sy))
     }
 
@@ -763,6 +849,11 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                     is PendingOp.Scale -> pushScale(op.sx, op.sy, op.px, op.py)
                     is PendingOp.Rotate -> pushRotate(op.angle, op.px, op.py)
                     is PendingOp.Skew -> pushSkew(op.sx, op.sy)
+                }
+            }
+            for (i in size - 1 downTo 0) {
+                if (this[i].isIdentity) {
+                    removeAt(i)
                 }
             }
         }
@@ -813,6 +904,13 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         ops.addAll(newOps)
     }
 
+    /**
+     * Recursively traverses [span] and all its descendant child scopes to replace all dependency
+     * references pointing to [oldDep] with [newDep].
+     *
+     * This is used during inlining or transform fusing when an existing operation is replaced by a
+     * new or inlined operation and subsequent operations need to depend on the new operation.
+     */
     private fun replaceDependency(span: Span, oldDep: SpanOp, newDep: SpanOp) {
         for (i in 0 until span.operations.size) {
             val op = span.operations[i]
@@ -827,6 +925,16 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         }
     }
 
+    /**
+     * Recursively traverses [span] and all its descendant child scopes to route dependencies around
+     * an operation that has been elided, discarded, or cancelled ([oldDep]).
+     *
+     * If any operation in the span hierarchy directly depends on [oldDep], that dependency pointer
+     * is removed, and all operations that [oldDep] depended on ([SpanOp.deps]) are added directly
+     * to the dependent operation's dependency list. This ensures that the topological ordering and
+     * execution dependencies of subsequent operations remain unbroken when an intermediate
+     * operation is removed from the execution tree.
+     */
     private fun routeDependenciesAround(span: Span, oldDep: SpanOp) {
         for (i in 0 until span.operations.size) {
             val op = span.operations[i]
@@ -896,8 +1004,23 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         }
 
                         if (lastNewOp != null) {
-                            val lastOldOp = pendingSpanOps.last()
-                            replaceDependency(span, lastOldOp, lastNewOp)
+                            // Replace dependencies pointing to ANY of the old unfused transforms in
+                            // the group with the final fused transform operation. This prevents
+                            // intermediate transforms from being recreated during topological
+                            // sorting if an operation in the span graph directly referenced an
+                            // earlier transform instead of the last one.
+                            for (k in 0 until pendingSpanOps.size) {
+                                replaceDependency(span, pendingSpanOps[k], lastNewOp)
+                            }
+                        } else {
+                            // If consecutive transforms canceled each other out completely (so
+                            // optimized is empty and lastNewOp == null), route dependencies around
+                            // every canceled transform (processed in reverse order so dependencies
+                            // chain across the group) to ensure topologicalSort() does not bring
+                            // them back via dangling dependency pointers.
+                            for (k in pendingSpanOps.size - 1 downTo 0) {
+                                routeDependenciesAround(span, pendingSpanOps[k])
+                            }
                         }
                         pendingSpanOps.clear()
                     }

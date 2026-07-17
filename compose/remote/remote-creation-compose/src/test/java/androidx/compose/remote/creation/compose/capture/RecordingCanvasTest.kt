@@ -695,6 +695,7 @@ class RecordingCanvasTest {
                     "drawOnBitmap(0, 1, 0)",
                     "addMatrixRestore", // Pops the initial (100, 100) translation cleanly
                     "addPaint",
+                    "textData(43, \"\")",
                     "addDrawBitmap($bitmapId)",
                     "addMatrixTranslate(100.0, 100.0)",
                     "addDrawLine(10.0, 10.0, 100.0, 100.0)",
@@ -1661,6 +1662,112 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testTransformsOptimizedAndRecordedInChildSpans() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.drawConditionally(condition) {
+                canvas.save()
+                canvas.translate(20f, 20f)
+                canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+                canvas.restore()
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls).contains("addMatrixTranslate(20.0, 20.0)")
+        }
+    }
+
+    @Test
+    fun testTransformCancellation() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            canvas.translate(-10f, -20f)
+            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
+        }
+    }
+
+    @Test
+    fun testScaleCancellation() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.scale(2f, 4f)
+            canvas.scale(0.5f, 0.25f)
+            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
+        }
+    }
+
+    @Test
+    fun testRotateCancellation() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.rotate(45f)
+            canvas.rotate(-45f)
+            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
+        }
+    }
+
+    @Test
+    fun testSkewCancellation() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.skew(0.5f, 0f)
+            canvas.skew(-0.5f, 0f)
+            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly("addPaint", "addDrawRect(0.0, 0.0, 50.0, 50.0)")
+        }
+    }
+
+    @Test
+    fun testIntermediateTransformDependenciesAreReplaced() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(10f, 20f)
+            val t1SpanOp = canvas.buffer.lastRenderingOp!!
+            canvas.translate(30f, 40f)
+            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+
+            // Simulate another operation in the span that directly depended on intermediate T1
+            val extraOp = CanvasOperationBuffer.SpanOp(canvas.buffer.spanTreeRoot, CanvasOp.Clip {})
+            extraOp.deps.add(t1SpanOp)
+            canvas.buffer.spanTreeRoot.operations.add(extraOp)
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // If only pendingSpanOps.last() is replaced during fusing, T1 (10.0, 20.0) is not
+            // replaced
+            // in extraOp.deps and gets recreated alongside the fused (40.0, 60.0).
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(40.0, 60.0)",
+                    "addDrawRect(0.0, 0.0, 50.0, 50.0)",
+                )
+        }
+    }
+
+    @Test
     fun testTransformFusing() {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.translate(10f, 20f)
@@ -1977,12 +2084,7 @@ class RecordingCanvasTest {
             canvas.flush()
             canvas.document.encodeToByteArray()
 
-            assertThat(buffer.calls)
-                .containsExactly(
-                    "setNamedVariable(42, \"USER:cond1\", 4)",
-                    "setNamedVariable(43, \"USER:cond2\", 4)",
-                    "addIntegerExpression(44, 7, [42, 43, 65546])",
-                )
+            assertThat(buffer.calls).isEmpty()
         }
     }
 
@@ -2001,7 +2103,6 @@ class RecordingCanvasTest {
 
             assertThat(buffer.calls)
                 .containsExactly(
-                    // TODO(b/535588364): We should elide the condition too.
                     "setNamedVariable(42, \"USER:cond1\", 4)",
                     "setNamedVariable(43, \"USER:cond2\", 4)",
                     "addIntegerExpression(44, 7, [42, 43, 65546])",
@@ -2013,6 +2114,74 @@ class RecordingCanvasTest {
                     "addPaint",
                     "addDrawRect(10.0, 10.0, 20.0, 20.0)",
                     "endConditionalOperations",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_withExpression_usedBeforeElidedConditional_preserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val expr = cond1 and cond2
+
+            // First: convert expr to RemoteString and drawText (preserves expr)
+            val str = expr.select(RemoteString("true"), RemoteString("false"))
+            canvas.drawText(str, 5, 10f.rf, 10f.rf, Paint())
+
+            // Second: empty conditional block using expr (elided)
+            canvas.drawConditionally(expr) {
+                // Empty block, elided
+            }
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond1\", 4)",
+                    "setNamedVariable(43, \"USER:cond2\", 4)",
+                    "addIntegerExpression(44, 7, [42, 43, 65546])",
+                    "addPaint",
+                    "textData(45, \"false\")",
+                    "textData(46, \"true\")",
+                    "addList(2097194, [45, 46])",
+                    "textLookup(47, ID(2097194), 44)",
+                    "addDrawTextRun(47)",
+                )
+        }
+    }
+
+    @Test
+    fun testDrawConditionally_withExpression_usedAfterElidedConditional_preserved() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val expr = cond1 and cond2
+
+            // First: empty conditional block using expr (elided)
+            canvas.drawConditionally(expr) {
+                // Empty block, elided
+            }
+
+            // Second: convert expr to RemoteString and drawText (preserves expr)
+            val str = expr.select(RemoteString("true"), RemoteString("false"))
+            canvas.drawText(str, 5, 20f.rf, 20f.rf, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond1\", 4)",
+                    "setNamedVariable(43, \"USER:cond2\", 4)",
+                    "addIntegerExpression(44, 7, [42, 43, 65546])",
+                    "addPaint",
+                    "textData(45, \"false\")",
+                    "textData(46, \"true\")",
+                    "addList(2097194, [45, 46])",
+                    "textLookup(47, ID(2097194), 44)",
+                    "addDrawTextRun(47)",
                 )
         }
     }
@@ -2688,6 +2857,51 @@ private open class RecordingTestRemoteComposeBuffer(val calls: ArrayList<String>
             "addColorExpression($id, ${formatFloat(alpha)}, ${formatFloat(red)}, ${formatFloat(green)}, ${formatFloat(blue)})"
         )
         super.addColorExpression(id, alpha, red, green, blue)
+    }
+
+    override fun addText(id: Int, text: String) {
+        calls.add("textData($id, \"$text\")")
+        super.addText(id, text)
+    }
+
+    override fun addList(id: Int, value: IntArray) {
+        calls.add("addList($id, ${value.toList()})")
+        super.addList(id, value)
+    }
+
+    override fun createTextFromFloat(
+        textId: Int,
+        value: Float,
+        before: Short,
+        after: Short,
+        flags: Int,
+    ): Int {
+        calls.add("createTextFromFloat($textId, ${formatFloat(value)}, $before, $after, $flags)")
+        return super.createTextFromFloat(textId, value, before, after, flags)
+    }
+
+    override fun textLookup(textId: Int, stringListId: Float, indexId: Float) {
+        calls.add("textLookup($textId, ${formatFloat(stringListId)}, ${formatFloat(indexId)})")
+        super.textLookup(textId, stringListId, indexId)
+    }
+
+    override fun textLookup(textId: Int, stringListId: Float, indexId: Int) {
+        calls.add("textLookup($textId, ${formatFloat(stringListId)}, $indexId)")
+        super.textLookup(textId, stringListId, indexId)
+    }
+
+    override fun addDrawTextRun(
+        textId: Int,
+        start: Int,
+        end: Int,
+        contextStart: Int,
+        contextEnd: Int,
+        x: Float,
+        y: Float,
+        rtl: Boolean,
+    ) {
+        calls.add("addDrawTextRun($textId)")
+        super.addDrawTextRun(textId, start, end, contextStart, contextEnd, x, y, rtl)
     }
 
     override fun addAnimatedFloat(id: Int, value: FloatArray) {
