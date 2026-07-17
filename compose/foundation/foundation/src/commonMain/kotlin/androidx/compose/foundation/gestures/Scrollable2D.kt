@@ -194,19 +194,19 @@ internal class Scrollable2DNode(
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
         if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(event.velocity, isMouseWheel = false)
         }
     }
 
     private fun onMouseWheelScrollStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(velocity, isMouseWheel = true)
         }
     }
 
     private fun onTrackpadScrollStopped(velocity: Velocity) {
-        nestedScrollDispatcher.coroutineScopeOrNull()?.launch {
+        nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(velocity, isMouseWheel = false)
         }
     }

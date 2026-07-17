@@ -2379,7 +2379,6 @@ package androidx.compose.ui.input.nestedscroll {
 
   public final class NestedScrollDispatcher {
     ctor public NestedScrollDispatcher();
-    method public kotlinx.coroutines.CoroutineScope? coroutineScopeOrNull();
     method @KotlinOnly public suspend Object? dispatchPostFling(androidx.compose.ui.unit.Velocity consumed, androidx.compose.ui.unit.Velocity available, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>);
     method @BytecodeOnly public Object? dispatchPostFling-RZ2iAVY(long, long, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity!>);
     method @KotlinOnly public androidx.compose.ui.geometry.Offset dispatchPostScroll(androidx.compose.ui.geometry.Offset consumed, androidx.compose.ui.geometry.Offset available, androidx.compose.ui.input.nestedscroll.NestedScrollSource source);
