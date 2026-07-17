@@ -1664,10 +1664,8 @@ private fun TimeScrollImpl(
         ) {
             ScrollField(
                 state = hourState,
-                modifier =
-                    Modifier.size(width = 100.dp, height = 120.dp).semantics {
-                        contentDescription = hourSelectionDescription
-                    },
+                contentDescription = hourSelectionDescription,
+                modifier = Modifier.size(width = 100.dp, height = 120.dp),
                 field = { index, selected ->
                     ScrollFieldDefaults.Item(
                         index = if (state.is24hour) index else index + 1,
@@ -1685,10 +1683,8 @@ private fun TimeScrollImpl(
 
             ScrollField(
                 state = minuteState,
-                modifier =
-                    Modifier.size(width = 100.dp, height = 120.dp).semantics {
-                        contentDescription = minuteSelectionDescription
-                    },
+                contentDescription = minuteSelectionDescription,
+                modifier = Modifier.size(width = 100.dp, height = 120.dp),
             )
         }
 

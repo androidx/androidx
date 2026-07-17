@@ -50,8 +50,10 @@ import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.filterToOne
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasImeAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotSelected
@@ -1128,7 +1130,9 @@ class TimePickerTest {
             TimeScroll(state, shapes = TimePickerDefaults.shapes())
         }
 
-        rule.onAllNodesWithText("11").filter(isSelected()).assertCountEquals(1)
+        rule
+            .onNode(hasText("11") and hasAnyAncestor(isSelected()), useUnmergedTree = true)
+            .assertExists()
 
         rule.runOnIdle {
             state.hour = 6
@@ -1137,8 +1141,12 @@ class TimePickerTest {
 
         rule.waitForIdle()
 
-        rule.onAllNodesWithText("06").filter(isSelected()).assertCountEquals(1)
-        rule.onAllNodesWithText("21").filter(isSelected()).assertCountEquals(1)
+        rule
+            .onNode(hasText("06") and hasAnyAncestor(isSelected()), useUnmergedTree = true)
+            .assertExists()
+        rule
+            .onNode(hasText("21") and hasAnyAncestor(isSelected()), useUnmergedTree = true)
+            .assertExists()
     }
 }
 
