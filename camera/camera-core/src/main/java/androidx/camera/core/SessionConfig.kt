@@ -27,8 +27,12 @@ import androidx.camera.core.featuregroup.impl.UseCaseType
 import androidx.camera.core.featuregroup.impl.UseCaseType.Companion.getAppConfiguredGroupableFeatureType
 import androidx.camera.core.featuregroup.impl.UseCaseType.Companion.getFeatureGroupUseCaseType
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal
+import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.UseCaseUtil.isVideoCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.core.util.Consumer
@@ -123,6 +127,9 @@ constructor(
     public val requireNonEmptyUseCases: Boolean = true,
     /** The camera filter to be applied on the session. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val cameraFilter: CameraFilter? = null,
+    /** The implementation options to be applied on the session. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val interopConfig: Config = OptionsBundle.emptyBundle(),
 ) {
     /**
      * Creates a [SessionConfig] from the given parameters.
@@ -354,8 +361,39 @@ constructor(
             "}"
     }
 
-    /** Builder for [SessionConfig] */
     public class Builder(private val useCases: List<UseCase>) {
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val interopMutableConfig: MutableOptionsBundle = MutableOptionsBundle.create()
+
+        /**
+         * Applies interoperability configuration to this builder.
+         *
+         * To configure Camera2 options, use
+         * [androidx.camera.camera2.interop.Camera2Interop.forSessionConfig] (from the
+         * `camera-camera2` artifact) to create a configurator, then pass it to this method.
+         *
+         * **Note:** Using Camera2 interop options can override internal CameraX configurations. If
+         * an option configured via interop conflicts with options required by CameraX internally,
+         * the option from Camera2Interop will override, which may result in unexpected behavior.
+         *
+         * **Warning:** Callbacks configured via interop receive raw
+         * [android.hardware.camera2.CameraDevice] and
+         * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking
+         * state-altering methods on these raw objects (such as
+         * [android.hardware.camera2.CameraCaptureSession.close],
+         * [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+         * [android.hardware.camera2.CameraDevice.close]) bypasses CameraX pipeline management and
+         * may cause state desynchronization, stream interruption, or application crashes.
+         *
+         * @param configurator the configurator that sets the interoperability options
+         * @return this builder
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public fun setInterop(configurator: InteropConfigurator<in Builder>): Builder {
+            configurator.configure(this)
+            return this
+        }
+
         private var _viewPort: ViewPort? = null
 
         /** The [ViewPort] to be applied on the camera session. */
@@ -544,8 +582,13 @@ constructor(
                 preferredFeatureGroup = preferredFeatureGroup.toList(),
                 isAutoRotationEnabled = _isAutoRotationEnabled,
                 cameraFilter = cameraFilter,
-                sessionType = sessionType,
+                sessionType =
+                    interopMutableConfig.retrieveOption(
+                        UseCaseConfig.OPTION_SESSION_TYPE,
+                        sessionType,
+                    ) ?: sessionType,
                 requireNonEmptyUseCases = requireNonEmptyUseCases,
+                interopConfig = OptionsBundle.from(interopMutableConfig),
             )
         }
     }

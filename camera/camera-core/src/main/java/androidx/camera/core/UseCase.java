@@ -62,6 +62,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
@@ -1455,5 +1456,41 @@ public abstract class UseCase {
          * includes updating the {@link Surface} used by the use case.
          */
         void onUseCaseReset(@NonNull UseCase useCase);
+    }
+
+    /**
+     * Applies camera-backend-specific options.
+     *
+     * <p>Implementations (such as {@link UseCase} builders) support applying backend-specific
+     * configurations, such as Camera2 capture request options.
+     *
+     * @param <B> the type of the builder implementing this interface
+     */
+    public interface InteropConfigurable<B extends InteropConfigurable<B>> {
+        /**
+         * Applies interoperability configuration to this builder.
+         *
+         * <p>To configure Camera2 options, use {@code Camera2Interop.forUseCase(configurator)}
+         * (from the {@code camera-camera2} artifact) to create a configurator, then pass it to
+         * this method.
+         *
+         * <p><b>Note:</b> Using Camera2 interop options can override internal CameraX
+         * configurations. If an option configured via interop conflicts with options required by
+         * CameraX internally, the option from Camera2Interop will override, which may result in
+         * unexpected behavior.
+         *
+         * @param configurator the configurator that sets the interoperability options
+         * @return this builder
+         */
+        @SuppressWarnings("unchecked")
+        default @NonNull B setInterop(@NonNull InteropConfigurator<? super B> configurator) {
+            configurator.configure((B) this);
+            return (B) this;
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        default @NonNull MutableConfig getInteropMutableConfig() {
+            return MutableOptionsBundle.create();
+        }
     }
 }

@@ -13,6 +13,7 @@ package androidx.camera.core {
   }
 
   public interface CameraControl {
+    method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> applyInteropAsync(androidx.camera.core.InteropConfigurator<? super androidx.camera.core.CameraControl!>);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelFocusAndMetering();
     method public default com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableLowLightBoostAsync(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
@@ -364,7 +365,7 @@ package androidx.camera.core {
     method public default void updateTransform(android.graphics.Matrix?);
   }
 
-  public static final class ImageAnalysis.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageAnalysis!> {
+  public static final class ImageAnalysis.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageAnalysis!> androidx.camera.core.UseCase.InteropConfigurable<androidx.camera.core.ImageAnalysis.Builder!> {
     ctor public ImageAnalysis.Builder();
     method public androidx.camera.core.ImageAnalysis build();
     method public androidx.camera.core.ImageAnalysis.Builder setBackgroundExecutor(java.util.concurrent.Executor);
@@ -453,6 +454,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture build();
     method public androidx.camera.core.ImageCapture.Builder setCaptureMode(int);
     method public androidx.camera.core.ImageCapture.Builder setFlashMode(int);
+    method public androidx.camera.core.ImageCapture.Builder setInterop(androidx.camera.core.InteropConfigurator<androidx.camera.core.ImageCapture.Builder!>);
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageCapture.Builder setJpegQuality(@IntRange(from=1, to=100) int);
     method public androidx.camera.core.ImageCapture.Builder setOutputFormat(int);
@@ -624,6 +626,10 @@ package androidx.camera.core {
     ctor public InitializationException(Throwable?);
   }
 
+  public interface InteropConfigurator<T> {
+    method public void configure(T);
+  }
+
   public class LowLightBoostState {
     field public static final int ACTIVE = 1; // 0x1
     field public static final int INACTIVE = 0; // 0x0
@@ -669,7 +675,7 @@ package androidx.camera.core {
     field public static final int STREAM_STATE_STREAMING = 1; // 0x1
   }
 
-  public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview!> {
+  public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview!> androidx.camera.core.UseCase.InteropConfigurable<androidx.camera.core.Preview.Builder!> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setDynamicRange(androidx.camera.core.DynamicRange);
@@ -809,6 +815,7 @@ package androidx.camera.core {
     method @BytecodeOnly @Deprecated public boolean isAutoRotationEnabled();
     method public androidx.camera.core.SessionConfig.Builder setAutoRotationEnabled(boolean autoRotationEnabled);
     method public androidx.camera.core.SessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
+    method public androidx.camera.core.SessionConfig.Builder setInterop(androidx.camera.core.InteropConfigurator<? super androidx.camera.core.SessionConfig.Builder> configurator);
     method public androidx.camera.core.SessionConfig.Builder setPreferredFeatureGroup(androidx.camera.core.featuregroup.GroupableFeature... features);
     method public androidx.camera.core.SessionConfig.Builder setRequiredFeatureGroup(androidx.camera.core.featuregroup.GroupableFeature... features);
     method public androidx.camera.core.SessionConfig.Builder setViewPort(androidx.camera.core.ViewPort viewPort);
@@ -886,6 +893,10 @@ package androidx.camera.core {
 
   public abstract class UseCase {
     method public static int snapToSurfaceRotation(@IntRange(from=0, to=359) int);
+  }
+
+  public static interface UseCase.InteropConfigurable<B extends androidx.camera.core.UseCase.InteropConfigurable<B>> {
+    method public default B setInterop(androidx.camera.core.InteropConfigurator<? super B>);
   }
 
   public final class UseCaseGroup {

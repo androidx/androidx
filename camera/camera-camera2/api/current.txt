@@ -40,6 +40,10 @@ package androidx.camera.camera2.interop {
   }
 
   public final class Camera2Interop {
+    method public static androidx.camera.camera2.interop.CameraControlCamera2Configurator forCameraControl(androidx.core.util.Consumer<androidx.camera.camera2.interop.CameraControlCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.ImageCaptureCamera2Configurator forImageCapture(androidx.core.util.Consumer<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.SessionConfigCamera2Configurator forSessionConfig(androidx.core.util.Consumer<androidx.camera.camera2.interop.SessionConfigCamera2Interop> configurator);
+    method public static androidx.camera.camera2.interop.UseCaseCamera2Configurator forUseCase(androidx.core.util.Consumer<androidx.camera.camera2.interop.UseCaseCamera2Interop> configurator);
     method public static android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
     method public static androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
     method public static String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
@@ -48,6 +52,10 @@ package androidx.camera.camera2.interop {
   }
 
   public static final class Camera2Interop.Companion {
+    method public androidx.camera.camera2.interop.CameraControlCamera2Configurator forCameraControl(androidx.core.util.Consumer<androidx.camera.camera2.interop.CameraControlCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.ImageCaptureCamera2Configurator forImageCapture(androidx.core.util.Consumer<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.SessionConfigCamera2Configurator forSessionConfig(androidx.core.util.Consumer<androidx.camera.camera2.interop.SessionConfigCamera2Interop> configurator);
+    method public androidx.camera.camera2.interop.UseCaseCamera2Configurator forUseCase(androidx.core.util.Consumer<androidx.camera.camera2.interop.UseCaseCamera2Interop> configurator);
     method public android.hardware.camera2.CameraCharacteristics getCameraCharacteristics(androidx.camera.core.CameraInfo cameraInfo);
     method public androidx.camera.core.CameraFilter getCameraFilterFromCameraId(String cameraId);
     method public String getCameraId(androidx.camera.core.CameraInfo cameraInfo);
@@ -72,6 +80,27 @@ package androidx.camera.camera2.interop {
     property @kotlin.jvm.JvmSynthetic public static String androidx.camera.core.CameraInfo.cameraId;
   }
 
+  public interface CameraCaptureSessionInterop<T extends androidx.camera.camera2.interop.CameraCaptureSessionInterop<T>> {
+    method public T clearAllCaptureRequestOptions();
+    method public T clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?> key);
+    method public <V> T setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method public default T setRepeatingCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method public T setRepeatingCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method public T setRepeatingCaptureRequestTemplate(int templateType);
+  }
+
+  public final class CameraControlCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.CameraControl> {
+    method public void configure(androidx.camera.core.CameraControl cameraControl);
+  }
+
+  public interface CameraControlCamera2Interop extends androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.CameraControlCamera2Interop> {
+  }
+
+  public interface CameraDeviceInterop<T extends androidx.camera.camera2.interop.CameraDeviceInterop<T>> {
+    method public default T setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback callback);
+    method public T setDeviceStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraDevice.StateCallback callback);
+  }
+
   @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
     method public <ValueT> ValueT? getCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<ValueT> key);
   }
@@ -88,6 +117,51 @@ package androidx.camera.camera2.interop {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCamera2Interop {
+  }
+
+  public final class ImageCaptureCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.ImageCapture.Builder> {
+    method public void configure(androidx.camera.core.ImageCapture.Builder imageCaptureBuilder);
+  }
+
+  public interface ImageCaptureCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> androidx.camera.camera2.interop.StillCaptureInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> {
+  }
+
+  public interface OutputConfigurationInterop<T extends androidx.camera.camera2.interop.OutputConfigurationInterop<T>> {
+    method @RequiresApi(33) public T setDynamicRangeProfile(long dynamicRangeProfile);
+    method @RequiresApi(33) public T setMirrorMode(int mirrorMode);
+    method @RequiresApi(28) public T setPhysicalCameraId(String cameraId);
+    method @RequiresApi(33) public T setStreamUseCase(long streamUseCase);
+    method @RequiresApi(24) public T setSurfaceGroupId(int groupId);
+    method @RequiresApi(33) public T setTimestampBase(int timestampBase);
+  }
+
+  public final class SessionConfigCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.SessionConfig.Builder> {
+    method public void configure(androidx.camera.core.SessionConfig.Builder sessionConfigBuilder);
+  }
+
+  public interface SessionConfigCamera2Interop extends androidx.camera.camera2.interop.CameraDeviceInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.SessionConfigurationInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> {
+  }
+
+  public interface SessionConfigurationInterop<T extends androidx.camera.camera2.interop.SessionConfigurationInterop<T>> {
+    method @RequiresApi(34) public T setColorSpace(int colorSpace);
+    method @RequiresApi(28) public <V> T setSessionParameter(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method public default T setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback callback);
+    method public T setSessionStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.StateCallback callback);
+    method @RequiresApi(28) public T setSessionType(int sessionType);
+  }
+
+  public interface StillCaptureInterop<T extends androidx.camera.camera2.interop.StillCaptureInterop<T>> {
+    method public default T setStillCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method public T setStillCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
+    method public <V> T setStillCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
+    method public T setStillCaptureRequestTemplateType(int templateType);
+  }
+
+  public final class UseCaseCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?>> {
+    method public void configure(androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?> useCaseConfigurable);
+  }
+
+  public interface UseCaseCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.UseCaseCamera2Interop> {
   }
 
 }
