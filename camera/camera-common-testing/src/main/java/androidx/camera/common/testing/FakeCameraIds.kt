@@ -14,28 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.camera.common.compat
+package androidx.camera.common.testing
 
-import android.hardware.HardwareBuffer
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
-import android.media.Image
-import androidx.annotation.RequiresApi
+import androidx.camera.common.CameraId
+import java.util.concurrent.atomic.AtomicInteger
 
-@RequiresApi(28)
-internal object Api28Compat {
-    @JvmStatic
-    fun getHardwareBuffer(image: Image): HardwareBuffer? {
-        return image.hardwareBuffer
-    }
-
-    @JvmStatic
-    fun getKeys(captureRequest: CaptureRequest): List<CaptureRequest.Key<*>> {
-        return captureRequest.keys
-    }
+/**
+ * Utility class for tracking and creating Fake [CameraId] instances for use in testing.
+ *
+ * These id's are intentionally non-numerical to help prevent code that may assume that camera2
+ * camera ids are parsable.
+ */
+public object FakeCameraIds {
+    private val fakeCameraIds = AtomicInteger(0)
 
     @JvmStatic
-    fun getKeys(captureResult: CaptureResult): List<CaptureResult.Key<*>> {
-        return captureResult.keys
-    }
+    @get:JvmName("getDefault")
+    public val default: CameraId = CameraId("FakeCamera-default")
+
+    @JvmStatic
+    @JvmName("next")
+    public fun next(): CameraId = CameraId("FakeCamera-${fakeCameraIds.getAndIncrement()}")
 }
