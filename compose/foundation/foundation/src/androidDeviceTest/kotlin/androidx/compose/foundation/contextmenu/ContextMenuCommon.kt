@@ -17,7 +17,6 @@
 package androidx.compose.foundation.contextmenu
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
@@ -230,22 +229,14 @@ class ProcessTextItemOverrideRule(private vararg val itemLabels: String) : TestR
             object : Statement() {
                 @SuppressLint("VisibleForTests")
                 override fun evaluate() {
-                    var oldQueryLambda: ((Context) -> List<ResolveInfo>)? = null
-                    InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                        oldQueryLambda = ProcessTextApi23Impl.processTextActivitiesQuery
-                        ProcessTextApi23Impl.processTextActivitiesQuery = {
-                            itemLabels.map { label -> createTestResolveInfo(label) }
-                        }
+                    val oldQueryLambda = ProcessTextApi23Impl.processTextActivitiesQuery
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = {
+                        itemLabels.map { label -> createTestResolveInfo(label) }
                     }
-                    try {
-                        base?.evaluate()
-                    } finally {
-                        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                            oldQueryLambda?.let {
-                                ProcessTextApi23Impl.processTextActivitiesQuery = it
-                            }
-                        }
-                    }
+                    base?.evaluate()
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = oldQueryLambda
                 }
             }
         } else {
