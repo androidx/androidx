@@ -44,8 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -56,6 +57,7 @@ import androidx.xr.compose.subspace.layout.height as spatialHeight
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width as spatialWidth
 import androidx.xr.compose.testapp.ui.components.TestDialog
+import androidx.xr.compose.unit.DpVolumeOffset
 
 class SimpleSpatialFragment : Fragment() {
     override fun onCreateView(
@@ -151,8 +153,14 @@ class SimpleSpatialFragment : Fragment() {
                                     ) {
                                         Text("Orbiter Host")
 
-                                        @Suppress("DEPRECATION")
-                                        Orbiter(position = ContentEdge.Top, offset = 10.dp) {
+                                        Orbiter(
+                                            alignment =
+                                                OrbiterAlignment.TopCenter(
+                                                    edgeOffsetType =
+                                                        OrbiterEdgeOffsetType.OuterEdge,
+                                                    offset = DpVolumeOffset(y = 10.dp),
+                                                )
+                                        ) {
                                             Surface(color = Color.Gray) {
                                                 Text(
                                                     "Orbiter Content",

@@ -39,8 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.SpatialElevation
 import androidx.xr.compose.spatial.SpatialElevationLevel
 import androidx.xr.compose.spatial.Subspace
@@ -51,6 +52,7 @@ import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.PurpleGrey80
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -145,8 +147,13 @@ class ModeChange : ComponentActivity() {
             contentAlignment = Alignment.Center,
         ) {
             Column {
-                @Suppress("DEPRECATION")
-                Orbiter(position = ContentEdge.Top, offset = 5.dp) {
+                Orbiter(
+                    alignment =
+                        OrbiterAlignment.TopCenter(
+                            edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                            offset = DpVolumeOffset(y = 5.dp),
+                        )
+                ) {
                     Text(
                         text = orbiterText,
                         fontSize = 20.sp,

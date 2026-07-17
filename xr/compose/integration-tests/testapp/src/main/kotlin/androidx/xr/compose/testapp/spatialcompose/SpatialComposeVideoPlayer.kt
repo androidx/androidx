@@ -76,8 +76,9 @@ import androidx.media3.common.MediaItem.DrmConfiguration
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -108,6 +109,7 @@ import androidx.xr.compose.subspace.media.spatializedAudioOutput
 import androidx.xr.compose.testapp.common.isDrmSupported
 import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
+import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
@@ -1003,7 +1005,13 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
             }
 
             // Offset avoids depth perception issues when playing stereoscopic video.
-            Orbiter(position = ContentEdge.Bottom, offset = 48.dp) {
+            Orbiter(
+                alignment =
+                    OrbiterAlignment.BottomCenter(
+                        edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                        offset = DpVolumeOffset(y = -48.dp),
+                    )
+            ) {
                 Button(
                     modifier = Modifier.width(150.dp),
                     onClick = { if (isPaused) exoPlayer?.play() else exoPlayer?.pause() },

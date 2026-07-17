@@ -20,36 +20,88 @@ import androidx.compose.material3.xr.spatial.ContentEdge as ContentEdgeStub
 import androidx.compose.material3.xr.spatial.OrbiterOffsetType as OrbiterOffsetTypeStub
 import androidx.compose.material3.xr.subspace.layout.SpatialRoundedCornerShape as SpatialRoundedCornerShapeStub
 import androidx.compose.material3.xr.subspace.layout.SpatialShape as SpatialShapeStub
-import androidx.xr.compose.spatial.ContentEdge
+import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 @OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
-internal fun ContentEdgeStub.Vertical.toXrPositionVertical(): ContentEdge.Vertical =
+internal fun OrbiterOffsetTypeStub.toXrOrbiterEdgeOffsetType(): OrbiterEdgeOffsetType =
     when (this) {
-        ContentEdgeStub.Vertical.Start -> ContentEdge.Vertical.Start
-        ContentEdgeStub.Vertical.End -> ContentEdge.Vertical.End
-        else -> error("Unsupported ContentEdge.Vertical: $this")
-    }
-
-@OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
-internal fun ContentEdgeStub.Horizontal.toXrPositionHorizontal(): ContentEdge.Horizontal =
-    when (this) {
-        ContentEdgeStub.Horizontal.Top -> ContentEdge.Horizontal.Top
-        ContentEdgeStub.Horizontal.Bottom -> ContentEdge.Horizontal.Bottom
-        else -> error("Unsupported ContentEdge.Horizontal: $this")
-    }
-
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
-internal fun OrbiterOffsetTypeStub.toXrOrbiterOffsetType():
-    androidx.xr.compose.spatial.OrbiterOffsetType =
-    when (this) {
-        OrbiterOffsetTypeStub.Overlap -> androidx.xr.compose.spatial.OrbiterOffsetType.Overlap
-        OrbiterOffsetTypeStub.InnerEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.InnerEdge
-        OrbiterOffsetTypeStub.OuterEdge -> androidx.xr.compose.spatial.OrbiterOffsetType.OuterEdge
+        OrbiterOffsetTypeStub.Overlap -> OrbiterEdgeOffsetType.None
+        OrbiterOffsetTypeStub.InnerEdge -> OrbiterEdgeOffsetType.InnerEdge
+        OrbiterOffsetTypeStub.OuterEdge -> OrbiterEdgeOffsetType.OuterEdge
         else -> error("Unsupported OrbiterOffsetType: $this")
     }
+
+@OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
+internal fun ContentEdgeStub.Vertical.toXrOrbiterAlignment(
+    offset: Dp,
+    offsetType: OrbiterOffsetTypeStub,
+    alignment: Alignment.Vertical,
+    elevation: Dp,
+): OrbiterAlignment {
+    val edgeOffsetType = offsetType.toXrOrbiterEdgeOffsetType()
+    val volumeOffset = androidx.xr.compose.unit.DpVolumeOffset(x = offset, y = 0.dp, z = elevation)
+    return when (this) {
+        ContentEdgeStub.Vertical.Start ->
+            when (alignment) {
+                Alignment.Top -> OrbiterAlignment.TopStart(edgeOffsetType, volumeOffset)
+                Alignment.CenterVertically ->
+                    OrbiterAlignment.CenterStart(edgeOffsetType, volumeOffset)
+                Alignment.Bottom -> OrbiterAlignment.BottomStart(edgeOffsetType, volumeOffset)
+                else -> throw IllegalArgumentException("Invalid alignment: $alignment")
+            }
+        ContentEdgeStub.Vertical.End ->
+            when (alignment) {
+                Alignment.Top -> OrbiterAlignment.TopEnd(edgeOffsetType, volumeOffset)
+                Alignment.CenterVertically ->
+                    OrbiterAlignment.CenterEnd(edgeOffsetType, volumeOffset)
+                Alignment.Bottom -> OrbiterAlignment.BottomEnd(edgeOffsetType, volumeOffset)
+                else -> throw IllegalArgumentException("Invalid alignment: $alignment")
+            }
+        else -> error("Unsupported ContentEdge.Vertical: $this")
+    }
+}
+
+@OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
+internal fun ContentEdgeStub.Horizontal.toXrOrbiterAlignment(
+    offset: Dp,
+    offsetType: OrbiterOffsetTypeStub,
+    alignment: Alignment.Horizontal,
+    elevation: Dp,
+): OrbiterAlignment {
+    val edgeOffsetType = offsetType.toXrOrbiterEdgeOffsetType()
+    val volumeOffset = androidx.xr.compose.unit.DpVolumeOffset(x = 0.dp, y = offset, z = elevation)
+    return when (this) {
+        ContentEdgeStub.Horizontal.Top ->
+            when (alignment) {
+                Alignment.Start -> OrbiterAlignment.TopStart(edgeOffsetType, volumeOffset)
+                Alignment.CenterHorizontally ->
+                    OrbiterAlignment.TopCenter(edgeOffsetType, volumeOffset)
+                Alignment.End -> OrbiterAlignment.TopEnd(edgeOffsetType, volumeOffset)
+                AbsoluteAlignment.Left -> OrbiterAlignment.TopLeft(edgeOffsetType, volumeOffset)
+                AbsoluteAlignment.Right -> OrbiterAlignment.TopRight(edgeOffsetType, volumeOffset)
+                else -> throw IllegalArgumentException("Invalid alignment: $alignment")
+            }
+        ContentEdgeStub.Horizontal.Bottom ->
+            when (alignment) {
+                Alignment.Start -> OrbiterAlignment.BottomStart(edgeOffsetType, volumeOffset)
+                Alignment.CenterHorizontally ->
+                    OrbiterAlignment.BottomCenter(edgeOffsetType, volumeOffset)
+                Alignment.End -> OrbiterAlignment.BottomEnd(edgeOffsetType, volumeOffset)
+                AbsoluteAlignment.Left -> OrbiterAlignment.BottomLeft(edgeOffsetType, volumeOffset)
+                AbsoluteAlignment.Right ->
+                    OrbiterAlignment.BottomRight(edgeOffsetType, volumeOffset)
+                else -> throw IllegalArgumentException("Invalid alignment: $alignment")
+            }
+        else -> error("Unsupported ContentEdge.Horizontal: $this")
+    }
+}
 
 @OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
 internal fun SpatialShapeStub.toXrSpatialShape(): SpatialShape =

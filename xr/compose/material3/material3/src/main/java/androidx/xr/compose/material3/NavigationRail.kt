@@ -38,10 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
+import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
  * <a href="https://m3.material.io/components/navigation-rail/overview" class="external"
@@ -128,23 +130,28 @@ internal object XrNavigationRailTokens {
 }
 
 /**
- * The default [VerticalOrbiterProperties] used by [NavigationRail] if none is specified in
+ * The default [OrbiterProperties] used by [NavigationRail] if none is specified in
  * [LocalNavigationRailOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultNavigationRailOrbiterProperties: VerticalOrbiterProperties =
-    VerticalOrbiterProperties(
-        position = ContentEdge.Vertical.Start,
-        offset = XrNavigationRailTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterVertically,
+public val DefaultNavigationRailOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.CenterStart(
+                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                offset =
+                    DpVolumeOffset(
+                        x = XrNavigationRailTokens.OrbiterOffset,
+                        0.dp,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [VerticalOrbiterProperties] used by [NavigationRail]. */
+/** The [OrbiterProperties] used by [NavigationRail]. */
 @ExperimentalMaterial3XrApi
-public val LocalNavigationRailOrbiterProperties:
-    ProvidableCompositionLocal<VerticalOrbiterProperties> =
+public val LocalNavigationRailOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultNavigationRailOrbiterProperties
     }

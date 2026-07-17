@@ -36,13 +36,15 @@ import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.spatial.SpatialElevationLevel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.unit.DpVolumeOffset
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -120,12 +122,24 @@ fun SequentialAnimationExample(modifier: SubspaceModifier = SubspaceModifier) {
         }
     }
     SpatialRow(modifier = modifier) {
-        Orbiter(position = ContentEdge.Start, offset = 50.dp, elevation = box1Elevation.value) {
+        Orbiter(
+            alignment =
+                OrbiterAlignment.CenterStart(
+                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    offset = DpVolumeOffset(x = -50.dp, z = box1Elevation.value),
+                )
+        ) {
             Surface(modifier = Modifier.size(box1Size.value).background(Color.DarkGray)) {
                 PanelContent(text = "Orbiter 1")
             }
         }
-        Orbiter(position = ContentEdge.End, offset = 100.dp, elevation = box2Elevation.value) {
+        Orbiter(
+            alignment =
+                OrbiterAlignment.CenterEnd(
+                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    offset = DpVolumeOffset(x = 100.dp, z = box2Elevation.value),
+                )
+        ) {
             Surface(modifier = Modifier.size(box2Size.value).background(Color.DarkGray)) {
                 PanelContent(text = "Orbiter 2")
             }
