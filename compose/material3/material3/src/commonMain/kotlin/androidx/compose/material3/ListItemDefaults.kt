@@ -20,7 +20,6 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ListItemDefaults.defaultListItemColors
 import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.ReorderListTokens
@@ -439,8 +438,9 @@ object ListItemDefaults {
      *
      * @param index the index for this list item in the overall list.
      * @param count the total count of list items in the overall list.
-     * @param defaultShapes the default [ListItemShapes] that should be used for standalone items or
-     *   items in the middle of the list.
+     * @param defaultShapes the default [ListItemShapes] that should be used for items in the middle
+     *   of the list. If using [CornerBasedShape]s, this factory function modifies the corners of
+     *   [ListItemShapes.shape] for the first/last items of the list and single list items.
      */
     @Composable
     fun segmentedShapes(
@@ -451,7 +451,22 @@ object ListItemDefaults {
         val overrideShape = ListTokens.ContainerShape.value
         return remember(index, count, defaultShapes, overrideShape) {
             when {
-                count == 1 -> defaultShapes
+                count == 1 -> {
+                    val defaultBaseShape = defaultShapes.shape
+                    if (defaultBaseShape is CornerBasedShape && overrideShape is CornerBasedShape) {
+                        defaultShapes.copy(
+                            shape =
+                                defaultBaseShape.copy(
+                                    topStart = overrideShape.topStart,
+                                    topEnd = overrideShape.topEnd,
+                                    bottomStart = overrideShape.bottomStart,
+                                    bottomEnd = overrideShape.bottomEnd,
+                                )
+                        )
+                    } else {
+                        defaultShapes
+                    }
+                }
 
                 index == 0 -> {
                     val defaultBaseShape = defaultShapes.shape
