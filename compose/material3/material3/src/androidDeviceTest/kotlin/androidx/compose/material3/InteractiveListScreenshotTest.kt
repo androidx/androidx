@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -474,6 +475,26 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
 
         assertAgainstGolden("segmentedListItem_allChecked_${scheme.name}")
+    }
+
+    @Test
+    fun segmentedListItem_standalone() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(
+                modifier =
+                    Modifier.testTag(ListTestTag)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                SegmentedListItem(
+                    shapes = ListItemDefaults.segmentedShapes(index = 0, count = 1),
+                    content = { Text("Content") },
+                    supportingContent = { Text("Supporting text") },
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                )
+            }
+        }
+
+        assertAgainstGolden("segmentedListItem_standalone_${scheme.name}")
     }
 
     companion object {
