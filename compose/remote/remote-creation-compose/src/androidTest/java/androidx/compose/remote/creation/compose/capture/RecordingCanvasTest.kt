@@ -817,6 +817,52 @@ class RecordingCanvasTest {
         assertThat(paintOps[2].mPaintData.toString()).contains("clearColorFilter")
     }
 
+    @Test
+    fun testNestedOffscreenMask_golden() {
+        val outerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val maskBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+
+        val starShape =
+            RoundedPolygon.star(
+                numVerticesPerRadius = 5,
+                radius = 180f,
+                innerRadius = 80f,
+                centerX = WIDTH / 2f,
+                centerY = HEIGHT / 2f,
+            )
+        val circleShape =
+            RoundedPolygon.circle(
+                numVertices = 32,
+                radius = 120f,
+                centerX = WIDTH / 2f,
+                centerY = HEIGHT / 2f,
+            )
+
+        recordingCanvas.drawToOffscreenBitmap(outerBitmap, Color.TRANSPARENT) {
+            recordingCanvas.drawRoundedPolygon(
+                starShape,
+                RemotePaint { color = ComposeColor.Red.rc },
+            )
+
+            recordingCanvas.drawToOffscreenBitmap(maskBitmap, Color.TRANSPARENT) {
+                recordingCanvas.drawRoundedPolygon(
+                    circleShape,
+                    RemotePaint { color = ComposeColor.White.rc },
+                )
+            }
+
+            val maskPaint = Paint().apply { blendMode = BlendMode.DST_IN }
+            val maskRect = Rect(0, 0, WIDTH, HEIGHT)
+            recordingCanvas.drawBitmap(maskBitmap, maskRect, maskRect, maskPaint)
+        }
+
+        val outerRect = Rect(0, 0, WIDTH, HEIGHT)
+        recordingCanvas.drawBitmap(outerBitmap, outerRect, outerRect, Paint())
+
+        val document = constructDocument()
+        assertScreenshot(document, "testNestedOffscreenMask_golden")
+    }
+
     private fun constructDocument() =
         CoreDocument(clock).apply {
             // Needed because RecordingCanvas buffers up operations to facilitate global CSE &
