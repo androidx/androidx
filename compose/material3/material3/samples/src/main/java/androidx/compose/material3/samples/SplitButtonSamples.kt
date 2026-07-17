@@ -22,6 +22,7 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
@@ -886,8 +887,13 @@ fun ExtraLargeFilledSplitButtonSample() {
                 SplitButtonDefaults.TrailingButton(
                     checked = checked,
                     onCheckedChange = { checked = it },
+                    // When the leading button text wraps to multiple lines (e.g., long text or
+                    // large
+                    // display settings), the trailing button might be shorter than the parent
+                    // container.
+                    // fillMaxHeight ensures it fills the full synchronized height.
                     modifier =
-                        Modifier.heightIn(size).semantics {
+                        Modifier.fillMaxHeight().heightIn(size).semantics {
                             stateDescription = if (checked) "Expanded" else "Collapsed"
                             contentDescription = description
                         },

@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -738,7 +737,6 @@ object SplitButtonDefaults {
                             minWidth = LeadingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
-                        .fillMaxHeight()
                         .padding(contentPadding),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -821,7 +819,6 @@ object SplitButtonDefaults {
                             minWidth = TrailingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
-                        .fillMaxHeight()
                         .then(
                             when (shape) {
                                 is ShapeWithHorizontalCenterOptically -> {
@@ -948,7 +945,6 @@ object SplitButtonDefaults {
                             minWidth = TrailingButtonMinWidth,
                             minHeight = SmallContainerHeight,
                         )
-                        .fillMaxHeight()
                         .then(
                             when (shape) {
                                 is ShapeWithHorizontalCenterOptically -> {
