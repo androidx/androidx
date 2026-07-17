@@ -218,8 +218,8 @@ public fun RemoteText(
             set(lineHeightAdd) { this.lineHeightAdd = it }
             set(lineHeightMultiply) { this.lineHeightMultiply = it }
             set(textDecoration ?: TextDecoration.None) { this.textDecoration = it }
-            set(lineBreak) { this.lineBreak = it }
-            set(hyphens) { this.hyphens = it }
+            set(lineBreak) { this.lineBreakStrategy = lineBreak.encode() }
+            set(hyphens) { this.hyphenationFrequency = hyphens.encode() }
             set(fontVariationSettings) { this.fontVariationSettings = it }
         },
     )
@@ -242,8 +242,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var lineHeightAdd: Float? = null
     var lineHeightMultiply: RemoteFloat = 1f.rf
     var textDecoration: TextDecoration = TextDecoration.None
-    var lineBreak: LineBreak = LineBreak.Unspecified
-    var hyphens: Hyphens = Hyphens.Unspecified
+    var lineBreakStrategy: Int = 0
+    var hyphenationFrequency: Int = 0
     var fontVariationSettings: FontVariation.Settings? = null
 
     private fun extractFontSettings(
@@ -319,8 +319,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
             letterSpacingId,
             lineHeightAdd ?: 0f,
             lineHeightMultiplyId,
-            lineBreak.encode(),
-            hyphens.encode(),
+            lineBreakStrategy,
+            hyphenationFrequency,
             0, // justificationMode
             textDecoration.contains(TextDecoration.Underline),
             textDecoration.contains(TextDecoration.LineThrough),
