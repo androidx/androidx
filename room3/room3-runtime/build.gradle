@@ -157,7 +157,6 @@ androidXMultiplatform {
             dependsOn(nonWebMain)
             dependsOn(jvmNativeWebMain)
             dependencies {
-                api("androidx.sqlite:sqlite-framework:2.7.0-rc01")
                 implementation(libs.atomicFu)
             }
         }
