@@ -88,6 +88,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
@@ -165,6 +167,23 @@ class RcPlayerPrimitivesTest {
         rule.mainClock.advanceTimeBy(100)
 
         rule.onNodeWithText("Hello Line Height").assertExists()
+    }
+
+    @Test
+    fun testRemoteTextWithFontVariationAndDecoration() {
+        rule.setRemoteContent(autoUpdate = false) {
+            val style = RemoteTextStyle(textDecoration = TextDecoration.Underline)
+            val fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wdth", 100f))
+            RemoteText(
+                text = "Decorated Var Text".rs,
+                style = style,
+                fontVariationSettings = fontVariationSettings,
+            )
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithText("Decorated Var Text").assertExists()
     }
 
     @Test
