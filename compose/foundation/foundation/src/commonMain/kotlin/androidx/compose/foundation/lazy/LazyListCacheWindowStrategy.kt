@@ -91,7 +91,7 @@ internal class LazyListCacheWindowScope : CacheWindowScope {
     override val density: Density?
         get() = (layoutInfo as? LazyListMeasureResult)?.density
 
-    override val visibleLineCount: Int
+    override val visibleItemsCount: Int
         get() = layoutInfo.visibleItemsInfo.size
 
     override fun updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace: IntArray) {
@@ -118,8 +118,8 @@ internal class LazyListCacheWindowScope : CacheWindowScope {
         perLaneFirstVisibleItemIndex[0] = firstVisibleItemIndex
     }
 
-    override fun updatePerLaneVisibleItemIndexes(perLaneVisibleItemIndexes: IntArray) {
-        perLaneVisibleItemIndexes[0] = lastVisibleItemIndex
+    override fun updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndexes: IntArray) {
+        perLaneLastVisibleItemIndexes[0] = lastVisibleItemIndex
     }
 
     override fun schedulePrefetch(
