@@ -114,9 +114,6 @@ private class MultiLaneCacheWindow(
     /** End-side main-axis overflow space (extra space outside the viewport) per lane. */
     private var perLaneMainAxisExtraEndSpace = IntArray(previousLaneCount)
 
-    /** First non-visible item index adjacent to the viewport in the scroll direction per lane. */
-    private var perLaneFirstNonVisibleItemIndex = IntArray(previousLaneCount)
-
     private fun handleLaneResize() {
         val newLaneCount = maxOf(1, laneCount())
         if (previousLaneCount != newLaneCount) {
@@ -197,10 +194,6 @@ private class MultiLaneCacheWindow(
         }
 
         itemsCount = totalItemsCount
-        // If visible items changed, update cached information. Any items that were visible
-        // and became out of bounds will either count for the cache window or be cancelled/removed
-        // by [cancelOutOfBounds]. If any items changed sizes we re-trigger the window filling
-        // update.
         if (hasVisibleItems) {
             forEachVisibleItem { index, key, mainAxisSize, lane ->
                 if (index != InvalidIndex) cacheVisibleItemsInfo(index, key, mainAxisSize, lane)
@@ -212,8 +205,8 @@ private class MultiLaneCacheWindow(
                 shouldRefillWindow = false
             }
         } else {
-            // if no visible items, it means the dataset is empty and we should reset the window.
-            // Next time visible items update we we re-start the window strategy.
+            // if no visible items, it means the dataset is empty, and we should reset the window.
+            // Next time visible items update we reset the window strategy.
             resetStrategy()
         }
 
@@ -353,7 +346,6 @@ private class MultiLaneCacheWindow(
         perLaneLastVisibleItemIndex = IntArray(newLaneCount)
         perLaneMainAxisExtraStartSpace = IntArray(newLaneCount)
         perLaneMainAxisExtraEndSpace = IntArray(newLaneCount)
-        perLaneFirstNonVisibleItemIndex = IntArray(newLaneCount)
     }
 
     /**
@@ -370,10 +362,7 @@ private class MultiLaneCacheWindow(
         val changedScrollDirection = scrollDelta.sign != previousPassDelta.sign
 
         if (applyForwardPrefetch) { // scrolling forward, starting on last visible
-            updatePerLaneVisibleItemIndexes(perLaneLastVisibleItemIndex)
-            perLaneLastVisibleItemIndex.forEachIndexed { lane, value ->
-                perLaneFirstNonVisibleItemIndex[lane] = getNextEndItemIndexInLane(lane, value)
-            }
+            updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndex)
             updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace)
 
             for (lane in 0 until currentLaneCount) {
@@ -404,7 +393,8 @@ private class MultiLaneCacheWindow(
                 // If we get the same delta in the next frame, would we cover the extra space needed
                 // to actually need this item? If so, mark it as urgent
                 val isUrgent: Boolean =
-                    itemIndexToPrefetch == perLaneFirstNonVisibleItemIndex[lane] &&
+                    itemIndexToPrefetch ==
+                        getNextEndItemIndexInLane(lane, perLaneLastVisibleItemIndex[lane]) &&
                         scrollDelta != 0.0f &&
                         scrollDelta.absoluteValue >= perLaneMainAxisExtraEndSpace[lane]
 
@@ -423,9 +413,6 @@ private class MultiLaneCacheWindow(
             }
         } else { // scrolling backwards, starting on first visible
             updatePerLaneFirstVisibleItemIndex(perLaneFirstVisibleItemIndex)
-            perLaneFirstVisibleItemIndex.forEachIndexed { lane, itemIndex ->
-                perLaneFirstNonVisibleItemIndex[lane] = getNextStartItemIndexInLane(lane, itemIndex)
-            }
             updatePerLaneMainAxisExtraStartSpace(perLaneMainAxisExtraStartSpace)
 
             for (lane in 0 until currentLaneCount) {
@@ -456,7 +443,8 @@ private class MultiLaneCacheWindow(
                 // If we get the same delta in the next frame, would we cover the extra space needed
                 // to actually need this item? If so, mark it as urgent
                 val isUrgent: Boolean =
-                    itemIndexToPrefetch == perLaneFirstNonVisibleItemIndex[lane] &&
+                    itemIndexToPrefetch ==
+                        getNextStartItemIndexInLane(lane, perLaneFirstVisibleItemIndex[lane]) &&
                         scrollDelta != 0.0f &&
                         scrollDelta.absoluteValue >= perLaneMainAxisExtraStartSpace[lane]
 
@@ -520,7 +508,7 @@ private class MultiLaneCacheWindow(
             }
             removeOutOfBoundsItems(0, perLaneCacheWindowStartIndex.min() - 1)
         } else { // scrolling backwards, keep around from last visible
-            updatePerLaneVisibleItemIndexes(perLaneLastVisibleItemIndex)
+            updatePerLaneLastVisibleItemIndexes(perLaneLastVisibleItemIndex)
             updatePerLaneMainAxisExtraEndSpace(perLaneMainAxisExtraEndSpace)
             for (lane in 0 until currentLaneCount) {
                 perLaneCacheWindowEndSpace[lane] =
@@ -716,7 +704,7 @@ private class MultiLaneCacheWindow(
         itemIndex: Int,
         itemSize: Int,
     ) {
-        if (currentLaneCount > 1 && isSpanLine(itemIndex)) {
+        if (currentLaneCount > 1 && isSpanItem(itemIndex)) {
             val minExtraSpace = perLaneCacheWindowEndSpace.minOrNull() ?: 0
             val newExtraSpace = minExtraSpace - itemSize
 
@@ -735,7 +723,7 @@ private class MultiLaneCacheWindow(
         itemIndex: Int,
         itemSize: Int,
     ) {
-        if (currentLaneCount > 1 && isSpanLine(itemIndex)) {
+        if (currentLaneCount > 1 && isSpanItem(itemIndex)) {
             val minExtraSpace = perLaneCacheWindowStartSpace.minOrNull() ?: 0
             val newExtraSpace = minExtraSpace - itemSize
 
