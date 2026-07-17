@@ -270,7 +270,7 @@ private fun getStartActivityIntent(
     val parametersPairs = params.asMap().map { (key, value) -> key.name to value }.toTypedArray()
 
     // bundleOf() is deprecated because it is not type safe. Unfortunately, our class
-    // ActionParameters.kt is is also not type safe. It states that for a Key<T>, T must be
+    // ActionParameters.kt is also not type safe. It states that for a Key<T>, T must be
     // primitive or parcelable, but there is no compile check for this
     activityIntent.putExtras(bundleOf(*parametersPairs))
     return activityIntent
