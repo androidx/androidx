@@ -1693,9 +1693,9 @@ class NestedScrollModifierTest {
     }
 
     @Test
-    fun unattachedDispatcher_coroutineScopeOrNull() {
+    fun unattachedDispatcher_coroutineScopeShouldNotBeActive() {
         val dispatcher = NestedScrollDispatcher()
-        assertThat(dispatcher.coroutineScopeOrNull()).isNull()
+        assertThat(dispatcher.coroutineScope.isActive).isFalse()
 
         var attachModifier by mutableStateOf(true)
         rule.setContent {
@@ -1713,41 +1713,16 @@ class NestedScrollModifierTest {
         }
 
         rule.waitForIdle()
-        assertThat(dispatcher.coroutineScopeOrNull()).isNotNull()
-        assertThat(dispatcher.coroutineScopeOrNull()?.isActive).isTrue()
+        assertThat(dispatcher.coroutineScope.isActive).isTrue()
 
         attachModifier = false
         rule.waitForIdle()
-        assertThat(dispatcher.coroutineScopeOrNull()?.isActive).isFalse()
-    }
-
-    // b/505343254
-    @Test
-    fun nestedScroll_touchInputWithoutUp_doesNotCrash() {
-        val parentConnection = object : NestedScrollConnection {}
-        val listState = LazyListState()
-        rule.setContent {
-            Box(Modifier.nestedScroll(parentConnection)) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.size(100.dp).testTag(mainLayoutTag),
-                ) {
-                    items(100) { Box(Modifier.size(50.dp)) }
-                }
-            }
-        }
-
-        rule.onNodeWithTag(mainLayoutTag).performTouchInput {
-            down(center)
-            moveBy(Offset(0f, -400f))
-        }
-
-        assertThat(listState.firstVisibleItemIndex).isGreaterThan(0)
+        assertThat(dispatcher.coroutineScope.isActive).isFalse()
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun nestedScroll_coroutineScopeOrNull_duringParentDetach_doesNotThrow() {
+    fun nestedScroll_coroutineScope_duringParentDetach_doesNotThrow() {
         val childDispatcher = NestedScrollDispatcher()
         var parentAttached by mutableStateOf(true)
         var exceptionDuringDetach: Throwable? = null
@@ -1757,7 +1732,7 @@ class NestedScrollModifierTest {
             object : Modifier.Node() {
                 override fun onDetach() {
                     try {
-                        scopeDuringDetach = childDispatcher.coroutineScopeOrNull()
+                        scopeDuringDetach = childDispatcher.coroutineScope
                     } catch (t: Throwable) {
                         exceptionDuringDetach = t
                     }
@@ -1792,6 +1767,30 @@ class NestedScrollModifierTest {
             assertThat(exceptionDuringDetach).isNull()
             assertThat(scopeDuringDetach).isNotNull()
         }
+    }
+
+    // b/505343254
+    @Test
+    fun nestedScroll_touchInputWithoutUp_doesNotCrash() {
+        val parentConnection = object : NestedScrollConnection {}
+        val listState = LazyListState()
+        rule.setContent {
+            Box(Modifier.nestedScroll(parentConnection)) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.size(100.dp).testTag(mainLayoutTag),
+                ) {
+                    items(100) { Box(Modifier.size(50.dp)) }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(mainLayoutTag).performTouchInput {
+            down(center)
+            moveBy(Offset(0f, -400f))
+        }
+
+        assertThat(listState.firstVisibleItemIndex).isGreaterThan(0)
     }
 }
 

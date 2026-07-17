@@ -171,7 +171,7 @@ internal class NestedScrollNode(
             resolvedDispatcher.nestedScrollNode = null
             if (isClearNestedScrollCoroutineScopeFixEnabled) {
                 resolvedDispatcher.scope = null
-                resolvedDispatcher.calculateNestedScrollScope = CancelledScope
+                resolvedDispatcher.calculateNestedScrollScope = CancelledNestedScope
             }
         }
     }
@@ -198,6 +198,7 @@ private fun <T : TraversableNode> T.findNearestAttachedAncestor(): T? {
     return node
 }
 
-private val CancelledScope: () -> CoroutineScope = {
+internal val CancelledNestedScope: () -> CoroutineScope = { CancelledScope }
+
+internal val CancelledScope: CoroutineScope =
     CoroutineScope(EmptyCoroutineContext).also { it.cancel() }
-}
