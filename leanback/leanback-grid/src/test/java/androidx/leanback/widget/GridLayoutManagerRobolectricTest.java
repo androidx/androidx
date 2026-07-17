@@ -17,6 +17,7 @@
 package androidx.leanback.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
@@ -52,37 +53,51 @@ public class GridLayoutManagerRobolectricTest {
         mContext = ApplicationProvider.getApplicationContext();
     }
 
+    static class TestAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        int mItemCount;
+        final int[] mFirstItemHeight;
+
+        TestAdapter(int itemCount, int[] firstItemHeight) {
+            mItemCount = itemCount;
+            mFirstItemHeight = firstItemHeight;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(
+                @NonNull ViewGroup parent, int viewType) {
+            View view = new View(parent.getContext());
+            view.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
+            return new RecyclerView.ViewHolder(view) {};
+        }
+
+        @Override
+        public void onBindViewHolder(
+                RecyclerView.@NonNull ViewHolder holder, int position) {
+            if (mFirstItemHeight != null) {
+                holder.itemView.getLayoutParams().height = (position == 0)
+                        ? mFirstItemHeight[0] : 100;
+                holder.itemView.requestLayout();
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mItemCount;
+        }
+
+        public void insertItem(int position) {
+            mItemCount++;
+            notifyItemInserted(position);
+        }
+    }
+
     private VerticalGridView setupGridView(int itemCount, final int[] firstItemHeight) {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(true);
         Activity activity = Robolectric.buildActivity(Activity.class).setup().get();
         VerticalGridView gridView = new VerticalGridView(activity);
         gridView.setWindowAlignment(BaseGridView.WINDOW_ALIGN_NO_EDGE);
 
-        RecyclerView.Adapter<RecyclerView.ViewHolder> adapter =
-                new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                    @Override
-                    public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
-                            @NonNull ViewGroup parent, int viewType) {
-                        View view = new View(parent.getContext());
-                        view.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
-                        return new RecyclerView.ViewHolder(view) {};
-                    }
-
-                    @Override
-                    public void onBindViewHolder(
-                            RecyclerView.@NonNull ViewHolder holder, int position) {
-                        if (firstItemHeight != null) {
-                            holder.itemView.getLayoutParams().height = (position == 0)
-                                    ? firstItemHeight[0] : 100;
-                            holder.itemView.requestLayout();
-                        }
-                    }
-
-                    @Override
-                    public int getItemCount() {
-                        return itemCount;
-                    }
-                };
+        TestAdapter adapter = new TestAdapter(itemCount, firstItemHeight);
         gridView.setAdapter(adapter);
 
         FrameLayout frameLayout = new FrameLayout(activity);
@@ -147,7 +162,7 @@ public class GridLayoutManagerRobolectricTest {
     }
 
     @Test
-    public void testFastRelayout_InTouchMode_InvalidatesAllItems_AlignsToFocus() {
+    public void testFastRelayout_InTouchMode_InvalidatesAllItems_DoesNotAlignToFocus() {
         final int[] firstItemHeight = {100};
         VerticalGridView gridView = setupGridView(10, firstItemHeight);
 
@@ -159,7 +174,7 @@ public class GridLayoutManagerRobolectricTest {
         assertEquals(439, top1); // 450 - 11 (scrolled up)
 
         // Notify a change of the first item with size change to invalidate all items.
-        // It triggers fastRelayout which requires alignment.
+        // It triggers fastRelayout which should not require alignment.
         firstItemHeight[0] = 200;
         gridView.getAdapter().notifyItemChanged(0);
         assertTrue(gridView.isLayoutRequested());
@@ -168,10 +183,34 @@ public class GridLayoutManagerRobolectricTest {
 
         int top2 = child.getTop();
 
-        // Because fastRelayout invalidates all items (index 0), it should realign.
-        // Item is 200px high, container is 1000px, so it should be centered at 400.
-        // The offset of 11 is lost.
-        assertEquals(400, top2);
+        // Because structure didn't change, it should not realign.
+        // The offset of 11 is kept.
+        assertEquals(439, top2);
+    }
+
+    @Test
+    public void testFastRelayout_InTouchMode_StructureChange_AlignsToFocus() {
+        VerticalGridView gridView = setupGridView(10, null);
+
+        View child = gridView.getChildAt(0);
+
+        // Scroll the view to a new position
+        gridView.scrollBy(0, 11);
+        int top1 = child.getTop();
+        assertEquals(439, top1); // 450 - 11 (scrolled up)
+
+        // Trigger structure change (insert 1 item at position 0)
+        // This should shift focus to position 1, and force realignment of focus (position 1) to keyline (450)
+        TestAdapter adapter = (TestAdapter) gridView.getAdapter();
+        adapter.insertItem(0);
+        assertTrue(gridView.isLayoutRequested());
+
+        measureAndLayout((View) gridView.getParent());
+
+        // Because structure changed, it should realign the focused item (now at position 1) to keyline (450).
+        RecyclerView.ViewHolder holder = gridView.findViewHolderForAdapterPosition(1);
+        assertNotNull(holder);
+        assertEquals(450, holder.itemView.getTop());
     }
 
     @Test

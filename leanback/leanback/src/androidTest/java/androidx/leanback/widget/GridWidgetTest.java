@@ -7668,6 +7668,258 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    @Test
+    public void testHoverUnalignedLayoutRequest() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // 1. Scroll to some position to get away from top edge
+        setSelectedPosition(10);
+
+        // 2. Get the initial offset of the first visible child
+        final View firstChildBefore = mGridView.getChildAt(0);
+        final int topBefore = firstChildBefore.getTop();
+        final int firstChildPos = mGridView.getChildAdapterPosition(firstChildBefore);
+
+        // 3. Set selection to an unaligned child (e.g. next child) without scrolling
+        final View targetChild = mGridView.findViewHolderForAdapterPosition(
+                firstChildPos + 1).itemView;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionToUnalignedChild(targetChild);
+            }
+        });
+
+        // 4. Trigger layout request (simulating zoom animation layout request)
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+            }
+        });
+        waitForLayout(false);
+
+        // 5. Assert that the scroll position did not jump
+        View firstChildAfter = mGridView.findViewHolderForAdapterPosition(firstChildPos).itemView;
+        assertNotNull(firstChildAfter);
+        assertEquals("Scroll position shifted after requestLayout",
+                topBefore, firstChildAfter.getTop());
+
+        // 6. Trigger data change that breaks fastRelayout (forces full rebuild)
+        // to test the post-layout shift correction
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getAdapter().notifyItemChanged(firstChildPos);
+            }
+        });
+        waitForLayout(false);
+
+        // 7. Assert that the scroll position still did not jump (corrected)
+        firstChildAfter = mGridView.findViewHolderForAdapterPosition(firstChildPos).itemView;
+        assertNotNull(firstChildAfter);
+        assertEquals("Scroll position shifted after notifyItemChanged",
+                topBefore, firstChildAfter.getTop());
+    }
+
+    @Test
+    public void testHoverUnalignedSizeChange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // 1. Scroll to some position to get away from top edge
+        setSelectedPosition(10);
+
+        // 2. Get the initial offset of the first visible child
+        final View firstChildBefore = mGridView.getChildAt(0);
+        final int topBefore = firstChildBefore.getTop();
+        final int firstChildPos = mGridView.getChildAdapterPosition(firstChildBefore);
+
+        // 3. Set selection to an unaligned child (e.g. next child) without scrolling
+        final View targetChild = mGridView.findViewHolderForAdapterPosition(
+                firstChildPos + 1).itemView;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionToUnalignedChild(targetChild);
+            }
+        });
+
+        // 4. Change size of the first child
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View v = mGridView.getChildAt(0);
+                v.getLayoutParams().height = v.getHeight() + 50;
+                v.requestLayout();
+            }
+        });
+        waitForLayout(false);
+
+        // 5. Assert that the scroll position did not jump (top remains same)
+        View firstChildAfter = mGridView.findViewHolderForAdapterPosition(
+                firstChildPos).itemView;
+        assertNotNull(firstChildAfter);
+        assertEquals("Scroll position shifted after size change",
+                topBefore, firstChildAfter.getTop());
+    }
+
+    @Test
+    public void testHoverUnalignedStructureChange() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // 1. Scroll to some position to get away from top edge
+        setSelectedPosition(10);
+
+        // 2. Get the initial offset of the first visible child
+        final View firstChildBefore = mGridView.getChildAt(0);
+        final int topBefore = firstChildBefore.getTop();
+        final int firstChildPos = mGridView.getChildAdapterPosition(firstChildBefore);
+
+        // 3. Set selection to an unaligned child (2 items below first visible)
+        // to ensure it is different from current focus (10)
+        final View targetChild = mGridView.findViewHolderForAdapterPosition(
+                firstChildPos + 2).itemView;
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPositionToUnalignedChild(targetChild);
+            }
+        });
+
+        // 4. Trigger structure change (insert an item before first visible position)
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Insert 1 item at index 0
+                mActivity.addItems(0, new int[]{160});
+            }
+        });
+        waitForLayout();
+
+        // 5. Assert that it DID align (scroll position shifted to align the selected item)
+        View firstChildAfter = mGridView.findViewHolderForAdapterPosition(
+                firstChildPos + 2).itemView;
+        assertNotNull(firstChildAfter);
+        assertTrue("Scroll position should have shifted (aligned) after structure change",
+                topBefore != firstChildAfter.getTop());
+    }
+
+    @Test
+    public void testSetSelectionOnVisibleViewWithLayoutPending() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // 1. Focus the grid view
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestFocus();
+            }
+        });
+        assertTrue(mGridView.hasFocus());
+
+        // 2. Scroll to some position to get away from top edge
+        setSelectedPosition(10);
+
+        final View view10 = mGridView.findViewHolderForAdapterPosition(10).itemView;
+        assertTrue(view10.hasFocus());
+
+        // Get a visible position that is not 10
+        final View firstChild = mGridView.getChildAt(0);
+        final int targetPosition = mGridView.getChildAdapterPosition(firstChild);
+        assertTrue("Target position should not be 10", 10 != targetPosition);
+
+        // 3. Request layout to force scrollToSelection to defer
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestLayout();
+                // Set selection to the visible target position
+                mGridView.setSelectedPosition(targetPosition);
+
+                // Verify PF_FORCE_FULL_LAYOUT is not set
+                assertTrue("PF_FORCE_FULL_LAYOUT should not be set",
+                        (mLayoutManager.mFlag & GridLayoutManager.PF_FORCE_FULL_LAYOUT) == 0);
+            }
+        });
+        waitForLayout();
+
+        // 4. Assert that the new selection is aligned and has focus
+        final View targetView = mGridView.findViewHolderForAdapterPosition(
+                targetPosition).itemView;
+        assertNotNull(targetView);
+        assertTrue(targetView.hasFocus());
+    }
+
+    @Test
+    public void testSetSelectionOnOffscreenView() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 100);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // 1. Focus the grid view
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.requestFocus();
+            }
+        });
+        assertTrue(mGridView.hasFocus());
+
+        // 2. Scroll to some position to get away from top edge
+        setSelectedPosition(10);
+
+        final View view10 = mGridView.findViewHolderForAdapterPosition(10).itemView;
+        assertTrue(view10.hasFocus());
+
+        // 3. Set selection to an offscreen position (e.g. 50)
+        // and verify PF_FORCE_FULL_LAYOUT is set
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setSelectedPosition(50);
+
+                // Verify PF_FORCE_FULL_LAYOUT IS set
+                assertTrue("PF_FORCE_FULL_LAYOUT should be set for offscreen selection",
+                        (mLayoutManager.mFlag & GridLayoutManager.PF_FORCE_FULL_LAYOUT) != 0);
+            }
+        });
+        waitForLayout();
+
+        // 4. Assert that the new selection is aligned and has focus
+        final View targetView = mGridView.findViewHolderForAdapterPosition(50).itemView;
+        assertNotNull(targetView);
+        assertTrue(targetView.hasFocus());
+    }
+
     static boolean isEmulator() {
         return Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("unknown")
