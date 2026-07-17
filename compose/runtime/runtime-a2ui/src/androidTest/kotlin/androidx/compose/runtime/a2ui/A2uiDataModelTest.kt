@@ -32,7 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -694,60 +693,57 @@ class A2uiDataModelTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun observe_dataModelUpdate_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val path = path("/user/name")
-            dataModel.update(path, "Alice")
+    fun observe_dataModelUpdate_triggersRecomposition() = runComposeUiTest {
+        val path = path("/user/name")
+        dataModel.update(path, "Alice")
 
-            setContent { BasicText(text = "Hello, ${dataModel[path]}") }
+        setContent { BasicText(text = "Hello, ${dataModel[path]}") }
 
-            onNodeWithText("Hello, Alice").assertIsDisplayed()
+        onNodeWithText("Hello, Alice").assertIsDisplayed()
 
-            dataModel.update(path, "Bob")
-            waitForIdle()
+        dataModel.update(path, "Bob")
+        waitForIdle()
 
-            onNodeWithText("Hello, Bob").assertIsDisplayed()
-        }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_hydratedPath_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val targetPath = path("/deep/nested/title")
-
-            setContent {
-                val title = dataModel[targetPath] as? String ?: "Pending..."
-                BasicText(text = title)
-            }
-
-            onNodeWithText("Pending...").assertIsDisplayed()
-
-            dataModel.update(targetPath, "Loaded")
-            waitForIdle()
-
-            onNodeWithText("Loaded").assertIsDisplayed()
-        }
+        onNodeWithText("Hello, Bob").assertIsDisplayed()
+    }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun observe_parentSubtreeReplacement_triggersRecomposition() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            dataModel.update(path("/profile"), mapOf("user" to mapOf("name" to "Alice")))
+    fun observe_hydratedPath_triggersRecomposition() = runComposeUiTest {
+        val targetPath = path("/deep/nested/title")
 
-            setContent {
-                val name = dataModel[path("/profile/user/name")] as? String ?: "No Name"
-                BasicText(text = name)
-            }
-
-            onNodeWithText("Alice").assertIsDisplayed()
-
-            // Replace the entire "/profile" subtree, removing the "user" object
-            dataModel.update(path("/profile"), mapOf("settings" to "dark"))
-            waitForIdle()
-
-            // The child component should reactively update to null/fallback
-            onNodeWithText("No Name").assertIsDisplayed()
+        setContent {
+            val title = dataModel[targetPath] as? String ?: "Pending..."
+            BasicText(text = title)
         }
+
+        onNodeWithText("Pending...").assertIsDisplayed()
+
+        dataModel.update(targetPath, "Loaded")
+        waitForIdle()
+
+        onNodeWithText("Loaded").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun observe_parentSubtreeReplacement_triggersRecomposition() = runComposeUiTest {
+        dataModel.update(path("/profile"), mapOf("user" to mapOf("name" to "Alice")))
+
+        setContent {
+            val name = dataModel[path("/profile/user/name")] as? String ?: "No Name"
+            BasicText(text = name)
+        }
+
+        onNodeWithText("Alice").assertIsDisplayed()
+
+        // Replace the entire "/profile" subtree, removing the "user" object
+        dataModel.update(path("/profile"), mapOf("settings" to "dark"))
+        waitForIdle()
+
+        // The child component should reactively update to null/fallback
+        onNodeWithText("No Name").assertIsDisplayed()
+    }
 
     private fun path(pathString: String): A2uiDataPath = A2uiDataPath(pathString)
 }
