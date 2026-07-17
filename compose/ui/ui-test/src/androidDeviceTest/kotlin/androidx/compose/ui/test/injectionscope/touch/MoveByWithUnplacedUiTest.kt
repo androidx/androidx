@@ -32,6 +32,7 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -47,7 +48,7 @@ import org.junit.Test
 class MoveByWithUnplacedUiTest {
     private val targetTag = "TargetTag"
     private val zeroPosition = Offset(0f, 0f)
-    private val downPosition = Offset(10f, 10f)
+    private var downPosition = Offset(0f, 0f)
     private val moveToPosition1 = Offset(100f, 100f)
     private val moveToPosition2 = Offset(200f, 200f)
     private val moveToPosition3 = Offset(300f, 300f)
@@ -63,6 +64,7 @@ class MoveByWithUnplacedUiTest {
         eventType = PointerEventType.Unknown
         isPointerInputPlaced = mutableStateOf(true)
         position = zeroPosition
+        downPosition = with(rule.density) { Offset(5.dp.toPx(), 5.dp.toPx()) }
     }
 
     @Test
