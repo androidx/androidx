@@ -530,12 +530,7 @@ public class RemoteCanvas(
      * true.
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
-        val childSpan = internalCanvas.buffer.createChildSpan()
-
-        val prevInsertPoint = internalCanvas.buffer.insertPoint
-        internalCanvas.buffer.insertPoint = childSpan
-        drawCommands()
-        internalCanvas.buffer.insertPoint = prevInsertPoint
+        val childSpan = internalCanvas.recordInChildSpan(drawCommands)
 
         val op =
             internalCanvas.recordRenderingOp(
@@ -564,14 +559,7 @@ public class RemoteCanvas(
     public fun drawToOffscreenBitmap(bitmap: RemoteImageBitmap, drawCommands: () -> Unit) {
         val bitmapId = bitmap.id
         val lastDrawToBitmapId = internalCanvas.currentDrawToBitmapId
-        val childSpan = internalCanvas.buffer.createChildSpan()
-
-        val prevInsertPoint = internalCanvas.buffer.insertPoint
-        internalCanvas.buffer.insertPoint = childSpan
-        internalCanvas.currentDrawToBitmapId = bitmapId
-        drawCommands()
-        internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
-        internalCanvas.buffer.insertPoint = prevInsertPoint
+        val childSpan = internalCanvas.recordInOffscreenChildSpan(bitmapId, drawCommands)
 
         val op =
             internalCanvas.recordRenderingOp(
@@ -597,14 +585,7 @@ public class RemoteCanvas(
     ) {
         val bitmapId = bitmap.id
         val lastDrawToBitmapId = internalCanvas.currentDrawToBitmapId
-        val childSpan = internalCanvas.buffer.createChildSpan()
-
-        val prevInsertPoint = internalCanvas.buffer.insertPoint
-        internalCanvas.buffer.insertPoint = childSpan
-        internalCanvas.currentDrawToBitmapId = bitmapId
-        drawCommands()
-        internalCanvas.currentDrawToBitmapId = lastDrawToBitmapId
-        internalCanvas.buffer.insertPoint = prevInsertPoint
+        val childSpan = internalCanvas.recordInOffscreenChildSpan(bitmapId, drawCommands)
 
         val op =
             internalCanvas.recordRenderingOp(
@@ -631,12 +612,7 @@ public class RemoteCanvas(
     ) {
         val loopVariableId = document.createFloatId()
         val loopVariable = MutableRemoteFloat(loopVariableId)
-        val childSpan = internalCanvas.buffer.createChildSpan()
-
-        val prevInsertPoint = internalCanvas.buffer.insertPoint
-        internalCanvas.buffer.insertPoint = childSpan
-        body(loopVariable)
-        internalCanvas.buffer.insertPoint = prevInsertPoint
+        val childSpan = internalCanvas.recordInChildSpan { body(loopVariable) }
 
         val op =
             internalCanvas.recordRenderingOp(
