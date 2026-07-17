@@ -593,9 +593,19 @@ public fun Orbiter(
                 val edgeOffsetVector = Vector3(x = xEdgeOffset, y = yEdgeOffset, z = 0f)
                 val userOffsetVector =
                     offset.toMeterVector(density = density, pixelDensity = pixelDensity)
+                val resolvedUserOffsetVector =
+                    if (spatialAlignment is SpatialBiasAbsoluteAlignment) {
+                        userOffsetVector
+                    } else {
+                        Vector3(
+                            x = userOffsetVector.x * layoutDirection.multiplier,
+                            y = userOffsetVector.y,
+                            z = userOffsetVector.z,
+                        )
+                    }
 
                 Pose(
-                    translation = baseAlignmentVector + edgeOffsetVector + userOffsetVector,
+                    translation = baseAlignmentVector + edgeOffsetVector + resolvedUserOffsetVector,
                     rotation = Quaternion.Identity,
                 )
             }
@@ -1238,12 +1248,17 @@ private class SpatialOrbiter(
 }
 
 /** An enum that represents the edges of a view where an orbiter can be placed. */
+@Suppress("DEPRECATION")
+@Deprecated("Use OrbiterAlignment instead.")
 public sealed interface ContentEdge {
+    @Deprecated("Use OrbiterAlignment instead.")
     public class Horizontal private constructor(private val displayName: String) : ContentEdge {
         public companion object {
             /** Positioning constant to place an orbiter above the content's top edge. */
+            @Deprecated("Use OrbiterAlignment instead.")
             public val Top: Horizontal = Horizontal("Top")
             /** Positioning constant to place an orbiter below the content's bottom edge. */
+            @Deprecated("Use OrbiterAlignment instead.")
             public val Bottom: Horizontal = Horizontal("Bottom")
         }
 
@@ -1254,14 +1269,16 @@ public sealed interface ContentEdge {
     }
 
     /** Represents vertical edges (start or end). */
+    @Deprecated("Use OrbiterAlignment instead.")
     public class Vertical private constructor(private val displayName: String) : ContentEdge {
         public companion object {
             /**
              * Positioning constant to place an orbiter at the start of the content's starting edge.
              */
+            @Deprecated("Use OrbiterAlignment instead.")
             public val Start: Vertical = Vertical("Start")
             /** Positioning constant to place an orbiter at the end of the content's ending edge. */
-            public val End: Vertical = Vertical("End")
+            @Deprecated("Use OrbiterAlignment instead.") public val End: Vertical = Vertical("End")
         }
 
         /** Returns the string representation of the edge. */
@@ -1270,15 +1287,17 @@ public sealed interface ContentEdge {
         }
     }
 
+    @Deprecated("Use OrbiterAlignment instead.")
     public companion object {
         /** The top edge. */
-        public val Top: Horizontal = Horizontal.Top
+        @Deprecated("Use OrbiterAlignment instead.") public val Top: Horizontal = Horizontal.Top
         /** The bottom edge. */
+        @Deprecated("Use OrbiterAlignment instead.")
         public val Bottom: Horizontal = Horizontal.Bottom
         /** The start edge. */
-        public val Start: Vertical = Vertical.Start
+        @Deprecated("Use OrbiterAlignment instead.") public val Start: Vertical = Vertical.Start
         /** The end edge. */
-        public val End: Vertical = Vertical.End
+        @Deprecated("Use OrbiterAlignment instead.") public val End: Vertical = Vertical.End
     }
 }
 

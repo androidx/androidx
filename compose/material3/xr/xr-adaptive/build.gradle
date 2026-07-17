@@ -47,7 +47,7 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-            implementation("androidx.xr.compose:compose:1.0.0-alpha15")
+            implementation(project(":xr:compose:compose"))
         }
     }
 }

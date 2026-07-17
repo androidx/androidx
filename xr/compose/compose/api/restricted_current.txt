@@ -78,41 +78,41 @@ package androidx.xr.compose.platform {
 
 package androidx.xr.compose.spatial {
 
-  public sealed exhaustive interface ContentEdge {
-    field public static final androidx.xr.compose.spatial.ContentEdge.Companion Companion;
+  @Deprecated public sealed exhaustive interface ContentEdge {
+    field @Deprecated public static final androidx.xr.compose.spatial.ContentEdge.Companion Companion;
   }
 
-  public static final class ContentEdge.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Horizontal getBottom();
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Vertical getEnd();
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Vertical getStart();
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Horizontal getTop();
-    property public androidx.xr.compose.spatial.ContentEdge.Horizontal Bottom;
-    property public androidx.xr.compose.spatial.ContentEdge.Vertical End;
-    property public androidx.xr.compose.spatial.ContentEdge.Vertical Start;
-    property public androidx.xr.compose.spatial.ContentEdge.Horizontal Top;
+  @Deprecated public static final class ContentEdge.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal getBottom();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical getEnd();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical getStart();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal getTop();
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal Bottom;
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical End;
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical Start;
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal Top;
   }
 
-  public static final class ContentEdge.Horizontal implements androidx.xr.compose.spatial.ContentEdge {
-    field public static final androidx.xr.compose.spatial.ContentEdge.Horizontal.Companion Companion;
+  @Deprecated public static final class ContentEdge.Horizontal implements androidx.xr.compose.spatial.ContentEdge {
+    field @Deprecated public static final androidx.xr.compose.spatial.ContentEdge.Horizontal.Companion Companion;
   }
 
-  public static final class ContentEdge.Horizontal.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Horizontal getBottom();
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Horizontal getTop();
-    property public androidx.xr.compose.spatial.ContentEdge.Horizontal Bottom;
-    property public androidx.xr.compose.spatial.ContentEdge.Horizontal Top;
+  @Deprecated public static final class ContentEdge.Horizontal.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal getBottom();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal getTop();
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal Bottom;
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Horizontal Top;
   }
 
-  public static final class ContentEdge.Vertical implements androidx.xr.compose.spatial.ContentEdge {
-    field public static final androidx.xr.compose.spatial.ContentEdge.Vertical.Companion Companion;
+  @Deprecated public static final class ContentEdge.Vertical implements androidx.xr.compose.spatial.ContentEdge {
+    field @Deprecated public static final androidx.xr.compose.spatial.ContentEdge.Vertical.Companion Companion;
   }
 
-  public static final class ContentEdge.Vertical.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Vertical getEnd();
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.ContentEdge.Vertical getStart();
-    property public androidx.xr.compose.spatial.ContentEdge.Vertical End;
-    property public androidx.xr.compose.spatial.ContentEdge.Vertical Start;
+  @Deprecated public static final class ContentEdge.Vertical.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical getEnd();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical getStart();
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical End;
+    property @Deprecated public androidx.xr.compose.spatial.ContentEdge.Vertical Start;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFollowingSubspaceApi {

@@ -39,9 +39,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
  * <a href="https://m3.material.io/components/navigation-bar/overview" class="external"
@@ -111,23 +113,28 @@ internal object XrNavigationBarTokens {
 }
 
 /**
- * The default [HorizontalOrbiterProperties] used by [NavigationBar] if none is specified in
+ * The default [OrbiterProperties] used by [NavigationBar] if none is specified in
  * [LocalNavigationBarOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultNavigationBarOrbiterProperties: HorizontalOrbiterProperties =
-    HorizontalOrbiterProperties(
-        position = ContentEdge.Horizontal.Bottom,
-        offset = XrNavigationBarTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterHorizontally,
+public val DefaultNavigationBarOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.BottomCenter(
+                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                offset =
+                    DpVolumeOffset(
+                        0.dp,
+                        -XrNavigationBarTokens.OrbiterOffset,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [HorizontalOrbiterProperties] used by [NavigationBar]. */
+/** The [OrbiterProperties] used by [NavigationBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalNavigationBarOrbiterProperties:
-    ProvidableCompositionLocal<HorizontalOrbiterProperties> =
+public val LocalNavigationBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultNavigationBarOrbiterProperties
     }

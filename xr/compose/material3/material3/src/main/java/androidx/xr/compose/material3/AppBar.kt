@@ -33,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.ContentEdge
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
  * XR-specific SingleRowTopAppBar that displays a single-row top app bar inside a top-aligned
@@ -74,23 +76,28 @@ public fun SingleRowTopAppBar(
 }
 
 /**
- * The default [HorizontalOrbiterProperties] used by XR `TopAppBar` if none is specified in
+ * The default [OrbiterProperties] used by XR `TopAppBar` if none is specified in
  * [LocalSingleRowTopAppBarOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultSingleRowTopAppBarOrbiterProperties: HorizontalOrbiterProperties =
-    HorizontalOrbiterProperties(
-        position = ContentEdge.Horizontal.Top,
-        offset = XrSingleRowTopAppBarTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterHorizontally,
+public val DefaultSingleRowTopAppBarOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.TopCenter(
+                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                offset =
+                    DpVolumeOffset(
+                        0.dp,
+                        XrSingleRowTopAppBarTokens.OrbiterOffset,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [HorizontalOrbiterProperties] used by XR [TopAppBar]. */
+/** The [OrbiterProperties] used by XR [TopAppBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalSingleRowTopAppBarOrbiterProperties:
-    ProvidableCompositionLocal<HorizontalOrbiterProperties> =
+public val LocalSingleRowTopAppBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultSingleRowTopAppBarOrbiterProperties
     }
@@ -144,23 +151,28 @@ public fun TwoRowsTopAppBar(
 }
 
 /**
- * The default [HorizontalOrbiterProperties] used by XR [TopAppBar] if none is specified in
+ * The default [OrbiterProperties] used by XR [TopAppBar] if none is specified in
  * [LocalTwoRowsTopAppBarOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultTwoRowsTopAppBarOrbiterProperties: HorizontalOrbiterProperties =
-    HorizontalOrbiterProperties(
-        position = ContentEdge.Horizontal.Top,
-        offset = XrTwoRowsTopAppBarTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterHorizontally,
+public val DefaultTwoRowsTopAppBarOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.TopCenter(
+                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                offset =
+                    DpVolumeOffset(
+                        0.dp,
+                        XrTwoRowsTopAppBarTokens.OrbiterOffset,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = XrTokens.ContainerShape,
     )
 
-/** The [HorizontalOrbiterProperties] used by XR [TopAppBar]. */
+/** The [OrbiterProperties] used by XR [TopAppBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalTwoRowsTopAppBarOrbiterProperties:
-    ProvidableCompositionLocal<HorizontalOrbiterProperties> =
+public val LocalTwoRowsTopAppBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultTwoRowsTopAppBarOrbiterProperties
     }

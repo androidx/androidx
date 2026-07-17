@@ -39,9 +39,11 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.ContentEdge
+import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
+import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
  * XR-specific Material design wide navigation rail.
@@ -129,23 +131,28 @@ private object XrWideNavigationRailTokens {
 }
 
 /**
- * The default [VerticalOrbiterProperties] used by [WideNavigationRail] if none is specified in
+ * The default [OrbiterProperties] used by [WideNavigationRail] if none is specified in
  * [LocalWideNavigationRailOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultWideNavigationRailOrbiterProperties: VerticalOrbiterProperties =
-    VerticalOrbiterProperties(
-        position = ContentEdge.Vertical.Start,
-        offset = XrNavigationRailTokens.OrbiterOffset,
-        offsetType = OrbiterEdgeOffsetType.InnerEdge,
-        alignment = Alignment.CenterVertically,
+public val DefaultWideNavigationRailOrbiterProperties: OrbiterProperties =
+    OrbiterProperties(
+        alignment =
+            OrbiterAlignment.CenterStart(
+                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                offset =
+                    DpVolumeOffset(
+                        x = XrNavigationRailTokens.OrbiterOffset,
+                        0.dp,
+                        OrbiterDefaults.Elevation,
+                    ),
+            ),
         shape = SpatialRoundedCornerShape(CornerSize(50)),
     )
 
-/** The [VerticalOrbiterProperties] used by [WideNavigationRail]. */
+/** The [OrbiterProperties] used by [WideNavigationRail]. */
 @ExperimentalMaterial3XrApi
-public val LocalWideNavigationRailOrbiterProperties:
-    ProvidableCompositionLocal<VerticalOrbiterProperties> =
+public val LocalWideNavigationRailOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultWideNavigationRailOrbiterProperties
     }

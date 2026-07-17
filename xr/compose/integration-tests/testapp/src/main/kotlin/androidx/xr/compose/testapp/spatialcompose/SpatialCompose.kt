@@ -574,7 +574,7 @@ class SpatialCompose : ComponentActivity() {
                 Orbiter(
                     alignment =
                         OrbiterAlignment.TopStart(
-                            offset = DpVolumeOffset((-24).dp, 0.dp, OrbiterDefaults.Elevation),
+                            offset = DpVolumeOffset((-16).dp, 0.dp, OrbiterDefaults.Elevation),
                             edgeOffsetType = OrbiterEdgeOffsetType.None,
                         )
                 ) {

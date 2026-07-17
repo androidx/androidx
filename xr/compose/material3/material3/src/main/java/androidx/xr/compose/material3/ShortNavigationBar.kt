@@ -88,10 +88,9 @@ internal object XrShortNavigationBarTokens {
     val PaddingAroundItems: Dp = 32.dp
 }
 
-/** The [HorizontalOrbiterProperties] used by [ShortNavigationBar]. */
+/** The [OrbiterProperties] used by [ShortNavigationBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalShortNavigationBarOrbiterProperties:
-    ProvidableCompositionLocal<HorizontalOrbiterProperties> =
+public val LocalShortNavigationBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
         DefaultNavigationBarOrbiterProperties
     }
