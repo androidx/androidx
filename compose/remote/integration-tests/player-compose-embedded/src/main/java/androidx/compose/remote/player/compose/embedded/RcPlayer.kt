@@ -46,8 +46,12 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.ColorConstant
+import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.Utils
@@ -55,6 +59,7 @@ import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
@@ -218,10 +223,39 @@ public fun RcPlayer(
                 }
             document.applyOperationsReflection(it, globalOps)
 
+            val constantOps = ArrayList<Operation>()
+            fun walk(ops: Collection<Operation>) {
+                for (op in ops) {
+                    val match =
+                        op is ColorConstant ||
+                            op is FloatConstant ||
+                            op is ColorTheme ||
+                            op is NamedVariable ||
+                            op.javaClass.simpleName.endsWith("Constant")
+                    if (match) {
+                        constantOps.add(op)
+                    }
+                    if (op is Container) {
+                        walk(op.getList())
+                    }
+                    if (op is LayoutComponent) {
+                        val canvasOps = op.getCanvasOperations()
+                        if (canvasOps != null) {
+                            walk(listOf(canvasOps))
+                        }
+                    }
+                }
+            }
+            walk(document.getOperationsReflection())
+            document.applyOperationsReflection(it, constantOps)
+
             // applyOperations above ran each ColorConstant -> loadColor, so every named color now
             // holds its authored default. Host theme overrides (if any) replace them by name, the
             // same path the View player's setColor(name, value) uses.
-            namedColorOverrides.forEach { name, color -> it.setNamedColorOverride(name, color) }
+            namedColorOverrides.forEach { name, color ->
+                val prefixedName = if (name.contains(':')) name else "USER:$name"
+                it.setNamedColorOverride(prefixedName, color)
+            }
 
             val dataOps = ArrayList<Operation>()
             document.rootLayoutComponent?.getData(dataOps, true)
@@ -362,11 +396,17 @@ public fun RcPlayer(
         // Identify ComponentValue operations
         val componentValueMap = remember { mutableMapOf<Int, MutableList<ComponentValue>>() }
         remember(document) {
-            document.getOperationsReflection().forEach { op ->
-                if (op is ComponentValue) {
-                    val list = componentValueMap.getOrPut(op.componentId) { mutableListOf() }
-                    list.add(op)
+            val componentValues = mutableListOf<ComponentValue>()
+            findComponentValues(document.getOperationsReflection(), componentValues)
+            componentValues.forEach { op ->
+                var targetId = op.componentId
+                val targetComponent = findComponent(document.getOperationsReflection(), targetId)
+                if (targetComponent is LayoutComponentContent) {
+                    val parent = targetComponent.parent
+                    parent?.let { targetId = it.id }
                 }
+                val list = componentValueMap.getOrPut(targetId) { mutableListOf() }
+                list.add(op)
             }
         }
 
@@ -642,6 +682,54 @@ private fun findBitmaps(operations: Collection<Operation>, list: MutableList<Bit
             findBitmaps(op.getList(), list)
         }
     }
+}
+
+private fun findComponentValues(
+    operations: Collection<Operation>,
+    list: MutableList<ComponentValue>,
+) {
+    operations.forEach { op ->
+        if (op is ComponentValue) {
+            list.add(op)
+        }
+        if (op is Container) {
+            findComponentValues(op.getList(), list)
+        }
+        if (op is LayoutComponent) {
+            val canvasOps = op.getCanvasOperations()
+            if (canvasOps != null) {
+                findComponentValues(listOf(canvasOps), list)
+            }
+        }
+    }
+}
+
+private fun findComponent(operations: Collection<Operation>, id: Int): Component? {
+    for (op in operations) {
+        if (op is Component && op.componentId == id) {
+            return op
+        }
+        if (op is LayoutComponent) {
+            val content = op.getContentReflection()
+            if (content != null && content.componentId == id) {
+                return content
+            }
+            val canvasOps = op.getCanvasOperations()
+            if (canvasOps != null) {
+                val found = findComponent(listOf(canvasOps), id)
+                if (found != null) {
+                    return found
+                }
+            }
+        }
+        if (op is Container) {
+            val found = findComponent(op.getList(), id)
+            if (found != null) {
+                return found
+            }
+        }
+    }
+    return null
 }
 
 internal fun mapEasing(type: Int): ComposeEasing {
