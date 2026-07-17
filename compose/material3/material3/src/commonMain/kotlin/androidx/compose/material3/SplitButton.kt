@@ -129,11 +129,13 @@ fun SplitButton(
                 Box(
                     modifier = Modifier.layoutId(LeadingButtonLayoutId),
                     contentAlignment = Alignment.Center,
+                    propagateMinConstraints = true,
                     content = { leadingButton() },
                 )
                 Box(
                     modifier = Modifier.layoutId(TrailingButtonLayoutId),
                     contentAlignment = Alignment.Center,
+                    propagateMinConstraints = true,
                     content = { trailingButton() },
                 )
             }
