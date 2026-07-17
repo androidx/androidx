@@ -17,13 +17,14 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
-import static androidx.car.app.model.CarColor.GREEN;
 
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
@@ -120,7 +121,7 @@ public final class ToggleButtonListDemoScreen extends Screen {
                         R.drawable.ic_fastfood_white_48dp));
 
         if (mSetTintToVector) {
-            carIconBuilder.setTint(GREEN);
+            carIconBuilder.setStyle(new CarIconStyle.Builder().setTint(CarColor.GREEN).build());
         }
         return carIconBuilder.build();
     }

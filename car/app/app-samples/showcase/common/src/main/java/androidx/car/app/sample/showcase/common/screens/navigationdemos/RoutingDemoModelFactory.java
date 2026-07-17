@@ -36,6 +36,7 @@ import androidx.car.app.model.AlertCallback;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarIconSpan;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
@@ -197,7 +198,7 @@ public class RoutingDemoModelFactory {
                         new CarIcon.Builder(
                                         IconCompat.createWithResource(
                                                 mCarContext, R.drawable.ic_face_24px))
-                                .setTint(CarColor.BLUE)
+                                .setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build())
                                 .build())
                 .build();
     }

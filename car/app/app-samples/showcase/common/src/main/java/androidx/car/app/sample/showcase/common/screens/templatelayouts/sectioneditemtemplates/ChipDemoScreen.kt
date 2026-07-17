@@ -25,6 +25,7 @@ import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
+import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.Chip
 import androidx.car.app.model.ChipSection
 import androidx.car.app.model.ChipStyle
@@ -204,7 +205,9 @@ class ChipDemoScreen(carContext: CarContext) : Screen(carContext) {
                         CarIcon.Builder(
                                 IconCompat.createWithResource(carContext, R.drawable.ic_face_24px)
                             )
-                            .setTint(customCurrentIconColor)
+                            .setStyle(
+                                CarIconStyle.Builder().setTint(customCurrentIconColor).build()
+                            )
                             .build()
                     )
                     .setSelected(isSelected)

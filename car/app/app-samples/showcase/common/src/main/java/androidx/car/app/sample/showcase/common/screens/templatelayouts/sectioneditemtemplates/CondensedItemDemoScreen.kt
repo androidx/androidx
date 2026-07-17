@@ -27,6 +27,7 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.Background
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
+import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.CondensedItem
 import androidx.car.app.model.CondensedItemStyle
@@ -321,11 +322,15 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                         .setTitle("Custom Alpha Tint")
                         .setLeadingImage(
                             CarIcon.Builder(mediaIcon)
-                                .setTint(
-                                    CarColor.createCustom(
-                                        Color.argb(100, 0, 255, 0),
-                                        Color.argb(100, 0, 255, 0),
-                                    )
+                                .setStyle(
+                                    CarIconStyle.Builder()
+                                        .setTint(
+                                            CarColor.createCustom(
+                                                Color.argb(100, 0, 255, 0),
+                                                Color.argb(100, 0, 255, 0),
+                                            )
+                                        )
+                                        .build()
                                 )
                                 .build()
                         )
