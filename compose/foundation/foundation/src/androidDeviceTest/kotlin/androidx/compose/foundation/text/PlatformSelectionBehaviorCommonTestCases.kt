@@ -17,15 +17,14 @@
 package androidx.compose.foundation.text
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.PlatformSelectionBehaviors
 import androidx.compose.foundation.text.selection.PlatformSelectionBehaviorsFactory
-import androidx.compose.foundation.text.selection.SelectedTextType
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,13 +43,10 @@ import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -275,28 +271,18 @@ class PlatformSelectionBehaviorsRule : TestRule {
             object : Statement() {
                 @SuppressLint("VisibleForTests")
                 override fun evaluate() {
-                    var oldFactory:
-                        ((
-                            CoroutineContext, Context, SelectedTextType, LocaleList?,
-                        ) -> PlatformSelectionBehaviors?)? =
-                        null
+                    val oldQueryLambda = ProcessTextApi23Impl.processTextActivitiesQuery
+
                     val platformSelectionBehaviors =
                         TestPlatformSelectionBehaviors().also {
                             testPlatformSelectionBehaviors = it
                         }
-                    InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                        oldFactory = PlatformSelectionBehaviorsFactory
-                        PlatformSelectionBehaviorsFactory = { _, _, _, _ ->
-                            platformSelectionBehaviors as PlatformSelectionBehaviors
-                        }
+                    PlatformSelectionBehaviorsFactory = { _, _, _, _ ->
+                        platformSelectionBehaviors as PlatformSelectionBehaviors
                     }
-                    try {
-                        base?.evaluate()
-                    } finally {
-                        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                            oldFactory?.let { PlatformSelectionBehaviorsFactory = it }
-                        }
-                    }
+                    base?.evaluate()
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = oldQueryLambda
                 }
             }
         } else {
