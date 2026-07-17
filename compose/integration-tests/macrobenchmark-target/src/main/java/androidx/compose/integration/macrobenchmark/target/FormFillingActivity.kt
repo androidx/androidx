@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -186,6 +187,11 @@ class FormFillingActivity : ComponentActivity() {
         init {
             textSize = fontSize
             gravity = Gravity.CENTER_VERTICAL
+            // Match Compose BasicTextField in benchmark (unfocused during scroll)
+            isFocusable = false
+            isFocusableInTouchMode = false
+            // Disable spell checking (prevents TextServicesManager IPCs during scroll)
+            inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
         fun replaceText(newText: String) {
