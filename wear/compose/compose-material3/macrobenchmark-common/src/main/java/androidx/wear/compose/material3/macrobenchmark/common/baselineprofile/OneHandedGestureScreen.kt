@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
 import androidx.wear.compose.material3.macrobenchmark.common.scrollUp
-import androidx.wear.compose.material3.samples.ScrollIndicatorWithTLCSample
+import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
 
-val ScrollIndicatorScreen =
+val OneHandedGestureScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
-            get() = { ScrollIndicatorWithTLCSample() }
+            get() = { OneHandedGestureTransformingLazyColumnSample() }
 
         override val exercise: MacrobenchmarkScope.() -> Unit
             get() = {
-                // Scroll down and up to exercise TLC, ScrollInfoProvider, and ScrollIndicator
+                // Scroll down and up to exercise the list, one-handed scroll gesture, and scroll
+                // indicator
                 repeat(3) {
                     device.scrollDown()
                     device.waitForIdle()

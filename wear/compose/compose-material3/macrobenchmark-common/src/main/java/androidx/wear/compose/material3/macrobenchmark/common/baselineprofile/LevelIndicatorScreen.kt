@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,43 +24,42 @@ import androidx.test.uiautomator.Until
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.retryIfStale
-import androidx.wear.compose.material3.macrobenchmark.common.swipeRightToDismiss
-import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.material3.samples.LevelIndicatorSample
 
-val SwipeToDismissScreen =
+val LevelIndicatorScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
-            get() = { StatefulSwipeToDismissBox() }
+            get() = { LevelIndicatorSample() }
 
         override val exercise: MacrobenchmarkScope.() -> Unit
             get() = {
-                retryIfStale {
-                        requireNotNull(
-                            device.wait(
-                                Until.findObject(By.text("Item details")),
-                                FIND_OBJECT_TIMEOUT_MS,
-                            )
-                        ) {
-                            "Button 'Item details' not found"
+                repeat(3) {
+                    retryIfStale {
+                            requireNotNull(
+                                device.wait(
+                                    Until.findObject(By.desc("Volume up icon")),
+                                    FIND_OBJECT_TIMEOUT_MS,
+                                )
+                            ) {
+                                "Button 'Volume up icon' not found"
+                            }
                         }
-                    }
-                    .click()
-                check(
-                    device.wait(
-                        Until.hasObject(By.text("Swipe right to dismiss")),
-                        FIND_OBJECT_TIMEOUT_MS,
-                    )
-                ) {
-                    "Destination 'Swipe right to dismiss' not found"
+                        .click()
+                    device.waitForIdle()
                 }
-                device.waitForIdle()
-
-                device.swipeRightToDismiss()
-                check(
-                    device.wait(Until.hasObject(By.text("Item details")), FIND_OBJECT_TIMEOUT_MS)
-                ) {
-                    "Main screen 'Item details' not found"
+                repeat(3) {
+                    retryIfStale {
+                            requireNotNull(
+                                device.wait(
+                                    Until.findObject(By.desc("Volume down icon")),
+                                    FIND_OBJECT_TIMEOUT_MS,
+                                )
+                            ) {
+                                "Button 'Volume down icon' not found"
+                            }
+                        }
+                        .click()
+                    device.waitForIdle()
                 }
-                device.waitForIdle()
             }
     }
