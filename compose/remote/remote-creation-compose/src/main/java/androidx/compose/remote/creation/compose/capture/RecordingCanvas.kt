@@ -221,7 +221,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         }
     }
 
-    private inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span {
+    internal inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span {
         val childSpan = buffer.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
         val prevSaveNode = currentSaveNode
@@ -229,6 +229,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val prevSaveCounter = saveCounter
         buffer.insertPoint = childSpan
         currentSaveNode = null
+        buffer.lastRenderingOp = null
         saveCounter = 0
         try {
             action()
@@ -239,6 +240,21 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
             saveCounter = prevSaveCounter
         }
         return childSpan
+    }
+
+    internal inline fun recordInOffscreenChildSpan(
+        bitmapId: Int,
+        action: () -> Unit,
+    ): CanvasOperationBuffer.Span {
+        val lastDrawToBitmapId = currentDrawToBitmapId
+        return recordInChildSpan {
+            currentDrawToBitmapId = bitmapId
+            try {
+                action()
+            } finally {
+                currentDrawToBitmapId = lastDrawToBitmapId
+            }
+        }
     }
 
     internal fun snapshotPaint(paint: RemotePaint?): RemotePaint? =
@@ -1622,14 +1638,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     public fun drawToOffscreenBitmap(bitmap: RemoteImageBitmap, drawCommands: () -> Unit) {
         val bitmapId = bitmap.getIdForCreationState(creationState)
         val lastDrawToBitmapId = currentDrawToBitmapId
-        val childSpan = recordInChildSpan {
-            currentDrawToBitmapId = bitmapId
-            try {
-                drawCommands()
-            } finally {
-                currentDrawToBitmapId = lastDrawToBitmapId
-            }
-        }
+        val childSpan = recordInOffscreenChildSpan(bitmapId, drawCommands)
 
         val op =
             recordRenderingOp(
@@ -1659,14 +1668,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     ) {
         val bitmapId = bitmap.getIdForCreationState(creationState)
         val lastDrawToBitmapId = currentDrawToBitmapId
-        val childSpan = recordInChildSpan {
-            currentDrawToBitmapId = bitmapId
-            try {
-                drawCommands()
-            } finally {
-                currentDrawToBitmapId = lastDrawToBitmapId
-            }
-        }
+        val childSpan = recordInOffscreenChildSpan(bitmapId, drawCommands)
 
         val op =
             recordRenderingOp(

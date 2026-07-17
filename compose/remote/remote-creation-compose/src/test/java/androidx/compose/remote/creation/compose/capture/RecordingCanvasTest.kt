@@ -706,6 +706,74 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testNestedDrawToOffscreenBitmap_preservesOrderAndScopeDependencies() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val remoteBitmap42 = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
+            val remoteBitmap43 = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
+            val sourceBitmap = RemoteImageBitmap.createForId(22)
+
+            canvas.save()
+            canvas.translate(21f, 175f)
+
+            canvas.drawToOffscreenBitmap(remoteBitmap42, android.graphics.Color.TRANSPARENT) {
+                canvas.save()
+                canvas.translate(-12f, -11f)
+                canvas.drawBitmap(sourceBitmap, 0f.rf, 0f.rf, Paint())
+                canvas.restore()
+
+                canvas.drawToOffscreenBitmap(remoteBitmap43, android.graphics.Color.TRANSPARENT) {
+                    canvas.save()
+                    canvas.translate(-17f, 0f)
+                    canvas.drawRect(0f, 0f, 190f, 190f, Paint())
+                    canvas.restore()
+                }
+
+                val maskPaint = Paint().apply { blendMode = android.graphics.BlendMode.DST_IN }
+                val rect = android.graphics.Rect(0, 0, 450, 450)
+                canvas.drawBitmap(remoteBitmap43, rect, rect, maskPaint)
+            }
+
+            val rect = android.graphics.Rect(0, 0, 450, 450)
+            canvas.drawBitmap(remoteBitmap42, rect, rect, Paint())
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            val bitmap42Id = remoteBitmap42.getIdForCreationState(canvas.creationState)
+            val bitmap43Id = remoteBitmap43.getIdForCreationState(canvas.creationState)
+            val sourceId = sourceBitmap.getIdForCreationState(canvas.creationState)
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addMatrixSave",
+                    "addMatrixTranslate(21.0, 175.0)",
+                    "drawOnBitmap($bitmap42Id, 0, 0)",
+                    "addMatrixSave",
+                    "addMatrixTranslate(-12.0, -11.0)",
+                    "addPaint",
+                    "textData(44, \"\")",
+                    "addDrawBitmap($sourceId)",
+                    "addMatrixRestore",
+                    "drawOnBitmap($bitmap43Id, 0, 0)",
+                    "addMatrixSave",
+                    "addMatrixTranslate(-17.0, 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 190.0, 190.0)",
+                    "addMatrixRestore",
+                    "drawOnBitmap($bitmap42Id, 1, 0)",
+                    "addPaint",
+                    "addDrawBitmap($bitmap43Id)",
+                    "drawOnBitmap(0, 1, 0)",
+                    "addPaint",
+                    "addDrawBitmap($bitmap42Id)",
+                    "addMatrixRestore",
+                )
+                .inOrder()
+        }
+    }
+
+    @Test
     fun testRemoteStringLengthHoisted_InTree() {
         val str = RemoteString.createNamedRemoteString("str", "hello")
         val length = str.length
