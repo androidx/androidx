@@ -87,7 +87,8 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
 
     internal var forceSendingPaint = false
 
-    public var saveCounter: Int = 0
+    public var globalSaveCounter: Int = 0
+    internal var localSpanSaveCounter: Int = 0
     internal var currentDrawToBitmapId = 0
     internal var currentSaveNode: CanvasOp.Save? = null
 
@@ -226,18 +227,20 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val prevInsertPoint = buffer.insertPoint
         val prevSaveNode = currentSaveNode
         val prevLastRenderingOp = buffer.lastRenderingOp
-        val prevSaveCounter = saveCounter
+        val prevLocalSpanSaveCounter = localSpanSaveCounter
+        val prevGlobalSaveCounter = globalSaveCounter
         buffer.insertPoint = childSpan
         currentSaveNode = null
         buffer.lastRenderingOp = null
-        saveCounter = 0
+        localSpanSaveCounter = 0
         try {
             action()
         } finally {
             buffer.insertPoint = prevInsertPoint
             currentSaveNode = prevSaveNode
             buffer.lastRenderingOp = prevLastRenderingOp
-            saveCounter = prevSaveCounter
+            localSpanSaveCounter = prevLocalSpanSaveCounter
+            globalSaveCounter = prevGlobalSaveCounter
         }
         return childSpan
     }
@@ -722,21 +725,23 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val node = CanvasOp.Save(parent = currentSaveNode)
         recordRenderingOp(node)
         currentSaveNode = node
-        saveCounter++
-        return saveCounter
+        localSpanSaveCounter++
+        globalSaveCounter++
+        return globalSaveCounter
     }
 
     override fun restore() {
-        if (saveCounter > 0) {
+        if (localSpanSaveCounter > 0 && globalSaveCounter > 0) {
             currentSaveNode = currentSaveNode?.parent
-            saveCounter--
+            localSpanSaveCounter--
+            globalSaveCounter--
         } else {
             throw IllegalStateException("Underflow in restore - more restores than saves")
         }
     }
 
     override fun restoreToCount(saveCount: Int) {
-        while (saveCounter > saveCount) {
+        while (globalSaveCounter > saveCount) {
             restore()
         }
     }
@@ -1012,7 +1017,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     override fun getSaveCount(): Int {
-        return saveCounter
+        return globalSaveCounter
     }
 
     override fun drawTextOnPath(
