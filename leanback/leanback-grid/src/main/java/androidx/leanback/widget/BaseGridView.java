@@ -790,6 +790,9 @@ public abstract class BaseGridView extends RecyclerView {
      * causing the grid view to scroll. If the BaseGridView hasFocus(), it also updates the focused
      * view. Caller should use {@link #setSelectedPositionToAlignedChild()} for hover exit.  If
      * there is adapter change or scrolling happening, the hovered position might be lost.
+     * <p>
+     * Calling this method will keep the grid layout unaligned (suppressing keyline alignment
+     * scroll during layout passes) until a DPAD navigation event is received.
      * @param child The hovered child of BaseGridView to select.
      */
     public void setSelectedPositionToUnalignedChild(@NonNull View child) {
