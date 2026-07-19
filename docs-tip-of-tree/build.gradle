@@ -7,7 +7,6 @@ plugins {
 // The dependency list should only be changed when a new project is registered or a project's source is removed. Samples should never be added.
 
 dependencies {
-    docs(project(":a2ui:a2ui-core"))
     docs(project(":a2ui:a2ui-engine"))
     docs(project(":a2ui:a2ui-model"))
     docs(project(":activity:activity"))
