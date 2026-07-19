@@ -48,7 +48,7 @@ internal class A2uiComponentScopeImpl(
     }
 
     override fun reportError(exception: A2uiException) {
-        surface.dispatchError(id, exception)
+        surface.dispatchError(exception, id)
     }
 
     @Composable
