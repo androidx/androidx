@@ -25,7 +25,6 @@ import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
-import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
@@ -214,7 +213,7 @@ internal class A2uiCoreSurfaceActor(
                 ?: throw A2uiException.A2uiRuntimeException(
                     "Surface '${message.surfaceId}' not found."
                 )
-        surface.updateDataModel(A2uiDataPath(message.path), message.value)
+        surface.updateDataModel(message.path, message.value)
     }
 
     private fun handleDeleteSurface(message: A2uiDeleteSurfaceMessage) {

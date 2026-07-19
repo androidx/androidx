@@ -31,6 +31,7 @@ import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUserAction
+import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -228,11 +229,18 @@ class A2uiCoreMessageProcessorTest {
     }
 
     private class TestCatalog(override val id: String) : A2uiCoreCatalog {
-        override val components = emptyList<A2uiCoreComponentDefinition>()
+        override val components =
+            listOf(
+                object : A2uiCoreComponentDefinition {
+                    override val name = "button"
+                    override val description = "A test button"
+                    override val propertySchema = A2uiObjectSchema()
+                }
+            )
         override val functions = emptyList<A2uiFunction>()
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String) = null
+        override fun getComponent(name: String) = components.find { it.name == name }
 
         override fun getFunction(name: String) = null
     }

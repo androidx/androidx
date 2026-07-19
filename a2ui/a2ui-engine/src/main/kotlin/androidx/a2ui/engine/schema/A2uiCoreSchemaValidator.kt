@@ -64,13 +64,13 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
      *
      * @param payload The raw payload to validate (e.g., a component properties).
      * @param schema The schema defining the expected structure.
-     * @return true if valid.
+     * @param basePath The base path to use for error reporting (defaults to "$").
      * @throws A2uiException.A2uiValidationException if the payload violates the schema rules or
      *   JSON is malformed.
      */
-    internal fun validateSchema(payload: Any?, schema: A2uiSchema): Boolean {
-        validateSchemaInternal(payload, schema, "$")
-        return true
+    // TODO(b/535051800): Fix validation error path format
+    internal fun validateSchema(payload: Any?, schema: A2uiSchema, basePath: String = "$") {
+        validateSchemaInternal(payload, schema, basePath)
     }
 
     /**

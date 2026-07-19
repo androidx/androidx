@@ -147,7 +147,7 @@ class A2uiCoreExecutionContextTest {
         assertThat(evaluatedContext).isSameInstanceAs(env.context)
     }
 
-    private data class DispatchedError(val componentId: String, val exception: A2uiException)
+    private data class DispatchedError(val exception: A2uiException, val componentId: String?)
 
     private class TestEnvironment(
         val context: A2uiExecutionContext,
@@ -164,8 +164,8 @@ class A2uiCoreExecutionContextTest {
             A2uiCoreExecutionContext(
                 componentId = COMPONENT_ID_1,
                 catalog = TestCatalog(functions = catalogFunctions),
-                dispatchError = { componentId, exception ->
-                    dispatchedError = DispatchedError(componentId, exception)
+                dispatchError = { exception, componentId ->
+                    dispatchedError = DispatchedError(exception, componentId)
                 },
                 valueResolver = valueResolver,
                 dynamicEvaluator = dynamicEvaluator,

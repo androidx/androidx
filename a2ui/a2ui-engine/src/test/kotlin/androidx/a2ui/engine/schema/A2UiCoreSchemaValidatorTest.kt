@@ -46,9 +46,9 @@ class A2UiCoreSchemaValidatorTest {
     private val validator = A2uiCoreSchemaValidator()
 
     @Test
-    fun validateSchema_stringTypeWithValidString_returnsTrue() {
+    fun validateSchema_stringTypeWithValidString_succeeds() {
         val schema = A2uiStringSchema()
-        assertThat(validator.validateSchema("hello", schema)).isTrue()
+        validator.validateSchema("hello", schema)
     }
 
     @Test
@@ -72,15 +72,15 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_numberTypeWithValidInteger_returnsTrue() {
+    fun validateSchema_numberTypeWithValidInteger_succeeds() {
         val schema = A2uiNumberSchema()
-        assertThat(validator.validateSchema(123, schema)).isTrue()
+        validator.validateSchema(123, schema)
     }
 
     @Test
-    fun validateSchema_numberTypeWithValidDouble_returnsTrue() {
+    fun validateSchema_numberTypeWithValidDouble_succeeds() {
         val schema = A2uiNumberSchema()
-        assertThat(validator.validateSchema(123.45, schema)).isTrue()
+        validator.validateSchema(123.45, schema)
     }
 
     @Test
@@ -114,15 +114,15 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_booleanTypeWithValidTrue_returnsTrue() {
+    fun validateSchema_booleanTypeWithValidTrue_succeeds() {
         val schema = A2uiBooleanSchema()
-        assertThat(validator.validateSchema(true, schema)).isTrue()
+        validator.validateSchema(true, schema)
     }
 
     @Test
-    fun validateSchema_booleanTypeWithValidFalse_returnsTrue() {
+    fun validateSchema_booleanTypeWithValidFalse_succeeds() {
         val schema = A2uiBooleanSchema()
-        assertThat(validator.validateSchema(false, schema)).isTrue()
+        validator.validateSchema(false, schema)
     }
 
     @Test
@@ -156,14 +156,13 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_objectTypeWithAllProperties_returnsTrue() {
-        assertThat(validator.validateSchema(mapOf("name" to "Alice", "age" to 30), OBJECT_SCHEMA))
-            .isTrue()
+    fun validateSchema_objectTypeWithAllProperties_succeeds() {
+        validator.validateSchema(mapOf("name" to "Alice", "age" to 30), OBJECT_SCHEMA)
     }
 
     @Test
-    fun validateSchema_objectTypeWithOnlyRequiredProperties_returnsTrue() {
-        assertThat(validator.validateSchema(mapOf("name" to "Alice"), OBJECT_SCHEMA)).isTrue()
+    fun validateSchema_objectTypeWithOnlyRequiredProperties_succeeds() {
+        validator.validateSchema(mapOf("name" to "Alice"), OBJECT_SCHEMA)
     }
 
     @Test
@@ -212,9 +211,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_arrayTypeWithValidItems_returnsTrue() {
+    fun validateSchema_arrayTypeWithValidItems_succeeds() {
         val schema = A2uiArraySchema(items = A2uiNumberSchema())
-        assertThat(validator.validateSchema(listOf(1, 2, 3), schema)).isTrue()
+        validator.validateSchema(listOf(1, 2, 3), schema)
     }
 
     @Test
@@ -251,11 +250,11 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingStringValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingStringValue_succeeds() {
         val schema = A2uiEnumSchema(listOf("a", "b", "c"))
-        assertThat(validator.validateSchema("a", schema)).isTrue()
-        assertThat(validator.validateSchema("b", schema)).isTrue()
-        assertThat(validator.validateSchema("c", schema)).isTrue()
+        validator.validateSchema("a", schema)
+        validator.validateSchema("b", schema)
+        validator.validateSchema("c", schema)
     }
 
     @Test
@@ -269,11 +268,11 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingNumberValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingNumberValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(1, 2, 3))
-        assertThat(validator.validateSchema(1, schema)).isTrue()
-        assertThat(validator.validateSchema(2, schema)).isTrue()
-        assertThat(validator.validateSchema(3, schema)).isTrue()
+        validator.validateSchema(1, schema)
+        validator.validateSchema(2, schema)
+        validator.validateSchema(3, schema)
     }
 
     @Test
@@ -287,10 +286,10 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingBooleanValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingBooleanValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(true, false))
-        assertThat(validator.validateSchema(true, schema)).isTrue()
-        assertThat(validator.validateSchema(false, schema)).isTrue()
+        validator.validateSchema(true, schema)
+        validator.validateSchema(false, schema)
     }
 
     @Test
@@ -304,10 +303,10 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingListValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingListValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(listOf("a", "b"), listOf("c", "d")))
-        assertThat(validator.validateSchema(listOf("a", "b"), schema)).isTrue()
-        assertThat(validator.validateSchema(listOf("c", "d"), schema)).isTrue()
+        validator.validateSchema(listOf("a", "b"), schema)
+        validator.validateSchema(listOf("c", "d"), schema)
     }
 
     @Test
@@ -321,10 +320,10 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingMapValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingMapValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(mapOf("key1" to "value"), mapOf("key2" to 1)))
-        assertThat(validator.validateSchema(mapOf("key1" to "value"), schema)).isTrue()
-        assertThat(validator.validateSchema(mapOf("key2" to 1), schema)).isTrue()
+        validator.validateSchema(mapOf("key1" to "value"), schema)
+        validator.validateSchema(mapOf("key2" to 1), schema)
     }
 
     @Test
@@ -338,10 +337,10 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingNestedListValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingNestedListValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(listOf(listOf("a", "b")), listOf(listOf(1, 2))))
-        assertThat(validator.validateSchema(listOf(listOf("a", "b")), schema)).isTrue()
-        assertThat(validator.validateSchema(listOf(listOf(1, 2)), schema)).isTrue()
+        validator.validateSchema(listOf(listOf("a", "b")), schema)
+        validator.validateSchema(listOf(listOf(1, 2)), schema)
     }
 
     @Test
@@ -355,10 +354,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_enumTypeWithMatchingNestedMapValue_returnsTrue() {
+    fun validateSchema_enumTypeWithMatchingNestedMapValue_succeeds() {
         val schema = A2uiEnumSchema(listOf(mapOf("outer" to mapOf("inner" to "value"))))
-        assertThat(validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema))
-            .isTrue()
+        validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema)
     }
 
     @Test
@@ -372,28 +370,28 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_anyTypeWithObject_returnsTrue() {
+    fun validateSchema_anyTypeWithObject_succeeds() {
         val schema = A2uiAnySchema()
-        assertThat(validator.validateSchema(mapOf("some" to "data"), schema)).isTrue()
+        validator.validateSchema(mapOf("some" to "data"), schema)
     }
 
     @Test
-    fun validateSchema_anyTypeWithNumber_returnsTrue() {
+    fun validateSchema_anyTypeWithNumber_succeeds() {
         val schema = A2uiAnySchema()
-        assertThat(validator.validateSchema(123, schema)).isTrue()
+        validator.validateSchema(123, schema)
     }
 
     @Test
-    fun validateSchema_oneOfTypeMatchingExactlyOne_returnsTrue() {
+    fun validateSchema_oneOfTypeMatchingExactlyOne_succeeds() {
         val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(validator.validateSchema("hello", schema)).isTrue()
-        assertThat(validator.validateSchema(123, schema)).isTrue()
+        validator.validateSchema("hello", schema)
+        validator.validateSchema(123, schema)
     }
 
     @Test
-    fun validateSchema_oneOfTypeWithMixedTypesAndStringifiedValue_returnsTrue() {
+    fun validateSchema_oneOfTypeWithMixedTypesAndStringifiedValue_succeeds() {
         val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(validator.validateSchema("123", schema)).isTrue()
+        validator.validateSchema("123", schema)
     }
 
     @Test
@@ -429,7 +427,7 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_allOfTypeMatchingAll_returnsTrue() {
+    fun validateSchema_allOfTypeMatchingAll_succeeds() {
         val schema =
             A2uiAllOfSchema(
                 listOf(
@@ -443,7 +441,7 @@ class A2UiCoreSchemaValidatorTest {
                     ),
                 )
             )
-        assertThat(validator.validateSchema(mapOf("name" to "Alice", "age" to 30), schema)).isTrue()
+        validator.validateSchema(mapOf("name" to "Alice", "age" to 30), schema)
     }
 
     @Test
@@ -469,10 +467,10 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_anyOfTypeMatchingAtLeastOne_returnsTrue() {
+    fun validateSchema_anyOfTypeMatchingAtLeastOne_succeeds() {
         val schema = A2uiAnyOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
-        assertThat(validator.validateSchema("hello", schema)).isTrue() // Matches String
-        assertThat(validator.validateSchema(123, schema)).isTrue() // Matches Number
+        validator.validateSchema("hello", schema) // Matches String
+        validator.validateSchema(123, schema) // Matches Number
     }
 
     @Test
@@ -486,9 +484,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingStringValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingStringValue_succeeds() {
         val schema = A2uiConstSchema("a")
-        assertThat(validator.validateSchema("a", schema)).isTrue()
+        validator.validateSchema("a", schema)
     }
 
     @Test
@@ -502,9 +500,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingNumberValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingNumberValue_succeeds() {
         val schema = A2uiConstSchema(123)
-        assertThat(validator.validateSchema(123, schema)).isTrue()
+        validator.validateSchema(123, schema)
     }
 
     @Test
@@ -518,9 +516,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingBooleanValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingBooleanValue_succeeds() {
         val schema = A2uiConstSchema(true)
-        assertThat(validator.validateSchema(true, schema)).isTrue()
+        validator.validateSchema(true, schema)
     }
 
     @Test
@@ -534,9 +532,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingListValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingListValue_succeeds() {
         val schema = A2uiConstSchema(listOf("a", true, 3))
-        assertThat(validator.validateSchema(listOf("a", true, 3), schema)).isTrue()
+        validator.validateSchema(listOf("a", true, 3), schema)
     }
 
     @Test
@@ -550,9 +548,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingMapValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingMapValue_succeeds() {
         val schema = A2uiConstSchema(mapOf("a" to "b", "c" to 1))
-        assertThat(validator.validateSchema(mapOf("a" to "b", "c" to 1), schema)).isTrue()
+        validator.validateSchema(mapOf("a" to "b", "c" to 1), schema)
     }
 
     @Test
@@ -566,10 +564,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingNestedListValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingNestedListValue_succeeds() {
         val schema = A2uiConstSchema(listOf(listOf("a", "b"), listOf(1, 2)))
-        assertThat(validator.validateSchema(listOf(listOf("a", "b"), listOf(1, 2)), schema))
-            .isTrue()
+        validator.validateSchema(listOf(listOf("a", "b"), listOf(1, 2)), schema)
     }
 
     @Test
@@ -583,10 +580,9 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_constTypeWithMatchingNestedMapValue_returnsTrue() {
+    fun validateSchema_constTypeWithMatchingNestedMapValue_succeeds() {
         val schema = A2uiConstSchema(mapOf("outer" to mapOf("inner" to "value")))
-        assertThat(validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema))
-            .isTrue()
+        validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema)
     }
 
     @Test
@@ -634,7 +630,7 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_refTypeAnyFunctionWithValidPayload_returnsTrue() {
+    fun validateSchema_refTypeAnyFunctionWithValidPayload_succeeds() {
         val schema = A2uiRefSchema("catalog.json#/\$defs/anyFunction")
         val catalog =
             createTestCatalog(
@@ -652,17 +648,14 @@ class A2UiCoreSchemaValidatorTest {
                 )
             )
         val customValidator = A2uiCoreSchemaValidator(catalog)
-        assertThat(
-                customValidator.validateSchema(
-                    mapOf(
-                        "call" to "myFunction",
-                        "args" to mapOf("myArg" to "value"),
-                        "returnType" to "string",
-                    ),
-                    schema,
-                )
-            )
-            .isTrue()
+        customValidator.validateSchema(
+            mapOf(
+                "call" to "myFunction",
+                "args" to mapOf("myArg" to "value"),
+                "returnType" to "string",
+            ),
+            schema,
+        )
     }
 
     @Test
@@ -720,7 +713,7 @@ class A2UiCoreSchemaValidatorTest {
     }
 
     @Test
-    fun validateSchema_CompositeSchemaWithMatchingValue_returnsTrue() {
+    fun validateSchema_CompositeSchemaWithMatchingValue_succeeds() {
         val composite =
             object : A2uiCompositeSchema() {
                 override val description: String? = null
@@ -732,7 +725,7 @@ class A2UiCoreSchemaValidatorTest {
                     )
                 }
             }
-        assertThat(validator.validateSchema(mapOf("id" to 123), composite)).isTrue()
+        validator.validateSchema(mapOf("id" to 123), composite)
     }
 
     @Test
