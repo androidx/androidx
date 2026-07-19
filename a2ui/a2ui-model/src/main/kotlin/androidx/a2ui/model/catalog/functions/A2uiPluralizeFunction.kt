@@ -16,7 +16,6 @@
 
 package androidx.a2ui.model.catalog.functions
 
-import android.content.Context
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
@@ -25,7 +24,25 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
-import androidx.core.i18n.MessageFormat
+import java.util.Locale
+
+/**
+ * Interface to format messages with arguments using the ICU MessageFormat syntax.
+ *
+ * The implementation of this interface should be provided by the platform (e.g., using
+ * android.icu.text.MessageFormat or com.ibm.icu.text.MessageFormat).
+ */
+public fun interface A2uiMessageFormatter {
+    /**
+     * Formats the specified pattern using the given locale and arguments.
+     *
+     * @param pattern the message format pattern in ICU MessageFormat syntax
+     * @param locale the locale to use for formatting
+     * @param arguments the map of arguments to replace in the pattern
+     * @return the formatted string
+     */
+    public fun format(pattern: String, locale: Locale, arguments: Map<String, Any>): String
+}
 
 /**
  * Chooses a plural string form based on a numeric value.
@@ -35,7 +52,7 @@ import androidx.core.i18n.MessageFormat
 public class A2uiPluralizeFunction
 @JvmOverloads
 public constructor(
-    private val context: Context,
+    private val messageFormatter: A2uiMessageFormatter,
     private val localeProvider: A2uiLocaleProvider = A2uiLocaleProvider.Default,
 ) : A2uiFunction {
 
@@ -136,7 +153,7 @@ public constructor(
             append("}")
         }
 
-        return MessageFormat.format(context, locale, pattern, mapOf("count" to value))
+        return messageFormatter.format(pattern, locale, mapOf("count" to value))
     }
 
     private fun StringBuilder.appendCategory(category: String, value: String?) {

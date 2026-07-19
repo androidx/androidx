@@ -16,29 +16,19 @@
 
 package androidx.a2ui.model.catalog.functions
 
-import android.content.Context
 import androidx.a2ui.model.protocol.A2uiException
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import org.junit.Assert.assertThrows
-import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 
 class A2uiPluralizeFunctionTest {
 
-    private lateinit var context: Context
-
-    @Before
-    fun setUp() {
-        context = Mockito.mock(Context::class.java)
-    }
-
     @Test
-    fun execute_zeroCategory_evaluatesCorrectly() {
-        // Welsh (cy) treats 0 as 'zero'
+    fun execute_validInput_propagateCorrectMessageToMessageFormatter() {
+        val formatter = TestMessageFormatter()
         val function =
-            A2uiPluralizeFunction(context, localeProvider = { Locale.forLanguageTag("cy") })
+            A2uiPluralizeFunction(formatter, localeProvider = { Locale.forLanguageTag("cy") })
         val args =
             mapOf(
                 ARG_VALUE_KEY to 0.0,
@@ -49,111 +39,47 @@ class A2uiPluralizeFunctionTest {
                 ARG_MANY_KEY to VAL_MANY,
                 ARG_OTHER_KEY to VAL_OTHER,
             )
-        assertThat(function.execute(args)).isEqualTo(VAL_ZERO)
-    }
 
-    @Test
-    fun execute_oneCategory_evaluatesCorrectly() {
-        // English (en) treats 1 as 'one'
-        val function = A2uiPluralizeFunction(context, localeProvider = { Locale.ENGLISH })
-        val args =
-            mapOf(
-                ARG_VALUE_KEY to 1.0,
-                ARG_ZERO_KEY to VAL_ZERO,
-                ARG_ONE_KEY to VAL_ONE,
-                ARG_TWO_KEY to VAL_TWO,
-                ARG_FEW_KEY to VAL_FEW,
-                ARG_MANY_KEY to VAL_MANY,
-                ARG_OTHER_KEY to VAL_OTHER,
+        assertThat(function.execute(args)).isEqualTo("formatted_string")
+        assertThat(formatter.capturedPattern)
+            .isEqualTo(
+                "{count, plural, zero {zero} one {one} two {two} few {few} many {many} other {other} }"
             )
-        assertThat(function.execute(args)).isEqualTo(VAL_ONE)
+        assertThat(formatter.capturedLocale).isEqualTo(Locale.forLanguageTag("cy"))
+        assertThat(formatter.capturedArguments).isEqualTo(mapOf("count" to 0.0))
     }
 
     @Test
-    fun execute_twoCategory_evaluatesCorrectly() {
-        // Welsh (cy) treats 2 as 'two'
-        val function =
-            A2uiPluralizeFunction(context, localeProvider = { Locale.forLanguageTag("cy") })
-        val args =
-            mapOf(
-                ARG_VALUE_KEY to 2.0,
-                ARG_ZERO_KEY to VAL_ZERO,
-                ARG_ONE_KEY to VAL_ONE,
-                ARG_TWO_KEY to VAL_TWO,
-                ARG_FEW_KEY to VAL_FEW,
-                ARG_MANY_KEY to VAL_MANY,
-                ARG_OTHER_KEY to VAL_OTHER,
-            )
-        assertThat(function.execute(args)).isEqualTo(VAL_TWO)
-    }
-
-    @Test
-    fun execute_fewCategory_evaluatesCorrectly() {
-        // Welsh (cy) treats 3 as 'few'
-        val function =
-            A2uiPluralizeFunction(context, localeProvider = { Locale.forLanguageTag("cy") })
-        val args =
-            mapOf(
-                ARG_VALUE_KEY to 3.0,
-                ARG_ZERO_KEY to VAL_ZERO,
-                ARG_ONE_KEY to VAL_ONE,
-                ARG_TWO_KEY to VAL_TWO,
-                ARG_FEW_KEY to VAL_FEW,
-                ARG_MANY_KEY to VAL_MANY,
-                ARG_OTHER_KEY to VAL_OTHER,
-            )
-        assertThat(function.execute(args)).isEqualTo(VAL_FEW)
-    }
-
-    @Test
-    fun execute_manyCategory_evaluatesCorrectly() {
-        // Welsh (cy) treats 6 as 'many'
-        val function =
-            A2uiPluralizeFunction(context, localeProvider = { Locale.forLanguageTag("cy") })
-        val args =
-            mapOf(
-                ARG_VALUE_KEY to 6.0,
-                ARG_ZERO_KEY to VAL_ZERO,
-                ARG_ONE_KEY to VAL_ONE,
-                ARG_TWO_KEY to VAL_TWO,
-                ARG_FEW_KEY to VAL_FEW,
-                ARG_MANY_KEY to VAL_MANY,
-                ARG_OTHER_KEY to VAL_OTHER,
-            )
-        assertThat(function.execute(args)).isEqualTo(VAL_MANY)
-    }
-
-    @Test
-    fun execute_otherCategory_evaluatesCorrectly() {
-        // English (en) treats 5 as 'other'
-        val function = A2uiPluralizeFunction(context, localeProvider = { Locale.ENGLISH })
-        val args =
-            mapOf(
-                ARG_VALUE_KEY to 5.0,
-                ARG_ZERO_KEY to VAL_ZERO,
-                ARG_ONE_KEY to VAL_ONE,
-                ARG_TWO_KEY to VAL_TWO,
-                ARG_FEW_KEY to VAL_FEW,
-                ARG_MANY_KEY to VAL_MANY,
-                ARG_OTHER_KEY to VAL_OTHER,
-            )
-        assertThat(function.execute(args)).isEqualTo(VAL_OTHER)
-    }
-
-    @Test
-    fun execute_missingCategory_fallsBackToOther() {
-        // Value 1.0 would resolve to 'one', but since 'one' is not provided, it falls back to
-        // 'other'
-        val function = A2uiPluralizeFunction(context, localeProvider = { Locale.ENGLISH })
+    fun execute_onlyOtherCategory_propagateCorrectMessageToMessageFormatter() {
+        val formatter = TestMessageFormatter()
+        val function = A2uiPluralizeFunction(formatter, localeProvider = { Locale.ENGLISH })
         val args = mapOf(ARG_VALUE_KEY to 1.0, ARG_OTHER_KEY to VAL_FALLBACK_OTHER)
-        assertThat(function.execute(args)).isEqualTo(VAL_FALLBACK_OTHER)
+
+        assertThat(function.execute(args)).isEqualTo("formatted_string")
+        assertThat(formatter.capturedPattern).isEqualTo("{count, plural, other {fallback_other} }")
+        assertThat(formatter.capturedLocale).isEqualTo(Locale.ENGLISH)
+        assertThat(formatter.capturedArguments).isEqualTo(mapOf("count" to 1.0))
     }
 
     @Test
     fun execute_missingValue_throwsValidationException() {
-        val function = A2uiPluralizeFunction(context)
+        val formatter = TestMessageFormatter()
+        val function = A2uiPluralizeFunction(formatter)
         assertThrows(A2uiException.A2uiValidationException::class.java) {
             function.execute(emptyMap())
+        }
+    }
+
+    private class TestMessageFormatter : A2uiMessageFormatter {
+        var capturedPattern: String? = null
+        var capturedLocale: Locale? = null
+        var capturedArguments: Map<String, Any>? = null
+
+        override fun format(pattern: String, locale: Locale, arguments: Map<String, Any>): String {
+            capturedPattern = pattern
+            capturedLocale = locale
+            capturedArguments = arguments
+            return "formatted_string"
         }
     }
 
