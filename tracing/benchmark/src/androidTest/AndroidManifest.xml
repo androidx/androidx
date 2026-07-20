@@ -19,5 +19,7 @@
     <application>
         <!-- enable profiling by shell for non-intrusive profiling tools -->
         <profileable android:shell="true"/>
+        <!-- workaround for b/536117227 -->
+        <uses-library android:name="android.test.runner" />
     </application>
 </manifest>
