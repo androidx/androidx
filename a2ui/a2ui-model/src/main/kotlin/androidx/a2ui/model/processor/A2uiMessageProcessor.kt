@@ -27,6 +27,9 @@ import kotlinx.coroutines.flow.StateFlow
  * This processor is the central orchestration engine for the A2UI core data layer. It receives
  * parsed protocol messages from the host application and exposes the outbound network events back
  * to the host framework.
+ *
+ * TODO(b/532001163): add an sample for this API and reference it from `collectMessages` and
+ *   `processMessage`.
  */
 public interface A2uiMessageProcessor {
 
