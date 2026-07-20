@@ -90,6 +90,8 @@ import kotlinx.coroutines.launch
  *   will morph between as it progresses from 0.0 to 1.0. The loading indicator expects at least two
  *   items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ *
+ * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
@@ -126,6 +128,8 @@ fun LoadingIndicator(
  * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
  *   will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ *
+ * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
@@ -172,6 +176,8 @@ fun LoadingIndicator(
  *   will morph between as it progresses from 0.0 to 1.0. The loading indicator expects at least two
  *   items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ *
+ * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
@@ -213,6 +219,8 @@ fun ContainedLoadingIndicator(
  * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
  *   will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ *
+ * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
