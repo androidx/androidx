@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
 /** Internal class that dispatches initialization events. */
 @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class ReportFragment() : android.app.Fragment() {
+public open class ReportFragment : android.app.Fragment() {
     private var processListener: ActivityInitializationListener? = null
 
     private fun dispatchCreate(listener: ActivityInitializationListener?) {

@@ -59,8 +59,12 @@ import kotlinx.coroutines.withContext
  * invocation to fully finish before re-starting execution as the state moves in and out of the
  * required state.
  *
- * Warning: [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a parameter will
- * throw an [IllegalArgumentException].
+ * **Thread Safety**: This function always executes the lifecycle registration and synchronization
+ * on `Dispatchers.Main.immediate`. If the caller coroutine context runs on a different dispatcher,
+ * it yields to the main dispatcher. The target [block] also executes on the main dispatcher.
+ *
+ * **Warning:** [Lifecycle.State.INITIALIZED] is not allowed in this API. Passing it as a parameter
+ * will throw an [IllegalArgumentException].
  *
  * @param state [Lifecycle.State] in which `block` runs in a new coroutine. That coroutine will
  *   cancel if the lifecycle falls below that state, and will restart if it's in that state again.
@@ -93,7 +97,7 @@ public suspend fun Lifecycle.repeatOnLifecycle(
             try {
                 // Suspend the coroutine until the lifecycle is destroyed or
                 // the coroutine is cancelled
-                suspendCancellableCoroutine<Unit> { cont ->
+                suspendCancellableCoroutine { cont ->
                     // Lifecycle observers that executes `block` when the lifecycle reaches certain
                     // state, and
                     // cancels when it falls below that state.

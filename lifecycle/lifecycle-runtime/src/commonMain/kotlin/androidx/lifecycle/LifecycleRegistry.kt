@@ -25,17 +25,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * An implementation of [Lifecycle] that can handle multiple observers.
+ * A [Lifecycle] implementation that manages multiple [LifecycleObserver]s.
  *
- * It is used by Fragments and Support Library Activities. You can also use it directly if you have
- * a custom [LifecycleOwner].
+ * Commonly used by UI containers (like Activities or Fragments on Android) to manage component
+ * lifecycles. Can be used directly to implement custom [LifecycleOwner] components.
  */
 public open class LifecycleRegistry
 private constructor(provider: LifecycleOwner, private val enforceMainThread: Boolean) :
     Lifecycle() {
 
     /**
-     * A map that holds observers and handles removals/additions during traversal.
+     * A map that holds [LifecycleObserver]s and handles removals/additions during traversal.
      *
      * **Invariant:** At any time, for `observer1` & `observer2`: if `addition_order(observer1) <
      * addition_order(observer2)`, then `state(observer1) >= state(observer2)`.
@@ -43,51 +43,49 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     private var observerMap = FastSafeIterableMap<LifecycleObserver, ObserverWithState>()
 
     /**
-     * The provider that owns this Lifecycle.
+     * The provider that owns this [Lifecycle].
      *
-     * We use a [WeakReference] to avoid leaking the [LifecycleOwner] (e.g., Fragment or Activity)
-     * if this [Lifecycle] is held longer than necessary.
+     * Uses a [WeakReference] to avoid leaking the [LifecycleOwner] if this [Lifecycle] is held
+     * longer than necessary.
      *
-     * **Note:** Leaking this object is still dangerous, as it holds strong references to all its
-     * observers.
+     * Note: Leaking this object is still dangerous, as it holds strong references to all its
+     * [LifecycleObserver]s.
      */
     private val lifecycleOwner = WeakReference(provider)
 
     /**
      * Tracks the nesting depth of [addObserver] calls to detect re-entrance.
      *
-     * If an observer is added *inside* the callback of another observer (e.g., inside `onCreate`),
-     * we increment this counter. If the counter is greater than 0, we are already calculating a
-     * target state or dispatching events, so we skip the top-level [sync] call to avoid unsafe
-     * processing.
+     * Skips top-level [sync] calls when the counter is greater than 0 to avoid unsafe processing if
+     * a [LifecycleObserver] is added inside another [LifecycleObserver]'s callback.
      */
     private var addingObserverCounter = 0
 
     /**
-     * Indicates that the registry is currently traversing the observer list to dispatch events.
+     * Indicates whether the registry is traversing the [LifecycleObserver] list to dispatch
+     * [Event]s.
      *
-     * This guards [moveToState]. If a state transition is requested while we are already handling
-     * an event (e.g., an observer calls `markState` in its callback), we cannot simply start a new
-     * [sync] loop immediately. Instead, we set [newEventOccurred] to true, allowing the *outer*
-     * loop to handle the new state after it finishes its current step.
+     * Guards [moveToState]. Setting [newEventOccurred] to true if a state transition is requested
+     * during dispatch, allowing the outer loop to process the new state later.
      */
     private var handlingEvent = false
 
     /**
-     * Signals that a state change occurred *while* the registry was already processing an event or
-     * adding an observer.
+     * Signals that a state change occurred while processing an [Event] or adding a
+     * [LifecycleObserver].
      *
-     * The [sync] loop checks this flag during iteration. If it detects a new event, it aborts the
-     * current pass and restarts the synchronization process to ensure all observers converge on the
-     * absolute latest state.
+     * Checked by [sync] during iteration to abort and restart synchronization if a new [Event] is
+     * detected, ensuring [LifecycleObserver]s converge on the latest state.
      */
     private var newEventOccurred = false
 
     /**
-     * A stack of states used to ensure safe state transitions during re-entrant observer additions.
+     * A stack of states used to ensure safe [State] transitions during re-entrant
+     * [LifecycleObserver] additions.
      *
-     * When an observer is added *inside* a lifecycle callback (e.g., within `onStart`), we must
-     * prevent the new observer from advancing past the current execution context.
+     * When a [LifecycleObserver] is added inside a [Lifecycle] callback (e.g., within `onStart`),
+     * we must prevent the new [LifecycleObserver] from advancing past the current execution
+     * context.
      *
      * **Example:**
      *
@@ -100,19 +98,19 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
      *
      * In this case, `newObserver` must only be brought up to the [State.CREATED] state while
      * `onStart` is still executing. The standard invariant in `observerMap` fails here because the
-     * original observer (the "parent") has already been removed from the map.
+     * original [LifecycleObserver] (the "parent") has already been removed from the map.
      */
-    private var parentStates = mutableListOf<State>()
+    private val parentStates = mutableListOf<State>()
 
     /**
-     * Creates a new LifecycleRegistry for the given provider.
+     * Creates a new [LifecycleRegistry] for the given [provider].
      *
      * You should usually create this inside your [LifecycleOwner] class's constructor and hold onto
      * the same instance.
      *
-     * @param provider The owner LifecycleOwner
+     * @param provider The owner [LifecycleOwner]
      */
-    public constructor(provider: LifecycleOwner) : this(provider, true)
+    public constructor(provider: LifecycleOwner) : this(provider, enforceMainThread = true)
 
     /**
      * Moves the Lifecycle to the given state and dispatches necessary events to the observers.
@@ -126,31 +124,37 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         currentState = state
     }
 
-    /** The current internal state of the Lifecycle. */
-    private var state = State.INITIALIZED
+    /** The current internal [State] of the [Lifecycle]. */
+    private var internalState = State.INITIALIZED
+
+    /**
+     * The current [State] of the [Lifecycle].
+     *
+     * Transitions the [Lifecycle] to the given target [State] and dispatches the corresponding
+     * [Event]s to any registered [LifecycleObserver]s.
+     *
+     * @throws IllegalStateException if main-thread enforcement is enabled and called on a thread
+     *   other than the main thread.
+     */
     override var currentState: State
-        get() = state
-        /**
-         * Moves the Lifecycle to the given state and dispatches necessary events to the observers.
-         *
-         * @param state new state
-         */
+        get() = internalState
         set(state) {
             enforceMainThreadIfNeeded("setCurrentState")
             moveToState(state)
         }
 
-    private val _currentStateFlow = MutableStateFlow(state)
+    private val _currentStateFlow = MutableStateFlow(internalState)
     override val currentStateFlow: StateFlow<State>
         get() = _currentStateFlow.asStateFlow()
 
     /**
-     * Sets the current state and notifies the observers.
+     * Sets the current [State] and notifies the [LifecycleObserver]s.
      *
-     * Note that if the `currentState` is the same state as the last call to this method, calling
-     * this method has no effect.
+     * No-ops if the target state of the [event] matches [currentState].
      *
-     * @param event The event that was received
+     * @param event The [Event] to process.
+     * @throws IllegalStateException if main-thread enforcement is enabled and called on a thread
+     *   other than the main thread.
      */
     public open fun handleLifecycleEvent(event: Event) {
         enforceMainThreadIfNeeded("handleLifecycleEvent")
@@ -164,18 +168,19 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 
     /**
-     * Updates the internal state and triggers the synchronization process.
+     * Updates the [internalState] and triggers the synchronization process.
      *
-     * If we are already handling an event or adding an observer, we set [newEventOccurred] to true
-     * to signal the active loop to restart, rather than starting a new sync immediately.
+     * If we are already handling an event or adding a [LifecycleObserver], we set
+     * [newEventOccurred] to true to signal the active loop to restart, rather than starting a new
+     * sync immediately.
      */
     private fun moveToState(next: State) {
-        if (state == next) {
+        if (internalState == next) {
             return
         }
-        checkLifecycleStateTransition(lifecycleOwner.get(), state, next)
+        checkLifecycleStateTransition(lifecycleOwner.get(), internalState, next)
 
-        state = next
+        internalState = next
         if (handlingEvent || addingObserverCounter != 0) {
             newEventOccurred = true
             // We are already inside a re-entrant call. The active loop
@@ -185,17 +190,18 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         handlingEvent = true
         sync()
         handlingEvent = false
-        if (state == State.DESTROYED) {
+        if (internalState == State.DESTROYED) {
             observerMap = FastSafeIterableMap()
         }
     }
 
     /**
-     * Checks if all observers are caught up to the current state.
+     * Checks if all [LifecycleObserver]s are caught up to the [internalState].
      *
-     * Because `observerMap` maintains the invariant that older observers have lower/equal states,
-     * we only need to check the first (oldest) and last (newest) observers. If both match the
-     * registry's state, then all observers in between must also be in that state.
+     * Because `observerMap` maintains the invariant that older [LifecycleObserver]s have
+     * lower/equal states, we only need to check the first (oldest) and last (newest)
+     * [LifecycleObserver]s. If both match the registry's state, then all [LifecycleObserver]s in
+     * between must also be in that state.
      */
     private val isSynced: Boolean
         get() {
@@ -204,40 +210,43 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
             }
             val eldestObserverState = observerMap.first().value.state
             val newestObserverState = observerMap.last().value.state
-            return eldestObserverState == newestObserverState && state == newestObserverState
+            return eldestObserverState == newestObserverState &&
+                internalState == newestObserverState
         }
 
     /**
-     * Calculates the target state for a specific observer.
+     * Calculates the target [State] for a specific [LifecycleObserver].
      *
      * We take the minimum of:
-     * 1. The registry's current state.
-     * 2. The state of the observer immediately preceding this one (to maintain the invariant).
+     * 1. The registry's current [internalState].
+     * 2. The state of the [LifecycleObserver] immediately preceding this one (to maintain the
+     *    invariant).
      * 3. The parent state (if we are in a re-entrant call).
      */
     private fun calculateTargetState(observer: LifecycleObserver): State {
-        val map = observerMap.ceil(observer)
-        val siblingState = map?.value?.state
-        val parentState =
-            if (parentStates.isNotEmpty()) parentStates[parentStates.size - 1] else null
-        return min(min(state, siblingState), parentState)
+        val siblingState = observerMap.ceil(observer)?.value?.state ?: State.RESUMED
+        val parentState = parentStates.lastOrNull() ?: State.RESUMED
+        return minOf(internalState, siblingState, parentState)
     }
 
     /**
-     * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes state.
+     * Adds a [LifecycleObserver] that will be notified when the [LifecycleOwner] changes state.
      *
-     * The given observer will be brought to the current state of the LifecycleOwner. For example,
-     * if the LifecycleOwner is in [Lifecycle.State.STARTED] state, the given observer will receive
-     * [Lifecycle.Event.ON_CREATE] and [Lifecycle.Event.ON_START] events.
+     * The given [observer] will be brought to the current [State] of the [LifecycleOwner]. For
+     * example, if the [LifecycleOwner] is in [Lifecycle.State.STARTED], the given [observer]
+     * receives [Lifecycle.Event.ON_CREATE] and [Lifecycle.Event.ON_START] [Event]s.
      *
-     * @param observer The observer to notify.
+     * @param observer The [LifecycleObserver] to notify.
      * @throws IllegalStateException if no event exists to move up from the observer's initial
      *   state.
+     * @throws IllegalStateException if main-thread enforcement is enabled and called on a thread
+     *   other than the main thread.
      */
     @MainThread
     override fun addObserver(observer: LifecycleObserver) {
         enforceMainThreadIfNeeded("addObserver")
-        val initialState = if (state == State.DESTROYED) State.DESTROYED else State.INITIALIZED
+        val initialState =
+            if (internalState == State.DESTROYED) State.DESTROYED else State.INITIALIZED
         val statefulObserver = ObserverWithState(observer, initialState)
         val previous = observerMap.putIfAbsent(observer, statefulObserver)
         if (previous != null) {
@@ -250,8 +259,9 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         while (statefulObserver.state < targetState && observerMap.contains(observer)) {
             parentStates.add(statefulObserver.state)
             val event =
-                Event.upFrom(statefulObserver.state)
-                    ?: throw IllegalStateException("no event up from ${statefulObserver.state}")
+                checkNotNull(Event.upFrom(statefulObserver.state)) {
+                    "no event up from ${statefulObserver.state}"
+                }
             statefulObserver.dispatchEvent(lifecycleOwner, event)
             parentStates.removeLastOrNull()
             // The global state or sibling state may have changed during dispatch; recalculate.
@@ -264,6 +274,13 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         addingObserverCounter--
     }
 
+    /**
+     * Removes the given [observer] from the list of registered [LifecycleObserver]s.
+     *
+     * @param observer The [LifecycleObserver] to remove.
+     * @throws IllegalStateException if main-thread enforcement is enabled and called on a thread
+     *   other than the main thread.
+     */
     @MainThread
     override fun removeObserver(observer: LifecycleObserver) {
         enforceMainThreadIfNeeded("removeObserver")
@@ -281,9 +298,10 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 
     /**
-     * The number of observers.
+     * The number of registered [LifecycleObserver]s.
      *
-     * @return The number of observers.
+     * @throws IllegalStateException if main-thread enforcement is enabled and called on a thread
+     *   other than the main thread.
      */
     public open val observerCount: Int
         get() {
@@ -292,17 +310,17 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         }
 
     /**
-     * Moves observers "up" towards [State.RESUMED].
+     * Moves [LifecycleObserver]s "up" towards [State.RESUMED].
      *
-     * This dispatches events that initialize or activate the component (e.g., [Event.ON_CREATE],
-     * [Event.ON_START], [Event.ON_RESUME]).
-     *
-     * We iterate from **oldest to newest** observers. This ensures that parents (usually added
-     * first) are initialized before their children.
+     * Dispatches [Event]s that activate components (e.g., [Event.ON_CREATE], [Event.ON_START],
+     * [Event.ON_RESUME]). Iterates from oldest to newest [LifecycleObserver]s so parents initialize
+     * before children.
      */
     private fun forwardPass(lifecycleOwner: LifecycleOwner) {
         observerMap.forEachWithAdditions { (key, observer) ->
-            while (observer.state < state && !newEventOccurred && observerMap.contains(key)) {
+            while (
+                observer.state < internalState && !newEventOccurred && observerMap.contains(key)
+            ) {
                 parentStates.add(observer.state)
                 val event =
                     checkNotNull(Event.upFrom(observer.state)) {
@@ -315,18 +333,17 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 
     /**
-     * Moves observers "down" towards [State.DESTROYED].
+     * Moves [LifecycleObserver]s "down" towards [State.DESTROYED].
      *
-     * This dispatches events that stop or tear down the component (e.g., [Event.ON_PAUSE],
-     * [Event.ON_STOP], [Event.ON_DESTROY]).
-     *
-     * We iterate from **newest to oldest** observers. This ensures that children (usually added
-     * last) are torn down before their parents, mirroring the stack-like behavior of typical
-     * cleanup routines.
+     * Dispatches [Event]s that tear down components (e.g., [Event.ON_PAUSE], [Event.ON_STOP],
+     * [Event.ON_DESTROY]). Iterates from newest to oldest [LifecycleObserver]s so children tear
+     * down before parents.
      */
     private fun backwardPass(lifecycleOwner: LifecycleOwner) {
         observerMap.forEachReversed { (key, observer) ->
-            while (observer.state > state && !newEventOccurred && observerMap.contains(key)) {
+            while (
+                observer.state > internalState && !newEventOccurred && observerMap.contains(key)
+            ) {
                 val event =
                     checkNotNull(Event.downFrom(observer.state)) {
                         "no event down from ${observer.state}"
@@ -339,22 +356,21 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 
     /**
-     * Synchronizes the state of all observers with the registry's current [state].
+     * Synchronizes the state of all [LifecycleObserver]s with the registry's current
+     * [internalState].
      *
-     * This method runs a loop that attempts to converge the observers' states toward the registry's
-     * state. It handles two directions:
-     * 1. **Backward Pass:** If the registry's state is *lower* than the oldest observer (e.g.,
-     *    moving towards [State.DESTROYED]), we iterate strictly in reverse order to bring observers
-     *    down.
-     * 2. **Forward Pass:** If the registry's state is *higher* than the newest observer (e.g.,
-     *    moving towards [State.RESUMED]), we iterate in addition order to bring observers up.
+     * Iteratively converges [LifecycleObserver]s' states toward the registry's state. It executes:
+     * - **Backward Pass**: brings [LifecycleObserver]s down in reverse addition order (e.g.,
+     *   towards [State.DESTROYED]) when the registry's state is lower than the oldest
+     *   [LifecycleObserver].
+     * - **Forward Pass**: brings [LifecycleObserver]s up in addition order (e.g., towards
+     *   [State.RESUMED]) when the registry's state is higher than the newest [LifecycleObserver].
      *
-     * If a new lifecycle event occurs *during* this traversal (re-entrance), the [newEventOccurred]
-     * flag is set. The loop detects this, stops the current pass, and restarts to ensure all
-     * observers settle on the most recent state.
+     * If a new [Event] occurs during synchronization (re-entrance), [newEventOccurred] is set,
+     * aborting the current pass to restart the convergence with the latest state.
      *
-     * **Note:** This method must only be called from the top of the stack (never inside a
-     * re-entrant call) to avoid stack overflow.
+     * Note: Call only from the top of the stack (never inside a re-entrant call) to avoid stack
+     * overflow.
      */
     private fun sync() {
         val lifecycleOwner =
@@ -365,12 +381,12 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         while (!isSynced) {
             newEventOccurred = false
             // If the current state is "lower" than the oldest observer, we bring observers down.
-            if (state < observerMap.first().value.state) {
+            if (internalState < observerMap.first().value.state) {
                 backwardPass(lifecycleOwner)
             }
-            val newest = observerMap.lastOrNull()
+            val newestState = observerMap.lastOrNull()?.value?.state
             // If the current state is "higher" than the newest observer, we bring observers up.
-            if (!newEventOccurred && newest != null && state > newest.value.state) {
+            if (!newEventOccurred && newestState != null && internalState > newestState) {
                 forwardPass(lifecycleOwner)
             }
         }
@@ -385,18 +401,18 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
      */
     private fun enforceMainThreadIfNeeded(methodName: String) {
         if (enforceMainThread) {
-            check(isMainThread()) { ("Method $methodName must be called on the main thread") }
+            check(isMainThread()) { "Method $methodName must be called on the main thread" }
         }
     }
 
     /** Wrapper that couples a [LifecycleObserver] with its current [State]. */
     internal class ObserverWithState(private val observer: LifecycleObserver, initialState: State) {
         var state = initialState
-        var lifecycleObserver = Lifecycling.lifecycleEventObserver(observer)
+        val lifecycleObserver = Lifecycling.lifecycleEventObserver(observer)
 
         fun dispatchEvent(owner: LifecycleOwner, event: Event) {
             val newState = event.targetState
-            state = min(state, newState)
+            state = minOf(state, newState)
             LifecycleTracer.trace(
                 name = "LifecycleRegistry#onStateChanged",
                 owner = owner,
@@ -411,14 +427,11 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
 
     public companion object {
         /**
-         * Creates a new LifecycleRegistry for the given provider that doesn't check if its methods
-         * are called on threads other than main.
+         * Creates a new [LifecycleRegistry] for the given [LifecycleOwner] without main-thread
+         * enforcement.
          *
-         * LifecycleRegistry is not synchronized: if multiple threads access this
-         * `LifecycleRegistry`, it must be synchronized externally.
-         *
-         * Another possible use-case for this method is JVM testing, when the main thread is not
-         * present.
+         * Note: [LifecycleRegistry] is not thread-safe. Multiple threads accessing it must
+         * synchronize externally. Useful for JVM testing where a main thread dispatcher is absent.
          */
         @JvmStatic
         @VisibleForTesting
@@ -428,19 +441,10 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     }
 }
 
-/** Returns the minimum of two states, handling nulls by treating them as "larger". */
-private fun min(state1: State, state2: State?): State {
-    return if ((state2 != null) && (state2 < state1)) state2 else state1
-}
-
 /**
- * Checks the [Lifecycle.State] of a component and throws an error if an invalid state transition is
- * detected.
+ * Asserts that a transition from [current] to [next] state is valid.
  *
- * @param owner The [LifecycleOwner] holding the [Lifecycle] of the component.
- * @param current The current [Lifecycle.State] of the component.
- * @param next The desired next [Lifecycle.State] of the component.
- * @throws IllegalStateException if the component is in an invalid state for the desired transition.
+ * @throws IllegalStateException if the transition is invalid.
  */
 private fun checkLifecycleStateTransition(owner: LifecycleOwner?, current: State, next: State) {
     if (current == State.INITIALIZED && next == State.DESTROYED) {
