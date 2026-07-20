@@ -2163,6 +2163,7 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
     method public String getContentId();
     method public androidx.car.app.model.CarIcon getIcon();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.TabStyle? getStyle();
     method public androidx.car.app.model.CarText getTitle();
   }
 
@@ -2172,6 +2173,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Tab build();
     method public androidx.car.app.model.Tab.Builder setContentId(String);
     method public androidx.car.app.model.Tab.Builder setIcon(androidx.car.app.model.CarIcon);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Tab.Builder setStyle(androidx.car.app.model.TabStyle);
     method public androidx.car.app.model.Tab.Builder setTitle(CharSequence);
   }
 
@@ -2188,6 +2190,17 @@ package androidx.car.app.model {
   public static final class TabContents.Builder {
     ctor public TabContents.Builder(androidx.car.app.model.Template);
     method public androidx.car.app.model.TabContents build();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class TabStyle {
+    method public androidx.car.app.model.Shape? getShape();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class TabStyle.Builder {
+    ctor public TabStyle.Builder();
+    ctor public TabStyle.Builder(androidx.car.app.model.TabStyle);
+    method public androidx.car.app.model.TabStyle build();
+    method public androidx.car.app.model.TabStyle.Builder setShape(androidx.car.app.model.Shape);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
