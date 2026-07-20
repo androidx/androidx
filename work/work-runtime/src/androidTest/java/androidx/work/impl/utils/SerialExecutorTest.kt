@@ -18,17 +18,23 @@ package androidx.work.impl.utils
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThanOrEqualTo
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@LargeTest
 class SerialExecutorTest {
 
     lateinit var executor: SerialExecutorImpl
@@ -39,6 +45,7 @@ class SerialExecutorTest {
     }
 
     @Test
+    @LargeTest
     fun testSerialExecutor() {
         val latch = CountDownLatch(3)
         val first = TimestampTrackingRunnable(latch)
@@ -52,6 +59,38 @@ class SerialExecutorTest {
             assertThat(runnable.start, greaterThanOrEqualTo(lastStart))
             lastStart = runnable.end
         }
+    }
+
+    @Test
+    @MediumTest
+    fun testExecutorFailureDoesNotLock() = runBlocking {
+        val delegate =
+            object : Executor {
+                var shouldThrow = true
+
+                override fun execute(command: Runnable) {
+                    if (shouldThrow) {
+                        shouldThrow = false
+                        throw RejectedExecutionException("Forced failure")
+                    }
+                    command.run()
+                }
+            }
+        val serialExecutor = SerialExecutorImpl(delegate)
+
+        // First execution should fail to schedule
+        try {
+            serialExecutor.execute(Runnable {})
+            fail("Expected RejectedExecutionException")
+        } catch (e: RejectedExecutionException) {
+            // expected
+        }
+
+        // Second execution should succeed because delegate no longer throws
+        val deferred = CompletableDeferred<Unit>()
+        serialExecutor.execute(Runnable { deferred.complete(Unit) })
+
+        withTimeout(10000) { deferred.await() }
     }
 
     companion object {
