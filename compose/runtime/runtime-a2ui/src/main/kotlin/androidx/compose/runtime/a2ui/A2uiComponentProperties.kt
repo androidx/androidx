@@ -30,6 +30,31 @@ import androidx.compose.runtime.Immutable
 public class A2uiComponentProperties internal constructor(internal val raw: Map<String, Any?>) {
 
     /**
+     * Retrieves the property value for a given static property.
+     *
+     * Note: This does not evaluate dynamic expressions or bindings.
+     *
+     * @param property The static property to retrieve.
+     * @return The property value, or `null` if the property is missing and is not required.
+     * @throws IllegalStateException If the property is required but missing, or if the value is of
+     *   an invalid type. These cases indicate a mismatch in the property definition, as incoming
+     *   payloads are expected to be validated before reaching the UI.
+     */
+    public operator fun <T> get(property: StaticA2uiProperty<T>): T? {
+        if (property.isRequired && !raw.contains(property.key)) {
+            throw IllegalStateException("Required static property '${property.key}' is missing.")
+        }
+        val value = raw[property.key] ?: return null
+
+        return property.safeCast(value)
+            ?: throw IllegalStateException(
+                "Type mismatch for static property '${property.key}'. " +
+                    "Expected a value compatible with ${property.javaClass.simpleName}, " +
+                    "but received ${value.javaClass.simpleName}. "
+            )
+    }
+
+    /**
      * Retrieves the raw payload for the given property key.
      *
      * @param key The name of the property to retrieve.
