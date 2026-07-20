@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,10 +61,11 @@ import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
+import kotlinx.coroutines.launch
 
 @Preview
 @Sampled
@@ -375,7 +377,8 @@ fun AppCardContentWithOneHandedGestureSample() {
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card(
@@ -387,14 +390,16 @@ fun AppCardContentWithOneHandedGestureSample() {
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
                         onGestureLabel = "click",
-                        onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                        onGestureAvailable = {
+                            coroutineScope.launch { indicatorState.showIndicator() }
+                        },
                         interactionSource = interactionSource,
                         onGesture = onClick,
                     ),
         ) {
-            OneHandedGestureIndicator(
+            OneHandedGestureClickIndicator(
                 gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
+                state = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
                 CardDefaults.AppCardContent(
@@ -423,7 +428,8 @@ fun TitleCardContentWithOneHandedGestureSample() {
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Card(
@@ -435,14 +441,16 @@ fun TitleCardContentWithOneHandedGestureSample() {
                     .oneHandedGesture(
                         gestureConfiguration = gestureConfig,
                         onGestureLabel = "click",
-                        onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                        onGestureAvailable = {
+                            coroutineScope.launch { indicatorState.showIndicator() }
+                        },
                         interactionSource = interactionSource,
                         onGesture = onClick,
                     ),
         ) {
-            OneHandedGestureIndicator(
+            OneHandedGestureClickIndicator(
                 gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
+                state = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
                 CardDefaults.TitleCardContent(

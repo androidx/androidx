@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,10 +50,11 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 import androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
@@ -71,6 +73,7 @@ import androidx.wear.compose.material3.samples.icons.FavoriteIcon
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import kotlinx.coroutines.launch
 
 val OneHandedGestureDemos =
     listOf(
@@ -152,6 +155,8 @@ fun OneHandedGesturePrimaryDismissButtons() {
     val dismissOnClick = { dismissLabel = "Dismissed" }
     val dismissInteractionSource = remember { MutableInteractionSource() }
 
+    val coroutineScope = rememberCoroutineScope()
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -165,10 +170,10 @@ fun OneHandedGesturePrimaryDismissButtons() {
             ) {
                 val primaryGestureConfig =
                     rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-                val primaryIndicatorState = remember { OneHandedGestureIndicatorState() }
+                val primaryIndicatorState = remember { OneHandedGestureClickIndicatorState() }
                 val dismissGestureConfig =
                     rememberOneHandedGestureConfiguration(action = GestureAction.Dismiss)
-                val dismissIndicatorState = remember { OneHandedGestureIndicatorState() }
+                val dismissIndicatorState = remember { OneHandedGestureClickIndicatorState() }
                 Button(
                     onClick = dismissOnClick,
                     interactionSource = dismissInteractionSource,
@@ -177,11 +182,13 @@ fun OneHandedGesturePrimaryDismissButtons() {
                             gestureConfiguration = dismissGestureConfig,
                             interactionSource = dismissInteractionSource,
                             onGestureLabel = "dismiss",
-                            onGestureAvailable = { dismissIndicatorState.isIndicatorActive = true },
+                            onGestureAvailable = {
+                                coroutineScope.launch { dismissIndicatorState.showIndicator() }
+                            },
                             onGesture = dismissOnClick,
                         ),
                 ) {
-                    OneHandedGestureIndicator(dismissGestureConfig, dismissIndicatorState) {
+                    OneHandedGestureClickIndicator(dismissGestureConfig, dismissIndicatorState) {
                         Text(dismissLabel)
                     }
                 }
@@ -194,11 +201,13 @@ fun OneHandedGesturePrimaryDismissButtons() {
                             gestureConfiguration = primaryGestureConfig,
                             interactionSource = primaryInteractionSource,
                             onGestureLabel = "confirm",
-                            onGestureAvailable = { primaryIndicatorState.isIndicatorActive = true },
+                            onGestureAvailable = {
+                                coroutineScope.launch { primaryIndicatorState.showIndicator() }
+                            },
                             onGesture = primaryOnClick,
                         ),
                 ) {
-                    OneHandedGestureIndicator(primaryGestureConfig, primaryIndicatorState) {
+                    OneHandedGestureClickIndicator(primaryGestureConfig, primaryIndicatorState) {
                         Text(primaryLabel)
                     }
                 }
@@ -256,7 +265,10 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
             action = GestureAction.Primary,
             priority = GesturePriority.Scrollable,
         )
-    val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
+    val scrollIndicatorState =
+        remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
+
     ScreenScaffold(
         scrollState = scrollState,
         scrollIndicator = {
@@ -276,7 +288,9 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                     .oneHandedGesture(
                         gestureConfiguration = scrollGestureConfig,
                         onGestureLabel = "scroll",
-                        onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
+                        onGestureAvailable = {
+                            coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                        },
                         onGesture = { OneHandedGestureDefaults.scrollDown(scrollState) },
                     ),
         ) {
@@ -284,12 +298,12 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
             item {
                 var buttonVisible by remember { mutableStateOf(false) }
                 val buttonInteractionSource = remember { MutableInteractionSource() }
-                val buttonGestureSpec =
+                val buttonGestureConfig =
                     rememberOneHandedGestureConfiguration(
                         action = GestureAction.Primary,
                         priority = GesturePriority.Clickable,
                     )
-                val buttonIndicatorState = remember { OneHandedGestureIndicatorState() }
+                val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
                 Button(
                     onClick = onClick,
                     interactionSource = buttonInteractionSource,
@@ -299,11 +313,13 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                 // Apply the one-handed gesture modifier only when the button is
                                 // visible
                                 Modifier.oneHandedGesture(
-                                    gestureConfiguration = buttonGestureSpec,
+                                    gestureConfiguration = buttonGestureConfig,
                                     interactionSource = buttonInteractionSource,
                                     onGestureLabel = "click",
                                     onGestureAvailable = {
-                                        buttonIndicatorState.isIndicatorActive = true
+                                        coroutineScope.launch {
+                                            buttonIndicatorState.showIndicator()
+                                        }
                                     },
                                     onGesture = onClick,
                                 )
@@ -311,7 +327,7 @@ fun OneHandedGestureTransformingLazyColumnWithButtonDemo() {
                                 Modifier
                             },
                 ) {
-                    OneHandedGestureIndicator(buttonGestureSpec, buttonIndicatorState) {
+                    OneHandedGestureClickIndicator(buttonGestureConfig, buttonIndicatorState) {
                         Text(buttonText)
                     }
                 }
@@ -328,7 +344,9 @@ private fun OneHandedGestureButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
+
     Button(
         onClick = onClick,
         interactionSource = interactionSource,
@@ -337,13 +355,13 @@ private fun OneHandedGestureButton(
                 gestureConfiguration = gestureConfig,
                 interactionSource = interactionSource,
                 onGestureLabel = gestureLabel,
-                onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                onGestureAvailable = { coroutineScope.launch { indicatorState.showIndicator() } },
                 onGesture = onClick,
             ),
     ) {
-        OneHandedGestureIndicator(
+        OneHandedGestureClickIndicator(
             gestureConfiguration = gestureConfig,
-            indicatorState = indicatorState,
+            state = indicatorState,
             content = content,
         )
     }
@@ -355,7 +373,8 @@ fun OHGTonalButtonDemo() {
     val onClick = { label = "Gestured" }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         FilledTonalButton(
@@ -366,13 +385,15 @@ fun OHGTonalButtonDemo() {
                     gestureConfiguration = gestureConfig,
                     onGestureLabel = "click",
                     interactionSource = interactionSource,
-                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGestureAvailable = {
+                        coroutineScope.launch { indicatorState.showIndicator() }
+                    },
                     onGesture = onClick,
                 ),
         ) {
-            OneHandedGestureIndicator(
+            OneHandedGestureClickIndicator(
                 gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
+                state = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurfaceVariant,
             ) {
                 ButtonDefaults.Content(
@@ -392,7 +413,8 @@ fun OHGOutlinedButtonDemo() {
     val onClick = { label = "Gestured" }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         OutlinedButton(
@@ -403,13 +425,15 @@ fun OHGOutlinedButtonDemo() {
                     gestureConfiguration = gestureConfig,
                     onGestureLabel = "click",
                     interactionSource = interactionSource,
-                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGestureAvailable = {
+                        coroutineScope.launch { indicatorState.showIndicator() }
+                    },
                     onGesture = onClick,
                 ),
         ) {
-            OneHandedGestureIndicator(
+            OneHandedGestureClickIndicator(
                 gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
+                state = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.primary,
             ) {
                 ButtonDefaults.Content(
@@ -429,7 +453,8 @@ fun OHGChildButtonDemo() {
     val onClick = { label = "Gestured" }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         ChildButton(
@@ -440,13 +465,15 @@ fun OHGChildButtonDemo() {
                     gestureConfiguration = gestureConfig,
                     onGestureLabel = "click",
                     interactionSource = interactionSource,
-                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGestureAvailable = {
+                        coroutineScope.launch { indicatorState.showIndicator() }
+                    },
                     onGesture = onClick,
                 ),
         ) {
-            OneHandedGestureIndicator(
+            OneHandedGestureClickIndicator(
                 gestureConfiguration = gestureConfig,
-                indicatorState = indicatorState,
+                state = indicatorState,
                 gestureIndicatorTint = MaterialTheme.colorScheme.onSurface,
             ) {
                 ButtonDefaults.Content(

@@ -35,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +60,11 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -72,7 +74,7 @@ fun SimpleButtonSample(modifier: Modifier = Modifier) {
 
 @Sampled
 @Composable
-fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun ButtonSample() {
     Button(
         onClick = { /* Do something */ },
         label = { Text("Button") },
@@ -84,13 +86,13 @@ fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {
+fun ButtonLargeIconSample(enabled: Boolean = true) {
     // When customising the icon size, it is recommended to also specify
     // the associated content padding
     Button(
@@ -106,16 +108,13 @@ fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled:
             )
         },
         contentPadding = ButtonDefaults.ButtonWithLargeIconContentPadding,
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun ButtonExtraLargeIconSample(
-    modifier: Modifier = Modifier.fillMaxWidth(),
-    enabled: Boolean = true,
-) {
+fun ButtonExtraLargeIconSample(enabled: Boolean = true) {
     // When customising the icon size, it is recommended to also specify
     // the associated content padding
     Button(
@@ -131,13 +130,13 @@ fun ButtonExtraLargeIconSample(
             )
         },
         contentPadding = ButtonDefaults.ButtonWithExtraLargeIconContentPadding,
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun ButtonWithImageSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {
+fun ButtonWithImageSample(enabled: Boolean = true) {
     Button(
         onClick = { /* Do something */ },
         containerPainter =
@@ -153,23 +152,23 @@ fun ButtonWithImageSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled:
                 contentDescription = "Favorite icon",
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun SimpleFilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun SimpleFilledTonalButtonSample() {
     FilledTonalButton(
         onClick = { /* Do something */ },
         label = { Text("Filled Tonal Button") },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun FilledTonalButtonSample() {
     FilledTonalButton(
         onClick = { /* Do something */ },
         label = { Text("Filled Tonal Button") },
@@ -181,24 +180,24 @@ fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun SimpleFilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun SimpleFilledVariantButtonSample() {
     Button(
         onClick = { /* Do something */ },
         colors = ButtonDefaults.filledVariantButtonColors(),
         label = { Text("Filled Variant Button") },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun FilledVariantButtonSample() {
     Button(
         onClick = { /* Do something */ },
         colors = ButtonDefaults.filledVariantButtonColors(),
@@ -211,23 +210,23 @@ fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun SimpleOutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun SimpleOutlinedButtonSample() {
     OutlinedButton(
         onClick = { /* Do something */ },
         label = { Text("Outlined Button") },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun OutlinedButtonSample() {
     OutlinedButton(
         onClick = { /* Do something */ },
         label = { Text("Outlined Button") },
@@ -239,25 +238,25 @@ fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun SimpleChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun SimpleChildButtonSample() {
     ChildButton(
         onClick = { /* Do something */ },
         label = {
             Text("Child Button", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
 @Sampled
 @Composable
-fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
+fun ChildButtonSample() {
     ChildButton(
         onClick = { /* Do something */ },
         label = { Text("Child Button") },
@@ -269,7 +268,7 @@ fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
         },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
@@ -404,7 +403,8 @@ fun ButtonContentWithOneHandedGestureSample() {
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Button(
@@ -415,13 +415,15 @@ fun ButtonContentWithOneHandedGestureSample() {
                     gestureConfiguration = gestureConfig,
                     onGestureLabel = "click",
                     interactionSource = interactionSource,
-                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGestureAvailable = {
+                        coroutineScope.launch { indicatorState.showIndicator() }
+                    },
                     onGesture = onClick,
                 ),
             content = {
-                OneHandedGestureIndicator(
+                OneHandedGestureClickIndicator(
                     gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
+                    state = indicatorState,
                     gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     ButtonDefaults.Content(
@@ -449,7 +451,8 @@ fun CompactButtonContentWithOneHandedGestureSample() {
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
     val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-    val indicatorState = remember { OneHandedGestureIndicatorState() }
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CompactButton(
@@ -460,13 +463,15 @@ fun CompactButtonContentWithOneHandedGestureSample() {
                     gestureConfiguration = gestureConfig,
                     onGestureLabel = "click",
                     interactionSource = interactionSource,
-                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                    onGestureAvailable = {
+                        coroutineScope.launch { indicatorState.showIndicator() }
+                    },
                     onGesture = onClick,
                 ),
             content = {
-                OneHandedGestureIndicator(
+                OneHandedGestureClickIndicator(
                     gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
+                    state = indicatorState,
                     gestureIndicatorTint = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     CompactButtonDefaults.Content(

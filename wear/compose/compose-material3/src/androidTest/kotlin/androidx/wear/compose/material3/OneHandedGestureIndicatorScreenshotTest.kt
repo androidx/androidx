@@ -47,16 +47,19 @@ import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -80,20 +83,20 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter gestureAction: GestureActions,
     ) {
         val gestureConfig =
-            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
-        val indicatorState = OneHandedGestureIndicatorState()
+            OneHandedGestureConfiguration(action = gestureAction.action, gestureId = "key")
+        val indicatorState = OneHandedGestureClickIndicatorState()
 
         verifyOneHandedGestureContentScreenshot(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             testName = testName,
             screenshotRule = screenshotRule,
             wrist = wrist,
             layoutDirection = layoutDirection,
         ) {
             CompositionLocalProvider(LocalContentColor provides Color.Black) {
-                OneHandedGestureIndicator(
+                OneHandedGestureClickIndicator(
                     gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
+                    state = indicatorState,
                     modifier = Modifier.testTag(TEST_TAG),
                 ) {
                     Icon(
@@ -113,16 +116,18 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter gestureAction: GestureActions,
     ) {
         val gestureConfig =
-            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
-        val indicatorState = OneHandedGestureIndicatorState()
+            OneHandedGestureConfiguration(action = gestureAction.action, gestureId = "key")
+        lateinit var indicatorState: OneHandedGestureScrollIndicatorState
 
         verifyOneHandedGestureContentScreenshot(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
             {
+                indicatorState = remember(gestureConfig) { OneHandedGestureScrollIndicatorState() }
+
                 Box(modifier = Modifier.testTag(TEST_TAG)) {
                     OneHandedGestureScrollIndicator(
                         gestureConfiguration = gestureConfig,
@@ -141,15 +146,18 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter gestureAction: GestureActions,
     ) {
         val gestureConfig =
-            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
-        val indicatorState = OneHandedGestureIndicatorState()
+            OneHandedGestureConfiguration(action = gestureAction.action, gestureId = "key")
+        lateinit var indicatorState: OneHandedGestureScrollIndicatorState
+
         verifyOneHandedGestureContentScreenshot(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
             wrist = wrist,
             {
+                indicatorState = remember(gestureConfig) { OneHandedGestureScrollIndicatorState() }
+
                 Box(modifier = Modifier.testTag(TEST_TAG)) {
                     OneHandedGestureScrollIndicator(
                         gestureConfiguration = gestureConfig,
@@ -168,10 +176,10 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter gestureAction: GestureActions,
     ) {
         val gestureConfig =
-            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
-        val indicatorState = OneHandedGestureIndicatorState()
+            OneHandedGestureConfiguration(action = gestureAction.action, gestureId = "key")
+        val indicatorState = OneHandedGesturePageIndicatorState()
         verifyOneHandedGestureContentScreenshot(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
@@ -195,10 +203,10 @@ class OneHandedGestureIndicatorScreenshotTest {
         @TestParameter gestureAction: GestureActions,
     ) {
         val gestureConfig =
-            OneHandedGestureConfiguration(action = gestureAction.action, key = "key")
-        val indicatorState = OneHandedGestureIndicatorState()
+            OneHandedGestureConfiguration(action = gestureAction.action, gestureId = "key")
+        val indicatorState = OneHandedGesturePageIndicatorState()
         verifyOneHandedGestureContentScreenshot(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = layoutDirection,
@@ -216,17 +224,18 @@ class OneHandedGestureIndicatorScreenshotTest {
     }
 
     private fun verifyOneHandedGestureContentScreenshot(
-        indicatorState: OneHandedGestureIndicatorState,
+        activate: CoroutineScope.() -> Unit,
         testName: TestName,
         screenshotRule: AndroidXScreenshotTestRule,
         layoutDirection: LayoutDirection,
         @TestParameter wrist: Wrist,
         content: @Composable () -> Unit,
     ) {
+        lateinit var scope: CoroutineScope
         rule.mainClock.autoAdvance = false
 
         rule.setContentWithTheme {
-            val scope: CoroutineScope = rememberCoroutineScope()
+            scope = rememberCoroutineScope()
             val gestureManager =
                 remember(scope) { GestureManagerImpl(scope, SdkGestureInputManagerMock()) }
 
@@ -239,7 +248,7 @@ class OneHandedGestureIndicatorScreenshotTest {
         }
 
         rule.waitForIdle()
-        indicatorState.isIndicatorActive = true
+        scope.activate()
         // Advance alpha animation of gesture indicator. After this, gesture should be fully visible
         rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS)
 
@@ -262,15 +271,15 @@ class OneHandedGestureIndicatorScreenshotTest {
 
         override fun unsubscribeFromSdkGestureAction(view: View, sdkGestureAction: Int) {}
 
-        override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
+        override fun notifyGestureConsumed(gestureId: String, sdkGestureAction: Int) {}
 
         override fun shouldShowIndicator(
-            key: String,
+            gestureId: String,
             sdkGestureAction: Int,
             isOverlay: Boolean,
         ): Boolean = true
 
-        override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
+        override fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int) {}
     }
 
     internal fun Wrist.toWristOrientation(): WristOrientation =

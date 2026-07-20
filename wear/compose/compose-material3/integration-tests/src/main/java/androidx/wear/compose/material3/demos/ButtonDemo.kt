@@ -194,7 +194,7 @@ fun ButtonDemo() {
             )
         }
         item { ListHeader { Text("3 Slot Button") } }
-        item { ButtonSample(modifier = Modifier.fillMaxWidth()) }
+        item { ButtonSample() }
         item {
             Button(
                 onClick = { /* Do something */ },
