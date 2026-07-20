@@ -148,11 +148,11 @@ internal fun sanitizeKDoc(docString: String): String {
                 ANY_TAG_REGEX.matches(trimmedLine) &&
                 !KOTLIN_SUPPORTED_TAGS.matches(trimmedLine) -> {
                 skippingTagDescription = false
-                resultLines.add(line)
+                resultLines.add(trimmedLine)
             }
 
             !skippingTagDescription -> {
-                resultLines.add(line)
+                resultLines.add(trimmedLine)
             }
         }
     }

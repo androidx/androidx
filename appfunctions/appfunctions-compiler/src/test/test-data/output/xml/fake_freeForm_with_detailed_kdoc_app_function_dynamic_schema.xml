@@ -53,10 +53,10 @@
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_true</id>
         <enabledByDefault>true</enabledByDefault>
         <description>A fake free-form AppFunction to test the description element in the function's generated
- metadata xml.
+metadata xml.
 
- This kdoc consists of multiple paragraphs and is used as the function's description to the
- agent.</description>
+This kdoc consists of multiple paragraphs and is used as the function's description to the
+agent.</description>
         <parameters>
             <dataTypeMetadata>
                 <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
@@ -84,10 +84,10 @@
         <id>com.testdata.FakeFreeFormFunctions#fakeFreeFormFunction_isDescribedByKDoc_withDerivedSerializable_true</id>
         <enabledByDefault>true</enabledByDefault>
         <description>A fake free-form AppFunction to test the description elements in the function generated
- metadata xml. This version uses a derived serializable class.
+metadata xml. This version uses a derived serializable class.
 
- This kdoc consists of multiple paragraphs and is used as the function's description to the
- agent.</description>
+This kdoc consists of multiple paragraphs and is used as the function's description to the
+agent.</description>
         <parameters>
             <dataTypeMetadata>
                 <dataTypeReference>com.testdata.DerivedInputToFakeFreeFormFunction</dataTypeReference>
@@ -179,7 +179,7 @@
                         <dataTypeMetadata>
                             <id>unused</id>
                             <isNullable>false</isNullable>
-                            <description>An int param. </description>
+                            <description>An int param.</description>
                             <type>7</type>
                         </dataTypeMetadata>
                         <id>unused</id>
@@ -207,7 +207,7 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>A string param. </description>
+                        <description>A string param.</description>
                         <type>8</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -230,7 +230,7 @@
                         <dataTypeReference>com.testdata.Optional&lt;kotlin.Int&gt;</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Parametrized primitive param. </description>
+                        <description>Parametrized primitive param.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -241,7 +241,7 @@
                         <dataTypeReference>com.testdata.Optional&lt;kotlin.Int?&gt;</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Parametrized nullable primitive param. </description>
+                        <description>Parametrized nullable primitive param.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -252,7 +252,7 @@
                         <dataTypeReference>com.testdata.Optional&lt;com.testdata.InputToFakeFreeFormFunction&gt;</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Parametrized entity param. </description>
+                        <description>Parametrized entity param.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -263,7 +263,7 @@
                         <dataTypeReference>com.testdata.Optional&lt;com.testdata.InputToFakeFreeFormFunction?&gt;</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Parametrized nullable entity param. </description>
+                        <description>Parametrized nullable entity param.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -293,7 +293,7 @@
                             <isNullable>false</isNullable>
                             <type>7</type>
                         </itemType>
-                        <description>Primitive array param. </description>
+                        <description>Primitive array param.</description>
                         <type>10</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -308,7 +308,7 @@
                             <isNullable>false</isNullable>
                             <type>8</type>
                         </itemType>
-                        <description>String list param. </description>
+                        <description>String list param.</description>
                         <type>10</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -324,7 +324,7 @@
                             <isNullable>false</isNullable>
                             <type>11</type>
                         </itemType>
-                        <description>Serializable list param. </description>
+                        <description>Serializable list param.</description>
                         <type>10</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -369,7 +369,7 @@
                         <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>The value. </description>
+                        <description>The value.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -392,7 +392,7 @@
                         <dataTypeReference>com.testdata.InputToFakeFreeFormFunction</dataTypeReference>
                         <id>unused</id>
                         <isNullable>true</isNullable>
-                        <description>The value. </description>
+                        <description>The value.</description>
                         <type>11</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -414,7 +414,7 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>The value. </description>
+                        <description>The value.</description>
                         <type>7</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -436,7 +436,7 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>true</isNullable>
-                        <description>The value. </description>
+                        <description>The value.</description>
                         <type>7</type>
                     </dataTypeMetadata>
                     <id>unused</id>
