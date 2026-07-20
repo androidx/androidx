@@ -19,7 +19,7 @@ package androidx.pdf.ink
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import androidx.pdf.ink.view.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbar
 
 /**
  * A [View.OnTouchListener] responsible for detecting touches outside of the toolbar.

@@ -46,10 +46,10 @@ import androidx.pdf.ink.state.AnnotationDrawingMode
 import androidx.pdf.ink.state.PdfEditMode
 import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 import androidx.pdf.ink.util.InkDefaults
-import androidx.pdf.ink.view.tool.AnnotationToolInfo
-import androidx.pdf.ink.view.tool.Eraser
-import androidx.pdf.ink.view.tool.Highlighter
-import androidx.pdf.ink.view.tool.Pen
+import androidx.pdf.view.annotation.tool.AnnotationToolInfo
+import androidx.pdf.view.annotation.tool.Eraser
+import androidx.pdf.view.annotation.tool.Highlighter
+import androidx.pdf.view.annotation.tool.Pen
 import androidx.pdf.viewer.fragment.PdfDocumentViewModel
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
 import java.util.BitSet
@@ -413,9 +413,10 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                 _drawingMode.value =
                     AnnotationDrawingMode.PenMode(toolInfo.brushSize, toolInfo.color)
             is Highlighter -> {
-                if (toolInfo.color != null && pdfDocument != null) {
+                val color = toolInfo.color
+                if (color != null && pdfDocument != null) {
                     val colorWithHighlighterAlpha =
-                        ColorUtils.setAlphaComponent(toolInfo.color, InkDefaults.HIGHLIGHTER_ALPHA)
+                        ColorUtils.setAlphaComponent(color, InkDefaults.HIGHLIGHTER_ALPHA)
 
                     _drawingMode.value =
                         AnnotationDrawingMode.HighlighterMode(
