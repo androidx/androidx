@@ -22,16 +22,10 @@
     <application android:label="JXR ARCore Projected Tests">
         <meta-data android:name="com.google.ar.core" android:value="optional" />
         <activity
-            android:name=".GeospatialProjectedActivity"
+            android:name=".ProjectedTestAppActivity"
             android:exported="true"
             android:label="Geospatial and Tracking testcase"
             android:requiredDisplayCategory="xr_projected">
-        </activity>
-        <activity
-            android:name=".GeospatialRemoteSensorActivity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:label="Remote Sensor Geospatial">
         </activity>
         <activity
             android:name=".InertialTrackingActivity"
@@ -53,12 +47,6 @@
             android:exported="true"
             android:requiredDisplayCategory="xr_projected"
             android:label="Modern UI Projected Geospatial">
-        </activity>
-        <activity
-            android:name=".LowPowerRemoteSensorGeospatialActivity"
-            android:configChanges="uiMode"
-            android:exported="true"
-            android:label="Modern UI Remote Sensor Geospatial">
         </activity>
         <activity
             android:name=".tiltgesture.TiltGestureTrackingActivity"
