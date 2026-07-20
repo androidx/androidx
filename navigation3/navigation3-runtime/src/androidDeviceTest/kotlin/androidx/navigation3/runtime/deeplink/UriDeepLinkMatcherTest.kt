@@ -793,6 +793,16 @@ class UriDeepLinkMatcherTest {
         assertThat(results.last().key).isEqualTo(TestInterfaceImplB)
     }
 
+    @Test
+    fun matchRequest_matchResultTypePreserved() {
+        val matcher =
+            UriDeepLinkMatcher(DeepLinkUri("http://example.com/path"), serializer<TestKey>())
+        val request = DeepLinkRequest.fromUriString("https://example.com/path")
+        val result = matcher.match(request)
+        // allows direct access to UriMatchResult fields without casting
+        assertThat(result!!.arguments).isEmpty()
+    }
+
     private fun DeepLinkRequest.Companion.fromUriString(uri: String) =
         DeepLinkRequest(uri = DeepLinkUri(uri))
 }

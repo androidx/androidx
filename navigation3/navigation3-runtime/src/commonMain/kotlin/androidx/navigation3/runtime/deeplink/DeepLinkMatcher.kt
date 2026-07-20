@@ -20,16 +20,19 @@ import androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion.MimeTypeE
 import androidx.navigation3.runtime.fastForEachOrForEach
 
 /**
- * Encompasses the logic to match a navigation key of type [T] against a [DeepLinkRequest].
+ * Represents a deep link that can be deep linked into when matched with a [DeepLinkRequest]. Each
+ * matcher is associated with a navigation key that supports this deep link.
  *
  * A navigation key can be associated with more than one [DeepLinkMatcher] if it supports different
  * forms of deep links.
  *
  * [T] The type of the navigation key associated with this deep link.
  *
+ * [R] The type of the [DeepLinkMatcher.MatchResult] returned by this deep link.
+ *
  * @param filters an optional list of [Filter] to apply to the [DeepLinkRequest] during matching
  */
-public abstract class DeepLinkMatcher<out T : Any>(
+public abstract class DeepLinkMatcher<out T : Any, out R : DeepLinkMatcher.MatchResult<T>>(
     private val filters: List<Filter> = emptyList()
 ) {
     /**
@@ -39,11 +42,13 @@ public abstract class DeepLinkMatcher<out T : Any>(
      * [filters] and if all filters returns true, proceeds to call [matchRequest] to get the final
      * match result.
      *
-     * Returns [MatchResult] if it is a match, and returns null otherwise.
+     * [R] The type of the [DeepLinkMatcher.MatchResult] returned by this deep link.
+     *
+     * Returns [R] if it is a match, and returns null otherwise.
      *
      * @param request the [DeepLinkRequest] to match against
      */
-    public fun match(request: DeepLinkRequest): MatchResult<T>? {
+    public fun match(request: DeepLinkRequest): R? {
         // check filters first to avoid creating and discarding a key that doesn't match filters\
         filters.fastForEachOrForEach { filter ->
             val isMatch = filter.filterRequest(request)
@@ -62,7 +67,7 @@ public abstract class DeepLinkMatcher<out T : Any>(
      *
      * @param request the [DeepLinkRequest] to match against
      */
-    protected abstract fun matchRequest(request: DeepLinkRequest): MatchResult<T>?
+    protected abstract fun matchRequest(request: DeepLinkRequest): R?
 
     /**
      * A filter for a deep link, such as a mimeType.
