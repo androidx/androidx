@@ -79,21 +79,25 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.onehandedgesture.GestureAction
 import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
+import androidx.wear.compose.material3.onehandedgesture.GestureManager
 import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicator
-import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.SdkGestureInputManager
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
@@ -104,7 +108,9 @@ import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.Matchers.startsWith
 import org.junit.Ignore
@@ -132,11 +138,13 @@ class OneHandedGestureTest {
             val interactionSource = remember { MutableInteractionSource() }
             val gestureConfig =
                 rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
-            val indicatorState = remember { OneHandedGestureIndicatorState() }
+            val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+            val coroutineScope = rememberCoroutineScope()
+
             MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
-                OneHandedGestureIndicator(
+                OneHandedGestureClickIndicator(
                     gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
+                    state = indicatorState,
                 ) {
                     Text(
                         "Gesturable",
@@ -146,7 +154,12 @@ class OneHandedGestureTest {
                                     gestureConfiguration = gestureConfig,
                                     interactionSource = interactionSource,
                                     onGestureLabel = gestureLabel,
-                                    onGestureAvailable = { indicatorState.isIndicatorActive = true },
+                                    onGestureAvailable = {
+                                        coroutineScope.launch {
+                                            indicatorState.showIndicator()
+                                            indicatorShown = true
+                                        }
+                                    },
                                 ) {
                                     gestured = true
                                 },
@@ -154,9 +167,6 @@ class OneHandedGestureTest {
                 }
             }
 
-            if (indicatorState.isIndicatorActive) {
-                indicatorShown = true
-            }
             interactionSource.ListenForInteractions(onPressInteraction = { pressCoordinates = it })
         }
 
@@ -242,11 +252,13 @@ class OneHandedGestureTest {
             val interactionSource = remember { MutableInteractionSource() }
             val gestureConfig =
                 rememberOneHandedGestureConfiguration(action = GestureAction.Dismiss)
-            val indicatorState = remember { OneHandedGestureIndicatorState() }
+            val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+            val coroutineScope = rememberCoroutineScope()
+
             MockSdkGestureInputManager(sdkGestureInputManager, hapticResults) {
-                OneHandedGestureIndicator(
+                OneHandedGestureClickIndicator(
                     gestureConfiguration = gestureConfig,
-                    indicatorState = indicatorState,
+                    state = indicatorState,
                 ) {
                     Text(
                         "Gesturable",
@@ -256,7 +268,10 @@ class OneHandedGestureTest {
                                     gestureConfiguration = gestureConfig,
                                     interactionSource = interactionSource,
                                     onGestureAvailable = {
-                                        indicatorState.isIndicatorActive = true
+                                        coroutineScope.launch {
+                                            indicatorState.showIndicator()
+                                            indicatorShown = true
+                                        }
                                     },
                                     onGestureLabel = gestureLabel,
                                 ) {
@@ -264,9 +279,6 @@ class OneHandedGestureTest {
                                 },
                     )
                 }
-            }
-            if (indicatorState.isIndicatorActive) {
-                indicatorShown = true
             }
             interactionSource.ListenForInteractions(onPressInteraction = { pressCoordinates = it })
         }
@@ -311,13 +323,17 @@ class OneHandedGestureTest {
                     action = GestureAction.Primary,
                     priority = GesturePriority.Scrollable,
                 )
-            val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
+            val scrollIndicatorState =
+                remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
+
             val textGestureConfig =
                 rememberOneHandedGestureConfiguration(
                     action = GestureAction.Primary,
                     priority = GesturePriority.Clickable,
                 )
-            val textIndicatorState = remember { OneHandedGestureIndicatorState() }
+            val textIndicatorState = remember { OneHandedGestureClickIndicatorState() }
+            val coroutineScope = rememberCoroutineScope()
+
             MockSdkGestureInputManager(sdkGestureInputManager) {
                 val scrollState = rememberTransformingLazyColumnState()
                 ScreenScaffold(
@@ -336,15 +352,16 @@ class OneHandedGestureTest {
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = scrollGestureConfig,
                                 onGestureLabel = "scroll",
+                                onGestureAvailable = { scrollIndicatorShown = true },
                             ) {
                                 scrollGestured = true
                             },
                         contentPadding = paddings,
                     ) {
                         item {
-                            OneHandedGestureIndicator(
+                            OneHandedGestureClickIndicator(
                                 gestureConfiguration = textGestureConfig,
-                                indicatorState = textIndicatorState,
+                                state = textIndicatorState,
                             ) {
                                 Text(
                                     "Clickable",
@@ -353,7 +370,10 @@ class OneHandedGestureTest {
                                             gestureConfiguration = textGestureConfig,
                                             onGestureLabel = buttonGestureLabel,
                                             onGestureAvailable = {
-                                                textIndicatorState.isIndicatorActive = true
+                                                coroutineScope.launch {
+                                                    textIndicatorState.showIndicator()
+                                                    textIndicatorShown = true
+                                                }
                                             },
                                         ) {
                                             textGestured = true
@@ -363,12 +383,6 @@ class OneHandedGestureTest {
                         }
                     }
                 }
-            }
-            if (scrollIndicatorState.isIndicatorActive) {
-                scrollIndicatorShown = true
-            }
-            if (textIndicatorState.isIndicatorActive) {
-                textIndicatorShown = true
             }
         }
 
@@ -402,50 +416,54 @@ class OneHandedGestureTest {
         val sdkGestureInputManager = SdkGestureInputManagerMock()
 
         rule.setContentWithTheme {
+            val coroutineScope = rememberCoroutineScope()
+
             MockSdkGestureInputManager(sdkGestureInputManager) {
                 val scrollGestureConfig =
                     rememberOneHandedGestureConfiguration(
                         action = GestureAction.Primary,
                         priority = GesturePriority.Scrollable,
                     )
-                val scrollIndicatorState = remember { OneHandedGestureIndicatorState() }
+                val scrollIndicatorState = remember { OneHandedGestureClickIndicatorState() }
                 TransformingLazyColumn(
                     modifier =
                         Modifier.oneHandedGesture(
                             gestureConfiguration = scrollGestureConfig,
                             onGestureLabel = "scroll",
-                            onGestureAvailable = { scrollIndicatorState.isIndicatorActive = true },
+                            onGestureAvailable = {
+                                coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                            },
                         ) {
                             tlcGestured = true
                         }
                 ) {
                     items(2) { index ->
-                        val textGestureSpec =
+                        val textGestureConfig =
                             rememberOneHandedGestureConfiguration(
                                 action = GestureAction.Primary,
                                 priority = GesturePriority.Clickable,
                             )
-                        val textIndicatorState = remember { OneHandedGestureIndicatorState() }
-                        OneHandedGestureIndicator(
-                            gestureConfiguration = textGestureSpec,
-                            indicatorState = textIndicatorState,
+                        val textIndicatorState = remember { OneHandedGestureClickIndicatorState() }
+                        OneHandedGestureClickIndicator(
+                            gestureConfiguration = textGestureConfig,
+                            state = textIndicatorState,
                         ) {
                             Text(
                                 "Clickable$index",
                                 modifier =
                                     Modifier.oneHandedGesture(
-                                        gestureConfiguration = textGestureSpec,
+                                        gestureConfiguration = textGestureConfig,
                                         onGestureLabel = "click text $index",
                                         onGestureAvailable = {
-                                            textIndicatorState.isIndicatorActive = true
+                                            coroutineScope.launch {
+                                                textIndicatorState.showIndicator()
+                                                textIndicatorShown[index] = true
+                                            }
                                         },
                                     ) {
                                         textGestured[index] = true
                                     },
                             )
-                        }
-                        if (textIndicatorState.isIndicatorActive) {
-                            textIndicatorShown[index] = true
                         }
                     }
                 }
@@ -487,6 +505,52 @@ class OneHandedGestureTest {
                     )
                 }
             }
+        }
+        rule.waitForIdle()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun register_indicators_with_different_floating_value_throws_error() {
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "key")
+
+        rule.setContentWithTheme {
+            // Register initial gesture indicator
+            LocalGestureManager.current.registerGestureIndicator(
+                gestureConfig,
+                isFloating = true,
+                duration = 500.milliseconds,
+            )
+
+            // Should throw
+            LocalGestureManager.current.registerGestureIndicator(
+                gestureConfig,
+                isFloating = false,
+                duration = 500.milliseconds,
+            )
+        }
+        rule.waitForIdle()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun register_indicators_with_different_duration_throws_error() {
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "key")
+
+        rule.setContentWithTheme {
+            // Register initial gesture indicator
+            LocalGestureManager.current.registerGestureIndicator(
+                gestureConfig,
+                isFloating = true,
+                duration = 500.milliseconds,
+            )
+
+            // Should throw
+            LocalGestureManager.current.registerGestureIndicator(
+                gestureConfig,
+                isFloating = true,
+                duration = 250.milliseconds,
+            )
         }
         rule.waitForIdle()
     }
@@ -669,7 +733,7 @@ class OneHandedGestureTest {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
         val listState = ScalingLazyListState()
         val gestureConfig =
-            OneHandedGestureConfiguration(action = GestureAction.Primary, key = "key")
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "GestureId")
 
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
@@ -718,7 +782,7 @@ class OneHandedGestureTest {
         val listState = ScalingLazyListState()
         val numberOfItems = 10
         val gestureConfig =
-            OneHandedGestureConfiguration(action = GestureAction.Primary, key = "key")
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "GestureId")
 
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
@@ -765,7 +829,7 @@ class OneHandedGestureTest {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
         val listState = TransformingLazyColumnState()
         val gestureConfig =
-            OneHandedGestureConfiguration(action = GestureAction.Primary, key = "key")
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "GestureId")
 
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
@@ -810,7 +874,7 @@ class OneHandedGestureTest {
         val listState = TransformingLazyColumnState()
         val numberOfItems = 15
         val gestureConfig =
-            OneHandedGestureConfiguration(action = GestureAction.Primary, key = "key")
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "GestureId")
 
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
@@ -877,7 +941,7 @@ class OneHandedGestureTest {
         val numberOfPages = 5
         val pagerState = PagerState { numberOfPages }
         val gestureConfig =
-            OneHandedGestureConfiguration(action = GestureAction.Primary, key = "key")
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "GestureId")
 
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
@@ -916,7 +980,7 @@ class OneHandedGestureTest {
     }
 
     @Test
-    fun key_uniqueness() {
+    fun gesture_id_uniqueness() {
         val sdkGestureInputManager = SdkGestureInputManagerMock()
 
         var clickableGestureConfig: OneHandedGestureConfiguration? = null
@@ -939,7 +1003,7 @@ class OneHandedGestureTest {
 
         assertNotNull(clickableGestureConfig)
         assertNotNull(scrollableGestureConfig)
-        assertNotEquals(clickableGestureConfig.key, scrollableGestureConfig.key)
+        assertNotEquals(clickableGestureConfig.gestureId, scrollableGestureConfig.gestureId)
     }
 
     fun local_composition_disable_enable_gesture() {
@@ -1015,12 +1079,17 @@ class OneHandedGestureTest {
     @Test
     fun gesture_indicator_colors() {
         val tintColor = Color.Yellow
-        val indicatorState = OneHandedGestureIndicatorState()
-        rule.verifyColors(indicatorState = indicatorState, expectedContentColor = tintColor) {
-            OneHandedGestureIndicator(
-                gestureConfiguration =
-                    rememberOneHandedGestureConfiguration(action = GestureAction.Primary),
-                indicatorState = indicatorState,
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "gestureId")
+        val indicatorState = OneHandedGestureClickIndicatorState()
+
+        rule.verifyColors(
+            activate = { launch { indicatorState.showIndicator() } },
+            expectedContentColor = tintColor,
+        ) {
+            OneHandedGestureClickIndicator(
+                gestureConfiguration = gestureConfig,
+                state = indicatorState,
                 gestureIndicatorTint = tintColor,
                 modifier = Modifier.testTag(TEST_TAG),
             ) {
@@ -1037,16 +1106,20 @@ class OneHandedGestureTest {
     fun gesture_scroll_indicator_colors() {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
-        val indicatorState = OneHandedGestureIndicatorState()
+        val gestureConfig =
+            OneHandedGestureConfiguration(action = GestureAction.Primary, gestureId = "test")
+        lateinit var indicatorState: OneHandedGestureScrollIndicatorState
+
         rule.verifyColors(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
+            indicatorState = remember(gestureConfig) { OneHandedGestureScrollIndicatorState() }
+
             Box(modifier = Modifier.testTag(TEST_TAG)) {
                 OneHandedGestureScrollIndicator(
-                    gestureConfiguration =
-                        rememberOneHandedGestureConfiguration(action = GestureAction.Primary),
+                    gestureConfiguration = gestureConfig,
                     indicatorState = indicatorState,
                     gestureIndicatorTint = tintColor,
                     gestureIndicatorBackgroundColor = containerColor,
@@ -1060,16 +1133,19 @@ class OneHandedGestureTest {
     fun gesture_horizontal_page_indicator_colors() {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
-        val indicatorState = OneHandedGestureIndicatorState()
+        lateinit var indicatorState: OneHandedGesturePageIndicatorState
+
         rule.verifyColors(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
+            val gestureConfig =
+                rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+            indicatorState = remember { OneHandedGesturePageIndicatorState() }
             Box(modifier = Modifier.testTag(TEST_TAG)) {
                 OneHandedGestureHorizontalPageIndicator(
-                    gestureConfiguration =
-                        rememberOneHandedGestureConfiguration(action = GestureAction.Primary),
+                    gestureConfiguration = gestureConfig,
                     indicatorState = indicatorState,
                     gestureIndicatorTint = tintColor,
                     gestureIndicatorBackgroundColor = containerColor,
@@ -1083,16 +1159,19 @@ class OneHandedGestureTest {
     fun gesture_vertical_page_indicator_colors() {
         val tintColor = Color.Yellow
         val containerColor = Color.Blue
-        val indicatorState = OneHandedGestureIndicatorState()
+        lateinit var indicatorState: OneHandedGesturePageIndicatorState
+
         rule.verifyColors(
-            indicatorState = indicatorState,
+            activate = { launch { indicatorState.showIndicator() } },
             expectedContentColor = tintColor,
             expectedContainerColor = containerColor,
         ) {
+            val gestureConfig =
+                rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+            indicatorState = remember { OneHandedGesturePageIndicatorState() }
             Box(modifier = Modifier.testTag(TEST_TAG)) {
                 OneHandedGestureVerticalPageIndicator(
-                    gestureConfiguration =
-                        rememberOneHandedGestureConfiguration(action = GestureAction.Primary),
+                    gestureConfiguration = gestureConfig,
                     indicatorState = indicatorState,
                     gestureIndicatorTint = tintColor,
                     gestureIndicatorBackgroundColor = containerColor,
@@ -1252,24 +1331,346 @@ class OneHandedGestureTest {
         onView(withContentDescription(startsWith(unexpectedContentDescription))).checkDoesNotExist()
     }
 
+    @Test
+    fun test_gesture_indicator_registered_and_shown() =
+        verifyIndicatorRegistration(expectShown = true) { gestureConfig, indicatorState, _, _ ->
+            val coroutineScope = rememberCoroutineScope()
+
+            Button(
+                onClick = {},
+                modifier =
+                    Modifier.oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "scroll",
+                        onGestureAvailable = {
+                            coroutineScope.launch { indicatorState.showIndicator() }
+                        },
+                        onGesture = {},
+                    ),
+            ) {
+                OneHandedGestureClickIndicator(
+                    gestureConfiguration = gestureConfig,
+                    indicatorState,
+                ) {
+                    Text("Click")
+                }
+            }
+        }
+
+    @Test
+    fun test_gesture_indicator_not_shown() =
+        verifyIndicatorRegistration(expectShown = false) { gestureConfig, indicatorState, _, _ ->
+            Button(
+                onClick = {},
+                modifier =
+                    Modifier.oneHandedGesture(
+                        gestureConfiguration = gestureConfig,
+                        onGestureLabel = "scroll",
+                        onGestureAvailable = {
+                            // Indicator not shown
+                        },
+                        onGesture = {},
+                    ),
+            ) {
+                OneHandedGestureClickIndicator(
+                    gestureConfiguration = gestureConfig,
+                    indicatorState,
+                ) {
+                    Text("Click")
+                }
+            }
+        }
+
+    @Test
+    fun test_scroll_gesture_indicator_registered_and_shown() =
+        verifyIndicatorRegistration(expectShown = true) { gestureConfig, _, scrollIndicatorState, _
+            ->
+            val coroutineScope = rememberCoroutineScope()
+            val scrollState = rememberTransformingLazyColumnState()
+
+            ScreenScaffold(
+                scrollState = scrollState,
+                scrollIndicator = {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        scrollIndicatorState,
+                        scrollState,
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                    )
+                },
+            ) { contentPadding ->
+                TransformingLazyColumn(
+                    state = scrollState,
+                    contentPadding = contentPadding,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfig,
+                            onGestureLabel = "scroll",
+                            onGestureAvailable = {
+                                coroutineScope.launch { scrollIndicatorState.showIndicator() }
+                            },
+                            onGesture = {},
+                        ),
+                ) {
+                    item { Button(onClick = {}) { Text("Click") } }
+                }
+            }
+        }
+
+    @Test
+    fun test_scroll_gesture_indicator_not_shown() =
+        verifyIndicatorRegistration(expectShown = false) { gestureConfig, _, scrollIndicatorState, _
+            ->
+            val scrollState = rememberTransformingLazyColumnState()
+            ScreenScaffold(
+                scrollState = scrollState,
+                scrollIndicator = {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        scrollIndicatorState,
+                        scrollState,
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                    )
+                },
+            ) { contentPadding ->
+                TransformingLazyColumn(
+                    state = scrollState,
+                    contentPadding = contentPadding,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfig,
+                            onGestureLabel = "scroll",
+                            onGestureAvailable = { /* Indicator not shown */ },
+                            onGesture = {},
+                        ),
+                ) {
+                    item { Button(onClick = {}) { Text("Click") } }
+                }
+            }
+        }
+
+    @Test
+    fun test_horizontal_page_gesture_indicator_registered_and_shown() =
+        verifyIndicatorRegistration(expectShown = true) { gestureConfig, _, _, pageIndicatorState ->
+            val coroutineScope = rememberCoroutineScope()
+            val pagerState = rememberPagerState(pageCount = { 3 })
+
+            HorizontalPagerScaffold(
+                pagerState = pagerState,
+                pageIndicator = {
+                    OneHandedGestureHorizontalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = pageIndicatorState,
+                        pagerState = pagerState,
+                    )
+                },
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            onGestureLabel = "Page",
+                            onGestureAvailable = {
+                                coroutineScope.launch { pageIndicatorState.showIndicator() }
+                            },
+                            onGesture = {},
+                        ),
+                ) { page ->
+                    Text(text = "Page $page")
+                }
+            }
+        }
+
+    @Test
+    fun test_horizontal_page_gesture_indicator_not_shown() =
+        verifyIndicatorRegistration(expectShown = false) { gestureConfig, _, _, pageIndicatorState
+            ->
+            val pagerState = rememberPagerState(pageCount = { 3 })
+
+            HorizontalPagerScaffold(
+                pagerState = pagerState,
+                pageIndicator = {
+                    OneHandedGestureHorizontalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = pageIndicatorState,
+                        pagerState = pagerState,
+                    )
+                },
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            onGestureLabel = "Page",
+                            onGestureAvailable = {
+                                // Indicator not shown
+                            },
+                            onGesture = {},
+                        ),
+                ) { page ->
+                    Text(text = "Page $page")
+                }
+            }
+        }
+
+    @Test
+    fun test_vertical_page_gesture_indicator_registered_and_shown() =
+        verifyIndicatorRegistration(expectShown = true) { gestureConfig, _, _, pageIndicatorState ->
+            val coroutineScope = rememberCoroutineScope()
+            val pagerState = rememberPagerState(pageCount = { 3 })
+
+            VerticalPagerScaffold(
+                pagerState = pagerState,
+                pageIndicator = {
+                    OneHandedGestureVerticalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = pageIndicatorState,
+                        pagerState = pagerState,
+                    )
+                },
+            ) {
+                VerticalPager(
+                    state = pagerState,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            onGestureLabel = "Page",
+                            onGestureAvailable = {
+                                coroutineScope.launch { pageIndicatorState.showIndicator() }
+                            },
+                            onGesture = {},
+                        ),
+                ) { page ->
+                    Text(text = "Page $page")
+                }
+            }
+        }
+
+    @Test
+    fun test_vertical_page_gesture_indicator_not_shown() =
+        verifyIndicatorRegistration(expectShown = false) { gestureConfig, _, _, pageIndicatorState
+            ->
+            val pagerState = rememberPagerState(pageCount = { 3 })
+
+            VerticalPagerScaffold(
+                pagerState = pagerState,
+                pageIndicator = {
+                    OneHandedGestureVerticalPageIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = pageIndicatorState,
+                        pagerState = pagerState,
+                    )
+                },
+            ) {
+                VerticalPager(
+                    state = pagerState,
+                    modifier =
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            onGestureLabel = "Page",
+                            onGestureAvailable = {
+                                // Indicator not shown
+                            },
+                            onGesture = {},
+                        ),
+                ) { page ->
+                    Text(text = "Page $page")
+                }
+            }
+        }
+
+    /**
+     * VerifyIndicatorRegistration expects only one of OneHandedGestureIndicatorState,
+     * OneHandedScrollGestureIndicatorState, OneHandedPageIndicatorState is used per test.
+     */
+    private fun verifyIndicatorRegistration(
+        expectShown: Boolean,
+        indicatorContent:
+            @Composable
+            CoroutineScope.(
+                gestureConfig: OneHandedGestureConfiguration,
+                indicatorState: OneHandedGestureClickIndicatorState,
+                scrollIndicatorState: OneHandedGestureScrollIndicatorState,
+                pageIndicatorState: OneHandedGesturePageIndicatorState,
+            ) -> Unit,
+    ) {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(showIndicator = true)
+        var localGestureManager: GestureManager? = null
+        lateinit var gestureConfig: OneHandedGestureConfiguration
+
+        rule.setContentWithTheme {
+            val coroutineScope = rememberCoroutineScope()
+
+            gestureConfig =
+                rememberOneHandedGestureConfiguration(
+                    action = GestureAction.Primary,
+                    priority = GesturePriority.Clickable,
+                )
+
+            // We expect only one of these is used in the test (hence only one config definition).
+            val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+            val scrollIndicatorState =
+                remember(gestureConfig) { OneHandedGestureScrollIndicatorState() }
+            val pageIndicatorState = remember { OneHandedGesturePageIndicatorState() }
+
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                localGestureManager = LocalGestureManager.current
+
+                coroutineScope.indicatorContent(
+                    gestureConfig,
+                    indicatorState,
+                    scrollIndicatorState,
+                    pageIndicatorState,
+                )
+            }
+        }
+
+        rule.waitForIdle()
+
+        // Verify the gesture indicator registered itself
+        val registeredIndicator = localGestureManager?.getRegisteredGestureIndicator(gestureConfig)
+
+        assertNotNull(registeredIndicator)
+
+        // Fast-forward so that onGestureAvailable -> showIndicator
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            if (expectShown) {
+                assertEquals(gestureConfig.gestureId, sdkGestureInputManager.lastNotifiedGestureId)
+                assertEquals(sdkActionPrimary, sdkGestureInputManager.lastNotifiedSdkGestureAction)
+            } else {
+                assertEquals(null, sdkGestureInputManager.lastNotifiedGestureId)
+                assertEquals(null, sdkGestureInputManager.lastNotifiedSdkGestureAction)
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun ComposeContentTestRule.verifyColors(
-        indicatorState: OneHandedGestureIndicatorState,
+        activate: CoroutineScope.() -> Unit,
         expectedContentColor: Color,
         expectedContainerColor: Color? = null,
         content: @Composable BoxScope.() -> Unit,
     ) {
         val sdkGestureInputManager = SdkGestureInputManagerMock()
         val testBackgroundColor = Color.White
+        lateinit var scope: CoroutineScope
+
         rule.mainClock.autoAdvance = false
         setContentWithTheme {
+            scope = rememberCoroutineScope()
             MockSdkGestureInputManager(sdkGestureInputManager) {
                 Box(Modifier.fillMaxSize().background(testBackgroundColor), content = content)
             }
         }
 
-        indicatorState.isIndicatorActive = true
+        scope.activate()
         rule.waitForIdle()
+
         // Advance alpha animation of gesture indicator. After this, gesture should be fully visible
         rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS)
 
@@ -1326,15 +1727,21 @@ class OneHandedGestureTest {
             gestureConsumers.remove(sdkGestureAction)
         }
 
-        override fun notifyGestureConsumed(key: String, sdkGestureAction: Int) {}
+        override fun notifyGestureConsumed(gestureId: String, sdkGestureAction: Int) {}
 
         override fun shouldShowIndicator(
-            key: String,
+            gestureId: String,
             sdkGestureAction: Int,
             isOverlay: Boolean,
         ): Boolean = showIndicator
 
-        override fun notifyIndicatorShown(key: String, sdkGestureAction: Int) {}
+        var lastNotifiedGestureId: String? = null
+        var lastNotifiedSdkGestureAction: Int? = null
+
+        override fun notifyIndicatorShown(gestureId: String, sdkGestureAction: Int) {
+            lastNotifiedGestureId = gestureId
+            lastNotifiedSdkGestureAction = sdkGestureAction
+        }
 
         fun performGesture(sdkGestureAction: Int) {
             gestureConsumers[sdkGestureAction]?.invoke(sdkGestureAction)
@@ -1356,4 +1763,6 @@ class OneHandedGestureTest {
         ItemStart(ScalingLazyListAnchorType.ItemStart),
         ItemCenter(ScalingLazyListAnchorType.ItemCenter),
     }
+
+    private val GESTURE_AVAILABLE_DELAY = 3000L
 }

@@ -99,10 +99,12 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *   this gesture. This is highly recommended for ensuring that users with screen readers understand
  *   what action will be performed.
  * @param onGestureAvailable A callback invoked by the system to signal that this gesture is
- *   currently available as a high-priority action. Developers should use this callback to set
- *   [OneHandedGestureIndicatorState.isIndicatorActive] to `true` to trigger the associated visual
- *   feedback.
+ *   currently available as a high-priority action. Developers should use this callback to call
+ *   showIndicator on the indicator state to trigger the associated visual feedback.
  * @param onGesture The callback invoked when the gesture is triggered.
+ *
+ * See also the
+ * [UI Design Guides for One-Handed Gestures](https://developer.android.com/design/ui/wear/guides/patterns/gestures)
  */
 public fun Modifier.oneHandedGesture(
     gestureConfiguration: OneHandedGestureConfiguration,
@@ -161,7 +163,7 @@ private class GestureElement(
         name = "GestureElement"
         properties["action"] = gestureConfiguration.action
         properties["priority"] = gestureConfiguration.priority
-        properties["key"] = gestureConfiguration.key
+        properties["gestureId"] = gestureConfiguration.gestureId
         properties["enabledInAmbient"] = enabledInAmbient
     }
 
