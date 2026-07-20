@@ -1168,6 +1168,43 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun setMirrorMode_mirrorModeIsChanged() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoCapture = createVideoCapture(mirrorMode = MIRROR_MODE_OFF)
+        addAndAttachUseCases(videoCapture)
+        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_OFF)
+        assertThat(videoCapture.isSurfaceProcessingEnabled()).isFalse()
+
+        // Act.
+        videoCapture.mirrorMode = MIRROR_MODE_ON
+
+        // Assert.
+        assertThat(videoCapture.mirrorMode).isEqualTo(MIRROR_MODE_ON)
+        assertThat(videoCapture.isSurfaceProcessingEnabled()).isTrue()
+    }
+
+    @Test
+    fun activeVideoCaptureMirrorModeChange_transitionsSourceStateToConfiguring() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val videoOutput = createVideoOutput()
+        val videoCapture = createVideoCapture(videoOutput = videoOutput)
+        addAndAttachUseCases(videoCapture)
+
+        // Clear any initial calls during setup
+        videoOutput.sourceStateCalls.clear()
+
+        // Act: change mirror mode dynamically
+        videoCapture.mirrorMode = MIRROR_MODE_ON
+
+        // Assert: verify that CONFIGURING was passed to onSourceStateChanged on the video output!
+        assertThat(videoOutput.sourceStateCalls).contains(VideoOutput.SourceState.CONFIGURING)
+    }
+
+    @Test
     fun setTargetRotationInBuilder_rotationIsChanged() {
         // Act.
         val videoCapture = createVideoCapture(targetRotation = Surface.ROTATION_180)
@@ -2389,6 +2426,12 @@ class VideoCaptureTest {
         val onVerifyConfigException: IllegalArgumentException? = null,
         val surfaceRequestCallback: (SurfaceRequest, Timebase) -> Unit,
     ) : VideoOutput {
+        val sourceStateCalls = mutableListOf<VideoOutput.SourceState>()
+
+        override fun onSourceStateChanged(sourceState: VideoOutput.SourceState) {
+            sourceStateCalls.add(sourceState)
+        }
+
         private val streamInfoObservable: MutableStateObservable<StreamInfo> =
             MutableStateObservable.withInitialState(streamInfo)
 

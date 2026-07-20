@@ -323,6 +323,32 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    /**
+     * Sets the mirror mode.
+     *
+     * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+     * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+     * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
+     *
+     * @param mirrorMode The mirror mode.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
+        if (setMirrorModeInternal(mirrorMode)) {
+            CameraInternal camera = getCamera();
+            if (camera == null) {
+                return;
+            }
+            // When attached to VirtualCamera (e.g. under StreamSharing), avoid tearing down
+            // VideoCapture's internal surface pipeline and rely on StreamSharing pipeline reset.
+            if (camera.getHasTransform()) {
+                resetPipeline();
+            } else {
+                notifyReset();
+            }
+        }
+    }
+
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected void onProviderRotationChanged(int rotation) {
@@ -565,6 +591,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // Clear the pipeline to close the surface, which releases the codec so that it's
         // available for other applications.
         clearPipeline();
+
+        mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
     }
 
     /**
@@ -875,7 +903,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
         mCropRect = null;
         mSurfaceRequest = null;
-        mStreamInfo = StreamInfo.STREAM_INFO_ANY_INACTIVE;
         mRotationDegrees = 0;
         mHasCompensatingTransformation = false;
     }
