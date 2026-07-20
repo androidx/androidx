@@ -41,6 +41,10 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.0")
     androidTestImplementation("androidx.room:room-testing:2.7.0")
 
+    // Forcing upgrade on play-services-basement to mitigate CVE-2022-2390. For more details, see
+    // b/532730248
+    implementation(libs.playServicesBasement)
+
     androidTestImplementation(project(":work:work-runtime-ktx"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
