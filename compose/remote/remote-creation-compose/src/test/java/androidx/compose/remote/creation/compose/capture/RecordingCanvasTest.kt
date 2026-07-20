@@ -43,7 +43,10 @@ import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.graphics.shapes.RoundedPolygon
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -588,7 +591,7 @@ class RecordingCanvasTest {
             canvas.translate(10f, 10f)
             canvas.save()
             canvas.scale(2f, 2f)
-            assertThat(canvas.saveCounter).isEqualTo(2)
+            assertThat(canvas.globalSaveCounter).isEqualTo(2)
 
             // 2. Draw to offscreen bitmap (creates a childSpan)
             canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
@@ -602,7 +605,7 @@ class RecordingCanvasTest {
             // 3. Back in outer canvas, pop both outer saves
             canvas.restore()
             canvas.restore()
-            assertThat(canvas.saveCounter).isEqualTo(0)
+            assertThat(canvas.globalSaveCounter).isEqualTo(0)
 
             // 4. Flush operations to document
             canvas.flush()
@@ -2727,11 +2730,11 @@ class RecordingCanvasTest {
             canvas.translate(-87f, -87f)
             // Add a draw call so optimizing canvas preserves this transform block
             canvas.drawRect(0f, 0f, 10f, 10f, Paint())
-            assertThat(canvas.saveCounter).isEqualTo(1)
+            assertThat(canvas.globalSaveCounter).isEqualTo(1)
 
             // Step 2: Temporarily pop transforms before drawing span
             canvas.restore()
-            assertThat(canvas.saveCounter).isEqualTo(0)
+            assertThat(canvas.globalSaveCounter).isEqualTo(0)
 
             // Step 3: Draw span inside a conditional (using a dynamic boolean condition)
             val dynamicCondition = RemoteBoolean.createNamedRemoteBoolean("test", true)
@@ -2746,7 +2749,7 @@ class RecordingCanvasTest {
             // Add a draw call so optimizing canvas preserves this reinstated transform block
             canvas.drawRect(20f, 20f, 30f, 30f, Paint())
             canvas.restore()
-            assertThat(canvas.saveCounter).isEqualTo(0)
+            assertThat(canvas.globalSaveCounter).isEqualTo(0)
 
             // Step 4b: Draw something after the reinstated transform so the save block is preserved
             // by elision pass
@@ -2773,6 +2776,218 @@ class RecordingCanvasTest {
             assertThat(condIdx).isLessThan(saveIdx)
             assertThat(saveIdx).isLessThan(translateIdx)
         }
+    }
+
+    @Test
+    fun testDrawColor() {
+        recordingCanvas.drawColor(android.graphics.Color.RED)
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawRect") }).isTrue()
+    }
+
+    @Test
+    fun testDrawOvalOverloads() {
+        recordingCanvas.drawOval(0f, 0f, 100f, 100f, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawOval") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        recordingCanvas.drawOval(0f.rf, 0f.rf, 100f.rf, 100f.rf, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawOval") }).isTrue()
+    }
+
+    @Test
+    fun testDrawRoundRectOverloads() {
+        recordingCanvas.drawRoundRect(0f, 0f, 100f, 100f, 10f, 10f, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawRoundRect") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        recordingCanvas.drawRoundRect(0f.rf, 0f.rf, 100f.rf, 100f.rf, 10f.rf, 10f.rf, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawRoundRect") }).isTrue()
+    }
+
+    @Test
+    fun testDrawCircleOverloads() {
+        recordingCanvas.drawCircle(50f, 50f, 25f, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawCircle") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        recordingCanvas.drawCircle(50f.rf, 50f.rf, 25f.rf, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawCircle") }).isTrue()
+    }
+
+    @Test
+    fun testDrawArcOverloads() {
+        recordingCanvas.drawArc(0f, 0f, 100f, 100f, 0f, 90f, false, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawArc") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        recordingCanvas.drawArc(0f.rf, 0f.rf, 100f.rf, 100f.rf, 0f.rf, 90f.rf, true, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawSector") }).isTrue()
+    }
+
+    @Test
+    fun testDrawPathAndDrawRPath() {
+        val path =
+            android.graphics.Path().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+            }
+        recordingCanvas.drawPath(path, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        val rPath =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+            }
+        recordingCanvas.drawRPath(rPath, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
+    }
+
+    @Test
+    fun testDrawRoundedPolygonAndMorph() {
+        val poly1 = RoundedPolygon(numVertices = 4)
+        recordingCanvas.drawRoundedPolygon(poly1, null)
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        val poly2 = RoundedPolygon(numVertices = 4)
+        recordingCanvas.drawRoundedPolygonMorph(poly1, poly2, 0.5f.rf, null)
+        recordingCanvas.flush()
+        assertThat(
+                fakeBuffer.calls.any { it.startsWith("pathTween") || it.startsWith("addDrawPath") }
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun testDrawScaledBitmap() {
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+        recordingCanvas.drawScaledBitmap(
+            bitmap,
+            0f.rf,
+            0f.rf,
+            10f.rf,
+            10f.rf,
+            0f.rf,
+            0f.rf,
+            100f.rf,
+            100f.rf,
+            0,
+            1f.rf,
+            null,
+        )
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("drawScaledBitmap") }).isTrue()
+    }
+
+    @Test
+    fun testDrawTextRunAndSpecializedText() {
+        val str = "hello"
+        recordingCanvas.drawTextRun(str, 0, 5, 0, 5, 10f, 10f, false, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTextRun") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        val path =
+            android.graphics.Path().apply {
+                moveTo(0f, 0f)
+                lineTo(100f, 100f)
+            }
+        recordingCanvas.drawTextOnPath(str, path, 0f, 0f, Paint())
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTextOnPath") }).isTrue()
+    }
+
+    @Test
+    fun testClipRectOverloadsAndBounds() {
+        recordingCanvas.clipRect(0f.rf, 0f.rf, 10f.rf, 10f.rf)
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addClipRect") }).isTrue()
+
+        fakeBuffer.calls.clear()
+        recordingCanvas.clipRect(android.graphics.Rect(0, 0, 5, 5))
+        recordingCanvas.flush()
+        assertThat(fakeBuffer.calls.any { it.startsWith("addClipRect") }).isTrue()
+
+        val bounds = android.graphics.Rect()
+        assertThat(recordingCanvas.getClipBounds(bounds)).isTrue()
+        assertThat(bounds).isEqualTo(android.graphics.Rect(0, 0, 2048, 2048))
+    }
+
+    @Test
+    fun testUnclosedSaveInChildSpanDoesNotCorruptOuterRestoreToCount() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+
+        val outerSaveCount = canvas.save()
+        assertEquals(1, canvas.globalSaveCounter)
+
+        // Inside child span, perform an unbalanced save (no restore)
+        val condition = RemoteBoolean(true)
+        canvas.drawConditionally(condition) {
+            canvas.save() // This increments globalSaveCounter temporarily from 1 to 2
+            // No restore called here inside child span
+        }
+
+        // After recordInChildSpan completes, globalSaveCounter is reverted back to 1.
+        // Calling restoreToCount(outerSaveCount) leaves the outer save intact.
+        canvas.restoreToCount(outerSaveCount)
+
+        assertEquals(1, canvas.globalSaveCounter)
+        canvas.restore()
+        assertEquals(0, canvas.globalSaveCounter)
+    }
+
+    @Test
+    fun testCrossSpanRestoreThrowsIllegalStateException() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+
+        // 1. Push 2 saves on outer span
+        canvas.save()
+        canvas.save()
+        assertEquals(2, canvas.globalSaveCounter)
+
+        // 2. Enter child span via drawConditionally
+        val dummyCondition = RemoteBoolean(true)
+        canvas.drawConditionally(dummyCondition) {
+            // Inside childSpan, localSpanSaveCounter is 0, but globalSaveCounter is 2.
+            // Push 1 local save inside childSpan
+            canvas.save()
+            assertEquals(1, canvas.localSpanSaveCounter)
+            assertEquals(3, canvas.globalSaveCounter)
+
+            // Pop local save
+            canvas.restore()
+            assertEquals(0, canvas.localSpanSaveCounter)
+            assertEquals(2, canvas.globalSaveCounter)
+
+            // Attempting to pop outer parent save across span boundary must throw
+            // IllegalStateException
+            // to prevent unbalanced wire commands on the remote player stack.
+            assertThrows(IllegalStateException::class.java) { canvas.restore() }
+        }
+
+        // 3. Pop outer saves on main canvas
+        canvas.restore()
+        canvas.restore()
+        assertEquals(0, canvas.globalSaveCounter)
+
+        // 4. Global underflow on main canvas must throw IllegalStateException
+        assertThrows(IllegalStateException::class.java) { canvas.restore() }
     }
 }
 
