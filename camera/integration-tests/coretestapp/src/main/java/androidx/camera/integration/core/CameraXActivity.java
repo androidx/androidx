@@ -126,6 +126,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
+import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -148,6 +149,7 @@ import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.integration.core.button.MirrorModeButton;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect;
 import androidx.camera.testing.impl.util.EdgeToEdgeUtil;
@@ -455,6 +457,7 @@ public class CameraXActivity extends AppCompatActivity {
     private Button mZoomIn2XToggle;
     private Button mZoomResetToggle;
     private Button mButtonImageOutputFormat;
+    private MirrorModeButton mMirrorButton;
     private Toast mEvToast = null;
     private Toast mPSToast = null;
     private ToggleButton mPreviewStabilizationToggle;
@@ -469,7 +472,7 @@ public class CameraXActivity extends AppCompatActivity {
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private @ImageCapture.OutputFormat int mImageOutputFormat = OUTPUT_FORMAT_JPEG;
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
-    private int mVideoMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
+    private int mMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
     private boolean mIsPreviewStabilizationOn = false;
     private boolean mIsLowLightBoostOn = false;
     private Range<Integer> mFpsRange = FPS_UNSPECIFIED;
@@ -1387,12 +1390,22 @@ public class CameraXActivity extends AppCompatActivity {
         mButtonImageOutputFormat.setVisibility(visible);
     }
 
+    private void updateMirrorModeUiState() {
+        boolean enabled = mPreviewToggle.isChecked() || mVideoToggle.isChecked();
+        if (mMirrorButton != null) {
+            mMirrorButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            mMirrorButton.setEnabled(enabled);
+            mMirrorButton.setSelectedItem(mMirrorMode);
+        }
+    }
+
     @SuppressLint("RestrictedApiAndroidX")
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
         updateDynamicRangeUiState();
         updateImageOutputFormatUiState();
+        updateMirrorModeUiState();
 
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
         mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
@@ -1493,6 +1506,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpEVButton();
         setUpZoomButton();
         setUpPreviewStabilizationButton();
+        setUpMirrorModeButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
         mZslToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
@@ -1530,7 +1544,7 @@ public class CameraXActivity extends AppCompatActivity {
         int mirrorMode = intent.getIntExtra(INTENT_EXTRA_VIDEO_MIRROR_MODE, -1);
         if (mirrorMode != -1) {
             Log.d(TAG, "updateVideoMirrorModeByIntent: mirrorMode = " + mirrorMode);
-            mVideoMirrorMode = mirrorMode;
+            mMirrorMode = mirrorMode;
         }
     }
 
@@ -1641,6 +1655,7 @@ public class CameraXActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.textView);
         mDynamicRangeUi = new DynamicRangeUi(findViewById(R.id.dynamic_range));
         mButtonImageOutputFormat = findViewById(R.id.image_output_format);
+        mMirrorButton = findViewById(R.id.mirror_button);
         mRecordUi = new RecordUi(
                 findViewById(R.id.Video),
                 findViewById(R.id.video_pause),
@@ -2043,6 +2058,7 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Builds all use cases based on current settings and return as an array.
      */
+    @OptIn(markerClass = ExperimentalMirrorMode.class)
     @SuppressLint("RestrictedApiAndroidX")
     private List<UseCase> buildUseCases() {
         List<UseCase> useCases = new ArrayList<>();
@@ -2054,6 +2070,7 @@ public class CameraXActivity extends AppCompatActivity {
         if (mPreviewToggle.isChecked()) {
             Preview.Builder builder = new Preview.Builder()
                     .setTargetName("Preview")
+                    .setMirrorMode(mMirrorMode)
                     .setResolutionSelector(
                             new ResolutionSelector.Builder()
                                     .setAspectRatioStrategy(getTargetAspectRatioStrategy())
@@ -2128,7 +2145,7 @@ public class CameraXActivity extends AppCompatActivity {
                 mRecorder = builder.setAspectRatio(mTargetAspectRatio).build();
                 VideoCapture.Builder<Recorder> videoCaptureBuilder =
                         new VideoCapture.Builder<>(mRecorder)
-                                .setMirrorMode(mVideoMirrorMode)
+                                .setMirrorMode(mMirrorMode)
                                 .setDynamicRange(mDynamicRange)
                                 .setTargetFrameRate(mFpsRange);
                 setCaptureCallback(videoCaptureBuilder);
@@ -2455,6 +2472,28 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
+    private void setUpMirrorModeButton() {
+        mMirrorButton.setSelectedItem(mMirrorMode);
+        mMirrorButton.setOnItemChangedListener(mirrorMode -> {
+            if (mirrorMode != null && mirrorMode != mMirrorMode) {
+                mMirrorMode = mirrorMode;
+                applyMirrorMode();
+            }
+        });
+    }
+
+    @SuppressWarnings("RestrictedApiAndroidX")
+    private void applyMirrorMode() {
+        VideoCapture<Recorder> videoCapture = getVideoCapture();
+        if (videoCapture != null) {
+            videoCapture.setMirrorMode(mMirrorMode);
+        }
+        Preview preview = getPreview();
+        if (preview != null) {
+            preview.setMirrorMode(mMirrorMode);
+        }
+    }
+
     @SuppressWarnings("FutureReturnValueIgnored")
     private void setUpLowLightBoostButton() {
         mIsLowLightBoostOn = false;
@@ -2669,10 +2708,10 @@ public class CameraXActivity extends AppCompatActivity {
                 mButtonRecord.setText("Record");
                 mButtonRecord.setEnabled(false);
                 mButtonPause.setVisibility(View.INVISIBLE);
-                mButtonQuality.setVisibility(View.INVISIBLE);
+                mButtonQuality.setVisibility(View.GONE);
                 mTextStats.setVisibility(View.GONE);
-                mButtonPersistent.setVisibility(View.INVISIBLE);
-                mButtonMute.setVisibility(View.INVISIBLE);
+                mButtonPersistent.setVisibility(View.GONE);
+                mButtonMute.setVisibility(View.GONE);
             }
         }
 
