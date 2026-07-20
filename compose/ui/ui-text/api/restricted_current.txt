@@ -1254,6 +1254,8 @@ package androidx.compose.ui.text.font {
   @androidx.compose.runtime.Immutable public static final class FontVariation.Settings {
     ctor public FontVariation.Settings(androidx.compose.ui.text.font.FontVariation.Setting... settings);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.text.font.FontVariation.Setting> getSettings();
+    method public androidx.compose.ui.text.font.FontVariation.Settings merge(androidx.compose.ui.text.font.FontVariation.Setting... overrides);
+    method public androidx.compose.ui.text.font.FontVariation.Settings merge(androidx.compose.ui.text.font.FontVariation.Settings? other);
     property public java.util.List<androidx.compose.ui.text.font.FontVariation.Setting> settings;
   }
 

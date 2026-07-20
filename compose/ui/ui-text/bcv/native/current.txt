@@ -1758,6 +1758,8 @@ final object androidx.compose.ui.text.font/FontVariation { // androidx.compose.u
 
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.font/FontVariation.Settings.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.compose.ui.text.font/FontVariation.Settings.hashCode|hashCode(){}[0]
+        final fun merge(androidx.compose.ui.text.font/FontVariation.Settings?): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Settings.merge|merge(androidx.compose.ui.text.font.FontVariation.Settings?){}[0]
+        final fun merge(kotlin/Array<out androidx.compose.ui.text.font/FontVariation.Setting>...): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Settings.merge|merge(kotlin.Array<out|androidx.compose.ui.text.font.FontVariation.Setting>...){}[0]
         final fun toString(): kotlin/String // androidx.compose.ui.text.font/FontVariation.Settings.toString|toString(){}[0]
     }
 }

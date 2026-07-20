@@ -202,4 +202,43 @@ class FontVariationTest {
         val s5 = FontVariation.weight(700)
         FontVariation.Settings(s1, s2, s3, s4, s5)
     }
+
+    @Test
+    fun settings_merge_other_settings() {
+        val s1 = FontVariation.weight(400)
+        val s2 = FontVariation.width(100f)
+        val s3 = FontVariation.italic(0.5f)
+
+        val base = FontVariation.Settings(s1, s2)
+        val overrides = FontVariation.Settings(FontVariation.weight(700), s3)
+
+        val merged = base.merge(overrides)
+
+        assertThat(merged.settings).containsExactly(FontVariation.weight(700), s2, s3)
+    }
+
+    @Test
+    fun settings_merge_other_settings_empty() {
+        val base = FontVariation.Settings(FontVariation.weight(400))
+        assertThat(base.merge(FontVariation.Empty)).isSameInstanceAs(base)
+        assertThat(FontVariation.Empty.merge(base)).isSameInstanceAs(base)
+    }
+
+    @Test
+    fun settings_merge_vararg_settings() {
+        val s1 = FontVariation.weight(400)
+        val s2 = FontVariation.width(100f)
+        val base = FontVariation.Settings(s1, s2)
+
+        val merged = base.merge(FontVariation.weight(700), FontVariation.italic(0.5f))
+
+        assertThat(merged.settings)
+            .containsExactly(FontVariation.weight(700), s2, FontVariation.italic(0.5f))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun settings_merge_vararg_settings_throws_on_duplicate() {
+        val base = FontVariation.Settings(FontVariation.weight(400))
+        base.merge(FontVariation.width(100f), FontVariation.width(200f))
+    }
 }

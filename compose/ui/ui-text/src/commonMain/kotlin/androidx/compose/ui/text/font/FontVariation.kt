@@ -54,18 +54,10 @@ object FontVariation {
         internal val needsDensity: Boolean
 
         init {
+            validateUniqueAxes(settings)
             var needsDensity = false
             for (i in 0 until settings.size) {
-                val setting = settings[i]
-                val name = setting.axisName
-                for (j in (i + 1) until settings.size) {
-                    if (name == settings[j].axisName) {
-                        requirePrecondition(false) {
-                            "'$name' must be unique. Actual [${settings.filter { it.axisName == name }}]"
-                        }
-                    }
-                }
-                needsDensity = needsDensity || setting.needsDensity
+                needsDensity = needsDensity || settings[i].needsDensity
             }
             this.needsDensity = needsDensity
         }
@@ -76,6 +68,57 @@ object FontVariation {
          * Settings must be unique on [Setting.axisName]
          */
         constructor(vararg settings: Setting) : this(settings.asList())
+
+        /**
+         * Merges the given [other] settings into this [Settings] instance.
+         *
+         * If there are duplicate axes, settings in [other] will override settings in this instance.
+         *
+         * Example:
+         * ```
+         * val base = FontVariation.Settings(FontVariation.weight(400), FontVariation.width(100f))
+         * val overrides = FontVariation.Settings(FontVariation.weight(700))
+         * val merged = base.merge(overrides) // weight(700), width(100f)
+         * ```
+         *
+         * @param other The settings to merge into this instance. If `null`, this instance is
+         *   returned.
+         */
+        fun merge(other: Settings?): Settings {
+            if (other == null || other.settings.isEmpty()) return this
+            if (this.settings.isEmpty()) return other
+            return Settings(mergeLists(settings, other.settings))
+        }
+
+        /**
+         * Merges the given [overrides] into this [Settings] instance.
+         *
+         * If there are duplicate axes, settings in [overrides] will override settings in this
+         * instance. Note that [overrides] itself must not contain duplicate axes.
+         *
+         * Example:
+         * ```
+         * val base = FontVariation.Settings(FontVariation.weight(400), FontVariation.width(100f))
+         * val merged = base.merge(FontVariation.weight(700), FontVariation.italic(1.0f))
+         * // weight(700), width(100f), italic(1.0f)
+         *
+         * // This throws IllegalArgumentException:
+         * // base.merge(FontVariation.weight(300), FontVariation.weight(500))
+         * ```
+         *
+         * @param overrides The individual settings to merge into this instance.
+         * @throws IllegalArgumentException if [overrides] contains duplicate axes.
+         */
+        fun merge(vararg overrides: Setting): Settings {
+            if (overrides.isEmpty()) return this
+
+            val overridesList = overrides.asList()
+            // Validate overrides
+            validateUniqueAxes(overridesList)
+
+            if (this.settings.isEmpty()) return Settings(overridesList)
+            return Settings(mergeLists(settings, overridesList))
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -363,5 +406,43 @@ object FontVariation {
      */
     fun Settings(weight: FontWeight, style: FontStyle, vararg settings: Setting): Settings {
         return Settings(weight(weight.weight), italic(style.value.toFloat()), *settings)
+    }
+
+    private fun mergeLists(base: List<Setting>, overrides: List<Setting>): List<Setting> {
+        val result = ArrayList<Setting>(base.size + overrides.size)
+        result.addAll(base)
+        for (i in 0 until overrides.size) {
+            val override = overrides[i]
+            var index = -1
+            for (j in 0 until result.size) {
+                if (result[j].axisName == override.axisName) {
+                    index = j
+                    break
+                }
+            }
+            if (index >= 0) {
+                result[index] = override
+            } else {
+                result.add(override)
+            }
+        }
+        return result
+    }
+
+    private fun validateUniqueAxes(settings: List<Setting>) {
+        for (i in 0 until settings.size) {
+            val name = settings[i].axisName
+            for (j in (i + 1) until settings.size) {
+                if (name == settings[j].axisName) {
+                    val duplicates = ArrayList<Setting>()
+                    for (k in 0 until settings.size) {
+                        if (settings[k].axisName == name) {
+                            duplicates.add(settings[k])
+                        }
+                    }
+                    requirePrecondition(false) { "'$name' must be unique. Actual [$duplicates]" }
+                }
+            }
+        }
     }
 }
