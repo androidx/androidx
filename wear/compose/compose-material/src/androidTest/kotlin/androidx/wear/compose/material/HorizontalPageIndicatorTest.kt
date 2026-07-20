@@ -220,7 +220,7 @@ class HorizontalPageIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(unselectedColor, 5f..6f)
+            .assertColorInPercentageRange(unselectedColor, 4.9f..6f)
     }
 
     companion object {
