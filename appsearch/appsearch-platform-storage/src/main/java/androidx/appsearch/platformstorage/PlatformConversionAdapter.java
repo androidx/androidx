@@ -123,6 +123,17 @@ public interface PlatformConversionAdapter {
                         + " is not available on this AppSearch implementation.");
     }
 
+    /**
+     * Handles setting embedding query probe count.
+     */
+    default void setEmbeddingQueryProbeCount(
+            android.app.appsearch.SearchSpec.@NonNull Builder builder,
+            int embeddingQueryProbeCount) {
+        throw new UnsupportedOperationException(
+                Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR
+                        + " is not available on this AppSearch implementation.");
+    }
+
     // --- SearchSuggestionSpecToPlatformConverter ---
 
     /**
