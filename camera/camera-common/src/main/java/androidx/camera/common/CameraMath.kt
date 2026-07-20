@@ -134,7 +134,7 @@ public object CameraMath {
      * @param deviceOrientation The physical orientation of the device in degrees. Must be one of 0,
      *   90, 180, 270. Negative values are not supported. This is typically obtained from an
      *   [android.view.OrientationEventListener] and rounded to the nearest 90 degrees using
-     *   [DiscreteRotationMath.round]. See the
+     *   [DiscreteRotation.round]. See the
      *   [Camera Orientation Guide](https://chromeos.dev/en/android/camera-orientation#jpeg-orientation)
      *   for more details.
      * @param sensorOrientation The physical orientation of the sensor (typically SENSOR_ORIENTATION
