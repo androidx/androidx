@@ -428,6 +428,65 @@ public sealed class ObjectList<E>(initialCapacity: Int) {
         return -1
     }
 
+    /**
+     * Searches this [ObjectList] or its range for an element for which the given [comparison]
+     * function returns zero using binary search algorithm.
+     */
+    public inline fun binarySearch(
+        @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+        @androidx.annotation.IntRange(from = 0) toIndex: Int = _size,
+        comparison: (element: E) -> Int,
+    ): Int {
+        if (fromIndex < 0 || fromIndex > toIndex || toIndex > _size) {
+            throw IndexOutOfBoundsException(
+                "fromIndex ($fromIndex) and toIndex ($toIndex) must be in range 0..$_size"
+            )
+        }
+        var low = fromIndex
+        var high = toIndex - 1
+
+        while (low <= high) {
+            val mid = (low + high) ushr 1
+            @Suppress("UNCHECKED_CAST") val midVal = content[mid] as E
+            val cmp = comparison(midVal)
+
+            if (cmp < 0) {
+                low = mid + 1
+            } else if (cmp > 0) {
+                high = mid - 1
+            } else {
+                return mid
+            }
+        }
+        return -(low + 1)
+    }
+
+    /**
+     * Searches this [ObjectList] or its range for the provided [element] using the specified
+     * [comparator] across elements. The list is expected to be sorted in order specified by
+     * [comparator].
+     */
+    @JvmOverloads
+    public fun binarySearch(
+        element: E,
+        comparator: Comparator<in E>,
+        @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+        @androidx.annotation.IntRange(from = 0) toIndex: Int = _size,
+    ): Int =
+        binarySearch(fromIndex = fromIndex, toIndex = toIndex) { comparator.compare(it, element) }
+
+    /**
+     * Searches this [ObjectList] or its range for an element having a key returned by [selector]
+     * equal to the specified [key] using binary search algorithm. The list is expected to be sorted
+     * in ascending order according to the natural ordering of keys produced by [selector].
+     */
+    public inline fun <K : Comparable<K>> binarySearchBy(
+        key: K?,
+        @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+        @androidx.annotation.IntRange(from = 0) toIndex: Int = _size,
+        crossinline selector: (element: E) -> K?,
+    ): Int = binarySearch(fromIndex, toIndex) { compareValues(selector(it), key) }
+
     /** Returns `true` if the [ObjectList] has no elements in it or `false` otherwise. */
     public fun isEmpty(): Boolean = _size == 0
 
@@ -1207,6 +1266,37 @@ public class MutableObjectList<E>(initialCapacity: Int = 16) : ObjectList<E>(ini
         return old as E
     }
 
+    /** Sorts elements in the [MutableObjectList] in-place using the specified [comparator]. */
+    public fun sortWith(comparator: Comparator<in E>) {
+        if (_size == 0) return
+        (content as Array<E>).sortWith(comparator, fromIndex = 0, toIndex = _size)
+    }
+
+    /**
+     * Sorts elements in the [MutableObjectList] in-place using the specified [comparison] function.
+     */
+    public inline fun sortWith(crossinline comparison: (a: E, b: E) -> Int) {
+        sortWith(Comparator { a, b -> comparison(a, b) })
+    }
+
+    /**
+     * Sorts elements in the [MutableObjectList] in-place using values produced by [selector] in
+     * ascending order.
+     */
+    public inline fun <R : Comparable<R>> sortBy(crossinline selector: (element: E) -> R?) {
+        sortWith(compareBy(selector))
+    }
+
+    /**
+     * Sorts elements in the [MutableObjectList] in-place using values produced by [selector] in
+     * descending order.
+     */
+    public inline fun <R : Comparable<R>> sortByDescending(
+        crossinline selector: (element: E) -> R?
+    ) {
+        sortWith(compareByDescending(selector))
+    }
+
     override fun asList(): List<E> = asMutableList()
 
     /**
@@ -1549,3 +1639,29 @@ public fun <E> mutableObjectListOf(element1: E, element2: E, element3: E): Mutab
 /** @return a new [MutableObjectList] with the given elements, in order. */
 public inline fun <E> mutableObjectListOf(vararg elements: E): MutableObjectList<E> =
     MutableObjectList<E>(elements.size).apply { plusAssign(elements as Array<E>) }
+
+/**
+ * Sorts elements in the [MutableObjectList] of [Comparable] elements in-place in ascending order.
+ */
+public inline fun <E : Comparable<E>> MutableObjectList<E>.sort() {
+    sortWith(naturalOrder())
+}
+
+/**
+ * Sorts elements in the [MutableObjectList] of [Comparable] elements in-place in descending order.
+ */
+public inline fun <E : Comparable<E>> MutableObjectList<E>.sortDescending() {
+    sortWith(reverseOrder())
+}
+
+/**
+ * Searches this [ObjectList] or its range for the provided [element] using binary search algorithm.
+ * The list is expected to be sorted in ascending order according to the natural ordering of
+ * elements.
+ */
+@JvmOverloads
+public fun <E : Comparable<E>> ObjectList<E>.binarySearch(
+    element: E,
+    @androidx.annotation.IntRange(from = 0) fromIndex: Int = 0,
+    @androidx.annotation.IntRange(from = 0) toIndex: Int = size,
+): Int = binarySearch(fromIndex = fromIndex, toIndex = toIndex) { it.compareTo(element) }

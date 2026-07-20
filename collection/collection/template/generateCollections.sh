@@ -34,7 +34,25 @@ do
   sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/KeySuffix/${suffix}/g" ${scriptDir}/PKeySetTest.kt.template > ${scriptDir}/../src/commonTest/kotlin/androidx/collection/${primitive}SetTest.kt
 
   echo "generating ${primitive}List.kt"
-  sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  if [ "${primitive}" = "Int" ]; then
+    sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" \
+      -e '/\/\* REMOVE_FOR_INT_LIST_START \*\//,/\/\* REMOVE_FOR_INT_LIST_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_START \*\//d' -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_INT_LONG_START \*\//,/\/\* REMOVE_FOR_INT_LONG_END \*\//d' \
+      ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  elif [ "${primitive}" = "Long" ]; then
+    sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" \
+      -e '/\/\* REMOVE_FOR_INT_LIST_START \*\//d' -e '/\/\* REMOVE_FOR_INT_LIST_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_START \*\//d' -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_INT_LONG_START \*\//,/\/\* REMOVE_FOR_INT_LONG_END \*\//d' \
+      ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  elif [ "${primitive}" = "Float" ]; then
+    sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/ToleranceDefault/0.0f/g" \
+      -e '/\/\* REMOVE_FOR_INT_LIST_START \*\//d' -e '/\/\* REMOVE_FOR_INT_LIST_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_START \*\//,/\/\* REMOVE_FOR_FLOAT_DOUBLE_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_INT_LONG_START \*\//d' -e '/\/\* REMOVE_FOR_INT_LONG_END \*\//d' \
+      ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  fi
   echo "generating ${primitive}ListTest.kt"
   sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/KeySuffix/${suffix}/g" ${scriptDir}/PKeyListTest.kt.template > ${scriptDir}/../src/commonTest/kotlin/androidx/collection/${primitive}ListTest.kt
 done
@@ -65,10 +83,17 @@ do
   suffix=${listOnlySuffixes[$index]}
 
   echo "generating ${primitive}List.kt"
-  sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  if [ "${primitive}" = "Double" ]; then
+    sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/ToleranceDefault/0.0/g" \
+      -e '/\/\* REMOVE_FOR_INT_LIST_START \*\//d' -e '/\/\* REMOVE_FOR_INT_LIST_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_FLOAT_DOUBLE_START \*\//,/\/\* REMOVE_FOR_FLOAT_DOUBLE_END \*\//d' \
+      -e '/\/\* REMOVE_FOR_INT_LONG_START \*\//d' -e '/\/\* REMOVE_FOR_INT_LONG_END \*\//d' \
+      ${scriptDir}/PKeyList.kt.template > ${scriptDir}/../src/commonMain/kotlin/androidx/collection/${primitive}List.kt
+  fi
   echo "generating ${primitive}ListTest.kt"
   sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/KeySuffix/${suffix}/g" ${scriptDir}/PKeyListTest.kt.template > ${scriptDir}/../src/commonTest/kotlin/androidx/collection/${primitive}ListTest.kt
 done
 
 echo "formatting files"
-$scriptDir/../../../gradlew :collection:collection:ktFormat
+(cd ${scriptDir}/../../.. && ./gradlew :collection:collection:ktFormat)
+

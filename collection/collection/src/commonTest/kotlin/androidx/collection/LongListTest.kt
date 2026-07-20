@@ -748,12 +748,20 @@ class LongListTest {
     @Test
     fun binarySearchLongList() {
         val l = mutableLongListOf(-2L, -1L, 2L, 10L, 10L)
-        assertEquals(0, l.binarySearch(-2))
-        assertEquals(2, l.binarySearch(2))
-        assertEquals(3, l.binarySearch(10))
+        assertEquals(0, l.binarySearch(-2L))
+        assertEquals(2, l.binarySearch(2L))
+        assertEquals(3, l.binarySearch(10L))
 
-        assertEquals(-1, l.binarySearch(-20))
-        assertEquals(-4, l.binarySearch(3))
-        assertEquals(-6, l.binarySearch(20))
+        assertEquals(-1, l.binarySearch(-20L))
+        assertEquals(-4, l.binarySearch(3L))
+        assertEquals(-6, l.binarySearch(20L))
+    }
+
+    @Test
+    fun binarySearchLongListWithComparison() {
+        val l = mutableLongListOf(-2L, -1L, 2L, 10L, 10L)
+        assertEquals(2, l.binarySearch { it.compareTo(2L) })
+        assertEquals(0, l.binarySearch { it.compareTo(-2L) })
+        assertEquals(-1, l.binarySearch { it.compareTo(-20L) })
     }
 }
