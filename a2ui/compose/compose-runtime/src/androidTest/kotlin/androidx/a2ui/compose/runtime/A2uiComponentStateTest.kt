@@ -28,6 +28,8 @@ import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiException.A2uiValidationException
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -333,6 +335,271 @@ class A2uiComponentStateTest {
             }
 
         assertThat(caughtException).hasMessageThat().contains("requires an A2uiComponentRegistry")
+    }
+
+    @Test
+    fun observe_noReadinessEvaluator_defaultsToReadyAndReturnsSuccess() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+        )
+
+        setContent {
+            when (observeA2uiComponentState(surface)) {
+                is A2uiComponentState.Success -> BasicText("Success")
+                is A2uiComponentState.Loading -> BasicText("Loading")
+                is A2uiComponentState.Error -> BasicText("Error")
+            }
+        }
+
+        onNodeWithText("Success").assertIsDisplayed()
+    }
+
+    @Test
+    fun observe_readinessEvaluatorReturnsFalse_returnsLoading() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+        )
+
+        val fakeEvaluator =
+            object : A2uiReadinessEvaluator {
+                @Composable
+                override fun isReady(componentModel: A2uiComponentModel): Boolean = false
+            }
+
+        setContent {
+            CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                when (observeA2uiComponentState(surface)) {
+                    is A2uiComponentState.Success -> BasicText("Success")
+                    is A2uiComponentState.Loading -> BasicText("Loading")
+                    is A2uiComponentState.Error -> BasicText("Error")
+                }
+            }
+        }
+
+        onNodeWithText("Loading").assertIsDisplayed()
+    }
+
+    @Test
+    fun observe_readinessEvaluatorReturnsTrue_returnsSuccess() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+        )
+
+        val fakeEvaluator =
+            object : A2uiReadinessEvaluator {
+                @Composable override fun isReady(componentModel: A2uiComponentModel): Boolean = true
+            }
+
+        setContent {
+            CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                when (observeA2uiComponentState(surface)) {
+                    is A2uiComponentState.Success -> BasicText("Success")
+                    is A2uiComponentState.Loading -> BasicText("Loading")
+                    is A2uiComponentState.Error -> BasicText("Error")
+                }
+            }
+        }
+
+        onNodeWithText("Success").assertIsDisplayed()
+    }
+
+    @Test
+    fun observe_readinessEvaluatorChangesToTrue_transitionsFromLoadingToSuccess() =
+        runComposeUiTest {
+            val surface = createSurfaceModel()
+            surface.componentRegistry.update(
+                listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+            )
+
+            var isReadyState by mutableStateOf(false)
+            val fakeEvaluator =
+                object : A2uiReadinessEvaluator {
+                    @Composable
+                    override fun isReady(componentModel: A2uiComponentModel): Boolean = isReadyState
+                }
+
+            setContent {
+                CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                    when (observeA2uiComponentState(surface)) {
+                        is A2uiComponentState.Success -> BasicText("Success")
+                        is A2uiComponentState.Loading -> BasicText("Loading")
+                        is A2uiComponentState.Error -> BasicText("Error")
+                    }
+                }
+            }
+
+            onNodeWithText("Loading").assertIsDisplayed()
+
+            isReadyState = true
+            waitForIdle()
+
+            onNodeWithText("Success").assertIsDisplayed()
+        }
+
+    @Test
+    fun observe_componentHasError_ignoresEvaluatorAndReturnsError() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.reportError("root", A2uiRuntimeException("Test error"))
+
+        var evaluatorCalled = false
+        val fakeEvaluator =
+            object : A2uiReadinessEvaluator {
+                @Composable
+                override fun isReady(componentModel: A2uiComponentModel): Boolean {
+                    evaluatorCalled = true
+                    return true
+                }
+            }
+
+        setContent {
+            CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                when (observeA2uiComponentState(surface)) {
+                    is A2uiComponentState.Success -> BasicText("Success")
+                    is A2uiComponentState.Loading -> BasicText("Loading")
+                    is A2uiComponentState.Error -> BasicText("Error")
+                }
+            }
+        }
+
+        onNodeWithText("Error").assertIsDisplayed()
+        assertThat(evaluatorCalled).isFalse()
+    }
+
+    @Test
+    fun observe_componentIsMissing_ignoresEvaluatorAndReturnsLoading() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        var evaluatorCalled = false
+        val fakeEvaluator =
+            object : A2uiReadinessEvaluator {
+                @Composable
+                override fun isReady(componentModel: A2uiComponentModel): Boolean {
+                    evaluatorCalled = true
+                    return true
+                }
+            }
+
+        setContent {
+            CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                when (observeA2uiComponentState(surface)) {
+                    is A2uiComponentState.Success -> BasicText("Success")
+                    is A2uiComponentState.Loading -> BasicText("Loading")
+                    is A2uiComponentState.Error -> BasicText("Error")
+                }
+            }
+        }
+
+        onNodeWithText("Loading").assertIsDisplayed()
+        assertThat(evaluatorCalled).isFalse()
+    }
+
+    @Test
+    fun observe_readinessEvaluatorChangesToFalse_transitionsFromSuccessToLoading() =
+        runComposeUiTest {
+            val surface = createSurfaceModel()
+            surface.componentRegistry.update(
+                listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+            )
+
+            var isReadyState by mutableStateOf(true)
+            val fakeEvaluator =
+                object : A2uiReadinessEvaluator {
+                    @Composable
+                    override fun isReady(componentModel: A2uiComponentModel): Boolean = isReadyState
+                }
+
+            setContent {
+                CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                    when (observeA2uiComponentState(surface)) {
+                        is A2uiComponentState.Success -> BasicText("Success")
+                        is A2uiComponentState.Loading -> BasicText("Loading")
+                        is A2uiComponentState.Error -> BasicText("Error")
+                    }
+                }
+            }
+
+            onNodeWithText("Success").assertIsDisplayed()
+
+            isReadyState = false
+            waitForIdle()
+
+            onNodeWithText("Loading").assertIsDisplayed()
+        }
+
+    @Test
+    fun observe_componentUpdateWithUnreadyPayload_transitionsFromSuccessToLoading() =
+        runComposeUiTest {
+            val surface = createSurfaceModel()
+            surface.componentRegistry.update(
+                listOf(A2uiComponentPayload("root", "TestComponent", mapOf("text" to "ready")))
+            )
+
+            val fakeEvaluator =
+                object : A2uiReadinessEvaluator {
+                    @Composable
+                    override fun isReady(componentModel: A2uiComponentModel): Boolean {
+                        return componentModel.properties.raw["text"] == "ready"
+                    }
+                }
+
+            setContent {
+                CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                    when (observeA2uiComponentState(surface)) {
+                        is A2uiComponentState.Success -> BasicText("Success")
+                        is A2uiComponentState.Loading -> BasicText("Loading")
+                        is A2uiComponentState.Error -> BasicText("Error")
+                    }
+                }
+            }
+
+            onNodeWithText("Success").assertIsDisplayed()
+
+            surface.componentRegistry.update(
+                listOf(A2uiComponentPayload("root", "TestComponent", mapOf("text" to "unready")))
+            )
+            waitForIdle()
+
+            onNodeWithText("Loading").assertIsDisplayed()
+
+            surface.componentRegistry.update(
+                listOf(A2uiComponentPayload("root", "TestComponent", mapOf("text" to "ready")))
+            )
+            waitForIdle()
+
+            onNodeWithText("Success").assertIsDisplayed()
+        }
+
+    @Test
+    fun observe_componentHasErrorWhileNotReady_transitionsFromLoadingToError() = runComposeUiTest {
+        val surface = createSurfaceModel()
+        surface.componentRegistry.update(
+            listOf(A2uiComponentPayload("root", "TestComponent", emptyMap()))
+        )
+
+        val fakeEvaluator =
+            object : A2uiReadinessEvaluator {
+                @Composable
+                override fun isReady(componentModel: A2uiComponentModel): Boolean = false
+            }
+
+        setContent {
+            CompositionLocalProvider(LocalA2uiReadinessEvaluator provides fakeEvaluator) {
+                when (observeA2uiComponentState(surface)) {
+                    is A2uiComponentState.Success -> BasicText("Success")
+                    is A2uiComponentState.Loading -> BasicText("Loading")
+                    is A2uiComponentState.Error -> BasicText("Error")
+                }
+            }
+        }
+
+        onNodeWithText("Loading").assertIsDisplayed()
+
+        surface.componentRegistry.reportError("root", A2uiRuntimeException("Test error"))
+        waitForIdle()
+
+        onNodeWithText("Error").assertIsDisplayed()
     }
 
     private fun createSurfaceModel(

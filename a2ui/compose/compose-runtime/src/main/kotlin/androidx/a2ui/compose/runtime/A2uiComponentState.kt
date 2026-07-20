@@ -135,7 +135,12 @@ internal fun observeA2uiComponentState(
             }
         }
 
-    // TODO(b/524122705): add support for the readiness evaluator
+    if (state is A2uiComponentState.Success) {
+        val evaluator = LocalA2uiReadinessEvaluator.current
+        if (!evaluator.isReady(state.component)) {
+            return A2uiComponentState.Loading
+        }
+    }
 
     return state
 }
