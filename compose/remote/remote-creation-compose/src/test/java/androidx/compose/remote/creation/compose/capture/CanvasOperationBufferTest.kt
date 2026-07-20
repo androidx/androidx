@@ -16,16 +16,22 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import android.graphics.Bitmap
+import android.graphics.Paint
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(JUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class CanvasOperationBufferTest {
 
     @Test(timeout = 5000)
@@ -77,5 +83,76 @@ class CanvasOperationBufferTest {
         val platform = RcPlatformServices.None
         val creationState = RemoteComposeCreationState(platform, Size(100f, 100f))
         buffer.flush(creationState)
+    }
+
+    @Test
+    fun testConditionalSpanSaveScopeElisionPreservation() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        // Enable optimizations to test elisionPass behavior
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = true)
+        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+        canvas.setRemoteComposeCreationState(creationState)
+
+        canvas.save()
+        canvas.translate(50f, 50f)
+
+        val condition = RemoteBoolean(true)
+        canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+        canvas.restore()
+
+        // Manually invoke the optimizations (including elision pass) before flush clears the tree
+        canvas.buffer.optimizeSpan(canvas.buffer.spanTreeRoot)
+        val serializedTreeAfterOptimization = canvas.buffer.toString()
+        // Verify enclosing Save/Translate is preserved across elision on the root span around
+        // conditional block
+        assertThat(serializedTreeAfterOptimization)
+            .isEqualTo(
+                "Span(depth=0, ops=[Save(children=[Transform(Translate), DrawConditionally(true)])], child=Span(depth=1, ops=[Draw]))"
+            )
+
+        canvas.flush()
+        assertThat(canvas.buffer.toString()).isEqualTo("CanvasOperationBuffer(empty)")
+    }
+
+    @Test
+    fun testSaveGetRootSaveNode() {
+        val root = CanvasOp.Save(parent = null)
+        val child1 = CanvasOp.Save(parent = root)
+        val child2 = CanvasOp.Save(parent = child1)
+
+        assertThat(root.getRootSaveNode()).isSameInstanceAs(root)
+        assertThat(child1.getRootSaveNode()).isSameInstanceAs(root)
+        assertThat(child2.getRootSaveNode()).isSameInstanceAs(root)
+    }
+
+    @Test
+    fun testCanvasOpToStringOverrides() {
+        val draw = CanvasOp.Draw {}
+        val clip = CanvasOp.Clip {}
+        val transformTranslate = CanvasOp.Transform(PendingOp.Translate(0f.rf, 0f.rf))
+        val transformRotate = CanvasOp.Transform(PendingOp.Rotate(0f.rf, null, null))
+        val save = CanvasOp.Save()
+
+        assertThat(draw.toString()).isEqualTo("Draw")
+        assertThat(clip.toString()).isEqualTo("Clip")
+        assertThat(transformTranslate.toString()).isEqualTo("Transform(Translate)")
+        assertThat(transformRotate.toString()).isEqualTo("Transform(Rotate)")
+        assertThat(save.toString()).isEqualTo("Save(children=[])")
+    }
+
+    @Test
+    fun testPendingOpSkewWithVariables() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = true)
+        val creationState = RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+        canvas.setRemoteComposeCreationState(creationState)
+
+        val sx = RemoteFloat(0.5f)
+        val sy = RemoteFloat(0.2f)
+        canvas.skew(sx, sy)
+        canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+
+        // Verify buffer string before flush shows Skew transform
+        assertThat(canvas.buffer.toString()).contains("Transform(Skew)")
     }
 }
