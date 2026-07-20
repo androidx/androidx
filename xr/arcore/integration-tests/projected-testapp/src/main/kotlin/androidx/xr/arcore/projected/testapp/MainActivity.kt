@@ -88,45 +88,35 @@ class MainActivity : ComponentActivity() {
                     TestActivityRow(
                         "Inertial Tracking test",
                         InertialTrackingActivity::class.java,
-                        isProjected = true,
                         this@MainActivity,
                     )
                     TestActivityRow(
                         "TiltGesture test",
                         TiltGestureTrackingActivity::class.java,
-                        isProjected = true,
                         this@MainActivity,
                     )
                     TestActivityRow(
-                        "Geospatial/Tracking Test",
-                        GeospatialProjectedActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Geospatial/Tracking Remote",
-                        GeospatialRemoteSensorActivity::class.java,
-                        isProjected = false,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Low Power Geospatial Test",
-                        LowPowerGeospatialActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Low Power Geospatial Remote",
-                        LowPowerRemoteSensorGeospatialActivity::class.java,
-                        isProjected = false,
+                        "Geospatial/Tracking test",
+                        ProjectedTestAppActivity::class.java,
                         this@MainActivity,
                     )
                     GeospatialActivityRow(
                         "Config Projected: INERTIAL",
                         "INERTIAL",
+                        isProjected = true,
                         this@MainActivity,
                     )
-                    GeospatialActivityRow("Config Projected: SPATIAL", "SPATIAL", this@MainActivity)
+                    GeospatialActivityRow(
+                        "Config Projected: SPATIAL",
+                        "SPATIAL",
+                        isProjected = true,
+                        this@MainActivity,
+                    )
+                    TestActivityRow(
+                        "Low Power Geospatial test",
+                        LowPowerGeospatialActivity::class.java,
+                        this@MainActivity,
+                    )
                 }
             }
         }
@@ -134,11 +124,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        activeProjectedActivities.forEach { activity ->
-            if (ProjectedContext.isProjectedDeviceContext(activity)) {
-                activity.moveTaskToBack(true)
-            }
-        }
+        activeProjectedActivities.forEach { it.moveTaskToBack(true) }
     }
 
     override fun onDestroy() {
@@ -149,30 +135,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun TestActivityRow(
-        name: String,
-        activityClass: Class<*>,
-        isProjected: Boolean,
-        context: Context,
-    ) {
+    private fun TestActivityRow(name: String, activityClass: Class<*>, context: Context) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(name, fontSize = 18.sp)
-            Button(
-                onClick = {
-                    activeProjectedActivities.toList().forEach { it.finish() }
-                    if (isProjected) {
-                        launchProjectedActivity(activityClass, context)
-                    } else {
-                        val intent = Intent(context, activityClass)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intent)
-                    }
-                }
-            ) {
+            Button(onClick = { launchProjectedActivity(activityClass, context) }) {
                 Text("Run", fontSize = 18.sp)
             }
         }
@@ -196,7 +166,12 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun GeospatialActivityRow(name: String, mode: String, context: Context) {
+    private fun GeospatialActivityRow(
+        name: String,
+        mode: String,
+        isProjected: Boolean,
+        context: Context,
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -205,13 +180,18 @@ class MainActivity : ComponentActivity() {
             Text(name, fontSize = 18.sp)
             Button(
                 onClick = {
-                    activeProjectedActivities.toList().forEach { it.finish() }
                     val targetClass = ConfigProjectedGeospatialActivity::class.java
                     val intent = Intent(context, targetClass)
                     intent.putExtra("GEOSPATIAL_MODE", mode)
+                    intent.putExtra("EXTRA_IS_PROJECTED", isProjected)
                     intent.addFlags(
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     )
+
+                    if (!isProjected) {
+                        startActivity(intent)
+                        return@Button
+                    }
 
                     val projectedContext =
                         try {

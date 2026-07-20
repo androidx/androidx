@@ -64,7 +64,6 @@ import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 import androidx.xr.projected.ProjectedActivityCompat
-import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
@@ -78,13 +77,11 @@ import androidx.xr.runtime.math.Vector3
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-open class LowPowerGeospatialActivity : ComponentActivity() {
+class LowPowerGeospatialActivity : ComponentActivity() {
     companion object {
         private const val TAG = "LowPowerGeospatialActivity"
         private const val PERMISSION_REQUEST_CODE = 1234
     }
-
-    protected open fun usesProjectedScreen(): Boolean = true
 
     private var targetModeState by mutableStateOf(GeospatialMode.SPATIAL)
 
@@ -186,22 +183,13 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
         return super.onKeyUp(keyCode, event)
     }
 
-    @OptIn(ExperimentalProjectedApi::class)
     private fun tryCreateAndConfigureSession() {
         lifecycleScope.launch {
             try {
-                val sessionContext =
-                    if (usesProjectedScreen()) {
-                        this@LowPowerGeospatialActivity
-                    } else {
-                        ProjectedContext.createProjectedDeviceContext(
-                            this@LowPowerGeospatialActivity
-                        )
-                    }
                 when (
                     val result =
                         Session.create(
-                            context = sessionContext,
+                            context = this@LowPowerGeospatialActivity,
                             lifecycleOwner = this@LowPowerGeospatialActivity,
                         )
                 ) {
@@ -276,12 +264,7 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
                 Modifier.fillMaxSize()
                     .background(GlimmerTheme.colors.surface)
                     .clickable { toggleGeospatialMode() }
-                    .padding(
-                        top = if (usesProjectedScreen()) 70.dp else 130.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 8.dp,
-                    )
+                    .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
         ) {
             Column(modifier = Modifier.align(Alignment.TopStart)) {
                 DashboardHeader(geospatialState, arDeviceState)
