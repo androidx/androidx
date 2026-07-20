@@ -16,9 +16,11 @@
 
 package androidx.a2ui.model.protocol
 
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+
 /**
  * Provides environment access, dynamic payload evaluation, and function execution capabilities
- * during execution.
+ * within the scope of a specific component.
  */
 public interface A2uiExecutionContext {
     /**
@@ -46,4 +48,24 @@ public interface A2uiExecutionContext {
      * @return resolved value, or null if value resolution fails
      */
     public fun resolveValue(path: A2uiDataPath): Any?
+
+    /**
+     * Gets or creates a component-scoped cache for [functionDefinition].
+     *
+     * Each component and [functionDefinition] pair gets a separate cache that persists across
+     * function invocations and data model updates. Ideal for storing the results of heavy
+     * operations that do *not* rely on data model values (e.g., static metadata, parsed templates,
+     * compiled regexes, etc.).
+     *
+     * Warning: The cache does not refresh upon data model changes. Caching values that are based on
+     * the data model will result in a stale cache.
+     *
+     * @param functionDefinition definition identifying the cache
+     * @param factory factory to construct the cache if missing
+     * @return cache instance
+     */
+    public fun <T : Any> getOrCreateFunctionScopedCache(
+        functionDefinition: A2uiFunctionDefinition,
+        factory: () -> T,
+    ): T
 }

@@ -44,6 +44,7 @@ package androidx.a2ui.engine.model {
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreComponentRegistry getComponentRegistry();
     method @InaccessibleFromKotlin public androidx.a2ui.engine.platform.A2uiCoreDataModel getDataModel();
     method @InaccessibleFromKotlin public String getId();
+    method public <T> T getOrCreateFunctionScopedCache(String componentId, androidx.a2ui.model.catalog.A2uiFunctionDefinition functionDefinition, kotlin.jvm.functions.Function0<? extends T> factory);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getTheme();
     method @InaccessibleFromKotlin public boolean shouldSendDataModel();
     property public androidx.a2ui.engine.catalog.A2uiCoreCatalog catalog;

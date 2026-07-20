@@ -103,6 +103,18 @@ package androidx.a2ui.model.catalog.functions {
     property public androidx.a2ui.model.catalog.functions.A2uiFormatNumberFunction INSTANCE;
   }
 
+  public final class A2uiFormatStringFunction implements androidx.a2ui.model.catalog.A2uiFunction {
+    method public Object? execute(java.util.Map<java.lang.String,?> args, androidx.a2ui.model.protocol.A2uiExecutionContext executionContext);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionDefinition getDefinition();
+    property public androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
+    field public static final androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction.Companion Companion;
+    field public static final androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction INSTANCE;
+  }
+
+  public static final class A2uiFormatStringFunction.Companion {
+    property public androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction INSTANCE;
+  }
+
   public final class A2uiFunctionArgParser {
     method public Object getArg(java.util.Map<java.lang.String,?> args, String key);
     method public Object getArg(java.util.Map<java.lang.String,?> args, String key, optional String path);
@@ -340,6 +352,7 @@ package androidx.a2ui.model.protocol {
   public interface A2uiExecutionContext {
     method public Object? evaluatePayload(androidx.a2ui.model.protocol.A2uiDataPath dataPath, Object? payload);
     method public Object? executeFunction(String name, java.util.Map<java.lang.String,?> args);
+    method public <T> T getOrCreateFunctionScopedCache(androidx.a2ui.model.catalog.A2uiFunctionDefinition functionDefinition, kotlin.jvm.functions.Function0<? extends T> factory);
     method public Object? resolveValue(androidx.a2ui.model.protocol.A2uiDataPath path);
   }
 
