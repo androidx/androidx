@@ -247,6 +247,12 @@ package androidx.navigation3.runtime.deeplink {
     property protected final boolean isExactPath;
   }
 
+  public abstract class WrappedMatchResult<T> extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T> {
+    ctor public WrappedMatchResult(androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T> matchResult);
+    method @InaccessibleFromKotlin public final androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T> getMatchResult();
+    property public final androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<T> matchResult;
+  }
+
   public typealias DeepLinkUri = android.net.Uri;
 
 }

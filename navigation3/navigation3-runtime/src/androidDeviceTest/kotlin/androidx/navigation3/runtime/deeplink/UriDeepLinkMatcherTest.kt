@@ -344,6 +344,48 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun testCompareTo_nonUriMatchResult() {
+        val request = DeepLinkRequest.fromUriString("https://example.com/path")
+        val uriResult =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/path"), serializer<TestKey>())
+                .match(request) as UriMatchResult
+        val nonUriResult = DeepLinkMatcher.MatchResult(TestKey)
+
+        assertThat(uriResult.compareTo(nonUriResult)).isEqualTo(1)
+    }
+
+    @Test
+    fun testCompareTo_wrappedSameInnerType() {
+        val request = DeepLinkRequest.fromUriString("https://example.com/path")
+
+        val uriResultExact =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/path"), serializer<TestKey>())
+                .match(request) as UriMatchResult
+        val uriResultWildcard =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/.*"), serializer<TestKey>())
+                .match(request) as UriMatchResult
+
+        val wrappedWildcard = object : WrappedMatchResult<TestKey>(uriResultWildcard) {}
+        val wrappedExact = object : WrappedMatchResult<TestKey>(uriResultExact) {}
+
+        assertThat(uriResultExact.compareTo(wrappedWildcard)).isEqualTo(1)
+        assertThat(uriResultWildcard.compareTo(wrappedExact)).isEqualTo(-1)
+        assertThat(uriResultExact.compareTo(wrappedExact)).isEqualTo(0)
+    }
+
+    @Test
+    fun testCompareTo_wrappedDifferentInnerType() {
+        val request = DeepLinkRequest.fromUriString("https://example.com/path")
+        val uriResult =
+            UriDeepLinkMatcher(DeepLinkUri("https://example.com/path"), serializer<TestKey>())
+                .match(request) as UriMatchResult
+        val nonUriResult = DeepLinkMatcher.MatchResult(TestKey)
+        val wrappedNonUri = object : WrappedMatchResult<TestKey>(nonUriResult) {}
+
+        assertThat(uriResult.compareTo(wrappedNonUri)).isEqualTo(1)
+    }
+
+    @Test
     fun matchRequest_booleanArgument() {
         val matcher =
             UriDeepLinkMatcher(
@@ -727,36 +769,28 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
-    fun match_hierarchicalKeys() {
+    fun compare_matchersTypedOnDerivedKeys() {
         val matcher1 =
             object :
-                UriDeepLinkMatcher<DerivedKey1>(
-                    DeepLinkUri("pattern1"),
-                    serializer<DerivedKey1>(),
-                ) {
-                override fun matchRequest(request: DeepLinkRequest): UriMatchResult<DerivedKey1> {
-                    return UriMatchResult(DerivedKey1)
-                }
-            }
+                UriDeepLinkMatcher<TestInterfaceImplA>(
+                    DeepLinkUri("www.testuri.com"),
+                    serializer<TestInterfaceImplA>(),
+                ) {}
         val matcher2 =
             object :
-                UriDeepLinkMatcher<DerivedKey2>(
-                    DeepLinkUri("pattern2"),
-                    serializer<DerivedKey2>(),
-                ) {
-                override fun matchRequest(request: DeepLinkRequest): UriMatchResult<DerivedKey2> {
-                    return UriMatchResult(DerivedKey2)
-                }
-            }
-        val matchers: List<UriDeepLinkMatcher<BaseKey>> = listOf(matcher1, matcher2)
+                UriDeepLinkMatcher<TestInterfaceImplB>(
+                    DeepLinkUri("www.testuri.com"),
+                    serializer<TestInterfaceImplB>(),
+                ) {}
+        val matchers: List<UriDeepLinkMatcher<TestInterface>> = listOf(matcher1, matcher2)
 
-        val request = DeepLinkRequest.fromUriString("www.testuri.com")
-        val results: List<DeepLinkMatcher.MatchResult<BaseKey>> = buildList {
+        val request = DeepLinkRequest.fromUriString("https://www.testuri.com")
+        val results: List<DeepLinkMatcher.MatchResult<TestInterface>> = buildList {
             matchers.forEach { add(it.match(request)!!) }
         }
         assertThat(results.size).isEqualTo(2)
-        assertThat(results.first().key).isEqualTo(DerivedKey1)
-        assertThat(results.last().key).isEqualTo(DerivedKey2)
+        assertThat(results.first().key).isEqualTo(TestInterfaceImplA)
+        assertThat(results.last().key).isEqualTo(TestInterfaceImplB)
     }
 
     private fun DeepLinkRequest.Companion.fromUriString(uri: String) =

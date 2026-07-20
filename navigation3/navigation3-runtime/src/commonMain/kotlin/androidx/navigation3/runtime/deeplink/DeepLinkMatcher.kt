@@ -88,7 +88,7 @@ public abstract class DeepLinkMatcher<out T : Any>(
      *
      * @param key the navigation key representing the deep link target
      */
-    public open class MatchResult<out T>(public val key: T) :
+    public open class MatchResult<out T : Any>(public val key: T) :
         Comparable<MatchResult<@UnsafeVariance T>> {
         /**
          * Compares this [MatchResult] to [other] and returns an Int result.
