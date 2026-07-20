@@ -16,6 +16,7 @@
 
 package androidx.datastore.tink
 
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
@@ -126,9 +127,11 @@ class AeadSerializerTest {
                 associatedData = "incorrect_associated_data".encodeToByteArray(),
             )
 
-        assertThrows<GeneralSecurityException> {
-            incorrectAeadSerializer.readFrom(buffer.inputStream())
-        }
+        assertThrows<CorruptionException> { incorrectAeadSerializer.readFrom(buffer.inputStream()) }
+            .apply {
+                hasMessageThat().isEqualTo("Decryption failed")
+                hasCauseThat().isInstanceOf<GeneralSecurityException>()
+            }
     }
 
     @Test
@@ -150,9 +153,11 @@ class AeadSerializerTest {
                 .getPrimitive(RegistryConfiguration.get(), Aead::class.java)
         val incorrectAeadSerializer = AeadSerializer(wrongAead, StringSerializer, associatedData)
 
-        assertThrows<GeneralSecurityException> {
-            incorrectAeadSerializer.readFrom(buffer.inputStream())
-        }
+        assertThrows<CorruptionException> { incorrectAeadSerializer.readFrom(buffer.inputStream()) }
+            .apply {
+                hasMessageThat().isEqualTo("Decryption failed")
+                hasCauseThat().isInstanceOf<GeneralSecurityException>()
+            }
     }
 
     companion object {
