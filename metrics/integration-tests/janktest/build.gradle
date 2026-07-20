@@ -23,7 +23,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    compileSdk { version = release(35) }
+    compileSdk { version = release(36) }
     namespace = "androidx.metrics.performance.janktest"
 }
 

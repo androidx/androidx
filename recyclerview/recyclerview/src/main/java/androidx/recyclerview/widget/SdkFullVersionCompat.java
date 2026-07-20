@@ -18,53 +18,32 @@ package androidx.recyclerview.widget;
 
 import android.os.Build;
 
-/**
- * Helper class to determine if minor SDK features should be enabled.
- */
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
+
+/** Helper class to determine if minor SDK features should be enabled. */
 class SdkFullVersionCompat {
 
     private SdkFullVersionCompat() {
         // Non-instantiable.
     }
 
-    // TODO: b/523333118 - Remove this workaround once RecyclerView compileSdk is bumped to >= 36.
-    // At that point, we can statically access Build.VERSION.SDK_INT_FULL or use BuildCompat.
-    //
-    // Why is this release-string parsing workaround here?
-    // RecyclerView is compiled against SDK 35 (to avoid forcing downstream AGP updates
-    // on app devs).
-    // The Build.VERSION.SDK_INT_FULL field was added in API 36, and thus is invisible
-    // at compile time.
-    // Because of this, we must dynamically parse Build.VERSION.RELEASE to detect Cinnamon Bun
-    // minor 1 (API 37.1 / 26Q3 release) which has a SDK_INT_FULL value of 3700001.
     static boolean isAtLeastCinnamonBunMinor1() {
-        if (Build.VERSION.SDK_INT < 37) {
-            return false;
+        // Build.VERSION_CODES_FULL.CINNAMON_BUN_1 is not available in the SDK 36 compileSdk.
+        // We use the literal integer 3700001 to represent Cinnamon Bun Minor 1 checks.
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Api36Impl.getSdkIntFull() >= 3700001;
+    }
+
+    @RequiresApi(36)
+    static class Api36Impl {
+        private Api36Impl() {
+            // Non-instantiable.
         }
-        if (Build.VERSION.SDK_INT > 37) {
-            return true;
+
+        @DoNotInline
+        static int getSdkIntFull() {
+            return Build.VERSION.SDK_INT_FULL;
         }
-        // TODO(b/524717109): Remove this check once Cinnamon Bun Minor 1 (API 37.1) is stabilized.
-        if ("DEV".equals(Build.VERSION.CODENAME)) {
-            return true;
-        }
-        String release = Build.VERSION.RELEASE;
-        if (release == null) {
-            return false;
-        }
-        int firstDot = release.indexOf('.');
-        if (firstDot >= 0) {
-            int secondDot = release.indexOf('.', firstDot + 1);
-            String minorStr = secondDot >= 0
-                    ? release.substring(firstDot + 1, secondDot)
-                    : release.substring(firstDot + 1);
-            try {
-                int minor = Integer.parseInt(minorStr);
-                return minor >= 1;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-        return false;
     }
 }
