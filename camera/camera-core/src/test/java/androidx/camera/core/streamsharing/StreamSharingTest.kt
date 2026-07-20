@@ -1124,4 +1124,80 @@ class StreamSharingTest {
         assertThat(cameraEdge2).isNotEqualTo(cameraEdge1)
         assertThat(cameraEdge1!!.isClosed).isTrue()
     }
+
+    @Config(minSdk = 33)
+    @Test
+    fun setMirrorModeOnPreview_resetPipeline() {
+        // Arrange
+        val preview = Preview.Builder().setMirrorMode(MirrorMode.MIRROR_MODE_OFF).build()
+        preview.setSurfaceProvider(mainThreadExecutor()) { request ->
+            val surfaceTexture = SurfaceTexture(0)
+            val surface = Surface(surfaceTexture)
+            request.provideSurface(surface, directExecutor()) {
+                surface.release()
+                surfaceTexture.release()
+            }
+        }
+        streamSharing =
+            StreamSharing(
+                camera,
+                null,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(preview),
+                useCaseConfigFactory,
+            )
+        streamSharing.bindToCamera(
+            camera,
+            null,
+            null,
+            streamSharing.getDefaultConfig(true, useCaseConfigFactory),
+        )
+        streamSharing.onBind()
+        streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(Size(1920, 1080)).build(), null)
+        streamSharing.onSessionStart()
+        shadowOf(getMainLooper()).idle()
+
+        val initialEdge = streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!
+        assertThat(initialEdge.isMirroring).isFalse()
+        val initialSurface = VirtualCameraAdapter.getChildSurface(preview)
+        assertThat(initialSurface).isNotNull()
+        val initialCameraEdge = streamSharing.cameraEdge
+        val initialSurfaceOutput = sharingProcessor.surfaceOutputs[PREVIEW]
+        assertThat(initialSurfaceOutput).isNotNull()
+        assertThat(isSurfaceOutputMirrored(initialSurfaceOutput!!)).isFalse()
+
+        // Make child active so it doesn't early-out in onUseCaseReset
+        streamSharing.virtualCameraAdapter.onUseCaseActive(preview)
+
+        // Act: update child mirror mode and trigger reset
+        preview.setMirrorMode(MirrorMode.MIRROR_MODE_ON)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: pipeline is reset, meaning cameraEdge (and child edge) is new
+        val newCameraEdge = streamSharing.cameraEdge
+        assertThat(newCameraEdge).isNotSameInstanceAs(initialCameraEdge)
+
+        val newEdge = streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!
+        assertThat(newEdge).isNotSameInstanceAs(initialEdge)
+        assertThat(newEdge.isMirroring).isTrue()
+
+        val newSurface = VirtualCameraAdapter.getChildSurface(preview)
+        assertThat(newSurface).isNotSameInstanceAs(initialSurface)
+
+        // And the actual SurfaceOutput has mirroring enabled.
+        val newSurfaceOutput = sharingProcessor.surfaceOutputs[PREVIEW]!!
+        assertThat(newSurfaceOutput).isNotSameInstanceAs(initialSurfaceOutput)
+        assertThat(isSurfaceOutputMirrored(newSurfaceOutput)).isTrue()
+    }
+
+    private fun isSurfaceOutputMirrored(
+        surfaceOutput: androidx.camera.core.SurfaceOutput
+    ): Boolean {
+        val glMatrix = FloatArray(16)
+        val identity = FloatArray(16).apply { android.opengl.Matrix.setIdentityM(this, 0) }
+        surfaceOutput.updateTransformMatrix(glMatrix, identity)
+        val det = glMatrix[0] * glMatrix[5] - glMatrix[4] * glMatrix[1]
+        return det < 0
+    }
 }
