@@ -17,9 +17,11 @@
 package androidx.pdf.view.annotation.draganddrop
 
 import android.view.View
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import kotlin.math.hypot
 
 /**
@@ -34,6 +36,7 @@ import kotlin.math.hypot
  * @param right The [View] representing the anchor on the end/right side.
  * @param bottom The [View] representing the anchor on the bottom.
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class AnchorManager(
     private val left: View,
     private val right: View,
@@ -78,7 +81,7 @@ internal class AnchorManager(
         return DOCK_STATE_BOTTOM
     }
 
-    fun getAnchorView(@ToolbarDockState.DockState state: Int): View? = anchors[state]
+    fun getAnchorView(@AnnotationToolbarView.DockState state: Int): View? = anchors[state]
 
     private fun getDistance(x1: Float, y1: Float, target: View): Float {
         val x2 = target.x + target.width / 2

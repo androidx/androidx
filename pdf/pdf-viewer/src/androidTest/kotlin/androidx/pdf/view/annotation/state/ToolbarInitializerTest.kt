@@ -17,9 +17,10 @@
 package androidx.pdf.view.annotation.state
 
 import android.content.Context
+import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.colorpalette.model.getHighlightPaletteItems
 import androidx.pdf.view.annotation.colorpalette.model.getPenPaletteItems
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,6 +39,7 @@ class ToolbarInitializerTest {
         context = ApplicationProvider.getApplicationContext()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun createInitialState_returnsCorrectDefaultState() {
         val initialState = ToolbarInitializer.createInitialState(context)
@@ -67,7 +69,7 @@ class ToolbarInitializerTest {
             .isEqualTo(defaultHighlighterColorIndex)
         assertThat(initialState.highlighterState.paletteItem)
             .isEqualTo(highlightPaletteItems[defaultHighlighterColorIndex])
-        assertThat(initialState.dockedState).isEqualTo(ToolbarDockState.DOCK_STATE_BOTTOM)
+        assertThat(initialState.dockedState).isEqualTo(AnnotationToolbarView.DOCK_STATE_BOTTOM)
         assertThat(initialState.isExpanded).isTrue()
     }
 }

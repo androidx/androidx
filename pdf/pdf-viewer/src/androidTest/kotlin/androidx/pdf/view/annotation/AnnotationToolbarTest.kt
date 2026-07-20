@@ -24,9 +24,9 @@ import androidx.pdf.PdfTestActivity
 import androidx.pdf.R
 import androidx.pdf.util.setSliderValue
 import androidx.pdf.util.withSliderValue
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.view.annotation.tool.AnnotationToolView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onIdle
@@ -376,9 +376,7 @@ class AnnotationToolbarTest {
         setupAnnotationToolbar { toolbar = it }
 
         activityRule.scenario.onActivity {
-            repeat(DUMMY_TOOLS_COUNT) {
-                toolbar?.toolTray?.addView(createAnnotationTool(toolbar.context))
-            }
+            repeat(DUMMY_TOOLS_COUNT) { toolbar?.addView(createAnnotationTool(toolbar.context)) }
         }
 
         // Assert pen tool, (i.e. 1st option in tool tray) is visible
@@ -399,9 +397,7 @@ class AnnotationToolbarTest {
         }
 
         activityRule.scenario.onActivity {
-            repeat(DUMMY_TOOLS_COUNT) {
-                toolbar?.toolTray?.addView(createAnnotationTool(toolbar.context))
-            }
+            repeat(DUMMY_TOOLS_COUNT) { toolbar?.addView(createAnnotationTool(toolbar.context)) }
         }
 
         // Assert pen tool, (i.e. 1st option in tool tray) is visible
@@ -447,6 +443,32 @@ class AnnotationToolbarTest {
         // assert color palette and brush slider are mutually visible
         onView(withId(R.id.brush_size_selector)).check(matches(not(isDisplayed())))
         onView(withId(R.id.color_palette)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun addView_addsCustomToolToToolTray() {
+        var toolbarView: AnnotationToolbarView? = null
+        setupAnnotationToolbar { toolbar ->
+            toolbarView = toolbar
+            val customTool = createAnnotationTool(toolbar.context)
+            toolbar.addView(customTool)
+        }
+        onIdle()
+        assertNotNull(toolbarView)
+    }
+
+    @Test
+    fun removeView_removesCustomToolFromToolTray() {
+        var customTool: AnnotationToolView? = null
+        var toolbarView: AnnotationToolbarView? = null
+        setupAnnotationToolbar { toolbar ->
+            toolbarView = toolbar
+            customTool = createAnnotationTool(toolbar.context)
+            toolbar.addView(customTool)
+        }
+        onIdle()
+        activityRule.scenario.onActivity { toolbarView?.removeView(customTool) }
+        assertThat(customTool?.parent).isNull()
     }
 
     private fun setupAnnotationToolbar(callback: ((AnnotationToolbarView) -> Unit) = {}) {
