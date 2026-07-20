@@ -18,6 +18,19 @@ package androidx.navigation3.runtime.deeplink
 
 import kotlinx.serialization.Serializable
 
+interface TestInterface
+
+@Serializable object TestInterfaceImplA : TestInterface
+
+@Serializable object TestInterfaceImplB : TestInterface
+
+@Serializable
+sealed class TestSealedClass {
+    @Serializable data object Key1 : TestSealedClass()
+
+    @Serializable data object Key2 : TestSealedClass()
+}
+
 @Serializable object TestKey
 
 @Serializable data class SimpleKey(val name: String, val age: Int)
