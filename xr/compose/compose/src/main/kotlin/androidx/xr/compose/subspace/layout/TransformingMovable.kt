@@ -99,10 +99,10 @@ import kotlinx.coroutines.asExecutor
  * @see movable for implementing custom movement behaviors
  */
 @Deprecated(
-    message = "This modifier is deprecated. Use movable() with MovePolicy.default() instead.",
+    message = "This modifier is deprecated. Use movable() with MovePolicy.system() instead.",
     replaceWith =
         ReplaceWith(
-            "movable(enabled = enabled, movePolicy = MovePolicy.default(scaleWithDistance = scaleWithDistance, onMove = onMove))",
+            "movable(enabled = enabled, movePolicy = MovePolicy.system(scaleWithDistance = scaleWithDistance, onMove = onMove))",
             "androidx.xr.compose.subspace.layout.MovePolicy",
             "androidx.xr.compose.subspace.layout.movable",
         ),
