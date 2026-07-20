@@ -46,6 +46,7 @@ dependencies {
 }
 
 android {
+    compileSdk { version = release(36) }
     namespace = "androidx.camera.common.testing"
 }
 
