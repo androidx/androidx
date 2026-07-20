@@ -116,23 +116,43 @@ internal sealed class CanvasOp {
     /** Returns true if this operation modifies the canvas transform or clip state. */
     open fun hasTransformsOrClips(): Boolean = false
 
-    /** Returns true if this operation performs drawing or contains drawing operations. */
-    open fun containsDrawCalls(): Boolean = false
+    /**
+     * Returns true if this operation is or contains visual drawing primitives (such as [Draw]
+     * operations like `drawRect` or `drawBitmap` that render pixels on screen).
+     *
+     * Unlike [emitsWireCommands], which returns true for any wire instruction (including state
+     * changes like [Transform] or [Clip]), [containsDrawingPrimitives] returns true exclusively
+     * when visual rendering occurs. During optimization, if a [Save] block returns false for
+     * [containsDrawingPrimitives], the entire save/restore scope and any state-only commands inside
+     * it can be safely discarded ([ElisionMode.DISCARD]).
+     */
+    open fun containsDrawingPrimitives(): Boolean = false
 
     /** Returns true if this operation switches the target canvas (e.g. drawToOffscreenBitmap). */
     open fun switchesCanvas(): Boolean = false
 
     /**
-     * Returns true if recording this operation should immediately trigger marking a draw call in
-     * the current save node.
+     * Returns true if this operation is or contains a condition switch ([DrawConditionally]) or
+     * target canvas switch ([switchesCanvas]).
      */
-    open fun triggersDrawCall(): Boolean = containsDrawCalls()
+    open fun switchesCanvasOrCondition(): Boolean = switchesCanvas()
 
     /**
-     * Returns true if this operation has child canvas commands (e.g. drawing, transforms, clips,
-     * loops, etc.).
+     * Indicates whether recording this operation should immediately mark `hasDrawCalls = true` on
+     * enclosing [Save] scopes without requiring tree traversals later.
      */
-    open fun hasChildCommands(): Boolean = false
+    open fun triggersDrawCall(): Boolean = containsDrawingPrimitives()
+
+    /**
+     * Returns true if this operation is or encloses any operation that emits wire commands
+     * (`writer.xxx()`) to the [RemoteComposeWriter] (such as [Draw], [Clip], or [Transform]).
+     *
+     * This returns false for non-operational metadata or variable declarations ([Expression]) and
+     * empty scopes. During optimization, conditional blocks ([DrawConditionally]) check
+     * [emitsWireCommands] on their child span; if false, the conditional block is pruned because it
+     * produces no wire output when executed.
+     */
+    open fun emitsWireCommands(): Boolean = false
 
     /**
      * Recursively optimizes or elides operations within child scopes or spans owned by this
@@ -157,11 +177,13 @@ internal sealed class CanvasOp {
             action(writer)
         }
 
-        override fun containsDrawCalls(): Boolean = true
+        // Visual drawing primitive that renders content directly to the canvas.
+        override fun containsDrawingPrimitives(): Boolean = true
 
         override fun switchesCanvas(): Boolean = switchesCanvas
 
-        override fun hasChildCommands(): Boolean = true
+        // Emits a direct drawing wire command (`writer.drawXxx()`) to the document.
+        override fun emitsWireCommands(): Boolean = true
 
         override fun toString(): String = "Draw"
     }
@@ -174,9 +196,11 @@ internal sealed class CanvasOp {
 
         override fun hasTransformsOrClips(): Boolean = true
 
-        override fun containsDrawCalls(): Boolean = false
+        // State modification only; does not draw pixels directly.
+        override fun containsDrawingPrimitives(): Boolean = false
 
-        override fun hasChildCommands(): Boolean = true
+        // Emits a clipping wire command (`writer.clipXxx()`) to the document.
+        override fun emitsWireCommands(): Boolean = true
 
         override fun toString(): String = "Clip"
     }
@@ -193,9 +217,11 @@ internal sealed class CanvasOp {
 
         override fun hasTransformsOrClips(): Boolean = true
 
-        override fun containsDrawCalls(): Boolean = false
+        // State modification only; does not draw pixels directly.
+        override fun containsDrawingPrimitives(): Boolean = false
 
-        override fun hasChildCommands(): Boolean = true
+        // Emits a matrix transformation wire command (`writer.buffer.addXxx()`) to the document.
+        override fun emitsWireCommands(): Boolean = true
 
         override fun toString(): String = "Transform(${op.javaClass.simpleName})"
     }
@@ -237,9 +263,9 @@ internal sealed class CanvasOp {
             return false
         }
 
-        override fun containsDrawCalls(): Boolean {
+        override fun containsDrawingPrimitives(): Boolean {
             for (i in 0 until children.size) {
-                if (children[i].containsDrawCalls()) return true
+                if (children[i].containsDrawingPrimitives()) return true
             }
             return false
         }
@@ -251,19 +277,28 @@ internal sealed class CanvasOp {
             return false
         }
 
+        override fun switchesCanvasOrCondition(): Boolean {
+            for (i in 0 until children.size) {
+                if (children[i].switchesCanvasOrCondition()) return true
+            }
+            return false
+        }
+
+        // Pushing a Save scope does not draw pixels; only child leaf primitives trigger
+        // markDrawCall().
         override fun triggersDrawCall(): Boolean = false
 
-        override fun hasChildCommands(): Boolean {
+        override fun emitsWireCommands(): Boolean {
             if (elisionMode == ElisionMode.DISCARD) return false
             for (i in 0 until children.size) {
-                if (children[i].hasChildCommands()) return true
+                if (children[i].emitsWireCommands()) return true
             }
             return false
         }
 
         override fun optimizeChildScopes(buffer: CanvasOperationBuffer) {
             buffer.maybeElide(children)
-            hasDrawCalls = containsDrawCalls()
+            hasDrawCalls = containsDrawingPrimitives()
         }
 
         override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
@@ -284,7 +319,7 @@ internal sealed class CanvasOp {
             }
         }
 
-        override fun toString(): String = "Save@${hashCode().toString(16)}"
+        override fun toString(): String = "Save(children=$children)"
     }
 
     /** Represents an expression evaluation (hoisted variable assignment). */
@@ -293,9 +328,11 @@ internal sealed class CanvasOp {
             creationState.getOrPutVariableId(key) { state.writeToDocument(creationState) }
         }
 
-        override fun containsDrawCalls(): Boolean = false
+        // Variable/expression definition only; does not draw pixels directly.
+        override fun containsDrawingPrimitives(): Boolean = false
 
-        override fun hasChildCommands(): Boolean = false
+        // Pure metadata evaluation; emits no drawing or state wire commands.
+        override fun emitsWireCommands(): Boolean = false
     }
 
     /**
@@ -319,17 +356,22 @@ internal sealed class CanvasOp {
 
         override fun hasTransformsOrClips(): Boolean = childSpan.hasTransformsOrClips()
 
-        override fun containsDrawCalls(): Boolean = childSpan.containsDrawCalls()
+        // Returns true if the conditional child span contains visual drawing primitives.
+        override fun containsDrawingPrimitives(): Boolean = childSpan.containsDrawingPrimitives()
 
         override fun switchesCanvas(): Boolean = childSpan.switchesCanvas()
 
-        override fun hasChildCommands(): Boolean = childSpan.hasChildCommands()
+        override fun switchesCanvasOrCondition(): Boolean = true
+
+        // Returns true if the conditional child span emits any wire commands (`writer.xxx()`).
+        override fun emitsWireCommands(): Boolean = childSpan.emitsWireCommands()
 
         override fun optimizeChildScopes(buffer: CanvasOperationBuffer) {
             buffer.optimizeSpan(childSpan)
         }
 
-        override fun shouldElide(buffer: CanvasOperationBuffer) = !childSpan.hasChildCommands()
+        // Conditional block can be pruned if its child span emits no wire commands when executed.
+        override fun shouldElide(buffer: CanvasOperationBuffer) = !childSpan.emitsWireCommands()
 
         override fun toString(): String = "DrawConditionally(${condition.toDebugString()})"
     }
@@ -392,13 +434,13 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             return false
         }
 
-        fun containsDrawCalls(): Boolean {
+        fun containsDrawingPrimitives(): Boolean {
             for (i in 0 until operations.size) {
-                if (operations[i].op.containsDrawCalls()) return true
+                if (operations[i].op.containsDrawingPrimitives()) return true
             }
             var currentChild = child
             while (currentChild != null) {
-                if (currentChild.containsDrawCalls()) return true
+                if (currentChild.containsDrawingPrimitives()) return true
                 currentChild = currentChild.next
             }
             return false
@@ -416,16 +458,46 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             return false
         }
 
-        fun hasChildCommands(): Boolean {
+        fun switchesCanvasOrCondition(): Boolean {
             for (i in 0 until operations.size) {
-                if (operations[i].op.hasChildCommands()) return true
+                if (operations[i].op.switchesCanvasOrCondition()) return true
             }
             var currentChild = child
             while (currentChild != null) {
-                if (currentChild.hasChildCommands()) return true
+                if (currentChild.switchesCanvasOrCondition()) return true
                 currentChild = currentChild.next
             }
             return false
+        }
+
+        fun emitsWireCommands(): Boolean {
+            for (i in 0 until operations.size) {
+                if (operations[i].op.emitsWireCommands()) return true
+            }
+            var currentChild = child
+            while (currentChild != null) {
+                if (currentChild.emitsWireCommands()) return true
+                currentChild = currentChild.next
+            }
+            return false
+        }
+
+        override fun toString(): String {
+            val sb = StringBuilder()
+            sb.append("Span(depth=").append(depth).append(", ops=[")
+            for (i in 0 until operations.size) {
+                if (i > 0) sb.append(", ")
+                sb.append(operations[i].op.toString())
+            }
+            sb.append("]")
+            if (child != null) {
+                sb.append(", child=").append(child.toString())
+            }
+            if (next != null) {
+                sb.append(", next=").append(next.toString())
+            }
+            sb.append(")")
+            return sb.toString()
         }
 
         fun sortAllSpans() {
@@ -540,6 +612,15 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             current?.next = childSpan
         }
         return childSpan
+    }
+
+    /** Returns a string representation of the operation buffer's current span tree. */
+    override fun toString(): String {
+        return if (spanTreeRoot.operations.isNotEmpty() || spanTreeRoot.child != null) {
+            spanTreeRoot.toString()
+        } else {
+            "CanvasOperationBuffer(empty)"
+        }
     }
 
     /**
@@ -1102,34 +1183,33 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                             elisionPass(op.children, currentSeenDrawCall, isRootSpan)
                         CanvasOp.ElisionMode.INLINE
                     }
-                    op.switchesCanvas() -> {
-                        // Save block has transforms/clips AND spans across a target canvas switch
-                        // (e.g. drawToOffscreenBitmap).
+                    op.switchesCanvasOrCondition() -> {
+                        // Save block has transforms/clips AND spans across a target canvas or
+                        // condition switch (e.g. drawToOffscreenBitmap or DrawConditionally).
                         // Must preserve save/restore bounds on the outer canvas around the
-                        // transition.
+                        // transition across all optimization levels.
                         elisionPass(op.children, false, isRootSpan)
                         currentSeenDrawCall = true
                         CanvasOp.ElisionMode.PRESERVE
                     }
                     !currentSeenDrawCall && isRootSpan -> {
                         // Save block has transforms/clips, but no drawing occurs after it on the
-                        // root span.
-                        // Safe to inline on the root canvas because leaked transforms have no
-                        // visual effect.
+                        // root span. Safe to inline on the root canvas because leaked transforms
+                        // have no visual effect.
                         currentSeenDrawCall =
                             elisionPass(op.children, currentSeenDrawCall, isRootSpan)
                         CanvasOp.ElisionMode.INLINE
                     }
                     else -> {
                         // Save block has transforms/clips AND drawing occurs after it (or in a
-                        // child span).
-                        // Must preserve matching save/restore to prevent transform leakage.
+                        // child span). Must preserve matching save/restore to prevent transform
+                        // leakage.
                         elisionPass(op.children, false, isRootSpan)
                         currentSeenDrawCall = true
                         CanvasOp.ElisionMode.PRESERVE
                     }
                 }
-        } else if (op.containsDrawCalls() || op.switchesCanvas()) {
+        } else if (op.containsDrawingPrimitives() || op.switchesCanvasOrCondition()) {
             currentSeenDrawCall = true
         }
         return currentSeenDrawCall
