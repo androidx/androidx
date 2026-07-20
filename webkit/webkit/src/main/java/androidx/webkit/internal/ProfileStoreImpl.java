@@ -20,16 +20,12 @@ import androidx.annotation.UiThread;
 import androidx.webkit.Profile;
 import androidx.webkit.ProfileStore;
 
-import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.chromium.support_lib_boundary.ProfileStoreBoundaryInterface;
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Internal implementation of ProfileStore.
@@ -38,14 +34,6 @@ public class ProfileStoreImpl implements ProfileStore {
 
     private final ProfileStoreBoundaryInterface mProfileStoreImpl;
     private static ProfileStoreImpl sInstance;
-
-    // Note: We had originally considered using a WeakHashMap here, however that would break
-    // equivalence for the objects that hang off Profile. For example:
-    // 1. HttpCache cache1 = ProfileStore.getProfile(PROFILE_NAME).getHttpCache();
-    // 2. Maybe run GC, possibly discarding the unreferenced Profile.
-    // 3. HttpCache cache2 = ProfileStore.getProfile(PROFILE_NAME).getHttpCache();
-    // 4. cache1 != cache2, as the Profile object was not the same
-    private final Map<@NonNull String, @NonNull Profile> mProfileCache = new HashMap<>();
 
     private ProfileStoreImpl(ProfileStoreBoundaryInterface profileStoreImpl) {
         mProfileStoreImpl = profileStoreImpl;
@@ -72,10 +60,8 @@ public class ProfileStoreImpl implements ProfileStore {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
 
-        return mProfileCache.computeIfAbsent(name, key -> new ProfileImpl(
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        ProfileBoundaryInterface.class,
-                        mProfileStoreImpl.getOrCreateProfile(name))));
+        return ProfileImpl.forInvocationHandler(
+                mProfileStoreImpl.getOrCreateProfile(name));
     }
 
     @Override
@@ -85,15 +71,11 @@ public class ProfileStoreImpl implements ProfileStore {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
 
-        return mProfileCache.computeIfAbsent(name, key -> {
-            InvocationHandler profileBoundaryInterface = mProfileStoreImpl.getProfile(name);
-            if (profileBoundaryInterface == null) {
-                return null;
-            }
-            return new ProfileImpl(
-                    BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                            ProfileBoundaryInterface.class, profileBoundaryInterface));
-        });
+        InvocationHandler invocationHandler = mProfileStoreImpl.getProfile(name);
+        if (invocationHandler == null) {
+            return null;
+        }
+        return ProfileImpl.forInvocationHandler(invocationHandler);
     }
 
     @Override
@@ -106,18 +88,6 @@ public class ProfileStoreImpl implements ProfileStore {
         }
     }
 
-    @NonNull Profile getOrCreateProfileFromBoundaryInterface(
-            @NonNull InvocationHandler profileInvocationHandler) {
-        ProfileBoundaryInterface profile = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                ProfileBoundaryInterface.class, profileInvocationHandler);
-
-        if (profile == null) {
-            throw new IllegalStateException("WebView returned the name of a non-existent Profile.");
-        }
-
-        return mProfileCache.computeIfAbsent(profile.getName(), key -> new ProfileImpl(profile));
-    }
-
     @Override
     public boolean deleteProfile(@NonNull String name) throws IllegalStateException {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
@@ -127,5 +97,4 @@ public class ProfileStoreImpl implements ProfileStore {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
-
 }

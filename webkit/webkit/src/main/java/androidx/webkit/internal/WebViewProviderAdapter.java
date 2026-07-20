@@ -183,8 +183,7 @@ public class WebViewProviderAdapter {
      * Adapter method for {@link WebViewCompat#getProfile(WebView)}.
      */
     public @NonNull Profile getProfile() {
-        return ProfileStoreImpl.getInstance()
-                .getOrCreateProfileFromBoundaryInterface(mImpl.getProfile());
+        return ProfileImpl.forInvocationHandler(mImpl.getProfile());
     }
 
     /**
