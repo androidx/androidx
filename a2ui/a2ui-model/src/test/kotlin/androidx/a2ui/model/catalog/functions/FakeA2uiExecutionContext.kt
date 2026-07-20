@@ -17,6 +17,7 @@
 package androidx.a2ui.model.catalog.functions
 
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 
@@ -26,6 +27,13 @@ internal object FakeA2uiExecutionContext : A2uiExecutionContext {
     override fun executeFunction(name: String, args: Map<String, Any>): Any? = null
 
     override fun resolveValue(path: A2uiDataPath): Any? = null
+
+    override fun <T : Any> getOrCreateFunctionScopedCache(
+        functionDefinition: A2uiFunctionDefinition,
+        factory: () -> T,
+    ): T {
+        return factory()
+    }
 }
 
 internal fun A2uiFunction.execute(args: Map<String, Any>): Any? {
