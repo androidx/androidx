@@ -639,24 +639,68 @@ internal class BrowserInputTest {
         }
     }
 
+    @Test
+    fun onHistoryChanged_updatesCustomTitleAndUrl() {
+        runTest(testDispatcher) {
+            val customInfo1 = TestInfo.Custom(title = "Custom Home", url = "/home")
+            val handler = TestNavigationEventHandler<TestInfo>(customInfo1)
+            dispatcher.addHandler(handler)
+            advanceUntilIdle()
+
+            // Verify relative path and custom title
+            assertThat(window.title).isEqualTo("Custom Home")
+            assertThat(window.entries[window.index].url).isEqualTo("/home")
+
+            val customInfo2 =
+                TestInfo.Custom(title = "Custom Details", url = "https://example.com/details")
+            handler.setInfo(currentIndex = 1, customInfo1, customInfo2)
+            advanceUntilIdle()
+
+            // Verify absolute URL and custom title
+            assertThat(window.title).isEqualTo("Custom Details")
+            assertThat(window.entries[window.index].url).isEqualTo("https://example.com/details")
+
+            val customInfo3 = TestInfo.Custom(title = "No URL Page", url = null)
+            handler.setInfo(currentIndex = 2, customInfo1, customInfo2, customInfo3)
+            advanceUntilIdle()
+
+            // Verify null URL (URL remains null) and custom title
+            assertThat(window.title).isEqualTo("No URL Page")
+            assertThat(window.entries[window.index].url).isNull()
+
+            val customInfo4 = TestInfo.Custom(title = null, url = "/null-title")
+            handler.setInfo(currentIndex = 3, customInfo1, customInfo2, customInfo3, customInfo4)
+            advanceUntilIdle()
+
+            // Verify null title (title remains "No URL Page" from previous entry)
+            assertThat(window.title).isEqualTo("No URL Page")
+            assertThat(window.entries[window.index].url).isEqualTo("/null-title")
+        }
+    }
+
     /**
      * A sealed class representing type-safe navigation information used for testing.
      *
      * Instances of this class are used as the [NavigationEventInfo] in [BrowserInputTest] to
      * represent different screens or destinations in the navigation history.
      */
-    private sealed class TestInfo : NavigationEventInfo() {
-        data object A : TestInfo()
+    private sealed class TestInfo(
+        override val url: String? = null,
+        override val title: String? = null,
+    ) : NavigationEventInfo() {
+        data object A : TestInfo(url = "#A", title = "A")
 
-        data object B : TestInfo()
+        data object B : TestInfo(url = "#B", title = "B")
 
-        data object C : TestInfo()
+        data object C : TestInfo(url = "#C", title = "C")
 
-        data object X : TestInfo()
+        data object X : TestInfo(url = "#X", title = "X")
 
-        data object Y : TestInfo()
+        data object Y : TestInfo(url = "#Y", title = "Y")
 
-        data object Z : TestInfo()
+        data object Z : TestInfo(url = "#Z", title = "Z")
+
+        class Custom(override val title: String?, override val url: String?) : TestInfo(url, title)
     }
 
     /**
