@@ -57,6 +57,7 @@ internal class PassthroughConnectionPool(
 
     private val lock = ReentrantLock()
     private val mutex = Mutex()
+    private val connectionElementKey = ConnectionElementKey()
     private lateinit var connection: SQLiteConnection
 
     @Volatile private var isClosed = false
@@ -68,7 +69,7 @@ internal class PassthroughConnectionPool(
         if (isClosed) {
             throwSQLiteException(SQLITE_MISUSE, "Connection pool is closed")
         }
-        val confinedConnection = currentCoroutineContext()[ConnectionElement]?.connectionWrapper
+        val confinedConnection = currentCoroutineContext()[connectionElementKey]?.connectionWrapper
         if (confinedConnection != null) {
             return block.invoke(confinedConnection)
         }
@@ -85,7 +86,9 @@ internal class PassthroughConnectionPool(
             }
         }
         val connectionWrapper = PassthroughConnection(transactionWrapper, connection)
-        return withContext(ConnectionElement(connectionWrapper)) { block.invoke(connectionWrapper) }
+        return withContext(ConnectionElement(connectionElementKey, connectionWrapper)) {
+            block.invoke(connectionWrapper)
+        }
     }
 
     /**
@@ -129,13 +132,12 @@ internal class PassthroughConnectionPool(
         }
     }
 
-    private class ConnectionElement(val connectionWrapper: PassthroughConnection) :
-        CoroutineContext.Element {
-        companion object Key : CoroutineContext.Key<ConnectionElement>
+    private class ConnectionElement(
+        override val key: CoroutineContext.Key<ConnectionElement>,
+        val connectionWrapper: PassthroughConnection,
+    ) : CoroutineContext.Element
 
-        override val key: CoroutineContext.Key<ConnectionElement>
-            get() = ConnectionElement
-    }
+    private class ConnectionElementKey : CoroutineContext.Key<ConnectionElement>
 
     private companion object {
         const val BUG_LINK =
