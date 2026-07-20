@@ -174,7 +174,7 @@ internal class Camera2DeviceManagerImplTest {
             fakeCamera2DeviceCloser,
             fakeCamera2ErrorProcessor,
             fakeCamera2SystemState,
-            CameraPipe.Flags(cameraOpenAbortEnabled = true),
+            CameraPipe.Flags(),
             fakeThreads,
         )
 
