@@ -19,6 +19,7 @@ package androidx.a2ui.engine.model
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -147,6 +148,40 @@ class A2uiCoreExecutionContextTest {
         assertThat(evaluatedContext).isSameInstanceAs(env.context)
     }
 
+    @Test
+    fun getOrCreateCache_delegatesToFunctionScopedCacheProvider() {
+        var cachedComponentId: String? = null
+        var cachedFunctionDefinition: A2uiFunctionDefinition? = null
+        val expectedValue = "cached_value"
+
+        val provider =
+            object : A2uiCoreCacheProvider {
+                override fun <T : Any> getOrCreateFunctionScopedCache(
+                    componentId: String,
+                    functionDefinition: A2uiFunctionDefinition,
+                    factory: () -> T,
+                ): T {
+                    cachedComponentId = componentId
+                    cachedFunctionDefinition = functionDefinition
+                    return factory()
+                }
+            }
+        val env = createTestEnvironment(cacheProvider = provider)
+        val functionDef =
+            object : A2uiFunctionDefinition {
+                override val name = FUNCTION_NAME
+                override val description = "test func"
+                override val argumentSchema = A2uiAnySchema.INSTANCE
+                override val returnType = A2uiFunctionReturnType.STRING
+            }
+
+        val result = env.context.getOrCreateFunctionScopedCache(functionDef) { expectedValue }
+
+        assertThat(result).isEqualTo(expectedValue)
+        assertThat(cachedComponentId).isEqualTo(COMPONENT_ID_1)
+        assertThat(cachedFunctionDefinition).isSameInstanceAs(functionDef)
+    }
+
     private data class DispatchedError(val exception: A2uiException, val componentId: String?)
 
     private class TestEnvironment(
@@ -154,10 +189,22 @@ class A2uiCoreExecutionContextTest {
         val getDispatchedError: () -> DispatchedError?,
     )
 
+    private val defaultCacheProvider =
+        object : A2uiCoreCacheProvider {
+            override fun <T : Any> getOrCreateFunctionScopedCache(
+                componentId: String,
+                functionDefinition: A2uiFunctionDefinition,
+                factory: () -> T,
+            ): T {
+                return factory()
+            }
+        }
+
     private fun createTestEnvironment(
         catalogFunctions: List<A2uiFunction> = emptyList(),
         valueResolver: A2uiCoreValueResolver = A2uiCoreValueResolver { null },
         dynamicEvaluator: A2uiCoreDynamicEvaluator = A2uiCoreDynamicEvaluatorImpl,
+        cacheProvider: A2uiCoreCacheProvider = defaultCacheProvider,
     ): TestEnvironment {
         var dispatchedError: DispatchedError? = null
         val context =
@@ -169,6 +216,7 @@ class A2uiCoreExecutionContextTest {
                 },
                 valueResolver = valueResolver,
                 dynamicEvaluator = dynamicEvaluator,
+                cacheProvider = cacheProvider,
             )
         return TestEnvironment(context = context, getDispatchedError = { dispatchedError })
     }
@@ -178,7 +226,7 @@ class A2uiCoreExecutionContextTest {
     ): A2uiFunction {
         return object : A2uiFunction {
             override val definition =
-                object : androidx.a2ui.model.catalog.A2uiFunctionDefinition {
+                object : A2uiFunctionDefinition {
                     override val name = FUNCTION_NAME
                     override val description = "test func"
                     override val argumentSchema = A2uiAnySchema.INSTANCE

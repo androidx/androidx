@@ -21,11 +21,15 @@ import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiUserAction
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
@@ -370,19 +374,11 @@ class A2uiCoreSurfaceModelTest {
         var functionCapturedCallArgs: Map<String, Any>? = null
         val function =
             object : A2uiFunction {
-                override val definition =
-                    object : androidx.a2ui.model.catalog.A2uiFunctionDefinition {
-                        override val name = "test_func"
-                        override val description = "test func"
-                        override val argumentSchema =
-                            androidx.a2ui.model.schema.A2uiAnySchema.INSTANCE
-                        override val returnType =
-                            androidx.a2ui.model.catalog.A2uiFunctionReturnType.STRING
-                    }
+                override val definition = TestFunctionDefinition1
 
                 override fun execute(
                     args: Map<String, Any>,
-                    executionContext: androidx.a2ui.model.protocol.A2uiExecutionContext,
+                    executionContext: A2uiExecutionContext,
                 ): Any {
                     functionCapturedCallArgs = args
                     return "func_result"
@@ -394,7 +390,8 @@ class A2uiCoreSurfaceModelTest {
         val valueResolver = A2uiCoreValueResolver { null }
 
         val functionArgs = mapOf("arg1" to "val")
-        val payload = mapOf("call" to "test_func", "args" to mapOf("arg1" to "val"))
+        val payload =
+            mapOf("call" to TestFunctionDefinition1.name, "args" to mapOf("arg1" to "val"))
 
         val result =
             surface.evaluatePayload(COMPONENT_ID_1, valueResolver, A2uiDataPath("/"), payload)
@@ -453,6 +450,142 @@ class A2uiCoreSurfaceModelTest {
         assertThat(result).contains("theme={}")
     }
 
+    @Test
+    fun updateComponents_associatedComponentCache_clearsCachedValues() {
+        val surface = createTestSurface()
+
+        val value1 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                "cached_value_1"
+            }
+
+        surface.updateComponents(listOf(A2uiComponentPayload(COMPONENT_ID_1, "button", emptyMap())))
+
+        val value1AfterClear =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                "cached_value_2"
+            }
+        assertThat(value1AfterClear).isEqualTo("cached_value_2")
+    }
+
+    @Test
+    fun updateComponents_associatedComponentCacheWithDifferentComponent_cacheUntouched() {
+        val surface = createTestSurface()
+
+        val value1 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                "cached_value_1"
+            }
+
+        surface.updateComponents(listOf(A2uiComponentPayload(COMPONENT_ID_2, "button", emptyMap())))
+
+        val value1AfterClear =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                "cached_value_2"
+            }
+        assertThat(value1AfterClear).isEqualTo("cached_value_1")
+    }
+
+    @Test
+    fun getOrCreateCache_cacheDoesNotExists_createsFunctionScopedCacheAndReturnValue() {
+        val surface = createTestSurface()
+        var factoryCount = 0
+
+        val cache =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                factoryCount++
+                "cached_value_1"
+            }
+
+        assertThat(cache).isEqualTo("cached_value_1")
+        assertThat(factoryCount).isEqualTo(1)
+    }
+
+    @Test
+    fun getOrCreateCache_FunctionScoped_cacheExists_returnsCachedValue() {
+        val surface = createTestSurface()
+        var factoryCount = 0
+
+        val cache =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                factoryCount++
+                mutableListOf("cached_value_1")
+            }
+
+        val cacheRetry =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                factoryCount++
+                mutableListOf("cached_value_2")
+            }
+        assertThat(cacheRetry).isSameInstanceAs(cache)
+        assertThat(factoryCount).isEqualTo(1)
+    }
+
+    @Test
+    fun getOrCreateFunctionScopedCache_differentDefinitions_returnsSeparateCaches() {
+        val surface = createTestSurface()
+
+        var factoryCount1 = 0
+        var factoryCount2 = 0
+
+        val cache1 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                factoryCount1++
+                "cached_value_1"
+            }
+        val cache2 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition2) {
+                factoryCount2++
+                "cached_value_2"
+            }
+
+        assertThat(factoryCount1).isEqualTo(1)
+        assertThat(factoryCount2).isEqualTo(1)
+        assertThat(cache1).isEqualTo("cached_value_1")
+        assertThat(cache2).isEqualTo("cached_value_2")
+    }
+
+    @Test
+    fun getOrCreateFunctionScopedCache_differentComponents_returnsSeparateCaches() {
+        val surface = createTestSurface()
+
+        var factoryCount1 = 0
+        var factoryCount2 = 0
+
+        val cache1 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                factoryCount1++
+                "cached_value_1"
+            }
+        val cache2 =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_2, TestFunctionDefinition1) {
+                factoryCount2++
+                "cached_value_2"
+            }
+
+        assertThat(factoryCount1).isEqualTo(1)
+        assertThat(factoryCount2).isEqualTo(1)
+        assertThat(cache1).isEqualTo("cached_value_1")
+        assertThat(cache2).isEqualTo("cached_value_2")
+    }
+
+    @Test
+    fun dispose_clearsCaches() {
+        val surface = createTestSurface()
+
+        surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+            "cached_value_1"
+        }
+
+        surface.dispose()
+
+        val valueAfter =
+            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+                "cached_value_2"
+            }
+        assertThat(valueAfter).isEqualTo("cached_value_2")
+    }
+
     private fun createTestSurface(
         id: String = SURFACE_ID_1,
         catalog: A2uiCoreCatalog = TestCatalog(),
@@ -475,6 +608,20 @@ class A2uiCoreSurfaceModelTest {
             onDispatchError = onDispatchError,
             timeProvider = timeProvider,
         )
+    }
+
+    private object TestFunctionDefinition1 : A2uiFunctionDefinition {
+        override val name: String = "test_name_1"
+        override val description: String = "test_description_1"
+        override val argumentSchema: A2uiSchema = A2uiAnySchema.INSTANCE
+        override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
+    }
+
+    private object TestFunctionDefinition2 : A2uiFunctionDefinition {
+        override val name: String = "test_name_2"
+        override val description: String = "test_description_2"
+        override val argumentSchema: A2uiSchema = A2uiAnySchema.INSTANCE
+        override val returnType: A2uiFunctionReturnType = A2uiFunctionReturnType.STRING
     }
 
     private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :

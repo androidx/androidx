@@ -61,6 +61,13 @@ class A2uiCoreDynamicEvaluatorTest {
                     }
                     return null
                 }
+
+                override fun <T : Any> getOrCreateFunctionScopedCache(
+                    functionDefinition: A2uiFunctionDefinition,
+                    factory: () -> T,
+                ): T {
+                    return factory()
+                }
             }
 
         mockAddFunction =
@@ -164,6 +171,13 @@ class A2uiCoreDynamicEvaluatorTest {
                 override fun resolveValue(path: A2uiDataPath): Any? = null
 
                 override fun executeFunction(name: String, args: Map<String, Any>): Any? = null
+
+                override fun <T : Any> getOrCreateFunctionScopedCache(
+                    functionDefinition: A2uiFunctionDefinition,
+                    factory: () -> T,
+                ): T {
+                    return factory()
+                }
             }
         val payload = mapOf(KEY_PATH to RELATIVE_PATH)
 
