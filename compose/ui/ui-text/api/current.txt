@@ -1061,9 +1061,11 @@ package androidx.compose.ui.text.font {
   @androidx.compose.runtime.Immutable public interface Font {
     method @BytecodeOnly public default int getLoadingStrategy-PKNRLFQ();
     method @BytecodeOnly public int getStyle-_-LCdwA();
+    method @InaccessibleFromKotlin public default androidx.compose.ui.text.font.FontVariation.Settings getVariationSettings();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontWeight getWeight();
     property public default androidx.compose.ui.text.font.FontLoadingStrategy loadingStrategy;
     property public abstract androidx.compose.ui.text.font.FontStyle style;
+    property public default androidx.compose.ui.text.font.FontVariation.Settings variationSettings;
     property public abstract androidx.compose.ui.text.font.FontWeight weight;
     field public static final androidx.compose.ui.text.font.Font.Companion Companion;
     field public static final long MaximumAsyncTimeoutMillis = 15000L; // 0x3a98L
@@ -1229,6 +1231,7 @@ package androidx.compose.ui.text.font {
     method public androidx.compose.ui.text.font.FontVariation.Setting Setting(String name, float value);
     method @KotlinOnly public androidx.compose.ui.text.font.FontVariation.Settings Settings(androidx.compose.ui.text.font.FontWeight weight, androidx.compose.ui.text.font.FontStyle style, androidx.compose.ui.text.font.FontVariation.Setting... settings);
     method @BytecodeOnly public androidx.compose.ui.text.font.FontVariation.Settings Settings-6EWAqTQ(androidx.compose.ui.text.font.FontWeight, int, androidx.compose.ui.text.font.FontVariation.Setting!...);
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getEmpty();
     method public androidx.compose.ui.text.font.FontVariation.Setting grade(int value);
     method public androidx.compose.ui.text.font.FontVariation.Setting italic(float value);
     method @KotlinOnly public androidx.compose.ui.text.font.FontVariation.Setting opticalSizing(androidx.compose.ui.unit.TextUnit textSize);
@@ -1236,6 +1239,7 @@ package androidx.compose.ui.text.font {
     method public androidx.compose.ui.text.font.FontVariation.Setting slant(float value);
     method public androidx.compose.ui.text.font.FontVariation.Setting weight(int value);
     method public androidx.compose.ui.text.font.FontVariation.Setting width(float value);
+    property public androidx.compose.ui.text.font.FontVariation.Settings Empty;
     field public static final androidx.compose.ui.text.font.FontVariation INSTANCE;
   }
 
@@ -1324,7 +1328,6 @@ package androidx.compose.ui.text.font {
     method @BytecodeOnly public static androidx.compose.ui.text.font.ResourceFont! copy-RetOiIg$default(androidx.compose.ui.text.font.ResourceFont!, int, androidx.compose.ui.text.font.FontWeight!, int, int, Object!);
     method @InaccessibleFromKotlin public int getResId();
     method @BytecodeOnly public int getStyle-_-LCdwA();
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontVariation.Settings getVariationSettings();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontWeight getWeight();
     property public androidx.compose.ui.text.font.FontLoadingStrategy loadingStrategy;
     property public int resId;

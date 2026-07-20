@@ -151,7 +151,7 @@ constructor(
      * Subclasses may safely apply all variation settings without querying the font file. Android
      * will ignore any unsupported axis.
      */
-    val variationSettings: FontVariation.Settings = variationSettings
+    final override val variationSettings: FontVariation.Settings = variationSettings
 
     /**
      * Loader for loading an [AndroidFont] and producing an [android.graphics.Typeface].

@@ -32,16 +32,20 @@ import androidx.compose.ui.unit.TextUnit
  * [fonts.google.com](https://fonts.google.com/variablefonts#axis-definitions).
  */
 object FontVariation {
+    /** An empty [Settings] instance. */
+    val Empty = Settings(emptyList())
+
     /**
      * A collection of settings to apply to a single font.
      *
      * Settings must be unique on [Setting.axisName]
      */
     @Immutable
-    class Settings(vararg settings: Setting) {
+    class Settings
+    internal constructor(
         /** All settings, unique by [FontVariation.Setting.axisName] */
         val settings: List<Setting>
-
+    ) {
         /**
          * True if density is required to resolve any of these settings
          *
@@ -50,20 +54,28 @@ object FontVariation {
         internal val needsDensity: Boolean
 
         init {
-            // assumption: number of settings is small (<10).
             var needsDensity = false
-            for (i in settings.indices) {
+            for (i in 0 until settings.size) {
                 val setting = settings[i]
                 val name = setting.axisName
-                val count = settings.count { it.axisName == name }
-                requirePrecondition(count == 1) {
-                    "'$name' must be unique. Actual [${settings.filter { it.axisName == name }}]"
+                for (j in (i + 1) until settings.size) {
+                    if (name == settings[j].axisName) {
+                        requirePrecondition(false) {
+                            "'$name' must be unique. Actual [${settings.filter { it.axisName == name }}]"
+                        }
+                    }
                 }
                 needsDensity = needsDensity || setting.needsDensity
             }
-            this.settings = settings.toList()
             this.needsDensity = needsDensity
         }
+
+        /**
+         * A collection of settings to apply to a single font.
+         *
+         * Settings must be unique on [Setting.axisName]
+         */
+        constructor(vararg settings: Setting) : this(settings.asList())
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
