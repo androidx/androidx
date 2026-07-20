@@ -54,16 +54,19 @@ public class AeadSerializer<T>(
      * Reads the data from the [input], decrypts it using the provided [Aead] instance, and
      * delegates to the [wrappedSerializer] to deserialize the decrypted bytes.
      *
-     * @throws java.security.GeneralSecurityException if the data cannot be decrypted
-     * @throws androidx.datastore.core.CorruptionException if the [wrappedSerializer] fails to read
-     *   the data.
+     * @throws androidx.datastore.core.CorruptionException if the data cannot be decrypted or if the
+     *   [wrappedSerializer] fails to read the data.
      */
-    @Throws(CorruptionException::class, GeneralSecurityException::class)
+    @Throws(CorruptionException::class)
     override suspend fun readFrom(input: InputStream): T {
         val encrypted = input.readBytes()
         val decrypted =
             if (encrypted.isNotEmpty()) {
-                aead.decrypt(encrypted, associatedData)
+                try {
+                    aead.decrypt(encrypted, associatedData)
+                } catch (e: GeneralSecurityException) {
+                    throw CorruptionException("Decryption failed", e)
+                }
             } else {
                 encrypted
             }
