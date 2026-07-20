@@ -1420,6 +1420,22 @@ internal fun HorizontalTimePicker(
     }
 }
 
+private fun shouldSwitchFocusToMinute(
+    event: KeyEvent,
+    hourValue: TextFieldValue,
+    state: TimePickerState,
+): Boolean {
+    // Zero == 48, Nine == 57
+    val isDigit = event.utf16CodePoint in 48..57
+    val isCursorAtEnd = hourValue.selection.start == 2 && hourValue.text.length == 2
+    val hourInt = hourValue.text.toIntOrNull()
+    val isValidHour =
+        hourInt?.let { (state.is24hour && it in 0..23) || (!state.is24hour && it in 1..12) }
+            ?: false
+
+    return isDigit && isCursorAtEnd && isValidHour
+}
+
 @Composable
 private fun TimeInputImpl(
     modifier: Modifier,
@@ -1491,11 +1507,7 @@ private fun TimeInputImpl(
                 TimePickerTextField(
                     modifier =
                         Modifier.onKeyEvent { event ->
-                            // Zero == 48, Nine == 57
-                            val switchFocus =
-                                event.utf16CodePoint in 48..57 &&
-                                    hourValue.selection.start == 2 &&
-                                    hourValue.text.length == 2
+                            val switchFocus = shouldSwitchFocusToMinute(event, hourValue, state)
 
                             if (switchFocus) {
                                 state.selection = TimePickerSelectionMode.Minute
