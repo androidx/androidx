@@ -149,7 +149,7 @@ internal class DiagnosticsMessageCollector(private val stepName: String) : Messa
 
     private fun String.getSeverityFromPrefix(): Diagnostic.Kind? {
         val kindMatch =
-            // The (\w+) for the kind prefix is is the 4th capture group
+            // The (\w+) for the kind prefix is the 4th capture group
             KAPT_LOCATION_AND_KIND_REGEX.find(this)?.groupValues?.getOrNull(4)
                 // The (\w+) is the 1st capture group
                 ?: KIND_REGEX.find(this)?.groupValues?.getOrNull(1)
