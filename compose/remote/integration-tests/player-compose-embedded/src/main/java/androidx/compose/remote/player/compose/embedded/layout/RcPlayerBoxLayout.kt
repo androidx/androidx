@@ -23,33 +23,17 @@ import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.executeOperations
-import androidx.compose.remote.player.compose.embedded.getDrawContentOperationsListReflection
 import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
 import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 
 @Composable
 internal fun RcPlayerBox(layout: BoxLayout, modifier: Modifier) {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
-    val drawOpsList = layout.getDrawContentOperationsListReflection()
-    val drawModifier =
-        if (drawOpsList != null) {
-            Modifier.drawWithContent {
-                executeOperations(
-                    operations = drawOpsList,
-                    remoteContext = remoteContext,
-                    onDrawContent = { drawContent() },
-                    graph = graph,
-                )
-            }
-        } else Modifier
-
     Box(
-        modifier = modifier.then(drawModifier),
+        modifier = modifier,
         contentAlignment =
             boxContentAlignment(
                 layout.horizontalPositioningReflection,
