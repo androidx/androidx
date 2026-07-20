@@ -107,6 +107,7 @@ import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.rememberSpatialActivityPanelController
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
@@ -229,7 +230,6 @@ class SpatialCompose : ComponentActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Composable
     @SubspaceComposable
     fun PanelGrid() {
@@ -294,7 +294,7 @@ class SpatialCompose : ComponentActivity() {
                     intent.putExtra("TITLE", "Top Bar")
                     intent.putExtra("BOTTOM_BAR_TEXT", "Bottom Bar")
                     SpatialActivityPanel(
-                        intent = intent,
+                        rememberSpatialActivityPanelController(initialIntent = intent),
                         modifier =
                             SubspaceModifier.fillMaxHeight()
                                 .fillMaxWidth()

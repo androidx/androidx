@@ -93,13 +93,13 @@ import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 
-private const val DEFAULT_SIZE_PX = 400
+internal const val DEFAULT_SIZE_PX = 400
 
 // Max allowed size for makeMeasureSpec is (1 << MeasureSpec.MODE_SHIFT) - 1.
 private const val MAX_MEASURE_SPEC_SIZE = (1 shl 30) - 1
 
 /** Set the scrim alpha to 32% opacity across all spatial panels. */
-private const val DEFAULT_SCRIM_ALPHA = 0x52000000
+internal const val DEFAULT_SCRIM_ALPHA = 0x52000000
 
 private object SpatialPanelDimensions {
     /** Default minimum dimensions for a Spatial Panel in Meters. */
@@ -756,6 +756,15 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
  */
 @Composable
 @SubspaceComposable
+@Deprecated(
+    message =
+        "The `Intent` parameter has been replaced with a `SpatialActivityPanelController` to make" +
+            " launching additional activities more explicit. Additionally, `dragPolicy` and " +
+            "`resizePolicy` are now specified by modifiers. Use the overload of " +
+            "`SpatialActivityPanel` that accepts a `SpatialActivityPanelController`, and migrate " +
+            "your drag and resize policy to use the `SubspaceModifier.movable()` and " +
+            "`SubspaceModifier.resizable()` modifiers."
+)
 @Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialActivityPanel(
     intent: Intent,
