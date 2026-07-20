@@ -46,6 +46,7 @@ public class TestPlatformConversionAdapter implements PlatformConversionAdapter 
     private Map<String, Set<String>> mSchemasWipeoutAccountPropertyPaths;
     private List<String> mSearchSpecSearchStringParameters;
     private List<String> mSearchSuggestionSpecSearchStringParameters;
+    private Integer mEmbeddingQueryProbeCount;
 
     @Nullable
     public String getSchemaDescription() {
@@ -85,6 +86,11 @@ public class TestPlatformConversionAdapter implements PlatformConversionAdapter 
     @Nullable
     public List<String> getSearchSuggestionSpecSearchStringParameters() {
         return mSearchSuggestionSpecSearchStringParameters;
+    }
+
+    @Nullable
+    public Integer getEmbeddingQueryProbeCount() {
+        return mEmbeddingQueryProbeCount;
     }
 
     @Override
@@ -144,6 +150,13 @@ public class TestPlatformConversionAdapter implements PlatformConversionAdapter 
             android.app.appsearch.SearchSuggestionSpec.@NonNull Builder builder,
             @NonNull List<String> searchStringParameters) {
         mSearchSuggestionSpecSearchStringParameters = searchStringParameters;
+    }
+
+    @Override
+    public void setEmbeddingQueryProbeCount(
+            android.app.appsearch.SearchSpec.@NonNull Builder builder,
+            int embeddingQueryProbeCount) {
+        mEmbeddingQueryProbeCount = embeddingQueryProbeCount;
     }
 
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)

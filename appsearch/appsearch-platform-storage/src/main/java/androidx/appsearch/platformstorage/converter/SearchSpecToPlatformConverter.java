@@ -177,6 +177,12 @@ public final class SearchSpecToPlatformConverter {
             adapter.setSearchStringParameters(
                     platformBuilder, jetpackSearchSpec.getSearchStringParameters());
         }
+        if (jetpackSearchSpec.getEmbeddingQueryProbeCount()
+                != SearchSpec.DEFAULT_EMBEDDING_QUERY_PROBE_COUNT) {
+            // TODO(b/448886757): Update once this feature is supported.
+            adapter.setEmbeddingQueryProbeCount(
+                    platformBuilder, jetpackSearchSpec.getEmbeddingQueryProbeCount());
+        }
 
         if (jetpackSearchSpec.getJoinSpec() != null) {
             if (BuildCompat.T_EXTENSION_INT < AppSearchVersionUtil.TExtensionVersions.U_BASE) {

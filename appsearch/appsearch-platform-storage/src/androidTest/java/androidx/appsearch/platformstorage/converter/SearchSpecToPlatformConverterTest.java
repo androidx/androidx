@@ -70,4 +70,41 @@ public class SearchSpecToPlatformConverterTest {
                 () -> SearchSpecToPlatformConverter.toPlatformSearchSpec(
                         mContext, jetpackSearchSpec, adapter));
     }
+
+    @Test
+    public void testSetEmbeddingQueryProbeCount() {
+        assumeTrue(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+        SearchSpec jetpackSearchSpec = new SearchSpec.Builder()
+                .setEmbeddingQueryProbeCount(5)
+                .build();
+        TestPlatformConversionAdapter adapter = new TestPlatformConversionAdapter();
+
+        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, jetpackSearchSpec, adapter);
+
+        assertThat(adapter.getEmbeddingQueryProbeCount()).isEqualTo(5);
+    }
+
+    @Test
+    public void testSetEmbeddingQueryProbeCount_throws() {
+        assumeFalse(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_APPROXIMATE_NEAREST_NEIGHBOR));
+        SearchSpec jetpackSearchSpec = new SearchSpec.Builder()
+                .setEmbeddingQueryProbeCount(5)
+                .build();
+        UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> SearchSpecToPlatformConverter.toPlatformSearchSpec(
+                        mContext, jetpackSearchSpec, adapter));
+    }
+
+    @Test
+    public void testSetEmbeddingQueryProbeCount_defaultDoesNotCallAdapter() {
+        SearchSpec jetpackSearchSpec = new SearchSpec.Builder().build();
+        UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
+
+        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, jetpackSearchSpec, adapter);
+        // Does not throw UnsupportedOperationException when embeddingQueryProbeCount is default
+    }
 }
