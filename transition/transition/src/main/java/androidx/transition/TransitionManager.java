@@ -351,14 +351,14 @@ public class TransitionManager {
 
     /**
      * Convenience method to seek to the given scene using the given transition. If seeking
-     * is not supported because the device is {@link Build.VERSION_CODES.TIRAMISU} or earlier,
+     * is not supported because the device is {@link Build.VERSION_CODES#TIRAMISU} or earlier,
      * the scene transition is immediate and {@code null} is returned.
      *
      * @param scene      The Scene to change to
      * @param transition The transition to use for this scene change.
      * @return a {@link TransitionSeekController} that can be used control the animation to the
      * destination scene. {@code null} is returned when seeking is not supported on the scene,
-     * either because it is running on {@link android.os.Build.VERSION_CODES.TIRAMISU} or earlier,
+     * either because it is running on {@link android.os.Build.VERSION_CODES#TIRAMISU} or earlier,
      * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
      * had a layout yet.
      * @throws IllegalArgumentException if {@code transition} returns {@code false} from
