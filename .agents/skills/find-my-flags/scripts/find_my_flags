@@ -2,11 +2,14 @@
 """Finds Compose feature flags introduced by a specific git user.
 
 This script searches git log for commits by a specific author that add
-feature flags to Compose flag files.
+feature flags to Compose flag files, and determines if they are ready
+to be removed based on the current version.
 """
 
 import argparse
 from collections.abc import Sequence
+from dataclasses import dataclass
+import os
 import re
 import subprocess
 import sys
@@ -71,15 +74,97 @@ def get_flag_files() -> list[str]:
     Returns:
         A list of relative file paths to flag files.
     """
-    # Original globs
     globs: list[str] = [
-        "compose/**/Compose*Flags.kt",
-        "compose/**/*Compose*Flags.kt",
+        "compose/**/Compose*Flags*.kt",
+        "compose/**/*Compose*Flags*.kt",
+        "compose/**/AndroidCompose*Flags*.kt",
+        "compose/**/*AndroidCompose*Flags*.kt",
     ]
     git_files: str = run_command(["git", "ls-files"] + globs)
     if not git_files:
         return []
     return [f.strip() for f in git_files.split("\n") if f.strip()]
+
+
+def is_flag_in_tot(flag: str, file_path: str) -> bool:
+    """Checks if a feature flag is still present in ToT (aosp/androidx-main).
+
+    Args:
+        flag: The name of the feature flag.
+        file_path: The path to the file defining the flag.
+
+    Returns:
+        True if the flag is found in the file in ToT, False otherwise.
+    """
+    result = subprocess.run(
+        ["git", "grep", "-q", flag, "aosp/androidx-main", "--", file_path],
+        cwd=REPO_ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
+def parse_version(version_str: str) -> tuple[int, int, int, int, int]:
+    """Parses a semver-like version string into a comparable tuple.
+
+    Supports formats like major.minor.patch[-suffixXX] where suffix is
+    one of dev, alpha, beta, rc.
+
+    Args:
+        version_str: The version string to parse.
+
+    Returns:
+        A 5-tuple: (major, minor, patch, suffix_type, suffix_version).
+        suffix_type is an integer mapping: dev=0, alpha=1, beta=2, rc=3,
+          release=4.
+    """
+    match = re.match(
+        r"^(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc|dev)(\d+))?$", version_str
+    )
+    if not match:
+        match_digits = re.match(r"^(\d+)\.(\d+)\.(\d+)", version_str)
+        if match_digits:
+            return (
+                int(match_digits.group(1)),
+                int(match_digits.group(2)),
+                int(match_digits.group(3)),
+                4,
+                0,
+            )
+        return (0, 0, 0, 0, 0)
+
+    major: int = int(match.group(1))
+    minor: int = int(match.group(2))
+    patch: int = int(match.group(3))
+
+    suffix: str | None = match.group(4)
+    suffix_ver: str | None = match.group(5)
+
+    if not suffix:
+        return (major, minor, patch, 4, 0)
+
+    suffix_types: dict[str, int] = {"dev": 0, "alpha": 1, "beta": 2, "rc": 3}
+    suffix_type: int = suffix_types.get(suffix, 0)
+
+    return (major, minor, patch, suffix_type, int(suffix_ver))
+
+
+def get_current_compose_version() -> str:
+    """Gets the current Compose version from libraryversions.toml.
+
+    Returns:
+        The version string, or "Unknown" if it cannot be read.
+    """
+    try:
+        with open(os.path.join(REPO_ROOT, "libraryversions.toml"), "r") as f:
+            content: str = f.read()
+        match = re.search(r'COMPOSE\s*=\s*"(.*?)"', content)
+        if match:
+            return match.group(1)
+    except OSError:
+        pass
+    return "Unknown"
 
 
 def get_compose_version_at_commit(commit: str) -> str:
@@ -120,18 +205,109 @@ def was_flag_in_parent_state(commit: str, file_path: str, flag: str) -> bool:
 
 
 def get_module_name(file_path: str) -> str:
-    """Extracts and clean module name from file path.
+    """Extracts and cleans module name from file path.
 
     Args:
         file_path: The path to the flag file.
 
     Returns:
-        The cleaned module name (e.g., "Foundation" or "Ui").
+        The cleaned module name (e.g., "Foundation" or "AndroidComposeUiFlags").
     """
     basename: str = file_path.split("/")[-1].replace(".kt", "")
+    basename = basename.split(".")[0]  # Remove .android, .commonStubs
+    if basename.startswith("Android"):
+        return basename
     module: str = re.sub(r"^(Remote)?Compose", "", basename)
     module = re.sub(r"Flags$", "", module)
     return module or "Unknown"
+
+
+@dataclass
+class FlagInfo:
+    """Data container for feature flag information."""
+
+    flag: str
+    module: str
+    commit: str
+    version: str
+    date: str
+    message: str
+    status: str
+
+
+def find_introduced_flags(
+    author: str, flag_files: Sequence[str], current_version: str
+) -> list[FlagInfo]:
+    """Finds all flags introduced by author in the given files.
+
+    Args:
+        author: The git author email to filter by.
+        flag_files: A sequence of flag file paths to search.
+        current_version: The current version of Compose.
+
+    Returns:
+        A list of FlagInfo objects for each introduced flag.
+    """
+    log_output: str = run_command(
+        ["git", "log", f"--author={author}", "--format=%H|%ad|%s", "--date=short", "--"]
+        + list(flag_files)
+    )
+    if not log_output:
+        return []
+
+    results: list[FlagInfo] = []
+    commits: list[str] = log_output.split("\n")
+    for line in commits:
+        if not line.strip():
+            continue
+        parts: list[str] = line.split("|", 2)
+        commit_hash: str = parts[0]
+        commit_date: str = parts[1]
+        commit_msg: str = parts[2] if len(parts) > 2 else ""
+
+        for file_path in flag_files:
+            diff_output: str = run_command(
+                ["git", "show", "--unified=0", commit_hash, "--", file_path]
+            )
+            if not diff_output:
+                continue
+
+            # Find additions of flags starting with "is"
+            flag_matches: list[str] = re.findall(
+                r"^\+\s*.*?\b(is[A-Z]\w+)\b", diff_output, re.MULTILINE
+            )
+            for flag in flag_matches:
+                if not was_flag_in_parent_state(commit_hash, file_path, flag):
+                    version: str = get_compose_version_at_commit(commit_hash)
+                    in_tot: bool = is_flag_in_tot(flag, file_path)
+
+                    status: str = "➖ Already Removed"
+                    if in_tot:
+                        if (
+                            version == "Unknown"
+                            or current_version == "Unknown"
+                        ):
+                            status = "❓ Unknown"
+                        elif (
+                            parse_version(version)[:2]
+                            < parse_version(current_version)[:2]
+                        ):
+                            status = "🔥 Should Remove"
+                        else:
+                            status = "🌱 Added in Current Release"
+
+                    results.append(
+                        FlagInfo(
+                            flag=flag,
+                            module=get_module_name(file_path),
+                            commit=commit_hash[:11],
+                            version=version,
+                            date=commit_date,
+                            message=commit_msg,
+                            status=status,
+                        )
+                    )
+    return results
 
 
 def main() -> None:
@@ -156,83 +332,59 @@ def main() -> None:
         )
         sys.exit(1)
 
+    current_version: str = get_current_compose_version()
     flag_files: list[str] = get_flag_files()
     if not flag_files:
         print("No Compose flag files found in the workspace.", file=sys.stderr)
         sys.exit(0)
 
-    # Find all commits by author on flag files
-    log_output: str = run_command(
-        ["git", "log", f"--author={author}", "--format=%H|%ad|%s", "--date=short", "--"]
-        + flag_files
+    results: list[FlagInfo] = find_introduced_flags(
+        author, flag_files, current_version
     )
-    if not log_output:
-        print(
-            f"No commits found for author '{author}' modifying Compose flag"
-            " files."
-        )
-        return
-
-    results: list[dict[str, str]] = []
-    commits: list[str] = log_output.split("\n")
-    for line in commits:
-        if not line.strip():
-            continue
-        parts: list[str] = line.split("|", 2)
-        commit_hash: str = parts[0]
-        commit_date: str = parts[1]
-        commit_msg: str = parts[2] if len(parts) > 2 else ""
-
-        for file_path in flag_files:
-            diff_output: str = run_command(
-                ["git", "show", "--unified=0", commit_hash, "--", file_path]
-            )
-            if not diff_output:
-                continue
-
-            # Find additions of flags starting with "is"
-            flag_matches: list[str] = re.findall(
-                r"^\+\s*.*?\b(is[A-Z]\w+)\b", diff_output, re.MULTILINE
-            )
-            for flag in flag_matches:
-                if not was_flag_in_parent_state(commit_hash, file_path, flag):
-                    version: str = get_compose_version_at_commit(commit_hash)
-                    results.append(
-                        {
-                            "flag": flag,
-                            "module": get_module_name(file_path),
-                            "commit": commit_hash[:11],
-                            "version": version,
-                            "date": commit_date,
-                            "message": commit_msg,
-                        }
-                    )
-
     if not results:
         print(f"No new feature flags were introduced by author '{author}'.")
         return
 
-    # Formulate aligned terminal output table (4 columns)
+    status_weights: dict[str, int] = {
+        "➖ Already Removed": 0,
+        "🔥 Should Remove": 1,
+        "🌱 Added in Current Release": 2,
+        "❓ Unknown": 3,
+    }
+
+    # Sort results
+    results.sort(
+        key=lambda x: (
+            status_weights.get(x.status, 4),
+            x.module,
+            parse_version(x.version),
+            x.flag,
+        )
+    )
+
+    # Formulate aligned terminal output table (5 columns)
     headers: list[str] = [
         "Feature Flag",
         "Module",
         "Commit",
         "Added In Version",
+        "Ready to Remove",
     ]
     formatted_rows: list[list[str]] = []
-    for r in reversed(results):
+    for r in results:
         formatted_rows.append(
             [
-                f"`{r['flag']}`",
-                r["module"],
-                f"`{r['commit']}`",
-                f"`{r['version']}`",
+                f"`{r.flag}`",
+                r.module,
+                f"`{r.commit}`",
+                f"`{r.version}`",
+                r.status,
             ]
         )
 
     col_widths: list[int] = [len(h) for h in headers]
     for row in formatted_rows:
-        for i in range(4):
+        for i in range(5):
             col_widths[i] = max(col_widths[i], len(row[i]))
 
     # Print table
@@ -241,12 +393,14 @@ def main() -> None:
         f" {headers[1].ljust(col_widths[1])} |"
         f" {headers[2].ljust(col_widths[2])} |"
         f" {headers[3].ljust(col_widths[3])} |"
+        f" {headers[4].ljust(col_widths[4])} |"
     )
     print(
         f"| {':' + '-' * (col_widths[0] - 1)} |"
         f" {':' + '-' * (col_widths[1] - 1)} |"
         f" {':' + '-' * (col_widths[2] - 1)} |"
         f" {':' + '-' * (col_widths[3] - 1)} |"
+        f" {':' + '-' * (col_widths[4] - 1)} |"
     )
     for row in formatted_rows:
         print(
@@ -254,6 +408,7 @@ def main() -> None:
             f" {row[1].ljust(col_widths[1])} |"
             f" {row[2].ljust(col_widths[2])} |"
             f" {row[3].ljust(col_widths[3])} |"
+            f" {row[4].ljust(col_widths[4])} |"
         )
 
 
