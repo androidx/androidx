@@ -71,6 +71,82 @@ class A2uiCoreMessageProcessorTest {
     }
 
     @Test
+    fun outboundEvent_whenSendDataModelIsDisabled_hasNullClientDataModel() = runTest {
+        val processor = createProcessor()
+        val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
+        val outboundJob = launch { processor.outboundEvents.toList(collectedOutbound) }
+        val collectJob = launch { processor.collectMessages() }
+
+        processor.processMessage(
+            A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID, shouldSendDataModel = false)
+        )
+        advanceUntilIdle()
+
+        processor.processInternalMessage(
+            A2uiEngineActionMessage(
+                surfaceId = SURFACE_A,
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_A,
+                        componentId = "btn-A",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
+            )
+        )
+        advanceUntilIdle()
+
+        assertThat(collectedOutbound).hasSize(1)
+        val eventMessage = collectedOutbound[0] as A2uiClientEventMessage
+        assertThat(eventMessage.clientDataModel).isNull()
+
+        outboundJob.cancel()
+        collectJob.cancel()
+    }
+
+    @Test
+    fun outboundEvent_whenSendDataModelIsEnabled_attachesAggregatedClientDataModel() = runTest {
+        val processor = createProcessor()
+        val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
+        val outboundJob = launch { processor.outboundEvents.toList(collectedOutbound) }
+        val collectJob = launch { processor.collectMessages() }
+
+        processor.processMessage(
+            A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID, shouldSendDataModel = true)
+        )
+        processor.processMessage(
+            A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID, shouldSendDataModel = false)
+        )
+        advanceUntilIdle()
+
+        processor.processInternalMessage(
+            A2uiEngineActionMessage(
+                surfaceId = SURFACE_A,
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_A,
+                        componentId = "btn-A",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
+            )
+        )
+        advanceUntilIdle()
+
+        assertThat(collectedOutbound).hasSize(1)
+        val eventMessage = collectedOutbound[0] as A2uiClientEventMessage
+        val dataModel = eventMessage.clientDataModel
+        assertThat(dataModel).isNotNull()
+        assertThat(dataModel!!.surfaces).containsKey(SURFACE_A)
+        assertThat(dataModel.surfaces).doesNotContainKey(SURFACE_B)
+
+        outboundJob.cancel()
+        collectJob.cancel()
+    }
+
+    @Test
     fun processMessage_whenSurfaceIsNew_createsNewActor() = runTest {
         val processor = createProcessor()
         val collectJob = launch { processor.collectMessages() }

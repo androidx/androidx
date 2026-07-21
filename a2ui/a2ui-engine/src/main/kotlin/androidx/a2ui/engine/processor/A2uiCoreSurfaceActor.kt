@@ -66,7 +66,12 @@ internal class A2uiCoreSurfaceActor(
     private val onActorIdleAndDeleted: (A2uiCoreSurfaceActor) -> Boolean,
     private val onDispatchMessageToProcessor: (A2uiEngineMessage) -> Unit,
 ) {
-    private val actionHandler = A2uiActionHandler(actionInterceptors) { handleOutboundEvent(it) }
+    private val actionHandler =
+        A2uiActionHandler(
+            actionInterceptors = actionInterceptors,
+            clientDataModelProvider = { surfaceGroup.getClientDataModel() },
+            emitToServer = { handleOutboundEvent(it) },
+        )
 
     private val channel = Channel<A2uiEngineMessage>(Channel.UNLIMITED)
 
