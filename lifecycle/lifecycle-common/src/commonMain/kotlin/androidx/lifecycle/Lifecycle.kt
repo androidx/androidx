@@ -91,23 +91,17 @@ public abstract class Lifecycle {
     /** The current [State] of the [Lifecycle]. */
     @get:MainThread public abstract val currentState: State
 
-    /** Lazily initialized backing field for [currentStateFlow]. */
-    private var _currentStateFlow: MutableStateFlow<State>? = null
-
     /**
      * Returns a [StateFlow] where the [StateFlow.value] represents the current [State] of this
      * [Lifecycle].
      */
-    public open val currentStateFlow: StateFlow<State>
-        get() {
+    public open val currentStateFlow: StateFlow<State> by
+        lazy(LazyThreadSafetyMode.NONE) {
+            val mutableStateFlow = MutableStateFlow(currentState)
             // If currentStateFlow is never accessed, it is not created. Once created, a single
             // observer is kept registered for the lifetime of this Lifecycle.
-            if (_currentStateFlow == null) {
-                val flow = MutableStateFlow(currentState)
-                addObserver { _, event -> flow.value = event.targetState }
-                _currentStateFlow = flow
-            }
-            return _currentStateFlow!!.asStateFlow()
+            addObserver { _, event -> mutableStateFlow.value = event.targetState }
+            mutableStateFlow.asStateFlow()
         }
 
     /**
