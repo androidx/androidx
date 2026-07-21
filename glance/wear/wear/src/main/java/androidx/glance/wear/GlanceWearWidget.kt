@@ -25,6 +25,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
+import androidx.collection.intSetOf
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.cache.WearWidgetCache.WidgetCacheMissException
@@ -89,7 +90,8 @@ internal constructor(
         // We need this flag to be false (meaning empty axis won't be send and default normal weight
         // would be used, for the 1.6 renderer and the player that has a bug in it.
         RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
-            RendererVersion.fromPlHostPackage(context) > RendererVersion(1, 6, 0)
+            RendererVersion.fromPlHostPackage(context) >
+                RendererVersion(1, 6, 0, /* not important */ intSetOf())
         val widgetContent = provideWidgetData(context, params)
         return widgetContent.captureRawContent(context, params)
     }

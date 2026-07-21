@@ -19,6 +19,7 @@ package androidx.glance.wear.core
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import androidx.collection.intSetOf
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -226,26 +227,29 @@ class RendererVersionTest {
 
     @Test
     fun fromPlHostPackage_defaultVersion() {
-        val defaultVersion = RendererVersion()
-        assertThat(defaultVersion.major).isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MAJOR)
-        assertThat(defaultVersion.minor).isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MINOR)
-        assertThat(defaultVersion.revision)
-            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_REVISION)
+        val defaultVersion = RendererVersion.SAFE_FALLBACK_VERSION
+        assertThat(defaultVersion.major).isEqualTo(RendererVersion.SAFE_FALLBACK_MAJOR)
+        assertThat(defaultVersion.minor).isEqualTo(RendererVersion.SAFE_FALLBACK_MINOR)
+        assertThat(defaultVersion.revision).isEqualTo(RendererVersion.SAFE_FALLBACK_REVISION)
     }
 
     @Test
     fun rendererVersion_comparisonIsCorrect() {
-        val v1 = RendererVersion(1, 6, 0)
-        val v2 = RendererVersion(1, 6, 1)
-        val v3 = RendererVersion(2, 0, 0)
+        val v1 = RendererVersion(1, 6, 0, RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS)
+        val v2 = RendererVersion(1, 6, 1, intSetOf(1, 2, 3))
+        val v3 = RendererVersion(2, 0, 0, intSetOf(4, 6, 8))
 
         assertThat(v1).isLessThan(v2)
         assertThat(v2).isLessThan(v3)
         assertThat(v1).isLessThan(v3)
         assertThat(v2).isGreaterThan(v1)
 
-        assertThat(RendererVersion(1, 6, 0)).isEqualTo(RendererVersion(1, 6, 0))
-        assertThat(RendererVersion(1, 6, 0).hashCode())
-            .isEqualTo(RendererVersion(1, 6, 0).hashCode())
+        assertThat(v1)
+            .isEqualTo(RendererVersion(1, 6, 0, RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS))
+        assertThat(v1.hashCode())
+            .isEqualTo(
+                RendererVersion(1, 6, 0, RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS)
+                    .hashCode()
+            )
     }
 }

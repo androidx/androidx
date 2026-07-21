@@ -20,6 +20,7 @@ import androidx.collection.intSetOf
 import androidx.glance.wear.parcel.WearWidgetRequestParcel
 import androidx.glance.wear.proto.WearWidgetRequestProto
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -366,7 +367,7 @@ class WearWidgetParamsTest {
                 horizontalPaddingDp = 9f,
                 verticalPaddingDp = 8f,
                 cornerRadiusDp = 16f,
-                rendererVersion = RendererVersion(2, 5, 3),
+                rendererVersion = RendererVersion(2, 5, 3, intSetOf(1, 2, 3)),
             )
 
         val parcel = originalParams.toParcel()
@@ -397,11 +398,11 @@ class WearWidgetParamsTest {
         val restoredParams = WearWidgetParams.fromParcel(parcel)
 
         assertThat(restoredParams.rendererVersion.major)
-            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MAJOR)
+            .isEqualTo(RendererVersion.SAFE_FALLBACK_MAJOR)
         assertThat(restoredParams.rendererVersion.minor)
-            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_MINOR)
+            .isEqualTo(RendererVersion.SAFE_FALLBACK_MINOR)
         assertThat(restoredParams.rendererVersion.revision)
-            .isEqualTo(RendererVersion.DEFAULT_RENDERER_VERSION_REVISION)
+            .isEqualTo(RendererVersion.SAFE_FALLBACK_REVISION)
     }
 
     @Test
@@ -419,7 +420,7 @@ class WearWidgetParamsTest {
                 )
                 .encode()
         val parcel = WearWidgetRequestParcel().apply { payload = payloadWithoutVersion }
-        val customDefault = RendererVersion(5, 12, 99)
+        val customDefault = RendererVersion(5, 12, 99, intSetOf(1, 2, 3))
 
         val restoredParams =
             WearWidgetParams.fromParcel(parcel, getDefaultRendererVersion = { customDefault })
@@ -427,6 +428,7 @@ class WearWidgetParamsTest {
         assertThat(restoredParams.rendererVersion.major).isEqualTo(5)
         assertThat(restoredParams.rendererVersion.minor).isEqualTo(12)
         assertThat(restoredParams.rendererVersion.revision).isEqualTo(99)
+        assertEquals(restoredParams.rendererVersion.supportedOperations, intSetOf(1, 2, 3))
     }
 
     @Test
@@ -440,7 +442,8 @@ class WearWidgetParamsTest {
                 horizontalPaddingDp = 9f,
                 verticalPaddingDp = 8f,
                 cornerRadiusDp = 16f,
-                rendererVersion = RendererVersion(1, 6, 0),
+                rendererVersion =
+                    RendererVersion(1, 6, 0, RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS),
             )
         val params2 =
             WearWidgetParams(
@@ -451,7 +454,7 @@ class WearWidgetParamsTest {
                 horizontalPaddingDp = 9f,
                 verticalPaddingDp = 8f,
                 cornerRadiusDp = 16f,
-                rendererVersion = RendererVersion(2, 0, 0),
+                rendererVersion = RendererVersion(2, 0, 0, intSetOf(1, 2, 3)),
             )
 
         assertThat(params1).isNotEqualTo(params2)
@@ -468,7 +471,7 @@ class WearWidgetParamsTest {
                 horizontalPaddingDp = 9f,
                 verticalPaddingDp = 8f,
                 cornerRadiusDp = 16f,
-                rendererVersion = RendererVersion(2, 5, 3, supportedOperations = intSetOf(1, 2, 3)),
+                rendererVersion = RendererVersion(2, 5, 3, intSetOf(1, 2, 3)),
             )
 
         val parcel = originalParams.toParcel()
@@ -504,6 +507,6 @@ class WearWidgetParamsTest {
         val restoredParams = WearWidgetParams.fromParcel(parcel)
 
         assertThat(restoredParams.rendererVersion.supportedOperations)
-            .isEqualTo(RendererVersion.DEFAULT_SUPPORTED_OPERATIONS)
+            .isEqualTo(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS)
     }
 }

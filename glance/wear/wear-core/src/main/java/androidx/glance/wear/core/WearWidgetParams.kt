@@ -58,7 +58,7 @@ public constructor(
     @get:Dimension(unit = Dimension.DP)
     public val cornerRadiusDp: Float,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val rendererVersion: RendererVersion = RendererVersion(),
+    public val rendererVersion: RendererVersion = RendererVersion.SAFE_FALLBACK_VERSION,
 ) {
 
     /** Converts this object to [androidx.glance.wear.parcel.WearWidgetRequestParcel]. */
@@ -114,7 +114,9 @@ public constructor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun fromParcel(
             parcel: WearWidgetRequestParcel,
-            getDefaultRendererVersion: () -> RendererVersion = { RendererVersion() },
+            getDefaultRendererVersion: () -> RendererVersion = {
+                RendererVersion.SAFE_FALLBACK_VERSION
+            },
         ): WearWidgetParams {
             val requestProto = WearWidgetRequestProto.ADAPTER.decode(parcel.payload)
             return WearWidgetParams(
@@ -140,7 +142,7 @@ public constructor(
                                         it.op_code
                                     }
                                 } else {
-                                    RendererVersion.DEFAULT_SUPPORTED_OPERATIONS
+                                    RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
                                 },
                         )
                     },
