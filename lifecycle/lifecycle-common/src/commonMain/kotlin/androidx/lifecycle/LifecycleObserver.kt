@@ -16,9 +16,11 @@
 package androidx.lifecycle
 
 /**
- * Marks a class as a LifecycleObserver. Don't use this interface directly. Instead implement either
- * [DefaultLifecycleObserver] or [LifecycleEventObserver] to be notified about lifecycle events.
+ * Marker interface for indicating a class is a [LifecycleObserver].
  *
- * @see Lifecycle Lifecycle - for samples and usage patterns.
+ * Do not implement this interface directly. Instead, implement either [DefaultLifecycleObserver] or
+ * [LifecycleEventObserver] to receive lifecycle events.
+ *
+ * @see Lifecycle for details and usage patterns.
  */
 public interface LifecycleObserver
