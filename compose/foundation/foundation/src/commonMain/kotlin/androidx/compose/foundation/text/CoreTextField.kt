@@ -562,10 +562,10 @@ internal fun CoreTextField(
                         singleLineHeightProvider = state,
                         minLines = minLines,
                         maxLines = maxLines,
-                        singleLine =
-                            maxLines ==
-                                1, // in legacy code heightForSingleLineField was calculated for
+                        // in legacy code heightForSingleLineField was calculated for
                         // `maxLines == 1` instead of a more narrow `isSingleLine` check.
+                        useSingleLineHeightProvider = maxLines == 1,
+                        unboundedWidth = singleLine,
                     )
                 } else {
                     Modifier
