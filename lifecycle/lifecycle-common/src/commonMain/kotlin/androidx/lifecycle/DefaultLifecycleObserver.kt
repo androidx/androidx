@@ -16,65 +16,66 @@
 package androidx.lifecycle
 
 /**
- * Callback interface for listening to [LifecycleOwner] state changes. If a class implements both
- * this interface and [LifecycleEventObserver], then methods of `DefaultLifecycleObserver` will be
- * called first, and then followed by the call of [LifecycleEventObserver.onStateChanged]
+ * Callback interface for listening to [LifecycleOwner] state changes.
  *
- * If a class implements this interface and at the same time uses
- * `androidx.lifecycle.OnLifecycleEvent`, then annotations will be ignored.
+ * If a class implements both this interface and [LifecycleEventObserver], the methods of
+ * [DefaultLifecycleObserver] are called first, followed by [LifecycleEventObserver.onStateChanged].
+ *
+ * Note: If a class implements this interface and also uses the deprecated
+ * `androidx.lifecycle.OnLifecycleEvent` annotations, those annotations are ignored.
  */
 public interface DefaultLifecycleObserver : LifecycleObserver {
     /**
-     * Notifies that `ON_CREATE` event occurred.
+     * Notifies that [Lifecycle.Event.ON_CREATE] event occurred.
      *
-     * This method will be called after the [LifecycleOwner]'s `onCreate` method returns.
+     * Called after the [LifecycleOwner]'s `onCreate` method returns.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onCreate(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that `ON_START` event occurred.
+     * Notifies that [Lifecycle.Event.ON_START] event occurred.
      *
-     * This method will be called after the [LifecycleOwner]'s `onStart` method returns.
+     * Called after the [LifecycleOwner]'s `onStart` method returns.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onStart(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that `ON_RESUME` event occurred.
+     * Notifies that [Lifecycle.Event.ON_RESUME] event occurred.
      *
-     * This method will be called after the [LifecycleOwner]'s `onResume` method returns.
+     * Called after the [LifecycleOwner]'s `onResume` method returns.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onResume(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that `ON_PAUSE` event occurred.
+     * Notifies that [Lifecycle.Event.ON_PAUSE] event occurred.
      *
-     * This method will be called before the [LifecycleOwner]'s `onPause` method is called.
+     * Called before the [LifecycleOwner]'s `onPause` method is called.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onPause(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that `ON_STOP` event occurred.
+     * Notifies that [Lifecycle.Event.ON_STOP] event occurred.
      *
-     * This method will be called before the [LifecycleOwner]'s `onStop` method is called.
+     * Called before the [LifecycleOwner]'s `onStop` method is called.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onStop(owner: LifecycleOwner) {}
 
     /**
-     * Notifies that `ON_DESTROY` event occurred.
+     * Notifies that [Lifecycle.Event.ON_DESTROY] event occurred.
      *
-     * This method will be called before the [LifecycleOwner]'s `onDestroy` method is called.
+     * Called before the [LifecycleOwner]'s `onDestroy` method is called.
      *
-     * @param owner the component, whose state was changed
+     * @param owner The component whose state changed.
      */
     public fun onDestroy(owner: LifecycleOwner) {}
 }

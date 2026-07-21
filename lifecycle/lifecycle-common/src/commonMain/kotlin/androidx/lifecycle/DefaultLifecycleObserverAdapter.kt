@@ -15,6 +15,12 @@
  */
 package androidx.lifecycle
 
+/**
+ * An adapter that wraps a [DefaultLifecycleObserver] and delegates state changes to it.
+ *
+ * If a secondary [LifecycleEventObserver] is provided, events are delegated to it after the
+ * [DefaultLifecycleObserver] methods are invoked.
+ */
 internal class DefaultLifecycleObserverAdapter(
     private val defaultLifecycleObserver: DefaultLifecycleObserver,
     private val lifecycleEventObserver: LifecycleEventObserver?,

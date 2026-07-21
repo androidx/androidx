@@ -16,21 +16,15 @@
 package androidx.lifecycle
 
 /**
- * Class that can receive any lifecycle change and dispatch it to the receiver.
+ * Interface for receiving any [Lifecycle.Event] state changes.
  *
- * If a class implements both this interface and [androidx.lifecycle.DefaultLifecycleObserver], then
- * methods of `DefaultLifecycleObserver` will be called first, and then followed by the call of
- * [LifecycleEventObserver.onStateChanged]
+ * If a class implements both this interface and [DefaultLifecycleObserver], the methods of
+ * [DefaultLifecycleObserver] are called first, followed by [onStateChanged].
  *
- * If a class implements this interface and at the same time uses
- * `androidx.lifecycle.OnLifecycleEvent`, then annotations will be ignored.
+ * **Note:** If a class implements this interface and also uses the deprecated
+ * `androidx.lifecycle.OnLifecycleEvent` annotations, those annotations are ignored.
  */
 public fun interface LifecycleEventObserver : LifecycleObserver {
-    /**
-     * Called when a state transition event happens.
-     *
-     * @param source The source of the event
-     * @param event The event
-     */
+    /** Called when a state transition [event] occurs. */
     public fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event)
 }
