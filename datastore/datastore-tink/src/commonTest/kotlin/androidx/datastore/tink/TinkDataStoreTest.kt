@@ -16,6 +16,7 @@
 
 package androidx.datastore.tink
 
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.Serializer
@@ -28,7 +29,6 @@ import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.aead.PredefinedAeadParameters
 import java.io.InputStream
 import java.io.OutputStream
-import java.security.GeneralSecurityException
 import kotlin.jvm.java
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -312,8 +312,8 @@ class TinkDataStoreTest {
         // Read data.
         // Different associated data protects against ciphertext swapping/substitution attack even
         // when the same key is used to encrypt both files.
-        assertThrows<GeneralSecurityException> { dataStore1.data.first() }
-        assertThrows<GeneralSecurityException> { dataStore2.data.first() }
+        assertThrows<CorruptionException> { dataStore1.data.first() }
+        assertThrows<CorruptionException> { dataStore2.data.first() }
     }
 
     @Test
@@ -375,8 +375,8 @@ class TinkDataStoreTest {
 
         // Read data.
         // Different Keys protect against ciphertext swapping/substitution attack.
-        assertThrows<GeneralSecurityException> { dataStore1.data.first() }
-        assertThrows<GeneralSecurityException> { dataStore2.data.first() }
+        assertThrows<CorruptionException> { dataStore1.data.first() }
+        assertThrows<CorruptionException> { dataStore2.data.first() }
     }
 
     private object StringSerializer : Serializer<String> {
