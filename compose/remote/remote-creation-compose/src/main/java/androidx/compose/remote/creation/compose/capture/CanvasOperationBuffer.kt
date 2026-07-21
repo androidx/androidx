@@ -450,10 +450,28 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * Represents a node in the tree of operations, corresponding to a lexical scope (e.g., a branch
      * of a conditional or a loop). Spans are used to determine the ideal location to hoist common
      * subexpressions.
+     *
+     * A span represents its hierarchy through two complementary structures:
+     * - [operations] drives linear execution and wire serialization in strict drawing order.
+     * - [child] and [next] maintain a linked scope tree for structural passes and graph rewiring.
      */
     internal class Span(val parent: Span?, val depth: Int) {
+        /**
+         * The sequential list of operations recorded in this scope. When a nested child span is
+         * created, it is eventually wrapped inside a composite operation (such as
+         * [CanvasOp.DrawConditionally]) and added directly to this list for linear wire emission.
+         */
         val operations = ArrayList<SpanOp>()
+
+        /**
+         * Head of a singly-linked list of child spans spawned directly under this parent scope.
+         * Used during recursive structural passes (topological sorting, optimization visits, and
+         * global dependency rewiring) without needing to inspect operation wrappers in
+         * [operations].
+         */
         var child: Span? = null
+
+        /** Link to the next sibling span sharing the same [parent] scope. */
         var next: Span? = null
         var optimized = false
 
@@ -495,22 +513,12 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             for (i in 0 until operations.size) {
                 if (operations[i].op.hasTransformsOrClips()) return true
             }
-            var currentChild = child
-            while (currentChild != null) {
-                if (currentChild.hasTransformsOrClips()) return true
-                currentChild = currentChild.next
-            }
             return false
         }
 
         fun containsDrawingPrimitives(): Boolean {
             for (i in 0 until operations.size) {
                 if (operations[i].op.containsDrawingPrimitives()) return true
-            }
-            var currentChild = child
-            while (currentChild != null) {
-                if (currentChild.containsDrawingPrimitives()) return true
-                currentChild = currentChild.next
             }
             return false
         }
@@ -519,22 +527,12 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             for (i in 0 until operations.size) {
                 if (operations[i].op.switchesCanvasOrHasCondition()) return true
             }
-            var currentChild = child
-            while (currentChild != null) {
-                if (currentChild.switchesCanvasOrCondition()) return true
-                currentChild = currentChild.next
-            }
             return false
         }
 
         fun emitsWireCommands(): Boolean {
             for (i in 0 until operations.size) {
                 if (operations[i].op.emitsWireCommands()) return true
-            }
-            var currentChild = child
-            while (currentChild != null) {
-                if (currentChild.emitsWireCommands()) return true
-                currentChild = currentChild.next
             }
             return false
         }
