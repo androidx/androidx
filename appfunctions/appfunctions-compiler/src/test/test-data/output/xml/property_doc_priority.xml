@@ -68,7 +68,7 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Directly apply KDoc </description>
+                        <description>Directly apply KDoc</description>
                         <type>8</type>
                     </dataTypeMetadata>
                     <id>unused</id>
@@ -90,7 +90,7 @@
                     <dataTypeMetadata>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <description>Direct description. </description>
+                        <description>Direct description.</description>
                         <type>8</type>
                     </dataTypeMetadata>
                     <id>unused</id>
