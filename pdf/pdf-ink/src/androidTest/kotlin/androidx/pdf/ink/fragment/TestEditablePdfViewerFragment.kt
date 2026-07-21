@@ -85,8 +85,6 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
                 isFormFillingEnabled = true
             }
         }
-        // Disable animations on annotation toolbar for tests
-        annotationToolbar.areAnimationsEnabled = false
     }
 
     override fun onLoadDocumentSuccess(document: PdfDocument) {

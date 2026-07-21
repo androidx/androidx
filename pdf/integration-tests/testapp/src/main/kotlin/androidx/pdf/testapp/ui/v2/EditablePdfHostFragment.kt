@@ -39,8 +39,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.pdf.PdfWriteHandle
+import androidx.pdf.R as PdfR
 import androidx.pdf.ink.EditablePdfViewerFragment
-import androidx.pdf.ink.R
 import androidx.pdf.selection.Selection
 import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.testapp.R as testR
@@ -236,12 +236,12 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
 
     private fun createDiscardDialog(context: Context): AlertDialog =
         MaterialAlertDialogBuilder(context)
-            .setTitle(getString(R.string.discard_changes_dialog_title))
-            .setMessage(getString(R.string.discard_changes_dialog_message))
-            .setNegativeButton(getString(R.string.keep_editing_button)) { dialog, _ ->
+            .setTitle(getString(PdfR.string.discard_changes_dialog_title))
+            .setMessage(getString(PdfR.string.discard_changes_dialog_message))
+            .setNegativeButton(getString(PdfR.string.keep_editing_button)) { dialog, _ ->
                 viewModel.showDiscardDialog(false)
             }
-            .setPositiveButton(getString(R.string.discard_button)) { dialog, _ ->
+            .setPositiveButton(getString(PdfR.string.discard_button)) { dialog, _ ->
                 viewModel.showDiscardDialog(false)
                 isEditModeEnabled = false
             }

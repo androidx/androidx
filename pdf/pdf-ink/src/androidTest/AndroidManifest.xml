@@ -17,9 +17,5 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
-        <activity
-            android:name="androidx.pdf.PdfTestActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Material3.DynamicColors.DayNight"/>
     </application>
 </manifest>

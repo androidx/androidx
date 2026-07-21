@@ -29,10 +29,9 @@ import androidx.pdf.actions.TwoFingerSwipeDownAction
 import androidx.pdf.actions.TwoFingerSwipeUpAction
 import androidx.pdf.actions.clickOnPdfPoint
 import androidx.pdf.annotation.content.HighlightAnnotation
-import androidx.pdf.ink.R as PdfInkR
-import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.util.Preconditions
 import androidx.pdf.view.PdfView
+import androidx.pdf.view.annotation.AnnotationToolbar
 import androidx.pdf.viewer.fragment.R as PdfR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -325,29 +324,29 @@ class EditablePdfViewerFragmentTestSuite {
 
         enterEditMode()
         // Assert undo/redo buttons is initially disabled
-        onView(withId(PdfInkR.id.undo_button)).check(matches(not(isEnabled())))
-        onView(withId(PdfInkR.id.redo_button)).check(matches(not(isEnabled())))
+        onView(withId(R.id.undo_button)).check(matches(not(isEnabled())))
+        onView(withId(R.id.redo_button)).check(matches(not(isEnabled())))
 
         // Draw an annotation on the content view
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
         // Assert AnnotationView is visible
-        onView(withId(PdfInkR.id.pdf_annotation_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.pdf_annotation_view)).check(matches(isDisplayed()))
         // Assert undo button gets enabled after a stroke is drawn; but redo remains disabled
-        onView(withId(PdfInkR.id.undo_button)).check(matches(isEnabled()))
-        onView(withId(PdfInkR.id.redo_button)).check(matches(not(isEnabled())))
+        onView(withId(R.id.undo_button)).check(matches(isEnabled()))
+        onView(withId(R.id.redo_button)).check(matches(not(isEnabled())))
 
         // Undo last drawn annotation
-        onView(withId(PdfInkR.id.undo_button)).perform(click())
+        onView(withId(R.id.undo_button)).perform(click())
         // Assert user cannot perform any more undo steps after last annotation is undone
-        onView(withId(PdfInkR.id.undo_button)).check(matches(not(isEnabled())))
+        onView(withId(R.id.undo_button)).check(matches(not(isEnabled())))
         // Assert redo button gets enabled
-        onView(withId(PdfInkR.id.redo_button)).check(matches(isEnabled()))
+        onView(withId(R.id.redo_button)).check(matches(isEnabled()))
 
         // Now perform a redo
-        onView(withId(PdfInkR.id.redo_button)).perform(click())
-        onView(withId(PdfInkR.id.redo_button)).check(matches(not(isEnabled())))
+        onView(withId(R.id.redo_button)).perform(click())
+        onView(withId(R.id.redo_button)).check(matches(not(isEnabled())))
         // Assert undo button gets enabled
-        onView(withId(PdfInkR.id.undo_button)).check(matches(isEnabled()))
+        onView(withId(R.id.undo_button)).check(matches(isEnabled()))
     }
 
     @Test
@@ -362,11 +361,11 @@ class EditablePdfViewerFragmentTestSuite {
         // Draw an annotation on the content view
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
         // Assert AnnotationView is visible
-        onView(withId(PdfInkR.id.pdf_annotation_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.pdf_annotation_view)).check(matches(isDisplayed()))
         // Disable annotations
-        onView(withId(PdfInkR.id.toggle_annotation_button)).perform(click())
+        onView(withId(R.id.toggle_annotation_button)).perform(click())
         // Assert AnnotationView is hidden
-        onView(withId(PdfInkR.id.pdf_annotation_view)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.pdf_annotation_view)).check(matches(not(isDisplayed())))
 
         val fitToScreenZoom = pdfView?.zoom
         // try interacting with the content rendered on the pdf view
@@ -378,8 +377,8 @@ class EditablePdfViewerFragmentTestSuite {
         assertThat(pdfView?.zoom).isGreaterThan(fitToScreenZoom)
 
         // Toggle once again to enable annotations
-        onView(withId(PdfInkR.id.toggle_annotation_button)).perform(click())
-        onView(withId(PdfInkR.id.pdf_annotation_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.toggle_annotation_button)).perform(click())
+        onView(withId(R.id.pdf_annotation_view)).check(matches(isDisplayed()))
         // Try same interaction when annotation interaction is enabled
         onView(withId(PdfR.id.pdfContentLayout)).perform(doubleClick())
         // assert double tapping again doesn't fit to screen as touch is consumed by wet stroke's
@@ -396,20 +395,20 @@ class EditablePdfViewerFragmentTestSuite {
         enterEditMode()
 
         // Click again to show brush slider
-        onView(withId(PdfInkR.id.pen_button)).perform(click())
+        onView(withId(R.id.pen_button)).perform(click())
 
-        onView(withId(PdfInkR.id.brush_size_selector)).check(matches(isDisplayed()))
+        onView(withId(R.id.brush_size_selector)).check(matches(isDisplayed()))
         // Draw an annotation on the content view
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
         // Assert brush size selector is not displayed
-        onView(withId(PdfInkR.id.brush_size_selector)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.brush_size_selector)).check(matches(not(isDisplayed())))
 
-        onView(withId(PdfInkR.id.color_palette_button)).perform(click())
-        onView(withId(PdfInkR.id.color_palette)).check(matches(isDisplayed()))
+        onView(withId(R.id.color_palette_button)).perform(click())
+        onView(withId(R.id.color_palette)).check(matches(isDisplayed()))
         // Draw an annotation on the content view
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
         // Assert color palette is not displayed
-        onView(withId(PdfInkR.id.color_palette)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.color_palette)).check(matches(not(isDisplayed())))
     }
 
     @Test
@@ -421,25 +420,25 @@ class EditablePdfViewerFragmentTestSuite {
 
         var annotationToolbar: AnnotationToolbar? = null
         scenario.onFragment { fragment ->
-            fragment.view?.findViewById<AnnotationToolbar>(PdfInkR.id.annotationToolbar)?.let {
+            fragment.view?.findViewById<AnnotationToolbar>(R.id.annotationToolbar)?.let {
                 annotationToolbar = it
             }
         }
 
         // open brush size selector
-        onView(withId(PdfInkR.id.pen_button)).perform(click())
+        onView(withId(R.id.pen_button)).perform(click())
 
         assertNotNull(annotationToolbar)
         assertTrue(annotationToolbar.isConfigPopupVisible)
 
-        onView(withId(PdfInkR.id.pdf_annotation_view)).perform(click())
+        onView(withId(R.id.pdf_annotation_view)).perform(click())
         assertFalse(annotationToolbar.isConfigPopupVisible)
 
         // open color palette
-        onView(withId(PdfInkR.id.color_palette_button)).perform(click())
+        onView(withId(R.id.color_palette_button)).perform(click())
         assertTrue(annotationToolbar.isConfigPopupVisible)
 
-        onView(withId(PdfInkR.id.pdf_annotation_view)).perform(click())
+        onView(withId(R.id.pdf_annotation_view)).perform(click())
         assertFalse(annotationToolbar.isConfigPopupVisible)
     }
 
@@ -462,7 +461,7 @@ class EditablePdfViewerFragmentTestSuite {
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeDown())
 
         // 2. Select the Eraser tool
-        onView(withId(PdfInkR.id.eraser_button)).perform(click())
+        onView(withId(R.id.eraser_button)).perform(click())
 
         // 3. Perform a single tap. By default, `click()` targets the center of the view.
         // Since both swipe gestures pass through the center, this tap
@@ -556,7 +555,7 @@ class EditablePdfViewerFragmentTestSuite {
         fragment.syncApplyEdits()
 
         // Select the Eraser tool and erase 2nd annotation
-        onView(withId(PdfInkR.id.eraser_button)).perform(click())
+        onView(withId(R.id.eraser_button)).perform(click())
         onView(withId(PdfR.id.pdfContentLayout)).perform(click())
 
         // Apply the removed annotation to document
@@ -595,7 +594,7 @@ class EditablePdfViewerFragmentTestSuite {
         assertThat(initialCount).isEqualTo(3)
 
         // 2. Select the Eraser tool
-        onView(withId(PdfInkR.id.eraser_button)).perform(click())
+        onView(withId(R.id.eraser_button)).perform(click())
 
         // 3. Erase the first highlight annotation
         val firstHighlight = initialAnnotations[0].annotation as HighlightAnnotation
