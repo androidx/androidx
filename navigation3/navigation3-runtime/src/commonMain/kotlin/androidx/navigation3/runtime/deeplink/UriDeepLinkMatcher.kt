@@ -181,7 +181,7 @@ public open class UriDeepLinkMatcher<out T : Any>(
     uriPattern: DeepLinkUri,
     private val serializer: KSerializer<T>,
     filters: List<Filter> = emptyList(),
-) : DeepLinkMatcher<T>(filters) {
+) : DeepLinkMatcher<T, UriMatchResult<T>>(filters) {
 
     // By RFC 2396/3986 standard, uri without a scheme or "//" is treated as no authority,
     // i.e. "www.example.com/path". This throws off path segment count and desyncs with

@@ -27,7 +27,7 @@ package androidx.navigation3.runtime.deeplink
  * @sample androidx.navigation3.runtime.samples.deeplink.staticKeyDeepLinkMatcherSample
  */
 public class StaticKeyDeepLinkMatcher<out T : Any>(public val key: T, filters: List<Filter>) :
-    DeepLinkMatcher<T>(filters) {
+    DeepLinkMatcher<T, DeepLinkMatcher.MatchResult<T>>(filters) {
 
     /**
      * Returns a [MatchResult] containing the [key] if all [filters] match the [DeepLinkRequest].
