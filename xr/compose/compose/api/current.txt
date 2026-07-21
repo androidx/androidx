@@ -722,8 +722,6 @@ package androidx.xr.compose.subspace {
     property public androidx.xr.compose.subspace.TrackedDimensions All;
   }
 
-  @Deprecated public typealias SurfaceProtection = androidx.xr.compose.subspace.SpatialExternalSurfaceProtection;
-
 }
 
 package androidx.xr.compose.subspace.animation {
