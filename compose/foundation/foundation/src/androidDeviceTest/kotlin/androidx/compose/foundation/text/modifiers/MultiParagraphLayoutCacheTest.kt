@@ -1158,6 +1158,18 @@ class MultiParagraphLayoutCacheTest {
             autoSize = autoSize,
         )
 
+    @Test
+    fun minIntrinsicWidth_doesNotClearLayoutCache_afterLayout() {
+        val text = AnnotatedString("hello")
+        val subject = createLayoutCache(text = text)
+
+        subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        val firstResult = subject.textLayoutResult
+
+        subject.minIntrinsicWidth(LayoutDirection.Ltr)
+        assertThat(subject.textLayoutResult).isSameInstanceAs(firstResult)
+    }
+
     private fun createLayoutCache(
         text: AnnotatedString,
         autoSize: TextAutoSize? = null,
