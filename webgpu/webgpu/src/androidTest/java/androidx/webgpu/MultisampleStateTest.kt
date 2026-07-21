@@ -189,6 +189,7 @@ class MultisampleStateTest {
     }
 
     @Test
+    @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun verifyZeroMaskDisablesUpdates() {
         // Zero mask (0x0) should block all samples from being updated.
         // We draw White on Black background -> Expect Black (0) because the draw was masked out.
