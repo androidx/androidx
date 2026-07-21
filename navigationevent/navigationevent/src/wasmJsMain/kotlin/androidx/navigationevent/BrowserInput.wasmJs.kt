@@ -200,10 +200,8 @@ internal constructor(
 
             for (i in pushedHistorySize until newSize) {
                 val info = newHistory.mergedHistory[i]
-                // TODO: Revisit using toString() for URL fragment and title
-                val infoStr = info.toString()
-                window.pushState(i.toJsNumber(), url = "#$infoStr")
-                window.title = infoStr
+                window.pushState(i.toJsNumber(), url = info.url)
+                info.title?.let { window.title = it }
             }
 
             window.go(newIndex - (newSize - 1))
@@ -212,10 +210,8 @@ internal constructor(
         }
 
         val currentInfo = newHistory.mergedHistory[newIndex]
-        // TODO: Revisit using toString() for URL fragment and title
-        val currentInfoStr = currentInfo.toString()
-        window.title = currentInfoStr
-        window.replaceState(newIndex.toJsNumber(), url = "#$currentInfoStr")
+        currentInfo.title?.let { window.title = it }
+        window.replaceState(newIndex.toJsNumber(), url = currentInfo.url)
 
         browserIndex = newIndex
         logicalHistorySize = newSize
