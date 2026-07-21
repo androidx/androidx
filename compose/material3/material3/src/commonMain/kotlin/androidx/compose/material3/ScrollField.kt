@@ -18,15 +18,16 @@ package androidx.compose.material3
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -35,14 +36,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 private const val InfinitePageCount = 100_000
@@ -97,6 +110,13 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
     }
 
     /**
+     * The option the pager will settle on once any in-progress scroll finishes. Equal to
+     * [selectedOption] when the pager is at rest.
+     */
+    val targetOption: Int
+        get() = if (itemCount > 0) pagerState.targetPage % itemCount else 0
+
+    /**
      * Whether this [ScrollField] is currently scrolling, either by user gesture or by animation.
      */
     val isScrollInProgress: Boolean
@@ -132,16 +152,27 @@ fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
  *
  * @sample androidx.compose.material3.samples.TimeScrollFieldSample
  * @param state the state object to be used to control or observe the pager's state.
+ * @param contentDescription text used by accessibility services to describe what this field
+ *   selects. This should include the available range when it is not obvious from context (e.g.,
+ *   "Select year between 2000 and 2025"). Because the wheel wraps around endlessly, this
+ *   description is the only way for an accessibility user to learn the field's bounds.
  * @param modifier the [Modifier] to be applied to the ScrollField container.
  * @param colors [ScrollFieldColors] that will be used to resolve the colors used for this
  *   ScrollField in different states.
+ * @param fieldAccessibilityDescription returns the text accessibility services (e.g. TalkBack)
+ *   announced for the option at the given index. It should match the text rendered by [field].
+ * @param interactionSource [MutableInteractionSource] for observing and controlling the
+ *   interactions with the scroll field.
  * @param field the composable used to render each item in the wheel.
  */
 @Composable
 fun ScrollField(
     state: ScrollFieldState,
+    contentDescription: String?,
     modifier: Modifier = Modifier,
     colors: ScrollFieldColors = ScrollFieldDefaults.colors(),
+    fieldAccessibilityDescription: (index: Int) -> String = { index -> index.toLocalString() },
+    interactionSource: MutableInteractionSource? = null,
     field: @Composable (index: Int, selected: Boolean) -> Unit = { index, selected ->
         ScrollFieldDefaults.Item(index = index, selected = selected, colors = colors)
     },
@@ -153,7 +184,41 @@ fun ScrollField(
         modifier =
             modifier
                 .background(colors.containerColor, shape = ScrollFieldDefaults.shape)
-                .selectableGroup(),
+                .onKeyEvent { event ->
+                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                    val direction =
+                        when (event.key) {
+                            Key.DirectionDown -> 1
+                            Key.DirectionUp -> -1
+                            else -> return@onKeyEvent false
+                        }
+                    val nextPage = state.pagerState.targetPage + direction
+                    scope.launch { state.pagerState.animateScrollToPage(nextPage) }
+                    true
+                }
+                .focusable(interactionSource = interactionSource)
+                .clearAndSetSemantics {
+                    if (contentDescription != null) {
+                        this.contentDescription = contentDescription
+                    }
+                    stateDescription = fieldAccessibilityDescription(state.targetOption)
+                    progressBarRangeInfo =
+                        ProgressBarRangeInfo(
+                            current = state.pagerState.targetPage.toFloat(),
+                            range = 0f..(InfinitePageCount - 1).toFloat(),
+                            steps = InfinitePageCount - 2,
+                        )
+
+                    setProgress { targetValue ->
+                        val targetPage = targetValue.roundToInt()
+                        if (targetPage != state.pagerState.targetPage) {
+                            scope.launch { state.pagerState.animateScrollToPage(targetPage) }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                },
         pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3),
         horizontalAlignment = Alignment.CenterHorizontally,
         snapPosition = SnapPosition.Center,
@@ -163,12 +228,9 @@ fun ScrollField(
         Box(
             modifier =
                 Modifier.fillMaxHeight()
-                    .selectable(
-                        selected = isSelected,
-                        onClick = { scope.launch { state.animateScrollToOption(index) } },
-                        role = Role.Carousel,
-                    )
-                    .semantics { traversalIndex = if (isSelected) -1f else page.toFloat() },
+                    .focusProperties { canFocus = false }
+                    .clickable { scope.launch { state.animateScrollToOption(index) } }
+                    .semantics { selected = isSelected },
             contentAlignment = Alignment.Center,
         ) {
             field(index, isSelected)
