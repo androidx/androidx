@@ -166,6 +166,8 @@ class ZoomCompatTest {
                 TODO("Not yet implemented")
             }
 
+            override fun isExtensionSupported(extension: Int): Boolean = false
+
             override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? {
                 if (
                     Build.VERSION.SDK_INT >= 30 &&
