@@ -171,6 +171,52 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - If using `FakeCamera` directly, call `camera.detachUseCases(listOf(useCase))` before unbinding the use case.
   - Ensure the main looper is idled after cleanup: `shadowOf(getMainLooper()).idle()`.
 
+#### 5. Troubleshooting Device-Specific Failures
+- **Symptom**: A failure (test failure, crash, or unexpected behavior) occurs
+  only on specific device models, while working correctly on others.
+- **Investigation Steps**:
+  1. **Acquire Logs**: Extract the logcat, test output, or system logs associated with the failure.
+     - For public AOSP developers, obtain the logs from your test runner output
+       or device logcat.
+     - For Google-internal developers, follow the instructions in
+       `AGENTS_INTERNAL.md` to use internal CLI tools to download and read
+       test artifacts from the test results repository.
+  2. **Analyze Failure Point**: Identify the exact line of failure and the
+     preceding events in the log (e.g., check for timeouts, crashes, or
+     specific error codes).
+  3. **Compare Logs**: Compare the failing log with a passing log from a
+     different device to identify differences in HAL behavior or timing.
+  4. **Check Related Devices**: Identify if similar devices (e.g., same
+     manufacturer, chipset, or model family like Fold/Flip series) might share
+     the same HAL characteristics and exhibit the same issue.
+     - *Fallback Strategy*: If the target device (or related devices) is not
+       available in the lab or experiences persistent allocation
+       timeouts/failures:
+       a. Search the lab device list for a similar alternative (same brand,
+          Android OS level, or camera capabilities) to run verification.
+       b. If no suitable alternative is available to verify the device-specific
+          behavior, proceed with static analysis and code verification (unit
+          tests), and explicitly inform the user that device-level verification
+          was not possible due to resource constraints.
+  5. **Determine Component Level**: Check if it's a test infrastructure issue
+     (e.g., too tight timeout) or a real library/HAL issue (e.g.,
+     `Connection timed out` from `libcameraservice` suggesting HAL freeze).
+- **Resolution Strategy**:
+  1. **Test-Level Issues**: If the issue is due to timing or environment,
+     increase timeouts or improve test robustness (e.g., add retry or polling).
+  2. **Library/HAL Issues**:
+     - Check if the behavior is a known device limitation (e.g., some physical
+       lenses not supporting reprocessing).
+     - Explore if a generic workaround is possible without session
+       reconfiguration.
+     - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
+       is possible, add the device model to the corresponding Quirk class
+       (e.g., `ZslDisablerQuirk`).
+       *   *Note*: When adding a device to a Quirk, check if other related
+           devices identified in step 4 (and available in the lab) also
+           exhibit the issue and should be included. Verify the fix (ZSL
+           disabled/fallback working) on all of them.
+
 ## Git Commit Messages
 
 Use the following format for your commit messages. Each section should be separated by a blank line.
