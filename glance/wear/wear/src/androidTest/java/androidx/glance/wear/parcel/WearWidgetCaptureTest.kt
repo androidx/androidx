@@ -124,7 +124,7 @@ class WearWidgetCaptureTest {
                     WearWidgetCapture.capture(
                         context,
                         creationDisplayInfo,
-                        RendererVersion.DEFAULT_SUPPORTED_OPERATIONS,
+                        RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS,
                         content,
                     )
             }
