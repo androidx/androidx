@@ -154,7 +154,8 @@ data class MinificationStats(
 
                                 lowObfAppCount =
                                     if (
-                                        obfClassesSeen.toDouble() / (classesSeen - xmlClassesSeen) < 0.25
+                                        obfClassesSeen.toDouble() / (classesSeen - xmlClassesSeen) <
+                                            0.25
                                     ) {
                                         1
                                     } else {
@@ -194,7 +195,8 @@ data class MinificationStats(
             }
 
             return MinificationStats(
-                minifiedClassesLowerAccuracy = isObfuscatedLowerCaseHits.toDouble() / classInfo.size,
+                minifiedClassesLowerAccuracy =
+                    isObfuscatedLowerCaseHits.toDouble() / classInfo.size,
                 minifiedClassesLengthAccuracy =
                     isObfuscatedAppearsMinifiedHits.toDouble() / classInfo.size,
                 minifiedRate = isObfuscatedCount.toDouble() / classInfo.size,
@@ -292,7 +294,7 @@ data class R8Analysis(
                 CsvColumn(
                     columnLabel = "r8_minifiedClassesLengthAccuracy",
                     description = "Accuracy of length heuristic, based upon mapping file",
-                    calculate = { (it.minificationStats?.minifiedClassesLowerAccuracy).toString() },
+                    calculate = { (it.minificationStats?.minifiedClassesLengthAccuracy).toString() },
                 ),
                 CsvColumn(
                     columnLabel = "r8_minifiedRate",
