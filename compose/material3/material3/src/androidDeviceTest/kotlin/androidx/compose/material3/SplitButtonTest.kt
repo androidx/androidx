@@ -765,6 +765,91 @@ class SplitButtonTest {
             .onNodeWithTag("trailingButton")
             .assertHeightIsEqualTo(SplitButtonSmallTokens.ContainerHeight)
     }
+
+    @Test
+    fun splitButton_stretchesButtonsToMaxHeight() {
+        val forcedHeight = 100.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            SplitButton(
+                modifier = Modifier.height(forcedHeight),
+                leadingButton = {
+                    SplitButtonDefaults.LeadingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("leadingButton"),
+                    ) {
+                        Text("Label")
+                    }
+                },
+                trailingButton = {
+                    SplitButtonDefaults.TrailingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("trailingButton"),
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                    }
+                },
+            )
+        }
+
+        rule.onNodeWithTag("leadingButton").assertHeightIsEqualTo(forcedHeight)
+        rule.onNodeWithTag("trailingButton").assertHeightIsEqualTo(forcedHeight)
+    }
+
+    @Test
+    fun splitButton_trailingMatchLeadingHeight() {
+        val forcedHeight = 100.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            SplitButton(
+                leadingButton = {
+                    SplitButtonDefaults.LeadingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("leadingButton").height(100.dp),
+                    ) {
+                        Text("Label")
+                    }
+                },
+                trailingButton = {
+                    SplitButtonDefaults.TrailingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("trailingButton"),
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                    }
+                },
+            )
+        }
+
+        rule.onNodeWithTag("leadingButton").assertHeightIsEqualTo(forcedHeight)
+        rule.onNodeWithTag("trailingButton").assertHeightIsEqualTo(forcedHeight)
+    }
+
+    @Test
+    fun splitButton_leadingMatchTrailingHeight() {
+        val forcedHeight = 100.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            SplitButton(
+                leadingButton = {
+                    SplitButtonDefaults.LeadingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("leadingButton"),
+                    ) {
+                        Text("Label")
+                    }
+                },
+                trailingButton = {
+                    SplitButtonDefaults.TrailingButton(
+                        onClick = {},
+                        modifier = Modifier.testTag("trailingButton").height(100.dp),
+                    ) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                    }
+                },
+            )
+        }
+
+        rule.onNodeWithTag("leadingButton").assertHeightIsEqualTo(forcedHeight)
+        rule.onNodeWithTag("trailingButton").assertHeightIsEqualTo(forcedHeight)
+    }
 }
 
 private const val TextTag = "text tag"
