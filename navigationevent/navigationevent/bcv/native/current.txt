@@ -57,6 +57,11 @@ abstract class <#A: androidx.navigationevent/NavigationEventInfo> androidx.navig
 abstract class androidx.navigationevent/NavigationEventInfo { // androidx.navigationevent/NavigationEventInfo|null[0]
     constructor <init>() // androidx.navigationevent/NavigationEventInfo.<init>|<init>(){}[0]
 
+    open val title // androidx.navigationevent/NavigationEventInfo.title|{}title[0]
+        open fun <get-title>(): kotlin/String? // androidx.navigationevent/NavigationEventInfo.title.<get-title>|<get-title>(){}[0]
+    open val url // androidx.navigationevent/NavigationEventInfo.url|{}url[0]
+        open fun <get-url>(): kotlin/String? // androidx.navigationevent/NavigationEventInfo.url.<get-url>|<get-url>(){}[0]
+
     final object None : androidx.navigationevent/NavigationEventInfo // androidx.navigationevent/NavigationEventInfo.None|null[0]
 }
 

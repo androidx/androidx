@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("ExperimentalPropertyAnnotation")
+
 package androidx.navigationevent
 
 import androidx.compose.runtime.Immutable
@@ -35,7 +37,37 @@ import androidx.compose.runtime.Immutable
  * This allows you to associate custom, comparable data with a system navigation event emissions.
  */
 @Immutable
-public abstract class NavigationEventInfo() {
+public abstract class NavigationEventInfo {
+
+    /**
+     * Defines the title of the navigation destination.
+     *
+     * Host environments can use this value to represent the active destination (e.g., a web
+     * browser's tab title).
+     *
+     * Follow these best practices:
+     * - **Localization**: Localize or translate the value.
+     * - **Resolution**: Resolve resource IDs to strings before returning.
+     * - **Formatting**: Interpolate dynamic parameters directly (e.g., `"Details - $id"`).
+     *
+     * Defaults to `null`, meaning the title remains unchanged.
+     */
+    @ExperimentalNavigationEventApi public open val title: String? = null
+
+    /**
+     * Defines the URL or path representation of the navigation destination.
+     *
+     * Host environments can use this value to update their location display (e.g., a web browser's
+     * address bar).
+     *
+     * For web environments, this supports:
+     * - **Full URL** (e.g., `"https://example.com/home"`): must match the active origin.
+     * - **Relative path** (e.g., `"/home"`): appends to the active origin.
+     * - **Hash fragment** (e.g., `"#home"`): triggers a hash navigation.
+     *
+     * Defaults to `null`, meaning the location remains unchanged.
+     */
+    @ExperimentalNavigationEventApi public open val url: String? = null
 
     /**
      * A default used when no specific information is associated with a navigation event.
