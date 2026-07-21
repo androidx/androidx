@@ -105,7 +105,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             Banner.Builder()
                 .setTitle("Leading Icon")
                 .setSubtitle("This is a subtitle for the banner.")
-                .setLeadingIcon(playIcon)
+                .setLeadingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                 .build()
         val leadingIconSection = createSection(null, leadingIconBanner)
 
@@ -114,7 +114,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             Banner.Builder()
                 .setTitle("Trailing Icon")
                 .setSubtitle("This is a subtitle for the banner.")
-                .addTrailingIcon(playIcon)
+                .addTrailingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                 .build()
         val trailingIconSection = createSection("Trailing Banners", trailingIconBanner)
 
@@ -152,7 +152,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                         .setOnClickListener { showToast("Clicked Trailing Button") }
                         .build()
                 )
-                .addTrailingIcon(playIcon)
+                .addTrailingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                 .build()
         val trailingButtonSection = createSection(null, trailingButtonBanner)
 
@@ -196,7 +196,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 .setTitle("Rich Banner")
                 .setSubtitle("All banner elements combined.")
                 .setLeadingImage(mediaIcon)
-                .addTrailingIcon(playIcon)
+                .addTrailingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                 .addBelowAction(
                     Action.Builder()
                         .setTitle("Primary")
@@ -248,7 +248,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
                 Banner.Builder()
                     .setTitle("Rich : $shapeName")
                     .setLeadingImage(mediaIcon)
-                    .addTrailingIcon(playIcon)
+                    .addTrailingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                     .setStyle(
                         BannerStyle.Builder().setBackground(grayBackground).setShape(shape).build()
                     )
@@ -289,7 +289,7 @@ class BannerDemoScreen(carContext: CarContext) : Screen(carContext) {
             val banner =
                 Banner.Builder()
                     .setTitle("Color: $colorName")
-                    .addTrailingIcon(playIcon)
+                    .addTrailingImage(playIcon, Banner.IMAGE_TYPE_ICON)
                     .setStyle(
                         BannerStyle.Builder()
                             .setBackground(Background.Builder().setColor(customColor).build())

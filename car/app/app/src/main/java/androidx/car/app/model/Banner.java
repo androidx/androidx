@@ -16,10 +16,14 @@
 
 package androidx.car.app.model;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
@@ -30,6 +34,8 @@ import androidx.car.app.model.constraints.CarTextConstraints;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +52,35 @@ import java.util.Objects;
 @KeepFields
 @RequiresCarApi(9)
 public final class Banner implements Item {
+    @RestrictTo(LIBRARY)
+    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BannerImageType {
+    }
+
+    /**
+     * Represents an icon to be displayed in the banner.
+     *
+     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
+     * default tint color as determined by the host will be applied.
+     */
+    public static final int IMAGE_TYPE_ICON = 1;
+
+    /**
+     * Represents a small image to be displayed in the banner.
+     *
+     * <p>The host renders it with standard padding and scales the image to fit within the bounds.
+     */
+    public static final int IMAGE_TYPE_SMALL = 2;
+
+    /**
+     * Represents a large edge-to-edge image to be displayed in the banner. Scales the image
+     * to fill the container and potentially clip within the bounds if a shape is applied.
+     *
+     * <p>This image type cannot be used in combination with {@link Builder#addBelowAction(Action)}.
+     */
+    public static final int IMAGE_TYPE_LARGE = 3;
+
     private static final int MAX_TRAILING_ELEMENTS = 2;
 
     private final @Nullable CarText mTitle;
@@ -295,7 +330,9 @@ public final class Banner implements Item {
          * due to added padding, and are expected to be tinted.
          *
          * @throws NullPointerException if {@code icon} is {@code null}
+         * @deprecated Use {@link #setLeadingImage(CarIcon, int)} with {@link #IMAGE_TYPE_ICON}
          */
+        @Deprecated
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder setLeadingIcon(@NonNull CarIcon icon) {
             mLeadingElement = new BannerElement(
@@ -316,8 +353,26 @@ public final class Banner implements Item {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder setLeadingImage(@NonNull CarIcon image) {
-            mLeadingElement = new BannerElement(
-                    BannerElement.TYPE_IMAGE, /* action= */ null, requireNonNull(image));
+            return setLeadingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+        }
+
+        /**
+         * Sets the leading element in this banner to be a {@link CarIcon} displayed as an image.
+         *
+         * <p>Only a single leading icon or image can be set, so this will overwrite calls to
+         * {@link #setLeadingIcon(CarIcon)}.
+         *
+         * <p>A large image cannot be used in combination with
+         * {@link Builder#addBelowAction(Action)}.
+         *
+         * @param image     the {@link CarIcon} for the leading image
+         * @param imageType the {@link BannerImageType} for the leading image
+         * @throws NullPointerException if {@code image} is {@code null}
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public @NonNull Builder setLeadingImage(@NonNull CarIcon image,
+                @BannerImageType int imageType) {
+            mLeadingElement = BannerElement.createForImageType(requireNonNull(image), imageType);
             return this;
         }
 
@@ -334,9 +389,7 @@ public final class Banner implements Item {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addTrailingAction(@NonNull Action action) {
-            BannerElement element =
-                    new BannerElement(
-                            BannerElement.TYPE_ACTION, requireNonNull(action), /* icon= */ null);
+            BannerElement element = BannerElement.createForAction(requireNonNull(action));
             validateNewTrailingElement(element);
             mTrailingElements.add(element);
             return this;
@@ -349,7 +402,9 @@ public final class Banner implements Item {
          *
          * @throws NullPointerException     if {@code icon} is {@code null}
          * @throws IllegalArgumentException if there are already 2 trailing elements
+         * @deprecated Use {@link #addTrailingImage(CarIcon, int)} with {@link #IMAGE_TYPE_ICON}
          */
+        @Deprecated
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addTrailingIcon(@NonNull CarIcon icon) {
             BannerElement element =
@@ -370,9 +425,32 @@ public final class Banner implements Item {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addTrailingImage(@NonNull CarIcon image) {
-            BannerElement element =
-                    new BannerElement(
-                            BannerElement.TYPE_IMAGE, /* action= */ null, requireNonNull(image));
+            return addTrailingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+        }
+
+        /**
+         * Adds a {@link CarIcon} to be displayed as an image to the trailing part of the banner.
+         *
+         * <p>A banner can have at most 2 trailing elements.
+         *
+         * <p>A large image cannot be used in combination with
+         * {@link Builder#addBelowAction(Action)}.
+         *
+         * <p>A large trailing image cannot be used in combination with
+         * another large trailing image.
+         *
+         * @param image     the {@link CarIcon} for the trailing image
+         * @param imageType the {@link BannerImageType} for the trailing image
+         * @throws NullPointerException     if {@code image} is {@code null}
+         * @throws IllegalArgumentException if there are already 2 trailing elements
+         * @throws IllegalArgumentException if a large trailing image is combined with anything
+         *                                  other than a trailing icon or action
+         */
+        @SuppressLint("MissingGetterMatchingBuilder")
+        public @NonNull Builder addTrailingImage(@NonNull CarIcon image,
+                @BannerImageType int imageType) {
+            BannerElement element = BannerElement.createForImageType(
+                    requireNonNull(image), imageType);
             validateNewTrailingElement(element);
             mTrailingElements.add(element);
             return this;
@@ -383,6 +461,8 @@ public final class Banner implements Item {
          *
          * <p>A {@link Banner}'s below actions must conform to
          * {@link ActionsConstraints#ACTION_CONSTRAINTS_BANNER_BELOW}.
+         *
+         * <p>Below actions cannot be used in combination with a large image.
          *
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} does not conform to
@@ -399,17 +479,54 @@ public final class Banner implements Item {
         /**
          * Constructs the {@link Banner} defined by this builder.
          *
-         * @throws IllegalStateException if the title is null or empty
-         * @throws IllegalStateException if there are more than 4 elements across the banner's
-         *                               leading and trailing elements lists OR more than 2 of
-         *                               these elements are {@link Action}s
+         * @throws IllegalArgumentException if the title is null or empty
+         * @throws IllegalArgumentException if below actions are used in combination with a large
+         *                                  image
+         * @throws IllegalStateException    if there are more than 4 elements across the banner's
+         *                                  leading and trailing elements lists OR more than 2 of
+         *                                  these elements are {@link Action}s
          */
         public @NonNull Banner build() {
             if (CarText.isNullOrEmpty(mTitle)) {
                 throw new IllegalArgumentException("A title must be provided");
             }
 
+            if (!mBelowActions.isEmpty() && hasLargeImage()) {
+                throw new IllegalArgumentException(
+                        "Below actions cannot be combined with a large image");
+            }
+
             return new Banner(this);
+        }
+
+        private boolean hasLargeImage() {
+            return isLargeImage(mLeadingElement) || getLargeImageCount(mTrailingElements) > 0;
+        }
+
+        private boolean isLargeImage(@Nullable BannerElement element) {
+            return element != null
+                    && element.getType() == BannerElement.TYPE_IMAGE
+                    && element.getImageType() == IMAGE_TYPE_LARGE;
+        }
+
+        private int getLargeImageCount(List<BannerElement> elements) {
+            int count = 0;
+            for (BannerElement element : elements) {
+                if (isLargeImage(element)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        private boolean hasSmallImage(List<BannerElement> elements) {
+            for (BannerElement element : elements) {
+                if (element.getType() == BannerElement.TYPE_IMAGE
+                        && element.getImageType() == IMAGE_TYPE_SMALL) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -427,6 +544,17 @@ public final class Banner implements Item {
                 throw new IllegalStateException(
                         "Total number of trailing elements in a banner must not exceed "
                                 + MAX_TRAILING_ELEMENTS + ", found " + mTrailingElements.size());
+            }
+
+            int largeImageCount = getLargeImageCount(allElements);
+            if (largeImageCount >= 2) {
+                throw new IllegalArgumentException(
+                        "Too many large images, only one large image can be set at a time");
+            }
+            if (largeImageCount > 0 && hasSmallImage(allElements)) {
+                throw new IllegalArgumentException(
+                        "A large trailing image can only be combined with a trailing icon"
+                                + " or action");
             }
 
             // Validate actions
