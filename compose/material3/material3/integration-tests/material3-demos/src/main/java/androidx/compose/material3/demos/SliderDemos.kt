@@ -138,7 +138,7 @@ private fun SysUiSlider(
             valueRange,
             isVertical,
             isReverseDirection,
-            saver = SliderState.Saver(null, valueRange),
+            saver = SliderState.Saver(steps, valueRange, null),
         ) {
             SliderState(value, steps, valueRange = valueRange)
         }
