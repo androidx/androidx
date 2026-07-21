@@ -66,6 +66,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.rememberSpatialActivityPanelController
 import androidx.xr.compose.subspace.rememberSpatialGltfModelState
 import androidx.xr.compose.subspace.semantics.contentDescription
 import androidx.xr.compose.subspace.semantics.semantics
@@ -165,10 +166,12 @@ class AccessibilityActivity : ComponentActivity() {
                     PanelType.ActivityPanel -> {
                         SpatialColumn {
                             SpatialActivityPanel(
-                                intent =
-                                    Intent(activity, AnotherActivity::class.java)
-                                        .putExtra("INSIDE_TEXT", "Spatial Activity Panel 1")
-                                        .putExtra("TITLE", "Activity Panel 1"),
+                                controller =
+                                    rememberSpatialActivityPanelController(
+                                        Intent(activity, AnotherActivity::class.java)
+                                            .putExtra("INSIDE_TEXT", "Spatial Activity Panel 1")
+                                            .putExtra("TITLE", "Activity Panel 1")
+                                    ),
                                 modifier =
                                     SubspaceModifier.width(300.dp).height(150.dp).semantics {
                                         contentDescription =
@@ -176,10 +179,12 @@ class AccessibilityActivity : ComponentActivity() {
                                     },
                             )
                             SpatialActivityPanel(
-                                intent =
-                                    Intent(activity, AnotherActivity::class.java)
-                                        .putExtra("INSIDE_TEXT", "Spatial Activity Panel 2")
-                                        .putExtra("TITLE", "Activity Panel 2"),
+                                controller =
+                                    rememberSpatialActivityPanelController(
+                                        Intent(activity, AnotherActivity::class.java)
+                                            .putExtra("INSIDE_TEXT", "Spatial Activity Panel 2")
+                                            .putExtra("TITLE", "Activity Panel 2")
+                                    ),
                                 modifier =
                                     SubspaceModifier.width(300.dp).height(150.dp).semantics {
                                         contentDescription =
@@ -187,10 +192,12 @@ class AccessibilityActivity : ComponentActivity() {
                                     },
                             )
                             SpatialActivityPanel(
-                                intent =
-                                    Intent(activity, AnotherActivity::class.java)
-                                        .putExtra("INSIDE_TEXT", "Spatial Activity Panel 3")
-                                        .putExtra("TITLE", "Activity Panel 3"),
+                                controller =
+                                    rememberSpatialActivityPanelController(
+                                        Intent(activity, AnotherActivity::class.java)
+                                            .putExtra("INSIDE_TEXT", "Spatial Activity Panel 3")
+                                            .putExtra("TITLE", "Activity Panel 3")
+                                    ),
                                 modifier =
                                     SubspaceModifier.width(300.dp).height(150.dp).semantics {
                                         contentDescription =

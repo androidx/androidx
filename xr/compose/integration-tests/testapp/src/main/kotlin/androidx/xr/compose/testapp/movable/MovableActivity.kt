@@ -55,6 +55,7 @@ import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
+import androidx.xr.compose.subspace.rememberSpatialActivityPanelController
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.R
 import androidx.xr.compose.testapp.common.AnotherActivity
@@ -188,8 +189,9 @@ class MovableActivity : ComponentActivity() {
                     SpatialPanel(modifier = SubspaceModifier.weight(1f).fillMaxWidth()) {
                         PanelContent("[NOT MOVABLE]")
                     }
+                    val intent = Intent(this@MovableActivity, AnotherActivity::class.java)
                     SpatialActivityPanel(
-                        intent = Intent(this@MovableActivity, AnotherActivity::class.java),
+                        controller = rememberSpatialActivityPanelController(initialIntent = intent),
                         modifier =
                             SubspaceModifier.weight(1f)
                                 .offset(x = 120.dp)

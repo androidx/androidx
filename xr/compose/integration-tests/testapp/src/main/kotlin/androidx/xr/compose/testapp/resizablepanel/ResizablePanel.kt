@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialActivityPanel
+import androidx.xr.compose.subspace.SpatialActivityPanelController
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -197,8 +198,9 @@ class ResizablePanel : ComponentActivity() {
                     val intent = Intent(this@ResizablePanel, AnotherActivity::class.java)
                     intent.putExtra("TITLE", "Activity Panel")
                     intent.putExtra("INSIDE_TEXT", "Resizable Activity Panel")
+                    val controller = remember { SpatialActivityPanelController(intent) }
                     SpatialActivityPanel(
-                        intent = intent,
+                        controller = controller,
                         modifier =
                             panelSize
                                 .offset(x = 120.dp)
