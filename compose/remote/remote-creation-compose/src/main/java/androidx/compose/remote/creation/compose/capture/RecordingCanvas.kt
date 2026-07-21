@@ -90,7 +90,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     public var globalSaveCounter: Int = 0
     internal var localSpanSaveCounter: Int = 0
     internal var currentDrawToBitmapId = 0
-    internal var currentSaveNode: CanvasOp.Save? = null
+    internal var currentSaveRestoreNode: CanvasOp.SaveRestore? = null
 
     override val document: RemoteComposeWriter
         get() = creationState.document
@@ -108,8 +108,8 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
      * Records a [CanvasOp] into the canvas operation buffer.
      *
      * If optimizations are enabled and the canvas is currently inside a save block
-     * ([currentSaveNode] is not null), the operation is added to the active save node's children
-     * list for post-processing/optimization rather than being immediately recorded.
+     * ([currentSaveRestoreNode] is not null), the operation is added to the active save node's
+     * children list for post-processing/optimization rather than being immediately recorded.
      *
      * If the operation is a [CanvasOp.Draw], this method also triggers [markDrawCall] to mark the
      * active save hierarchy as containing drawing operations, ensuring they are not optimized away.
@@ -121,12 +121,12 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         if (op.triggersDrawCall()) {
             markDrawCall()
         }
-        if (currentSaveNode != null) {
-            currentSaveNode!!.children.add(op)
-            return currentSaveNode!!.getRootSaveNode().spanOp!!
+        if (currentSaveRestoreNode != null) {
+            currentSaveRestoreNode!!.children.add(op)
+            return currentSaveRestoreNode!!.getRootSaveNode().spanOp!!
         } else {
             val spanOp = buffer.recordRenderingOp(op)
-            if (op is CanvasOp.Save) {
+            if (op is CanvasOp.SaveRestore) {
                 op.spanOp = spanOp
             }
             return spanOp
@@ -134,14 +134,14 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     /**
-     * Propagates a flag up the active save block hierarchy ([currentSaveNode] and its parents)
-     * marking them as containing at least one draw call.
+     * Propagates a flag up the active save block hierarchy ([currentSaveRestoreNode] and its
+     * parents) marking them as containing at least one draw call.
      *
      * This is used during optimization to ensure that save/restore blocks that actually perform
      * drawing are preserved, while empty save/restore blocks can be pruned.
      */
     private fun markDrawCall() {
-        var s = currentSaveNode
+        var s = currentSaveRestoreNode
         while (s != null) {
             s.hasDrawCalls = true
             s = s.parent
@@ -225,19 +225,19 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     internal inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span {
         val childSpan = buffer.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
-        val prevSaveNode = currentSaveNode
+        val prevSaveNode = currentSaveRestoreNode
         val prevLastRenderingOp = buffer.lastRenderingOp
         val prevLocalSpanSaveCounter = localSpanSaveCounter
         val prevGlobalSaveCounter = globalSaveCounter
         buffer.insertPoint = childSpan
-        currentSaveNode = null
+        currentSaveRestoreNode = null
         buffer.lastRenderingOp = null
         localSpanSaveCounter = 0
         try {
             action()
         } finally {
             buffer.insertPoint = prevInsertPoint
-            currentSaveNode = prevSaveNode
+            currentSaveRestoreNode = prevSaveNode
             buffer.lastRenderingOp = prevLastRenderingOp
             localSpanSaveCounter = prevLocalSpanSaveCounter
             globalSaveCounter = prevGlobalSaveCounter
@@ -722,9 +722,9 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     override fun save(): Int {
-        val node = CanvasOp.Save(parent = currentSaveNode)
+        val node = CanvasOp.SaveRestore(parent = currentSaveRestoreNode)
         recordRenderingOp(node)
-        currentSaveNode = node
+        currentSaveRestoreNode = node
         localSpanSaveCounter++
         globalSaveCounter++
         return globalSaveCounter
@@ -732,7 +732,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
 
     override fun restore() {
         if (localSpanSaveCounter > 0 && globalSaveCounter > 0) {
-            currentSaveNode = currentSaveNode?.parent
+            currentSaveRestoreNode = currentSaveRestoreNode?.parent
             localSpanSaveCounter--
             globalSaveCounter--
         } else {
