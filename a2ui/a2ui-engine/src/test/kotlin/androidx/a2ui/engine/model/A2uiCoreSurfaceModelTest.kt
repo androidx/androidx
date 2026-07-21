@@ -228,7 +228,7 @@ class A2uiCoreSurfaceModelTest {
         assertThat(dispatchedError).isNotNull()
         assertThat(dispatchedError?.code).isEqualTo("VALIDATION_FAILED")
         assertThat(dispatchedError?.context?.get("path"))
-            .isEqualTo("/components/$COMPONENT_ID_1.text")
+            .isEqualTo("/components/$COMPONENT_ID_1/text")
     }
 
     @Test
@@ -255,7 +255,7 @@ class A2uiCoreSurfaceModelTest {
         assertThat(dispatchedErrors.map { it.code })
             .containsExactly("VALIDATION_FAILED", "VALIDATION_FAILED")
         assertThat(dispatchedErrors.map { it.context["path"] })
-            .containsExactly("/components/$COMPONENT_ID_2.text", "/components/$COMPONENT_ID_3")
+            .containsExactly("/components/$COMPONENT_ID_2/text", "/components/$COMPONENT_ID_3")
     }
 
     @Test
