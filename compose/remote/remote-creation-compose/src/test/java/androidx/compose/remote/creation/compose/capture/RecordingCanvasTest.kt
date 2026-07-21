@@ -2543,6 +2543,87 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testConsecutiveTopLevelSavesOnlyInlinesLast() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+
+            canvas.save()
+            canvas.translate(20f, 20f)
+            canvas.drawRect(0f, 0f, 20f, 20f, Paint())
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // First save scope must be preserved to contain translate(10, 10).
+            // Second save scope is at the tail, so its save/restore is inlined.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixSave",
+                    "addMatrixTranslate(10.0, 10.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "addMatrixRestore",
+                    "addMatrixTranslate(20.0, 20.0)",
+                    "addDrawRect(0.0, 0.0, 20.0, 20.0)",
+                )
+        }
+    }
+
+    @Test
+    fun testTrailingTopLevelSaveWithConditionIsNotInlined() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            canvas.save()
+            canvas.translate(10f, 20f)
+            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Even at the absolute tail of the root span, a save block containing a conditional
+            // switch must not be inlined.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "setNamedVariable(42, \"USER:cond\", 4)",
+                    "addMatrixSave",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addConditionalOperations(1, ID(42), 0.0)",
+                    "addPaint",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "endConditionalOperations",
+                    "addMatrixRestore",
+                )
+        }
+    }
+
+    @Test
+    fun testTailInliningUnlocksMatrixTranslationFusing() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.translate(5f, 5f)
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Inlined save scope flattens translate(10, 10), which fuses with root translate(5, 5).
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixTranslate(15.0, 15.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                )
+        }
+    }
+
+    @Test
     fun testConsecutiveSkewsAreNotFused() {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.skew(1f, 0f)
