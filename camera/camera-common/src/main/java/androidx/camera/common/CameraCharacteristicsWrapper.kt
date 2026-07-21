@@ -19,6 +19,8 @@ package androidx.camera.common
 import android.hardware.camera2.CameraCharacteristics as PlatformCameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.os.Build
+import androidx.camera.common.compat.Api34Compat
 
 /**
  * Wrapper interface providing compatibility-focused access to [PlatformCameraCharacteristics].
@@ -171,9 +173,15 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
         @JvmField
         public val STREAM_CONFIGURATION_MAP: Metadata.Key<StreamConfigurationMapWrapper> =
             Metadata.Key("androidx.camera.common.StreamConfigurationMap")
+
+        /** Key for retrieving the [ColorSpaceProfilesWrapper] supported by the camera device. */
+        @JvmField
+        public val AVAILABLE_COLOR_SPACE_PROFILES: Metadata.Key<ColorSpaceProfilesWrapper> =
+            Metadata.Key("androidx.camera.common.availableColorSpaceProfiles")
     }
 }
 
+/** Custom metadata keys for [CameraCharacteristicsWrapper]. */
 public object CameraCharacteristics {
     /**
      * Extension property to query [StreamConfigurationMapWrapper] directly.
@@ -198,4 +206,15 @@ public object CameraCharacteristics {
             }
             return null
         }
+
+    /** Returns the [ColorSpaceProfilesWrapper] supported by the camera device. */
+    @JvmStatic
+    public val CameraCharacteristicsMetadata.availableColorSpaceProfiles: ColorSpaceProfilesWrapper
+        get() =
+            this[CameraCharacteristicsWrapper.Keys.AVAILABLE_COLOR_SPACE_PROFILES]
+                ?: if (Build.VERSION.SDK_INT >= 34) {
+                    Api34Compat.getColorSpaceProfiles(this) ?: UnsupportedColorSpaceProfiles
+                } else {
+                    UnsupportedColorSpaceProfiles
+                }
 }
