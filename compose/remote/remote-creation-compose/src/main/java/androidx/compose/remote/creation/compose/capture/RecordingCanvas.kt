@@ -1606,6 +1606,13 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
         val childSpan = recordInChildSpan(drawCommands)
+        if (buffer.enableOptimizations) {
+            buffer.optimizeSpan(childSpan)
+        }
+        if (!childSpan.emitsWireCommands()) {
+            buffer.removeChildSpan(childSpan)
+            return
+        }
 
         val op =
             recordRenderingOp(
