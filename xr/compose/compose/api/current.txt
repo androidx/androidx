@@ -351,9 +351,9 @@ package androidx.xr.compose.spatial {
     property @Deprecated public androidx.xr.compose.spatial.OrbiterOffsetType Overlap;
   }
 
-  public fun interface OrbiterPoseProvider {
-    method @KotlinOnly public androidx.xr.runtime.math.Pose calculatePose(androidx.compose.ui.unit.IntSize anchorSize, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.IntSize orbiterContentSize);
-    method @BytecodeOnly public androidx.xr.runtime.math.Pose calculatePose-OYbr2xI(long, androidx.compose.ui.unit.LayoutDirection, long);
+  @Deprecated public fun interface OrbiterPoseProvider {
+    method @KotlinOnly @Deprecated public androidx.xr.runtime.math.Pose calculatePose(androidx.compose.ui.unit.IntSize anchorSize, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.IntSize orbiterContentSize);
+    method @BytecodeOnly @Deprecated public androidx.xr.runtime.math.Pose calculatePose-OYbr2xI(long, androidx.compose.ui.unit.LayoutDirection, long);
   }
 
   public final class SpatialDialogKt {
