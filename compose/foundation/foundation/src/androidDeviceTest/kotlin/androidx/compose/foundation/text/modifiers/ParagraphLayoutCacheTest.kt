@@ -440,6 +440,20 @@ class ParagraphLayoutCacheTest {
         assertThat(subject.historyFlag).isEqualTo(0b011101101)
     }
 
+    @Test
+    fun minIntrinsicWidth_doesNotClearParagraph_afterLayout() {
+        val text = "hello"
+        val style = createTextStyle(fontSize = 1.sp)
+        val subject =
+            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+
+        subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
+        assertThat(subject.paragraph).isNotNull()
+
+        subject.minIntrinsicWidth(LayoutDirection.Ltr)
+        assertThat(subject.paragraph).isNotNull()
+    }
+
     private fun createTextStyle(
         fontSize: TextUnit,
         letterSpacing: TextUnit = TextUnit.Unspecified,
