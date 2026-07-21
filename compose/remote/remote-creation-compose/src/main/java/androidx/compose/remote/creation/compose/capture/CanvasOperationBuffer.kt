@@ -30,7 +30,7 @@ import java.util.HashMap
 /**
  * Represents a pending matrix transformation operation that can potentially be optimized.
  *
- * Unlike [CanvasOp.Save] trees which form the main hierarchical tree, [PendingOp]s are flat,
+ * Unlike [CanvasOp.SaveRestore] trees which form the main hierarchical tree, [PendingOp]s are flat,
  * intermediate representations of transforms. They are accumulated in lists during the transform
  * optimization pass, where they are fused and commuted before being converted back to
  * [CanvasOp.Transform] nodes for final flushing.
@@ -122,24 +122,21 @@ internal sealed class CanvasOp {
      *
      * Unlike [emitsWireCommands], which returns true for any wire instruction (including state
      * changes like [Transform] or [Clip]), [containsDrawingPrimitives] returns true exclusively
-     * when visual rendering occurs. During optimization, if a [Save] block returns false for
+     * when visual rendering occurs. During optimization, if a [SaveRestore] block returns false for
      * [containsDrawingPrimitives], the entire save/restore scope and any state-only commands inside
      * it can be safely discarded ([ElisionMode.DISCARD]).
      */
     open fun containsDrawingPrimitives(): Boolean = false
 
-    /** Returns true if this operation switches the target canvas (e.g. drawToOffscreenBitmap). */
-    open fun switchesCanvas(): Boolean = false
-
     /**
      * Returns true if this operation is or contains a condition switch ([DrawConditionally]) or
-     * target canvas switch ([switchesCanvas]).
+     * target canvas switch (such as offscreen drawing in [Draw]).
      */
-    open fun switchesCanvasOrCondition(): Boolean = switchesCanvas()
+    open fun switchesCanvasOrCondition(): Boolean = false
 
     /**
      * Indicates whether recording this operation should immediately mark `hasDrawCalls = true` on
-     * enclosing [Save] scopes without requiring tree traversals later.
+     * enclosing [SaveRestore] scopes without requiring tree traversals later.
      */
     open fun triggersDrawCall(): Boolean = containsDrawingPrimitives()
 
@@ -180,7 +177,7 @@ internal sealed class CanvasOp {
         // Visual drawing primitive that renders content directly to the canvas.
         override fun containsDrawingPrimitives(): Boolean = true
 
-        override fun switchesCanvas(): Boolean = switchesCanvas
+        override fun switchesCanvasOrCondition(): Boolean = switchesCanvas
 
         // Emits a direct drawing wire command (`writer.drawXxx()`) to the document.
         override fun emitsWireCommands(): Boolean = true
@@ -230,11 +227,13 @@ internal sealed class CanvasOp {
      * Represents a save/restore group (corresponding to [RemoteComposeWriter.save] and
      * [RemoteComposeWriter.restore]).
      *
-     * @property parent The parent [Save] scope, or null if this is the root scope.
+     * @property parent The parent [SaveRestore] scope, or null if this is the root scope.
      * @property children The list of child operations inside this save/restore block.
      */
-    class Save(val parent: Save? = null, val children: MutableList<CanvasOp> = ArrayList()) :
-        CanvasOp() {
+    class SaveRestore(
+        val parent: SaveRestore? = null,
+        val children: MutableList<CanvasOp> = ArrayList(),
+    ) : CanvasOp() {
         /**
          * Indicates whether this scope or any of its descendants contain actual drawing calls. Used
          * during the elision pass to discard empty scopes.
@@ -245,7 +244,7 @@ internal sealed class CanvasOp {
         var elisionMode = ElisionMode.PRESERVE
         var spanOp: CanvasOperationBuffer.SpanOp? = null
 
-        fun getRootSaveNode(): Save {
+        fun getRootSaveNode(): SaveRestore {
             var curr = this
             while (curr.parent != null) {
                 curr = curr.parent!!
@@ -258,7 +257,7 @@ internal sealed class CanvasOp {
                 val child = children[i]
                 // Ignore child Save nodes; any transforms inside them self-balance upon restore
                 // and do not leak net state changes into this parent scope.
-                if (child !is Save && child.hasTransformsOrClips()) return true
+                if (child !is SaveRestore && child.hasTransformsOrClips()) return true
             }
             return false
         }
@@ -266,13 +265,6 @@ internal sealed class CanvasOp {
         override fun containsDrawingPrimitives(): Boolean {
             for (i in 0 until children.size) {
                 if (children[i].containsDrawingPrimitives()) return true
-            }
-            return false
-        }
-
-        override fun switchesCanvas(): Boolean {
-            for (i in 0 until children.size) {
-                if (children[i].switchesCanvas()) return true
             }
             return false
         }
@@ -359,8 +351,6 @@ internal sealed class CanvasOp {
         // Returns true if the conditional child span contains visual drawing primitives.
         override fun containsDrawingPrimitives(): Boolean = childSpan.containsDrawingPrimitives()
 
-        override fun switchesCanvas(): Boolean = childSpan.switchesCanvas()
-
         override fun switchesCanvasOrCondition(): Boolean = true
 
         // Returns true if the conditional child span emits any wire commands (`writer.xxx()`).
@@ -376,7 +366,7 @@ internal sealed class CanvasOp {
         override fun toString(): String = "DrawConditionally(${condition.toDebugString()})"
     }
 
-    /** The strategy for rendering a [Save] node during flush. */
+    /** The strategy for rendering a [SaveRestore] node during flush. */
     enum class ElisionMode {
         /**
          * Keep the save/restore bounds and write [RemoteComposeWriter.save] and
@@ -424,7 +414,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                 val op = operations[i].op
                 // Ignore child Save nodes; any transforms inside them self-balance upon restore
                 // and do not leak net state changes into this span.
-                if (op !is CanvasOp.Save && op.hasTransformsOrClips()) return true
+                if (op !is CanvasOp.SaveRestore && op.hasTransformsOrClips()) return true
             }
             var currentChild = child
             while (currentChild != null) {
@@ -441,18 +431,6 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             var currentChild = child
             while (currentChild != null) {
                 if (currentChild.containsDrawingPrimitives()) return true
-                currentChild = currentChild.next
-            }
-            return false
-        }
-
-        fun switchesCanvas(): Boolean {
-            for (i in 0 until operations.size) {
-                if (operations[i].op.switchesCanvas()) return true
-            }
-            var currentChild = child
-            while (currentChild != null) {
-                if (currentChild.switchesCanvas()) return true
                 currentChild = currentChild.next
             }
             return false
@@ -942,14 +920,14 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     /**
      * Recursively optimizes transform operations within each scope of the tree.
      *
-     * Within each [CanvasOp.Save] node, consecutive [CanvasOp.Transform] nodes (separated only by
-     * other transforms) are grouped and optimized via [optimizeTransformList]. Non-transform nodes
-     * (like drawings or clips) act as barriers.
+     * Within each [CanvasOp.SaveRestore] node, consecutive [CanvasOp.Transform] nodes (separated
+     * only by other transforms) are grouped and optimized via [optimizeTransformList].
+     * Non-transform nodes (like drawings or clips) act as barriers.
      */
     internal fun optimizeTransforms(ops: MutableList<CanvasOp>) {
         for (i in 0 until ops.size) {
             val child = ops[i]
-            if (child is CanvasOp.Save) {
+            if (child is CanvasOp.SaveRestore) {
                 optimizeTransforms(child.children)
             }
         }
@@ -1039,7 +1017,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     private fun optimizeTransformsSpan(span: Span) {
         for (i in 0 until span.operations.size) {
             val child = span.operations[i]
-            if (child.op is CanvasOp.Save) {
+            if (child.op is CanvasOp.SaveRestore) {
                 optimizeTransforms(child.op.children)
             }
         }
@@ -1168,7 +1146,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         isRootSpan: Boolean,
     ): Boolean {
         var currentSeenDrawCall = seenDrawCall
-        if (op is CanvasOp.Save) {
+        if (op is CanvasOp.SaveRestore) {
             op.elisionMode =
                 when {
                     !op.hasDrawCalls -> {
@@ -1221,13 +1199,13 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * Removes [CanvasOp.ElisionMode.DISCARD] nodes and inlines the children of
      * [CanvasOp.ElisionMode.INLINE] nodes directly into their parent's children list.
      */
-    private fun flatten(node: CanvasOp.Save) {
+    private fun flatten(node: CanvasOp.SaveRestore) {
         val newChildren =
             buildList(node.children.size) {
                 for (i in 0 until node.children.size) {
                     val child = node.children[i]
                     when (child) {
-                        is CanvasOp.Save -> {
+                        is CanvasOp.SaveRestore -> {
                             flatten(child)
                             when (child.elisionMode) {
                                 CanvasOp.ElisionMode.DISCARD -> {}
@@ -1250,7 +1228,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     }
 
     /**
-     * Flattens (inlines) elided [CanvasOp.Save] nodes that reside directly in a [Span].
+     * Flattens (inlines) elided [CanvasOp.SaveRestore] nodes that reside directly in a [Span].
      *
      * If a `Save` node is inlined, its children are flattened into the span's operations list,
      * chained sequentially (to preserve execution order), and dependencies of subsequent operations
@@ -1263,7 +1241,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                 for (i in 0 until span.operations.size) {
                     val child = span.operations[i]
                     when (val op = child.op) {
-                        is CanvasOp.Save -> {
+                        is CanvasOp.SaveRestore -> {
                             flatten(op)
                             when (op.elisionMode) {
                                 CanvasOp.ElisionMode.DISCARD -> {

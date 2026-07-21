@@ -116,9 +116,9 @@ class CanvasOperationBufferTest {
 
     @Test
     fun testSaveGetRootSaveNode() {
-        val root = CanvasOp.Save(parent = null)
-        val child1 = CanvasOp.Save(parent = root)
-        val child2 = CanvasOp.Save(parent = child1)
+        val root = CanvasOp.SaveRestore(parent = null)
+        val child1 = CanvasOp.SaveRestore(parent = root)
+        val child2 = CanvasOp.SaveRestore(parent = child1)
 
         assertThat(root.getRootSaveNode()).isSameInstanceAs(root)
         assertThat(child1.getRootSaveNode()).isSameInstanceAs(root)
@@ -131,13 +131,13 @@ class CanvasOperationBufferTest {
         val clip = CanvasOp.Clip {}
         val transformTranslate = CanvasOp.Transform(PendingOp.Translate(0f.rf, 0f.rf))
         val transformRotate = CanvasOp.Transform(PendingOp.Rotate(0f.rf, null, null))
-        val save = CanvasOp.Save()
+        val saveRestore = CanvasOp.SaveRestore()
 
         assertThat(draw.toString()).isEqualTo("Draw")
         assertThat(clip.toString()).isEqualTo("Clip")
         assertThat(transformTranslate.toString()).isEqualTo("Transform(Translate)")
         assertThat(transformRotate.toString()).isEqualTo("Transform(Rotate)")
-        assertThat(save.toString()).isEqualTo("Save(children=[])")
+        assertThat(saveRestore.toString()).isEqualTo("Save(children=[])")
     }
 
     @Test
