@@ -135,7 +135,7 @@ internal inline fun fastCbrt(x: Float): Float {
     //
     // I_y = 0x2a555555 + I_x / 3
     //
-    // Finally by going going back from an integer representation to a single
+    // Finally by going back from an integer representation to a single
     // precision float, we obtain our first approximation of the cube root.
     //
     // We further improve that approximation by using two rounds of the Newton-

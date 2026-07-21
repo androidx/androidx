@@ -27,7 +27,7 @@
           <target android:excludeId="@id/video_surface" />
       </targets>
   </transition>
-    <!-- The ParallaxTransition runs with with Slide transition, must use same duration
+    <!-- The ParallaxTransition runs with Slide transition, must use same duration
       and same startDelay-->
   <transition class="androidx.leanback.transition.ParallaxTransition"
       android:duration="350">

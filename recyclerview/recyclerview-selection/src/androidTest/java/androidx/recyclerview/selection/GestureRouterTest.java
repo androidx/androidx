@@ -128,7 +128,7 @@ public final class GestureRouterTest {
     @Test
     public void testEatsEventsWhenNoFallback() {
         mRouter = new GestureRouter<>();
-        // Register the the delegate on mouse so touch events don't get handled.
+        // Register the delegate on mouse so touch events don't get handled.
         mRouter.register(new ToolSourceKey(MotionEvent.TOOL_TYPE_MOUSE), mHandler);
 
         mRouter.onDown(Touch.TAP);
