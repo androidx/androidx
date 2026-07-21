@@ -29,7 +29,28 @@ import java.lang.Class
  * A fake implementation of [CameraCharacteristicsWrapper] for testing.
  *
  * Allows mock values to be configured for camera characteristics, custom metadata, supported keys,
- * and physical camera IDs via its constructor or companion [create] method.
+ * and physical camera IDs. This class is designed to be used in unit tests to mock camera behavior
+ * without needing a physical device or a real camera service.
+ *
+ * @param cameraId The [CameraId] identifying this camera device. Defaults to
+ *   [FakeCameraIds.default].
+ * @param cameraCharacteristics A map of [CameraCharacteristics.Key] to their mock values. Any key
+ *   queried via [get] will return the value from this map.
+ * @param cameraMetadata A map of custom [Metadata.Key] to their mock values. Any key queried via
+ *   [get] will return the value from this map.
+ * @param captureRequestKeys The set of [CaptureRequest.Key]s supported by this camera.
+ * @param captureResultKeys The set of [CaptureResult.Key]s supported by this camera.
+ * @param sessionKeys The set of [CameraCharacteristics.Key]s whose values are capture session
+ *   specific. All keys in this set must also be present in [cameraCharacteristics].
+ * @param sessionCaptureRequestKeys The set of [CaptureRequest.Key]s that the camera device can pass
+ *   as part of the capture session initialization.
+ * @param physicalCameraIds The set of physical [CameraId]s that this logical camera device is made
+ *   up of. Must not contain [cameraId].
+ * @param physicalCaptureRequestKeys The set of physical [CaptureRequest.Key]s.
+ * @param restrictedKeys The set of [CameraCharacteristics.Key]s that require camera permissions.
+ *   All keys in this set must also be present in [cameraCharacteristics].
+ * @throws IllegalArgumentException If [physicalCameraIds] contains [cameraId], or if any key in
+ *   [restrictedKeys] or [sessionKeys] is not present in [cameraCharacteristics].
  */
 public class FakeCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")
@@ -73,11 +94,33 @@ constructor(
     override val keys: Set<CameraCharacteristics.Key<*>>
         get() = cameraCharacteristics.keys
 
+    /**
+     * Retrieves the mock value for the specified [Metadata.Key].
+     *
+     * @param key The custom metadata key to query.
+     * @return The mock value configured in [cameraMetadata], or `null` if not present.
+     */
     override fun <T> get(key: Metadata.Key<T>): T? = cameraMetadata.getUnchecked(key)
 
+    /**
+     * Retrieves the mock value for the specified [CameraCharacteristics.Key].
+     *
+     * @param key The native characteristics key to query.
+     * @return The mock value configured in [cameraCharacteristics], or `null` if not present.
+     */
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? =
         cameraCharacteristics.getUnchecked(key)
 
+    /**
+     * Unwraps this instance to the requested type if compatible.
+     *
+     * Since this is a fake implementation, it can only be unwrapped to [FakeCameraCharacteristics]
+     * itself or its supertypes (e.g., [CameraCharacteristicsWrapper]). It cannot be unwrapped to a
+     * native [android.hardware.camera2.CameraCharacteristics].
+     *
+     * @param type The class of the type to unwrap to.
+     * @return This instance cast to [T] if compatible, or `null` otherwise.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
@@ -89,17 +132,22 @@ constructor(
         /**
          * Creates a [FakeCameraCharacteristics] instance for Java compatibility.
          *
-         * @param cameraId The camera ID string.
+         * @param cameraId The camera ID string. Defaults to [FakeCameraIds.default]'s value.
          * @param cameraCharacteristics The map of characteristics keys to their mock values.
          * @param cameraMetadata The map of custom metadata keys to their mock values.
          * @param captureRequestKeys The set of capture request keys supported by this camera.
          * @param captureResultKeys The set of capture result keys supported by this camera.
-         * @param sessionKeys The set of session characteristics keys.
+         * @param sessionKeys The set of session characteristics keys. All keys in this set must
+         *   also be present in [cameraCharacteristics].
          * @param sessionCaptureRequestKeys The set of session keys.
-         * @param physicalCameraIds The set of physical camera ID strings.
+         * @param physicalCameraIds The set of physical camera ID strings. Must not contain
+         *   [cameraId].
          * @param physicalCaptureRequestKeys The set of physical capture request keys.
-         * @param restrictedKeys The set of keys that require camera permissions.
+         * @param restrictedKeys The set of keys that require camera permissions. All keys in this
+         *   set must also be present in [cameraCharacteristics].
          * @return A configured [FakeCameraCharacteristics] instance.
+         * @throws IllegalArgumentException If [physicalCameraIds] contains [cameraId], or if any
+         *   key in [restrictedKeys] or [sessionKeys] is not present in [cameraCharacteristics].
          */
         @JvmStatic
         @JvmOverloads

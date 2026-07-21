@@ -21,9 +21,23 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /**
- * Represents the data space of an image.
+ * Denotes that an integer value represents a valid data space.
  *
- * @see [android.hardware.DataSpace]
+ * A data space defines how color values or non-color data (like depth) in an image should be
+ * interpreted. It is typically a combination of a color standard, transfer function, and color
+ * range.
+ *
+ * This annotation restricts the integer values to the constants defined in [DataSpace]. Common data
+ * spaces include:
+ * - Standard Dynamic Range (SDR) color spaces: [DataSpace.DATASPACE_SRGB],
+ *   [DataSpace.DATASPACE_DISPLAY_P3]
+ * - High Dynamic Range (HDR) color spaces: [DataSpace.DATASPACE_BT2020_HLG],
+ *   [DataSpace.DATASPACE_BT2020_PQ]
+ * - Depth data spaces: [DataSpace.DATASPACE_DEPTH], [DataSpace.DATASPACE_DYNAMIC_DEPTH]
+ * - Special formats: [DataSpace.DATASPACE_JFIF], [DataSpace.DATASPACE_HEIF],
+ *   [DataSpace.DATASPACE_JPEG_R]
+ *
+ * @see DataSpace
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.SOURCE)

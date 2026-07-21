@@ -21,7 +21,15 @@ import android.os.Build
 import androidx.camera.common.compat.Api28Compat
 import java.lang.Class
 
-/** [CaptureResultWrapper] implementation that wraps a [CaptureResult] object. */
+/**
+ * An implementation of [CaptureResultWrapper] that wraps a native [CaptureResult] object.
+ *
+ * This wrapper provides compatibility-focused access to the underlying camera capture results,
+ * allowing query of camera states such as 3A, exposure, and lens state. It also supports additional
+ * custom metadata key-value pairs.
+ *
+ * @property captureRequest The wrapped [CaptureRequestWrapper] that initiated this capture.
+ */
 public final class AndroidCaptureResult
 private constructor(
     private val captureResult: CaptureResult,
@@ -30,22 +38,36 @@ private constructor(
     private val metadata: Map<Metadata.Key<*>, Any?>,
 ) : CaptureResultWrapper {
 
+    /** The [CameraId] of the camera that produced this result. */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("getCameraId")
     @get:Suppress("ValueClassUsageWithoutJvmName")
     override val cameraId: CameraId = cameraId
 
+    /** The [CameraFrameNumber] associated with this result. */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("getFrameNumber")
     @get:Suppress("ValueClassUsageWithoutJvmName")
     override val frameNumber: CameraFrameNumber
         get() = CameraFrameNumber(captureResult.frameNumber)
 
+    /**
+     * Retrieves the value of the specified [CaptureResult.Key] from the wrapped [CaptureResult].
+     *
+     * @param key The key to query.
+     * @return The value of the key, or `null` if the key is not present or unsupported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: CaptureResult.Key<T>): T? {
         return captureResult[key]
     }
 
+    /**
+     * List of all [CaptureResult.Key]s supported by this capture result.
+     *
+     * On Android P (API 28) and above, this returns keys queryable from the underlying
+     * [CaptureResult]. On older versions, it returns an empty list.
+     */
     override val keys: List<CaptureResult.Key<*>>
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -54,11 +76,27 @@ private constructor(
                 emptyList()
             }
 
+    /**
+     * Retrieves the value associated with the specified custom [Metadata.Key].
+     *
+     * @param key The key to query.
+     * @return The value associated with the key, or `null` if not found.
+     */
     override fun <T> get(key: Metadata.Key<T>): T? = metadata.getUnchecked(key)
 
+    /** Set of all custom [Metadata.Key]s available in this result. */
     override val metadataKeys: Set<Metadata.Key<*>>
         get() = metadata.keys
 
+    /**
+     * Unwraps this object to the specified type.
+     *
+     * This implementation can unwrap to [AndroidCaptureResult] itself or the underlying native
+     * [CaptureResult].
+     *
+     * @param type The [Class] representing the target type.
+     * @return The unwrapped object matching [type], or `null` if unwrapping is not supported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {

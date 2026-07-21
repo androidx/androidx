@@ -27,10 +27,16 @@ import androidx.camera.common.compat.Api29Compat
 import androidx.camera.common.compat.Api35Compat
 import java.lang.Class
 
-/** [CameraCharacteristicsWrapper] implementation that wraps [CameraCharacteristics]. */
+/**
+ * An implementation of [CameraCharacteristicsWrapper] that wraps a system [CameraCharacteristics].
+ *
+ * This implementation caches the values retrieved from the underlying [CameraCharacteristics] to
+ * avoid repeated expensive binder calls to the camera service.
+ */
 public final class AndroidCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")
 constructor(
+    /** The [CameraId] identifying this camera. */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("getCameraId")
     @get:Suppress("ValueClassUsageWithoutJvmName")
@@ -40,6 +46,15 @@ constructor(
 
     @GuardedBy("values") private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
 
+    /**
+     * Retrieves the value of the specified [CameraCharacteristics.Key].
+     *
+     * The results are cached internally to prevent repeated blocking JNI/binder calls to the camera
+     * service.
+     *
+     * @param key The key to query.
+     * @return The value of the key, or `null` if the key is not present or unsupported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
         // Cache the return value of calls to characteristics as the implementation performs a
@@ -54,11 +69,23 @@ constructor(
         return result
     }
 
+    /** Always returns `null` as this implementation does not support [Metadata.Key]s. */
     override fun <T> get(key: Metadata.Key<T>): T? = null
 
+    /** Always returns an empty set as this implementation does not support [Metadata.Key]s. */
     override val metadataKeys: Set<Metadata.Key<*>>
         get() = emptySet()
 
+    /**
+     * Unwraps this object to access the underlying implementation type.
+     *
+     * Supported types:
+     * - [AndroidCameraCharacteristics] (returns `this`)
+     * - [CameraCharacteristics] (returns the wrapped [CameraCharacteristics] instance)
+     *
+     * @param type The class type to unwrap to.
+     * @return The unwrapped instance of type [T], or `null` if the type is not supported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {

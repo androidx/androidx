@@ -20,18 +20,33 @@ import androidx.camera.common.CameraId
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Utility class for tracking and creating Fake [CameraId] instances for use in testing.
+ * Utility for tracking and generating fake [CameraId] instances for testing.
  *
- * These id's are intentionally non-numerical to help prevent code that may assume that camera2
- * camera ids are parsable.
+ * Generated camera IDs are prefixed with "FakeCamera-" to ensure they are non-numerical. This helps
+ * identify code that incorrectly assumes camera IDs are parsable as integers (e.g., assuming camera
+ * ID "0" can be parsed to `0`).
  */
 public object FakeCameraIds {
     private val fakeCameraIds = AtomicInteger(0)
 
+    /**
+     * A default fake [CameraId] instance ("FakeCamera-default").
+     *
+     * Use this when a test only needs a single camera ID and uniqueness across different components
+     * is not required.
+     */
     @JvmStatic
     @get:JvmName("getDefault")
     public val default: CameraId = CameraId("FakeCamera-default")
 
+    /**
+     * Generates a new, unique fake [CameraId].
+     *
+     * The generated ID will have the format "FakeCamera-{index}", where index is a monotonically
+     * increasing integer starting from 0.
+     *
+     * @return A unique [CameraId] instance.
+     */
     @JvmStatic
     @JvmName("next")
     public fun next(): CameraId = CameraId("FakeCamera-${fakeCameraIds.getAndIncrement()}")

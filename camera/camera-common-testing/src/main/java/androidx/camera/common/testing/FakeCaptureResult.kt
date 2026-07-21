@@ -29,7 +29,30 @@ import java.lang.Class
  * A fake implementation of [CaptureResultWrapper] for testing.
  *
  * Allows mock values to be configured for capture result parameters, custom metadata, camera ID,
- * frame number, and capture request via its constructor or companion [create] method.
+ * frame number, and capture request via its companion [invoke] operator (Kotlin) or [create]
+ * factory method (Java).
+ *
+ * ### Example (Kotlin)
+ *
+ * ```kotlin
+ * val fakeResult = FakeCaptureResult(
+ *     cameraId = CameraId("0"),
+ *     frameNumber = CameraFrameNumber(1L),
+ *     resultParameters = mapOf(CaptureResult.LENS_STATE to CaptureResult.LENS_STATE_MOVING)
+ * )
+ * ```
+ *
+ * ### Example (Java)
+ *
+ * ```java
+ * FakeCaptureResult fakeResult = FakeCaptureResult.create(
+ *     "0",
+ *     1L,
+ *     new FakeCaptureRequest(),
+ *     resultParametersMap,
+ *     resultMetadataMap
+ * );
+ * ```
  */
 public class FakeCaptureResult
 private constructor(
@@ -56,10 +79,27 @@ private constructor(
     override val keys: List<CaptureResult.Key<*>>
         get() = resultParameters.keys.toList()
 
+    /**
+     * Retrieves the mock value for the specified custom metadata [key].
+     *
+     * @return The configured mock value, or `null` if not set.
+     */
     override fun <T> get(key: Metadata.Key<T>): T? = resultMetadata.getUnchecked(key)
 
+    /**
+     * Retrieves the mock value for the specified [CaptureResult.Key].
+     *
+     * @return The configured mock value, or `null` if not set.
+     */
     override fun <T> get(key: CaptureResult.Key<T>): T? = resultParameters.getUnchecked(key)
 
+    /**
+     * Attempts to unwrap this fake object.
+     *
+     * Since this is a fake implementation, it does not wrap a native platform [CaptureResult]. This
+     * method will return `null` for [CaptureResult]. It only returns `this` cast to [T] if [type]
+     * is compatible with [FakeCaptureResult].
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
@@ -76,8 +116,11 @@ private constructor(
          * @param cameraId The strongly typed [CameraId] associated with the result.
          * @param frameNumber The strongly typed [CameraFrameNumber] associated with the result.
          * @param captureRequest Optional wrapped [CaptureRequestWrapper] that produced this result.
+         *   Defaults to a default [FakeCaptureRequest].
          * @param resultParameters Optional map of capture result keys to their mock values.
-         * @param resultMetadata Optional map of custom metadata keys to their mock values.
+         *   Defaults to an empty map.
+         * @param resultMetadata Optional map of custom metadata keys to their mock values. Defaults
+         *   to an empty map.
          * @return A configured [FakeCaptureResult] instance.
          */
         @JvmSynthetic
@@ -101,11 +144,17 @@ private constructor(
         /**
          * Creates a [FakeCaptureResult] instance for Java compatibility.
          *
+         * This method is overloaded for Java callers to allow omitting trailing parameters with
+         * default values.
+         *
          * @param cameraId The camera ID string.
          * @param frameNumber The frame number.
-         * @param captureRequest The capture request wrapper that generated this result.
-         * @param resultParameters The map of capture result keys to their mock values.
-         * @param resultMetadata The map of custom metadata keys to their mock values.
+         * @param captureRequest The capture request wrapper that generated this result. Defaults to
+         *   a default [FakeCaptureRequest].
+         * @param resultParameters The map of capture result keys to their mock values. Defaults to
+         *   an empty map.
+         * @param resultMetadata The map of custom metadata keys to their mock values. Defaults to
+         *   an empty map.
          * @return A configured [FakeCaptureResult] instance.
          */
         @JvmStatic

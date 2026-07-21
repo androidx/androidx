@@ -19,75 +19,113 @@ package androidx.camera.common.internal
 import android.util.Size
 
 /**
- * Standard stream profile size constants.
+ * Represents the size of a stream in a stream profile.
  *
- * This class provides a stable set of supported stream sizes for use in stream profile
- * combinations. It manages both absolute resolutions and abstract size categories (e.g., MAXIMUM,
- * PREVIEW).
+ * A `StreamSize` can represent either:
+ * - A **concrete (absolute) size** (e.g., [VGA], [S1080P_16_9]): These have a fixed resolution that
+ *   is independent of the device.
+ * - An **abstract size** (e.g., [PREVIEW], [RECORD], [MAXIMUM]): These represent device-dependent
+ *   limits and must be resolved to a concrete [Size] using [StreamProfile.resolve] with a
+ *   [DeviceLimits] instance.
+ *
+ * Use [from] to create a [StreamSize] from a concrete [Size].
+ *
+ * @see DeviceLimits
+ * @see StreamProfile
  */
 public abstract class StreamSize internal constructor() {
 
     /**
-     * The concrete [Size] associated with this [StreamSize].
+     * The concrete [Size] associated with this [StreamSize], or `null` if this is an abstract size.
      *
-     * @return The absolute resolution, or `null` if this is an abstract size (e.g., [MAXIMUM],
-     *   [PREVIEW]) that needs to be resolved against a specific device's limits.
+     * Abstract sizes (like [PREVIEW] or [MAXIMUM]) must be resolved using [StreamProfile.resolve]
+     * with [DeviceLimits] to get their concrete size.
      */
     public abstract val absoluteSize: Size?
 
     public companion object {
-        /** Default VGA size is 640x480. */
+        /** Concrete size representing VGA resolution (640x480). */
         @JvmField public val VGA: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.VGA)
 
-        /** XGA size refers to 1024x768. */
+        /** Concrete size representing XGA resolution (1024x768). */
         @JvmField public val XGA: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.XGA)
 
-        /** Represents 720P (1280x720) resolution of 16:9 resolution. */
+        /** Concrete size representing 720p resolution (1280x720) with a 16:9 aspect ratio. */
         @JvmField
         public val S720P_16_9: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.S720P_16_9)
 
-        /** PREVIEW refers to the best size match to the device's screen resolution. */
+        /**
+         * Abstract size representing the preview resolution.
+         *
+         * Resolved using [DeviceLimits.maxPreviewSize].
+         */
         @JvmField public val PREVIEW: StreamSize = StreamSizeImpl.Abstract(AbstractSizeEnum.PREVIEW)
 
-        /** Represents 1080P (1440x1080) resolution of 4:3 aspect ratio. */
+        /** Concrete size representing 1080p resolution (1440x1080) with a 4:3 aspect ratio. */
         @JvmField
         public val S1080P_4_3: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.S1080P_4_3)
 
-        /** Represents 1080P (1920x1080) resolution of 16:9 aspect ratio. */
+        /** Concrete size representing 1080p resolution (1920x1080) with a 16:9 aspect ratio. */
         @JvmField
         public val S1080P_16_9: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.S1080P_16_9)
 
-        /** Represents 1440P (1920x1440) resolution of 4:3 aspect ratio. */
+        /** Concrete size representing 1440p resolution (1920x1440) with a 4:3 aspect ratio. */
         @JvmField
         public val S1440P_4_3: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.S1440P_4_3)
 
-        /** Represents 1440P (2560x1440) resolution of 16:9 aspect ratio. */
+        /** Concrete size representing 1440p resolution (2560x1440) with a 16:9 aspect ratio. */
         @JvmField
         public val S1440P_16_9: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.S1440P_16_9)
 
-        /** Represents UHD (3840x2160) resolution, which is of 16:9 aspect ratio. */
+        /** Concrete size representing UHD resolution (3840x2160) with a 16:9 aspect ratio. */
         @JvmField public val UHD: StreamSize = StreamSizeImpl.Absolute(AbsoluteSizeEnum.UHD)
 
-        /** RECORD refers to the camera device's maximum supported recording resolution. */
+        /**
+         * Abstract size representing the camera device's maximum supported recording resolution.
+         *
+         * Resolved using [DeviceLimits.maxRecordSize].
+         */
         @JvmField public val RECORD: StreamSize = StreamSizeImpl.Abstract(AbstractSizeEnum.RECORD)
 
-        /** MAXIMUM refers to the camera device's maximum output resolution. */
+        /**
+         * Abstract size representing the camera device's maximum output resolution.
+         *
+         * Resolved using [DeviceLimits.maxOutputSizes] for the corresponding format.
+         */
         @JvmField public val MAXIMUM: StreamSize = StreamSizeImpl.Abstract(AbstractSizeEnum.MAXIMUM)
 
-        /** Refers to the camera device's maximum 4:3 output resolution. */
+        /**
+         * Abstract size representing the camera device's maximum 4:3 output resolution.
+         *
+         * Resolved using [DeviceLimits.maxOutputSizes4by3] for the corresponding format.
+         */
         @JvmField
         public val MAXIMUM_4_3: StreamSize = StreamSizeImpl.Abstract(AbstractSizeEnum.MAXIMUM_4_3)
 
-        /** Refers to the camera device's maximum 16:9 output resolution. */
+        /**
+         * Abstract size representing the camera device's maximum 16:9 output resolution.
+         *
+         * Resolved using [DeviceLimits.maxOutputSizes16by9] for the corresponding format.
+         */
         @JvmField
         public val MAXIMUM_16_9: StreamSize = StreamSizeImpl.Abstract(AbstractSizeEnum.MAXIMUM_16_9)
 
-        /** ULTRA_MAXIMUM refers to the camera device's maximum resolution sensor pixel mode. */
+        /**
+         * Abstract size representing the camera device's maximum resolution sensor pixel mode.
+         *
+         * Resolved using [DeviceLimits.maxUltraOutputSizes] for the corresponding format.
+         */
         @JvmField
         public val ULTRA_MAXIMUM: StreamSize =
             StreamSizeImpl.Abstract(AbstractSizeEnum.ULTRA_MAXIMUM)
 
-        /** Creates a [StreamSize] from a concrete [Size]. */
+        /**
+         * Creates a [StreamSize] from a concrete [Size].
+         *
+         * If the [size] matches one of the predefined absolute sizes (e.g., [VGA], [S1080P_16_9]),
+         * the corresponding shared instance is returned. Otherwise, a new custom [StreamSize]
+         * instance is created.
+         */
         @JvmStatic
         public fun from(size: Size): StreamSize {
             val absoluteEnum = AbsoluteSizeEnum.entries.firstOrNull { it.size == size }

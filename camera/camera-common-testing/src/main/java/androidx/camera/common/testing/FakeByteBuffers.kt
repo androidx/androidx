@@ -43,27 +43,48 @@ import java.nio.ByteOrder
 internal object FakeByteBuffers {
 
     /**
-     * Allocates a new direct [ByteBuffer] with native byte order configuration.
+     * Allocates a new direct [ByteBuffer] configured with the native byte order.
      *
-     * @param size The size of the buffer in bytes.
+     * This is a convenience method that combines [ByteBuffer.allocateDirect] and
+     * [toNativeByteOrder].
+     *
+     * @param size The size of the buffer in bytes. Must be non-negative.
      * @return A direct [ByteBuffer] with native byte order.
+     * @throws IllegalArgumentException If [size] is negative.
      */
     fun allocateNative(size: Int): ByteBuffer {
         return ByteBuffer.allocateDirect(size).toNativeByteOrder()
     }
 
-    /** Configures a [ByteBuffer] to use native byte order. */
+    /**
+     * Configures this [ByteBuffer] to use the native byte order.
+     *
+     * This is an extension function that sets the byte order of the receiver [ByteBuffer] to
+     * [ByteOrder.nativeOrder] and returns the buffer itself to allow for method chaining.
+     *
+     * @return The receiver [ByteBuffer] with its byte order set to native.
+     */
     fun ByteBuffer.toNativeByteOrder(): ByteBuffer {
         return this.order(ByteOrder.nativeOrder())
     }
 
     /**
-     * Slices the [ByteBuffer] from [position] to [limit] and returns a buffer configured with
+     * Slices the [ByteBuffer] from [position] to [limit] and returns a new buffer configured with
      * native byte order.
      *
-     * @param position The start index (inclusive).
-     * @param limit The end index (exclusive).
+     * The returned buffer's content will be a shared subsequence of this buffer's content.
+     * Modifications to the returned buffer's content will be visible in this buffer, and vice
+     * versa; the two buffers' position, limit, and mark values will be independent.
+     *
+     * This method temporarily modifies the position and limit of the receiver buffer to perform the
+     * slice, but restores them before returning.
+     *
+     * @param position The start index (inclusive) in the receiver buffer. Must be non-negative and
+     *   not larger than [limit].
+     * @param limit The end index (exclusive) in the receiver buffer. Must be not smaller than
+     *   [position] and not larger than the receiver buffer's capacity.
      * @return A sliced [ByteBuffer] configured with native byte order.
+     * @throws IllegalArgumentException If [position] or [limit] is invalid.
      */
     fun ByteBuffer.sliceNative(position: Int, limit: Int): ByteBuffer {
         val originalPosition = this.position()
