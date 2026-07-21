@@ -959,6 +959,20 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         ops.addAll(newOps)
     }
 
+    private fun Span.updateDependencies(oldDep: SpanOp, update: (MutableList<SpanOp>) -> Unit) {
+        for (i in 0 until operations.size) {
+            val deps = operations[i].deps
+            if (deps.remove(oldDep)) {
+                update(deps)
+            }
+        }
+        var currentChild = child
+        while (currentChild != null) {
+            currentChild.updateDependencies(oldDep, update)
+            currentChild = currentChild.next
+        }
+    }
+
     /**
      * Recursively traverses [span] and all its descendant child scopes to replace all dependency
      * references pointing to [oldDep] with [newDep].
@@ -967,17 +981,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * new or inlined operation and subsequent operations need to depend on the new operation.
      */
     private fun replaceDependency(span: Span, oldDep: SpanOp, newDep: SpanOp) {
-        for (i in 0 until span.operations.size) {
-            val op = span.operations[i]
-            if (op.deps.remove(oldDep)) {
-                op.deps.add(newDep)
-            }
-        }
-        var child = span.child
-        while (child != null) {
-            replaceDependency(child, oldDep, newDep)
-            child = child.next
-        }
+        span.updateDependencies(oldDep) { it.add(newDep) }
     }
 
     /**
@@ -991,17 +995,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * operation is removed from the execution tree.
      */
     private fun routeDependenciesAround(span: Span, oldDep: SpanOp) {
-        for (i in 0 until span.operations.size) {
-            val op = span.operations[i]
-            if (op.deps.remove(oldDep)) {
-                op.deps.addAll(oldDep.deps)
-            }
-        }
-        var child = span.child
-        while (child != null) {
-            routeDependenciesAround(child, oldDep)
-            child = child.next
-        }
+        span.updateDependencies(oldDep) { it.addAll(oldDep.deps) }
     }
 
     /**
@@ -1011,84 +1005,80 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * dependencies on hoisted variables are correctly propagated to the new fused operation.
      */
     private fun optimizeTransformsSpan(span: Span) {
-        for (i in 0 until span.operations.size) {
-            val child = span.operations[i]
-            if (child.op is CanvasOp.SaveRestore) {
-                optimizeTransforms(child.op.children)
-            }
-        }
-
         val pendingSpanOps = ArrayList<SpanOp>()
         val newOps =
             buildList(span.operations.size) {
                 fun flushTransforms() {
-                    if (pendingSpanOps.isNotEmpty()) {
-                        val pendingTransforms = ArrayList<PendingOp>(pendingSpanOps.size)
-                        for (k in 0 until pendingSpanOps.size) {
-                            pendingTransforms.add((pendingSpanOps[k].op as CanvasOp.Transform).op)
-                        }
-                        val optimized = optimizeTransformList(pendingTransforms)
+                    if (pendingSpanOps.isEmpty()) return
 
-                        val fusedSet = HashSet<SpanOp>(pendingSpanOps.size)
-                        for (k in 0 until pendingSpanOps.size) {
-                            fusedSet.add(pendingSpanOps[k])
-                        }
-
-                        val commonDeps = ArrayList<SpanOp>()
-                        val seenDeps = HashSet<SpanOp>()
-                        for (k in 0 until pendingSpanOps.size) {
-                            val deps = pendingSpanOps[k].deps
-                            for (m in 0 until deps.size) {
-                                val dep = deps[m]
-                                if (dep !in fusedSet && seenDeps.add(dep)) {
-                                    commonDeps.add(dep)
-                                }
-                            }
-                        }
-
-                        var lastNewOp: SpanOp? = null
-                        for (j in 0 until optimized.size) {
-                            val newSpanOp = SpanOp(span, CanvasOp.Transform(optimized[j]))
-                            if (j == 0) {
-                                newSpanOp.deps.addAll(commonDeps)
-                            } else {
-                                newSpanOp.deps.add(lastNewOp!!)
-                            }
-                            add(newSpanOp)
-                            lastNewOp = newSpanOp
-                        }
-
-                        if (lastNewOp != null) {
-                            // Replace dependencies pointing to ANY of the old unfused transforms in
-                            // the group with the final fused transform operation. This prevents
-                            // intermediate transforms from being recreated during topological
-                            // sorting if an operation in the span graph directly referenced an
-                            // earlier transform instead of the last one.
-                            for (k in 0 until pendingSpanOps.size) {
-                                replaceDependency(span, pendingSpanOps[k], lastNewOp)
-                            }
-                        } else {
-                            // If consecutive transforms canceled each other out completely (so
-                            // optimized is empty and lastNewOp == null), route dependencies around
-                            // every canceled transform (processed in reverse order so dependencies
-                            // chain across the group) to ensure topologicalSort() does not bring
-                            // them back via dangling dependency pointers.
-                            for (k in pendingSpanOps.size - 1 downTo 0) {
-                                routeDependenciesAround(span, pendingSpanOps[k])
-                            }
-                        }
-                        pendingSpanOps.clear()
+                    val pendingTransforms = ArrayList<PendingOp>(pendingSpanOps.size)
+                    for (k in 0 until pendingSpanOps.size) {
+                        pendingTransforms.add((pendingSpanOps[k].op as CanvasOp.Transform).op)
                     }
+                    val optimized = optimizeTransformList(pendingTransforms)
+
+                    val fusedSet = HashSet<SpanOp>(pendingSpanOps.size)
+                    for (k in 0 until pendingSpanOps.size) {
+                        fusedSet.add(pendingSpanOps[k])
+                    }
+
+                    val commonDeps = ArrayList<SpanOp>()
+                    val seenDeps = HashSet<SpanOp>(pendingSpanOps.size)
+                    for (k in 0 until pendingSpanOps.size) {
+                        val deps = pendingSpanOps[k].deps
+                        for (m in 0 until deps.size) {
+                            val dep = deps[m]
+                            if (dep !in fusedSet && seenDeps.add(dep)) {
+                                commonDeps.add(dep)
+                            }
+                        }
+                    }
+
+                    var lastNewOp: SpanOp? = null
+                    for (j in 0 until optimized.size) {
+                        val newSpanOp = SpanOp(span, CanvasOp.Transform(optimized[j]))
+                        if (j == 0) {
+                            newSpanOp.deps.addAll(commonDeps)
+                        } else {
+                            newSpanOp.deps.add(lastNewOp!!)
+                        }
+                        add(newSpanOp)
+                        lastNewOp = newSpanOp
+                    }
+
+                    if (lastNewOp != null) {
+                        // Replace dependencies pointing to ANY of the old unfused transforms in
+                        // the group with the final fused transform operation. This prevents
+                        // intermediate transforms from being recreated during topological
+                        // sorting if an operation in the span graph directly referenced an
+                        // earlier transform instead of the last one.
+                        for (k in 0 until pendingSpanOps.size) {
+                            replaceDependency(span, pendingSpanOps[k], lastNewOp)
+                        }
+                    } else {
+                        // If consecutive transforms canceled each other out completely (so
+                        // optimized is empty and lastNewOp == null), route dependencies around
+                        // every canceled transform (processed in reverse order so dependencies
+                        // chain across the group) to ensure topologicalSort() does not bring
+                        // them back via dangling dependency pointers.
+                        for (k in pendingSpanOps.size - 1 downTo 0) {
+                            routeDependenciesAround(span, pendingSpanOps[k])
+                        }
+                    }
+                    pendingSpanOps.clear()
                 }
 
                 for (i in 0 until span.operations.size) {
                     val child = span.operations[i]
-                    when (child.op) {
+                    when (val op = child.op) {
                         is CanvasOp.Transform -> {
                             pendingSpanOps.add(child)
                         }
                         else -> {
                             flushTransforms()
+                            if (op is CanvasOp.SaveRestore) {
+                                optimizeTransforms(op.children)
+                            }
                             add(child)
                         }
                     }

@@ -1751,6 +1751,34 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testTransformFusingInsidePreservedSaveScope() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save()
+            canvas.translate(10f, 10f)
+            canvas.translate(20f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore()
+
+            // Subsequent drawing forces the above save/restore scope to PRESERVE its boundaries.
+            canvas.drawRect(10f, 10f, 20f, 20f, Paint())
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            // Consecutive translations inside the preserved save block must fuse.
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixSave",
+                    "addMatrixTranslate(30.0, 30.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "addMatrixRestore",
+                    "addDrawRect(10.0, 10.0, 20.0, 20.0)",
+                )
+        }
+    }
+
+    @Test
     fun testTransformCancellation() {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.translate(10f, 20f)
