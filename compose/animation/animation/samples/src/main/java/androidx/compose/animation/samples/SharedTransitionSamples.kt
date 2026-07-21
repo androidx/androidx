@@ -31,7 +31,7 @@ import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -743,7 +743,7 @@ fun SharedContentConfigDeferredTransitionSample() {
     var swipeOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val transitionState = remember { DeferredTransitionState(state) }
-    val transition = rememberTransition(transitionState)
+    val transition = rememberDeferredTransition(transitionState)
 
     LaunchedEffect(isBackGestureInProgress, state) {
         if (isBackGestureInProgress) {
