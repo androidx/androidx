@@ -18,6 +18,7 @@ package androidx.webkit
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.webkit.test.common.WebkitUtils
 import org.junit.Assert
 import org.junit.Before
@@ -38,12 +39,14 @@ class EnqueuePreconnectTest {
             }
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/533084266
     @Test
     fun doesNotCrash() {
         WebkitUtils.checkFeature(WebViewFeature.ENQUEUE_PRECONNECT)
         WebkitUtils.onMainThreadSync { defaultProfile.enqueuePreconnect(EXAMPLE_URL) }
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/533084266
     @Test
     fun throws_whenFeatureDisabledOrUnsupported() {
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.ENQUEUE_PRECONNECT)) {
