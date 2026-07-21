@@ -27,8 +27,6 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
-import androidx.compose.remote.player.compose.embedded.executeOperations
-import androidx.compose.remote.player.compose.embedded.getDrawContentOperationsListReflection
 import androidx.compose.remote.player.compose.embedded.horizontalPositioningReflection
 import androidx.compose.remote.player.compose.embedded.lineReflection
 import androidx.compose.remote.player.compose.embedded.rowSpacedBy
@@ -36,7 +34,6 @@ import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloat
 import androidx.compose.remote.player.compose.embedded.verticalPositioningReflection
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.platform.LocalDensity
 
 @Composable
@@ -47,27 +44,12 @@ internal fun RcPlayerRow(layout: RowLayout, modifier: Modifier) {
     val density = LocalDensity.current.density
     // Resolve spacedBy (may be a NaN-encoded variable/expression) before scaling.
     val spacedBy = rememberRemoteFloatAsState(rowSpacedBy(layout)).value
-    val drawOpsList = layout.getDrawContentOperationsListReflection()
-    val drawModifier =
-        if (drawOpsList != null) {
-            Modifier.drawWithContent {
-                executeOperations(
-                    operations = drawOpsList,
-                    remoteContext = remoteContext,
-                    onDrawContent = { drawContent() },
-                    graph = graph,
-                )
-            }
-        } else Modifier
-
-    val combinedModifier = modifier.then(drawModifier)
-
     if (layout is CollapsibleRowLayout) {
         // Priority-aware collapsing: drop lowest-CollapsiblePriority children until the rest fit.
-        RcPlayerCollapsible(layout, combinedModifier, vertical = false, spacedBy = spacedBy)
+        RcPlayerCollapsible(layout, modifier, vertical = false, spacedBy = spacedBy)
     } else {
         Row(
-            modifier = combinedModifier,
+            modifier = modifier,
             horizontalArrangement =
                 rowHorizontalArrangement(
                     layout.horizontalPositioningReflection,
@@ -139,23 +121,8 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
     val behavior = LocalCoreDocument.current.densityBehavior
     val density = LocalDensity.current.density
     val spacedBy = rememberRemoteFloatAsState(rowSpacedBy(layout)).value
-    val drawOpsList = layout.getDrawContentOperationsListReflection()
-    val drawModifier =
-        if (drawOpsList != null) {
-            Modifier.drawWithContent {
-                executeOperations(
-                    operations = drawOpsList,
-                    remoteContext = remoteContext,
-                    onDrawContent = { drawContent() },
-                    graph = graph,
-                )
-            }
-        } else Modifier
-
-    val combinedModifier = modifier.then(drawModifier)
-
     FlowRow(
-        modifier = combinedModifier,
+        modifier = modifier,
         horizontalArrangement =
             rowHorizontalArrangement(
                 layout.horizontalPositioningReflection,
