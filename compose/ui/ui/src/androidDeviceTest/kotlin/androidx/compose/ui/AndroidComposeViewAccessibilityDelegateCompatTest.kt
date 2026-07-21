@@ -25,6 +25,9 @@ import android.os.Build.VERSION_CODES.P
 import android.os.Build.VERSION_CODES.R
 import android.os.Bundle
 import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED
@@ -32,6 +35,7 @@ import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_RENDERING_INFO_KEY
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -51,6 +55,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +68,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
@@ -135,9 +141,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -1029,7 +1039,16 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                     AccessibilityActionCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY,
                     AccessibilityActionCompat.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY,
                 )
-            if (SDK_INT >= 26) {
+
+            if (SDK_INT >= 37) {
+                assertThat(info.unwrap().availableExtraData)
+                    .containsExactly(
+                        "androidx.compose.ui.semantics.id",
+                        "androidx.compose.ui.semantics.testTag",
+                        EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY,
+                        EXTRA_DATA_RENDERING_INFO_KEY,
+                    )
+            } else if (SDK_INT >= 26) {
                 assertThat(info.unwrap().availableExtraData)
                     .containsExactly(
                         "androidx.compose.ui.semantics.id",
@@ -3174,6 +3193,219 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // events as we are want the assertions to check the events that were generated later.
         runOnIdle { mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs) }
         runOnIdle { dispatchedAccessibilityEvents.clear() }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun testPopulateExtraRenderingInfo_textColorWithAlpha() {
+        // Arrange.
+        val textColor = Color(0x77ff3322)
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(text = "Hello", style = TextStyle(color = textColor))
+        }
+        val virtualViewId = rule.onNodeWithText("Hello").semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        androidComposeView.composeAccessibilityDelegate
+            .getAccessibilityNodeProvider(androidComposeView)
+            .addExtraDataToAccessibilityNodeInfo(
+                virtualViewId,
+                info,
+                EXTRA_DATA_RENDERING_INFO_KEY,
+                Bundle(),
+            )
+
+        // Assert.
+        rule.runOnIdle {
+            val extraRenderingInfo = info.unwrap().extraRenderingInfo
+            assertThat(extraRenderingInfo).isNotNull()
+            assertThat(extraRenderingInfo!!.textColor).isEqualTo(textColor.toArgb())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun testPopulateExtraRenderingInfo_textColor_usesGlobalStyleNotSpanStyle() {
+        // Arrange.
+        val globalColor = Color.Blue
+        val spanColor = Color.Red
+        val annotatedString = buildAnnotatedString {
+            withStyle(SpanStyle(color = spanColor)) { append("Hello") }
+        }
+        rule.setContentWithAccessibilityEnabled {
+            BasicText(text = annotatedString, style = TextStyle(color = globalColor))
+        }
+        val virtualViewId = rule.onNodeWithText("Hello").semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        androidComposeView.composeAccessibilityDelegate
+            .getAccessibilityNodeProvider(androidComposeView)
+            .addExtraDataToAccessibilityNodeInfo(
+                virtualViewId,
+                info,
+                EXTRA_DATA_RENDERING_INFO_KEY,
+                Bundle(),
+            )
+
+        // Assert.
+        rule.runOnIdle {
+            val extraRenderingInfo = info.unwrap().extraRenderingInfo
+            assertThat(extraRenderingInfo).isNotNull()
+            assertThat(extraRenderingInfo!!.textColor).isEqualTo(globalColor.toArgb())
+        }
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfo_textColor_spanStyle() {
+        // Arrange.
+        val textColor1 = Color.Blue
+        val textColor2 = Color.Red
+        val annotatedString = buildAnnotatedString {
+            withStyle(SpanStyle(color = textColor1)) { append("Hello ") }
+            withStyle(SpanStyle(color = textColor2)) { append("World") }
+        }
+        rule.setContentWithAccessibilityEnabled { BasicText(text = annotatedString) }
+        val virtualViewId = rule.onNodeWithText("Hello World").semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            val text = info.text as Spanned
+            val spans = text.getSpans(0, text.length, ForegroundColorSpan::class.java)
+            assertThat(spans.size).isEqualTo(2)
+            assertThat(spans[0].foregroundColor).isEqualTo(textColor1.toArgb())
+            assertThat(spans[1].foregroundColor).isEqualTo(textColor2.toArgb())
+        }
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfo_textBackgroundColor_spanStyle() {
+        // Arrange.
+        val textColor1 = Color.Blue
+        val textColor2 = Color.Red
+        val bgColor1 = Color.Yellow
+        val annotatedString = buildAnnotatedString {
+            withStyle(SpanStyle(color = textColor1, background = bgColor1)) { append("Hello ") }
+            withStyle(SpanStyle(color = textColor2)) { append("World") }
+        }
+        rule.setContentWithAccessibilityEnabled { BasicText(text = annotatedString) }
+        val virtualViewId = rule.onNodeWithText("Hello World").semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            val text = info.text as Spanned
+            val spans = text.getSpans(0, text.length, ForegroundColorSpan::class.java)
+            assertThat(spans.size).isEqualTo(2)
+            assertThat(spans[0].foregroundColor).isEqualTo(textColor1.toArgb())
+            assertThat(spans[1].foregroundColor).isEqualTo(textColor2.toArgb())
+
+            val bgSpans = text.getSpans(0, text.length, BackgroundColorSpan::class.java)
+            assertThat(bgSpans.size).isEqualTo(1)
+            assertThat(bgSpans[0].backgroundColor).isEqualTo(bgColor1.toArgb())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun testPopulateExtraRenderingInfo_linkColor() {
+        // Arrange.
+        val linkColor = Color.Green
+        val annotatedString = buildAnnotatedString {
+            val link =
+                LinkAnnotation.Url(
+                    "https://example.com",
+                    styles = TextLinkStyles(style = SpanStyle(color = linkColor)),
+                )
+            pushLink(link)
+            append("Link")
+            pop()
+        }
+        rule.setContentWithAccessibilityEnabled { BasicText(text = annotatedString) }
+        val virtualViewId = rule.onNodeWithText("Link").semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        androidComposeView.composeAccessibilityDelegate
+            .getAccessibilityNodeProvider(androidComposeView)
+            .addExtraDataToAccessibilityNodeInfo(
+                virtualViewId,
+                info,
+                EXTRA_DATA_RENDERING_INFO_KEY,
+                Bundle(),
+            )
+
+        // Assert.
+        rule.runOnIdle {
+            val extraRenderingInfo = info.unwrap().extraRenderingInfo
+            assertThat(extraRenderingInfo).isNotNull()
+            assertThat(extraRenderingInfo!!.linkTextColor).isEqualTo(linkColor.toArgb())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 37)
+    fun testPopulateExtraRenderingInfo_placeholder_separateColor() {
+        // Arrange.
+        val placeholderColor = Color.Red
+        val mainColor = Color.Blue
+        val tag = "TextField"
+        rule.setContentWithAccessibilityEnabled {
+            TextField(
+                value = "",
+                onValueChange = {},
+                placeholder = { Text("Placeholder", color = placeholderColor) },
+                textStyle = TextStyle(color = mainColor),
+                modifier = Modifier.semantics { testTag = tag },
+            )
+        }
+        val virtualViewId = rule.onNodeWithText("Placeholder", useUnmergedTree = true).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        androidComposeView.composeAccessibilityDelegate
+            .getAccessibilityNodeProvider(androidComposeView)
+            .addExtraDataToAccessibilityNodeInfo(
+                virtualViewId,
+                info,
+                EXTRA_DATA_RENDERING_INFO_KEY,
+                Bundle(),
+            )
+
+        // Assert.
+        rule.runOnIdle {
+            val extraRenderingInfo = info.unwrap().extraRenderingInfo
+            assertThat(extraRenderingInfo).isNotNull()
+            assertThat(extraRenderingInfo!!.textColor).isEqualTo(placeholderColor.toArgb())
+            assertThat(extraRenderingInfo.textColor).isNotEqualTo(mainColor.toArgb())
+            // Verify that there is no hint color specified (it should be 0 by default)
+            assertThat(extraRenderingInfo.hintTextColor).isEqualTo(0)
+        }
+
+        val textFieldVirtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val textFieldInfo =
+            rule.runOnIdle {
+                androidComposeView.createAccessibilityNodeInfo(textFieldVirtualViewId)
+            }
+
+        androidComposeView.composeAccessibilityDelegate
+            .getAccessibilityNodeProvider(androidComposeView)
+            .addExtraDataToAccessibilityNodeInfo(
+                textFieldVirtualViewId,
+                textFieldInfo,
+                EXTRA_DATA_RENDERING_INFO_KEY,
+                Bundle(),
+            )
+
+        rule.runOnIdle {
+            val extraRenderingInfo = textFieldInfo.unwrap().extraRenderingInfo
+            assertThat(extraRenderingInfo).isNotNull()
+            assertThat(extraRenderingInfo!!.textColor).isEqualTo(mainColor.toArgb())
+            // Verify that there is no hint color specified (it should be 0 by default)
+            assertThat(extraRenderingInfo.hintTextColor).isEqualTo(0)
+        }
     }
 
     private fun AndroidComposeView.createAccessibilityNodeInfo(
