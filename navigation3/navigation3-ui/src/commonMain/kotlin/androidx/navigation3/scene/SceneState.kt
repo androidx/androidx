@@ -134,7 +134,7 @@ public fun <T : Any> rememberSceneState(
 
         // Find all the overlay scenes
         val overlayScenes = allScenes.dropLast(1).fastMap { it as OverlayScene<T> }
-        // The currentScene is just just whatever is last on the list.
+        // The currentScene is just whatever is last on the list.
         val currentScene = allScenes.last()
         // Get the previous scenes, starting from the current scene.
         val previousScenes = mutableListOf(currentScene)

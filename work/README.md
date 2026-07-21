@@ -1,7 +1,7 @@
 # androidx.work
 
 WorkManager the recommended library for persistent work.
-Scheduled work is is guaranteed to execute sometime after its {@link Constraints} are met.
+Scheduled work is guaranteed to execute sometime after its {@link Constraints} are met.
 WorkManager allows observation of work status and the ability to create complex chains of work.
 
 [Library owners](OWNERS)
