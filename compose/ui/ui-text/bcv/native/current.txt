@@ -58,6 +58,8 @@ abstract interface androidx.compose.ui.text.font/Font { // androidx.compose.ui.t
         abstract fun <get-weight>(): androidx.compose.ui.text.font/FontWeight // androidx.compose.ui.text.font/Font.weight.<get-weight>|<get-weight>(){}[0]
     open val loadingStrategy // androidx.compose.ui.text.font/Font.loadingStrategy|{}loadingStrategy[0]
         open fun <get-loadingStrategy>(): androidx.compose.ui.text.font/FontLoadingStrategy // androidx.compose.ui.text.font/Font.loadingStrategy.<get-loadingStrategy>|<get-loadingStrategy>(){}[0]
+    open val variationSettings // androidx.compose.ui.text.font/Font.variationSettings|{}variationSettings[0]
+        open fun <get-variationSettings>(): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/Font.variationSettings.<get-variationSettings>|<get-variationSettings>(){}[0]
 
     abstract interface ResourceLoader { // androidx.compose.ui.text.font/Font.ResourceLoader|null[0]
         abstract fun load(androidx.compose.ui.text.font/Font): kotlin/Any // androidx.compose.ui.text.font/Font.ResourceLoader.load|load(androidx.compose.ui.text.font.Font){}[0]
@@ -1727,6 +1729,9 @@ sealed class androidx.compose.ui.text.font/SystemFontFamily : androidx.compose.u
 sealed class androidx.compose.ui.text/TtsAnnotation : androidx.compose.ui.text/AnnotatedString.Annotation // androidx.compose.ui.text/TtsAnnotation|null[0]
 
 final object androidx.compose.ui.text.font/FontVariation { // androidx.compose.ui.text.font/FontVariation|null[0]
+    final val Empty // androidx.compose.ui.text.font/FontVariation.Empty|{}Empty[0]
+        final fun <get-Empty>(): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Empty.<get-Empty>|<get-Empty>(){}[0]
+
     final fun Setting(kotlin/String, kotlin/Float): androidx.compose.ui.text.font/FontVariation.Setting // androidx.compose.ui.text.font/FontVariation.Setting|Setting(kotlin.String;kotlin.Float){}[0]
     final fun Settings(androidx.compose.ui.text.font/FontWeight, androidx.compose.ui.text.font/FontStyle, kotlin/Array<out androidx.compose.ui.text.font/FontVariation.Setting>...): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Settings|Settings(androidx.compose.ui.text.font.FontWeight;androidx.compose.ui.text.font.FontStyle;kotlin.Array<out|androidx.compose.ui.text.font.FontVariation.Setting>...){}[0]
     final fun grade(kotlin/Int): androidx.compose.ui.text.font/FontVariation.Setting // androidx.compose.ui.text.font/FontVariation.grade|grade(kotlin.Int){}[0]
@@ -1753,6 +1758,8 @@ final object androidx.compose.ui.text.font/FontVariation { // androidx.compose.u
 
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.font/FontVariation.Settings.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.compose.ui.text.font/FontVariation.Settings.hashCode|hashCode(){}[0]
+        final fun merge(androidx.compose.ui.text.font/FontVariation.Settings?): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Settings.merge|merge(androidx.compose.ui.text.font.FontVariation.Settings?){}[0]
+        final fun merge(kotlin/Array<out androidx.compose.ui.text.font/FontVariation.Setting>...): androidx.compose.ui.text.font/FontVariation.Settings // androidx.compose.ui.text.font/FontVariation.Settings.merge|merge(kotlin.Array<out|androidx.compose.ui.text.font.FontVariation.Setting>...){}[0]
         final fun toString(): kotlin/String // androidx.compose.ui.text.font/FontVariation.Settings.toString|toString(){}[0]
     }
 }
