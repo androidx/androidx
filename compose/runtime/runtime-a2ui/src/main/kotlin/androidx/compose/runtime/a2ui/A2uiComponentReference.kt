@@ -22,13 +22,13 @@ import androidx.compose.runtime.Immutable
  * Represents a pointer to an A2UI component with its optional data scope override.
  *
  * @property id The unique ID of the component.
- * @property dataScopePath An optional relative or absolute data path to override the component's
+ * @property baseDataPath An optional relative or absolute data path to override the component's
  *   data context.
  */
 @Immutable
 public class A2uiComponentReference(
     public val id: String,
-    public val dataScopePath: String? = null,
+    public val baseDataPath: String? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -36,18 +36,18 @@ public class A2uiComponentReference(
         if (other !is A2uiComponentReference) return false
 
         if (id != other.id) return false
-        if (dataScopePath != other.dataScopePath) return false
+        if (baseDataPath != other.baseDataPath) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = id.hashCode()
-        result = 31 * result + dataScopePath.hashCode()
+        result = 31 * result + baseDataPath.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "ComponentReference(id='$id', dataScopePath='$dataScopePath')"
+        return "ComponentReference(id='$id', baseDataPath='$baseDataPath')"
     }
 }

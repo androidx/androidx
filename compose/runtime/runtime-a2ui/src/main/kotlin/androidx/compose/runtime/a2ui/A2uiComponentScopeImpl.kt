@@ -39,8 +39,22 @@ internal class A2uiComponentScopeImpl(
     private val resolver = A2uiCoreValueResolver { path -> surface.dataModel[path] }
 
     @Composable
-    override fun observeA2uiComponentState(id: String, dataScopePath: String?): A2uiComponentState {
-        TODO("Not implemented yet")
+    override fun observeA2uiComponentState(id: String, baseDataPath: String?): A2uiComponentState {
+        val resolvedDataPath =
+            remember(this, baseDataPath) {
+                // TODO(b/524122705): simplify this once `A2uiDataPath.div()` supports `String?`.
+                if (baseDataPath != null) {
+                    this.baseDataPath / baseDataPath
+                } else {
+                    this.baseDataPath
+                }
+            }
+        return observeA2uiComponentState(
+            id = id,
+            baseDataPath = resolvedDataPath,
+            surface = surface,
+            surfaceScope = surfaceScope,
+        )
     }
 
     override fun dispatchAction(actionPayload: Map<String, Any?>) {

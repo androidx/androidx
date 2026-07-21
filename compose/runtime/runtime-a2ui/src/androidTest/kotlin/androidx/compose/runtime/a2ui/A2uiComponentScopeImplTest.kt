@@ -23,14 +23,17 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiUserAction
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +45,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.CoroutineScope
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -57,6 +61,367 @@ class A2uiComponentScopeImplTest {
     private val componentRegistry = A2uiComponentRegistry()
     private val catalog = createCatalog()
     private val surface = createSurface(catalog)
+
+    @Test
+    fun observeA2uiComponentState_relativeDataPath_resolvesCorrectly() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/nested/value"), "Nested Value")
+
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(
+                    scope.observeA2uiComponentState(id = "child_component", baseDataPath = "nested")
+                )
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Nested Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_absoluteDataPath_overridesPathAndResolves() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/global/value"), "Global Value")
+
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(
+                    scope.observeA2uiComponentState(
+                        id = "child_component",
+                        baseDataPath = "/global",
+                    )
+                )
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Global Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_emptyDataPath_appendsCorrectly() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/value"), "Empty Scope Path Value")
+
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state = scope.observeA2uiComponentState(id = "child_component", baseDataPath = "")
+            val textProp = A2uiProperty.dynamicString("text")
+            assertIs<A2uiComponentState.Success>(state)
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Empty Scope Path Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_nullDataPath_usesBasePath() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/value"), "Base Value")
+
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(
+                    scope.observeA2uiComponentState(id = "child_component", baseDataPath = null)
+                )
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Base Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_dataPathChanges_updatesResolvedPath() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/path_a/value"), "Value A")
+        dataModel.update(A2uiDataPath("/base/path_b/value"), "Value B")
+
+        var currentPath by mutableStateOf("path_a")
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(
+                    scope.observeA2uiComponentState(
+                        id = "child_component",
+                        baseDataPath = currentPath,
+                    )
+                )
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+        assertThat(result).isEqualTo("Value A")
+
+        // Trigger recomposition by changing the path
+        currentPath = "path_b"
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Value B")
+    }
+
+    @Test
+    fun observeA2uiComponentState_reference_delegatesCorrectly() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                )
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/nested/value"), "Nested Reference Value")
+
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val reference = A2uiComponentReference(id = "child_component", baseDataPath = "nested")
+            val state =
+                assertIs<A2uiComponentState.Success>(scope.observeA2uiComponentState(reference))
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Nested Reference Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_referenceChanges_updatesComponentAndPath() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "comp_1",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                ),
+                A2uiComponentPayload(
+                    id = "comp_2",
+                    type = "Text",
+                    properties = mapOf("text" to mapOf("path" to "value")),
+                ),
+            )
+        )
+        dataModel.update(A2uiDataPath("/base/path_1/value"), "Component 1 Value")
+        dataModel.update(A2uiDataPath("/base/path_2/value"), "Component 2 Value")
+
+        var currentRef by mutableStateOf(A2uiComponentReference("comp_1", "path_1"))
+        var result: String? = null
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(scope.observeA2uiComponentState(currentRef))
+            val textProp = A2uiProperty.dynamicString("text")
+            result = with(state.component.scope) { state.component.properties.bind(textProp) }
+        }
+        waitForIdle()
+        assertThat(result).isEqualTo("Component 1 Value")
+
+        // Trigger recomposition by swapping the component reference
+        currentRef = A2uiComponentReference(id = "comp_2", baseDataPath = "path_2")
+        waitForIdle()
+
+        assertThat(result).isEqualTo("Component 2 Value")
+    }
+
+    @Test
+    fun observeA2uiComponentState_childError_updatesRegistryUsingChildId() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(id = "child_component", type = "Text", properties = emptyMap())
+            )
+        )
+
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state = scope.observeA2uiComponentState(id = "child_component")
+            if (state is A2uiComponentState.Success) {
+                SideEffect(state) {
+                    state.component.scope.reportError(A2uiRuntimeException("Child Error"))
+                }
+            }
+        }
+        waitForIdle()
+
+        val record = componentRegistry.get("child_component")
+        assertIs<A2uiComponentRecord.Error>(record)
+        assertThat(record.exception.message).isEqualTo("Child Error")
+    }
+
+    @Test
+    fun observeA2uiComponentState_loadingToSuccess_triggersRecomposition() = runComposeUiTest {
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            when (val state = scope.observeA2uiComponentState(id = "late_child")) {
+                is A2uiComponentState.Loading -> BasicText("Loading")
+                is A2uiComponentState.Success -> BasicText("Success: ${state.component.type}")
+                else -> {}
+            }
+        }
+
+        onNodeWithText("Loading").assertIsDisplayed()
+
+        componentRegistry.update(
+            listOf(A2uiComponentPayload(id = "late_child", type = "Image", properties = emptyMap()))
+        )
+        waitForIdle()
+
+        onNodeWithText("Loading").assertIsNotDisplayed()
+        onNodeWithText("Success: Image").assertIsDisplayed()
+    }
+
+    @Test
+    fun observeA2uiComponentState_registryUpdate_triggersRecomposition() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to "V1"),
+                )
+            )
+        )
+
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            val state =
+                assertIs<A2uiComponentState.Success>(
+                    scope.observeA2uiComponentState(id = "child_component")
+                )
+            BasicText("Content: ${state.component.properties.raw["text"]}")
+        }
+
+        onNodeWithText("Content: V1").assertIsDisplayed()
+
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(
+                    id = "child_component",
+                    type = "Text",
+                    properties = mapOf("text" to "V2"),
+                )
+            )
+        )
+        waitForIdle()
+
+        onNodeWithText("Content: V1").assertIsNotDisplayed()
+        onNodeWithText("Content: V2").assertIsDisplayed()
+    }
+
+    @Test
+    fun observeA2uiComponentState_successToError_triggersRecomposition() = runComposeUiTest {
+        componentRegistry.update(
+            listOf(
+                A2uiComponentPayload(id = "child_component", type = "Text", properties = emptyMap())
+            )
+        )
+
+        setContent {
+            val scope = rememberComponentScope(path = "/base")
+            when (val state = scope.observeA2uiComponentState(id = "child_component")) {
+                is A2uiComponentState.Success -> BasicText("Success: ${state.component.type}")
+                is A2uiComponentState.Error -> BasicText("Error: ${state.exception.message}")
+                else -> {}
+            }
+        }
+
+        onNodeWithText("Success: Text").assertIsDisplayed()
+
+        componentRegistry.reportError(
+            "child_component",
+            A2uiRuntimeException("Simulated agent hallucination"),
+        )
+        waitForIdle()
+
+        onNodeWithText("Success: Text").assertIsNotDisplayed()
+        onNodeWithText("Error: Simulated agent hallucination").assertIsDisplayed()
+    }
+
+    @Test
+    fun observeA2uiComponentState_reference_loadingToSuccess_triggersRecomposition() =
+        runComposeUiTest {
+            setContent {
+                val scope = rememberComponentScope(path = "/base")
+                val reference =
+                    A2uiComponentReference(id = "late_ref_child", baseDataPath = "nested")
+                when (val state = scope.observeA2uiComponentState(reference)) {
+                    is A2uiComponentState.Loading -> BasicText("Loading Ref")
+                    is A2uiComponentState.Success ->
+                        BasicText("Success Ref: ${state.component.type}")
+                    else -> {}
+                }
+            }
+
+            onNodeWithText("Loading Ref").assertIsDisplayed()
+
+            componentRegistry.update(
+                listOf(
+                    A2uiComponentPayload(
+                        id = "late_ref_child",
+                        type = "Video",
+                        properties = emptyMap(),
+                    )
+                )
+            )
+            waitForIdle()
+
+            onNodeWithText("Loading Ref").assertIsNotDisplayed()
+            onNodeWithText("Success Ref: Video").assertIsDisplayed()
+        }
 
     @Test
     fun bind_validDynamicProperty_returnsEvaluatedValue() = runComposeUiTest {
