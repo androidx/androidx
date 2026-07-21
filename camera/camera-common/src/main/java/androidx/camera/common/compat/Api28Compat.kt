@@ -17,6 +17,8 @@
 package androidx.camera.common.compat
 
 import android.hardware.HardwareBuffer
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.media.Image
 import androidx.annotation.RequiresApi
 
@@ -25,5 +27,15 @@ internal object Api28Compat {
     @JvmStatic
     fun getHardwareBuffer(image: Image): HardwareBuffer? {
         return image.hardwareBuffer
+    }
+
+    @JvmStatic
+    fun getKeys(captureRequest: CaptureRequest): List<CaptureRequest.Key<*>> {
+        return captureRequest.keys
+    }
+
+    @JvmStatic
+    fun getKeys(captureResult: CaptureResult): List<CaptureResult.Key<*>> {
+        return captureResult.keys
     }
 }

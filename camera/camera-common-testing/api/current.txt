@@ -1,6 +1,70 @@
 // Signature format: 4.0
 package androidx.camera.common.testing {
 
+  public final class FakeCameraIds {
+    method @InaccessibleFromKotlin public static String getDefault();
+    method @InaccessibleFromKotlin public static String next();
+    method @KotlinOnly public androidx.camera.common.CameraId next();
+    property public static androidx.camera.common.CameraId default;
+    field public static final androidx.camera.common.testing.FakeCameraIds INSTANCE;
+  }
+
+  public final class FakeCaptureRequest implements androidx.camera.common.CaptureRequestWrapper {
+    method public static androidx.camera.common.testing.FakeCaptureRequest create();
+    method public static androidx.camera.common.testing.FakeCaptureRequest create(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestParameters);
+    method public static androidx.camera.common.testing.FakeCaptureRequest create(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestMetadata);
+    method public <T> T? get(android.hardware.camera2.CaptureRequest.Key<T> key);
+    method public <T> T? get(androidx.camera.common.Metadata.Key<T> key);
+    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getKeys();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> getMetadataKeys();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    field public static final androidx.camera.common.testing.FakeCaptureRequest.Companion Companion;
+  }
+
+  public static final class FakeCaptureRequest.Companion {
+    method public androidx.camera.common.testing.FakeCaptureRequest create();
+    method public androidx.camera.common.testing.FakeCaptureRequest create(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestParameters);
+    method public androidx.camera.common.testing.FakeCaptureRequest create(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> requestMetadata);
+    method @BytecodeOnly public static androidx.camera.common.testing.FakeCaptureRequest! create$default(androidx.camera.common.testing.FakeCaptureRequest.Companion!, java.util.Map!, java.util.Map!, int, Object!);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public operator androidx.camera.common.testing.FakeCaptureRequest invoke(optional java.util.Map<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>,java.lang.Object?> requestParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> requestMetadata);
+    method @BytecodeOnly @kotlin.jvm.JvmSynthetic public static androidx.camera.common.testing.FakeCaptureRequest! invoke$default(androidx.camera.common.testing.FakeCaptureRequest.Companion!, java.util.Map!, java.util.Map!, int, Object!);
+  }
+
+  public final class FakeCaptureResult implements androidx.camera.common.CaptureResultWrapper {
+    ctor @BytecodeOnly public FakeCaptureResult(String!, long, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, java.util.Map!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber);
+    method public static androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest);
+    method public static androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultParameters);
+    method public static androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata);
+    method public <T> T? get(android.hardware.camera2.CaptureResult.Key<T> key);
+    method public <T> T? get(androidx.camera.common.Metadata.Key<T> key);
+    method @InaccessibleFromKotlin public String getCameraId();
+    method @InaccessibleFromKotlin public androidx.camera.common.CaptureRequestWrapper getCaptureRequest();
+    method @InaccessibleFromKotlin public long getFrameNumber();
+    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getKeys();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> getMetadataKeys();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.common.CameraId cameraId;
+    property public androidx.camera.common.CaptureRequestWrapper captureRequest;
+    property public androidx.camera.common.CameraFrameNumber frameNumber;
+    property public java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    field public static final androidx.camera.common.testing.FakeCaptureResult.Companion Companion;
+  }
+
+  public static final class FakeCaptureResult.Companion {
+    method public androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber);
+    method public androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest);
+    method public androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultParameters);
+    method public androidx.camera.common.testing.FakeCaptureResult create(String cameraId, long frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> resultMetadata);
+    method @BytecodeOnly public static androidx.camera.common.testing.FakeCaptureResult! create$default(androidx.camera.common.testing.FakeCaptureResult.Companion!, String!, long, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, java.util.Map!, int, Object!);
+    method @KotlinOnly @kotlin.jvm.JvmSynthetic public operator androidx.camera.common.testing.FakeCaptureResult invoke(androidx.camera.common.CameraId cameraId, androidx.camera.common.CameraFrameNumber frameNumber, optional androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>,java.lang.Object?> resultParameters, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> resultMetadata);
+    method @BytecodeOnly public androidx.camera.common.testing.FakeCaptureResult! invoke-pESMVW0(String!, long, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, java.util.Map!);
+    method @BytecodeOnly public static androidx.camera.common.testing.FakeCaptureResult! invoke-pESMVW0$default(androidx.camera.common.testing.FakeCaptureResult.Companion!, String!, long, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, java.util.Map!, int, Object!);
+  }
+
   public class FakeImage implements androidx.camera.common.MutableImageWrapper {
     ctor public FakeImage(int width, int height, int format, long timestamp);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer);
