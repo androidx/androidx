@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.CallSuper
+import androidx.collection.intSetOf
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetProviderInfo
@@ -53,7 +54,8 @@ public abstract class GlanceWearWidgetService : LifecycleService() {
         // We need this flag to be false (meaning empty axis won't be send and default normal weight
         // would be used, for the 1.6 renderer and the player that has a bug in it.
         RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis =
-            RendererVersion.fromPlHostPackage(this) > RendererVersion(1, 6, 0)
+            RendererVersion.fromPlHostPackage(this) >
+                RendererVersion(1, 6, 0, /* not important */ intSetOf())
         if (!isRobolectricBuild()) {
             updateServiceMapping()
         }
