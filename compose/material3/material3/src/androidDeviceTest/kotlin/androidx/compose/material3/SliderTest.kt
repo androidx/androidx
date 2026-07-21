@@ -554,7 +554,8 @@ class SliderTest {
         var changedFlag = false
         rule.setContent {
             Slider(
-                state = SliderState(0f, onValueChangeFinished = { changedFlag = true }),
+                state =
+                    remember { SliderState(0f, onValueChangeFinished = { changedFlag = true }) },
                 modifier = Modifier.testTag(tag),
             )
         }
@@ -568,7 +569,7 @@ class SliderTest {
     fun slider_zero_width() {
         rule
             .setMaterialContentForSizeAssertions(parentMaxHeight = 0.dp, parentMaxWidth = 0.dp) {
-                Slider(SliderState(1f))
+                Slider(remember { SliderState(1f) })
             }
             .assertHeightIsEqualTo(0.dp)
             .assertWidthIsEqualTo(0.dp)
@@ -638,7 +639,7 @@ class SliderTest {
     fun slider_rowWithInfiniteWidth() {
         rule.setContent {
             Row(modifier = Modifier.requiredWidth(Int.MAX_VALUE.dp)) {
-                Slider(state = SliderState(0f), modifier = Modifier.weight(1f))
+                Slider(state = remember { SliderState(0f) }, modifier = Modifier.weight(1f))
             }
         }
     }
@@ -755,8 +756,8 @@ class SliderTest {
             RangeSlider(
                 state = state,
                 modifier = Modifier.testTag(tag),
-                startThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },
-                endThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },
+                startThumb = { SliderDefaults.Thumb(remember { MutableInteractionSource() }) },
+                endThumb = { SliderDefaults.Thumb(remember { MutableInteractionSource() }) },
             )
         }
 
@@ -1107,13 +1108,13 @@ class SliderTest {
                 state = state,
                 startThumb = {
                     SliderDefaults.Thumb(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = remember { MutableInteractionSource() },
                         modifier = Modifier.testTag(startThumbTag),
                     )
                 },
                 endThumb = {
                     SliderDefaults.Thumb(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = remember { MutableInteractionSource() },
                         modifier = Modifier.testTag(endThumbTag),
                     )
                 },
@@ -1146,13 +1147,13 @@ class SliderTest {
                 state = state,
                 startThumb = {
                     SliderDefaults.Thumb(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = remember { MutableInteractionSource() },
                         modifier = Modifier.testTag(startThumbTag),
                     )
                 },
                 endThumb = {
                     SliderDefaults.Thumb(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = remember { MutableInteractionSource() },
                         modifier = Modifier.testTag(endThumbTag),
                     )
                 },
