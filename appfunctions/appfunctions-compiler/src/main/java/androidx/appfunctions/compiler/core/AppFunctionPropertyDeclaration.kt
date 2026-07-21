@@ -58,7 +58,7 @@ data class AppFunctionPropertyDeclaration(
                 instruction
                     ?: if (isDescribedByKDoc) {
                         if (!docString.isNullOrEmpty()) {
-                            docString
+                            sanitizeKDoc(docString)
                         } else {
                             properTagDescriptions[propertyName]
                                 ?: paramTagDescriptions[propertyName]
