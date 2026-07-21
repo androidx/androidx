@@ -18,6 +18,7 @@ package androidx.work.impl.utils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.Logger;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 
 import org.jspecify.annotations.NonNull;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor;
  * executed serially, like a single threaded executor.
  */
 public class SerialExecutorImpl implements SerialExecutor {
+    private static final String TAG = Logger.tagWithPrefix("SerialExecutorImpl");
     private final ArrayDeque<Task> mTasks;
     private final Executor mExecutor;
 
@@ -58,7 +60,13 @@ public class SerialExecutorImpl implements SerialExecutor {
     @GuardedBy("mLock")
     void scheduleNext() {
         if ((mActive = mTasks.poll()) != null) {
-            mExecutor.execute(mActive);
+            try {
+                mExecutor.execute(mActive);
+            } catch (Throwable throwable) {
+                Logger.get().error(TAG, "Delegate executor failed to execute", throwable);
+                mActive = null;
+                throw throwable;
+            }
         }
     }
 
