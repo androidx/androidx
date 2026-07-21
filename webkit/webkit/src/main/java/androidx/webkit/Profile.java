@@ -345,8 +345,6 @@ public interface Profile {
         throw new UnsupportedOperationException("Profile#getMaxPrerenders is not implemented.");
     }
 
-
-
     /**
      * Resets the max prerenders for the current profile session to system default.
      * This configuration will be applied to any prerender requests made after they are set;
@@ -662,7 +660,7 @@ public interface Profile {
      * connect to them.
      * <p>
      * By default, when connecting to a new server, WebView attempts both a HTTP3 (QUIC) and HTTP2
-     * connection, choosing the one that responds faster. This can leads to cases where HTTP2
+     * connection, choosing the one that responds faster. This can lead to cases where HTTP2
      * responds faster, even though HTTP3 is supported and would result in a faster overall load.
      * Calling this API tells WebView to prefer HTTP3 connections for these origins.
      * <p>
@@ -678,17 +676,54 @@ public interface Profile {
      * @throws UnsupportedOperationException if the
      *     {@link WebViewFeature#ADD_QUIC_HINTS_V1} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @deprecated This method is being renamed to {@link #preferQuicFor(Set)}, use that instead.
+     *     There is no difference in functionality.
      */
     @RequiresFeature(name = WebViewFeature.ADD_QUIC_HINTS_V1,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @ExperimentalAddQuicHints
+    @Deprecated(forRemoval = true)
     default void addQuicHints(@NonNull Set<@NonNull String> urls) {
         // We provide a default implementation of this method so that embedders extending the
         // Profile (eg, for testing) don't have their build broken by the addition of this
         // method. However, throw a runtime exception if this method is actually called, as
         // that's better than silently no-oping.
         throw new UnsupportedOperationException("Profile#addQuicHints is not implemented.");
+    }
+
+    /**
+     * Advises that the given origins support the QUIC protocol and that WebView should use that to
+     * connect to them.
+     * <p>
+     * By default, when connecting to a new server, WebView attempts both a HTTP3 (QUIC) and HTTP2
+     * connection, choosing the one that responds faster. This can lead to cases where HTTP2
+     * responds faster, even though HTTP3 is supported and would result in a faster overall load.
+     * Calling this API tells WebView to prefer HTTP3 connections for these origins.
+     * <p>
+     * Note: preferQuicFor operates on origins, but for convenience full URLs can be provided. A
+     * full URL (such as {@code https://www.example.com/index.html}) will be treated as its origin
+     * ({@code https://www.example.com}).
+     * <p>
+     * This method can be called multiple times and the result is additive - QUIC hints are applied
+     * to all of the origins provided to all calls. Providing the same origin multiple times has no
+     * further effect.
+     *
+     * @param urls A set of urls representing origins that support the QUIC protocol.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#ADD_QUIC_HINTS_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.ADD_QUIC_HINTS_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalAddQuicHints
+    default void preferQuicFor(@NonNull Set<@NonNull String> urls) {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#preferQuicFor is not implemented.");
     }
 
     /**

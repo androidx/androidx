@@ -28,11 +28,11 @@ import org.junit.runner.RunWith;
 import java.util.Set;
 
 /**
- * Test for {@link Profile#addQuicHints(Set)}.
+ * Test for {@link Profile#preferQuicFor(Set)}.
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class AddQuicHintsTest {
+public class PreferQuicForTest {
     private static final String URL1 = "https://www.example.com";
     private static final String URL2 = "https://www.example.org";
 
@@ -51,7 +51,7 @@ public class AddQuicHintsTest {
     public void doesNotCrash() {
         // Tests that the call doesn't crash WebView.
         WebkitUtils.onMainThreadSync(() -> {
-            mDefaultProfile.addQuicHints(Set.of(URL1, URL2));
+            mDefaultProfile.preferQuicFor(Set.of(URL1, URL2));
         });
     }
 
@@ -59,7 +59,7 @@ public class AddQuicHintsTest {
     public void doesNotCrash_url() {
         // Tests that we allow calling with a URL, not an origin.
         WebkitUtils.onMainThreadSync(() -> {
-            mDefaultProfile.addQuicHints(Set.of(URL1, "https://www.example.org/1.html"));
+            mDefaultProfile.preferQuicFor(Set.of(URL1, "https://www.example.org/1.html"));
         });
     }
 
@@ -67,7 +67,7 @@ public class AddQuicHintsTest {
     public void throws_onEmptyUrl() {
         WebkitUtils.onMainThreadSync(() -> {
             Assert.assertThrows(IllegalArgumentException.class,
-                    () -> mDefaultProfile.addQuicHints(Set.of(URL1, "")));
+                    () -> mDefaultProfile.preferQuicFor(Set.of(URL1, "")));
         });
     }
 
@@ -75,7 +75,7 @@ public class AddQuicHintsTest {
     public void throws_onMalformedUrl() {
         WebkitUtils.onMainThreadSync(() -> {
             Assert.assertThrows(IllegalArgumentException.class,
-                    () -> mDefaultProfile.addQuicHints(Set.of(URL1, "https:example.com:foo")));
+                    () -> mDefaultProfile.preferQuicFor(Set.of(URL1, "https:example.com:foo")));
         });
     }
 }
