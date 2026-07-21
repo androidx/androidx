@@ -592,6 +592,22 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         return childSpan
     }
 
+    /** Removes a child span from its parent in the span tree. */
+    public fun removeChildSpan(span: Span) {
+        val parent = span.parent ?: return
+        if (parent.child == span) {
+            parent.child = span.next
+        } else {
+            var current = parent.child
+            while (current != null && current.next != span) {
+                current = current.next
+            }
+            if (current != null) {
+                current.next = span.next
+            }
+        }
+    }
+
     /** Returns a string representation of the operation buffer's current span tree. */
     override fun toString(): String {
         return if (spanTreeRoot.operations.isNotEmpty() || spanTreeRoot.child != null) {
@@ -653,63 +669,6 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             optimizeSpan(currentChild)
             currentChild = currentChild.next
         }
-
-        if (span == spanTreeRoot) {
-            elideUnusedExpressions(spanTreeRoot)
-        }
-    }
-
-    /**
-     * Traverses the span tree to elide [CanvasOp.Expression] operations whose consumers (such as
-     * [CanvasOp.DrawConditionally] blocks or drawing operations) have all been elided or removed.
-     */
-    private fun elideUnusedExpressions(root: Span) {
-        val neededExpressions = HashSet<SpanOp>()
-        val visited = HashSet<SpanOp>()
-
-        fun markDependencies(op: SpanOp) {
-            if (!visited.add(op)) return
-            if (op.op is CanvasOp.Expression) {
-                neededExpressions.add(op)
-            }
-            for (i in 0 until op.deps.size) {
-                markDependencies(op.deps[i])
-            }
-        }
-
-        fun traverseAndMark(span: Span) {
-            for (i in 0 until span.operations.size) {
-                val spanOp = span.operations[i]
-                if (spanOp.op !is CanvasOp.Expression) {
-                    markDependencies(spanOp)
-                }
-            }
-            var child = span.child
-            while (child != null) {
-                traverseAndMark(child)
-                child = child.next
-            }
-        }
-
-        traverseAndMark(root)
-
-        fun traverseAndRemove(span: Span) {
-            span.operations.removeAll { spanOp ->
-                if (spanOp.op is CanvasOp.Expression && spanOp !in neededExpressions) {
-                    routeDependenciesAround(root, spanOp)
-                    true
-                } else {
-                    false
-                }
-            }
-            var child = span.child
-            while (child != null) {
-                traverseAndRemove(child)
-                child = child.next
-            }
-        }
-
-        traverseAndRemove(root)
     }
 
     internal fun maybeElide(span: Span) {
