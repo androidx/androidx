@@ -252,12 +252,9 @@ internal sealed class CanvasOp {
             return curr
         }
 
-        override fun hasTransformsOrClips(): Boolean {
+        fun hasChildTransformsOrClips(): Boolean {
             for (i in 0 until children.size) {
-                val child = children[i]
-                // Ignore child Save nodes; any transforms inside them self-balance upon restore
-                // and do not leak net state changes into this parent scope.
-                if (child !is SaveRestore && child.hasTransformsOrClips()) return true
+                if (children[i].hasTransformsOrClips()) return true
             }
             return false
         }
@@ -411,10 +408,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
         fun hasTransformsOrClips(): Boolean {
             for (i in 0 until operations.size) {
-                val op = operations[i].op
-                // Ignore child Save nodes; any transforms inside them self-balance upon restore
-                // and do not leak net state changes into this span.
-                if (op !is CanvasOp.SaveRestore && op.hasTransformsOrClips()) return true
+                if (operations[i].op.hasTransformsOrClips()) return true
             }
             var currentChild = child
             while (currentChild != null) {
@@ -1112,7 +1106,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         // Empty save block with no drawing anywhere in its tree; safely discard.
                         CanvasOp.ElisionMode.DISCARD
                     }
-                    !op.hasTransformsOrClips() -> {
+                    !op.hasChildTransformsOrClips() -> {
                         // Save block has drawing but zero state changes (no transforms or clips).
                         // Safe to inline its children anywhere without needing matching
                         // save/restore.
