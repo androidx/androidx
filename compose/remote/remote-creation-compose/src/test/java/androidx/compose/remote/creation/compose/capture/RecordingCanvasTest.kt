@@ -1972,6 +1972,33 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun testNestedSaveWithInnerTransformAndOuterSubsequentDrawing() {
+        runWithOptimizingCanvas { canvas, buffer ->
+            canvas.save() // Save A (No direct transforms, but contains B)
+            canvas.save() // Save B (Has transforms, Has draws)
+            canvas.translate(10f, 20f)
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.restore() // Restore B
+            canvas.restore() // Restore A
+
+            canvas.drawRect(0f, 0f, 5f, 5f, Paint()) // Draw C
+
+            canvas.flush()
+            canvas.document.encodeToByteArray()
+
+            assertThat(buffer.calls)
+                .containsExactly(
+                    "addPaint",
+                    "addMatrixSave",
+                    "addMatrixTranslate(10.0, 20.0)",
+                    "addDrawRect(0.0, 0.0, 10.0, 10.0)",
+                    "addMatrixRestore",
+                    "addDrawRect(0.0, 0.0, 5.0, 5.0)",
+                )
+        }
+    }
+
+    @Test
     fun testRotateFusing() {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.rotate(45f)

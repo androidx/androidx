@@ -158,6 +158,12 @@ internal sealed class CanvasOp {
     open fun optimizeChildScopes(buffer: CanvasOperationBuffer) {}
 
     /**
+     * Evaluates and updates the elision mode or optimization state for this operation and its
+     * children.
+     */
+    open fun evaluateElision() {}
+
+    /**
      * Evaluates whether this operation should be elided during the optimization pass.
      *
      * @param buffer The [CanvasOperationBuffer] running the optimization.
@@ -252,6 +258,14 @@ internal sealed class CanvasOp {
             return curr
         }
 
+        // Returns true if this save scope leaks state modifications into surrounding operations.
+        // When a save scope preserves its save/restore boundaries (PRESERVE), its restore point
+        // completely neutralizes internal transforms and clips, preventing them from leaking out.
+        // Only when the save/restore boundaries are stripped (INLINE) do internal state changes
+        // bubble up to affect external drawing operations.
+        override fun hasTransformsOrClips(): Boolean =
+            elisionMode == ElisionMode.INLINE && hasChildTransformsOrClips()
+
         fun hasChildTransformsOrClips(): Boolean {
             for (i in 0 until children.size) {
                 if (children[i].hasTransformsOrClips()) return true
@@ -288,6 +302,25 @@ internal sealed class CanvasOp {
         override fun optimizeChildScopes(buffer: CanvasOperationBuffer) {
             buffer.maybeElide(children)
             hasDrawCalls = containsDrawingPrimitives()
+        }
+
+        var isTopLevel = false
+
+        override fun evaluateElision() {
+            children.evaluateElisionPass(isTopLevel) { it }
+            elisionMode =
+                when {
+                    // Empty or non-drawing scope: completely prune wire output.
+                    !hasDrawCalls -> ElisionMode.DISCARD
+                    // Scope has no state changes: inline drawing calls without save/restore
+                    // overhead.
+                    !hasChildTransformsOrClips() -> ElisionMode.INLINE
+                    // Top-level scope with no target/condition switch: inline by default (may be
+                    // upgraded to PRESERVE by parent if subsequent drawing operations appear).
+                    !switchesCanvasOrCondition() && isTopLevel -> ElisionMode.INLINE
+                    // Default behavior: emit matching save and restore wire commands.
+                    else -> ElisionMode.PRESERVE
+                }
         }
 
         override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
@@ -387,6 +420,27 @@ internal sealed class CanvasOp {
  * as common subexpression elimination and operation reordering before operations are recorded into
  * the document.
  */
+internal inline fun <T> List<T>.evaluateElisionPass(isTopLevel: Boolean, op: (T) -> CanvasOp) {
+    var pendingSave: CanvasOp.SaveRestore? = null
+    for (i in 0 until size) {
+        val current = op(this[i])
+        if (current is CanvasOp.SaveRestore) {
+            current.isTopLevel = isTopLevel
+            current.evaluateElision()
+            if (current.elisionMode == CanvasOp.ElisionMode.DISCARD) continue
+            pendingSave?.let {
+                if (it.hasChildTransformsOrClips()) it.elisionMode = CanvasOp.ElisionMode.PRESERVE
+            }
+            pendingSave = current
+        } else if (current.containsDrawingPrimitives() || current.switchesCanvasOrCondition()) {
+            pendingSave?.let {
+                if (it.hasChildTransformsOrClips()) it.elisionMode = CanvasOp.ElisionMode.PRESERVE
+            }
+            pendingSave = null
+        }
+    }
+}
+
 internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
     /**
@@ -1057,97 +1111,19 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     }
 
     /**
-     * Traverses the operation list from right-to-left (reverse post-order) to identify redundant
-     * `save`/`restore` blocks.
+     * Identifies redundant `save`/`restore` blocks across the operations directly in a [Span] via
+     * [CanvasOp.evaluateElision].
      *
-     * A block is marked as [CanvasOp.ElisionMode.INLINE] if it contains draw calls but there are no
-     * subsequent draw calls after its restore point (making the state restoration pointless).
-     * Blocks with no draw calls at all are marked as [CanvasOp.ElisionMode.DISCARD].
-     *
-     * To prevent state leakage, `Save` blocks containing transforms or clips are **never** inlined
-     * if they reside in a nested child span ([isRootSpan] is false).
-     *
-     * @param ops The list of operations to process.
-     * @param seenDrawCall Whether a draw call has been seen to the right of this list.
-     * @param isRootSpan Whether we are processing the root span of the document.
-     * @return True if a draw call was seen during the traversal of this list or to its right.
+     * A block is marked as [CanvasOp.ElisionMode.INLINE] if it contains drawing calls but no state
+     * modifications (transforms or clips). Blocks with no drawing calls at all are marked as
+     * [CanvasOp.ElisionMode.DISCARD]. All other blocks preserve their boundaries by default.
      */
-    internal fun elisionPass(
-        ops: MutableList<CanvasOp>,
-        seenDrawCall: Boolean,
-        isRootSpan: Boolean,
-    ): Boolean {
-        var currentSeenDrawCall = seenDrawCall
-        for (i in ops.size - 1 downTo 0) {
-            currentSeenDrawCall = processOpForElision(ops[i], currentSeenDrawCall, isRootSpan)
-        }
-        return currentSeenDrawCall
-    }
-
-    /** Applies the elision pass to the operations directly in a [Span]. */
     private fun elisionPassSpan(span: Span) {
-        val isRootSpan = (span == spanTreeRoot)
-        var seenDrawCall = false
-        for (i in span.operations.size - 1 downTo 0) {
-            seenDrawCall = processOpForElision(span.operations[i].op, seenDrawCall, isRootSpan)
-        }
-    }
-
-    private fun processOpForElision(
-        op: CanvasOp,
-        seenDrawCall: Boolean,
-        isRootSpan: Boolean,
-    ): Boolean {
-        var currentSeenDrawCall = seenDrawCall
-        if (op is CanvasOp.SaveRestore) {
-            op.elisionMode =
-                when {
-                    !op.hasDrawCalls -> {
-                        // Empty save block with no drawing anywhere in its tree; safely discard.
-                        CanvasOp.ElisionMode.DISCARD
-                    }
-                    !op.hasChildTransformsOrClips() -> {
-                        // Save block has drawing but zero state changes (no transforms or clips).
-                        // Safe to inline its children anywhere without needing matching
-                        // save/restore.
-                        currentSeenDrawCall =
-                            elisionPass(op.children, currentSeenDrawCall, isRootSpan)
-                        CanvasOp.ElisionMode.INLINE
-                    }
-                    op.switchesCanvasOrCondition() -> {
-                        // Save block has transforms/clips AND spans across a target canvas or
-                        // condition switch (e.g. drawToOffscreenBitmap or DrawConditionally).
-                        // Must preserve save/restore bounds on the outer canvas around the
-                        // transition across all optimization levels.
-                        elisionPass(op.children, false, isRootSpan)
-                        currentSeenDrawCall = true
-                        CanvasOp.ElisionMode.PRESERVE
-                    }
-                    !currentSeenDrawCall && isRootSpan -> {
-                        // Save block has transforms/clips, but no drawing occurs after it on the
-                        // root span. Safe to inline on the root canvas because leaked transforms
-                        // have no visual effect.
-                        currentSeenDrawCall =
-                            elisionPass(op.children, currentSeenDrawCall, isRootSpan)
-                        CanvasOp.ElisionMode.INLINE
-                    }
-                    else -> {
-                        // Save block has transforms/clips AND drawing occurs after it (or in a
-                        // child span). Must preserve matching save/restore to prevent transform
-                        // leakage.
-                        elisionPass(op.children, false, isRootSpan)
-                        currentSeenDrawCall = true
-                        CanvasOp.ElisionMode.PRESERVE
-                    }
-                }
-        } else if (op.containsDrawingPrimitives() || op.switchesCanvasOrCondition()) {
-            currentSeenDrawCall = true
-        }
-        return currentSeenDrawCall
+        span.operations.evaluateElisionPass(span == spanTreeRoot) { it.op }
     }
 
     /**
-     * Recursively applies the elision decisions made in [elisionPass].
+     * Recursively applies the elision decisions made in [CanvasOp.evaluateElision].
      *
      * Removes [CanvasOp.ElisionMode.DISCARD] nodes and inlines the children of
      * [CanvasOp.ElisionMode.INLINE] nodes directly into their parent's children list.
