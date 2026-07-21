@@ -12,9 +12,6 @@ package androidx.compose.material3.adaptive {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to beremoved in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to beremoved in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveComponentOverrideApi {
-  }
-
   @androidx.compose.runtime.Immutable public final class HingeInfo {
     ctor public HingeInfo(androidx.compose.ui.geometry.Rect bounds, boolean isFlat, boolean isVertical, boolean isSeparating, boolean isOccluding);
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getBounds();

@@ -16,14 +16,7 @@
 
 package androidx.xr.compose.material3
 
-import android.os.Build
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
-import androidx.compose.material3.adaptive.navigationsuite.LocalNavigationSuiteScaffoldOverride
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidedValue
-import androidx.xr.compose.platform.LocalSpatialCapabilities
 
 /**
  * Clients can wrap their Compose hierarchy in this function to dynamically enable XR components
@@ -32,31 +25,12 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
  * The [overrideEnabler] param determines whether each component will use an XR version.
  */
 @ExperimentalMaterial3XrApi
-@OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class, ExperimentalMaterial3Api::class)
 @Composable
 public fun EnableXrComponentOverrides(
     overrideEnabler: XrComponentOverrideEnabler = DefaultXrComponentOverrideEnabler,
     content: @Composable () -> Unit,
 ) {
-    if (Build.VERSION.SDK_INT < 34) {
-        content()
-        return
-    }
-    val context = XrComponentOverrideEnablerContextImpl
-
-    // Override CompositionLocals for all ComponentOverrides, as specified by the provided enabler.
-    val componentOverrides =
-        buildList<ProvidedValue<*>> {
-            with(overrideEnabler) {
-                if (context.shouldOverrideComponent(XrComponentOverride.NavigationSuiteScaffold)) {
-                    add(
-                        LocalNavigationSuiteScaffoldOverride provides
-                            XrNavigationSuiteScaffoldOverride
-                    )
-                }
-            }
-        }
-    CompositionLocalProvider(values = componentOverrides.toTypedArray(), content = content)
+    content()
 }
 
 /** Interface that a client can provide to enable/disable XR overrides on a per-component basis. */
@@ -85,20 +59,7 @@ public sealed interface XrComponentOverrideEnablerContext {
 /** The set of Material Components that can be overridden on XR. */
 @ExperimentalMaterial3XrApi
 @JvmInline
-public value class XrComponentOverride private constructor(private val name: String) {
-    public companion object {
-        /** Material3 Adaptive NavigationSuiteScaffold. */
-        @ExperimentalMaterial3XrApi
-        public val NavigationSuiteScaffold: XrComponentOverride =
-            XrComponentOverride("NavigationSuiteScaffold")
-    }
-}
-
-@ExperimentalMaterial3XrApi
-private object XrComponentOverrideEnablerContextImpl : XrComponentOverrideEnablerContext {
-    override val isSpatializationEnabled: Boolean
-        @Composable get() = LocalSpatialCapabilities.current.isSpatialUiEnabled
-}
+public value class XrComponentOverride private constructor(private val name: String)
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 private object DefaultXrComponentOverrideEnabler : XrComponentOverrideEnabler {
