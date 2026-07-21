@@ -89,6 +89,15 @@ public interface CameraMetadata : CameraCharacteristicsWrapper {
 
     public val supportedExtensions: Set<Int>
 
+    /**
+     * Check if a specific extension mode is supported.
+     *
+     * On API 37+, this delegates to
+     * [android.hardware.camera2.CameraExtensionCharacteristics.isExtensionSupported]. On API levels
+     * below 37, this checks if the extension is present in [supportedExtensions].
+     */
+    public fun isExtensionSupported(extension: Int): Boolean
+
     public suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
 
     public fun awaitPhysicalMetadata(cameraId: CameraId): CameraMetadata

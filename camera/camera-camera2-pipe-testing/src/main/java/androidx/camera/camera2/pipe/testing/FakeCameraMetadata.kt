@@ -106,6 +106,9 @@ public class FakeCameraMetadata(
     override val supportedExtensions: Set<Int>
         get() = extensionMetadata.keys
 
+    override fun isExtensionSupported(extension: Int): Boolean =
+        extensionMetadata.containsKey(extension)
+
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata =
         physicalMetadata[cameraId]!!
 
