@@ -132,7 +132,7 @@ internal sealed class CanvasOp {
      * Returns true if this operation is or contains a condition switch ([DrawConditionally]) or
      * target canvas switch (such as offscreen drawing in [Draw]).
      */
-    open fun switchesCanvasOrCondition(): Boolean = false
+    open fun switchesCanvasOrHasCondition(): Boolean = false
 
     /**
      * Indicates whether recording this operation should immediately mark `hasDrawCalls = true` on
@@ -164,12 +164,12 @@ internal sealed class CanvasOp {
     open fun evaluateElision() {}
 
     /**
-     * Evaluates whether this operation should be elided during the optimization pass.
+     * Evaluates whether this operation is empty or dead and should be pruned during optimization.
      *
      * @param buffer The [CanvasOperationBuffer] running the optimization.
-     * @return True if this operation should be elided, false otherwise.
+     * @return True if this operation should be pruned, false otherwise.
      */
-    open fun shouldElide(buffer: CanvasOperationBuffer): Boolean = false
+    open fun shouldPrune(buffer: CanvasOperationBuffer): Boolean = false
 
     /** Represents an actual drawing or state-setting operation (e.g., drawRect). */
     class Draw(val switchesCanvas: Boolean = false, val action: (RemoteComposeWriter) -> Unit) :
@@ -183,7 +183,7 @@ internal sealed class CanvasOp {
         // Visual drawing primitive that renders content directly to the canvas.
         override fun containsDrawingPrimitives(): Boolean = true
 
-        override fun switchesCanvasOrCondition(): Boolean = switchesCanvas
+        override fun switchesCanvasOrHasCondition(): Boolean = switchesCanvas
 
         // Emits a direct drawing wire command (`writer.drawXxx()`) to the document.
         override fun emitsWireCommands(): Boolean = true
@@ -280,9 +280,9 @@ internal sealed class CanvasOp {
             return false
         }
 
-        override fun switchesCanvasOrCondition(): Boolean {
+        override fun switchesCanvasOrHasCondition(): Boolean {
             for (i in 0 until children.size) {
-                if (children[i].switchesCanvasOrCondition()) return true
+                if (children[i].switchesCanvasOrHasCondition()) return true
             }
             return false
         }
@@ -300,7 +300,10 @@ internal sealed class CanvasOp {
         }
 
         override fun optimizeChildScopes(buffer: CanvasOperationBuffer) {
-            buffer.maybeElide(children)
+            children.removeAll { op ->
+                op.optimizeChildScopes(buffer)
+                op.shouldPrune(buffer)
+            }
             hasDrawCalls = containsDrawingPrimitives()
         }
 
@@ -317,7 +320,7 @@ internal sealed class CanvasOp {
                     !hasChildTransformsOrClips() -> ElisionMode.INLINE
                     // Top-level scope with no target/condition switch: inline by default (may be
                     // upgraded to PRESERVE by parent if subsequent drawing operations appear).
-                    !switchesCanvasOrCondition() && isTopLevel -> ElisionMode.INLINE
+                    !switchesCanvasOrHasCondition() && isTopLevel -> ElisionMode.INLINE
                     // Default behavior: emit matching save and restore wire commands.
                     else -> ElisionMode.PRESERVE
                 }
@@ -341,7 +344,7 @@ internal sealed class CanvasOp {
             }
         }
 
-        override fun toString(): String = "Save(children=$children)"
+        override fun toString(): String = "SaveRestore(children=$children)"
     }
 
     /** Represents an expression evaluation (hoisted variable assignment). */
@@ -381,7 +384,7 @@ internal sealed class CanvasOp {
         // Returns true if the conditional child span contains visual drawing primitives.
         override fun containsDrawingPrimitives(): Boolean = childSpan.containsDrawingPrimitives()
 
-        override fun switchesCanvasOrCondition(): Boolean = true
+        override fun switchesCanvasOrHasCondition(): Boolean = true
 
         // Returns true if the conditional child span emits any wire commands (`writer.xxx()`).
         override fun emitsWireCommands(): Boolean = childSpan.emitsWireCommands()
@@ -391,7 +394,7 @@ internal sealed class CanvasOp {
         }
 
         // Conditional block can be pruned if its child span emits no wire commands when executed.
-        override fun shouldElide(buffer: CanvasOperationBuffer) = !childSpan.emitsWireCommands()
+        override fun shouldPrune(buffer: CanvasOperationBuffer) = !childSpan.emitsWireCommands()
 
         override fun toString(): String = "DrawConditionally(${condition.toDebugString()})"
     }
@@ -432,7 +435,7 @@ internal inline fun <T> List<T>.evaluateElisionPass(isTopLevel: Boolean, op: (T)
                 if (it.hasChildTransformsOrClips()) it.elisionMode = CanvasOp.ElisionMode.PRESERVE
             }
             pendingSave = current
-        } else if (current.containsDrawingPrimitives() || current.switchesCanvasOrCondition()) {
+        } else if (current.containsDrawingPrimitives() || current.switchesCanvasOrHasCondition()) {
             pendingSave?.let {
                 if (it.hasChildTransformsOrClips()) it.elisionMode = CanvasOp.ElisionMode.PRESERVE
             }
@@ -453,6 +456,34 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         var child: Span? = null
         var next: Span? = null
         var optimized = false
+
+        fun createChildSpan(): Span {
+            val childSpan = Span(this, depth + 1)
+            if (child == null) {
+                child = childSpan
+            } else {
+                var current = child
+                while (current?.next != null) {
+                    current = current.next
+                }
+                current?.next = childSpan
+            }
+            return childSpan
+        }
+
+        fun removeChildSpan(span: Span) {
+            if (child == span) {
+                child = span.next
+            } else {
+                var current = child
+                while (current != null && current.next != span) {
+                    current = current.next
+                }
+                if (current != null) {
+                    current.next = span.next
+                }
+            }
+        }
 
         fun record(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
             for (i in 0 until operations.size) {
@@ -486,7 +517,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
         fun switchesCanvasOrCondition(): Boolean {
             for (i in 0 until operations.size) {
-                if (operations[i].op.switchesCanvasOrCondition()) return true
+                if (operations[i].op.switchesCanvasOrHasCondition()) return true
             }
             var currentChild = child
             while (currentChild != null) {
@@ -617,45 +648,6 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         }
     }
 
-    /**
-     * Creates a new child span under the current insert point.
-     *
-     * This method creates a new nested scope in the execution tree, which is used for conditional
-     * blocks or loops. The new span is added to the parent's list of children.
-     *
-     * @return The newly created child span.
-     */
-    public fun createChildSpan(): Span {
-        val parent = insertPoint
-        val childSpan = Span(parent, parent.depth + 1)
-        if (parent.child == null) {
-            parent.child = childSpan
-        } else {
-            var current = parent.child
-            while (current?.next != null) {
-                current = current.next
-            }
-            current?.next = childSpan
-        }
-        return childSpan
-    }
-
-    /** Removes a child span from its parent in the span tree. */
-    public fun removeChildSpan(span: Span) {
-        val parent = span.parent ?: return
-        if (parent.child == span) {
-            parent.child = span.next
-        } else {
-            var current = parent.child
-            while (current != null && current.next != span) {
-                current = current.next
-            }
-            if (current != null) {
-                current.next = span.next
-            }
-        }
-    }
-
     /** Returns a string representation of the operation buffer's current span tree. */
     override fun toString(): String {
         return if (spanTreeRoot.operations.isNotEmpty() || spanTreeRoot.child != null) {
@@ -700,15 +692,17 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     /**
      * Recursively applies optimizations to the span tree.
      *
-     * It runs the elision pass to identify useless save/restores, flattens (inlines) them, and then
-     * optimizes transforms in the resulting simplified tree.
+     * It prunes dead conditional operations ([pruneEmptyOperations]), evaluates redundant
+     * save/restore boundaries ([identifyRedundantSaveRestoreScopes]), flattens inlined scopes
+     * ([flattenSpan]), and optimizes transforms in the resulting simplified tree
+     * ([optimizeTransformsSpan]).
      */
     internal fun optimizeSpan(span: Span) {
         if (span.optimized) return
         span.optimized = true
 
-        maybeElide(span)
-        elisionPassSpan(span)
+        pruneEmptyOperations(span)
+        identifyRedundantSaveRestoreScopes(span)
         flattenSpan(span)
         optimizeTransformsSpan(span)
 
@@ -719,23 +713,20 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         }
     }
 
-    internal fun maybeElide(span: Span) {
+    /**
+     * Removes dead or empty operations (such as conditional blocks with empty child spans) from the
+     * operations list, re-routing dependency chains around removed nodes.
+     */
+    internal fun pruneEmptyOperations(span: Span) {
         span.operations.removeAll { spanOp ->
             val op = spanOp.op
             op.optimizeChildScopes(this)
-            if (op.shouldElide(this)) {
+            if (op.shouldPrune(this)) {
                 routeDependenciesAround(spanTreeRoot, spanOp)
                 true
             } else {
                 false
             }
-        }
-    }
-
-    internal fun maybeElide(ops: MutableList<CanvasOp>) {
-        ops.removeAll { op ->
-            op.optimizeChildScopes(this)
-            op.shouldElide(this)
         }
     }
 
@@ -1118,7 +1109,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * modifications (transforms or clips). Blocks with no drawing calls at all are marked as
      * [CanvasOp.ElisionMode.DISCARD]. All other blocks preserve their boundaries by default.
      */
-    private fun elisionPassSpan(span: Span) {
+    private fun identifyRedundantSaveRestoreScopes(span: Span) {
         span.operations.evaluateElisionPass(span == spanTreeRoot) { it.op }
     }
 
