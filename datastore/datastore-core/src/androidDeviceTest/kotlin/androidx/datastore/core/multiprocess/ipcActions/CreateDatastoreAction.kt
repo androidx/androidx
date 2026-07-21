@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess.ipcActions
+package androidx.datastore.core.multiprocess.ipcActions
 
 import android.annotation.SuppressLint
-import android.os.Parcelable
 import androidx.datastore.core.CorruptionHandler
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreImpl
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.MultiProcessCoordinator
+import androidx.datastore.core.ProtoOkioSerializer
+import androidx.datastore.core.ProtoSerializer
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.testapp.ProtoOkioSerializer
-import androidx.datastore.testapp.ProtoSerializer
-import androidx.datastore.testapp.twoWayIpc.CompositeServiceSubjectModel
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.SubjectReadWriteProperty
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.core.twoWayIpc.CompositeServiceSubjectModel
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.SubjectReadWriteProperty
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
 import com.google.protobuf.ExtensionRegistryLite
 import java.io.File
+import java.io.Serializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.parcelize.Parcelize
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -118,13 +117,12 @@ private fun createDatastore(
     )
 }
 
-@SuppressLint("BanParcelableUsage")
-@Parcelize
+@SuppressLint("BanSerializableUsage")
 private class CreateDatastoreAction(
     private val filePath: String,
     private val storageVariant: StorageVariant,
     private val corruptionHandler: Class<out CorruptionHandler<FooProto>>?,
-) : IpcAction<CreateDatastoreAction>(), Parcelable {
+) : IpcAction<CreateDatastoreAction>(), Serializable {
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): CreateDatastoreAction {
         val store =
             createDatastore(filePath, storageVariant, subject.datastoreScope, corruptionHandler)

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess
+package androidx.datastore.core.multiprocess
 
-import androidx.datastore.testapp.multiprocess.ipcActions.ReadTextAction
-import androidx.datastore.testapp.multiprocess.ipcActions.SetTextAction
-import androidx.datastore.testapp.multiprocess.ipcActions.StorageVariant
-import androidx.datastore.testapp.multiprocess.ipcActions.createMultiProcessTestDatastore
-import androidx.datastore.testapp.multiprocess.ipcActions.datastore
-import androidx.datastore.testapp.twoWayIpc.CompositeServiceSubjectModel
-import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.IpcUnit
-import androidx.datastore.testapp.twoWayIpc.SubjectReadWriteProperty
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
+import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
+import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
+import androidx.datastore.core.multiprocess.ipcActions.createMultiProcessTestDatastore
+import androidx.datastore.core.multiprocess.ipcActions.datastore
+import androidx.datastore.core.twoWayIpc.CompositeServiceSubjectModel
+import androidx.datastore.core.twoWayIpc.InterProcessCompletable
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.IpcUnit
+import androidx.datastore.core.twoWayIpc.SubjectReadWriteProperty
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
 import androidx.kruth.assertThat
 import kotlin.time.Duration.Companion.seconds
@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.withTimeout
-import kotlinx.parcelize.Parcelize
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -198,7 +197,6 @@ private var TwoWayIpcSubject.remoteProcessStateFlow by SubjectReadWriteProperty(
  * @see AssertRemoteObservedValue
  * @see ReadRemoteObservedValue
  */
-@Parcelize
 internal class ObserveFileAction(
     /** When completed, we'll stop the StateFlow */
     val stopObserving: InterProcessCompletable<IpcUnit> = InterProcessCompletable(),
@@ -227,7 +225,6 @@ internal class ObserveFileAction(
 }
 
 /** Asserts the value of the [remoteProcessStateFlow] by waiting it to dispatch [expectedValue]. */
-@Parcelize
 internal class AssertRemoteObservedValue(private val expectedValue: String) : IpcAction<IpcUnit>() {
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
         subject.remoteProcessStateFlow.awaitValue(expectedValue)
@@ -236,7 +233,6 @@ internal class AssertRemoteObservedValue(private val expectedValue: String) : Ip
 }
 
 /** Reads the current value of [remoteProcessStateFlow]. */
-@Parcelize
 internal class ReadRemoteObservedValue : IpcAction<ReadTextAction.TextValue>() {
     override suspend fun invokeInRemoteProcess(
         subject: TwoWayIpcSubject

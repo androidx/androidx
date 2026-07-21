@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess.ipcActions
+package androidx.datastore.core.multiprocess.ipcActions
 
 import android.annotation.SuppressLint
-import android.os.Parcelable
-import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.IpcUnit
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
-import kotlinx.parcelize.Parcelize
+import androidx.datastore.core.twoWayIpc.InterProcessCompletable
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.IpcUnit
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import java.io.Serializable
 
-@SuppressLint("BanParcelableUsage")
-@Parcelize
+@SuppressLint("BanSerializableUsage")
 internal class SetTextAction(
     private val value: String,
     private val transactionStartedLatch: InterProcessCompletable<IpcUnit>? = null,
     private val commitTransactionLatch: InterProcessCompletable<IpcUnit>? = null,
     private val actionStartedLatch: InterProcessCompletable<IpcUnit>? = null,
-) : IpcAction<IpcUnit>(), Parcelable {
+) : IpcAction<IpcUnit>(), Serializable {
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
         actionStartedLatch?.complete(subject, IpcUnit)
         subject.datastore.updateData {
