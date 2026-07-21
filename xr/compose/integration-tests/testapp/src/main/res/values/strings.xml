@@ -28,6 +28,7 @@
     <string name="depthstacking_modifier_order_test_case">DepthStacking and ModifierOrder Layout Test Case</string>
     <string name="panel_embedded_subspace_test_case">Panel Embedded Subspace Layout Test Case</string>
     <string name="ardevice_subspace_test_case">AR Device FollowingSubspace Layout Test Case</string>
+    <string name="ardevice_subspace_v2_test_case">(WIP) AR Device FollowingSubspaceV2 Test Case</string>
     <string name="panel_volume_test_case">Panel Volume Layout Test Case</string>
     <string name="resizable_panel_test_case">Resizable Panel Test Case</string>
     <string name="spatial_alignment_usage_test_case">Spatial Alignment Usage Test Case</string>
