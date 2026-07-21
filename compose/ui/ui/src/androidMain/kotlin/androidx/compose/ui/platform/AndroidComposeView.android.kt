@@ -3771,7 +3771,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         private var _insetsProvider: WindowInsetsRulersProvider? = null
         override val insetsProvider: WindowInsetsRulersProvider?
             get() =
-                if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
+                if (
+                    AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled &&
+                        areWindowInsetsRulersEnabled
+                ) {
                     _insetsProvider
                         ?: WindowInsetsRulersProvider(insetsWatcher!!).also { _insetsProvider = it }
                 } else {
@@ -3779,24 +3782,27 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 }
 
         val rulerProvider: RulerScope.(Ruler) -> Unit = { ruler ->
-            insetsProvider!!.provideInset(this, ruler)
+            if (areWindowInsetsRulersEnabled) {
+                insetsProvider?.provideInset(this, ruler)
+            }
         }
 
         val isRulerProvided: (Ruler) -> Boolean = { ruler ->
-            insetsProvider!!.isRulerProvided(ruler)
+            areWindowInsetsRulersEnabled && insetsProvider?.isRulerProvided(ruler) == true
         }
 
         override val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>?
-            get() = insetsListener?.insetsValues
+            get() = if (areWindowInsetsRulersEnabled) insetsListener?.insetsValues else null
 
         override val cutoutRects: MutableObjectList<MutableState<Rect>>?
-            get() = insetsListener?.displayCutouts
+            get() = if (areWindowInsetsRulersEnabled) insetsListener?.displayCutouts else null
 
         override val cutoutRulers: List<RectRulers>?
-            get() = insetsListener?.displayCutoutRulers
+            get() = if (areWindowInsetsRulersEnabled) insetsListener?.displayCutoutRulers else null
 
         override val insetsListener: InsetsListener?
-            get() = this@AndroidComposeView.insetsListener
+            get() =
+                if (areWindowInsetsRulersEnabled) this@AndroidComposeView.insetsListener else null
 
         var previousGeneration = -1
 
@@ -3818,6 +3824,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             val placeable = measurable.measure(constraints)
             val width = placeable.width
             val height = placeable.height
+            if (!areWindowInsetsRulersEnabled) {
+                return layout(width, height) { placeable.place(0, 0) }
+            }
             return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
                 layout(
                     width,
