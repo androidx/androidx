@@ -24,6 +24,8 @@ import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.processor.A2uiActionInterceptor
+import androidx.a2ui.model.processor.A2uiMessageProcessor
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import java.util.concurrent.ConcurrentHashMap
@@ -54,7 +56,7 @@ public class A2uiCoreMessageProcessor(
     private val dataModelFactory: () -> A2uiCoreDataModel,
     private val componentRegistryFactory: () -> A2uiCoreComponentRegistry,
     private val actionInterceptors: List<A2uiActionInterceptor> = emptyList(),
-) {
+) : A2uiMessageProcessor {
     private val surfaceGroup = A2uiCoreSurfaceGroupModel()
 
     /**
@@ -82,14 +84,17 @@ public class A2uiCoreMessageProcessor(
     private val activeActors = ConcurrentHashMap<String, A2uiCoreSurfaceActor>()
 
     /** A flow of user actions and error payloads to be transmitted to the server. */
-    public val outboundEvents: Flow<A2uiClientToServerMessage> = _outboundEvents.asSharedFlow()
+    override val outboundEvents: Flow<A2uiClientToServerMessage> = _outboundEvents.asSharedFlow()
+
+    /** A flow of the list of active surface ids currently managed by the processor. */
+    override val activeSurfaces: Flow<List<A2uiSurfaceModel>> = surfaceGroup.activeSurfaces
 
     /**
      * Enqueues a parsed protocol message to be processed by the core engine.
      *
      * This method is safe to call from any thread.
      */
-    public fun processMessage(message: A2uiServerToClientMessage) {
+    override fun processMessage(message: A2uiServerToClientMessage) {
         processInternalMessage(A2uiEngineExternalMessage(message))
     }
 
@@ -105,7 +110,7 @@ public class A2uiCoreMessageProcessor(
      * ViewModel scope). When the scope is cancelled, this loop and all child surface actors are
      * naturally terminated.
      */
-    public suspend fun collectMessages() {
+    override suspend fun collectMessages() {
         try {
             // We use coroutineScope to act as the parent for all surface actor jobs
             coroutineScope {

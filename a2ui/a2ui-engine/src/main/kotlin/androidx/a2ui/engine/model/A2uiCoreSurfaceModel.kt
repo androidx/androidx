@@ -24,6 +24,7 @@ import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.engine.schema.A2uiCoreSchemaValidator
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
@@ -49,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @param timeProvider Provider that returns the current epoch time in milliseconds.
  */
 public class A2uiCoreSurfaceModel(
-    public val id: String,
+    override val id: String,
     public val catalog: A2uiCoreCatalog,
     public val dataModel: A2uiCoreDataModel,
     public val componentRegistry: A2uiCoreComponentRegistry,
@@ -58,7 +59,7 @@ public class A2uiCoreSurfaceModel(
     public val theme: Map<String, Any?> = emptyMap(),
     @get:JvmName("shouldSendDataModel") public val shouldSendDataModel: Boolean = false,
     private val timeProvider: () -> Long = { System.currentTimeMillis() },
-) : A2uiCoreCacheProvider {
+) : A2uiSurfaceModel, A2uiCoreCacheProvider {
 
     private val dynamicEvaluator = A2uiCoreDynamicEvaluatorImpl
     private val schemaValidator = A2uiCoreSchemaValidator(catalog)

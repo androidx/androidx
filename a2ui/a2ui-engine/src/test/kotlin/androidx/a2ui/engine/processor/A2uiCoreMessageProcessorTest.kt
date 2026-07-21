@@ -22,6 +22,7 @@ import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.processor.A2uiActionInterceptor
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientError
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
@@ -101,6 +102,56 @@ class A2uiCoreMessageProcessorTest {
         assertThat(registriesCreated).hasSize(2)
 
         collectJob.cancel()
+    }
+
+    @Test
+    fun activeSurfaces_initially_emitsEmptyList() = runTest {
+        val processor = createProcessor()
+        val collectJob = launch { processor.collectMessages() }
+        val activeSurfacesList = mutableListOf<List<A2uiSurfaceModel>>()
+        val surfacesJob = launch { processor.activeSurfaces.toList(activeSurfacesList) }
+
+        advanceUntilIdle()
+
+        assertThat(activeSurfacesList.last()).isEmpty()
+
+        collectJob.cancel()
+        surfacesJob.cancel()
+    }
+
+    @Test
+    fun activeSurfaces_whenSurfaceCreated_emitsNewSurface() = runTest {
+        val processor = createProcessor()
+        val collectJob = launch { processor.collectMessages() }
+        val activeSurfacesList = mutableListOf<List<A2uiSurfaceModel>>()
+        val surfacesJob = launch { processor.activeSurfaces.toList(activeSurfacesList) }
+
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
+        advanceUntilIdle()
+
+        assertThat(activeSurfacesList.last().map { it.id }).containsExactly(SURFACE_A)
+
+        collectJob.cancel()
+        surfacesJob.cancel()
+    }
+
+    @Test
+    fun activeSurfaces_whenSurfaceDeleted_removesSurface() = runTest {
+        val processor = createProcessor()
+        val collectJob = launch { processor.collectMessages() }
+        val activeSurfacesList = mutableListOf<List<A2uiSurfaceModel>>()
+        val surfacesJob = launch { processor.activeSurfaces.toList(activeSurfacesList) }
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
+        advanceUntilIdle()
+
+        processor.processMessage(A2uiDeleteSurfaceMessage(SURFACE_A))
+        advanceUntilIdle()
+
+        assertThat(activeSurfacesList.last().map { it.id }).containsExactly(SURFACE_B)
+
+        collectJob.cancel()
+        surfacesJob.cancel()
     }
 
     @Test
