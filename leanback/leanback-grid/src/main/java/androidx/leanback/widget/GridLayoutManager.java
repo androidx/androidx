@@ -240,7 +240,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 if (getTargetPosition() >= 0) {
                     // if smooth scroller is stopped without target, immediately jumps
                     // to the target position.
-                    scrollToSelection(getTargetPosition(), 0, false, 0);
+                    scrollToSelection(getTargetPosition(), 0, false, 0, true);
                 }
                 return;
             }
@@ -571,6 +571,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     /** When it should keep layout unaligned. */
     static final int PF_KEEP_UNALIGNED = 1 << 22;
+
+    /** When we have a pending alignment request from setSelection. */
+    static final int PF_PENDING_ALIGN = 1 << 23;
 
     /**
      * When it's during dragging or motion scroll, scrollDirectionPrimary() need adjust
@@ -1978,7 +1981,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if ((mFlag & PF_SLIDING) != 0) {
             mFlag &= ~PF_SLIDING;
             if (mFocusPosition >= 0) {
-                scrollToSelection(mFocusPosition, mSubFocusPosition, true, mPrimaryScrollExtra);
+                scrollToSelection(mFocusPosition, mSubFocusPosition, true, mPrimaryScrollExtra,
+                        true);
             } else {
                 mFlag &= ~PF_LAYOUT_EATEN_IN_SLIDING;
                 requestLayout();
@@ -2404,10 +2408,17 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         //    mFocusPosition during scrolling
         // 3. In touch mode performed fastRelayout() that didn't require align.
         boolean skipAlign = false;
-        if (((mFlag & PF_KEEP_UNALIGNED) != 0 || (mBaseGridView.isInTouchMode()
-                && mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP))
+        boolean pendingAlign = false;
+        if ((mFlag & PF_PENDING_ALIGN) != 0) {
+            mFlag &= ~PF_PENDING_ALIGN;
+            pendingAlign = true;
+        } else if ((mFlag & PF_KEEP_UNALIGNED) != 0
                 && !state.didStructureChange()
                 && childCountBefore > 0) {
+            skipAlign = true;
+        } else if (mBaseGridView.isInTouchMode()
+                && mFocusScrollStrategy != BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP
+                && doFastRelayout) {
             skipAlign = true;
         }
 
@@ -2501,9 +2512,12 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         // For fastRelayout, only dispatch event when focus position changes or selected item
         // being updated.
-        if ((mFlag & PF_FAST_RELAYOUT) != 0 && (mFocusPosition != savedFocusPos || mSubFocusPosition
-                != savedSubFocusPos || findViewByPosition(mFocusPosition) != savedFocusView
-                || (mFlag & PF_FAST_RELAYOUT_UPDATED_SELECTED_POSITION) != 0)) {
+        if (((mFlag & PF_FAST_RELAYOUT) != 0
+                && (mFocusPosition != savedFocusPos
+                || mSubFocusPosition != savedSubFocusPos
+                || findViewByPosition(mFocusPosition) != savedFocusView
+                || (mFlag & PF_FAST_RELAYOUT_UPDATED_SELECTED_POSITION) != 0))
+                || pendingAlign) {
             dispatchChildSelected();
         } else if ((mFlag & (PF_FAST_RELAYOUT | PF_IN_LAYOUT_SEARCH_FOCUS))
                 == PF_IN_LAYOUT_SEARCH_FOCUS) {
@@ -2717,7 +2731,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 // Fling stops naturally.
                 mSnapHelper.mInFling = false;
                 mSnapHelper.detachFromRecyclerView();
-                scrollToSelection(mFocusPosition, 0, true, 0);
+                scrollToSelection(mFocusPosition, 0, true, 0, true);
             }
         }
     }
@@ -2876,6 +2890,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         mFlag |= PF_KEEP_UNALIGNED;
+        mFlag &= ~PF_PENDING_ALIGN;
         if (mFocusPosition == position) {
             return;
         }
@@ -2930,14 +2945,17 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     void setSelection(int position, int subposition, boolean smooth,
             int primaryScrollExtra) {
+        boolean unaligned = (mFlag & PF_KEEP_UNALIGNED) != 0;
+        mFlag &= ~PF_KEEP_UNALIGNED;
         if ((mFocusPosition != position && position != NO_POSITION)
-                || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra) {
-            scrollToSelection(position, subposition, smooth, primaryScrollExtra);
+                || subposition != mSubFocusPosition || primaryScrollExtra != mPrimaryScrollExtra
+                || unaligned) {
+            scrollToSelection(position, subposition, smooth, primaryScrollExtra, true);
         }
     }
 
     void scrollToSelection(int position, int subposition,
-            boolean smooth, int primaryScrollExtra) {
+            boolean smooth, int primaryScrollExtra, boolean needAlignInNextLayout) {
         mPrimaryScrollExtra = primaryScrollExtra;
 
         View view = findViewByPosition(position);
@@ -2951,9 +2969,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if (notSmoothScrolling && !mBaseGridView.isLayoutRequested() && targetViewAvailable) {
             // Skip align in touch mode if the strategy is not "snap".  The use case is app setting
             // selection on a hovered card without triggering alignment scroll.
-            final boolean skipAlign = (mFlag & PF_KEEP_UNALIGNED) != 0
-                    || (mBaseGridView.isInTouchMode()
-                    && mFocusScrollStrategy != FOCUS_SCROLL_ALIGNED_AND_SNAP);
+            final boolean skipAlign = (mFlag & PF_KEEP_UNALIGNED) != 0;
             if (skipAlign) {
                 mFocusPosition = position;
                 mSubFocusPosition = subposition;
@@ -2969,6 +2985,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 mFocusPosition = position;
                 mSubFocusPosition = subposition;
                 mFocusPositionOffset = Integer.MIN_VALUE;
+                if (needAlignInNextLayout) {
+                    mFlag |= PF_PENDING_ALIGN;
+                }
                 return;
             }
             if (smooth && !mBaseGridView.isLayoutRequested()) {
@@ -3003,6 +3022,9 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                     mFocusPositionOffset = Integer.MIN_VALUE;
                     if (!targetViewAvailable) {
                         mFlag |= PF_FORCE_FULL_LAYOUT;
+                    }
+                    if (needAlignInNextLayout) {
+                        mFlag |= PF_PENDING_ALIGN;
                     }
                     requestLayout();
                 }
@@ -3387,7 +3409,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFlag = (mFlag & ~PF_SCROLL_ENABLED) | (scrollEnabled ? PF_SCROLL_ENABLED : 0);
             if (((mFlag & PF_SCROLL_ENABLED) != 0) && mFocusPosition != NO_POSITION) {
                 scrollToSelection(mFocusPosition, mSubFocusPosition,
-                        true, mPrimaryScrollExtra);
+                        true, mPrimaryScrollExtra, false);
             }
         }
     }

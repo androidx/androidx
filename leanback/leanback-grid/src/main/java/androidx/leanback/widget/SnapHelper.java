@@ -99,7 +99,7 @@ final class SnapHelper extends RecyclerView.OnFlingListener {
         if (targetPosition == RecyclerView.NO_POSITION) {
             return false;
         }
-        layoutManager.scrollToSelection(targetPosition, 0, true, 0);
+        layoutManager.scrollToSelection(targetPosition, 0, true, 0, true);
         // We are now in fling mode if there is actually scrolling happening, if not we return
         // false to have RecyclerView.onTouchEvent() to stop the scroll in order to fire child
         // selected event.
