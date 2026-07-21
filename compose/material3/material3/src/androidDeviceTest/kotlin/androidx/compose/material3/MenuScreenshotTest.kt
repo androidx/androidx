@@ -340,7 +340,7 @@ class MenuScreenshotTest {
                                 contentDescription = null,
                             )
                         },
-                        trailingIcon = {
+                        trailingContent = {
                             if (homeChecked) {
                                 Icon(
                                     Icons.Filled.Home,
@@ -375,7 +375,7 @@ class MenuScreenshotTest {
                                 contentDescription = null,
                             )
                         },
-                        trailingIcon = {
+                        trailingContent = {
                             Icon(
                                 Icons.Filled.MoreVert,
                                 modifier = Modifier.size(MenuDefaults.TrailingIconSize),
@@ -418,7 +418,7 @@ class MenuScreenshotTest {
                                 contentDescription = "Leading icon",
                             )
                         },
-                        trailingIcon = {
+                        trailingContent = {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 modifier = Modifier.size(MenuDefaults.TrailingIconSize),
@@ -443,7 +443,7 @@ class MenuScreenshotTest {
                                 contentDescription = "Trailing icon",
                             )
                         },
-                        trailingIcon = {
+                        trailingContent = {
                             MenuDefaults.DropdownMenuItemTrailingLabel { Text(text = "Ctrl + N") }
                         },
                     )
@@ -452,7 +452,7 @@ class MenuScreenshotTest {
                         onClick = {},
                         text = { Text(text = "Line item") },
                         shape = MenuDefaults.trailingItemShape,
-                        trailingIcon = {
+                        trailingContent = {
                             MenuDefaults.DropdownMenuItemTrailingLabel { Text(text = "Ctrl + N") }
                         },
                     )

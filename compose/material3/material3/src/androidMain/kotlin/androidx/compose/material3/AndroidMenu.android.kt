@@ -208,6 +208,3 @@ internal actual fun DropdownMenuPopupImpl(
         content = content,
     )
 }
-
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-internal actual val DefaultMenuProperties = MenuDefaults.DefaultMenuProperties
