@@ -18,6 +18,8 @@ package androidx.navigation3.runtime.result
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 
 /**
  * An Effect to provide a result event between different screens
@@ -27,7 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
  * @param T the type of the result that should be retrieved from this effect
  * @param resultEventBus the ResultEventBus to retrieve the result from. The default value is read
  *   from the `LocalResultEventBus` composition local.
- * @param onResult the callback to invoke when a result is received
+ * @param onResult the callback to invoke when a result is received, captures the latest callback.
  */
 @Composable
 public inline fun <reified T> ResultEffect(
@@ -45,7 +47,7 @@ public inline fun <reified T> ResultEffect(
  * @param resultKey the key that should be associated with this effect
  * @param resultEventBus the ResultEventBus to retrieve the result from. The default value is read
  *   from the `LocalResultEventBus` composition local.
- * @param onResult the callback to invoke when a result is received
+ * @param onResult the callback to invoke when a result is received, captures the latest callback.
  */
 @Composable
 public fun <T> ResultEffect(
@@ -53,9 +55,10 @@ public fun <T> ResultEffect(
     resultEventBus: ResultEventBus = LocalResultEventBus.current,
     onResult: suspend (T) -> Unit,
 ) {
+    val currentOnResult by rememberUpdatedState(onResult)
     LaunchedEffect(resultKey, resultEventBus.channelMap[resultKey]) {
-        resultEventBus.getResultFlow(resultKey)?.collect { result ->
-            @Suppress("UNCHECKED_CAST") onResult.invoke(result as T)
+        resultEventBus.getResultFlow(resultKey).collect { result ->
+            @Suppress("UNCHECKED_CAST") currentOnResult.invoke(result as T)
         }
     }
 }

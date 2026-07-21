@@ -22,7 +22,7 @@
  */
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
@@ -35,6 +35,9 @@ androidXMultiplatform {
         compileSdk { version = release(37) }
         namespace = "androidx.navigation3.runtime"
         androidResources.enable = true
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
     desktop()
     mingwX64()
