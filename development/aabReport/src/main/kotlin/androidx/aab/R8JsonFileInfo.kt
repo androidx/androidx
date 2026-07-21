@@ -158,7 +158,7 @@ private constructor(
                     calculate = { it?.obfuscationDisabledPercent.toString() },
                 ),
                 CsvColumn<R8JsonFileInfo?>(
-                    "r8json_optimizationDisablePercent",
+                    "r8json_shrinkingDisablePercent",
                     description = "Shrinking disabled percent",
                     calculate = { it?.shrinkingDisabledPercent.toString() },
                 ),
