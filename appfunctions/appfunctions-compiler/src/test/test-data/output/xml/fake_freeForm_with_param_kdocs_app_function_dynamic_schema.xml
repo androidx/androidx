@@ -120,7 +120,7 @@
         <enabledByDefault>true</enabledByDefault>
         <description>A fake free-form AppFunction to test descriptions in parameter metadata.
 
- @fakeCustomTag Custom tag's content.</description>
+@fakeCustomTag Custom tag's content.</description>
         <parameters>
             <dataTypeMetadata>
                 <id>unused</id>
