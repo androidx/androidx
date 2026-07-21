@@ -17,12 +17,18 @@ package androidx.lifecycle
 
 import androidx.annotation.RestrictTo
 
-/** Internal class to handle lifecycle conversion etc. */
+/** Internal helper for resolving and adapting [LifecycleObserver] instances. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public expect object Lifecycling {
 
+    /**
+     * Adapts the given [object] observer into a unified [LifecycleEventObserver].
+     *
+     * Handles different observer types such as [LifecycleEventObserver],
+     * [DefaultLifecycleObserver], and deprecated annotated observers.
+     */
     public fun lifecycleEventObserver(`object`: Any): LifecycleEventObserver
 
-    /** Create a name for an adapter class. */
+    /** Returns the generated adapter class name for the specified [className]. */
     public fun getAdapterName(className: String): String
 }
