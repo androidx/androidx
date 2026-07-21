@@ -29,7 +29,7 @@ import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -367,7 +367,7 @@ fun DeferredAnimatedContentSample() {
     val swipeOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val transitionState = remember { DeferredTransitionState(targetScreen) }
-    val transition = rememberTransition(transitionState)
+    val transition = rememberDeferredTransition(transitionState)
     LaunchedEffect(isBackGestureInProgress, targetScreen) {
         if (isBackGestureInProgress) {
             transitionState.defer(targetScreen)

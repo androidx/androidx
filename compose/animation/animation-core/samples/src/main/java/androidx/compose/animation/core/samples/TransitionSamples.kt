@@ -30,6 +30,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -621,7 +622,7 @@ fun DeferredTransitionSample() {
         }
     }
 
-    val transition = rememberTransition(transitionState)
+    val transition = rememberDeferredTransition(transitionState)
     // Create animations as usual
     val alpha by transition.animateFloat { state -> if (state == "Initial") 0f else 1f }
 

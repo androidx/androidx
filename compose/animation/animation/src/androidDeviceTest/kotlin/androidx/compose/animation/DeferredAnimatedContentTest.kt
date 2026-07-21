@@ -22,7 +22,7 @@ import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -66,7 +66,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -110,7 +110,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -142,7 +142,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(1000, easing = LinearEasing)) togetherWith
@@ -190,7 +190,7 @@ class DeferredAnimatedContentTest {
 
         rule.setContent {
             Box(Modifier.onGloballyPositioned { containerSize = it.size }) {
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 transition.DeferredAnimatedContent(
                     transitionSpec = {
                         fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -248,7 +248,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(1000, easing = LinearEasing)) togetherWith
@@ -302,7 +302,7 @@ class DeferredAnimatedContentTest {
 
         rule.setContent {
             Box(Modifier.onGloballyPositioned { containerSize = it.size }) {
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 transition.DeferredAnimatedContent(
                     transitionSpec = {
                         // Use Linear easing for predictable progress
@@ -372,7 +372,7 @@ class DeferredAnimatedContentTest {
         lateinit var transition: Transition<String>
 
         rule.setContent {
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent { target -> Box(Modifier.size(100.dp)) }
         }
 
@@ -405,7 +405,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState(0)
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -455,7 +455,7 @@ class DeferredAnimatedContentTest {
         var size by mutableStateOf(IntSize.Zero)
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     (fadeIn(tween(100, easing = LinearEasing)) +
@@ -529,7 +529,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     (fadeIn(tween(100, easing = LinearEasing)) +
@@ -592,7 +592,7 @@ class DeferredAnimatedContentTest {
         var exitFullSize = IntSize.Zero
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             val mutableTransform = remember {
                 MutableContentTransform {
                     targetContentTransform { fullSize ->
@@ -645,7 +645,7 @@ class DeferredAnimatedContentTest {
         var exitY = 0
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     slideInHorizontally(tween(160)) { 200 } togetherWith
@@ -736,7 +736,7 @@ class DeferredAnimatedContentTest {
         var capturedTargetState: String? = null
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             val mutableTransform = remember { MutableContentTransform() }
             if (state.pendingTargetState != null) {
                 capturedInitialState = transition.targetState
@@ -764,7 +764,7 @@ class DeferredAnimatedContentTest {
         var capturedTargetState: String? = null
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -806,7 +806,7 @@ class DeferredAnimatedContentTest {
         var previewInvocationCount: Int = 0
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     fadeIn(tween(100, easing = LinearEasing)) togetherWith
@@ -854,7 +854,7 @@ class DeferredAnimatedContentTest {
         var exitWidth = 0f
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     scaleIn(
@@ -949,7 +949,7 @@ class DeferredAnimatedContentTest {
         var measuredWidth = 0f
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     // Use linear easing and long duration to make progress predictable
@@ -1027,7 +1027,7 @@ class DeferredAnimatedContentTest {
         var measuredWidth = 0f
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     // Use a long tween animation spec so we can easily measure intermediate values
@@ -1095,7 +1095,7 @@ class DeferredAnimatedContentTest {
         var exitSpecForB: ExitTransition? = null
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     val spec =
@@ -1157,7 +1157,7 @@ class DeferredAnimatedContentTest {
         var exitSpecForB: ExitTransition? = null
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     val spec =
@@ -1229,7 +1229,7 @@ class DeferredAnimatedContentTest {
         var positionA = IntOffset.Zero
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     (fadeIn(tween(1000, easing = LinearEasing)) +
@@ -1310,7 +1310,7 @@ class DeferredAnimatedContentTest {
         var positionA = IntOffset.Zero
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     slideInHorizontally(tween(100000, easing = LinearEasing)) { 100 } togetherWith
@@ -1373,7 +1373,7 @@ class DeferredAnimatedContentTest {
         val state = DeferredTransitionState("A")
         rule.setContent {
             Box(Modifier.size(200.dp).background(Color.Blue).testTag("container")) {
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 transition.DeferredAnimatedContent(
                     modifier = Modifier.matchParentSize(),
                     transitionSpec = { fadeIn(tween(1000)) togetherWith fadeOut(tween(1000)) },
@@ -1428,7 +1428,7 @@ class DeferredAnimatedContentTest {
         var measuredWidthB = 0f
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     scaleIn(tween(1000, easing = LinearEasing), initialScale = 0f) togetherWith
@@ -1515,7 +1515,7 @@ class DeferredAnimatedContentTest {
         rule.setContent {
             testTimeSource = { rule.mainClock.currentTime }
             state = remember { DeferredTransitionState("A") }
-            val transition = rememberTransition(state!!)
+            val transition = rememberDeferredTransition(state!!)
 
             transition.DeferredAnimatedContent(
                 transitionSpec = {
@@ -1579,7 +1579,7 @@ class DeferredAnimatedContentTest {
         var measuredOffsetX = 0f
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     slideInHorizontally(tween(1000, easing = LinearEasing)) { -it } togetherWith
@@ -1647,7 +1647,7 @@ class DeferredAnimatedContentTest {
         val evaluatedSpecs = mutableListOf<Pair<String, String>>()
 
         rule.setContent {
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedContent(
                 transitionSpec = {
                     evaluatedSpecs.add(Pair(initialState, targetState))
@@ -1695,7 +1695,7 @@ class DeferredAnimatedContentTest {
         var measuredOffsetY = -1f
 
         rule.setContent {
-            val transition = rememberTransition(state, label = "identicalKeyTest")
+            val transition = rememberDeferredTransition(state, label = "identicalKeyTest")
             val mutableTransform = remember {
                 MutableContentTransform {
                     targetContentTransform { offset = IntOffset(-100, -100) }
