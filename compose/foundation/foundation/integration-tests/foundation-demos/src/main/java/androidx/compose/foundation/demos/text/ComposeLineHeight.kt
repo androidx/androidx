@@ -272,7 +272,12 @@ private fun LineHeightModeOptions(
     // Unable to use IntArray because of private value class ctor/accessors.
     @SuppressLint("PrimitiveInCollection")
     val options =
-        listOf(LineHeightStyle.Mode.Fixed, LineHeightStyle.Mode.Minimum, LineHeightStyle.Mode.Tight)
+        listOf(
+            LineHeightStyle.Mode.Fixed,
+            LineHeightStyle.Mode.Minimum,
+            LineHeightStyle.Mode.Tight,
+            LineHeightStyle.Mode.PerLine,
+        )
 
     Row(modifier = Modifier.selectableGroup(), verticalAlignment = Alignment.CenterVertically) {
         Text(text = "mode:", style = HintStyle)
