@@ -38,19 +38,37 @@ import androidx.collection.intSetOf
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class RendererVersion(
-    @IntRange(from = 1) public val major: Int = DEFAULT_RENDERER_VERSION_MAJOR,
-    @IntRange(from = 0) public val minor: Int = DEFAULT_RENDERER_VERSION_MINOR,
-    @IntRange(from = 0) public val revision: Int = DEFAULT_RENDERER_VERSION_REVISION,
-    public val supportedOperations: IntSet = DEFAULT_SUPPORTED_OPERATIONS,
+    @IntRange(from = 1) public val major: Int,
+    @IntRange(from = 0) public val minor: Int,
+    @IntRange(from = 0) public val revision: Int,
+    public val supportedOperations: IntSet,
 ) : Comparable<RendererVersion> {
 
     public override fun compareTo(other: RendererVersion): Int =
         compareValuesBy(this, other, { it.major }, { it.minor }, { it.revision })
 
     public companion object {
+        /**
+         * The safe fallback major version, describing the renderer Host offering initial
+         * RemoteCompose support.
+         */
+        public const val SAFE_FALLBACK_MAJOR: Int = 1
+
+        /**
+         * The safe fallback minor version, describing the renderer Host offering initial
+         * RemoteCompose support.
+         */
+        public const val SAFE_FALLBACK_MINOR: Int = 6
+
+        /**
+         * The safe fallback revision version, describing the renderer Host offering initial
+         * RemoteCompose support.
+         */
+        public const val SAFE_FALLBACK_REVISION: Int = 0
+
         /** The set of operations supported by initial version (1.6.0). */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public val DEFAULT_SUPPORTED_OPERATIONS: IntSet =
+        public val SAFE_FALLBACK_SUPPORTED_OPERATIONS: IntSet =
             // TODO: b/529699478 - Use proper API constants once they are available.
             intSetOf(
                 0 /* HEADER */,
@@ -178,22 +196,30 @@ public data class RendererVersion(
             )
 
         /**
-         * The default major version, describing the renderer Host offering initial RemoteCompose
-         * support.
+         * The safe, default renderer version, describing the renderer Host offering initial
+         * RemoteCompose support, from when 3P widgets were first supported.
          */
-        public const val DEFAULT_RENDERER_VERSION_MAJOR: Int = 1
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val SAFE_FALLBACK_VERSION: RendererVersion =
+            RendererVersion(
+                major = SAFE_FALLBACK_MAJOR,
+                minor = SAFE_FALLBACK_MINOR,
+                revision = SAFE_FALLBACK_REVISION,
+                supportedOperations = SAFE_FALLBACK_SUPPORTED_OPERATIONS,
+            )
 
         /**
-         * The default minor version, describing the renderer Host offering initial RemoteCompose
-         * support.
+         * Defines artificial max renderer version, i.e. the version that will always correspond to
+         * the latest Host and set of supported operations.
          */
-        public const val DEFAULT_RENDERER_VERSION_MINOR: Int = 6
-
-        /**
-         * The default revision version, describing the renderer Host offering initial RemoteCompose
-         * support.
-         */
-        public const val DEFAULT_RENDERER_VERSION_REVISION: Int = 0
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val MAX_RENDERER_VERSION: RendererVersion =
+            RendererVersion(
+                major = 999,
+                minor = 999,
+                revision = 999,
+                supportedOperations = intSetOf(),
+            )
 
         /**
          * Resolves the [RendererVersion] supported by the Wear OS Host by parsing the version name
@@ -230,7 +256,7 @@ public data class RendererVersion(
                         0
                     }
 
-                return RendererVersion(major, minor, revision)
+                return RendererVersion(major, minor, revision, SAFE_FALLBACK_SUPPORTED_OPERATIONS)
             } catch (e: PackageManager.NameNotFoundException) {
                 Log.w(TAG, "ProtoLayout renderer package not installed", e)
             } catch (e: Exception) {
@@ -242,7 +268,14 @@ public data class RendererVersion(
         @VisibleForTesting
         internal const val PL_RENDERER_HOST_PACKAGE: String =
             "com.google.android.wearable.protolayout.renderer"
-        @VisibleForTesting internal val PL_RENDERER_INITIAL_VERSION = RendererVersion(1, 0, 0)
+        @VisibleForTesting
+        internal val PL_RENDERER_INITIAL_VERSION =
+            RendererVersion(
+                major = 1,
+                minor = 0,
+                revision = 0,
+                supportedOperations = SAFE_FALLBACK_SUPPORTED_OPERATIONS,
+            )
         private const val TAG = "RendererVersion"
     }
 }

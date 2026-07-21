@@ -101,10 +101,15 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
                             if (specProto.renderer_supported_operations.isNotEmpty()) {
                                 specProto.renderer_supported_operations.toIntSet { it.op_code }
                             } else {
-                                RendererVersion.DEFAULT_SUPPORTED_OPERATIONS
+                                RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
                             }
                         if (specProto.renderer_version_major == 0) {
-                            RendererVersion(supportedOperations = supportedOps)
+                            RendererVersion(
+                                major = RendererVersion.SAFE_FALLBACK_MAJOR,
+                                minor = RendererVersion.SAFE_FALLBACK_MINOR,
+                                revision = RendererVersion.SAFE_FALLBACK_REVISION,
+                                supportedOperations = supportedOps,
+                            )
                         } else {
                             RendererVersion(
                                 major = specProto.renderer_version_major,
