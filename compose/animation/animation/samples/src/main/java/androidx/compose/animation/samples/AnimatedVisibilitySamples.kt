@@ -32,7 +32,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -764,7 +764,7 @@ fun DeferredAnimatedVisibilitySample() {
     var swipeOffset by remember { mutableStateOf(IntOffset.Zero) }
 
     val transitionState = remember { DeferredTransitionState(visible) }
-    val transition = rememberTransition(transitionState)
+    val transition = rememberDeferredTransition(transitionState)
     LaunchedEffect(isBackGestureInProgress, visible) {
         if (isBackGestureInProgress) {
             transitionState.defer(visible)

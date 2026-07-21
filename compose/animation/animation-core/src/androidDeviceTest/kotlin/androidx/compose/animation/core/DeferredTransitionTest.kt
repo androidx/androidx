@@ -56,7 +56,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
         }
 
         // 1. Verify Initial state (Initial state cannot be deferred)
@@ -90,7 +90,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
         }
 
         // Update target to B (Deferred)
@@ -115,7 +115,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
             animatedValue =
                 transition
                     .animateInt(
@@ -170,7 +170,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
             childTransition = transition.createChildTransition { it == TestStates.B }
         }
 
@@ -199,7 +199,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             value =
                 transition
                     .animateFloat(
@@ -245,7 +245,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
             childTransition =
                 transition.createChildTransition(label = "ChildTransition") { it == TestStates.B }
         }
@@ -284,7 +284,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
         }
 
         // 1. Defer A -> B
@@ -309,7 +309,7 @@ class DeferredTransitionTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(TestStates.A) }
-            transition = rememberTransition(state)
+            transition = rememberDeferredTransition(state)
             animatedValue =
                 transition
                     .animateInt(

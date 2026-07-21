@@ -20,7 +20,7 @@ import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -67,7 +67,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter = fadeIn(tween(100, easing = LinearEasing)),
@@ -109,7 +109,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter = fadeIn(tween(100)),
@@ -152,7 +152,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter = fadeIn(tween(1000, easing = LinearEasing)),
@@ -182,7 +182,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(visible = { it }, exit = fadeOut(tween(100))) {
                 Box(Modifier.size(100.dp).testTag("content"))
             }
@@ -210,7 +210,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(visible = { it }) {
                 currentState = this@DeferredAnimatedVisibility.transition.currentState
                 Box(Modifier.size(100.dp).testTag("content"))
@@ -245,7 +245,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter = expandIn(tween(100, easing = LinearEasing)) { IntSize.Zero },
@@ -283,7 +283,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter = expandIn(tween(100, easing = LinearEasing)) { IntSize.Zero },
@@ -341,7 +341,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -411,7 +411,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -477,7 +477,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -538,7 +538,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -601,7 +601,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -684,7 +684,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -776,7 +776,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -862,7 +862,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -934,7 +934,7 @@ class DeferredAnimatedVisibilityTest {
             testTimeSource = { rule.mainClock.currentTime }
             // Start hidden
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -1023,7 +1023,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -1106,7 +1106,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -1183,7 +1183,7 @@ class DeferredAnimatedVisibilityTest {
 
         rule.setContent {
             state = remember { DeferredTransitionState(true) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
 
             transition.DeferredAnimatedVisibility(
                 visible = { it },
@@ -1257,7 +1257,7 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             state = remember { DeferredTransitionState(false) }
-            val transition = rememberTransition(state)
+            val transition = rememberDeferredTransition(state)
             transition.DeferredAnimatedVisibility(
                 visible = { it },
                 enter =

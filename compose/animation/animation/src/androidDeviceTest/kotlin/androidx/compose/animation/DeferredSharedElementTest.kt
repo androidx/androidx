@@ -19,7 +19,7 @@ package androidx.compose.animation
 import androidx.compose.animation.core.DeferredTransitionState
 import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -73,7 +73,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -162,7 +162,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -246,7 +246,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -327,7 +327,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform =
                     remember(state.pendingTargetState, previewScale) {
                         MutableContentTransform {
@@ -505,7 +505,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 transition.DeferredAnimatedContent { state ->
                     Box(Modifier.fillMaxSize()) {
                         Box(
@@ -553,7 +553,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px400).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform =
                     remember(state.pendingTargetState, previewScale) {
                         MutableContentTransform {
@@ -679,7 +679,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform =
                     remember(state.pendingTargetState, previewScale) {
                         MutableContentTransform {
@@ -789,7 +789,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState("A") }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -883,7 +883,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px400).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState("A") }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -999,7 +999,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {
@@ -1118,7 +1118,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform =
                     remember(state.pendingTargetState, previewScale) {
                         MutableContentTransform {
@@ -1218,7 +1218,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).background(Color.White)) {
                 val state = remember { DeferredTransitionState(targetState) }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform =
                     remember(state.pendingTargetState, previewScale) {
                         MutableContentTransform {
@@ -1325,7 +1325,7 @@ class DeferredSharedElementTest {
             SharedTransitionLayout(Modifier.size(px300).testTag("scope").background(Color.White)) {
                 val state = remember { DeferredTransitionState("Detail") }
                 myState = state
-                val transition = rememberTransition(state)
+                val transition = rememberDeferredTransition(state)
                 val mutableTransform = remember {
                     MutableContentTransform {
                         initialContentTransform {

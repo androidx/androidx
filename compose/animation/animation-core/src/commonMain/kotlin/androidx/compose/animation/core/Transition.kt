@@ -173,7 +173,7 @@ public class DeferredTransitionState<S>(initialState: S) : TransitionState<S>() 
 }
 
 /**
- * A [Transition] that supports a deferred phase, created via [rememberTransition].
+ * A [Transition] that supports a deferred phase, created via [rememberDeferredTransition].
  *
  * [DeferredTransition] extends the standard [Transition] to allow manual manipulation of
  * transformation properties before the automatic transition begins. This is particularly useful for
@@ -205,7 +205,7 @@ internal constructor(transitionState: DeferredTransitionState<S>, label: String?
  */
 @ExperimentalDeferredTransitionApi
 @Composable
-public fun <T> rememberTransition(
+public fun <T> rememberDeferredTransition(
     transitionState: DeferredTransitionState<T>,
     label: String? = null,
 ): DeferredTransition<T> {
