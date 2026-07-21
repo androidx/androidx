@@ -18,6 +18,7 @@ package androidx.camera.common
 
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.camera.common.compat.Api28Compat
 import java.lang.Class
 
@@ -27,18 +28,15 @@ import java.lang.Class
  * This class provides access to the settings applied to a specific capture request, wrapping a
  * native [CaptureRequest] and optionally associating custom metadata with it.
  *
- * Instance creation is restricted to the companion object's factory methods:
- * - In Kotlin, use the constructor-like syntax: `AndroidCaptureRequest(captureRequest, metadata)`
- * - In Java, use the static factory method: `AndroidCaptureRequest.create(captureRequest,
- *   metadata)`
- *
  * @see CaptureRequestWrapper
  * @see Metadata
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AndroidCaptureRequest
-private constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     private val captureRequest: CaptureRequest,
-    private val metadata: Map<Metadata.Key<*>, Any?>,
+    private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
 ) : CaptureRequestWrapper {
 
     /**
@@ -100,36 +98,4 @@ private constructor(
             type.isInstance(captureRequest) -> captureRequest as T
             else -> null
         }
-
-    public companion object {
-        /**
-         * Creates an [AndroidCaptureRequest] instance for Kotlin clients.
-         *
-         * Allows constructor-like syntax in Kotlin: `AndroidCaptureRequest(...)`.
-         *
-         * @param captureRequest The native [CaptureRequest] to wrap.
-         * @param metadata Optional map of custom metadata key-value properties.
-         * @return A configured [AndroidCaptureRequest] instance.
-         */
-        @JvmSynthetic
-        @Suppress("MissingJvmstatic")
-        public operator fun invoke(
-            captureRequest: CaptureRequest,
-            metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-        ): AndroidCaptureRequest = AndroidCaptureRequest(captureRequest, metadata)
-
-        /**
-         * Creates an [AndroidCaptureRequest] instance for Java compatibility.
-         *
-         * @param captureRequest The native [CaptureRequest] to wrap.
-         * @param metadata Optional map of custom metadata key-value properties.
-         * @return A configured [AndroidCaptureRequest] instance.
-         */
-        @JvmStatic
-        @JvmOverloads
-        public fun create(
-            captureRequest: CaptureRequest,
-            metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-        ): AndroidCaptureRequest = AndroidCaptureRequest(captureRequest, metadata)
-    }
 }
