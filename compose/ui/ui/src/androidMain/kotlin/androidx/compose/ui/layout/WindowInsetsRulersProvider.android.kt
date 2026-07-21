@@ -47,9 +47,9 @@ internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope)
             if (traversableNode.traverseKey === RulerKey) {
                 val provider = traversableNode as WindowInsetsRulerProvider
                 return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-                    provider.insetsProvider!!.displayCutoutBoundsRulers
+                    provider.insetsProvider?.displayCutoutBoundsRulers ?: emptyList()
                 } else {
-                    provider.cutoutRulers!!
+                    provider.cutoutRulers ?: emptyList()
                 }
             }
         }
@@ -68,10 +68,10 @@ internal actual fun findInsetsAnimationProperties(
             if (traversableNode.traverseKey === RulerKey) {
                 val provider = traversableNode as WindowInsetsRulerProvider
                 return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-                    provider.insetsProvider!!.findWindowInsetsAnimation(windowInsetsRulers)
+                    provider.insetsProvider?.findWindowInsetsAnimation(windowInsetsRulers)
                         ?: NoWindowInsetsAnimation
                 } else {
-                    provider.insetsValues!![windowInsetsRulers] ?: NoWindowInsetsAnimation
+                    provider.insetsValues?.get(windowInsetsRulers) ?: NoWindowInsetsAnimation
                 }
             }
         }
@@ -104,7 +104,7 @@ internal class WindowInsetsRulersProvider(val insetsWatcher: WindowInsetsWatcher
                     val cutoutRulers = AllDisplayCutoutBoundsRectRulers
                     for (i in
                         _displayCutoutBoundsRulers.size until
-                            maxOf(cutoutRulers.size, boundingRects.size)) {
+                            minOf(cutoutRulers.size, boundingRects.size)) {
                         _displayCutoutBoundsRulers += cutoutRulers[i]
                     }
                 }
@@ -134,6 +134,7 @@ internal class WindowInsetsRulersProvider(val insetsWatcher: WindowInsetsWatcher
                 val currentInsets = currentInsets ?: return
                 val cutout = currentInsets.displayCutout ?: return
                 val boundingRects = cutout.boundingRects
+                if (whichRectRulers >= boundingRects.size) return
                 val rect = boundingRects[whichRectRulers]
                 with(rulerScope) {
                     rectRulers.left provides rect.left.toFloat()

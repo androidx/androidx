@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable.PlacementScope
@@ -75,12 +76,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalComposeUiApi::class)
 @SdkSuppress(minSdkVersion = 30)
-@RunWith(JUnit4::class)
-class WindowInsetsRulersTest {
+@RunWith(Parameterized::class)
+class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boolean) {
     @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>(StandardTestDispatcher())
 
     private lateinit var composeView: AndroidComposeView
@@ -96,9 +97,13 @@ class WindowInsetsRulersTest {
     private var contentWidth = 0
     private var contentHeight = 0
     private val displayCutoutRects = mutableObjectListOf<IntRect?>()
+    private var previousDelayedRulersFlag = false
 
     @Before
     fun setup() {
+        previousDelayedRulersFlag = AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled
+        AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled =
+            isDelayedWindowInsetsRulersEnabled
         rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
         // Don't let the normal rulers through. We only want the sendOnApplyWindowInsets() to have
         // an effect.
@@ -109,6 +114,7 @@ class WindowInsetsRulersTest {
     @After
     fun tearDown() {
         areWindowInsetsRulersEnabled = true
+        AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled = previousDelayedRulersFlag
     }
 
     private fun setContent(content: @Composable () -> Unit) {
@@ -414,6 +420,19 @@ class WindowInsetsRulersTest {
                     IntRect(contentWidth - 3, 0, contentWidth, contentHeight),
                     IntRect(0, contentHeight - 5, contentWidth, contentHeight),
                 )
+        }
+    }
+
+    @Test
+    fun singleSideDisplayCutoutRulers() {
+        setSimpleRulerContent(mutableStateOf(DisplayCutout))
+
+        val insets = createInsets(Type.displayCutout() to Insets.of(0, 15, 0, 0))
+        sendOnApplyWindowInsets(insets)
+        rule.runOnIdle {
+            assertThat(displayCutoutRects.size).isEqualTo(1)
+            assertThat(displayCutoutRects.any { it == null }).isFalse()
+            assertThat(displayCutoutRects.asList()).containsExactly(IntRect(0, 0, contentWidth, 15))
         }
     }
 
@@ -1008,6 +1027,46 @@ class WindowInsetsRulersTest {
         assertThat(bottom).isNaN()
     }
 
+    @Test
+    fun disableWindowInsetsRulers_withAppliedInsets() {
+        var left = 0f
+        var top = 0f
+        var cutoutCount = -1
+        setContent {
+            Box(
+                Modifier.fillMaxSize().layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                        left = StatusBars.current.left.current(Float.NaN)
+                        top = StatusBars.current.top.current(Float.NaN)
+                        cutoutCount = getDisplayCutoutBounds().size
+                    }
+                }
+            )
+        }
+        val insets =
+            createInsets(
+                Type.statusBars() to Insets.of(0, 50, 0, 0),
+                Type.displayCutout() to Insets.of(0, 20, 0, 0),
+            )
+        sendOnApplyWindowInsets(insets)
+        rule.waitForIdle()
+
+        // Disable window insets rulers directly after applying insets
+        ComposeView.disableWindowInsetsRulers()
+        rule.runOnIdle {
+            composeView.root.requestRemeasure(forceRequest = true)
+            composeView.root.requestRelayout(forceRequest = true)
+            composeView.requestLayout()
+        }
+        rule.waitForIdle()
+
+        assertThat(left).isNaN()
+        assertThat(top).isNaN()
+        assertThat(cutoutCount).isEqualTo(0)
+    }
+
     private fun createInsetsIgnoringVisibility(
         vararg insetValues: Pair<Int, Insets>
     ): WindowInsetsCompat {
@@ -1101,6 +1160,10 @@ class WindowInsetsRulersTest {
     }
 
     companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "isDelayedWindowInsetsRulersEnabled={0}")
+        fun data(): List<Boolean> = listOf(false, true)
+
         const val WaterfallType = -1
         val InsetsRulerTypes =
             mapOf(
