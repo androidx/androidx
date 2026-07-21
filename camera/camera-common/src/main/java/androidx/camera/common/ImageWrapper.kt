@@ -21,65 +21,143 @@ import android.graphics.Rect
 import android.hardware.DataSpace
 import android.hardware.HardwareBuffer
 import android.hardware.SyncFence
+import android.media.Image
 import java.nio.ByteBuffer
 
-/** Wrapper interfaces that mirrors the primary read-only properties of [android.media.Image]. */
+/**
+ * A wrapper interface that mirrors the primary read-only properties of [Image].
+ *
+ * This wrapper abstracts the underlying platform image format to support common operations and ease
+ * testing by allowing mocking.
+ */
 public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
-    /** @see [android.media.Image.getWidth] */
+    /**
+     * The width of the image in pixels.
+     *
+     * @see Image.getWidth
+     */
     public val width: Int
 
-    /** @see [android.media.Image.getHeight] */
+    /**
+     * The height of the image in pixels.
+     *
+     * @see Image.getHeight
+     */
     public val height: Int
 
-    /** @see [android.media.Image.getFormat] */
+    /**
+     * The format of the image.
+     *
+     * The value returned is one of the constants defined in [ImageFormat].
+     *
+     * @see Image.getFormat
+     * @see ImageFormat
+     */
     @get:ImageFormat public val format: Int
 
-    /** @see [android.media.Image.getPlanes] */
+    /**
+     * The list of pixel planes for this image.
+     *
+     * The number of planes is determined by the format of the image. For example, YUV images
+     * usually have three planes (Y, U, V), while RGB or JPEG images typically have a single plane.
+     *
+     * @see Image.getPlanes
+     */
     public val imagePlanes: List<ImagePlane>
 
-    /** @see [android.media.Image.getTimestamp] */
+    /**
+     * The timestamp associated with this image, in nanoseconds.
+     *
+     * @see Image.getTimestamp
+     */
     public val timestamp: Long
 
-    /** @see [android.media.Image.getCropRect] */
+    /**
+     * The crop rectangle of the image.
+     *
+     * The crop rectangle defines the region of the image that contains valid pixel data. If not
+     * set, it defaults to the full size of the image.
+     *
+     * @see Image.getCropRect
+     */
     public val cropRect: Rect
 
     /**
-     * Returns a handle to the underlying image's hardware buffer, or `null` if this image does not
-     * support hardware buffer.
+     * The handle to the underlying image's hardware buffer, or `null` if this image does not
+     * support hardware buffers.
      *
-     * The [android.hardware.HardwareBuffer] follows the lifecycle of its associated image. It is
-     * not required to be closed explicitly; however, the image needs to be closed after finishing
-     * processing the hardware buffer. In other words, if the hardware buffer is being used, the
-     * image cannot be closed.
+     * The [HardwareBuffer] follows the lifecycle of its associated [ImageWrapper]. It is not
+     * required to be closed explicitly; however, the [ImageWrapper] must not be closed while the
+     * hardware buffer is still in use.
      *
-     * @see [android.media.Image.getHardwareBuffer]
+     * @see Image.getHardwareBuffer
      */
     public val hardwareBuffer: HardwareBuffer?
         get() = null
 
-    /** @see [android.media.Image.getFence] */
+    /**
+     * The sync fence associated with this image, or `null` if there is no fence.
+     *
+     * The sync fence is used to coordinate access to the image data, ensuring that the producer has
+     * finished writing before the consumer starts reading, or vice versa.
+     *
+     * @see Image.getFence
+     */
     public val syncFence: SyncFence?
         get() = null
 
-    /** @see [android.media.Image.getDataSpace] */
+    /**
+     * The dataspace associated with this image.
+     *
+     * The dataspace defines how the color components of the image should be interpreted.
+     *
+     * The value returned is one of the constants defined in [ImageDataSpace].
+     *
+     * @see Image.getDataSpace
+     * @see ImageDataSpace
+     */
     @get:SuppressLint("MethodNameUnits")
     @ImageDataSpace
     public val dataSpace: Int
         get() = DataSpace.DATASPACE_UNKNOWN
 }
 
-/** A mutable extension of [ImageWrapper] that includes write properties. */
+/**
+ * A mutable extension of [ImageWrapper] that allows modifying properties of the image.
+ *
+ * This interface is useful when modifying the metadata of an image, such as its crop rectangle,
+ * timestamp, or synchronization fence.
+ */
 public interface MutableImageWrapper : ImageWrapper {
-    /** @see [android.media.Image.setCropRect] */
+    /**
+     * The crop rectangle of the image.
+     *
+     * @see Image.setCropRect
+     */
     override var cropRect: Rect
 
-    /** @see [android.media.Image.setTimestamp] */
+    /**
+     * The timestamp associated with this image, in nanoseconds.
+     *
+     * @see Image.setTimestamp
+     */
     override var timestamp: Long
 
-    /** @see [android.media.Image.setFence] */
+    /**
+     * The sync fence associated with this image, or `null` if there is no fence.
+     *
+     * @see Image.setFence
+     */
     override var syncFence: SyncFence?
 
-    /** @see [android.media.Image.setDataSpace] */
+    /**
+     * The dataspace associated with this image.
+     *
+     * The value set must be one of the constants defined in [ImageDataSpace].
+     *
+     * @see Image.setDataSpace
+     * @see ImageDataSpace
+     */
     @get:SuppressLint("MethodNameUnits")
     @set:SuppressLint("MethodNameUnits")
     @get:ImageDataSpace
@@ -87,13 +165,37 @@ public interface MutableImageWrapper : ImageWrapper {
     override var dataSpace: Int
 }
 
+/**
+ * A wrapper interface that mirrors [Image.Plane].
+ *
+ * Represents a single color plane of image data.
+ */
 public interface ImagePlane : UnsafeWrapper {
-    /** @see [android.media.Image.Plane.getRowStride] */
+    /**
+     * The row stride, in bytes.
+     *
+     * This is the distance between the start of two consecutive rows of pixels in the image buffer.
+     *
+     * @see Image.Plane.getRowStride
+     */
     public val rowStride: Int
 
-    /** @see [android.media.Image.Plane.getPixelStride] */
+    /**
+     * The pixel stride, in bytes.
+     *
+     * This is the distance between two consecutive pixel values in a row of the image buffer.
+     *
+     * @see Image.Plane.getPixelStride
+     */
     public val pixelStride: Int
 
-    /** @see [android.media.Image.Plane.getBuffer] */
+    /**
+     * A [ByteBuffer] containing the image data for this plane.
+     *
+     * The buffer's position will be set to the start of the plane data, and its limit will be set
+     * to the end of the plane data.
+     *
+     * @see Image.Plane.getBuffer
+     */
     public val buffer: ByteBuffer
 }

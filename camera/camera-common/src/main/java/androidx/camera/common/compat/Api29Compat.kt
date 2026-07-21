@@ -19,8 +19,22 @@ package androidx.camera.common.compat
 import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 
+/**
+ * Compatibility wrapper for [CameraCharacteristics] APIs introduced in API level 29 (Android Q).
+ */
 @RequiresApi(29)
 internal object Api29Compat {
+    /**
+     * Returns a list of keys in [CameraCharacteristics] that require camera permission to retrieve.
+     *
+     * For applications targeting Android Q or higher, some keys in [CameraCharacteristics] require
+     * camera permission. Querying these keys without permission will return `null`.
+     *
+     * This method delegates to [CameraCharacteristics.getKeysNeedingPermission].
+     *
+     * @param cameraCharacteristics The camera characteristics to query.
+     * @return The list of keys that require camera permission.
+     */
     @JvmStatic
     fun getKeysNeedingPermission(
         cameraCharacteristics: CameraCharacteristics

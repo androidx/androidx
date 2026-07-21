@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
  * developer may need to understand and work with:
  * - **Sensor-relative** coordinates: These are integer-pixel coordinates that correspond to the
  *   physical active pixel array of a camera device. Most operations in Camera2 (like 3A metering
- *   regions or crop regions) define coordinates relative to the physical sensor (with (0,0) being
+ *   regions or crop regions) define coordinates relative to the physical sensor (with `(0,0)` being
  *   the top-left active pixel).
  * - **Stream-relative** coordinates: When configuring camera output streams, they are configured
  *   with a specific resolution. The stream coordinate space is axially aligned and centered within
@@ -75,19 +75,19 @@ public object CameraMath {
      * Computes the rotation required to rotate coordinates from sensor space to the display
      * coordinate system.
      *
-     * @param displayRotation The rotation of the display in degrees. Must be one of 0, 90,
-     *   180, 270. Negative values are not supported. This can be obtained from
+     * @param displayRotation The rotation of the display in degrees. Must be one of `0`, `90`,
+     *   `180`, or `270`. Negative values are not supported. This can be obtained from
      *   [android.view.Display.getRotation] and converted using
      *   [DiscreteRotation.fromSurfaceRotation] (e.g.,
      *   `DiscreteRotation.fromSurfaceRotation(display.rotation).degrees`). (Note: do not pass
-     *   [android.view.Surface] `ROTATION_X` constants directly as they represent index values
-     *   rather than degrees).
+     *   [android.view.Surface.ROTATION_0], [android.view.Surface.ROTATION_90], etc. constants
+     *   directly as they represent index values rather than degrees).
      * @param sensorOrientation The physical orientation of the sensor in degrees (typically
-     *   SENSOR_ORIENTATION from CameraCharacteristics). Must be one of 0, 90, 180, 270. Negative
-     *   values are not supported.
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION]). Must be one of `0`,
+     *   `90`, `180`, or `270`. Negative values are not supported.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
-     * @throws IllegalArgumentException if [displayRotation] or [sensorOrientation] is not one of 0,
-     *   90, 180, 270.
+     * @throws IllegalArgumentException if [displayRotation] or [sensorOrientation] is not one of
+     *   `0`, `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmName("computeSensorRotationToDisplayOrientation")
@@ -131,18 +131,18 @@ public object CameraMath {
      *
      * See [android.hardware.camera2.CaptureRequest.JPEG_ORIENTATION] for more details.
      *
-     * @param deviceOrientation The physical orientation of the device in degrees. Must be one of 0,
-     *   90, 180, 270. Negative values are not supported. This is typically obtained from an
-     *   [android.view.OrientationEventListener] and rounded to the nearest 90 degrees using
+     * @param deviceOrientation The physical orientation of the device in degrees. Must be one of
+     *   `0`, `90`, `180`, or `270`. Negative values are not supported. This is typically obtained
+     *   from an [android.view.OrientationEventListener] and rounded to the nearest 90 degrees using
      *   [DiscreteRotation.round]. See the
      *   [Camera Orientation Guide](https://chromeos.dev/en/android/camera-orientation#jpeg-orientation)
      *   for more details.
-     * @param sensorOrientation The physical orientation of the sensor (typically SENSOR_ORIENTATION
-     *   from CameraCharacteristics). Must be one of 0, 90, 180, 270. Negative values are not
-     *   supported.
+     * @param sensorOrientation The physical orientation of the sensor (typically
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION]). Must be one of `0`,
+     *   `90`, `180`, or `270`. Negative values are not supported.
      * @param sensorIsFacingScreen Whether the camera sensor is facing the screen (front-facing).
      * @throws IllegalArgumentException if [deviceOrientation] or [sensorOrientation] is not one of
-     *   0, 90, 180, 270.
+     *   `0`, `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmName("computeSensorRotationToJpegOrientation")
@@ -194,19 +194,19 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent point relative to a specific
      * camera stream.
      *
-     * @param uiPoint The point in the UI. UI coordinates are relative to the uiSize, and does not
+     * @param uiPoint The point in the UI. UI coordinates are relative to `uiSize` and do not
      *   account for the positioning of the UI. Callers must normalize coordinates to account for
      *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
-     * @param streamMirroring Whether the camera stream is mirrored.
+     *   `streamWidth` and `streamHeight` boundaries.
+     * @param streamMirroring Whether the camera stream is mirrored (e.g., for front-facing camera).
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapUiPointToStreamPointF(
@@ -234,20 +234,20 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent point relative to a specific
      * camera stream.
      *
-     * @param uiX The x coordinate in the UI. UI coordinates are relative to the uiWidth, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
-     * @param uiY The y coordinate in the UI. UI coordinates are relative to the uiHeight, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
+     * @param uiX The x coordinate in the UI. UI coordinates are relative to `uiWidth` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
+     * @param uiY The y coordinate in the UI. UI coordinates are relative to `uiHeight` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
@@ -313,19 +313,19 @@ public object CameraMath {
      * Converts a rectangle relative to a UI element to an equivalent rectangle relative to a
      * specific camera stream.
      *
-     * @param uiRect The rectangle in the UI. UI coordinates are relative to the uiSize, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
+     * @param uiRect The rectangle in the UI. UI coordinates are relative to `uiSize` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapUiRectToStreamRectF(
@@ -356,25 +356,25 @@ public object CameraMath {
      * specific camera stream.
      *
      * @param uiLeft The left coordinate of the rectangle in the UI. UI coordinates are relative to
-     *   the uiWidth, and does not account for the positioning of the UI. Callers must normalize
+     *   `uiWidth` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiTop The top coordinate of the rectangle in the UI. UI coordinates are relative to
-     *   the uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     *   `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiRight The right coordinate of the rectangle in the UI. UI coordinates are relative
-     *   to the uiWidth, and does not account for the positioning of the UI. Callers must normalize
+     *   to `uiWidth` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiBottom The bottom coordinate of the rectangle in the UI. UI coordinates are relative
-     *   to the uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     *   to `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
@@ -460,21 +460,21 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent rectangle relative to a specific
      * camera stream.
      *
-     * @param uiPoint The point in the UI. UI coordinates are relative to the uiSize, and does not
+     * @param uiPoint The point in the UI. UI coordinates are relative to `uiSize` and do not
      *   account for the positioning of the UI. Callers must normalize coordinates to account for
      *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
      * @param touchToFocusRatio The ratio to use when computing a rectangle based on the short
      *   dimension of the stream.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmOverloads
@@ -505,20 +505,20 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent rectangle relative to a specific
      * camera stream.
      *
-     * @param uiX The x coordinate in the UI. UI coordinates are relative to the uiWidth, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
-     * @param uiY The y coordinate in the UI. UI coordinates are relative to the uiHeight, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
+     * @param uiX The x coordinate in the UI. UI coordinates are relative to `uiWidth` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
+     * @param uiY The y coordinate in the UI. UI coordinates are relative to `uiHeight` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
@@ -568,18 +568,18 @@ public object CameraMath {
      * Converts a size relative to a UI element to an equivalent size relative to a specific camera
      * stream.
      *
-     * @param size The size in the UI. UI coordinates are relative to the uiSize, and does not
-     *   account for the positioning of the UI. Callers must normalize coordinates to account for
-     *   clipping or padding before calling this function.
+     * @param size The size in the UI. UI coordinates are relative to `uiSize` and do not account
+     *   for the positioning of the UI. Callers must normalize coordinates to account for clipping
+     *   or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmName("mapUiSizeToStreamSizeF")
@@ -606,11 +606,11 @@ public object CameraMath {
      * Converts a size relative to a UI element to an equivalent size relative to a specific camera
      * stream.
      *
-     * @param uiSizeWidth The width of the size in the UI. UI coordinates are relative to the
-     *   uiWidth, and does not account for the positioning of the UI. Callers must normalize
-     *   coordinates to account for clipping or padding before calling this function.
-     * @param uiSizeHeight The height of the size in the UI. UI coordinates are relative to the
-     *   uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     * @param uiSizeWidth The width of the size in the UI. UI coordinates are relative to `uiWidth`
+     *   and do not account for the positioning of the UI. Callers must normalize coordinates to
+     *   account for clipping or padding before calling this function.
+     * @param uiSizeHeight The height of the size in the UI. UI coordinates are relative to
+     *   `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
@@ -664,23 +664,24 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent point relative to the camera
      * sensor.
      *
-     * @param uiPoint The point in the UI. UI coordinates are relative to the uiSize, and does not
+     * @param uiPoint The point in the UI. UI coordinates are relative to `uiSize` and do not
      *   account for the positioning of the UI. Callers must normalize coordinates to account for
      *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied). Sensor coordinates are relative to the sensor's top-left active pixel `(0,0)`.
      * @param coerceToCropRegion Whether to coerce the output point into the crop region.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmOverloads
@@ -716,27 +717,27 @@ public object CameraMath {
      * Converts a point relative to a UI element to an equivalent point relative to the camera
      * sensor.
      *
-     * @param uiX The x coordinate in the UI. UI coordinates are relative to the uiWidth, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
-     * @param uiY The y coordinate in the UI. UI coordinates are relative to the uiHeight, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
+     * @param uiX The x coordinate in the UI. UI coordinates are relative to `uiWidth` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
+     * @param uiY The y coordinate in the UI. UI coordinates are relative to `uiHeight` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropWidth The width of the crop region of the sensor.
      * @param sensorCropHeight The height of the crop region of the sensor.
      * @param coerceToCropRegion Whether to coerce the output point into the crop region.
@@ -790,27 +791,28 @@ public object CameraMath {
      * Converts a rectangle relative to a UI element to an equivalent rectangle relative to the
      * camera sensor.
      *
-     * @param uiRect The rectangle in the UI. UI coordinates are relative to the uiSize, and does
-     *   not account for the positioning of the UI. Callers must normalize coordinates to account
-     *   for clipping or padding before calling this function.
+     * @param uiRect The rectangle in the UI. UI coordinates are relative to `uiSize` and do not
+     *   account for the positioning of the UI. Callers must normalize coordinates to account for
+     *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied). Sensor coordinates are relative to the sensor's top-left active pixel `(0,0)`.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmOverloads
@@ -851,38 +853,38 @@ public object CameraMath {
      * camera sensor.
      *
      * @param uiLeft The left coordinate of the rectangle in the UI. UI coordinates are relative to
-     *   the uiWidth, and does not account for the positioning of the UI. Callers must normalize
+     *   `uiWidth` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiTop The top coordinate of the rectangle in the UI. UI coordinates are relative to
-     *   the uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     *   `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiRight The right coordinate of the rectangle in the UI. UI coordinates are relative
-     *   to the uiWidth, and does not account for the positioning of the UI. Callers must normalize
+     *   to `uiWidth` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiBottom The bottom coordinate of the rectangle in the UI. UI coordinates are relative
-     *   to the uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     *   to `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropWidth The width of the crop region of the sensor.
      * @param sensorCropHeight The height of the crop region of the sensor.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      * @param toSensorRect A callback to construct the final return object from the computed sensor
      *   coordinates.
@@ -946,29 +948,30 @@ public object CameraMath {
      * centered on the mapped point. If the calculated rectangle is smaller than [minimumSensorSize]
      * in either dimension, it will be expanded symmetrically from its center to reach the minimum.
      *
-     * @param uiPoint The point in the UI. UI coordinates are relative to the uiSize, and does not
+     * @param uiPoint The point in the UI. UI coordinates are relative to `uiSize` and do not
      *   account for the positioning of the UI. Callers must normalize coordinates to account for
      *   clipping or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied). Sensor coordinates are relative to the sensor's top-left active pixel `(0,0)`.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      * @param touchToFocusRatio The ratio to use when computing a rectangle based on the short
      *   dimension of the stream.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmOverloads
@@ -1091,20 +1094,20 @@ public object CameraMath {
     /**
      * Converts a size relative to a UI element to an equivalent size relative to the camera sensor.
      *
-     * @param size The size in the UI. UI coordinates are relative to the uiSize, and does not
-     *   account for the positioning of the UI. Callers must normalize coordinates to account for
-     *   clipping or padding before calling this function.
+     * @param size The size in the UI. UI coordinates are relative to `uiSize` and do not account
+     *   for the positioning of the UI. Callers must normalize coordinates to account for clipping
+     *   or padding before calling this function.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapUiSizeToSensorSize(
@@ -1133,20 +1136,20 @@ public object CameraMath {
     /**
      * Converts a size relative to a UI element to an equivalent size relative to the camera sensor.
      *
-     * @param uiSizeWidth The width of the size in the UI. UI coordinates are relative to the
-     *   uiWidth, and does not account for the positioning of the UI. Callers must normalize
-     *   coordinates to account for clipping or padding before calling this function.
-     * @param uiSizeHeight The height of the size in the UI. UI coordinates are relative to the
-     *   uiHeight, and does not account for the positioning of the UI. Callers must normalize
+     * @param uiSizeWidth The width of the size in the UI. UI coordinates are relative to `uiWidth`
+     *   and do not account for the positioning of the UI. Callers must normalize coordinates to
+     *   account for clipping or padding before calling this function.
+     * @param uiSizeHeight The height of the size in the UI. UI coordinates are relative to
+     *   `uiHeight` and do not account for the positioning of the UI. Callers must normalize
      *   coordinates to account for clipping or padding before calling this function.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
@@ -1195,16 +1198,16 @@ public object CameraMath {
      * element.
      *
      * @param streamPoint The point in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapStreamPointToUiPointF(
@@ -1233,9 +1236,9 @@ public object CameraMath {
      * element.
      *
      * @param streamX The x coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamY The y coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
@@ -1308,16 +1311,16 @@ public object CameraMath {
      * to a UI element.
      *
      * @param streamRect The rectangle in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapStreamRectToUiRectF(
@@ -1348,13 +1351,13 @@ public object CameraMath {
      * to a UI element.
      *
      * @param streamLeft The left coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamTop The top coordinate of the rectangle in the camera stream. Stream coordinates
-     *   are relative to the streamWidth/streamHeight.
+     *   are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamRight The right coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamBottom The bottom coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
@@ -1445,15 +1448,15 @@ public object CameraMath {
      * element.
      *
      * @param size The size in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmName("mapStreamSizeToUiSizeF")
@@ -1481,9 +1484,9 @@ public object CameraMath {
      * element.
      *
      * @param streamSizeWidth The width of the size in the camera stream. Stream coordinates are
-     *   relative to the streamWidth/streamHeight.
+     *   relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamSizeHeight The height of the size in the camera stream. Stream coordinates are
-     *   relative to the streamWidth/streamHeight.
+     *   relative to the `streamWidth` and `streamHeight` boundaries.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
@@ -1537,11 +1540,12 @@ public object CameraMath {
      * camera sensor.
      *
      * @param streamPoint The point in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamSize The size of the camera stream.
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
-     *   are relative to the sensor 0,0.
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied). Sensor coordinates are relative to the sensor's top-left active pixel `(0,0)`.
      * @param coerceToCropRegion Whether to coerce the output point into the crop region.
      */
     @JvmStatic
@@ -1571,15 +1575,15 @@ public object CameraMath {
      * camera sensor.
      *
      * @param streamX The x coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamY The y coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropWidth The width of the crop region of the sensor.
      * @param sensorCropHeight The height of the crop region of the sensor.
      * @param coerceToCropRegion Whether to coerce the output point into the crop region.
@@ -1624,15 +1628,16 @@ public object CameraMath {
      * to the camera sensor.
      *
      * @param streamRect The rectangle in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamSize The size of the camera stream.
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied). Sensor coordinates
-     *   are relative to the sensor 0,0.
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied). Sensor coordinates are relative to the sensor's top-left active pixel `(0,0)`.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      */
     @JvmStatic
@@ -1666,25 +1671,25 @@ public object CameraMath {
      * to the camera sensor.
      *
      * @param streamLeft The left coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamTop The top coordinate of the rectangle in the camera stream. Stream coordinates
-     *   are relative to the streamWidth/streamHeight.
+     *   are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamRight The right coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamBottom The bottom coordinate of the rectangle in the camera stream. Stream
-     *   coordinates are relative to the streamWidth/streamHeight.
+     *   coordinates are relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropWidth The width of the crop region of the sensor.
      * @param sensorCropHeight The height of the crop region of the sensor.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      * @param toSensorRect A callback to construct the final return object from the computed sensor
      *   coordinates.
@@ -1785,14 +1790,16 @@ public object CameraMath {
      * in either dimension, it will be expanded symmetrically from its center to reach the minimum.
      *
      * @param streamPoint The point in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamSize The size of the camera stream.
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied).
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
      *   sensor pixels. If the calculated rectangle is smaller than this value in either dimension,
      *   it will be expanded symmetrically from its center to reach the minimum. Defaults to
-     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to 0 or less to disable this behavior.
+     *   [DEFAULT_MIN_SENSOR_PIXELS]. Set to `0` or less to disable this behavior.
      * @param coerceToCropRegion Whether to coerce the output rectangle into the crop region.
      * @param touchToFocusRatio The ratio to use when computing a rectangle based on the short
      *   dimension of the stream.
@@ -1828,15 +1835,15 @@ public object CameraMath {
      * the camera sensor.
      *
      * @param streamX The x coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamY The y coordinate in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param sensorCropX The x coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropY The y coordinate of the crop region of the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorCropWidth The width of the crop region of the sensor.
      * @param sensorCropHeight The height of the crop region of the sensor.
      * @param minimumSensorSize The minimum allowed width and height for the output rectangle in
@@ -1896,7 +1903,7 @@ public object CameraMath {
      * camera sensor.
      *
      * @param size The size in the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamSize The size of the camera stream.
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
@@ -1924,9 +1931,9 @@ public object CameraMath {
      * camera sensor.
      *
      * @param streamSizeWidth The width of the size in the camera stream. Stream coordinates are
-     *   relative to the streamWidth/streamHeight.
+     *   relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamSizeHeight The height of the size in the camera stream. Stream coordinates are
-     *   relative to the streamWidth/streamHeight.
+     *   relative to the `streamWidth` and `streamHeight` boundaries.
      * @param streamWidth The width of the camera stream.
      * @param streamHeight The height of the camera stream.
      * @param sensorCropWidth The width of the sensor crop region.
@@ -1957,20 +1964,22 @@ public object CameraMath {
      * Converts a point relative to the camera sensor to an equivalent point relative to a UI
      * element.
      *
-     * @param sensorPoint The point on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorPoint The point on the sensor. Sensor coordinates are relative to the sensor's
+     *   top-left active pixel `(0,0)`.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied).
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapSensorPointToUiPointF(
@@ -2003,18 +2012,18 @@ public object CameraMath {
      * Converts a point relative to the camera sensor to an equivalent point relative to a UI
      * element.
      *
-     * @param sensorX The x coordinate on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
-     * @param sensorY The y coordinate on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorX The x coordinate on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
+     * @param sensorY The y coordinate on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
@@ -2069,20 +2078,22 @@ public object CameraMath {
      * Converts a rectangle relative to the camera sensor to an equivalent rectangle relative to a
      * UI element.
      *
-     * @param sensorRect The rectangle on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorRect The rectangle on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied).
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     public fun mapSensorRectToUiRectF(
@@ -2118,21 +2129,21 @@ public object CameraMath {
      * UI element.
      *
      * @param sensorLeft The left coordinate of the rectangle on the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorTop The top coordinate of the rectangle on the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorRight The right coordinate of the rectangle on the sensor. Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   are relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorBottom The bottom coordinate of the rectangle on the sensor. Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   are relative to the sensor's top-left active pixel `(0,0)`.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamMirroring Whether the camera stream is mirrored.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
@@ -2192,18 +2203,19 @@ public object CameraMath {
     /**
      * Converts a size relative to the camera sensor to an equivalent size relative to a UI element.
      *
-     * @param size The size on the sensor. Sensor coordinates are relative to the sensor 0,0.
+     * @param size The size on the sensor. Sensor coordinates are relative to the sensor's top-left
+     *   active pixel `(0,0)`.
      * @param uiSize The size of the UI (specifically the UI-relative size of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. Must be one
-     *   of 0, 90, 180, 270. Negative values are not supported. This can be computed using
-     *   [computeSensorRotationToDisplayOrientation].
+     *   of `0`, `90`, `180`, or `270`. Negative values are not supported. This can be computed
+     *   using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
-     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of 0, 90,
-     *   180, 270.
+     * @throws IllegalArgumentException if [sensorRotationToDisplayOrientation] is not one of `0`,
+     *   `90`, `180`, or `270`.
      */
     @JvmStatic
     @JvmName("mapSensorSizeToUiSizeF")
@@ -2234,17 +2246,17 @@ public object CameraMath {
      * Converts a size relative to the camera sensor to an equivalent size relative to a UI element.
      *
      * @param sensorSizeWidth The width of the size on the sensor. Sensor coordinates are relative
-     *   to the sensor 0,0.
+     *   to the sensor's top-left active pixel `(0,0)`.
      * @param sensorSizeHeight The height of the size on the sensor. Sensor coordinates are relative
-     *   to the sensor 0,0.
+     *   to the sensor's top-left active pixel `(0,0)`.
      * @param uiWidth The width of the UI (specifically the UI-relative width of the viewfinder,
      *   without accounting for clipping or padding).
      * @param uiHeight The height of the UI (specifically the UI-relative height of the viewfinder,
      *   without accounting for clipping or padding).
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorRotationToDisplayOrientation The orientation from sensor to display. This can be
      *   computed using [computeSensorRotationToDisplayOrientation].
      * @param sensorCropWidth The width of the sensor crop region.
@@ -2292,12 +2304,14 @@ public object CameraMath {
      * Converts a point relative to the camera sensor to an equivalent point relative to a specific
      * camera stream.
      *
-     * @param sensorPoint The point on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorPoint The point on the sensor. Sensor coordinates are relative to the sensor's
+     *   top-left active pixel `(0,0)`.
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
+     *   `streamWidth` and `streamHeight` boundaries.
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied).
      */
     @JvmStatic
     public fun mapSensorPointToStreamPointF(
@@ -2322,14 +2336,14 @@ public object CameraMath {
      * Converts a point relative to the camera sensor to an equivalent point relative to a specific
      * camera stream.
      *
-     * @param sensorX The x coordinate on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
-     * @param sensorY The y coordinate on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorX The x coordinate on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
+     * @param sensorY The y coordinate on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorCropX The x coordinate of the crop region of the sensor.
      * @param sensorCropY The y coordinate of the crop region of the sensor.
      * @param sensorCropWidth The width of the crop region of the sensor.
@@ -2368,12 +2382,14 @@ public object CameraMath {
      * Converts a rectangle relative to the camera sensor to an equivalent rectangle relative to a
      * specific camera stream.
      *
-     * @param sensorRect The rectangle on the sensor. Sensor coordinates are relative to the sensor
-     *   0,0.
+     * @param sensorRect The rectangle on the sensor. Sensor coordinates are relative to the
+     *   sensor's top-left active pixel `(0,0)`.
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
-     * @param sensorCrop The crop region of the sensor (typically CameraMetadata.SCALER_CROP_REGION,
-     *   or CameraMetadata.SENSOR_INFO_ACTIVE_ARRAY_SIZE if no crop is applied).
+     *   `streamWidth` and `streamHeight` boundaries.
+     * @param sensorCrop The crop region of the sensor (typically
+     *   [android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION], or
+     *   [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE] if no crop
+     *   is applied).
      */
     @JvmStatic
     public fun mapSensorRectToStreamRectF(
@@ -2401,17 +2417,17 @@ public object CameraMath {
      * specific camera stream.
      *
      * @param sensorLeft The left coordinate of the rectangle on the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorTop The top coordinate of the rectangle on the sensor. Sensor coordinates are
-     *   relative to the sensor 0,0.
+     *   relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorRight The right coordinate of the rectangle on the sensor. Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   are relative to the sensor's top-left active pixel `(0,0)`.
      * @param sensorBottom The bottom coordinate of the rectangle on the sensor. Sensor coordinates
-     *   are relative to the sensor 0,0.
+     *   are relative to the sensor's top-left active pixel `(0,0)`.
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorCropX The x coordinate of the crop region of the sensor.
      * @param sensorCropY The y coordinate of the crop region of the sensor.
      * @param sensorCropWidth The width of the crop region of the sensor.
@@ -2455,9 +2471,10 @@ public object CameraMath {
      * Converts a size relative to the camera sensor to an equivalent size relative to a specific
      * camera stream.
      *
-     * @param size The size on the sensor. Sensor coordinates are relative to the sensor 0,0.
+     * @param size The size on the sensor. Sensor coordinates are relative to the sensor's top-left
+     *   active pixel `(0,0)`.
      * @param streamSize The size of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/Height.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
      */
@@ -2485,13 +2502,13 @@ public object CameraMath {
      * camera stream.
      *
      * @param sensorSizeWidth The width of the size on the sensor. Sensor coordinates are relative
-     *   to the sensor 0,0.
+     *   to the sensor's top-left active pixel `(0,0)`.
      * @param sensorSizeHeight The height of the size on the sensor. Sensor coordinates are relative
-     *   to the sensor 0,0.
+     *   to the sensor's top-left active pixel `(0,0)`.
      * @param streamWidth The width of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param streamHeight The height of the camera stream. Stream coordinates are relative to the
-     *   streamWidth/streamHeight.
+     *   `streamWidth` and `streamHeight` boundaries.
      * @param sensorCropWidth The width of the sensor crop region.
      * @param sensorCropHeight The height of the sensor crop region.
      * @param toStreamSize A callback to construct the final return object from the computed stream
@@ -2515,6 +2532,13 @@ public object CameraMath {
     // 5. Coordinate Space Transform Helpers
     // =============================================================================================
 
+    /**
+     * Computes the transform parameters (scale and offsets) to map from stream coordinates to
+     * sensor coordinates.
+     *
+     * This delegates to [computeScaleAndOffsetWithinBounds] using the stream width/height and the
+     * sensor crop region as bounds.
+     */
     @PublishedApi
     internal inline fun <T> streamToSensorTransform(
         streamWidth: Int,
@@ -2537,6 +2561,21 @@ public object CameraMath {
             transform(scalar, offsetX, offsetY)
         }
 
+    /**
+     * Computes the scale factor and offsets to map a rectangle of size [width] x [height] into the
+     * bounds defined by [boundsX], [boundsY], [boundsWidth], and [boundsHeight] using a "scale to
+     * fit" (aspect ratio preserving) transformation.
+     *
+     * The scaled rectangle is centered within the destination bounds.
+     *
+     * @param width The width of the source coordinate space.
+     * @param height The height of the source coordinate space.
+     * @param boundsX The x coordinate of the top-left corner of the destination bounds.
+     * @param boundsY The y coordinate of the top-left corner of the destination bounds.
+     * @param boundsWidth The width of the destination bounds.
+     * @param boundsHeight The height of the destination bounds.
+     * @param transform A callback to run using the computed scale factor, x-offset, and y-offset.
+     */
     @PublishedApi
     internal inline fun <T> computeScaleAndOffsetWithinBounds(
         width: Int,
@@ -2555,6 +2594,12 @@ public object CameraMath {
         return transform(scaleToFit, boundsX + left, boundsY + top)
     }
 
+    /**
+     * Computes the scale factor to fit a size of [width] x [height] into a bounding box of
+     * [widthToFit] x [heightToFit] while preserving the aspect ratio.
+     *
+     * The resulting scalar is the minimum of the horizontal and vertical scaling factors.
+     */
     @PublishedApi
     internal inline fun computeScaleToFit(
         width: Int,

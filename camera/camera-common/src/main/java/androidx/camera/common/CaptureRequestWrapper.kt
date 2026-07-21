@@ -19,21 +19,44 @@ package androidx.camera.common
 import android.hardware.camera2.CaptureRequest
 
 /**
- * Wrapper interface representing the settings applied to a specific capture request.
+ * A wrapper interface representing the settings applied to a specific camera capture request.
  *
- * Use this interface to inspect configuration parameters sent to the camera device during a capture
- * session.
+ * This interface provides a unified way to inspect the configuration parameters sent to the camera
+ * device during a capture session. It supports querying:
+ * 1. Native Camera2 capture request keys via [CaptureRequest.Key] (using [get]).
+ * 2. Extension or custom metadata keys via [Metadata.Key] (using [Metadata.get], inherited from
+ *    [Metadata]).
+ *
+ * Additionally, if access to the underlying native Android [CaptureRequest] is required, this
+ * interface can be unwrapped using [unwrapAs] (inherited from [UnsafeWrapper]).
+ *
+ * ### Example Usage
+ *
+ * #### Querying a native Camera2 CaptureRequest key:
+ * ```kotlin
+ * val requestWrapper: CaptureRequestWrapper = ...
+ * val exposureTime: Long? = requestWrapper[CaptureRequest.SENSOR_EXPOSURE_TIME]
+ * ```
+ *
+ * #### Querying a custom metadata key:
+ * ```kotlin
+ * val requestWrapper: CaptureRequestWrapper = ...
+ * val customExtensionKey = Metadata.Key<Int>("androidx.camera.custom_extension")
+ * val customValue: Int? = requestWrapper[customExtensionKey]
+ * ```
+ *
+ * #### Unwrapping the underlying native CaptureRequest:
+ * ```kotlin
+ * val requestWrapper: CaptureRequestWrapper = ...
+ * val nativeRequest: CaptureRequest? = requestWrapper.unwrapAs<CaptureRequest>()
+ * ```
  *
  * **Note:** This interface is not stable for inheritance. Implementations should not be created
- * directly by clients. For testing, use the fakes in `androidx.camera.common.testing` package (such
- * as `FakeCaptureRequest`).
+ * directly by clients. For testing, use the fakes in the `androidx.camera.common.testing` package
+ * (such as `FakeCaptureRequest`).
  *
- * ### Example
- *
- * ```kotlin
- * val requestMetadata: CaptureRequestWrapper = ...
- * val exposureTime = requestMetadata[CaptureRequest.SENSOR_EXPOSURE_TIME]
- * ```
+ * @see Metadata
+ * @see UnsafeWrapper
  */
 public interface CaptureRequestWrapper : Metadata, UnsafeWrapper {
     /**
@@ -41,22 +64,24 @@ public interface CaptureRequestWrapper : Metadata, UnsafeWrapper {
      *
      * @param key The key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
+     * @see android.hardware.camera2.CaptureRequest.get
      */
     public operator fun <T> get(key: CaptureRequest.Key<T>): T?
 
     /**
-     * Retrieves the value of the specified [CaptureRequest.Key], or returns [default] if not found.
+     * Retrieves the value of the specified [CaptureRequest.Key], or returns [default] if the key is
+     * not present or its value is `null`.
      *
      * @param key The key to query.
-     * @param default The value to return if the key is not present.
-     * @return The value of the key, or [default] if null.
+     * @param default The value to return if the key is not present or is `null`.
+     * @return The value of the key, or [default] if the key is not present or its value is `null`.
      */
     public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
         return get(key) ?: default
     }
 
     /**
-     * List of all [CaptureRequest.Key]s supported by this capture request.
+     * The list of all [CaptureRequest.Key]s that are set or supported by this capture request.
      *
      * @see android.hardware.camera2.CaptureRequest.getKeys
      */

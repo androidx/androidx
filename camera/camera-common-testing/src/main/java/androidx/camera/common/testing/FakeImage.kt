@@ -46,6 +46,23 @@ import kotlinx.atomicfu.atomic
  * If provided, the `HardwareBuffer` will be closed when this [FakeImage] is closed.
  */
 public open class FakeImage
+/**
+ * Creates a new [FakeImage].
+ *
+ * @param width The width of the image in pixels.
+ * @param height The height of the image in pixels.
+ * @param format The format of the image. Must be a constant from [android.graphics.ImageFormat].
+ * @param timestamp The timestamp associated with the image, in nanoseconds.
+ * @param byteBuffer An optional [ByteBuffer] that backs the pixel data of this image. If not
+ *   provided, a buffer of the minimum required size will be allocated automatically when needed,
+ *   based on the [format], [width], and [height].
+ * @param hardwareBuffer An optional [HardwareBuffer] associated with this image. If not provided, a
+ *   fake [HardwareBuffer] will be created dynamically when accessed via [hardwareBuffer] (if
+ *   supported on the platform).
+ * @param cropRect The crop rectangle of the image. Defaults to the full size of the image.
+ * @param imagePlanes An optional list of pre-configured [ImagePlane]s. If empty, the planes will be
+ *   generated lazily from the backing [ByteBuffer] when accessed.
+ */
 @JvmOverloads
 constructor(
     override var width: Int,
@@ -73,14 +90,25 @@ constructor(
 
     private val debugId = debugIds.incrementAndGet()
     private val _closeCount = atomic(0)
+    /** Returns `true` if this image has been closed, `false` otherwise. */
     public open val isClosed: Boolean
         get() = _closeCount.value > 0
 
+    /**
+     * The number of times [close] has been called on this image.
+     *
+     * Useful for verifying lifecycle management in tests.
+     */
     public val closeCount: Int
         get() = _closeCount.value
 
     override var syncFence: SyncFence? = null
 
+    /**
+     * The dataspace associated with this image.
+     *
+     * Defaults to [android.hardware.DataSpace.DATASPACE_UNKNOWN].
+     */
     @get:SuppressLint("MethodNameUnits", "WrongConstant")
     @set:SuppressLint("MethodNameUnits", "WrongConstant")
     @get:ImageDataSpace
@@ -112,11 +140,40 @@ constructor(
         }
     }
 
+    /**
+     * The hardware buffer for this image.
+     *
+     * If a [HardwareBuffer] was provided in the constructor, that buffer is returned. Otherwise, a
+     * mock [HardwareBuffer] is generated dynamically based on the image format, width, and height.
+     *
+     * Throws [IllegalStateException] if this image is already closed.
+     */
     override val hardwareBuffer: HardwareBuffer?
         get() = lazyHardwareBuffer.value
 
     private var _imagePlanes = imagePlanes
 
+    /**
+     * The image planes for this image.
+     *
+     * If no image planes were provided in the constructor, they are generated automatically based
+     * on the image format and the backing [ByteBuffer].
+     *
+     * Supported formats for automatic plane generation:
+     * - [android.graphics.ImageFormat.YUV_420_888]
+     * - [android.graphics.ImageFormat.NV21]
+     * - [android.graphics.ImageFormat.JPEG]
+     * - [android.graphics.ImageFormat.HEIC]
+     * - [android.graphics.ImageFormat.DEPTH_JPEG]
+     * - [android.graphics.ImageFormat.JPEG_R]
+     * - [android.graphics.ImageFormat.DEPTH_POINT_CLOUD]
+     * - [android.graphics.ImageFormat.PRIVATE]
+     * - [android.graphics.ImageFormat.UNKNOWN]
+     *
+     * Throws [IllegalStateException] if this image is already closed. Throws
+     * [UnsupportedOperationException] if automatic generation is attempted on an unsupported
+     * format.
+     */
     override var imagePlanes: List<ImagePlane>
         get() {
             check(!isClosed)
@@ -160,6 +217,17 @@ constructor(
         }
     }
 
+    /**
+     * Unwraps this fake image to retrieve the underlying type.
+     *
+     * Supports unwrapping to:
+     * - The [FakeImage] class itself (or subclasses).
+     * - [ByteBuffer], which returns the backing buffer.
+     * - [HardwareBuffer], which returns the associated hardware buffer (on API level 26+).
+     *
+     * @param type The class of the object to return.
+     * @return The unwrapped object, or `null` if the type is not supported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
@@ -170,6 +238,12 @@ constructor(
             else -> null
         }
 
+    /**
+     * Closes the image.
+     *
+     * Increments [closeCount]. If this is the first call to [close], it will also close the
+     * underlying [HardwareBuffer] if it was provided or created.
+     */
     override fun close() {
         if (_closeCount.incrementAndGet() == 1) {
             if (Build.VERSION.SDK_INT >= 26) {

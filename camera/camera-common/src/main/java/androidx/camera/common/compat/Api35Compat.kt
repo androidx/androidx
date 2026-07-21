@@ -19,8 +19,17 @@ package androidx.camera.common.compat
 import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RequiresApi
 
+/** Compatibility wrapper for API 35 ([android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM]) APIs. */
 @RequiresApi(35)
 internal object Api35Compat {
+    /**
+     * Returns a list of keys supported by this camera device for querying session characteristics.
+     *
+     * The list returned may be `null` if the device does not support session characteristics.
+     *
+     * @param cameraCharacteristics The [CameraCharacteristics] to query.
+     * @return The list of keys, or `null` if no session characteristics are supported.
+     */
     @JvmStatic
     fun getAvailableSessionCharacteristicsKeys(
         cameraCharacteristics: CameraCharacteristics

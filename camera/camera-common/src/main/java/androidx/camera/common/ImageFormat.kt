@@ -20,14 +20,24 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /**
- * Represents the image format.
+ * Denotes that an integer represents an image format.
  *
- * This is a superset of the image formats defined in [android.graphics.ImageFormat],
- * [android.graphics.PixelFormat], and [android.hardware.HardwareBuffer].
+ * This annotation represents a union of the image formats defined across multiple Android APIs,
+ * allowing APIs in this library to accept format constants from:
+ * * [android.graphics.ImageFormat]
+ * * [android.graphics.PixelFormat]
+ * * [android.hardware.HardwareBuffer]
  *
- * @see [android.graphics.ImageFormat]
- * @see [android.graphics.PixelFormat]
- * @see [android.hardware.HardwareBuffer]
+ * It also includes internal compatibility constants for newer formats that might not be present in
+ * the compile SDK of the consuming application or library module.
+ *
+ * Use [ImageFormats] utility methods to inspect properties of these formats, such as
+ * [ImageFormats.bitsPerPixel] or [ImageFormats.isRaw].
+ *
+ * @see android.graphics.ImageFormat
+ * @see android.graphics.PixelFormat
+ * @see android.hardware.HardwareBuffer
+ * @see ImageFormats
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.SOURCE)

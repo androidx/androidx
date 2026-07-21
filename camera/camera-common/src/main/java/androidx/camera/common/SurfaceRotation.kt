@@ -16,6 +16,7 @@
 
 package androidx.camera.common
 
+import android.view.Display
 import android.view.Surface
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
@@ -23,8 +24,22 @@ import androidx.annotation.RestrictTo
 /**
  * Annotation for integer values representing [Surface] rotation constants.
  *
- * Valid values are [Surface.ROTATION_0], [Surface.ROTATION_90], [Surface.ROTATION_180], and
- * [Surface.ROTATION_270].
+ * These constants represent the rotation of the screen from its "natural" orientation. Note that
+ * these are index values (0, 1, 2, 3) and not degrees.
+ *
+ * Valid values are:
+ * - [Surface.ROTATION_0]
+ * - [Surface.ROTATION_90]
+ * - [Surface.ROTATION_180]
+ * - [Surface.ROTATION_270]
+ *
+ * These values are typically returned by [Display.getRotation].
+ *
+ * Use [DiscreteRotation.fromSurfaceRotation] to convert these values to a [DiscreteRotation] which
+ * represents the rotation in degrees.
+ *
+ * @see Display.getRotation
+ * @see DiscreteRotation.fromSurfaceRotation
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.SOURCE)

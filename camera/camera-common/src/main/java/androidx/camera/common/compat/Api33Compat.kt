@@ -20,23 +20,48 @@ import android.hardware.SyncFence
 import android.media.Image
 import androidx.annotation.RequiresApi
 
+/** Compatibility wrapper for API 33 ([android.os.Build.VERSION_CODES.TIRAMISU]) APIs. */
 @RequiresApi(33)
 internal object Api33Compat {
+    /**
+     * Returns the [SyncFence] associated with the given [Image].
+     *
+     * @param image The image to get the fence from.
+     * @return The [SyncFence] associated with the image.
+     */
     @JvmStatic
     fun getFence(image: Image): SyncFence {
         return image.fence
     }
 
+    /**
+     * Sets the [SyncFence] for the given [Image].
+     *
+     * @param image The image to set the fence on.
+     * @param fence The [SyncFence] to associate with the image.
+     */
     @JvmStatic
     fun setFence(image: Image, fence: SyncFence) {
         image.fence = fence
     }
 
+    /**
+     * Returns the data space associated with the given [Image].
+     *
+     * @param image The image to get the data space from.
+     * @return The data space associated with the image.
+     */
     @JvmStatic
     fun getDataSpace(image: Image): Int {
         return image.dataSpace
     }
 
+    /**
+     * Sets the data space for the given [Image].
+     *
+     * @param image The image to set the data space on.
+     * @param dataSpace The data space to associate with the image.
+     */
     @JvmStatic
     fun setDataSpace(image: Image, dataSpace: Int) {
         image.dataSpace = dataSpace

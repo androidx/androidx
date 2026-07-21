@@ -29,12 +29,36 @@ import androidx.camera.common.compat.Api33Compat
 import java.lang.Class
 import java.nio.ByteBuffer
 
-/** [ImageWrapper] implementation that wraps an [android.media.Image] object. */
+/**
+ * An [ImageWrapper] implementation that wraps an [android.media.Image] object.
+ *
+ * This wrapper provides thread-safe access to the underlying image properties. Immutable or
+ * structural properties (such as [format], [width], [height], and plane data like strides and
+ * buffers) are cached or extracted during initialization, allowing them to be read in a
+ * thread-safe, lock-free manner. These properties also do not throw an [IllegalStateException] if
+ * read after [close] has been called.
+ *
+ * Other properties (such as [timestamp], [cropRect], [dataSpace], and [syncFence]) are lazily
+ * cached and synchronized using an internal lock. Accessing these properties after the underlying
+ * image has been closed may throw an [IllegalStateException] if they were not cached prior to
+ * closing.
+ *
+ * @param image The underlying [android.media.Image] to wrap.
+ */
 @SuppressLint("AutoBoxing")
 public final class AndroidImage(private val image: Image) : MutableImageWrapper {
     private val lock = Any()
 
-    /** A [Plane] backed by an [ImagePlane]. */
+    /**
+     * An [ImagePlane] implementation backed by an [android.media.Image.Plane].
+     *
+     * This class extracts and caches the [pixelStride], [rowStride], and [buffer] from the wrapped
+     * [android.media.Image.Plane] at instantiation time. As a result, access to these properties is
+     * thread-safe, lock-free, and will not throw an [IllegalStateException] if the parent
+     * [AndroidImage] is closed.
+     *
+     * @param imagePlane The underlying [android.media.Image.Plane] to wrap.
+     */
     public class Plane(private val imagePlane: Image.Plane) : ImagePlane {
         // Copying out the contents of the Image.Plane means that this Plane
         // implementation can be thread-safe (without requiring any locking)
@@ -44,6 +68,17 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
         override val rowStride: Int = imagePlane.rowStride
         override val buffer: ByteBuffer = imagePlane.buffer
 
+        /**
+         * Unwraps this plane as the requested class type if possible.
+         *
+         * Supported types:
+         * - [Plane] (this instance)
+         * - [android.media.Image.Plane] (the wrapped image plane)
+         *
+         * @param type The [Class] object representing the target type.
+         * @return The unwrapped plane instance of type [T], or `null` if the plane cannot be
+         *   unwrapped as the requested type.
+         */
         @Suppress("UNCHECKED_CAST")
         override fun <T : Any> unwrapAs(type: Class<T>): T? =
             when {
@@ -63,10 +98,46 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
     // implementation can be thread-safe (without requiring any locking)
     // and can have getters which do not throw a RuntimeException if
     // the underlying Image is closed.
+    /**
+     * The image format.
+     *
+     * This property is cached at instantiation time. It is thread-safe and will not throw if
+     * accessed after [close] has been called.
+     *
+     * @see android.media.Image.getFormat
+     */
     override val format: Int = image.format
+
+    /**
+     * The image width in pixels.
+     *
+     * This property is cached at instantiation time. It is thread-safe and will not throw if
+     * accessed after [close] has been called.
+     *
+     * @see android.media.Image.getWidth
+     */
     override val width: Int = image.width
+
+    /**
+     * The image height in pixels.
+     *
+     * This property is cached at instantiation time. It is thread-safe and will not throw if
+     * accessed after [close] has been called.
+     *
+     * @see android.media.Image.getHeight
+     */
     override val height: Int = image.height
 
+    /**
+     * The presentation timestamp associated with the image, in nanoseconds.
+     *
+     * Access to this property is synchronized. Setting this value will update both the underlying
+     * image and the local cache. If the underlying image is closed, accessing this property may
+     * throw an [IllegalStateException] if it was not previously cached.
+     *
+     * @see android.media.Image.getTimestamp
+     * @see android.media.Image.setTimestamp
+     */
     override var timestamp: Long
         get() = synchronized(lock) { _timestamp ?: image.timestamp.also { _timestamp = it } }
         set(value) =
@@ -75,6 +146,16 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
                 _timestamp = value
             }
 
+    /**
+     * The crop rectangle specifying the valid sensor pixels for the image.
+     *
+     * Access to this property is synchronized. Setting this value will update both the underlying
+     * image and the local cache. If the underlying image is closed, accessing this property may
+     * throw an [IllegalStateException] if it was not previously cached.
+     *
+     * @see android.media.Image.getCropRect
+     * @see android.media.Image.setCropRect
+     */
     override var cropRect: Rect
         get() = synchronized(lock) { _cropRect ?: image.cropRect.also { _cropRect = it } }
         set(newRectValue: Rect) =
@@ -83,6 +164,16 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
                 _cropRect = newRectValue
             }
 
+    /**
+     * The synchronization fence associated with this image.
+     *
+     * This property is only supported on Android T (API 33) and above. For older API versions,
+     * getting will return `null` and setting will be a no-op. Access to this property is
+     * synchronized.
+     *
+     * @see android.media.Image.getFence
+     * @see android.media.Image.setFence
+     */
     override var syncFence: SyncFence?
         get() =
             if (Build.VERSION.SDK_INT >= 33) {
@@ -96,6 +187,18 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
             }
         }
 
+    /**
+     * The color space/dataspace associated with the image.
+     *
+     * This property is only supported on Android T (API 33) and above. For older API versions,
+     * getting will return [android.hardware.DataSpace.DATASPACE_UNKNOWN] and setting will be a
+     * no-op. Access to this property is synchronized. If the underlying image is closed, accessing
+     * this property on API 33+ may throw an [IllegalStateException] if it was not previously
+     * cached.
+     *
+     * @see android.media.Image.getDataSpace
+     * @see android.media.Image.setDataSpace
+     */
     @get:ImageDataSpace
     @setparam:ImageDataSpace
     override var dataSpace: Int
@@ -116,6 +219,15 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
             }
         }
 
+    /**
+     * The hardware buffer associated with this image, or `null` if hardware buffers are not
+     * supported.
+     *
+     * This property is only supported on Android P (API 28) and above. For older API versions, it
+     * returns `null`. Access to this property is synchronized.
+     *
+     * @see android.media.Image.getHardwareBuffer
+     */
     override val hardwareBuffer: HardwareBuffer?
         get() =
             if (Build.VERSION.SDK_INT >= 28) {
@@ -124,6 +236,18 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
                 null
             }
 
+    /**
+     * Unwraps this image wrapper as the requested class type if possible.
+     *
+     * Supported types:
+     * - [AndroidImage] (this instance)
+     * - [android.media.Image] (the wrapped image)
+     * - [android.hardware.HardwareBuffer] (the underlying hardware buffer, on API 28+)
+     *
+     * @param type The [Class] object representing the target type.
+     * @return The unwrapped image instance of type [T], or `null` if the image cannot be unwrapped
+     *   as the requested type.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
@@ -134,12 +258,26 @@ public final class AndroidImage(private val image: Image) : MutableImageWrapper 
             else -> null
         }
 
+    /**
+     * The list of image planes for this image.
+     *
+     * The planes are lazily initialized and cached on the first access. Access to this property is
+     * synchronized. If the underlying image is closed before this property has been accessed,
+     * reading it will throw an [IllegalStateException].
+     *
+     * @see android.media.Image.getPlanes
+     */
     override val imagePlanes: List<ImagePlane>
         get() = readPlanes()
 
     override fun toString(): String =
         "Image-${ImageFormats.name(format)}-w${width}h$height-t$timestamp"
 
+    /**
+     * Closes the underlying [android.media.Image].
+     *
+     * @see android.media.Image.close
+     */
     override fun close() {
         image.close()
     }

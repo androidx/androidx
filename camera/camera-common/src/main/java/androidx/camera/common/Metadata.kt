@@ -23,45 +23,66 @@ import androidx.annotation.RestrictTo
 import java.lang.Class
 
 /**
- * Read-only map-like interface for accessing camera metadata.
+ * A read-only, map-like interface for accessing unified camera metadata.
  *
- * Use this interface to wrap native camera metadata and provide unified access to both native
- * fields and custom, internally computed, or version-compatibility properties.
+ * This interface serves as the common base for metadata containers in the Camera common library,
+ * such as [CameraCharacteristicsWrapper], [CaptureRequestWrapper], and [CaptureResultWrapper].
+ *
+ * It provides type-safe access to library-defined custom keys ([Metadata.Key]) in addition to the
+ * platform-specific keys supported by its sub-interfaces.
+ *
+ * ### Key Concepts
+ * - **Unified Access:** Allows combining native camera metadata (from the Android Camera2 API) with
+ *   custom, internally-computed, or version-compatibility properties.
+ * - **Read-Only:** The container's contents cannot be modified through this interface.
+ * - **Type-Safety:** Values are retrieved using strongly-typed [Key] instances.
  */
 public interface Metadata {
     /**
      * Retrieves the value associated with the specified [Metadata.Key].
      *
-     * @param key The key to query.
-     * @return The value associated with the key, or `null` if not found.
+     * @param T The type of the value.
+     * @param key The custom key to query.
+     * @return The value associated with the key, or `null` if the key is not present in this
+     *   container or if its value is not set.
      */
     public operator fun <T> get(key: Key<T>): T?
 
     /**
-     * Retrieves the value associated with the specified [Metadata.Key], or returns [default] if not
-     * found.
+     * Retrieves the value associated with the specified [Metadata.Key], or returns [default] if the
+     * key is not present.
      *
-     * @param key The key to query.
-     * @param default The value to return if the key is not present.
-     * @return The value associated with the key, or [default] if null.
+     * @param T The type of the value.
+     * @param key The custom key to query.
+     * @param default The value to return if the key is not present or if its value is `null`.
+     * @return The value associated with the key, or [default] if the value is not present.
      */
     public fun <T> getOrDefault(key: Key<T>, default: T): T {
         return get(key) ?: default
     }
 
-    /** Set of all custom [Metadata.Key]s available in this container. */
+    /**
+     * The set of all custom [Metadata.Key]s currently available in this container.
+     *
+     * Note that this set contains *only* custom library-defined keys. It does not include
+     * platform-specific keys (such as [android.hardware.camera2.CameraCharacteristics.Key] or
+     * [android.hardware.camera2.CaptureResult.Key]), which are managed separately by the
+     * implementing wrappers.
+     */
     public val metadataKeys: Set<Key<*>>
 
     /**
-     * Type-safe key for identifying and retrieving values in a [Metadata] container.
+     * A type-safe key used to identify and retrieve values from a [Metadata] container.
      *
-     * Keys are uniquely identified by their [name]. To prevent type ambiguity, only one [Key]
-     * instance can exist for a given name. Attempting to create a key with an existing name but a
-     * different [type] will result in an [IllegalStateException].
+     * Keys are unique by their [name]. Only one [Key] instance can exist for a given name.
+     * Attempting to create a key with an existing name but a different [type] will throw an
+     * [IllegalStateException].
+     * > [!IMPORTANT] Creating new [Key] instances is restricted to the AndroidX Camera library
+     * > group. External clients can use predefined keys but cannot define their own.
      *
-     * ### Examples
+     * ### Examples (Internal Library Usage Only)
      *
-     * Creating keys for different types in Kotlin:
+     * Creating keys in Kotlin:
      * ```kotlin
      * // For primitive/standard types:
      * val widthKey = Metadata.Key<Int>("androidx.camera.width")
@@ -72,8 +93,9 @@ public interface Metadata {
      * val configKey = Metadata.Key<MyConfig>("androidx.camera.config")
      * ```
      *
-     * @param name The unique string name identifying this key.
-     * @param type The [Class] representing the type of the value associated with this key.
+     * @param T The type of the value associated with this key.
+     * @property name The unique string name identifying this key.
+     * @property type The [Class] representing the type of the value associated with this key.
      */
     public class Key<T> internal constructor(public val name: String, public val type: Class<T>) {
         public companion object {
@@ -82,6 +104,12 @@ public interface Metadata {
             /**
              * Creates or retrieves a [Key] with the given [name] and inferred type [T].
              *
+             * In Kotlin, this allows creating keys using constructor-like syntax:
+             * ```kotlin
+             * val myKey = Metadata.Key<String>("my.key.name")
+             * ```
+             *
+             * @param T The type of the value associated with the key.
              * @param name The unique name for this key.
              * @return The existing or newly created [Key].
              * @throws IllegalStateException if a key with the same [name] but a different type
@@ -95,8 +123,12 @@ public interface Metadata {
             /**
              * Creates or retrieves a [Key] with the given [name] and [type].
              *
+             * This method is primarily intended for Java compatibility or when the class type
+             * cannot be reified.
+             *
+             * @param T The type of the value associated with the key.
              * @param name The unique name for this key.
-             * @param type The [Class] representing the type of the value associated with this key.
+             * @param type The [Class] representing the type of the value.
              * @return The existing or newly created [Key].
              * @throws IllegalStateException if a key with the same [name] but a different type
              *   already exists.
@@ -118,25 +150,61 @@ public interface Metadata {
     }
 }
 
-/** Helper extension to perform type-safe unchecked casts from maps. */
+/**
+ * Helper extension to perform type-safe unchecked casts from generic maps.
+ *
+ * This is an internal helper to retrieve a value from a map of [Metadata.Key] to generic objects,
+ * casting the result to the type specified by the key.
+ *
+ * @param T The expected return type.
+ * @param key The key to look up.
+ * @return The casted value, or `null` if the key is not present in the map.
+ */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> Map<Metadata.Key<*>, *>.getUnchecked(key: Metadata.Key<T>): T? = this[key] as T?
 
-/** Helper extension to perform type-safe unchecked casts from maps. */
+/**
+ * Helper extension to perform type-safe unchecked casts from generic maps.
+ *
+ * This is an internal helper to retrieve a value from a map of [CameraCharacteristics.Key] to
+ * generic objects, casting the result to the type specified by the key.
+ *
+ * @param T The expected return type.
+ * @param key The key to look up.
+ * @return The casted value, or `null` if the key is not present in the map.
+ */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> Map<CameraCharacteristics.Key<*>, *>.getUnchecked(
     key: CameraCharacteristics.Key<T>
 ): T? = this[key] as T?
 
-/** Helper extension to perform type-safe unchecked casts from maps. */
+/**
+ * Helper extension to perform type-safe unchecked casts from generic maps.
+ *
+ * This is an internal helper to retrieve a value from a map of [CaptureRequest.Key] to generic
+ * objects, casting the result to the type specified by the key.
+ *
+ * @param T The expected return type.
+ * @param key The key to look up.
+ * @return The casted value, or `null` if the key is not present in the map.
+ */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> Map<CaptureRequest.Key<*>, *>.getUnchecked(key: CaptureRequest.Key<T>): T? =
     this[key] as T?
 
-/** Helper extension to perform type-safe unchecked casts from maps. */
+/**
+ * Helper extension to perform type-safe unchecked casts from generic maps.
+ *
+ * This is an internal helper to retrieve a value from a map of [CaptureResult.Key] to generic
+ * objects, casting the result to the type specified by the key.
+ *
+ * @param T The expected return type.
+ * @param key The key to look up.
+ * @return The casted value, or `null` if the key is not present in the map.
+ */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> Map<CaptureResult.Key<*>, *>.getUnchecked(key: CaptureResult.Key<T>): T? =

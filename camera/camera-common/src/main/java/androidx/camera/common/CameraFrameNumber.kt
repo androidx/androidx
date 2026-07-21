@@ -17,12 +17,27 @@
 package androidx.camera.common
 
 /**
- * Strongly typed identifier for a camera frame.
+ * A strongly typed identifier for a camera frame.
  *
- * Use this class to safely represent and pass frame numbers, preventing type confusion with other
- * long identifiers.
+ * A frame number is a unique, monotonically increasing identifier assigned to each frame produced
+ * by a camera device. Wrapping this in a value class prevents type confusion with other `Long`
+ * identifiers (such as timestamps, request IDs, or camera IDs) and enforces type safety at compile
+ * time.
  *
- * @param value The non-negative long representing the frame identifier.
+ * As a [JvmInline] value class, it has zero runtime overhead when compiled, as the compiler
+ * replaces instances of this class with the underlying [Long] value where possible.
+ *
+ * ### Example
+ *
+ * ```
+ * val frameNumber = CameraFrameNumber(42L)
+ * println(frameNumber.value) // Prints: 42
+ * println(frameNumber)       // Prints: Frame-42
+ * ```
+ *
+ * @property value The non-negative `Long` representing the frame identifier.
+ * @throws IllegalArgumentException If [value] is negative.
+ * @see CaptureResultWrapper.frameNumber
  */
 @Suppress("ValueClassDefinition")
 @JvmInline
@@ -31,5 +46,6 @@ public value class CameraFrameNumber(public val value: Long) {
         require(value >= 0) { "CameraFrameNumber cannot be negative!" }
     }
 
+    /** Returns a string representation of the frame number in the format "Frame-{value}". */
     override fun toString(): String = "Frame-$value"
 }
