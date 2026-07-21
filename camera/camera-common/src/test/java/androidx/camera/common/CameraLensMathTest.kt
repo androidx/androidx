@@ -17,9 +17,15 @@
 package androidx.camera.common
 
 import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureResult
 import android.util.Size
 import android.util.SizeF
+import androidx.camera.common.testing.FakeCameraCharacteristics
+import androidx.camera.common.testing.FakeCameraIds
+import androidx.camera.common.testing.FakeCaptureResult
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -609,5 +615,375 @@ class CameraLensMathTest {
 
         // 3. Verify it matches target FoV
         assertThat(recomputedFov).isWithin(FLOAT_TOLERANCE).of(targetFovDegrees)
+    }
+
+    @Test
+    fun computeFocalLengthFromZoomRatio_classOverload() {
+        val sensorPhysicalSize = SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT)
+        val sensorPixelSize = Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT)
+        val streamSize = Size(1920, 1080)
+
+        val focalLength =
+            CameraLensMath.computeFocalLengthFromZoomRatio(
+                fovDegrees = 90f,
+                sensorPhysicalSizeMm = sensorPhysicalSize,
+                sensorPixelSize = sensorPixelSize,
+                zoomRatio = 2.0f,
+                streamSize = streamSize,
+            )
+        assertThat(focalLength).isWithin(FLOAT_TOLERANCE).of(DEFAULT_FOCAL_LENGTH)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_realCropPath() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.SCALER_CROP_REGION to
+                            Rect(1000, 750, 3000, 2250), // 2000x1500 crop
+                        CaptureResult.CONTROL_ZOOM_RATIO to 1.25f,
+                    ),
+            )
+
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(77.31961f)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_estimatedEisPath_stabilizationOn() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.CONTROL_ZOOM_RATIO to 1.6f,
+                        CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE to
+                            CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    ),
+            )
+
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+                defaultEisMargin = 0.2f,
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_estimatedEisPath_stabilizationOn_defaultMargin() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.CONTROL_ZOOM_RATIO to 1.8f,
+                        CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE to
+                            CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    ),
+            )
+
+        // defaultEisMargin is omitted (defaults to -1.0f), should infer 10% (0.1f) because
+        // stabilization is ON
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_estimatedEisPath_stabilizationOn_explicitDefaultSentinel() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.CONTROL_ZOOM_RATIO to 1.8f,
+                        CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE to
+                            CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    ),
+            )
+
+        // defaultEisMargin is explicitly -1.0f, should infer 10% (0.1f) because stabilization is ON
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+                defaultEisMargin = -1.0f,
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_estimatedEisPath_stabilizationOn_explicitZeroMargin() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.CONTROL_ZOOM_RATIO to 2.0f,
+                        CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE to
+                            CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    ),
+            )
+
+        // defaultEisMargin is explicitly 0.0f, should NOT infer 10% even though stabilization is ON
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+                defaultEisMargin = 0.0f,
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
+    }
+
+    @Test
+    @Suppress("NewApi")
+    fun computeFov_estimatedEisPath_stabilizationOff() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters =
+                    mapOf(
+                        CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH,
+                        CaptureResult.CONTROL_ZOOM_RATIO to 2.0f,
+                        CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE to
+                            CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                    ),
+            )
+
+        val fov =
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
+    }
+
+    @Test
+    fun computeFov_missingFocalLength_throwsIllegalStateException() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters = emptyMap(),
+            )
+
+        assertThrows(IllegalStateException::class.java) {
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+        }
+    }
+
+    @Test
+    fun computeFov_missingSensorPhysicalSize_throwsIllegalStateException() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT)
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters = mapOf(CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH),
+            )
+
+        assertThrows(IllegalStateException::class.java) {
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+        }
+    }
+
+    @Test
+    fun computeFov_missingSensorPixelSize_throwsIllegalStateException() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT)
+                    )
+            )
+        val result =
+            FakeCaptureResult(
+                cameraId = FakeCameraIds.default,
+                frameNumber = CameraFrameNumber(1L),
+                resultParameters = mapOf(CaptureResult.LENS_FOCAL_LENGTH to DEFAULT_FOCAL_LENGTH),
+            )
+
+        assertThrows(IllegalStateException::class.java) {
+            CameraLensMath.computeFov(
+                cameraCharacteristics = characteristics,
+                captureResult = result,
+                streamSize = Size(1920, 1080),
+            )
+        }
+    }
+
+    @Test
+    fun computeFovFromCropRegion_cropOverload() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                        CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS to
+                            floatArrayOf(DEFAULT_FOCAL_LENGTH),
+                    )
+            )
+        val fov =
+            CameraLensMath.computeFovFromCropRegion(
+                cameraCharacteristics = characteristics,
+                cropRegion = Rect(1000, 750, 3000, 2250), // 2000x1500 crop
+                streamSize = Size(1920, 1080),
+                zoomRatio = 1.25f,
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(77.31961f)
+    }
+
+    @Test
+    fun computeFovFromZoomRatio_eisOverload() {
+        val characteristics =
+            FakeCameraCharacteristics(
+                cameraCharacteristics =
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to
+                            SizeF(DEFAULT_PHYSICAL_WIDTH, DEFAULT_PHYSICAL_HEIGHT),
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to
+                            Size(DEFAULT_PIXEL_WIDTH, DEFAULT_PIXEL_HEIGHT),
+                        CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS to
+                            floatArrayOf(DEFAULT_FOCAL_LENGTH),
+                    )
+            )
+        val fov =
+            CameraLensMath.computeFovFromZoomRatio(
+                cameraCharacteristics = characteristics,
+                streamSize = Size(1920, 1080),
+                zoomRatio = 1.6f,
+                estimatedEisMargin = 0.2f,
+            )
+
+        assertThat(fov).isWithin(FLOAT_TOLERANCE).of(90.0f)
     }
 }

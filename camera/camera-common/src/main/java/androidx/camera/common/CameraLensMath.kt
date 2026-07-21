@@ -17,11 +17,15 @@
 package androidx.camera.common
 
 import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CaptureResult
+import android.os.Build
 import android.util.Size
 import android.util.SizeF
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.camera.common.compat.Api30Compat
 import kotlin.math.atan
 import kotlin.math.hypot
 import kotlin.math.max
@@ -140,6 +144,8 @@ public object CameraLensMath {
     public annotation class CameraFovMode
 
     internal const val RADIANS_TO_DEGREES_X2: Float = 114.591559026f // (180 / PI) * 2
+
+    private const val DEFAULT_EIS_MARGIN = 0.1f
 
     /**
      * Computes the Field of View (FoV) in degrees for a given focal length and physical length.
@@ -337,11 +343,298 @@ public object CameraLensMath {
     }
 
     /**
-     * Computes the Field of View (FoV) in degrees from a given zoom ratio, using Android graphics
-     * and utility classes.
+     * Computes the Field of View (FoV) in degrees using camera metadata wrappers.
      *
-     * This function calculates the effective FoV when a specific [zoomRatio] is applied. It assumes
-     * the crop region is centered and matches the aspect ratio of the [streamSize].
+     * Extracts the required physical sensor properties, focal length, crop region, and zoom ratio
+     * from [cameraCharacteristics] and [captureResult] to compute the effective FoV.
+     *
+     * The calculation is segmented into two paths based on metadata availability:
+     * 1. **Real Crop Path**: If [CaptureResult.SCALER_CROP_REGION] is available, computes the FoV
+     *    using the crop region and [CaptureResult.CONTROL_ZOOM_RATIO] (defaulting to `1.0f`).
+     * 2. **Estimated EIS Path**: If [CaptureResult.SCALER_CROP_REGION] is missing, falls back to
+     *    using [CaptureResult.CONTROL_ZOOM_RATIO] and applies an estimated EIS margin. If
+     *    [CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE] is enabled (not OFF), applies
+     *    [defaultEisMargin] (or 10% if [defaultEisMargin] is `-1.0f`).
+     *
+     * ### Example
+     *
+     * ```kotlin
+     * val fov = CameraLensMath.computeFov(
+     *     cameraCharacteristics = characteristicsWrapper,
+     *     captureResult = captureResultWrapper,
+     *     streamSize = Size(1920, 1080),
+     *     defaultEisMargin = 0.1f,
+     *     fovMode = CameraLensMath.FOV_MODE_CROP_LONG_EDGE
+     * )
+     * ```
+     *
+     * @param cameraCharacteristics The camera characteristics metadata. Used to extract sensor
+     *   physical size and pixel array size.
+     * @param captureResult The capture result metadata containing frame metadata. Used to extract
+     *   focal length, crop region, zoom ratio, and video stabilization mode.
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
+     *   ratio. Width and height must be positive (>= 1).
+     * @param defaultEisMargin The fallback EIS margin as a fraction of the sensor area (e.g.,
+     *   `0.1f` for 10% crop) applied when the crop region is missing and video stabilization is
+     *   enabled. Must be in the range `[0.0, 1.0)` or `-1.0f` to use the default 10% margin.
+     *   Defaults to `-1.0f`.
+     * @param fovMode The mode defining how to compute the FoV. Must be one of [CameraFovMode].
+     *   Defaults to [FOV_MODE_CROP_LONG_EDGE].
+     * @return The Field of View in degrees.
+     * @throws IllegalArgumentException If [streamSize] has non-positive dimensions, or if
+     *   [defaultEisMargin] is not in the range `[0.0, 1.0)` and is not `-1.0f`.
+     * @throws IllegalStateException If required metadata properties are missing from
+     *   [cameraCharacteristics] or [captureResult].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun computeFov(
+        cameraCharacteristics: CameraCharacteristicsMetadata,
+        captureResult: CaptureResultMetadata,
+        streamSize: Size,
+        defaultEisMargin: Float = -1.0f,
+        @CameraFovMode fovMode: Int = FOV_MODE_CROP_LONG_EDGE,
+    ): Float {
+        require(streamSize.width > 0 && streamSize.height > 0) {
+            "Stream size dimensions must be positive: $streamSize"
+        }
+        require(defaultEisMargin == -1.0f || (defaultEisMargin >= 0f && defaultEisMargin < 1f)) {
+            "Default EIS margin must be in range [0, 1) or -1.0f: $defaultEisMargin"
+        }
+
+        val focalLengthMm = captureResult[CaptureResult.LENS_FOCAL_LENGTH]
+        checkNotNull(focalLengthMm) { "Lens focal length is missing from capture result" }
+        val cropRegion = captureResult[CaptureResult.SCALER_CROP_REGION]
+        val zoomRatio =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Api30Compat.getZoomRatio(captureResult) ?: 1.0f
+            } else {
+                1.0f
+            }
+
+        return if (cropRegion != null) {
+            // Path A: Real Crop
+            computeFovFromCropRegion(
+                cameraCharacteristics = cameraCharacteristics,
+                cropRegion = cropRegion,
+                streamSize = streamSize,
+                zoomRatio = zoomRatio,
+                fovMode = fovMode,
+                focalLengthMm = focalLengthMm,
+            )
+        } else {
+            // Path B: Estimated EIS
+            val stabilizationMode = captureResult[CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE]
+            val hasStabilization =
+                stabilizationMode != null &&
+                    stabilizationMode != CaptureResult.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+            val margin =
+                if (defaultEisMargin != -1.0f) {
+                    defaultEisMargin
+                } else if (hasStabilization) {
+                    DEFAULT_EIS_MARGIN
+                } else {
+                    0.0f
+                }
+
+            computeFovFromZoomRatio(
+                cameraCharacteristics = cameraCharacteristics,
+                streamSize = streamSize,
+                zoomRatio = zoomRatio,
+                estimatedEisMargin = margin,
+                fovMode = fovMode,
+                focalLengthMm = focalLengthMm,
+            )
+        }
+    }
+
+    /**
+     * Computes the Field of View (FoV) in degrees using camera characteristics and a crop region.
+     *
+     * Extracts physical sensor properties from [cameraCharacteristics] and uses [cropRegion] and
+     * [zoomRatio] to compute the effective FoV.
+     *
+     * Returns `null` if [CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE] or
+     * [CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE] are missing.
+     *
+     * ### Example
+     *
+     * ```kotlin
+     * val fov = CameraLensMath.computeFovFromCropRegion(
+     *     cameraCharacteristics = characteristicsWrapper,
+     *     cropRegion = Rect(100, 100, 900, 900),
+     *     streamSize = Size(1920, 1080),
+     *     zoomRatio = 1.5f,
+     *     fovMode = CameraLensMath.FOV_MODE_CROP_LONG_EDGE,
+     *     focalLengthMm = 4.3f
+     * )
+     * ```
+     *
+     * @param cameraCharacteristics The camera characteristics metadata. Used to extract sensor
+     *   physical size and pixel array size.
+     * @param cropRegion The crop region in pixels, corresponding to
+     *   [CaptureResult.SCALER_CROP_REGION]. Width and height must be positive (>= 1).
+     * @param zoomRatio The digital zoom ratio, corresponding to [CaptureResult.CONTROL_ZOOM_RATIO].
+     *   Must be positive (> 0.0). Defaults to `1.0f`.
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
+     *   ratio. Width and height must be positive (>= 1). Defaults to the crop region size.
+     * @param fovMode The mode defining how to compute the FoV. Must be one of [CameraFovMode].
+     *   Defaults to [FOV_MODE_CROP_LONG_EDGE].
+     * @param focalLengthMm Optional focal length in millimeters. If not provided (or set to
+     *   `-1.0f`), falls back to the static focal length in [cameraCharacteristics]
+     *   ([CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS]). Must be positive (> 0.0) if
+     *   specified.
+     * @return The Field of View in degrees.
+     * @throws IllegalArgumentException If any of the input dimensions or [zoomRatio] are
+     *   non-positive.
+     * @throws IllegalStateException If required properties are missing from
+     *   [cameraCharacteristics].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun computeFovFromCropRegion(
+        cameraCharacteristics: CameraCharacteristicsMetadata,
+        cropRegion: Rect,
+        streamSize: Size = Size(cropRegion.width(), cropRegion.height()),
+        @FloatRange(from = 0.0, fromInclusive = false) zoomRatio: Float = 1.0f,
+        @CameraFovMode fovMode: Int = FOV_MODE_CROP_LONG_EDGE,
+        focalLengthMm: Float = -1.0f,
+    ): Float {
+        require(zoomRatio > 0f) { "Zoom ratio must be positive: $zoomRatio" }
+        require(streamSize.width > 0 && streamSize.height > 0) {
+            "Stream size dimensions must be positive: $streamSize"
+        }
+        require(cropRegion.width() > 0 && cropRegion.height() > 0) {
+            "Crop region dimensions must be positive: $cropRegion"
+        }
+        require(focalLengthMm == -1.0f || focalLengthMm > 0f) {
+            "Focal length must be positive or -1.0f: $focalLengthMm"
+        }
+
+        val sensorPhysicalSize =
+            cameraCharacteristics[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]
+        checkNotNull(sensorPhysicalSize) { "Sensor physical size is missing from characteristics" }
+        val sensorPixelSize =
+            cameraCharacteristics[CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE]
+        checkNotNull(sensorPixelSize) { "Sensor pixel array size is missing from characteristics" }
+
+        val focal =
+            if (focalLengthMm != -1.0f) {
+                focalLengthMm
+            } else {
+                val focalLengths =
+                    cameraCharacteristics[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS]
+                checkNotNull(focalLengths?.firstOrNull()) {
+                    "LENS_INFO_AVAILABLE_FOCAL_LENGTHS is missing or empty"
+                }
+            }
+
+        return computeFov(
+            focalLengthMm = focal,
+            sensorPhysicalSizeMm = sensorPhysicalSize,
+            sensorPixelSize = sensorPixelSize,
+            cropRegion = cropRegion,
+            streamSize = streamSize,
+            zoomRatio = zoomRatio,
+            fovMode = fovMode,
+        )
+    }
+
+    /**
+     * Computes the Field of View (FoV) in degrees using camera characteristics and an estimated EIS
+     * margin.
+     *
+     * Extracts physical sensor properties from [cameraCharacteristics] and uses [zoomRatio] and
+     * [estimatedEisMargin] to compute the effective FoV.
+     *
+     * ### Example
+     *
+     * ```kotlin
+     * val fov = CameraLensMath.computeFovFromZoomRatio(
+     *     cameraCharacteristics = characteristicsWrapper,
+     *     streamSize = Size(1920, 1080),
+     *     zoomRatio = 2.0f,
+     *     estimatedEisMargin = 0.1f,
+     *     fovMode = CameraLensMath.FOV_MODE_CROP_LONG_EDGE,
+     *     focalLengthMm = 4.3f
+     * )
+     * ```
+     *
+     * @param cameraCharacteristics The camera characteristics metadata. Used to extract sensor
+     *   physical size and pixel array size.
+     * @param zoomRatio The digital zoom ratio, corresponding to [CaptureResult.CONTROL_ZOOM_RATIO].
+     *   Must be positive (> 0.0).
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
+     *   ratio. Width and height must be positive (>= 1).
+     * @param estimatedEisMargin The estimated EIS margin as a fraction of the sensor area. Must be
+     *   in the range `[0.0, 1.0)`.
+     * @param fovMode The mode defining how to compute the FoV. Must be one of [CameraFovMode].
+     *   Defaults to [FOV_MODE_CROP_LONG_EDGE].
+     * @param focalLengthMm Optional focal length in millimeters. If not provided (or set to
+     *   `-1.0f`), falls back to the static focal length in [cameraCharacteristics]
+     *   ([CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS]). Must be positive (> 0.0) if
+     *   specified.
+     * @return The Field of View in degrees.
+     * @throws IllegalArgumentException If any of the input dimensions or [zoomRatio] are
+     *   non-positive, or if [estimatedEisMargin] is not in the range `[0.0, 1.0)`.
+     * @throws IllegalStateException If required properties are missing from
+     *   [cameraCharacteristics].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun computeFovFromZoomRatio(
+        cameraCharacteristics: CameraCharacteristicsMetadata,
+        streamSize: Size,
+        @FloatRange(from = 0.0, fromInclusive = false) zoomRatio: Float,
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) estimatedEisMargin: Float,
+        @CameraFovMode fovMode: Int = FOV_MODE_CROP_LONG_EDGE,
+        focalLengthMm: Float = -1.0f,
+    ): Float {
+        require(zoomRatio > 0f) { "Zoom ratio must be positive: $zoomRatio" }
+        require(streamSize.width > 0 && streamSize.height > 0) {
+            "Stream size dimensions must be positive: $streamSize"
+        }
+        require(estimatedEisMargin >= 0f && estimatedEisMargin < 1f) {
+            "Estimated EIS margin must be in range [0, 1): $estimatedEisMargin"
+        }
+        require(focalLengthMm == -1.0f || focalLengthMm > 0f) {
+            "Focal length must be positive or -1.0f: $focalLengthMm"
+        }
+
+        val sensorPhysicalSize =
+            cameraCharacteristics[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]
+        checkNotNull(sensorPhysicalSize) { "Sensor physical size is missing from characteristics" }
+        val sensorPixelSize =
+            cameraCharacteristics[CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE]
+        checkNotNull(sensorPixelSize) { "Sensor pixel array size is missing from characteristics" }
+
+        val focal =
+            if (focalLengthMm != -1.0f) {
+                focalLengthMm
+            } else {
+                val focalLengths =
+                    cameraCharacteristics[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS]
+                checkNotNull(focalLengths?.firstOrNull()) {
+                    "LENS_INFO_AVAILABLE_FOCAL_LENGTHS is missing or empty"
+                }
+            }
+
+        return computeFovFromZoomRatio(
+            focalLengthMm = focal,
+            sensorPhysicalSizeMm = sensorPhysicalSize,
+            sensorPixelSize = sensorPixelSize,
+            streamSize = streamSize,
+            zoomRatio = zoomRatio,
+            estimatedEisMargin = estimatedEisMargin,
+            fovMode = fovMode,
+        )
+    }
+
+    /**
+     * Computes the Field of View (FoV) in degrees from a given zoom ratio.
+     *
+     * Calculates the effective FoV when a specific [zoomRatio] is applied. Assumes the crop region
+     * is centered and matches the aspect ratio of the [streamSize].
      *
      * ### Example
      *
@@ -357,26 +650,22 @@ public object CameraLensMath {
      * )
      * ```
      *
-     * @param focalLengthMm The focal length of the lens in millimeters. Can be retrieved from
-     *   [android.hardware.camera2.CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS] or
-     *   [android.hardware.camera2.CaptureResult.LENS_FOCAL_LENGTH]. Must be positive (> 0.0).
-     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]. Width and
-     *   height must be positive (> 0.0).
-     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE]. Width
-     *   and height must be positive (>= 1).
-     * @param zoomRatio The digital zoom ratio (e.g., 1.0 for no zoom, 2.0 for 2x zoom). Links to
-     *   [android.hardware.camera2.CaptureResult.CONTROL_ZOOM_RATIO]. Must be positive (> 0.0).
-     * @param streamSize The size of the output stream in pixels. Used to determine the aspect
+     * @param focalLengthMm The focal length of the lens in millimeters. Must be positive (> 0.0).
+     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Width and height
+     *   must be positive (> 0.0).
+     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Width and height
+     *   must be positive (>= 1).
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
      *   ratio. Width and height must be positive (>= 1).
+     * @param zoomRatio The digital zoom ratio, corresponding to [CaptureResult.CONTROL_ZOOM_RATIO].
+     *   Must be positive (> 0.0).
      * @param estimatedEisMargin The estimated EIS margin as a fraction of the sensor area (e.g.,
-     *   0.1 for 10% crop). Must be in the range [0.0, 1.0) exclusive. Defaults to 0f.
+     *   `0.1f` for 10% crop). Must be in the range `[0.0, 1.0)`. Defaults to `0.0f`.
      * @param fovMode The mode defining how to compute the FoV. Must be one of [CameraFovMode].
      *   Defaults to [FOV_MODE_CROP_LONG_EDGE].
      * @return The Field of View in degrees.
-     * @throws IllegalArgumentException if any of the input dimensions or [zoomRatio] are
-     *   non-positive, or if [estimatedEisMargin] is not in the range [0.0, 1.0).
+     * @throws IllegalArgumentException If any of the input dimensions or [zoomRatio] are
+     *   non-positive, or if [estimatedEisMargin] is not in the range `[0.0, 1.0)`.
      */
     @JvmStatic
     @JvmOverloads
@@ -411,8 +700,7 @@ public object CameraLensMath {
     }
 
     /**
-     * Computes the Zoom Ratio required to achieve a target Field of View (FoV), using Android
-     * graphics and utility classes.
+     * Computes the zoom ratio required to achieve a target Field of View (FoV).
      *
      * ### Example
      *
@@ -428,27 +716,22 @@ public object CameraLensMath {
      * )
      * ```
      *
-     * @param focalLengthMm The focal length of the lens in millimeters. Can be retrieved from
-     *   [android.hardware.camera2.CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS] or
-     *   [android.hardware.camera2.CaptureResult.LENS_FOCAL_LENGTH]. Must be positive (> 0.0).
-     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]. Width and
-     *   height must be positive (> 0.0).
-     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE]. Width
-     *   and height must be positive (>= 1).
-     * @param streamSize The size of the output stream in pixels. Used to determine the aspect
+     * @param focalLengthMm The focal length of the lens in millimeters. Must be positive (> 0.0).
+     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Width and height
+     *   must be positive (> 0.0).
+     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Width and height
+     *   must be positive (>= 1).
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
      *   ratio. Width and height must be positive (>= 1).
-     * @param fovDegrees The target Field of View in degrees. Must be in the range (0.0, 180.0)
-     *   exclusive.
+     * @param fovDegrees The target Field of View in degrees. Must be in the range `(0.0, 180.0)`.
      * @param estimatedEisMargin The estimated EIS margin as a fraction of the sensor area (e.g.,
-     *   0.1 for 10% crop). Must be in the range [0.0, 1.0) exclusive. Defaults to 0f.
+     *   `0.1f` for 10% crop). Must be in the range `[0.0, 1.0)`. Defaults to `0.0f`.
      * @param fovMode The mode defining how the target FoV is measured. Must be one of
      *   [CameraFovMode]. Defaults to [FOV_MODE_CROP_LONG_EDGE].
      * @return The required zoom ratio.
-     * @throws IllegalArgumentException if [fovDegrees] is not in (0, 180), [focalLengthMm] is
+     * @throws IllegalArgumentException If [fovDegrees] is not in `(0.0, 180.0)`, [focalLengthMm] is
      *   non-positive, any of the sensor or stream dimensions are non-positive, or if
-     *   [estimatedEisMargin] is not in the range [0.0, 1.0).
+     *   [estimatedEisMargin] is not in the range `[0.0, 1.0)`.
      */
     @JvmStatic
     @JvmOverloads
@@ -487,8 +770,8 @@ public object CameraLensMath {
     }
 
     /**
-     * Computes the Focal Length required to achieve a target Field of View (FoV) at a given zoom
-     * ratio, using Android graphics and utility classes.
+     * Computes the focal length required to achieve a target Field of View (FoV) at a given zoom
+     * ratio.
      *
      * ### Example
      *
@@ -504,26 +787,23 @@ public object CameraLensMath {
      * )
      * ```
      *
-     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]. Width and
-     *   height must be positive (> 0.0).
-     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Can be retrieved
-     *   from [android.hardware.camera2.CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE]. Width
-     *   and height must be positive (>= 1).
-     * @param streamSize The size of the output stream in pixels. Used to determine the aspect
+     * @param sensorPhysicalSizeMm The physical size of the sensor in millimeters. Width and height
+     *   must be positive (> 0.0).
+     * @param sensorPixelSize The full pixel array size of the sensor in pixels. Width and height
+     *   must be positive (>= 1).
+     * @param streamSize The size of the output stream in pixels, used to determine the aspect
      *   ratio. Width and height must be positive (>= 1).
-     * @param fovDegrees The target Field of View in degrees. Must be in the range (0.0, 180.0)
-     *   exclusive.
-     * @param zoomRatio The digital zoom ratio (e.g., 1.0 for no zoom, 2.0 for 2x zoom). Links to
-     *   [android.hardware.camera2.CaptureResult.CONTROL_ZOOM_RATIO]. Must be positive (> 0.0).
+     * @param fovDegrees The target Field of View in degrees. Must be in the range `(0.0, 180.0)`.
+     * @param zoomRatio The digital zoom ratio, corresponding to [CaptureResult.CONTROL_ZOOM_RATIO].
+     *   Must be positive (> 0.0).
      * @param estimatedEisMargin The estimated EIS margin as a fraction of the sensor area (e.g.,
-     *   0.1 for 10% crop). Must be in the range [0.0, 1.0) exclusive. Defaults to 0f.
+     *   `0.1f` for 10% crop). Must be in the range `[0.0, 1.0)`. Defaults to `0.0f`.
      * @param fovMode The mode defining how the target FoV is measured. Must be one of
      *   [CameraFovMode]. Defaults to [FOV_MODE_CROP_LONG_EDGE].
      * @return The required focal length in millimeters.
-     * @throws IllegalArgumentException if [fovDegrees] is not in (0, 180), [zoomRatio] is
+     * @throws IllegalArgumentException If [fovDegrees] is not in `(0.0, 180.0)`, [zoomRatio] is
      *   non-positive, any of the sensor or stream dimensions are non-positive, or if
-     *   [estimatedEisMargin] is not in the range [0.0, 1.0).
+     *   [estimatedEisMargin] is not in the range `[0.0, 1.0)`.
      */
     @JvmStatic
     @JvmOverloads
@@ -560,7 +840,7 @@ public object CameraLensMath {
     }
 
     /**
-     * Resolves the effective physical crop dimension in millimeters based on sensor/crop mode,
+     * Computes the effective physical crop dimension in millimeters based on the sensor/crop mode,
      * stream aspect ratio, and zoom.
      */
     internal fun computePhysicalLengthMm(
