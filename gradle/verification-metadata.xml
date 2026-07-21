@@ -439,6 +439,10 @@
          <trusted-key id="87581FAE204D94248E212DD2D7662013FA1A5596" group="com.github.skydoves"/>
          <trusted-key id="87DFB6E009B27CA622B9204EC730DCAEF653215C" group="com.ibm.icu"/>
          <trusted-key id="8858D45BE9B276802318155B96FB9DB219F3338D" group="kr.motd.maven"/>
+         <trusted-key id="88BE34F94BDB2B5357044E2E3A387D43964143E3">
+            <trusting group="org.apache.maven"/>
+            <trusting group="org.eclipse.sisu"/>
+         </trusted-key>
          <trusted-key id="88CD390855DF292E2172DA9742575E0CCD6BA16A" group="org.xerial"/>
          <trusted-key id="8A10792983023D5D14C93B488D7F1BEC1E2ECAE7">
             <trusting group="com.fasterxml"/>
