@@ -24,19 +24,52 @@ import androidx.annotation.RestrictTo
 import androidx.camera.common.ImageFormat
 import androidx.camera.common.ImageFormats
 
-/** Utility functions for creating and verifying fake [HardwareBuffer] objects. */
+/**
+ * Utility functions for creating fake [HardwareBuffer] instances and checking system support for
+ * specific hardware buffer configurations.
+ *
+ * This class is designed to help write unit tests that simulate interactions with Android hardware
+ * buffers, providing fallback logic for API levels where native queries like
+ * [HardwareBuffer.isSupported] are unavailable.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal object FakeHardwareBuffers {
 
-    /** Estimates the size of a raw flat binary buffer for compressed and unstructured formats. */
+    /**
+     * Estimates the size of a raw flat binary buffer for compressed and unstructured formats.
+     *
+     * This utility helps determine the buffer size required to represent compressed image formats,
+     * such as JPEG, in a hardware buffer layout (where they are represented as a
+     * [HardwareBuffer.BLOB] of height 1).
+     *
+     * Internally, this delegates to [ImageFormats.bytesPerImage] using
+     * [android.graphics.ImageFormat.JPEG] as the format to perform the estimation.
+     *
+     * @param width The image width in pixels.
+     * @param height The image height in pixels.
+     * @return The estimated buffer size in bytes.
+     */
     internal fun estimateBlobBufferSize(width: Int, height: Int): Int =
         ImageFormats.bytesPerImage(android.graphics.ImageFormat.JPEG, width, height).toInt()
 
     /**
-     * Creates a fake [HardwareBuffer] for the specified image properties.
+     * Creates a fake [HardwareBuffer] configured for the specified image properties.
      *
-     * Returns `null` if the API level is less than 26 or if the format/dimensions are not
-     * supported.
+     * The dimensions and format of the created [HardwareBuffer] depend on the input [imageFormat]:
+     * - Compressed/unstructured formats (e.g., JPEG, HEIC) are represented as raw binary buffers,
+     *   which maps the buffer format to [HardwareBuffer.BLOB], width to an estimated size (via
+     *   [estimateBlobBufferSize]), and height to `1`.
+     * - Standard structured formats (e.g., YUV_420_888, RGBA_8888) maintain their original
+     *   dimensions.
+     *
+     * @param imageFormat The high-level [ImageFormat] representing the image format.
+     * @param imageWidth The width of the image in pixels.
+     * @param imageHeight The height of the image in pixels.
+     * @param hardwareBufferLayers The number of layers in the hardware buffer, defaults to 1.
+     * @param hardwareBufferUsage The usage flags for the hardware buffer, defaults to
+     *   [HardwareBuffer.USAGE_CPU_READ_OFTEN].
+     * @return A newly created [HardwareBuffer], or `null` if the current API level is below 26, or
+     *   if creating a buffer with the resolved configuration is not supported on this device.
      */
     fun createForImage(
         @ImageFormat imageFormat: Int,
@@ -83,10 +116,21 @@ internal object FakeHardwareBuffers {
     }
 
     /**
-     * Checks if [HardwareBuffer] supports creating a buffer with the specified properties.
+     * Checks if the system supports creating a [HardwareBuffer] with the specified properties.
      *
-     * On API level 29+, this queries the system directly using [HardwareBuffer.isSupported]. On API
-     * levels 26-28, it falls back to a static verification check.
+     * On Android 10 (API level 29) and above, this queries the system directly using
+     * [HardwareBuffer.isSupported]. On API levels 26-28, it falls back to a static verification
+     * check using a predefined list of supported formats.
+     *
+     * @param hardwareBufferWidth The width of the hardware buffer in pixels.
+     * @param hardwareBufferHeight The height of the hardware buffer in pixels.
+     * @param hardwareBufferFormat The format of the hardware buffer (e.g.,
+     *   [HardwareBuffer.RGBA_8888]).
+     * @param hardwareBufferLayers The number of layers in the hardware buffer.
+     * @param hardwareBufferUsage The usage flags for the hardware buffer (e.g.,
+     *   [HardwareBuffer.USAGE_CPU_READ_OFTEN]).
+     * @return `true` if a [HardwareBuffer] with these parameters can be successfully created on the
+     *   current device; `false` otherwise.
      */
     @SuppressLint("WrongConstant")
     fun isHardwareBufferSupported(
@@ -155,17 +199,16 @@ internal object FakeHardwareBuffers {
     /**
      * Maps a high-level [ImageFormat] to its corresponding [HardwareBuffer] format.
      *
-     * High-level image formats (e.g. from [android.graphics.ImageFormat]) are typically mapped
-     * 1-to-1 to their [HardwareBuffer] counterparts (e.g. [HardwareBuffer.RGBA_8888] or
-     * [HardwareBuffer.YCBCR_420_888]).
+     * Standard 2D image formats (e.g., [android.graphics.ImageFormat.YUV_420_888]) are typically
+     * mapped directly to their equivalent [HardwareBuffer] format.
      *
      * Compressed or unstructured image formats (like [android.graphics.ImageFormat.JPEG],
-     * [android.graphics.ImageFormat.DEPTH_POINT_CLOUD], etc.) do not have a standard 2D pixel grid
-     * representation. These are represented in the hardware layer as flat raw binary buffers, which
-     * map to [HardwareBuffer.BLOB].
+     * [android.graphics.ImageFormat.HEIC], or [android.graphics.ImageFormat.DEPTH_POINT_CLOUD]) do
+     * not have a standard 2D pixel grid layout. These are mapped to [HardwareBuffer.BLOB] to
+     * represent them as flat, raw binary buffers.
      *
-     * As new image formats are introduced to Android or supported by CameraX, additional mappings
-     * may need to be added to this function.
+     * @param imageFormat The high-level [ImageFormat] to map.
+     * @return The corresponding [HardwareBuffer] format.
      */
     fun toHardwareBufferFormat(imageFormat: Int): Int =
         when (imageFormat) {
