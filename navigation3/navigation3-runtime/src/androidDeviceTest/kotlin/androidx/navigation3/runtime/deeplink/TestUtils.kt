@@ -16,6 +16,7 @@
 
 package androidx.navigation3.runtime.deeplink
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 interface TestInterface
@@ -112,3 +113,15 @@ fun DeepLinkRequest.Companion.withStringExtra(uri: String, extra: String) =
 const val MATCHER_STRING_FILTER_VALUE = "filterString"
 
 const val MATCHER_STRING_FILTER_KEY = "StringExtraKey"
+
+@Serializable
+abstract class SerializableAbstract {
+    abstract val name: String
+}
+
+// interface Project
+
+@Serializable
+class SerializableConcrete(val owner: String, override val name: String) : SerializableAbstract()
+
+@Serializable class SerializableConcreteArgKey(val derived: SerializableConcrete) : NavKey

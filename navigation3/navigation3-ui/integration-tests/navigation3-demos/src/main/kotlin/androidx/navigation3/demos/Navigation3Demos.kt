@@ -20,11 +20,11 @@ import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.navigation3.ui.samples.AnimatedBottomSheetSample
 import androidx.navigation3.ui.samples.ConcatenatedBackStackSample
-import androidx.navigation3.ui.samples.CustomArgTypeFlattenedArgsSample
-import androidx.navigation3.ui.samples.CustomArgTypeKSerializerSample
+import androidx.navigation3.ui.samples.DeepLinkSerializerSample
 import androidx.navigation3.ui.samples.DialogSample
-import androidx.navigation3.ui.samples.ListCustomArgTypeKSerializerSample
+import androidx.navigation3.ui.samples.ListTypeDeepLinkSerializerSample
 import androidx.navigation3.ui.samples.MultipleBackStackSample
+import androidx.navigation3.ui.samples.NonPrimitiveArgFlattenedSample
 import androidx.navigation3.ui.samples.SceneDefaultTransitionsSample
 import androidx.navigation3.ui.samples.SceneNav
 import androidx.navigation3.ui.samples.SceneNavSharedElementSample
@@ -49,14 +49,14 @@ val Navigation3Demos =
                 title = "Deep Link Demos",
                 demos =
                     listOf(
-                        ComposableDemo("Custom Arg Type Flattened Arg Values") {
-                            CustomArgTypeFlattenedArgsSample()
+                        ComposableDemo("Non-Primitive Arg Flattened Arg Values") {
+                            NonPrimitiveArgFlattenedSample()
                         },
-                        ComposableDemo("Custom Arg Type with KSerializer") {
-                            CustomArgTypeKSerializerSample()
+                        ComposableDemo("Non-Primitive Arg with DeepLinkSerializer") {
+                            DeepLinkSerializerSample()
                         },
-                        ComposableDemo("List of Custom Arg Type with KSerializer") {
-                            ListCustomArgTypeKSerializerSample()
+                        ComposableDemo("List of Non-Primitive Args with DeepLinkSerializer") {
+                            ListTypeDeepLinkSerializerSample()
                         },
                     ),
             ),
