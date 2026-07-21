@@ -514,6 +514,7 @@ public fun Orbiter(
 
     val poseProvider =
         remember(alignment, layoutDirection, density) {
+            @Suppress("DEPRECATION")
             OrbiterPoseProvider { targetSize, _, orbiterContentSize ->
                 val spatialAlignment = alignment.alignment
                 val edgeOffsetType = alignment.edgeOffsetType
@@ -655,6 +656,7 @@ public fun Orbiter(
  * @param shape The shape of this Orbiter when it is rendered in 3D space.
  * @param content The content of the orbiter.
  */
+@Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
 @Deprecated("Use the SpatialAlignment and OrbiterEdgeOffsetType-based Orbiter function instead.")
@@ -699,6 +701,7 @@ public fun Orbiter(
 }
 
 /** Calculates the [Pose] of an [Orbiter] in 3D space relative to its spatial parent. */
+@Deprecated("Use SpatialAlignment Orbiter API instead.")
 public fun interface OrbiterPoseProvider {
     /**
      * Calculate the [Pose] of the [Orbiter].
@@ -1156,6 +1159,7 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
  * @param initialPoseProvider The initial Pose provider for the `SpatialOrbiter`.
  * @param initialShape The initial SpatialShape of the `SpatialOrbiter`.
  */
+@Suppress("DEPRECATION")
 private class SpatialOrbiter(
     private var context: Context,
     private var parentView: View,
