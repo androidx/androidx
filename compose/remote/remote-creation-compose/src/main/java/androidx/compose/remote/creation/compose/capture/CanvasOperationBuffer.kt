@@ -683,9 +683,9 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         // Run optimizations on the span tree
         if (enableOptimizations) {
             optimizeSpan(spanTreeRoot)
+            spanTreeRoot.sortAllSpans()
         }
 
-        spanTreeRoot.sortAllSpans()
         spanTreeRoot.record(creationState.document, creationState)
 
         // Reset for next flush
