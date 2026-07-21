@@ -17,12 +17,12 @@
 package androidx.lifecycle
 
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -125,7 +125,7 @@ internal suspend inline fun <R> Lifecycle.withStateAtLeastUnchecked(
     // Fast path: if our lifecycle dispatcher doesn't require dispatch we can check
     // the current lifecycle state and decide if we can run synchronously
     val lifecycleDispatcher = Dispatchers.Main.immediate
-    val dispatchNeeded = lifecycleDispatcher.isDispatchNeeded(coroutineContext)
+    val dispatchNeeded = lifecycleDispatcher.isDispatchNeeded(currentCoroutineContext())
     if (!dispatchNeeded) {
         if (currentState == Lifecycle.State.DESTROYED) throw LifecycleDestroyedException()
         if (currentState >= state) return block()
