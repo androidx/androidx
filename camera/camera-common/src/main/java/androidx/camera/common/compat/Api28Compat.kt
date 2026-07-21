@@ -17,6 +17,7 @@
 package androidx.camera.common.compat
 
 import android.hardware.HardwareBuffer
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.media.Image
@@ -27,6 +28,25 @@ internal object Api28Compat {
     @JvmStatic
     fun getHardwareBuffer(image: Image): HardwareBuffer? {
         return image.hardwareBuffer
+    }
+
+    @JvmStatic
+    fun getAvailablePhysicalCameraRequestKeys(
+        cameraCharacteristics: CameraCharacteristics
+    ): List<CaptureRequest.Key<*>>? {
+        return cameraCharacteristics.availablePhysicalCameraRequestKeys
+    }
+
+    @JvmStatic
+    fun getAvailableSessionKeys(
+        cameraCharacteristics: CameraCharacteristics
+    ): List<CaptureRequest.Key<*>>? {
+        return cameraCharacteristics.availableSessionKeys
+    }
+
+    @JvmStatic
+    fun getPhysicalCameraIds(cameraCharacteristics: CameraCharacteristics): Set<String> {
+        return cameraCharacteristics.physicalCameraIds
     }
 
     @JvmStatic

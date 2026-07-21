@@ -1,6 +1,34 @@
 // Signature format: 4.0
 package androidx.camera.common {
 
+  public final class AndroidCameraCharacteristics implements androidx.camera.common.CameraCharacteristicsWrapper {
+    ctor @KotlinOnly public AndroidCameraCharacteristics(androidx.camera.common.CameraId cameraId, android.hardware.camera2.CameraCharacteristics characteristics);
+    ctor @BytecodeOnly public AndroidCameraCharacteristics(String!, android.hardware.camera2.CameraCharacteristics!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method public <T> T? get(androidx.camera.common.Metadata.Key<T> key);
+    method @InaccessibleFromKotlin public String getCameraId();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getCaptureResultKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> getMetadataKeys();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.CameraId> getPhysicalCameraIds();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getPhysicalCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getRestrictedKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getSessionCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getSessionKeys();
+    method public <T> T? unwrapAs(Class<T> type);
+    property public androidx.camera.common.CameraId cameraId;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> captureRequestKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> captureResultKeys;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> keys;
+    property public java.util.Set<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>> metadataKeys;
+    property public java.util.Set<androidx.camera.common.CameraId> physicalCameraIds;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> physicalCaptureRequestKeys;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> restrictedKeys;
+    property public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> sessionCaptureRequestKeys;
+    property public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> sessionKeys;
+  }
+
   public final class AndroidCaptureRequest implements androidx.camera.common.CaptureRequestWrapper {
     method public static androidx.camera.common.AndroidCaptureRequest create(android.hardware.camera2.CaptureRequest captureRequest);
     method public static androidx.camera.common.AndroidCaptureRequest create(android.hardware.camera2.CaptureRequest captureRequest, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> metadata);
@@ -85,6 +113,29 @@ package androidx.camera.common {
     property public java.nio.ByteBuffer buffer;
     property public int pixelStride;
     property public int rowStride;
+  }
+
+  public interface CameraCharacteristicsWrapper extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
+    method public operator <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method @InaccessibleFromKotlin public String getCameraId();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getCaptureResultKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
+    method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.CameraId> getPhysicalCameraIds();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getPhysicalCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getRestrictedKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getSessionCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getSessionKeys();
+    property public abstract androidx.camera.common.CameraId cameraId;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> captureRequestKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> captureResultKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> keys;
+    property public abstract java.util.Set<androidx.camera.common.CameraId> physicalCameraIds;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> physicalCaptureRequestKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> restrictedKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> sessionCaptureRequestKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> sessionKeys;
   }
 
   @kotlin.jvm.JvmInline public final value class CameraFrameNumber {
