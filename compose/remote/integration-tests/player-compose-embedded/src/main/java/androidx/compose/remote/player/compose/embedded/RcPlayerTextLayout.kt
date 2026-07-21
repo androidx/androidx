@@ -19,11 +19,15 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.material3.Text
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -33,6 +37,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font as GoogleFontFactory
+import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.googlefonts.R as GoogleFontR
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,31 +90,17 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
         }
 
     val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
+    val customFontNameState = rememberCustomFontName(fontFamilyType, remoteContext)
     val fontFamily =
-        if (fontVariationSettings != null) {
-            val familyNameStr =
-                when (fontFamilyType) {
-                    1 -> "sans-serif"
-                    2 -> "serif"
-                    3 -> "monospace"
-                    else -> "sans-serif"
-                }
-            FontFamily(
-                Font(
-                    DeviceFontFamilyName(familyNameStr),
-                    weight = fontWeight,
-                    style = fontStyle,
-                    variationSettings = fontVariationSettings,
-                )
-            )
-        } else {
-            when (fontFamilyType) {
-                1 -> FontFamily.SansSerif
-                2 -> FontFamily.Serif
-                3 -> FontFamily.Monospace
-                else -> FontFamily.Default
-            }
-        }
+        resolveFontFamily(
+            fontFamilyType,
+            customFontNameState.value,
+            fontWeight,
+            fontStyle,
+            data.fontAxis,
+            data.fontAxisValues,
+            LocalRemoteContext.current,
+        )
 
     val textDecoration =
         when {
@@ -170,18 +163,23 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val fontSize = if (paintState.isTextSizeSet) paintState.textSize else data.fontSizeValue
     val fontSizeSp = with(LocalDensity.current) { fontSize.toSp() }
 
-    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
-    val fontFamily =
-        when (fontFamilyType) {
-            1 -> FontFamily.SansSerif
-            2 -> FontFamily.Serif
-            3 -> FontFamily.Monospace
-            else -> FontFamily.Default
-        }
     val fontWeight =
         if (paintState.isTypefaceSet) FontWeight(paintState.fontWeight)
         else FontWeight(data.fontWeight.toInt())
     val fontStyle = if (paintState.isTypefaceSet) paintState.fontStyle else FontStyle.Normal
+
+    val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else data.type
+    val customFontNameState = rememberCustomFontName(fontFamilyType, LocalRemoteContext.current)
+    val fontFamily =
+        resolveFontFamily(
+            fontFamilyType,
+            customFontNameState.value,
+            fontWeight,
+            fontStyle,
+            null,
+            null,
+            LocalRemoteContext.current,
+        )
 
     Text(
         text = text,
@@ -209,5 +207,145 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 else -> TextOverflow.Clip
             },
         maxLines = data.maxLines,
+    )
+}
+
+@Composable
+private fun rememberCustomFontName(fontFamilyType: Int, context: RemoteContext): State<String?> {
+    return remember(fontFamilyType) {
+        derivedStateOf {
+            when (fontFamilyType) {
+                0 -> "default"
+                1 -> "sans-serif"
+                2 -> "serif"
+                3 -> "monospace"
+                else -> context.getText(fontFamilyType)
+            }
+        }
+    }
+}
+
+private val GmsFontProvider =
+    GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = GoogleFontR.array.com_google_android_gms_fonts_certs,
+    )
+
+private fun resolveFontFamily(
+    fontFamilyType: Int,
+    fontName: String?,
+    fontWeight: FontWeight,
+    fontStyle: FontStyle,
+    fontAxis: IntArray?,
+    fontAxisValues: FloatArray?,
+    context: RemoteContext,
+): FontFamily {
+    if (fontName != null) {
+        when {
+            fontName.startsWith("device:") -> {
+                val familyName = fontName.substring("device:".length)
+                return createDeviceFontFamily(
+                    familyName,
+                    fontWeight,
+                    fontStyle,
+                    fontAxis,
+                    fontAxisValues,
+                    context,
+                )
+            }
+            fontName.startsWith("google:") -> {
+                val actualName = fontName.substring("google:".length)
+                val googleFont = GoogleFont(actualName)
+                // TODO: Support variation settings for Google fonts if needed
+                return FontFamily(
+                    GoogleFontFactory(
+                        googleFont = googleFont,
+                        fontProvider = GmsFontProvider,
+                        weight = fontWeight,
+                        style = fontStyle,
+                    )
+                )
+            }
+        }
+    }
+
+    val standardName =
+        fontName
+            ?: when (fontFamilyType) {
+                1 -> "sans-serif"
+                2 -> "serif"
+                3 -> "monospace"
+                else -> "sans-serif"
+            }
+
+    val standardFontFamily =
+        when (standardName) {
+            "sans-serif" -> FontFamily.SansSerif
+            "serif" -> FontFamily.Serif
+            "monospace" -> FontFamily.Monospace
+            else -> FontFamily.Default
+        }
+
+    if (fontAxis != null && fontAxisValues != null) {
+        val settings =
+            fontAxis.asList().mapIndexedNotNull { index, id ->
+                val name = context.getText(id)
+                if (name != null) {
+                    FontVariation.Setting(name, fontAxisValues[index])
+                } else {
+                    null
+                }
+            }
+        if (settings.isNotEmpty()) {
+            return FontFamily(
+                Font(
+                    DeviceFontFamilyName(standardName),
+                    weight = fontWeight,
+                    style = fontStyle,
+                    variationSettings = FontVariation.Settings(*settings.toTypedArray()),
+                )
+            )
+        }
+    }
+
+    return standardFontFamily
+}
+
+private fun createDeviceFontFamily(
+    familyName: String,
+    fontWeight: FontWeight,
+    fontStyle: FontStyle,
+    fontAxis: IntArray?,
+    fontAxisValues: FloatArray?,
+    context: RemoteContext,
+): FontFamily {
+    val settings =
+        if (fontAxis != null && fontAxisValues != null) {
+            fontAxis
+                .asList()
+                .mapIndexedNotNull { index, id ->
+                    val name = context.getText(id)
+                    if (name != null) {
+                        FontVariation.Setting(name, fontAxisValues[index])
+                    } else {
+                        null
+                    }
+                }
+                .let {
+                    if (it.isNotEmpty()) FontVariation.Settings(*it.toTypedArray())
+                    else FontVariation.Settings()
+                }
+        } else {
+            FontVariation.Settings()
+        }
+
+    return FontFamily(
+        Font(
+            DeviceFontFamilyName(familyName),
+            weight = fontWeight,
+            style = fontStyle,
+            variationSettings = settings,
+        )
     )
 }

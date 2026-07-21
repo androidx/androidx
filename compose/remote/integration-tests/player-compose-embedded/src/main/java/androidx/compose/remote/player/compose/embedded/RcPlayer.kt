@@ -160,6 +160,7 @@ public fun RcPlayer(
     val remoteContext = remember {
         // Consider a Compose Clock
         AndroidRemoteContext(clock).also {
+            it.setTypefaceResolver(EmbeddedPlayerTypefaceResolver(it))
             // Back the document's reactive scalar state (float/int/color) with Compose snapshot
             // state, so those variables resolve reactively without a per-id listener bridge (see
             // SnapshotRemoteComposeState / rememberRemoteFloatAsState). Swap before
