@@ -17,6 +17,7 @@
 package androidx.navigation3.runtime.deeplink
 
 import androidx.kruth.assertThat
+import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
 import kotlinx.serialization.serializer
 
@@ -802,6 +803,58 @@ class UriDeepLinkMatcherTest {
         // allows direct access to UriMatchResult fields without casting
         assertThat(result!!.arguments).isEmpty()
     }
+
+    @Test
+    fun matchRequest_withBackStack() {
+        val matcher =
+            UriDeepLinkMatcher(
+                    DeepLinkUri("https://example.com/user?name={name}&age={age}"),
+                    serializer<SimpleKey>(),
+                )
+                .withBackStack { listOf(TestKey, it.key) }
+        val request = DeepLinkRequest.fromUriString("https://example.com/user?name=john&age=30")
+        val result = matcher.match(request)
+        assertThat(result?.backStack).containsExactly(TestKey, SimpleKey("john", 30)).inOrder()
+    }
+
+    @Test
+    fun matchRequest_withBackStack_interfaceKeys() {
+        val matcher =
+            UriDeepLinkMatcher(
+                    DeepLinkUri("https://example.com/any/"),
+                    serializer<TestInterfaceImplB>(),
+                )
+                .withBackStack { listOf(TestInterfaceImplA, TestInterfaceImplB) }
+        val request = DeepLinkRequest.fromUriString("https://example.com/any/")
+        val result: BackStackMatchResult<TestInterfaceImplB, TestInterface>? =
+            matcher.match(request)
+
+        val backStack: List<TestInterface> = result!!.backStack
+        val key: TestInterface = result.key
+        assertThat(backStack).containsExactly(TestInterfaceImplA, TestInterfaceImplB).inOrder()
+        assertThat(key).isEqualTo(TestInterfaceImplB)
+    }
+
+    @Test
+    fun matchRequest_withBackStack_sealedKeys() {
+        val matcher =
+            UriDeepLinkMatcher(
+                    DeepLinkUri("https://example.com/any/"),
+                    serializer<TestSealedClass.Key2>(),
+                )
+                .withBackStack { listOf(TestSealedClass.Key1, TestSealedClass.Key2) }
+        val request = DeepLinkRequest.fromUriString("https://example.com/any/")
+        val result = matcher.match(request)
+
+        val backStack: List<TestSealedClass> = result!!.backStack
+        val key: TestSealedClass = result.key
+        assertThat(backStack).containsExactly(TestSealedClass.Key1, TestSealedClass.Key2).inOrder()
+        assertThat(key).isEqualTo(TestSealedClass.Key2)
+    }
+
+    object Key1 : NavKey
+
+    object Key2 : NavKey
 
     private fun DeepLinkRequest.Companion.fromUriString(uri: String) =
         DeepLinkRequest(uri = DeepLinkUri(uri))

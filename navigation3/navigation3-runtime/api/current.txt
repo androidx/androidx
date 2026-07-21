@@ -139,6 +139,19 @@ package androidx.navigation3.runtime {
 
 package androidx.navigation3.runtime.deeplink {
 
+  public final class BackStackMatchResult<T extends K, K> extends androidx.navigation3.runtime.deeplink.WrappedMatchResult<T> {
+    method @InaccessibleFromKotlin public java.util.List<K> getBackStack();
+    property public java.util.List<K> backStack;
+  }
+
+  public final class BackStackMatcher<T extends K, K> extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher<T,androidx.navigation3.runtime.deeplink.BackStackMatchResult<? extends T,K>> {
+    method protected androidx.navigation3.runtime.deeplink.BackStackMatchResult<T,K>? matchRequest(androidx.navigation3.runtime.deeplink.DeepLinkRequest request);
+  }
+
+  public final class BackStackMatcherKt {
+    method public static <T extends K, K> androidx.navigation3.runtime.deeplink.BackStackMatcher<T,K> withBackStack(androidx.navigation3.runtime.deeplink.DeepLinkMatcher<? extends T,? extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T>>, kotlin.jvm.functions.Function1<? super androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T>,? extends java.util.List<? extends K>> backStackBuilder);
+  }
+
   public abstract class DeepLinkMatcher<T, R extends androidx.navigation3.runtime.deeplink.DeepLinkMatcher.MatchResult<? extends T>> {
     ctor public DeepLinkMatcher();
     ctor @BytecodeOnly public DeepLinkMatcher(java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
