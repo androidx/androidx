@@ -19,13 +19,23 @@ package androidx.camera.common.internal
 import android.util.Size
 import androidx.camera.common.ImageFormat
 
-/** An immutable snapshot of hardware limits. */
+/**
+ * An immutable snapshot of hardware limits for a camera device.
+ *
+ * This class represents the maximum supported resolutions for different stream types and formats on
+ * a device. It is used to resolve abstract stream sizes (e.g., [StreamSize.PREVIEW],
+ * [StreamSize.RECORD]) to concrete [Size]s.
+ *
+ * Use the [DeviceLimits.build] DSL to create an instance.
+ */
 public abstract class DeviceLimits internal constructor() {
 
     /**
      * The maximum preview size.
      *
      * This parameter is mandatory and must be a valid size of non-zero area.
+     *
+     * This limit is used to resolve [StreamSize.PREVIEW].
      */
     public abstract val maxPreviewSize: Size
 
@@ -33,40 +43,69 @@ public abstract class DeviceLimits internal constructor() {
      * The maximum record size.
      *
      * This parameter is mandatory and must be a valid size of non-zero area.
+     *
+     * This limit is used to resolve [StreamSize.RECORD].
      */
     public abstract val maxRecordSize: Size
 
     /**
-     * The maximum output sizes map.
+     * The maximum output sizes map, keyed by [ImageFormat].
      *
-     * This parameter is mandatory and must not be empty.
+     * This parameter is mandatory and must not be empty. Each size in the map must have a non-zero
+     * area.
+     *
+     * This limit is used to resolve [StreamSize.MAXIMUM].
      */
     public abstract val maxOutputSizes: Map<@ImageFormat Int, Size>
 
     /**
-     * The maximum 4:3 output sizes map.
+     * The maximum 4:3 output sizes map, keyed by [ImageFormat].
      *
-     * This parameter is optional and defaults to an empty map.
+     * This parameter is optional and defaults to an empty map. Each size in the map must have a
+     * non-zero area and must not exceed the global maximum size for the corresponding format in
+     * [maxOutputSizes].
+     *
+     * This limit is used to resolve [StreamSize.MAXIMUM_4_3].
      */
     public abstract val maxOutputSizes4by3: Map<@ImageFormat Int, Size>
 
     /**
-     * The maximum 16:9 output sizes map.
+     * The maximum 16:9 output sizes map, keyed by [ImageFormat].
      *
-     * This parameter is optional and defaults to an empty map.
+     * This parameter is optional and defaults to an empty map. Each size in the map must have a
+     * non-zero area and must not exceed the global maximum size for the corresponding format in
+     * [maxOutputSizes].
+     *
+     * This limit is used to resolve [StreamSize.MAXIMUM_16_9].
      */
     public abstract val maxOutputSizes16by9: Map<@ImageFormat Int, Size>
 
     /**
-     * The maximum ultra-high resolution output sizes map.
+     * The maximum ultra-high resolution output sizes map, keyed by [ImageFormat].
      *
-     * This parameter is optional and defaults to an empty map.
+     * This parameter is optional and defaults to an empty map. Each size in the map must have a
+     * non-zero area.
+     *
+     * Unlike [maxOutputSizes4by3] and [maxOutputSizes16by9], sizes in this map are allowed to
+     * exceed the global maximums in [maxOutputSizes], as they represent ultra-high resolution
+     * modes.
+     *
+     * This limit is used to resolve [StreamSize.ULTRA_MAXIMUM].
      */
     public abstract val maxUltraOutputSizes: Map<@ImageFormat Int, Size>
 
     public companion object {
         /**
          * Kotlin DSL entry point for creating [DeviceLimits].
+         *
+         * Example usage:
+         * ```
+         * val limits = DeviceLimits.build {
+         *     maxPreviewSize = Size(1920, 1080)
+         *     maxRecordSize = Size(3840, 2160)
+         *     maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
+         * }
+         * ```
          *
          * @throws IllegalArgumentException if any mandatory parameters are missing or invalid, or
          *   if aspect-ratio specific maximums conflict with global maximums.
@@ -79,7 +118,11 @@ public abstract class DeviceLimits internal constructor() {
     }
 }
 
-/** Mutable version of DeviceLimits, allowing property assignments. */
+/**
+ * A mutable version of [DeviceLimits], allowing property assignments during construction.
+ *
+ * This class is typically used as the receiver block in [DeviceLimits.build].
+ */
 public abstract class MutableDeviceLimits internal constructor() : DeviceLimits() {
     public abstract override var maxPreviewSize: Size
     public abstract override var maxRecordSize: Size

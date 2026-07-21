@@ -31,7 +31,7 @@ import java.nio.ByteBuffer
  * ### 1. Standalone Allocation by Dimensions
  * Allocates a direct [ByteBuffer] of size `rowStride * rowCount` when accessed.
  *
- * ```
+ * ```kotlin
  * val plane = FakeImagePlane(rowStride = 640, rowCount = 480)
  * assertThat(plane.buffer.capacity()).isEqualTo(640 * 480)
  * ```
@@ -39,7 +39,7 @@ import java.nio.ByteBuffer
  * ### 2. Custom Strides and Sub-sampling
  * Useful for mocking interleaved UV planes where pixel stride is 2.
  *
- * ```
+ * ```kotlin
  * val uvPlane = FakeImagePlane(rowStride = 640, rowCount = 240, pixelStride = 2)
  * ```
  *
@@ -47,7 +47,7 @@ import java.nio.ByteBuffer
  * Avoids extra allocations by wrapping an existing buffer window (e.g. from a contiguous NV12
  * buffer). Ensure the slice maintains native byte ordering (`order(ByteOrder.nativeOrder())`).
  *
- * ```
+ * ```kotlin
  * val slice = parentBuffer.slice().order(ByteOrder.nativeOrder())
  * val plane = FakeImagePlane(rowStride = 640, pixelStride = 1, buffer = slice)
  * assertThat(plane.buffer).isSameInstanceAs(slice)
@@ -57,8 +57,9 @@ import java.nio.ByteBuffer
  * @param rowCount The height of the plane in rows. Used for lazy buffer allocation if [buffer] is
  *   null. Defaults to 1 (convenient for single-row compressed formats like JPEG).
  * @param pixelStride The distance between adjacent pixel samples in bytes. Defaults to 1.
- * @param buffer An optional pre-allocated [ByteBuffer] to back this plane. If null, a direct buffer
- *   of size `rowStride * rowCount` is allocated lazily upon first access.
+ * @param buffer An optional pre-allocated [ByteBuffer] to back this plane. If null, a direct
+ *   [ByteBuffer] of size `rowStride * rowCount` is allocated lazily using
+ *   [FakeByteBuffers.allocateNative] upon first access.
  */
 public class FakeImagePlane
 @JvmOverloads
@@ -70,10 +71,28 @@ constructor(
 ) : ImagePlane {
     private val _providedBuffer = buffer
 
+    /**
+     * A [ByteBuffer] containing the image data for this plane.
+     *
+     * If a custom [buffer] was passed to the constructor, it is returned directly. Otherwise, a
+     * direct [ByteBuffer] with native byte order and capacity equal to `rowStride * rowCount` is
+     * allocated lazily upon first access.
+     */
     override val buffer: ByteBuffer by lazy {
         _providedBuffer ?: FakeByteBuffers.allocateNative(rowStride * rowCount)
     }
 
+    /**
+     * Unwraps this fake image plane to its underlying implementation types.
+     *
+     * This implementation supports unwrapping to:
+     * * [FakeImagePlane] (returns `this`)
+     * * [ByteBuffer] (returns the backing [buffer])
+     *
+     * @param type The class representing the type to unwrap to.
+     * @return The unwrapped object instance of type [T], or `null` if the requested type is not
+     *   supported.
+     */
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
