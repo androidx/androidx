@@ -1157,9 +1157,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     internal class AndroidComposeViewNavigationSoundEffect(private val view: View) :
         (FocusDirection, Boolean) -> Unit {
 
-        @OptIn(ExperimentalComposeUiApi::class)
         override fun invoke(direction: FocusDirection, isFastScrolling: Boolean) {
-            if (!AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) return
 
             val androidDirection = direction.toAndroidFocusDirection() ?: return
 

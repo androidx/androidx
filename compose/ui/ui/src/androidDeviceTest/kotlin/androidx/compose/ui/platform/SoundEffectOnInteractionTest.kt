@@ -17,8 +17,6 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -75,20 +73,6 @@ class SoundEffectOnInteractionTest {
 
         // Ensure only the inner wrapper played the sound
         assertThat(fakeSoundEffects.playClickSoundCount).isEqualTo(1)
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class)
-    fun soundEffects_disabled_byFlag_dropsCall() {
-        var soundEffect: SoundEffect? = null
-        val originalFlag = AndroidComposeUiFlags.isInteractionSoundEffectsEnabled
-        AndroidComposeUiFlags.isInteractionSoundEffectsEnabled = false
-        try {
-            rule.setContent { soundEffect = LocalSoundEffect.current }
-            assertThat(soundEffect).isNotInstanceOf(AndroidSoundEffect::class.java)
-        } finally {
-            AndroidComposeUiFlags.isInteractionSoundEffectsEnabled = originalFlag
-        }
     }
 
     @Test
