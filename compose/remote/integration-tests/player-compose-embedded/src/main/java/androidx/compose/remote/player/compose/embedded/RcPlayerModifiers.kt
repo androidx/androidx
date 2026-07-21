@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
@@ -66,6 +67,7 @@ import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStrin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -79,8 +81,9 @@ import androidx.compose.ui.util.fastForEach
 
 @Composable
 @Suppress("ModifierFactoryExtensionFunction")
-internal fun ComponentModifiers.toModifier(): Modifier {
+internal fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): Modifier {
     var modifier: Modifier = Modifier
+    var drawContentProcessed = false
     list.fastForEach { op ->
         modifier =
             when (op) {
@@ -103,7 +106,23 @@ internal fun ComponentModifiers.toModifier(): Modifier {
                 is ComponentVisibilityOperation -> modifier.visible(op)
                 is MarqueeModifierOperation -> modifier.marquee(op)
                 is CoreSemantics -> modifier.semantics(op)
-                is DrawContentOperation -> modifier
+                is DrawContentOperation -> {
+                    drawContentProcessed = true
+                    if (drawOpsList != null) {
+                        val remoteContext = LocalRemoteContext.current
+                        val graph = LocalGraphContext.current
+                        modifier.drawWithContent {
+                            executeOperations(
+                                operations = drawOpsList,
+                                remoteContext = remoteContext,
+                                onDrawContent = { drawContent() },
+                                graph = graph,
+                            )
+                        }
+                    } else {
+                        modifier
+                    }
+                }
                 // AlignBy is applied per-child inside Row/Column scope (RcPlayerRow), where the
                 // alignment lines are available; it is a no-op in the generic modifier chain.
                 is AlignByModifierOperation -> modifier
@@ -117,6 +136,19 @@ internal fun ComponentModifiers.toModifier(): Modifier {
                     println("Warning: Unsupported modifier $op")
                     modifier
                 }
+            }
+    }
+    if (drawOpsList != null && !drawContentProcessed) {
+        val remoteContext = LocalRemoteContext.current
+        val graph = LocalGraphContext.current
+        modifier =
+            modifier.drawWithContent {
+                executeOperations(
+                    operations = drawOpsList,
+                    remoteContext = remoteContext,
+                    onDrawContent = { drawContent() },
+                    graph = graph,
+                )
             }
     }
     return modifier
