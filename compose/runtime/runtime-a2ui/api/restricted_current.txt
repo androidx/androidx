@@ -14,6 +14,7 @@ package androidx.compose.runtime.a2ui {
   }
 
   @androidx.compose.runtime.Immutable public final class A2uiComponentProperties {
+    method public operator <T> T? get(androidx.compose.runtime.a2ui.StaticA2uiProperty<T> property);
   }
 
   @androidx.compose.runtime.Immutable public final class A2uiComponentReference {
