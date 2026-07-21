@@ -2210,14 +2210,14 @@ class RecordingCanvasTest {
 
             assertThat(buffer.calls)
                 .containsExactly(
-                    "setNamedVariable(42, \"USER:cond1\", 4)",
-                    "setNamedVariable(43, \"USER:cond2\", 4)",
-                    "addIntegerExpression(44, 7, [42, 43, 65546])",
                     "addPaint",
-                    "textData(45, \"false\")",
-                    "textData(46, \"true\")",
-                    "addList(2097194, [45, 46])",
-                    "textLookup(47, ID(2097194), 44)",
+                    "textData(42, \"false\")",
+                    "textData(43, \"true\")",
+                    "addList(2097194, [42, 43])",
+                    "setNamedVariable(44, \"USER:cond1\", 4)",
+                    "setNamedVariable(45, \"USER:cond2\", 4)",
+                    "addIntegerExpression(46, 7, [44, 45, 65546])",
+                    "textLookup(47, ID(2097194), 46)",
                     "addDrawTextRun(47)",
                 )
         }
@@ -2244,14 +2244,14 @@ class RecordingCanvasTest {
 
             assertThat(buffer.calls)
                 .containsExactly(
-                    "setNamedVariable(42, \"USER:cond1\", 4)",
-                    "setNamedVariable(43, \"USER:cond2\", 4)",
-                    "addIntegerExpression(44, 7, [42, 43, 65546])",
                     "addPaint",
-                    "textData(45, \"false\")",
-                    "textData(46, \"true\")",
-                    "addList(2097194, [45, 46])",
-                    "textLookup(47, ID(2097194), 44)",
+                    "textData(42, \"false\")",
+                    "textData(43, \"true\")",
+                    "addList(2097194, [42, 43])",
+                    "setNamedVariable(44, \"USER:cond1\", 4)",
+                    "setNamedVariable(45, \"USER:cond2\", 4)",
+                    "addIntegerExpression(46, 7, [44, 45, 65546])",
+                    "textLookup(47, ID(2097194), 46)",
                     "addDrawTextRun(47)",
                 )
         }

@@ -531,6 +531,13 @@ public class RemoteCanvas(
      */
     public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
         val childSpan = internalCanvas.recordInChildSpan(drawCommands)
+        if (internalCanvas.buffer.enableOptimizations) {
+            internalCanvas.buffer.optimizeSpan(childSpan)
+        }
+        if (!childSpan.emitsWireCommands()) {
+            internalCanvas.buffer.removeChildSpan(childSpan)
+            return
+        }
 
         val op =
             internalCanvas.recordRenderingOp(
