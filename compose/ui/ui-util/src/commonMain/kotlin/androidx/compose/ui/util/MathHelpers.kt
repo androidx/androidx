@@ -336,3 +336,11 @@ inline fun normalizedAngleSin(normalizedDegrees: Float): Float {
  */
 inline fun normalizedAngleCos(normalizedDegrees: Float): Float =
     normalizedAngleSin(normalizedDegrees + 0.25f)
+
+/**
+ * Compares two floating-point values for equality, treating [Float.NaN] as equal to [Float.NaN].
+ */
+inline fun Float.equalsIncludingNaN(other: Float): Boolean {
+    if (this.isNaN() && other.isNaN()) return true
+    return this == other
+}

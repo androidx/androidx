@@ -20,6 +20,7 @@ import android.os.IBinder
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -72,6 +73,27 @@ fun DialogFromServiceSample() {
             Box(Modifier.size(250.dp, 150.dp).background(Color.DarkGray)) {
                 Text("Dialog Content (Service)", color = Color.White)
             }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun DialogWithBlurSample() {
+    // Tip: Displaying rich content or an image behind the dialog makes the blur effect clearly
+    // visible.
+
+    Dialog(
+        onDismissRequest = {},
+        properties =
+            DialogProperties(
+                blurBehindRadius = 15.dp,
+                backgroundBlurRadius = 30.dp,
+                scrimAlpha = 0.2f,
+            ),
+    ) {
+        Box(modifier = Modifier.padding(24.dp)) {
+            Text(text = "Dialog", color = Color.White, modifier = Modifier.padding(24.dp))
         }
     }
 }
