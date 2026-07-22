@@ -184,4 +184,26 @@ class RemoteComposeBufferTest {
         assertThat(imageLayout.componentId).isEqualTo(-3)
         assertThat(imageLayout.bitmapId).isEqualTo(bitmapId)
     }
+
+    @Test
+    fun bitmapMemory_isCorrect() {
+        val writer =
+            RemoteComposeWriter(
+                androidXProfile,
+                RemoteComposeBuffer(androidXProfile.apiLevel),
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 188),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 200),
+                RemoteComposeWriter.hTag(Header.DOC_PROFILES, androidXProfile.operationsProfiles),
+            )
+
+        writer.root {
+            // Add a bitmap with explicit dimensions
+            writer.addBitmapUrl("https://example.com/a.png", 100, 200)
+        }
+
+        val coreDoc = CoreDocument().apply { initFromBuffer(writer.buffer) }
+
+        // Expected memory: 100 * 200 * 4 = 80000 bytes
+        assertThat(coreDoc.bitmapMemory()).isEqualTo(80000L)
+    }
 }
