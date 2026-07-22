@@ -23,15 +23,16 @@ import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
+import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
+import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
-import androidx.a2ui.model.protocol.A2uiUserAction
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
@@ -172,7 +173,14 @@ class A2uiCoreMessageProcessorTest {
         processor.processInternalMessage(
             A2uiEngineActionMessage(
                 surfaceId = SURFACE_A,
-                action = A2uiUserAction("click", SURFACE_A, "btn-A", 123L),
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_A,
+                        componentId = "btn-A",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
             )
         )
         advanceUntilIdle()
@@ -246,22 +254,29 @@ class A2uiCoreMessageProcessorTest {
         processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
         processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
         advanceUntilIdle()
-        val testError = A2uiClientError("TEST", SURFACE_B, "msg")
+        val testError = A2uiClientErrorMessage("TEST", SURFACE_B, "msg")
 
         processor.processInternalMessage(
             A2uiEngineActionMessage(
                 surfaceId = SURFACE_A,
-                action = A2uiUserAction("click", SURFACE_A, "btn-A", 123L),
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_A,
+                        componentId = "btn-A",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
             )
         )
         processor.processInternalMessage(A2uiEngineErrorMessage(SURFACE_B, testError))
         advanceUntilIdle()
 
         assertThat(collectedOutbound).hasSize(2)
-        val eventA = collectedOutbound[0] as A2uiUserAction
+        val eventA = collectedOutbound[0] as A2uiClientEventMessage
         assertThat(eventA.surfaceId).isEqualTo(SURFACE_A)
         assertThat(eventA.componentId).isEqualTo("btn-A")
-        val eventB = collectedOutbound[1] as A2uiClientError
+        val eventB = collectedOutbound[1] as A2uiClientErrorMessage
         assertThat(eventB.surfaceId).isEqualTo(SURFACE_B)
 
         outboundJob.cancel()

@@ -16,7 +16,7 @@
 
 package androidx.a2ui.engine.processor
 
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import androidx.a2ui.model.protocol.A2uiUserAction
 
@@ -51,5 +51,5 @@ internal data class A2uiEngineActionMessage(
  */
 internal data class A2uiEngineErrorMessage(
     override val surfaceId: String,
-    val error: A2uiClientError,
+    val error: A2uiClientErrorMessage,
 ) : A2uiEngineMessage
