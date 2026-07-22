@@ -49,6 +49,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
@@ -881,10 +882,17 @@ internal class ExposedDropdownMenuPositionProvider(
                 )
             if (index == yCandidates.lastIndex) {
                 yCandidate =
-                    yCandidate.coerceIn(
-                        verticalMargin,
-                        windowSize.height - verticalMargin - popupContentSize.height,
-                    )
+                    if (popupContentSize.height >= windowSize.height - 2 * verticalMargin) {
+                        Alignment.CenterVertically.align(
+                            size = popupContentSize.height,
+                            space = windowSize.height,
+                        )
+                    } else {
+                        yCandidate.coerceIn(
+                            verticalMargin,
+                            windowSize.height - verticalMargin - popupContentSize.height,
+                        )
+                    }
             }
             if (
                 index == yCandidates.lastIndex ||
