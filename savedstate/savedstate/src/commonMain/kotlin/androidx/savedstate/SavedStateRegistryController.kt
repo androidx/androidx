@@ -24,33 +24,35 @@ import kotlin.jvm.JvmStatic
 /**
  * An API for [SavedStateRegistryOwner] implementations to control [SavedStateRegistry].
  *
- * `SavedStateRegistryOwner` should call [performRestore] to restore state of [SavedStateRegistry]
- * and [performSave] to gather SavedState from it.
+ * A [SavedStateRegistryOwner] should call [performRestore] to restore the state of the
+ * [SavedStateRegistry], and [performSave] to gather the saved state from it.
  */
 public expect class SavedStateRegistryController private constructor(impl: SavedStateRegistryImpl) {
 
-    /** The [SavedStateRegistry] owned by this controller */
+    /** The [SavedStateRegistry] controlled by this controller. */
     public val savedStateRegistry: SavedStateRegistry
 
     /**
-     * Perform the initial, one time attachment necessary to configure this [SavedStateRegistry].
-     * This must be called when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before
-     * you call [performRestore].
+     * Performs the initial, one-time attachment necessary to configure this [SavedStateRegistry].
+     *
+     * Call this when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before calling
+     * [performRestore].
      */
     @MainThread public fun performAttach()
 
     /**
-     * An interface for an owner of this [SavedStateRegistry] to restore saved state.
+     * Restores the saved state for the owner of this [SavedStateRegistry].
      *
-     * @param savedState restored state
+     * @param savedState The restored state.
      */
     @MainThread public fun performRestore(savedState: SavedState?)
 
     /**
-     * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
-     * all registered providers and merge with unconsumed state.
+     * Saves the state for the owner of this [SavedStateRegistry].
      *
-     * @param outBundle SavedState in which to place a saved state
+     * This calls all registered providers and merges their states with the unconsumed state.
+     *
+     * @param outBundle The [SavedState] in which to place the saved state.
      */
     @MainThread public fun performSave(outBundle: SavedState)
 
@@ -59,7 +61,7 @@ public expect class SavedStateRegistryController private constructor(impl: Saved
         /**
          * Creates a [SavedStateRegistryController].
          *
-         * It should be called during construction time of [SavedStateRegistryOwner]
+         * Call this during construction of the [SavedStateRegistryOwner].
          */
         @JvmStatic public fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController
     }
