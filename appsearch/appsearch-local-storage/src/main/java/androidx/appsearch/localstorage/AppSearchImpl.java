@@ -1586,7 +1586,8 @@ public final class AppSearchImpl implements Closeable {
      *                                messages to observers for this change.
      * @param persistType             The persist type used to call PersistToDisk inside Icing at
      *                                the end of the Put request. If UNKNOWN, PersistToDisk will not
-     *                                be called. See also {@link #persistToDisk(PersistType.Code)}.
+     *                                be called. See also {@link #persistToDisk(String, int,
+     *                                PersistType.Code, AppSearchLogger, CallStats.Builder)}
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
@@ -1698,7 +1699,8 @@ public final class AppSearchImpl implements Closeable {
      *                                messages to observers for this change.
      * @param persistType             The persist type used to call PersistToDisk inside Icing at
      *                                the end of the Put request. If UNKNOWN, PersistToDisk will not
-     *                                be called. See also {@link #persistToDisk(PersistType.Code)}.
+     *                                be called. See also
+     *                                {@link #persistToDisk(String, int, PersistType.Code, AppSearchLogger, CallStats.Builder)}.
      * @throws AppSearchException on IcingSearchEngine error.
      */
     private void batchPutDocuments(
@@ -1903,8 +1905,9 @@ public final class AppSearchImpl implements Closeable {
      * @return {@link InternalPutDocumentResponse}
      * @throws AppSearchException on IcingSearchEngine error.
      *
-     * @deprecated use {@link #batchPutDocuments(String, String, List,
-     *                          AppSearchBatchResult.Builder, boolean, AppSearchLogger)}
+     * @deprecated use {@link #batchPutDocuments(String, String, List, List,
+     *                          AppSearchBatchResult.Builder, boolean, AppSearchLogger,
+     *                          PersistType.Code, CallStats.Builder)}
      */
     // TODO(b/394875109) keep this for now to make code sync easier.
     @Deprecated

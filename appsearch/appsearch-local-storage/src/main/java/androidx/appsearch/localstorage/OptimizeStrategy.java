@@ -18,6 +18,8 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.localstorage.stats.CallStats;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 
@@ -25,18 +27,21 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * An interface class for implementing a strategy to determine when to trigger
- * {@link AppSearchImpl#optimize()}.
+ * {@link AppSearchImpl#optimize(OptimizeStats.Builder, CallStats.Builder)}.
  */
 @HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OptimizeStrategy {
 
     /**
-     * Determines whether {@link AppSearchImpl#optimize()} need to be triggered to release garbage
-     * resources in AppSearch base on the given information.
+     * Determines whether
+     * {@link AppSearchImpl#optimize(OptimizeStats.Builder, CallStats.Builder)} need to be triggered
+     * to release garbage resources in AppSearch base on the given information.
      *
      * @param optimizeInfo The proto object indicates the number of garbage resources in AppSearch.
-     * @return {@code true} if {@link AppSearchImpl#optimize()} need to be triggered.
+     * @return {@code true} if
+     * {@link AppSearchImpl#optimize(OptimizeStats.Builder, CallStats.Builder)} need to be
+     * triggered.
      */
     boolean shouldOptimize(@NonNull GetOptimizeInfoResultProto optimizeInfo);
 }
