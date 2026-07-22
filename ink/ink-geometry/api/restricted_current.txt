@@ -14,12 +14,24 @@ package androidx.ink.geometry {
     method public final androidx.ink.geometry.MutableVec applyTransform(androidx.ink.geometry.Vec point, androidx.ink.geometry.MutableVec outVec);
     method public final androidx.ink.geometry.ImmutableAffineTransform computeInverse();
     method public final androidx.ink.geometry.MutableAffineTransform computeInverse(androidx.ink.geometry.MutableAffineTransform outAffineTransform);
+    method @InaccessibleFromKotlin public abstract float getM00();
+    method @InaccessibleFromKotlin public abstract float getM01();
+    method @InaccessibleFromKotlin public abstract float getM10();
+    method @InaccessibleFromKotlin public abstract float getM11();
+    method @InaccessibleFromKotlin public abstract float getM20();
+    method @InaccessibleFromKotlin public abstract float getM21();
     method @Size(min=6L) public final float[] getValues();
     method @Size(min=6L) public final float[] getValues(optional @Size(min=6L) float[] outArray);
     method @BytecodeOnly @Size(min=6) public static float[]! getValues$default(androidx.ink.geometry.AffineTransform!, float[]!, int, Object!);
     method public final boolean isAlmostEqual(androidx.ink.geometry.AffineTransform other, @FloatRange(from=0.0) float tolerance);
     method public static final void multiply(androidx.ink.geometry.AffineTransform lhs, androidx.ink.geometry.AffineTransform rhs, androidx.ink.geometry.MutableAffineTransform output);
     method public abstract androidx.ink.geometry.ImmutableAffineTransform toImmutable();
+    property public abstract float m00;
+    property public abstract float m01;
+    property public abstract float m10;
+    property public abstract float m11;
+    property public abstract float m20;
+    property public abstract float m21;
     field public static final androidx.ink.geometry.AffineTransform.Companion Companion;
     field public static final androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
   }
@@ -127,6 +139,12 @@ package androidx.ink.geometry {
     ctor public ImmutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
     ctor public ImmutableAffineTransform(@Size(min=6L) float[] values);
     method public operator boolean equals(Object? other);
+    method @InaccessibleFromKotlin public float getM00();
+    method @InaccessibleFromKotlin public float getM01();
+    method @InaccessibleFromKotlin public float getM10();
+    method @InaccessibleFromKotlin public float getM11();
+    method @InaccessibleFromKotlin public float getM20();
+    method @InaccessibleFromKotlin public float getM21();
     method public static androidx.ink.geometry.ImmutableAffineTransform rotateDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
     method public static androidx.ink.geometry.ImmutableAffineTransform scale(float scaleFactor);
     method public static androidx.ink.geometry.ImmutableAffineTransform scale(float xScaleFactor, float yScaleFactor);
@@ -136,6 +154,12 @@ package androidx.ink.geometry {
     method public static androidx.ink.geometry.ImmutableAffineTransform skewY(float sy);
     method public androidx.ink.geometry.ImmutableAffineTransform toImmutable();
     method public static androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+    property public float m00;
+    property public float m01;
+    property public float m10;
+    property public float m11;
+    property public float m20;
+    property public float m21;
     field public static final androidx.ink.geometry.ImmutableAffineTransform.Companion Companion;
   }
 
@@ -280,6 +304,12 @@ package androidx.ink.geometry {
     ctor public MutableAffineTransform();
     ctor public MutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
     method public operator boolean equals(Object? other);
+    method @InaccessibleFromKotlin public float getM00();
+    method @InaccessibleFromKotlin public float getM01();
+    method @InaccessibleFromKotlin public float getM10();
+    method @InaccessibleFromKotlin public float getM11();
+    method @InaccessibleFromKotlin public float getM20();
+    method @InaccessibleFromKotlin public float getM21();
     method public androidx.ink.geometry.MutableAffineTransform populateFrom(androidx.ink.geometry.AffineTransform input);
     method public androidx.ink.geometry.MutableAffineTransform populateFromIdentity();
     method public androidx.ink.geometry.MutableAffineTransform populateFromRotationDegrees(@androidx.ink.geometry.AngleDegreesFloat float degrees);
@@ -290,9 +320,21 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.MutableAffineTransform populateFromSkewX(float sx);
     method public androidx.ink.geometry.MutableAffineTransform populateFromSkewY(float sy);
     method public androidx.ink.geometry.MutableAffineTransform populateFromTranslation(androidx.ink.geometry.Vec offset);
+    method @InaccessibleFromKotlin public void setM00(float);
+    method @InaccessibleFromKotlin public void setM01(float);
+    method @InaccessibleFromKotlin public void setM10(float);
+    method @InaccessibleFromKotlin public void setM11(float);
+    method @InaccessibleFromKotlin public void setM20(float);
+    method @InaccessibleFromKotlin public void setM21(float);
     method public void setValues(float m00, float m10, float m20, float m01, float m11, float m21);
     method public void setValues(@Size(min=6L) float[] values);
     method public androidx.ink.geometry.ImmutableAffineTransform toImmutable();
+    property public float m00;
+    property public float m01;
+    property public float m10;
+    property public float m11;
+    property public float m20;
+    property public float m21;
   }
 
   public final class MutableBox extends androidx.ink.geometry.Box {
