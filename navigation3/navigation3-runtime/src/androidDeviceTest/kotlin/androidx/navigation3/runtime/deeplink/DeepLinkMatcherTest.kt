@@ -20,28 +20,13 @@ import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
 
-private const val filterString = "filterString"
-
-private const val stringExtraKey = "StringExtraKey"
-
 class DeepLinkMatcherTest {
-    class TestDeepLinkMatcher(filters: List<Filter> = emptyList()) :
-        DeepLinkMatcher<TestKey, DeepLinkMatcher.MatchResult<TestKey>>(filters) {
-        override fun matchRequest(request: DeepLinkRequest): MatchResult<TestKey> {
-            return MatchResult(TestKey)
-        }
-    }
-
-    class TestFilter(val filter: String) : DeepLinkMatcher.Filter {
-        override fun filterRequest(request: DeepLinkRequest): Boolean {
-            return filter == request.extras[stringExtraKey]
-        }
-    }
 
     @Test
     fun match_emptyFilters() {
         val matcher = TestDeepLinkMatcher()
-        val request = DeepLinkRequest.withStringExtra("https://example.com", filterString)
+        val request =
+            DeepLinkRequest.withStringExtra("https://example.com", MATCHER_STRING_FILTER_VALUE)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -49,8 +34,9 @@ class DeepLinkMatcherTest {
 
     @Test
     fun match_filterPasses() {
-        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(filterString)))
-        val request = DeepLinkRequest.withStringExtra("https://example.com", filterString)
+        val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter(MATCHER_STRING_FILTER_VALUE)))
+        val request =
+            DeepLinkRequest.withStringExtra("https://example.com", MATCHER_STRING_FILTER_VALUE)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -59,7 +45,8 @@ class DeepLinkMatcherTest {
     @Test
     fun match_filterFails() {
         val matcher = TestDeepLinkMatcher(filters = listOf(TestFilter("wrongFilter")))
-        val request = DeepLinkRequest.withStringExtra("https://example.com", filterString)
+        val request =
+            DeepLinkRequest.withStringExtra("https://example.com", MATCHER_STRING_FILTER_VALUE)
         val result = matcher.match(request)
         assertThat(result).isNull()
     }
@@ -68,9 +55,14 @@ class DeepLinkMatcherTest {
     fun match_allFiltersPass() {
         val matcher =
             TestDeepLinkMatcher(
-                filters = listOf(TestFilter(filterString), TestFilter(filterString))
+                filters =
+                    listOf(
+                        TestFilter(MATCHER_STRING_FILTER_VALUE),
+                        TestFilter(MATCHER_STRING_FILTER_VALUE),
+                    )
             )
-        val request = DeepLinkRequest.withStringExtra("https://example.com", filterString)
+        val request =
+            DeepLinkRequest.withStringExtra("https://example.com", MATCHER_STRING_FILTER_VALUE)
         val result = matcher.match(request)
         assertThat(result).isNotNull()
         assertThat(result?.key).isEqualTo(TestKey)
@@ -80,9 +72,10 @@ class DeepLinkMatcherTest {
     fun match_someFiltersFail() {
         val matcher =
             TestDeepLinkMatcher(
-                filters = listOf(TestFilter(filterString), TestFilter("wrongFilter"))
+                filters = listOf(TestFilter(MATCHER_STRING_FILTER_VALUE), TestFilter("wrongFilter"))
             )
-        val request = DeepLinkRequest.withStringExtra("https://example.com", filterString)
+        val request =
+            DeepLinkRequest.withStringExtra("https://example.com", MATCHER_STRING_FILTER_VALUE)
         val result = matcher.match(request)
         assertThat(result).isNull()
     }
@@ -229,9 +222,6 @@ class DeepLinkMatcherTest {
     private object First : NavKey
 
     private object Second : NavKey
-
-    private fun DeepLinkRequest.Companion.withStringExtra(uri: String, extra: String) =
-        DeepLinkRequest(uri = DeepLinkUri(uri), extras = mapOf(stringExtraKey to extra))
 
     private class TestHierarchicalDeepLinkMatcher(private val key: TestInterface) :
         DeepLinkMatcher<TestInterface, DeepLinkMatcher.MatchResult<TestInterface>>() {
