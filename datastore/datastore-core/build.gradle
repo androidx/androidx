@@ -91,6 +91,7 @@ androidXMultiplatform {
 
     androidLibrary {
         namespace = "androidx.datastore.core"
+        withJava()
         addNativeLibrariesToJniLibs(it, jniImplementation)
     }
     jvm()
@@ -162,6 +163,7 @@ androidXMultiplatform {
             dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.truth)
+                implementation(libs.protobufLite)
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)

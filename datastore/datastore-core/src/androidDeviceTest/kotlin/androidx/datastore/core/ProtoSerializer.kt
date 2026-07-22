@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp
+package androidx.datastore.core
 
-import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.Serializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite
