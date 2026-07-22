@@ -21,7 +21,7 @@ import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -47,7 +47,7 @@ class A2uiCoreSurfaceGroupModelTest {
         const val NON_EXISTENT_ID = "non-existent"
 
         val emptyActionHandler: (A2uiUserAction) -> Unit = {}
-        val emptyErrorHandler: (A2uiClientError) -> Unit = {}
+        val emptyErrorHandler: (A2uiClientErrorMessage) -> Unit = {}
     }
 
     @Test

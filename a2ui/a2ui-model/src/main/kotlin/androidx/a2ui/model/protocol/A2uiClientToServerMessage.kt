@@ -25,7 +25,7 @@ import java.util.TimeZone
 public sealed interface A2uiClientToServerMessage
 
 /**
- * Represents a user interaction action (e.g., click, swipe) that occurred on the client.
+ * Represents a client event message to be sent to the server.
  *
  * @property type The type of the action performed (e.g., "click", "swipe").
  * @property surfaceId The unique identifier of the surface where the action occurred.
@@ -34,7 +34,7 @@ public sealed interface A2uiClientToServerMessage
  *   the epoch.
  * @property context A map containing custom properties and metadata associated with this action.
  */
-public class A2uiUserAction(
+public class A2uiClientEventMessage(
     public val type: String,
     public val surfaceId: String,
     public val componentId: String,
@@ -43,7 +43,7 @@ public class A2uiUserAction(
 ) : A2uiClientToServerMessage {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is A2uiUserAction) return false
+        if (other !is A2uiClientEventMessage) return false
         return (type == other.type) &&
             (surfaceId == other.surfaceId) &&
             (componentId == other.componentId) &&
@@ -62,7 +62,7 @@ public class A2uiUserAction(
 
     override fun toString(): String {
         val timestampStr = dateFormat.format(Date(timestamp))
-        return "A2uiUserAction(type=$type, surfaceId=$surfaceId, " +
+        return "A2uiClientEventMessage(type=$type, surfaceId=$surfaceId, " +
             "componentId=$componentId, timestamp=$timestampStr, context=$context)"
     }
 
@@ -85,7 +85,7 @@ public class A2uiUserAction(
  *   (whose value must be a non-null String) and absolutely nothing else. For other errors, it is
  *   open-ended.
  */
-public class A2uiClientError(
+public class A2uiClientErrorMessage(
     public val code: String,
     public val surfaceId: String,
     public val message: String,
@@ -104,7 +104,7 @@ public class A2uiClientError(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is A2uiClientError) return false
+        if (other !is A2uiClientErrorMessage) return false
         return (code == other.code) &&
             (surfaceId == other.surfaceId) &&
             (message == other.message) &&
@@ -120,6 +120,6 @@ public class A2uiClientError(
     }
 
     override fun toString(): String {
-        return "A2uiClientError(code=$code, surfaceId=$surfaceId, message=$message, context=$context)"
+        return "A2uiClientErrorMessage(code=$code, surfaceId=$surfaceId, message=$message, context=$context)"
     }
 }

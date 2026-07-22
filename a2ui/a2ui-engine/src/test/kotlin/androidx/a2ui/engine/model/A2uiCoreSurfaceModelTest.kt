@@ -23,9 +23,10 @@ import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
+import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiUserAction
@@ -35,6 +36,7 @@ import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -50,7 +52,7 @@ class A2uiCoreSurfaceModelTest {
         const val COMPONENT_ID_3 = "btn-3"
 
         val emptyActionHandler: (A2uiUserAction) -> Unit = {}
-        val emptyErrorHandler: (A2uiClientError) -> Unit = {}
+        val emptyErrorHandler: (A2uiClientErrorMessage) -> Unit = {}
     }
 
     @Test
@@ -121,7 +123,7 @@ class A2uiCoreSurfaceModelTest {
 
     @Test
     fun updateDataModel_relativeDataPath_dispatchesError() {
-        var dispatchedError: A2uiClientError? = null
+        var dispatchedError: A2uiClientErrorMessage? = null
         val surface = createTestSurface(onDispatchError = { dispatchedError = it })
 
         surface.updateDataModel("settings/volume", 10)
@@ -134,7 +136,7 @@ class A2uiCoreSurfaceModelTest {
 
     @Test
     fun updateDataModel_invalidEscapeSequence_dispatchesError() {
-        var dispatchedError: A2uiClientError? = null
+        var dispatchedError: A2uiClientErrorMessage? = null
         val surface = createTestSurface(onDispatchError = { dispatchedError = it })
 
         surface.updateDataModel("/~2/volume", 10)
@@ -147,7 +149,7 @@ class A2uiCoreSurfaceModelTest {
 
     @Test
     fun updateDataModel_trailingEscapeSequence_dispatchesError() {
-        var dispatchedError: A2uiClientError? = null
+        var dispatchedError: A2uiClientErrorMessage? = null
         val surface = createTestSurface(onDispatchError = { dispatchedError = it })
 
         surface.updateDataModel("/volume~", 10)
@@ -187,8 +189,8 @@ class A2uiCoreSurfaceModelTest {
     @Test
     fun updateComponents_componentNotInCatalog_dispatchesErrorAndSkipsComponent() {
         val registry = TestComponentRegistry()
-        var dispatchedError: A2uiClientError? = null
-        val errorHandler: (A2uiClientError) -> Unit = { dispatchedError = it }
+        var dispatchedError: A2uiClientErrorMessage? = null
+        val errorHandler: (A2uiClientErrorMessage) -> Unit = { dispatchedError = it }
         val surface =
             createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
         val props = mapOf<String, Any?>("text" to "Click Me")
@@ -207,8 +209,8 @@ class A2uiCoreSurfaceModelTest {
     @Test
     fun updateComponents_invalidSchema_dispatchesErrorAndSkipsComponent() {
         val registry = TestComponentRegistry()
-        var dispatchedError: A2uiClientError? = null
-        val errorHandler: (A2uiClientError) -> Unit = { dispatchedError = it }
+        var dispatchedError: A2uiClientErrorMessage? = null
+        val errorHandler: (A2uiClientErrorMessage) -> Unit = { dispatchedError = it }
         val catalog = TestCatalog()
         val surface =
             createTestSurface(
@@ -234,8 +236,8 @@ class A2uiCoreSurfaceModelTest {
     @Test
     fun updateComponents_mixedValidAndInvalid_updatesValidAndDispatchesErrors() {
         val registry = TestComponentRegistry()
-        val dispatchedErrors = mutableListOf<A2uiClientError>()
-        val errorHandler: (A2uiClientError) -> Unit = { dispatchedErrors.add(it) }
+        val dispatchedErrors = mutableListOf<A2uiClientErrorMessage>()
+        val errorHandler: (A2uiClientErrorMessage) -> Unit = { dispatchedErrors.add(it) }
         val surface =
             createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
         val validProps = mapOf<String, Any?>("text" to "Click Me")
@@ -266,51 +268,37 @@ class A2uiCoreSurfaceModelTest {
             createTestSurface(onDispatchAction = actionHandler, timeProvider = { 123456789L })
         val actionDef =
             mapOf<String, Any?>(
-                "type" to "click",
-                "context" to mapOf<String, Any?>("x" to 100, "y" to 200),
+                "event" to
+                    mapOf<String, Any?>(
+                        "name" to "click",
+                        "context" to mapOf<String, Any?>("x" to 100, "y" to 200),
+                    )
             )
 
         surface.dispatchAction(COMPONENT_ID_1, actionDef)
 
-        assertThat(dispatchedAction).isNotNull()
-        assertThat(dispatchedAction?.type).isEqualTo("click")
-        assertThat(dispatchedAction?.surfaceId).isEqualTo(SURFACE_ID_1)
-        assertThat(dispatchedAction?.componentId).isEqualTo(COMPONENT_ID_1)
-        assertThat(dispatchedAction?.context).isEqualTo(mapOf("x" to 100, "y" to 200))
-        assertThat(dispatchedAction?.timestamp).isEqualTo(123456789L)
+        assertThat(dispatchedAction).isInstanceOf(A2uiEventAction::class.java)
+        val serverAction = dispatchedAction as A2uiEventAction
+        assertThat(serverAction.eventName).isEqualTo("click")
+        assertThat(serverAction.surfaceId).isEqualTo(SURFACE_ID_1)
+        assertThat(serverAction.componentId).isEqualTo(COMPONENT_ID_1)
+        assertThat(serverAction.context).isEqualTo(mapOf("x" to 100, "y" to 200))
+        assertThat(serverAction.timestamp).isEqualTo(123456789L)
     }
 
     @Test
-    fun dispatchAction_missingType_defaultsToUnknownAction() {
-        var dispatchedAction: A2uiUserAction? = null
-        val actionHandler: (A2uiUserAction) -> Unit = { dispatchedAction = it }
-        val surface = createTestSurface(onDispatchAction = actionHandler)
-        val actionDef = mapOf<String, Any?>("context" to emptyMap<String, Any?>())
+    fun dispatchAction_invalidPayload_throwsIllegalStateException() {
+        val surface = createTestSurface()
+        val actionDef = mapOf<String, Any?>()
 
-        surface.dispatchAction(COMPONENT_ID_1, actionDef)
-
-        assertThat(dispatchedAction).isNotNull()
-        assertThat(dispatchedAction?.type).isEqualTo("unknown_action")
-    }
-
-    @Test
-    fun dispatchAction_missingContext_defaultsToEmptyMap() {
-        var dispatchedAction: A2uiUserAction? = null
-        val actionHandler: (A2uiUserAction) -> Unit = { dispatchedAction = it }
-        val surface = createTestSurface(onDispatchAction = actionHandler)
-        val actionDef = mapOf<String, Any?>("type" to "click")
-
-        surface.dispatchAction(COMPONENT_ID_1, actionDef)
-
-        assertThat(dispatchedAction).isNotNull()
-        assertThat(dispatchedAction?.context).isEmpty()
+        assertFailsWith<IllegalStateException> { surface.dispatchAction(COMPONENT_ID_1, actionDef) }
     }
 
     @Test
     fun dispatchError_validException_reportsToRegistryAndPropagatesError() {
         val registry = TestComponentRegistry()
-        var dispatchedError: A2uiClientError? = null
-        val errorHandler: (A2uiClientError) -> Unit = { dispatchedError = it }
+        var dispatchedError: A2uiClientErrorMessage? = null
+        val errorHandler: (A2uiClientErrorMessage) -> Unit = { dispatchedError = it }
         val surface =
             createTestSurface(componentRegistry = registry, onDispatchError = errorHandler)
         val exception = A2uiException.A2uiValidationException("invalid name", "user/name")
@@ -594,7 +582,7 @@ class A2uiCoreSurfaceModelTest {
         dataModel: A2uiCoreDataModel = TestDataModel(),
         componentRegistry: A2uiCoreComponentRegistry = TestComponentRegistry(),
         onDispatchAction: (A2uiUserAction) -> Unit = emptyActionHandler,
-        onDispatchError: (A2uiClientError) -> Unit = emptyErrorHandler,
+        onDispatchError: (A2uiClientErrorMessage) -> Unit = emptyErrorHandler,
         timeProvider: () -> Long = { 0L },
     ): A2uiCoreSurfaceModel {
         return A2uiCoreSurfaceModel(

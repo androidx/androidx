@@ -23,16 +23,18 @@ import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.processor.A2uiActionInterceptor
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
+import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
+import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiFunctionCallAction
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
-import androidx.a2ui.model.protocol.A2uiUserAction
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
@@ -146,7 +148,7 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedErrors = outboundEvents.replayCache
         assertThat(collectedErrors).hasSize(1)
-        val error = collectedErrors[0] as A2uiClientError
+        val error = collectedErrors[0] as A2uiClientErrorMessage
         assertThat(error.code).isEqualTo("RUNTIME_ERROR")
         assertThat(error.surfaceId).isEqualTo(SURFACE_ID)
         assertThat(error.message).contains("Catalog with ID 'non-existent-catalog' not found")
@@ -166,7 +168,7 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedErrors = outboundEvents.replayCache
         assertThat(collectedErrors).hasSize(1)
-        val error = collectedErrors[0] as A2uiClientError
+        val error = collectedErrors[0] as A2uiClientErrorMessage
         assertThat(error.code).isEqualTo("RUNTIME_ERROR")
         assertThat(error.surfaceId).isEqualTo(SURFACE_ID)
         assertThat(error.message).contains("Surface '$SURFACE_ID' already exists")
@@ -206,7 +208,7 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedErrors = outboundEvents.replayCache
         assertThat(collectedErrors).hasSize(1)
-        val error = collectedErrors[0] as A2uiClientError
+        val error = collectedErrors[0] as A2uiClientErrorMessage
         assertThat(error.code).isEqualTo("RUNTIME_ERROR")
         assertThat(error.message).contains("Surface 'surf-test' not found")
 
@@ -242,7 +244,7 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedErrors = outboundEvents.replayCache
         assertThat(collectedErrors).hasSize(1)
-        val error = collectedErrors[0] as A2uiClientError
+        val error = collectedErrors[0] as A2uiClientErrorMessage
         assertThat(error.code).isEqualTo("RUNTIME_ERROR")
         assertThat(error.message).contains("Surface 'surf-test' not found")
 
@@ -261,7 +263,14 @@ class A2uiCoreSurfaceActorTest {
         val actionMessage =
             A2uiEngineActionMessage(
                 surfaceId = SURFACE_ID,
-                action = A2uiUserAction("click", SURFACE_ID, "btn-1", 123L, mapOf("x" to 10)),
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_ID,
+                        componentId = "btn-1",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = mapOf("x" to 10),
+                    ),
             )
 
         actor.enqueue(actionMessage)
@@ -269,10 +278,10 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedEvents = outboundEvents.replayCache
         assertThat(collectedEvents).hasSize(1)
-        val action = collectedEvents[0] as A2uiUserAction
-        assertThat(action.componentId).isEqualTo("btn-1")
-        assertThat(action.type).isEqualTo("click")
-        assertThat(action.context).isEqualTo(mapOf("x" to 10))
+        val eventMessage = collectedEvents[0] as A2uiClientEventMessage
+        assertThat(eventMessage.componentId).isEqualTo("btn-1")
+        assertThat(eventMessage.type).isEqualTo("click")
+        assertThat(eventMessage.context).isEqualTo(mapOf("x" to 10))
 
         job.cancel()
     }
@@ -287,17 +296,37 @@ class A2uiCoreSurfaceActorTest {
         actor.enqueue(A2uiEngineExternalMessage(A2uiCreateSurfaceMessage(SURFACE_ID, CATALOG_ID)))
 
         actor.enqueue(
-            A2uiEngineActionMessage(SURFACE_ID, A2uiUserAction("click", SURFACE_ID, "btn-1", 123L))
+            A2uiEngineActionMessage(
+                surfaceId = SURFACE_ID,
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_ID,
+                        componentId = "btn-1",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
+            )
         )
         actor.enqueue(
-            A2uiEngineActionMessage(SURFACE_ID, A2uiUserAction("click", SURFACE_ID, "btn-2", 123L))
+            A2uiEngineActionMessage(
+                surfaceId = SURFACE_ID,
+                action =
+                    A2uiEventAction(
+                        surfaceId = SURFACE_ID,
+                        componentId = "btn-2",
+                        timestamp = 123L,
+                        eventName = "click",
+                        context = emptyMap(),
+                    ),
+            )
         )
         advanceUntilIdle()
 
         val collectedEvents = outboundEvents.replayCache
         assertThat(collectedEvents).hasSize(1)
-        val action = collectedEvents[0] as A2uiUserAction
-        assertThat(action.componentId).isEqualTo("btn-2")
+        val eventMessage = collectedEvents[0] as A2uiClientEventMessage
+        assertThat(eventMessage.componentId).isEqualTo("btn-2")
 
         job.cancel()
     }
@@ -306,23 +335,25 @@ class A2uiCoreSurfaceActorTest {
     fun runProcessingLoop_actionMessageWithMultipleInterceptors_propagatesFinalTransformed() =
         runTest {
             val interceptor1 = A2uiActionInterceptor { action ->
-                A2uiUserAction(
-                    action.type,
-                    action.surfaceId,
-                    action.componentId,
-                    action.timestamp,
-                    mapOf("i1" to true),
+                val serverAction = action as A2uiEventAction
+                A2uiEventAction(
+                    surfaceId = serverAction.surfaceId,
+                    componentId = serverAction.componentId,
+                    timestamp = serverAction.timestamp,
+                    eventName = serverAction.eventName,
+                    context = mapOf("i1" to true),
                 )
             }
             val interceptor2 = A2uiActionInterceptor { action ->
-                val newContext = action.context.toMutableMap()
+                val serverAction = action as A2uiEventAction
+                val newContext = serverAction.context.toMutableMap()
                 newContext["i2"] = true
-                A2uiUserAction(
-                    action.type,
-                    action.surfaceId,
-                    action.componentId,
-                    action.timestamp,
-                    newContext,
+                A2uiEventAction(
+                    surfaceId = serverAction.surfaceId,
+                    componentId = serverAction.componentId,
+                    timestamp = serverAction.timestamp,
+                    eventName = serverAction.eventName,
+                    context = newContext,
                 )
             }
             val actor = createActor(interceptors = listOf(interceptor1, interceptor2))
@@ -333,20 +364,52 @@ class A2uiCoreSurfaceActorTest {
 
             actor.enqueue(
                 A2uiEngineActionMessage(
-                    SURFACE_ID,
-                    A2uiUserAction("click", SURFACE_ID, "btn-1", 123L),
+                    surfaceId = SURFACE_ID,
+                    action =
+                        A2uiEventAction(
+                            surfaceId = SURFACE_ID,
+                            componentId = "btn-1",
+                            timestamp = 123L,
+                            eventName = "click",
+                            context = emptyMap(),
+                        ),
                 )
             )
             advanceUntilIdle()
 
             val collectedEvents = outboundEvents.replayCache
             assertThat(collectedEvents).hasSize(1)
-            val action = collectedEvents[0] as A2uiUserAction
-            assertThat(action.componentId).isEqualTo("btn-1")
-            assertThat(action.context).isEqualTo(mapOf("i1" to true, "i2" to true))
+            val eventMessage = collectedEvents[0] as A2uiClientEventMessage
+            assertThat(eventMessage.componentId).isEqualTo("btn-1")
+            assertThat(eventMessage.context).isEqualTo(mapOf("i1" to true, "i2" to true))
 
             job.cancel()
         }
+
+    @Test
+    fun runProcessingLoop_functionCallAction_isExecutedButNotEmittedToServer() = runTest {
+        val actor = createActor()
+        val job = launch { actor.runProcessingLoop() }
+        actor.enqueue(A2uiEngineExternalMessage(A2uiCreateSurfaceMessage(SURFACE_ID, CATALOG_ID)))
+
+        actor.enqueue(
+            A2uiEngineActionMessage(
+                surfaceId = SURFACE_ID,
+                action =
+                    A2uiFunctionCallAction(
+                        surfaceId = SURFACE_ID,
+                        componentId = "btn-1",
+                        timestamp = 123L,
+                        functionName = "test_func",
+                        args = mapOf("arg" to "val"),
+                    ),
+            )
+        )
+        advanceUntilIdle()
+
+        assertThat(outboundEvents.replayCache).isEmpty()
+        job.cancel()
+    }
 
     // =========================================================================
     // Error Handling & Unhandled Exceptions
@@ -357,7 +420,8 @@ class A2uiCoreSurfaceActorTest {
         val actor = createActor()
         val job = launch { actor.runProcessingLoop() }
         actor.enqueue(A2uiEngineExternalMessage(A2uiCreateSurfaceMessage(SURFACE_ID, CATALOG_ID)))
-        val testError = A2uiClientError(code = "TEST", surfaceId = SURFACE_ID, message = "msg")
+        val testError =
+            A2uiClientErrorMessage(code = "TEST", surfaceId = SURFACE_ID, message = "msg")
 
         actor.enqueue(A2uiEngineErrorMessage(SURFACE_ID, testError))
         advanceUntilIdle()
@@ -396,12 +460,19 @@ class A2uiCoreSurfaceActorTest {
             actor.enqueue(A2uiEngineExternalMessage(A2uiDeleteSurfaceMessage(SURFACE_ID)))
             actor.enqueue(
                 A2uiEngineActionMessage(
-                    SURFACE_ID,
-                    A2uiUserAction("click", SURFACE_ID, "btn-1", 123L),
+                    surfaceId = SURFACE_ID,
+                    action =
+                        A2uiEventAction(
+                            surfaceId = SURFACE_ID,
+                            componentId = "btn-1",
+                            timestamp = 123L,
+                            eventName = "click",
+                            context = emptyMap(),
+                        ),
                 )
             )
             val testError =
-                A2uiClientError(code = "TEST", surfaceId = SURFACE_ID, message = "crash")
+                A2uiClientErrorMessage(code = "TEST", surfaceId = SURFACE_ID, message = "crash")
             actor.enqueue(A2uiEngineErrorMessage(SURFACE_ID, testError))
             advanceUntilIdle()
 
@@ -439,7 +510,7 @@ class A2uiCoreSurfaceActorTest {
 
         val collectedEvents = outboundEvents.replayCache
         assertThat(collectedEvents).hasSize(1)
-        val error = collectedEvents[0] as A2uiClientError
+        val error = collectedEvents[0] as A2uiClientErrorMessage
         assertThat(error.code).isEqualTo("RUNTIME_ERROR")
         assertThat(error.message).contains("Surface 'surf-test' not found")
 
@@ -477,12 +548,31 @@ class A2uiCoreSurfaceActorTest {
                     override val propertySchema = A2uiObjectSchema()
                 }
             )
-        override val functions = emptyList<A2uiFunction>()
+        override val functions =
+            listOf(
+                object : A2uiFunction {
+                    override val definition =
+                        object : androidx.a2ui.model.catalog.A2uiFunctionDefinition {
+                            override val name = "test_func"
+                            override val description = "A test function"
+                            override val argumentSchema = A2uiObjectSchema()
+                            override val returnType =
+                                androidx.a2ui.model.catalog.A2uiFunctionReturnType.VOID
+                        }
+
+                    override fun execute(
+                        args: Map<String, Any>,
+                        executionContext: androidx.a2ui.model.protocol.A2uiExecutionContext,
+                    ): Any? {
+                        return null
+                    }
+                }
+            )
         override val themeSchema: A2uiSchema? = null
 
         override fun getComponent(name: String) = components.find { it.name == name }
 
-        override fun getFunction(name: String) = null
+        override fun getFunction(name: String) = functions.find { it.definition.name == name }
     }
 
     private class TestDataModel : A2uiCoreDataModel {

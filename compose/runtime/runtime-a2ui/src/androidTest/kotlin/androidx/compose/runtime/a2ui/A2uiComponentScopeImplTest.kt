@@ -22,7 +22,7 @@ import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -55,7 +55,7 @@ import org.junit.runner.RunWith
 class A2uiComponentScopeImplTest {
 
     private val dispatchedActions = mutableListOf<A2uiUserAction>()
-    private val dispatchedErrors = mutableListOf<A2uiClientError>()
+    private val dispatchedErrors = mutableListOf<A2uiClientErrorMessage>()
 
     private val dataModel = A2uiDataModel()
     private val componentRegistry = A2uiComponentRegistry()
