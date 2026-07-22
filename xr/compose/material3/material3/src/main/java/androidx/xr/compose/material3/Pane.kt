@@ -16,26 +16,21 @@
 
 package androidx.xr.compose.material3
 
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
 import androidx.compose.material3.adaptive.layout.AnimatedPaneOverride
 import androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope
-import androidx.compose.material3.adaptive.layout.AnimatedPaneScope
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneScaffoldValue
 import androidx.compose.runtime.Composable
 import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.animation.AnimatedSpatialVisibility
-import androidx.xr.compose.subspace.animation.ExperimentalSpatialAnimationApi
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 
 @OptIn(
     ExperimentalMaterial3AdaptiveComponentOverrideApi::class,
     ExperimentalMaterial3AdaptiveApi::class,
-    ExperimentalSpatialAnimationApi::class,
 )
 @ExperimentalMaterial3XrApi
 internal object XrAnimatedPaneOverride : AnimatedPaneOverride {
@@ -46,15 +41,10 @@ internal object XrAnimatedPaneOverride : AnimatedPaneOverride {
     > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane() {
         // TODO(kmost): No way to convert between Enter/ExitTransition and
         //  SpatialEnter/ExitTransition, so for now we cannot respect those scope properties.
-
-        val state = MutableTransitionState(false)
-        state.targetState =
+        val isVisible =
             scope.scaffoldStateTransition.targetState[scope.paneRole] != PaneAdaptedValue.Hidden
-
-        AnimatedSpatialVisibility(visibleState = state) {
-            SpatialPanel(SubspaceModifier.fillMaxSize()) {
-                AnimatedPaneScope.create(this).content()
-            }
+        if (isVisible) {
+            SpatialPanel(SubspaceModifier.fillMaxSize()) { content }
         }
     }
 }
