@@ -46,7 +46,7 @@ public fun OrbiterBottomBarSample() {
         Orbiter(
             alignment =
                 OrbiterAlignment.BottomCenter(
-                    offset = DpVolumeOffset(0.dp, (-20).dp, OrbiterDefaults.Elevation),
+                    offset = DpVolumeOffset(x = 0.dp, y = (-20).dp, z = OrbiterDefaults.Elevation),
                     edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
                 )
         ) {
@@ -69,7 +69,7 @@ public fun OrbiterSideRailSample() {
         Orbiter(
             alignment =
                 OrbiterAlignment.CenterEnd(
-                    offset = DpVolumeOffset(24.dp, 0.dp, OrbiterDefaults.Elevation),
+                    offset = DpVolumeOffset(x = 24.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
                     edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
                 )
         ) {
