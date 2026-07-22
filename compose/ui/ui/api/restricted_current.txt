@@ -75,7 +75,6 @@ package androidx.compose.ui {
     property public boolean isAlwaysScrollDuringScrollCaptureEnabled;
     property public boolean isDelayAndroidViewsHandlerCreationEnabled;
     property public boolean isDelayedWindowInsetsRulersEnabled;
-    property public boolean isExploreByTouchHoverHandled;
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isInteractionSoundEffectsEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
@@ -87,7 +86,6 @@ package androidx.compose.ui {
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
     field public static boolean isDelayAndroidViewsHandlerCreationEnabled;
     field public static boolean isDelayedWindowInsetsRulersEnabled;
-    field public static boolean isExploreByTouchHoverHandled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isInteractionSoundEffectsEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
