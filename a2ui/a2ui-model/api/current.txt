@@ -280,6 +280,45 @@ package androidx.a2ui.model.processor {
     method public suspend Object? onInterceptAction(androidx.a2ui.model.protocol.A2uiUserAction action, kotlin.coroutines.Continuation<? super androidx.a2ui.model.protocol.A2uiUserAction?>);
   }
 
+  public final class A2uiJsonMessageParser implements androidx.a2ui.model.processor.A2uiMessageParser<java.lang.String> {
+    ctor public A2uiJsonMessageParser(kotlin.jvm.functions.Function1<? super java.lang.String,? extends androidx.a2ui.model.processor.A2uiJsonReader> jsonReaderProvider);
+    method public androidx.a2ui.model.protocol.A2uiServerToClientMessage parse(String input);
+  }
+
+  public interface A2uiJsonReader extends java.lang.AutoCloseable {
+    method public void beginArray();
+    method public void beginObject();
+    method public void endArray();
+    method public void endObject();
+    method public boolean hasNext();
+    method public boolean nextBoolean();
+    method public double nextDouble();
+    method public int nextInt();
+    method public long nextLong();
+    method public String nextName();
+    method public void nextNull();
+    method public String nextString();
+    method public androidx.a2ui.model.processor.A2uiJsonToken peek();
+    method public void skipValue();
+  }
+
+  public enum A2uiJsonToken {
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken BEGIN_ARRAY;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken BEGIN_OBJECT;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken BOOLEAN;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken END_ARRAY;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken END_DOCUMENT;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken END_OBJECT;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken NAME;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken NULL;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken NUMBER;
+    enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken STRING;
+  }
+
+  public interface A2uiMessageParser<T> {
+    method public androidx.a2ui.model.protocol.A2uiServerToClientMessage parse(T input);
+  }
+
   public interface A2uiMessageProcessor {
     method public suspend Object? collectMessages(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();

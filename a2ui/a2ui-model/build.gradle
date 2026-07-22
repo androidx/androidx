@@ -39,6 +39,7 @@ dependencies {
     testImplementation(libs.guavaTestlib)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.gson)
 }
 android {
     namespace = "androidx.a2ui.model"
