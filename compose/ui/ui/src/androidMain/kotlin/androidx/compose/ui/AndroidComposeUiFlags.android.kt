@@ -129,5 +129,5 @@ object AndroidComposeUiFlags {
     // TODO: Remove this flag once it has soaked (b/531596705)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isDelayedWindowInsetsRulersEnabled: Boolean = true
+    var isDelayedWindowInsetsRulersEnabled: Boolean = false
 }
