@@ -74,6 +74,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.window.layout.WindowMetricsCalculator
@@ -495,6 +496,50 @@ class PopupTest {
         val capturedFlags = popupMatcher.lastSeenWindowParams!!.flags
 
         assertThat(capturedFlags and flags).isEqualTo(flags)
+    }
+
+    @SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.S)
+    @Test
+    fun popupTest_blurProperties() {
+        rule.setContent {
+            PopupTestTag(testTag) {
+                Popup(properties = PopupProperties(blurBehindRadius = 40.dp)) {
+                    Box(Modifier.size(50.dp))
+                }
+            }
+        }
+
+        rule.runOnIdle {}
+        val popupMatcher = PopupLayoutMatcher(testTag)
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(popupMatcher)
+            .check(matches(isDisplayed()))
+        val capturedFlags = popupMatcher.lastSeenWindowParams!!.flags
+        val capturedBlurBehindRadius = popupMatcher.lastSeenWindowParams!!.blurBehindRadius
+
+        assertThat(capturedFlags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND).isNotEqualTo(0)
+        val expectedBlurBehindRadius = with(rule.density) { 40.dp.roundToPx() }
+        assertThat(capturedBlurBehindRadius).isEqualTo(expectedBlurBehindRadius)
+    }
+
+    @Test
+    fun popupTest_scrimAlphaProperties() {
+        rule.setContent {
+            PopupTestTag(testTag) {
+                Popup(properties = PopupProperties(scrimAlpha = 0.8f)) { Box(Modifier.size(50.dp)) }
+            }
+        }
+
+        rule.runOnIdle {}
+        val popupMatcher = PopupLayoutMatcher(testTag)
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(popupMatcher)
+            .check(matches(isDisplayed()))
+        val capturedFlags = popupMatcher.lastSeenWindowParams!!.flags
+        val capturedDimAmount = popupMatcher.lastSeenWindowParams!!.dimAmount
+
+        assertThat(capturedFlags and WindowManager.LayoutParams.FLAG_DIM_BEHIND).isNotEqualTo(0)
+        assertThat(capturedDimAmount).isEqualTo(0.8f)
     }
 
     @Test
