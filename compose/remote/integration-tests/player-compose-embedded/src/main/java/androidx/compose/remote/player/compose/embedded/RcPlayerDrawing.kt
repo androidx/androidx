@@ -674,7 +674,7 @@ internal fun DrawScope.executeOperations(
                         text,
                         x,
                         y,
-                        paintState.toNativeTextPaint(),
+                        paintState.toNativeTextPaint(read),
                     )
                 }
             }
@@ -696,7 +696,7 @@ internal fun DrawScope.executeOperations(
                         path.asAndroidPath(),
                         hOffset,
                         vOffset,
-                        paintState.toNativeTextPaint(),
+                        paintState.toNativeTextPaint(read),
                     )
                 }
             }
@@ -712,7 +712,7 @@ internal fun DrawScope.executeOperations(
                 val textId = data.textId
                 val full = read.getText(textId)
                 if (full != null && !paintState.textSize.isNaN()) {
-                    val nativePaint = paintState.toNativeTextPaint()
+                    val nativePaint = paintState.toNativeTextPaint(read)
                     val flags = data.flags
                     val baseline = (flags and DrawTextAnchored.BASELINE_RELATIVE) != 0
                     val bounds = android.graphics.Rect()
@@ -929,7 +929,7 @@ internal fun DrawScope.executeOperations(
                     val warpRadiusOffset = data.warpRadiusOffset
                     val alignment = data.alignment
                     val placement = data.placement
-                    val nativePaint = paintState.toNativeTextPaint()
+                    val nativePaint = paintState.toNativeTextPaint(read)
                     val textWidth = nativePaint.measureText(full)
                     val finalRadius = radius + warpRadiusOffset
                     val clockwise = placement == DrawTextOnCircle.Placement.OUTSIDE

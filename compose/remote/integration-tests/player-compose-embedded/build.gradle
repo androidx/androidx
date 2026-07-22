@@ -53,6 +53,7 @@ android {
 
 dependencies {
     // Core player dependencies
+    implementation(project(":compose:ui:ui-text-google-fonts"))
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-player-core"))
     implementation(project(":compose:remote:remote-player-view"))
