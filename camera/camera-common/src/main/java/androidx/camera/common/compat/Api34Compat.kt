@@ -18,6 +18,8 @@ package androidx.camera.common.compat
 
 import android.graphics.ColorSpace
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics as Camera2CameraExtensionCharacteristics
+import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.common.CameraCharacteristicsMetadata
 import androidx.camera.common.ColorSpaceProfilesWrapper
@@ -34,4 +36,22 @@ internal object Api34Compat {
             AndroidColorSpaceProfiles(it)
         }
     }
+
+    @JvmStatic
+    fun getPostviewSupportedSizes(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+        captureSize: Size,
+        format: Int,
+    ): List<Size> = chars.getPostviewSupportedSizes(extension, captureSize, format)
+
+    @JvmStatic
+    fun isPostviewAvailable(chars: Camera2CameraExtensionCharacteristics, extension: Int): Boolean =
+        chars.isPostviewAvailable(extension)
+
+    @JvmStatic
+    fun isCaptureProcessProgressAvailable(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+    ): Boolean = chars.isCaptureProcessProgressAvailable(extension)
 }

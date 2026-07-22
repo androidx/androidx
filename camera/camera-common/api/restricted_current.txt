@@ -109,6 +109,49 @@ package androidx.camera.common {
     field public static final String UNKNOWN = "UNKNOWN";
   }
 
+  public interface CameraExtensionCharacteristicsWrapper extends androidx.camera.common.CameraCharacteristicsMetadata androidx.camera.common.UnsafeWrapper {
+    method @InaccessibleFromKotlin public int getCameraExtension();
+    method @InaccessibleFromKotlin public String getCameraId();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getCaptureRequestKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getCaptureResultKeys();
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getDynamicKeys();
+    method public android.util.Range<java.lang.Long>? getEstimatedCaptureLatencyRangeMillis(android.util.Size captureSize, int imageFormat);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
+    method public java.util.Set<android.util.Size> getOutputSizes(int imageFormat);
+    method public java.util.Set<android.util.Size> getOutputSizes(Class<? extends java.lang.Object?> klass);
+    method public java.util.Set<android.util.Size> getPostviewSizes(android.util.Size captureSize, int format);
+    method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getRestrictedKeys();
+    method @InaccessibleFromKotlin public boolean isCaptureProgressSupported();
+    method @InaccessibleFromKotlin public boolean isPostviewSupported();
+    method @InaccessibleFromKotlin public boolean isRestricted();
+    property public abstract int cameraExtension;
+    property public abstract androidx.camera.common.CameraId cameraId;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> captureRequestKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> captureResultKeys;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys;
+    property public abstract boolean isCaptureProgressSupported;
+    property public abstract boolean isPostviewSupported;
+    property public abstract boolean isRestricted;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> keys;
+    property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> restrictedKeys;
+  }
+
+  public final class CameraExtensionCharacteristicsWrappers {
+    method @KotlinOnly public java.util.Map<java.lang.Integer,androidx.camera.common.CameraExtensionCharacteristicsWrapper> loadAvailableExtensionsFrom(android.content.Context context, androidx.camera.common.CameraId cameraId);
+    method @InaccessibleFromKotlin public static java.util.Map<java.lang.Integer,androidx.camera.common.CameraExtensionCharacteristicsWrapper> loadAvailableExtensionsFrom(android.content.Context context, String cameraId);
+    method @KotlinOnly public java.util.Map<java.lang.Integer,androidx.camera.common.CameraExtensionCharacteristicsWrapper> loadAvailableExtensionsFrom(android.hardware.camera2.CameraManager cameraManager, androidx.camera.common.CameraId cameraId);
+    method @InaccessibleFromKotlin public static java.util.Map<java.lang.Integer,androidx.camera.common.CameraExtensionCharacteristicsWrapper> loadAvailableExtensionsFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId);
+    method @KotlinOnly public androidx.camera.common.CameraExtensionCharacteristicsWrapper? loadFrom(android.content.Context context, androidx.camera.common.CameraId cameraId, int cameraExtension);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraExtensionCharacteristicsWrapper? loadFrom(android.content.Context context, String cameraId, int cameraExtension);
+    method @KotlinOnly public androidx.camera.common.CameraExtensionCharacteristicsWrapper? loadFrom(android.hardware.camera2.CameraManager cameraManager, androidx.camera.common.CameraId cameraId, int cameraExtension);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraExtensionCharacteristicsWrapper? loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId, int cameraExtension);
+    method @KotlinOnly @RequiresApi(31) public androidx.camera.common.CameraExtensionCharacteristicsWrapper wrap(androidx.camera.common.CameraId cameraId, int cameraExtension, android.hardware.camera2.CameraExtensionCharacteristics extensionCharacteristics, optional boolean isRestricted);
+    method @InaccessibleFromKotlin @RequiresApi(31) public static androidx.camera.common.CameraExtensionCharacteristicsWrapper wrap(String cameraId, int cameraExtension, android.hardware.camera2.CameraExtensionCharacteristics extensionCharacteristics);
+    method @InaccessibleFromKotlin @RequiresApi(31) public static androidx.camera.common.CameraExtensionCharacteristicsWrapper wrap(String cameraId, int cameraExtension, android.hardware.camera2.CameraExtensionCharacteristics extensionCharacteristics, optional boolean isRestricted);
+    method @BytecodeOnly public static androidx.camera.common.CameraExtensionCharacteristicsWrapper! wrap$default(String!, int, android.hardware.camera2.CameraExtensionCharacteristics!, boolean, int, Object!);
+    field public static final androidx.camera.common.CameraExtensionCharacteristicsWrappers INSTANCE;
+  }
+
   @kotlin.jvm.JvmInline public final value class CameraFrameNumber {
     ctor @KotlinOnly public CameraFrameNumber(long value);
     method @BytecodeOnly public static androidx.camera.common.CameraFrameNumber! box-impl(long);
