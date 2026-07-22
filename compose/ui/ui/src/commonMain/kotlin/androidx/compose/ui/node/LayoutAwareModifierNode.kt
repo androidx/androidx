@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.annotation.EmptySuper
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -47,13 +48,13 @@ interface LayoutAwareModifierNode : MeasuredSizeAwareModifierNode, DelegatableNo
      * @see UnplacedAwareModifierNode if you need to also be notified when the node is not placed
      *   anymore.
      */
-    fun onPlaced(coordinates: LayoutCoordinates) {}
+    @EmptySuper fun onPlaced(coordinates: LayoutCoordinates) {}
 
     /**
      * This method is called when the layout content is remeasured. The most common usage is
      * [onSizeChanged].
      */
-    override fun onRemeasured(size: IntSize) {}
+    @EmptySuper override fun onRemeasured(size: IntSize) {}
 }
 
 // TODO remove after usages on other platforms are migrated to the new name.

@@ -277,9 +277,9 @@ package androidx.compose.ui {
     method @InaccessibleFromKotlin public final androidx.compose.ui.Modifier.Node getNode();
     method @InaccessibleFromKotlin public boolean getShouldAutoInvalidate();
     method @InaccessibleFromKotlin public final boolean isAttached();
-    method public void onAttach();
-    method public void onDetach();
-    method public void onReset();
+    method @EmptySuper public void onAttach();
+    method @EmptySuper public void onDetach();
+    method @EmptySuper public void onReset();
     method public final void sideEffect(kotlin.jvm.functions.Function0<kotlin.Unit> effect);
     property public final kotlinx.coroutines.CoroutineScope coroutineScope;
     property public final boolean isAttached;
@@ -3676,8 +3676,8 @@ package androidx.compose.ui.node {
 
   public interface DelegatableNode {
     method @InaccessibleFromKotlin public androidx.compose.ui.Modifier.Node getNode();
-    method public default void onDensityChange();
-    method public default void onLayoutDirectionChange();
+    method @EmptySuper public default void onDensityChange();
+    method @EmptySuper public default void onLayoutDirectionChange();
     property public abstract androidx.compose.ui.Modifier.Node node;
   }
 
@@ -3747,7 +3747,7 @@ package androidx.compose.ui.node {
 
   public interface DrawModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public void draw(androidx.compose.ui.graphics.drawscope.ContentDrawScope);
-    method public default void onMeasureResultChanged();
+    method @EmptySuper public default void onMeasureResultChanged();
   }
 
   public final class DrawModifierNodeKt {
@@ -3767,9 +3767,9 @@ package androidx.compose.ui.node {
   }
 
   public interface LayoutAwareModifierNode extends androidx.compose.ui.node.MeasuredSizeAwareModifierNode androidx.compose.ui.node.DelegatableNode {
-    method public default void onPlaced(androidx.compose.ui.layout.LayoutCoordinates coordinates);
-    method @KotlinOnly public default void onRemeasured(androidx.compose.ui.unit.IntSize size);
-    method @BytecodeOnly public default void onRemeasured-ozmzZPI(long);
+    method @EmptySuper public default void onPlaced(androidx.compose.ui.layout.LayoutCoordinates coordinates);
+    method @KotlinOnly @EmptySuper public default void onRemeasured(androidx.compose.ui.unit.IntSize size);
+    method @BytecodeOnly @EmptySuper public default void onRemeasured-ozmzZPI(long);
   }
 
   public interface LayoutModifierNode extends androidx.compose.ui.node.DelegatableNode {

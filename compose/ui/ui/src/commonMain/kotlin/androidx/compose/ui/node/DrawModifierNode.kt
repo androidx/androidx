@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.annotation.EmptySuper
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
@@ -30,7 +31,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 interface DrawModifierNode : DelegatableNode {
     fun ContentDrawScope.draw()
 
-    fun onMeasureResultChanged() {}
+    @EmptySuper fun onMeasureResultChanged() {}
 }
 
 /**
