@@ -554,7 +554,7 @@ class TimePickerTest {
     }
 
     @Test
-    fun timeInput_input12_resultsIn23() {
+    fun timeInput_input12_resultsIn12() {
         val state = TimePickerState(initialHour = 14, initialMinute = 0, is24Hour = false)
 
         rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
@@ -1074,6 +1074,150 @@ class TimePickerTest {
 
         // Verify focus behavior
         assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+    }
+
+    @Test
+    fun richTimeInput_24Hour_invalidHour_showsErrorText() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        lateinit var expectedErrorText: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePicker24HourError)
+            TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+        }
+
+        // Enter invalid hour boundary
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.Two)
+            pressKey(Key.Four)
+        }
+
+        rule.waitForIdle()
+
+        // Check that error is shown
+        rule.runOnIdle {
+            assertThat(state.isHourInputValid).isFalse()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+        }
+
+        rule.onNodeWithText(expectedErrorText).assertExists()
+    }
+
+    @Test
+    fun richTimeInput_24Hour_invalidMinute_showsErrorText() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        state.selection = TimePickerSelectionMode.Minute
+        lateinit var expectedErrorText: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePickerMinuteError)
+            TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+        }
+
+        // Enter invalid minute boundary
+        rule.onNodeWithText("00").performKeyInput {
+            pressKey(Key.Six)
+            pressKey(Key.Zero)
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.isMinuteInputValid).isFalse()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Minute)
+        }
+
+        rule.onNodeWithText(expectedErrorText).assertExists()
+    }
+
+    @Test
+    fun richTimeInput_12Hour_invalidHour_am_showsErrorText() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = false)
+        lateinit var expectedErrorText: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePickerHourError)
+            TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+        }
+
+        // Enter invalid hour boundary 13 for 12h AM mode (initial hour < 12)
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.One)
+            pressKey(Key.Three)
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.isHourInputValid).isFalse()
+            assertThat(state.isPm).isFalse()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+        }
+
+        rule.onNodeWithText(expectedErrorText).assertExists()
+    }
+
+    @Test
+    fun richTimeInput_12Hour_invalidHour_pm_showsErrorText() {
+        val state = TimePickerState(initialHour = 22, initialMinute = 0, is24Hour = false)
+        lateinit var expectedErrorText: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            expectedErrorText = getString(Strings.TimePickerHourError)
+            TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+        }
+
+        // Enter invalid hour boundary 13 for 12h PM mode
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.One)
+            pressKey(Key.Three)
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.isHourInputValid).isFalse()
+            assertThat(state.isPm).isTrue()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour)
+        }
+
+        rule.onNodeWithText(expectedErrorText).assertExists()
+    }
+
+    @Test
+    fun timeInput_12Hour_validHour_autoAdvancesFocus() {
+        val state = TimePickerState(initialHour = 8, initialMinute = 0, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Type 0 then 1 then 3 in 12h mode: 01 stays in Hour, 3 auto-advances to Minute
+        rule.onNodeWithText("08").performKeyInput {
+            pressKey(Key.Zero)
+            pressKey(Key.One)
+            pressKey(Key.Three)
+        }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(state.isHourInputValid).isTrue()
+            assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Minute)
+            assertThat(state.minute).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun timeInput_12Hour_delete_doesNotAdvanceFocus() {
+        val state = TimePickerState(initialHour = 8, initialMinute = 0, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Delete '0' from "08" in 12h mode
+        rule.onNodeWithText("08").performKeyInput { pressKey(Key.Delete) }
+
+        rule.waitForIdle()
+
+        rule.runOnIdle { assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Hour) }
     }
 
     @Test
