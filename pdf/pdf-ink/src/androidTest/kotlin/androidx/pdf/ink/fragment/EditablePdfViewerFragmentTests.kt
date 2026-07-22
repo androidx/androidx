@@ -16,6 +16,7 @@
 
 package androidx.pdf.ink.fragment
 
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.graphics.PointF
 import android.os.Build
@@ -161,7 +162,8 @@ class EditablePdfViewerFragmentTests {
 
         // Drag to the left side of the screen
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            activity = getHostActivity(),
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         )
         onIdle()
@@ -186,7 +188,8 @@ class EditablePdfViewerFragmentTests {
         // Move toolbar to the END (Right) side
         onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            activity = getHostActivity(),
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.RIGHT,
         )
         onIdle()
@@ -219,7 +222,8 @@ class EditablePdfViewerFragmentTests {
         // Move the toolbar to the START (Left) side
         onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
         performDragAndDrop(
-            R.id.annotationToolbar,
+            activity = getHostActivity(),
+            PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         ) // Using the helper from previous step
         onIdle()
@@ -344,7 +348,8 @@ class EditablePdfViewerFragmentTests {
         // assert annotation toolbar is visible in edit mode
         onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
         performDragAndDrop(
-            toolbarId = R.id.annotationToolbar,
+            activity = getHostActivity(),
+            toolbarId = PdfR.id.annotationToolbar,
             to = ToolbarViewActions.DragTarget.LEFT,
         )
         onIdle()
@@ -424,6 +429,12 @@ class EditablePdfViewerFragmentTests {
                     MotionEvent.BUTTON_PRIMARY,
                 )
             )
+    }
+
+    private fun getHostActivity(): Activity {
+        var activity: Activity? = null
+        scenario.onFragment { activity = it.requireActivity() }
+        return activity!!
     }
 
     companion object {
