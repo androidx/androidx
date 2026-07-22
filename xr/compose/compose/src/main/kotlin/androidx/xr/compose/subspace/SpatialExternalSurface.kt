@@ -143,18 +143,6 @@ public value class StereoMode private constructor(internal val value: SurfaceEnt
  *
  * @see [SpatialExternalSurface]
  */
-@Deprecated("Use SpatialExternalSurfaceProtection instead.")
-public typealias SurfaceProtection = SpatialExternalSurfaceProtection
-
-/**
- * Specifies if the Surface should be backed by [android.hardware.HardwareBuffer]s with the
- * USAGE_PROTECTED_CONTENT flag set. These buffers support hardware paths for decoding protected
- * content.
- *
- * See [MediaDrm](https://developer.android.com/reference/android/media/MediaDrm)
- *
- * @see [SpatialExternalSurface]
- */
 @JvmInline
 public value class SpatialExternalSurfaceProtection
 private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
