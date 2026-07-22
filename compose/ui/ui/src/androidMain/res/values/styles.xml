@@ -18,10 +18,12 @@
     <!-- Stub style to workaround Window.setClipToOutline not being available on API 21 -->
     <style name="DialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
     <!-- Style for decorFitsSystemWindows = false -->
     <style name="FloatingDialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
         <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>

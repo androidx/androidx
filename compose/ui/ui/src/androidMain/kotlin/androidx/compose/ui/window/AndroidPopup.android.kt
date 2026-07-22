@@ -73,11 +73,14 @@ import androidx.compose.ui.platform.withInfiniteAnimationFrameNanos
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.util.equalsIncludingNaN
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -130,10 +133,26 @@ import org.jetbrains.annotations.TestOnly
  *   add sub-windows of the specified[windowType]. Providing an invalid, stale, or permission-denied
  *   token will typically result in an [android.view.WindowManager.BadTokenException] when the popup
  *   attempts to show.
+ * @property blurBehindRadius Blurs the screen behind the window. The effect is similar to that of
+ *   [scrimAlpha], but instead of having a scrim applied, the content behind the window will be
+ *   blurred (or combined with the scrim opacity, if such is specified). The density of the blur is
+ *   set by the blur radius. The radius defines the size of the neighboring area, from which pixels
+ *   will be averaged to form the final color for each pixel. The operation approximates a Gaussian
+ *   blur. A radius of `0.dp` means no blur. The higher the radius, the denser the blur. For blur
+ *   behind, a radius of `10.dp` (~20 px) creates a good depth-of-field effect. Avoid blur radii
+ *   higher than `50.dp` (~150 px), as this will significantly impact performance. Some devices
+ *   might not support cross-window blur due to GPU limitations. It can also be disabled by the
+ *   system at runtime (e.g. during battery saving mode). In such situations, no blur will be
+ *   computed or drawn. Supported on Android 12 ([Build.VERSION_CODES.S]) and above.
+ * @property scrimAlpha The opacity of the scrim (also known as dimming) applied behind the popup
+ *   window. Ranging from 0.0f (no scrim) to 1.0f (completely opaque). By default, this value is
+ *   [Float.NaN], which means the popup retains the standard system popup behavior with no scrim
+ *   applied behind the window.
  *
  *   Example usage:
  *
  * @sample androidx.compose.ui.samples.PopupFromServiceSample
+ * @sample androidx.compose.ui.samples.PopupWithBlurSample
  */
 @Immutable
 actual class PopupProperties
@@ -146,6 +165,8 @@ constructor(
     actual val usePlatformDefaultWidth: Boolean = false,
     val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
     val windowToken: IBinder? = null,
+    val blurBehindRadius: Dp = Dp.Unspecified,
+    val scrimAlpha: Float = Float.NaN,
 ) {
     actual constructor(
         focusable: Boolean,
@@ -203,6 +224,53 @@ constructor(
         usePlatformDefaultWidth = usePlatformDefaultWidth,
         windowType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
         windowToken = null,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        flags: Int,
+        inheritSecurePolicy: Boolean = true,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        excludeFromSystemGesture: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+        windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken: IBinder? = null,
+    ) : this(
+        flags = flags,
+        inheritSecurePolicy = inheritSecurePolicy,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        excludeFromSystemGesture = excludeFromSystemGesture,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = windowType,
+        windowToken = windowToken,
+        blurBehindRadius = Dp.Unspecified,
+        scrimAlpha = Float.NaN,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        excludeFromSystemGesture: Boolean = true,
+        clippingEnabled: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+        windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken: IBinder? = null,
+    ) : this(
+        flags = createFlags(focusable, securePolicy, clippingEnabled),
+        inheritSecurePolicy = securePolicy == SecureFlagPolicy.Inherit,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        excludeFromSystemGesture = excludeFromSystemGesture,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = windowType,
+        windowToken = windowToken,
+        blurBehindRadius = Dp.Unspecified,
+        scrimAlpha = Float.NaN,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -278,8 +346,22 @@ constructor(
      *   permissions to add sub-windows of the specified[windowType]. Providing an invalid, stale,
      *   or permission-denied token will typically result in an
      *   [android.view.WindowManager.BadTokenException] when the popup attempts to show.
+     * @param blurBehindRadius Blurs the screen behind the window. The effect is similar to that of
+     *   [scrimAlpha], but instead of having a scrim applied, the content behind the window will be
+     *   blurred (or combined with the scrim opacity, if such is specified). The density of the blur
+     *   is set by the blur radius. The radius defines the size of the neighboring area, from which
+     *   pixels will be averaged to form the final color for each pixel. The operation approximates
+     *   a Gaussian blur. A radius of `0.dp` means no blur. The higher the radius, the denser the
+     *   blur. Some devices might not support cross-window blur due to GPU limitations. It can also
+     *   be disabled by the system at runtime (e.g. during battery saving mode). In such situations,
+     *   no blur will be computed or drawn. Supported on Android 12 ([Build.VERSION_CODES.S]) and
+     *   above.
+     * @param scrimAlpha The opacity of the scrim (also known as dimming) applied behind the popup
+     *   window. Ranging from 0.0f (no scrim) to 1.0f (completely opaque). By default, this value is
+     *   [Float.NaN], which means the popup retains the standard system popup behavior with no scrim
+     *   applied behind the window.
      *
-     *   Example usage:
+     * Example usage:
      *
      * @sample androidx.compose.ui.samples.PopupFromServiceSample
      */
@@ -293,6 +375,8 @@ constructor(
         usePlatformDefaultWidth: Boolean = false,
         windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
         windowToken: IBinder? = null,
+        blurBehindRadius: Dp = Dp.Unspecified,
+        scrimAlpha: Float = Float.NaN,
     ) : this(
         flags = createFlags(focusable, securePolicy, clippingEnabled),
         inheritSecurePolicy = securePolicy == SecureFlagPolicy.Inherit,
@@ -302,6 +386,8 @@ constructor(
         usePlatformDefaultWidth = usePlatformDefaultWidth,
         windowType = windowType,
         windowToken = windowToken,
+        blurBehindRadius = blurBehindRadius,
+        scrimAlpha = scrimAlpha,
     )
 
     /**
@@ -340,6 +426,8 @@ constructor(
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
         if (windowType != other.windowType) return false
         if (windowToken != other.windowToken) return false
+        if (blurBehindRadius != other.blurBehindRadius) return false
+        if (!scrimAlpha.equalsIncludingNaN(other.scrimAlpha)) return false
 
         return true
     }
@@ -353,6 +441,8 @@ constructor(
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         result = 31 * result + windowType
         result = 31 * result + (windowToken?.hashCode() ?: 0)
+        result = 31 * result + blurBehindRadius.hashCode()
+        result = 31 * result + scrimAlpha.hashCode()
 
         return result
     }
@@ -462,6 +552,7 @@ actual fun Popup(
             properties = properties,
             testTag = testTag,
             layoutDirection = layoutDirection,
+            density = density,
         )
         onDispose {
             popupLayout.disposeComposition()
@@ -476,6 +567,7 @@ actual fun Popup(
             properties = properties,
             testTag = testTag,
             layoutDirection = layoutDirection,
+            density = density,
         )
     }
 
@@ -621,7 +713,7 @@ internal class PopupLayout(
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    @VisibleForTesting internal val params = createLayoutParams()
+    @VisibleForTesting internal val params = createLayoutParams(density)
 
     /** The logic of positioning the popup relative to its parent. */
     var positionProvider = initialPositionProvider
@@ -799,14 +891,15 @@ internal class PopupLayout(
         properties: PopupProperties,
         testTag: String,
         layoutDirection: LayoutDirection,
+        density: Density,
     ) {
         this.onDismissRequest = onDismissRequest
         this.testTag = testTag
-        updatePopupProperties(properties)
+        updatePopupProperties(properties, density)
         superSetLayoutDirection(layoutDirection)
     }
 
-    private fun updatePopupProperties(properties: PopupProperties) {
+    private fun updatePopupProperties(properties: PopupProperties, density: Density) {
         if (this.properties == properties) return
 
         if (properties.usePlatformDefaultWidth && !this.properties.usePlatformDefaultWidth) {
@@ -818,6 +911,15 @@ internal class PopupLayout(
 
         this.properties = properties
         params.flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
+
+        if (Build.VERSION.SDK_INT >= 31 && properties.blurBehindRadius.isSpecified) {
+            val blurBehindRadiusPx = with(density) { properties.blurBehindRadius.roundToPx() }
+            PopupApi31Impl.setBlurBehindRadius(params, blurBehindRadiusPx)
+        }
+
+        if (!properties.scrimAlpha.isNaN()) {
+            params.setScrimAlpha(properties.scrimAlpha)
+        }
 
         popupLayoutHelper.updateViewLayout(windowManager, this, params)
     }
@@ -977,12 +1079,23 @@ internal class PopupLayout(
     }
 
     /** Initialize the LayoutParams specific to [android.widget.PopupWindow]. */
-    private fun createLayoutParams(): WindowManager.LayoutParams {
+    private fun createLayoutParams(density: Density): WindowManager.LayoutParams {
         return WindowManager.LayoutParams().apply {
             // Start to position the popup in the top left corner, a new position will be calculated
             gravity = Gravity.START or Gravity.TOP
 
             flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
+            if (Build.VERSION.SDK_INT >= 31) {
+                if (properties.blurBehindRadius.isSpecified) {
+                    val blurBehindRadiusPx =
+                        with(density) { properties.blurBehindRadius.roundToPx() }
+                    PopupApi31Impl.setBlurBehindRadius(this, blurBehindRadiusPx)
+                }
+            }
+
+            if (!properties.scrimAlpha.isNaN()) {
+                setScrimAlpha(properties.scrimAlpha)
+            }
 
             type = properties.windowType
 
@@ -1045,6 +1158,29 @@ private object Api33Impl {
         if (backCallback is OnBackInvokedCallback) {
             view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
         }
+    }
+}
+
+@RequiresApi(31)
+private object PopupApi31Impl {
+    @androidx.annotation.DoNotInline
+    fun setBlurBehindRadius(params: WindowManager.LayoutParams, blurBehindRadius: Int) {
+        if (blurBehindRadius > 0) {
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+        } else {
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
+        }
+        params.blurBehindRadius = blurBehindRadius
+    }
+}
+
+private fun WindowManager.LayoutParams.setScrimAlpha(scrimAlpha: Float) {
+    if (scrimAlpha > 0f) {
+        flags = flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+        dimAmount = scrimAlpha
+    } else {
+        flags = flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND.inv()
+        dimAmount = 0f
     }
 }
 

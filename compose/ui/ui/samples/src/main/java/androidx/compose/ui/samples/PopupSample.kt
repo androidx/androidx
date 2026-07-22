@@ -126,3 +126,19 @@ fun PopupFromServiceSample() {
         }
     }
 }
+
+@Sampled
+@Composable
+fun PopupWithBlurSample() {
+    // Tip: Displaying rich content or an image behind the popup makes the blur effect clearly
+    // visible.
+
+    Popup(
+        onDismissRequest = {},
+        properties = PopupProperties(scrimAlpha = 0.0f, blurBehindRadius = 15.dp),
+    ) {
+        Box(modifier = Modifier.background(Color.Gray.copy(alpha = 1f)).padding(24.dp)) {
+            Text(text = "Popup", modifier = Modifier.padding(24.dp))
+        }
+    }
+}

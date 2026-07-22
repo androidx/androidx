@@ -17,8 +17,12 @@
 package androidx.compose.ui.window
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.ColorFilter
 import android.graphics.Outline
+import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
 import android.util.DisplayMetrics
@@ -53,6 +57,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline as ComposeOutline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -62,8 +70,11 @@ import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.util.equalsIncludingNaN
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -122,10 +133,49 @@ import kotlin.math.roundToInt
  *   necessary permissions to add windows of the specified [windowType]. Providing an invalid,
  *   stale, or permission-denied token will typically result in a
  *   [android.view.WindowManager.BadTokenException] when the dialog attempts to show.
+ * @property blurBehindRadius Blurs the screen behind the window. The effect is similar to that of
+ *   [scrimAlpha], but instead of having a scrim applied, the content behind the window will be
+ *   blurred (or combined with the scrim opacity, if such is specified). The density of the blur is
+ *   set by the blur radius. The radius defines the size of the neighboring area, from which pixels
+ *   will be averaged to form the final color for each pixel. The operation approximates a Gaussian
+ *   blur. A radius of `0.dp` means no blur. The higher the radius, the denser the blur. Note the
+ *   difference with [backgroundBlurRadius], which blurs only within the bounds of the window. Blur
+ *   behind blurs the whole screen behind the window. For blur behind, a radius of `10.dp` (~20 px)
+ *   creates a good depth-of-field effect. Avoid blur radii higher than `50.dp` (~150 px), as this
+ *   will significantly impact performance. Some devices might not support cross-window blur due to
+ *   GPU limitations. It can also be disabled by the system at runtime (e.g. during battery saving
+ *   mode). In such situations, no blur will be computed or drawn. Supported on Android 12
+ *   ([Build.VERSION_CODES.S]) and above.
+ * @property backgroundBlurRadius Blurs the screen behind the window within the bounds of the
+ *   window. The density of the blur is set by the blur radius. The radius defines the size of the
+ *   neighboring area, from which pixels will be averaged to form the final color for each pixel.
+ *   The operation approximates a Gaussian blur. A radius of `0.dp` means no blur. The higher the
+ *   radius, the denser the blur. The window background drawable is drawn on top of the blurred
+ *   region. The blur region bounds and rounded corners will mimic those of the background drawable.
+ *   Note the difference with [blurBehindRadius], which blurs the whole screen behind the window.
+ *   Background blur blurs the screen behind only within the bounds of the window. For background
+ *   blur, a radius of `30.dp` (~80 px) creates a good frosted-glass effect. Avoid blur radii higher
+ *   than `50.dp` (~150 px), as this will significantly impact performance. Some devices might not
+ *   support cross-window blur due to GPU limitations. It can also be disabled by the system at
+ *   runtime (e.g. during battery saving mode). In such situations, no blur will be computed or
+ *   drawn. Supported on Android 12 ([Build.VERSION_CODES.S]) and above. If the dialog content uses
+ *   rounded corners, set [windowShape] to match it so the background blur clips to the rounded
+ *   corners of the dialog card instead of the default rectangular window bounds.
+ * @property scrimAlpha The opacity of the scrim (also known as dimming) applied behind the dialog
+ *   window. Ranging from 0.0f (no scrim) to 1.0f (completely opaque). By default, this value is
+ *   [Float.NaN], which means the dialog retains the standard system dialog behavior with the
+ *   default scrim opacity defined by the window theme.
+ * @property windowShape The [Shape] applied to the underlying native dialog window background. This
+ *   defines the geometric outline of the window frame. When set (e.g., `RoundedCornerShape` or
+ *   `CircleShape`), window-level hardware effects such as [backgroundBlurRadius] will clip to this
+ *   shape instead of standard 90-degree rectangular bounds. Use this to align the background blur
+ *   outline with the rounded shape of your dialog content card. If `null` (default), the window
+ *   background uses standard rectangular bounds.
  *
  *   Example usage:
  *
  * @sample androidx.compose.ui.samples.DialogFromServiceSample
+ * @sample androidx.compose.ui.samples.DialogWithBlurSample
  */
 @Immutable
 actual class DialogProperties(
@@ -137,7 +187,27 @@ actual class DialogProperties(
     val windowTitle: String = "",
     val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
     val windowToken: IBinder? = null,
+    val blurBehindRadius: Dp = Dp.Unspecified,
+    val backgroundBlurRadius: Dp = Dp.Unspecified,
+    val scrimAlpha: Float = Float.NaN,
+    val windowShape: Shape? = null,
 ) {
+    constructor() :
+        this(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+            securePolicy = SecureFlagPolicy.Inherit,
+            usePlatformDefaultWidth = true,
+            decorFitsSystemWindows = true,
+            windowTitle = "",
+            windowType = WindowManager.LayoutParams.TYPE_APPLICATION,
+            windowToken = null,
+            blurBehindRadius = Dp.Unspecified,
+            backgroundBlurRadius = Dp.Unspecified,
+            scrimAlpha = Float.NaN,
+            windowShape = null,
+        )
+
     actual constructor(
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
@@ -167,6 +237,31 @@ actual class DialogProperties(
         windowTitle = windowTitle,
         windowType = WindowManager.LayoutParams.TYPE_APPLICATION,
         windowToken = null,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth: Boolean = true,
+        decorFitsSystemWindows: Boolean = true,
+        windowTitle: String = "",
+        windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
+        windowToken: IBinder? = null,
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = securePolicy,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        decorFitsSystemWindows = decorFitsSystemWindows,
+        windowTitle = windowTitle,
+        windowType = windowType,
+        windowToken = windowToken,
+        blurBehindRadius = Dp.Unspecified,
+        backgroundBlurRadius = Dp.Unspecified,
+        scrimAlpha = Float.NaN,
+        windowShape = null,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -209,6 +304,10 @@ actual class DialogProperties(
         if (decorFitsSystemWindows != other.decorFitsSystemWindows) return false
         if (windowType != other.windowType) return false
         if (windowToken != other.windowToken) return false
+        if (blurBehindRadius != other.blurBehindRadius) return false
+        if (backgroundBlurRadius != other.backgroundBlurRadius) return false
+        if (!scrimAlpha.equalsIncludingNaN(other.scrimAlpha)) return false
+        if (windowShape != other.windowShape) return false
         return true
     }
 
@@ -220,6 +319,10 @@ actual class DialogProperties(
         result = 31 * result + decorFitsSystemWindows.hashCode()
         result = 31 * result + windowType
         result = 31 * result + (windowToken?.hashCode() ?: 0)
+        result = 31 * result + blurBehindRadius.hashCode()
+        result = 31 * result + backgroundBlurRadius.hashCode()
+        result = 31 * result + scrimAlpha.hashCode()
+        result = 31 * result + (windowShape?.hashCode() ?: 0)
         return result
     }
 }
@@ -282,6 +385,7 @@ actual fun Dialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
             layoutDirection = layoutDirection,
+            density = density,
         )
     }
 }
@@ -550,7 +654,8 @@ private class DialogWrapper(
         applyWindowTypeAndToken(properties)
 
         window.requestFeature(Window.FEATURE_NO_TITLE)
-        window.setBackgroundDrawableResource(android.R.color.transparent)
+        setWindowBackgroundShape(window, properties.windowShape, density, layoutDirection)
+
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
         window.setGravity(Gravity.CENTER)
         if (!properties.decorFitsSystemWindows) {
@@ -621,7 +726,7 @@ private class DialogWrapper(
         )
 
         // Initial setup
-        updateParameters(onDismissRequest, properties, layoutDirection)
+        updateParameters(onDismissRequest, properties, layoutDirection, density)
 
         // Due to how the onDismissRequest callback works
         // (it enforces a just-in-time decision on whether to update the state to hide the dialog)
@@ -683,10 +788,26 @@ private class DialogWrapper(
         )
     }
 
+    private fun setWindowBackgroundShape(
+        window: Window,
+        windowShape: Shape?,
+        density: Density,
+        layoutDirection: LayoutDirection,
+    ) {
+        if (windowShape != null) {
+            window.setBackgroundDrawable(
+                WindowBackgroundShapeDrawable(windowShape, density, layoutDirection)
+            )
+        } else {
+            window.setBackgroundDrawableResource(android.R.color.transparent)
+        }
+    }
+
     fun updateParameters(
         onDismissRequest: () -> Unit,
         properties: DialogProperties,
         layoutDirection: LayoutDirection,
+        density: Density,
     ) {
         this.onDismissRequest = onDismissRequest
         this.properties = properties
@@ -700,6 +821,25 @@ private class DialogWrapper(
         setCanceledOnTouchOutside(properties.dismissOnClickOutside)
         val window = window
         if (window != null) {
+            setWindowBackgroundShape(window, properties.windowShape, density, layoutDirection)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (properties.blurBehindRadius.isSpecified) {
+                    val blurBehindRadiusPx =
+                        with(density) { properties.blurBehindRadius.roundToPx() }
+                    DialogApi31Impl.setBlurBehindRadius(window, blurBehindRadiusPx)
+                }
+                if (properties.backgroundBlurRadius.isSpecified) {
+                    val backgroundBlurRadiusPx =
+                        with(density) { properties.backgroundBlurRadius.roundToPx() }
+                    DialogApi31Impl.setBackgroundBlurRadius(window, backgroundBlurRadiusPx)
+                }
+            }
+
+            if (!properties.scrimAlpha.isNaN()) {
+                window.setDimAmount(properties.scrimAlpha)
+            }
+
             val softInput =
                 when {
                     decorFitsSystemWindows ->
@@ -826,5 +966,67 @@ private object Api30Impl {
         val systemBarInsets = windowInsets.getInsets(WindowInsets.Type.systemBars())
         val systemBarInsetsHeight = systemBarInsets.top + systemBarInsets.bottom
         return currentWindowMetrics.bounds.height() - systemBarInsetsHeight
+    }
+}
+
+@RequiresApi(31)
+private object DialogApi31Impl {
+    @DoNotInline
+    fun setBlurBehindRadius(window: Window, blurBehindRadius: Int) {
+        if (blurBehindRadius > 0) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+            val attributes = window.attributes
+            attributes.blurBehindRadius = blurBehindRadius
+            window.attributes = attributes
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+        }
+    }
+
+    fun setBackgroundBlurRadius(window: Window, backgroundBlurRadius: Int) {
+        window.setBackgroundBlurRadius(backgroundBlurRadius)
+    }
+}
+
+private class WindowBackgroundShapeDrawable(
+    private val shape: Shape,
+    private val density: Density,
+    private val layoutDirection: LayoutDirection,
+) : Drawable() {
+    override fun draw(canvas: Canvas) {}
+
+    @Deprecated("Deprecated in Java") override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+
+    override fun setAlpha(alpha: Int) {}
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {}
+
+    override fun getOutline(outline: Outline) {
+        val width = bounds.width().toFloat()
+        val height = bounds.height().toFloat()
+        if (width <= 0f || height <= 0f) return
+
+        outline.alpha = 0f
+
+        when (
+            val composeOutline = shape.createOutline(Size(width, height), layoutDirection, density)
+        ) {
+            is ComposeOutline.Rectangle -> {
+                outline.setRect(bounds)
+            }
+
+            is ComposeOutline.Rounded -> {
+                val radius = composeOutline.roundRect.topLeftCornerRadius.x
+                outline.setRoundRect(bounds, radius)
+            }
+
+            is ComposeOutline.Generic -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    outline.setPath(composeOutline.path.asAndroidPath())
+                } else {
+                    outline.setRect(bounds)
+                }
+            }
+        }
     }
 }
