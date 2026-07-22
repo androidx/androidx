@@ -231,6 +231,7 @@ private const val HWCOR = "HWCOR,version=27"
 private const val Q2Q = "q2q,version=31"
 
 private const val PHYSICAL_PIXEL9 = "tokay,version=34"
+private const val MEDIUM_PHONE_37 = "MediumPhone_ps16k.arm,version=37"
 private const val MEDIUM_PHONE_36 = "MediumPhone.arm,version=36"
 private const val MEDIUM_PHONE_35 = "MediumPhone.arm,version=35"
 private const val MEDIUM_PHONE_34 = "MediumPhone.arm,version=34"
@@ -243,6 +244,7 @@ private const val NEXUS5_23 = "Nexus5.gce_x86,version=23"
 
 private val API_TO_MODEL_MAP =
     mapOf(
+        37 to MEDIUM_PHONE_37,
         36 to MEDIUM_PHONE_36,
         35 to MEDIUM_PHONE_35,
         34 to MEDIUM_PHONE_34,
@@ -259,6 +261,7 @@ private val devicesToRunOn =
     listOf(
         FTL_ON_APIS_NAME to listOf(), // instead read devices via repeatable --api
         "ftlphysicalpixel9api34" to listOf(PHYSICAL_PIXEL9),
+        "ftlmediumphoneapi37" to listOf(MEDIUM_PHONE_37),
         "ftlmediumphoneapi36" to listOf(MEDIUM_PHONE_36),
         "ftlmediumphoneapi35" to listOf(MEDIUM_PHONE_35),
         "ftlmediumphoneapi34" to listOf(MEDIUM_PHONE_34),
