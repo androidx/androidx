@@ -144,14 +144,14 @@ internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isLessThanOrEqual(other: RemoteDp): RemoteBoolean =
-        this.value.isLessThanOrEqual(other.value)
+        this.value.isLessThanOrEqualTo(other.value)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isGreaterThan(other: RemoteDp): RemoteBoolean = this.value.isGreaterThan(other.value)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isGreaterThanOrEqual(other: RemoteDp): RemoteBoolean =
-        this.value.isGreaterThanOrEqual(other.value)
+        this.value.isGreaterThanOrEqualTo(other.value)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun isEqualTo(other: RemoteDp): RemoteBoolean = this.value.isEqualTo(other.value)

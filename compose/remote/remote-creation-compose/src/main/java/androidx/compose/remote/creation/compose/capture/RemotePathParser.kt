@@ -371,7 +371,7 @@ private fun drawArc(
     val eta1 = atan2(y1p - cy, x1p - cx)
 
     val initialSweep = eta1 - eta0
-    val branch2 = isPositiveArc.isNotEqualTo(initialSweep.isGreaterThanOrEqual(0.rf))
+    val branch2 = isPositiveArc.isNotEqualTo(initialSweep.isGreaterThanOrEqualTo(0.rf))
     val pi2 = 2.rf * PI.toFloat().rf
     val sweep =
         initialSweep + branch2.select(initialSweep.isGreaterThan(0.rf).select(-pi2, pi2), 0.rf)

@@ -845,9 +845,9 @@ package androidx.compose.remote.creation.compose.state {
     method public final operator androidx.compose.remote.creation.compose.state.RemoteFloat div(androidx.compose.remote.creation.compose.state.RemoteFloat v);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThan(androidx.compose.remote.creation.compose.state.RemoteFloat other);
-    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThanOrEqual(androidx.compose.remote.creation.compose.state.RemoteFloat other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThan(androidx.compose.remote.creation.compose.state.RemoteFloat other);
-    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqual(androidx.compose.remote.creation.compose.state.RemoteFloat other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteFloat other);
     method public final androidx.compose.remote.creation.compose.state.RemoteFloat min(androidx.compose.remote.creation.compose.state.RemoteFloat v);
     method public final operator androidx.compose.remote.creation.compose.state.RemoteFloat minus(androidx.compose.remote.creation.compose.state.RemoteFloat v);
@@ -948,9 +948,9 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public Integer? getConstantValueOrNull();
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThan(androidx.compose.remote.creation.compose.state.RemoteInt other);
-    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThanOrEqual(androidx.compose.remote.creation.compose.state.RemoteInt other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isGreaterThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThan(androidx.compose.remote.creation.compose.state.RemoteInt other);
-    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqual(androidx.compose.remote.creation.compose.state.RemoteInt other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(optional android.icu.text.DecimalFormat format);
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(java.text.DecimalFormat format);
