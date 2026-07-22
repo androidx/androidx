@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess
+package androidx.datastore.core.multiprocess
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.CorruptionHandler
 import androidx.datastore.core.IOException
 import androidx.datastore.core.SharedCounter
-import androidx.datastore.testapp.multiprocess.ipcActions.ReadTextAction
-import androidx.datastore.testapp.multiprocess.ipcActions.SetTextAction
-import androidx.datastore.testapp.multiprocess.ipcActions.StorageVariant
-import androidx.datastore.testapp.multiprocess.ipcActions.createMultiProcessTestDatastore
-import androidx.datastore.testapp.multiprocess.ipcActions.datastore
-import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.IpcUnit
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
+import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
+import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
+import androidx.datastore.core.multiprocess.ipcActions.createMultiProcessTestDatastore
+import androidx.datastore.core.multiprocess.ipcActions.datastore
+import androidx.datastore.core.twoWayIpc.InterProcessCompletable
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.IpcUnit
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -40,7 +40,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -182,7 +181,6 @@ class MultiProcessDataStoreIpcTest {
     fun testInterleavedUpdateDataWithLocalRead_okio() =
         testInterleavedUpdateDataWithLocalRead(StorageVariant.OKIO)
 
-    @Parcelize
     private data class InterleavedDoubleUpdateAction(
         val updatedInteger: InterProcessCompletable<IpcUnit> = InterProcessCompletable(),
         val unblockBooleanWrite: InterProcessCompletable<IpcUnit> = InterProcessCompletable(),

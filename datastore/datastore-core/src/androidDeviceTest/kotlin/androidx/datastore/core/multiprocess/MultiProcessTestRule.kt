@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess
+package androidx.datastore.core.multiprocess
 
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcConnection
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcService
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcService2
+import androidx.datastore.core.twoWayIpc.TwoWayIpcConnection
+import androidx.datastore.core.twoWayIpc.TwoWayIpcService
+import androidx.datastore.core.twoWayIpc.TwoWayIpcService2
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds

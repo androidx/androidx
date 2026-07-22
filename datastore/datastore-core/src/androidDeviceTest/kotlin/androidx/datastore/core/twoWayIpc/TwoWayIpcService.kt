@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.twoWayIpc
+package androidx.datastore.core.twoWayIpc
 
 import android.content.Intent
 import android.os.Handler
@@ -44,7 +44,7 @@ class TwoWayIpcService2 : TwoWayIpcService()
  * It properly scopes those subjects and destroys their scopes when the Service is destroyed,
  * allowing tests to properly maintain resources.
  *
- * @see androidx.datastore.testapp.multiprocess.MultiProcessTestRule
+ * @see androidx.datastore.core.multiprocess.MultiProcessTestRule
  */
 open class TwoWayIpcService : LifecycleService() {
     private val subjects = mutableListOf<TwoWayIpcSubject>()

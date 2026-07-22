@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.twoWayIpc
+package androidx.datastore.core.twoWayIpc
 
 import android.annotation.SuppressLint
-import android.os.Parcelable
+import java.io.Serializable
 import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.parcelize.Parcelize
 
-/** A [Parcelable] [CompletableDeferred] implementation that can be shared across processes. */
-@SuppressLint("BanParcelableUsage")
-@Parcelize
-internal class InterProcessCompletable<T : Parcelable>(
+/** A [Serializable] [CompletableDeferred] implementation that can be shared across processes. */
+@SuppressLint("BanSerializableUsage")
+internal class InterProcessCompletable<T : Serializable>(
     private val key: String = UUID.randomUUID().toString()
-) : Parcelable {
+) : Serializable {
     suspend fun complete(subject: TwoWayIpcSubject, value: T) {
         IpcLogger.log("will complete $key")
         subject.crossProcessCompletableController.complete(key, value)
@@ -55,24 +53,23 @@ private class CrossProcessCompletableController(private val subject: TwoWayIpcSu
             completables.getOrPut(key) { CompletableDeferred<T>() } as CompletableDeferred<T>
         }
 
-    private fun <T : Parcelable> completeInCurrentProcess(key: String, value: T) {
+    private fun <T : Serializable> completeInCurrentProcess(key: String, value: T) {
         IpcLogger.log("complete internal $key")
         get<T>(key).complete(value)
     }
 
-    fun <T : Parcelable> obtainInCurrentProcess(key: String): CompletableDeferred<T> {
+    fun <T : Serializable> obtainInCurrentProcess(key: String): CompletableDeferred<T> {
         return get(key)
     }
 
-    suspend fun <T : Parcelable> complete(key: String, value: T) {
+    suspend fun <T : Serializable> complete(key: String, value: T) {
         completeInCurrentProcess(key, value)
         IpcLogger.log("will complete $key in remote process")
         subject.invokeInRemoteProcess(CompleteCompletableAction(key = key, value = value))
         IpcLogger.log("completed $key in remote process")
     }
 
-    @Parcelize
-    private data class CompleteCompletableAction<T : Parcelable>(
+    private data class CompleteCompletableAction<T : Serializable>(
         private val key: String,
         private val value: T,
     ) : IpcAction<IpcUnit>() {

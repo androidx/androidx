@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.twoWayIpc
+package androidx.datastore.core.twoWayIpc
 
 import android.os.Bundle
-import android.os.Parcelable
+import java.io.Serializable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
@@ -34,20 +34,21 @@ internal class TwoWayIpcSubject(val datastoreScope: CoroutineScope) {
     val data = CompositeServiceSubjectModel()
 
     private suspend fun handleIncomingAction(bundle: Bundle?): Bundle {
-        @Suppress("DEPRECATION") val ipcAction = bundle?.getParcelable<IpcAction<*>>(KEY_ACTION)
+        @Suppress("DEPRECATION")
+        val ipcAction = bundle?.getSerializable(KEY_ACTION) as? IpcAction<*>
         checkNotNull(ipcAction) { "no ipc action in bundle" }
         IpcLogger.log("executing action: ${ipcAction::class.java}")
 
         val response = ipcAction.invokeInRemoteProcess(this)
         IpcLogger.log("executed action: ${ipcAction::class.java}")
-        return Bundle().also { it.putParcelable(KEY_RESPONSE, response) }
+        return Bundle().also { it.putSerializable(KEY_RESPONSE, response) }
     }
 
-    suspend fun <T : Parcelable> invokeInRemoteProcess(action: IpcAction<T>): T {
-        val response = bus.sendMessage(Bundle().also { it.putParcelable(KEY_ACTION, action) })
+    suspend fun <T : Serializable> invokeInRemoteProcess(action: IpcAction<T>): T {
+        val response = bus.sendMessage(Bundle().also { it.putSerializable(KEY_ACTION, action) })
         checkNotNull(response) { "No response received for $action" }
-        @Suppress("DEPRECATION")
-        return response.getParcelable(KEY_RESPONSE)
+        @Suppress("DEPRECATION", "UNCHECKED_CAST")
+        return response.getSerializable(KEY_RESPONSE) as T?
             ?: error("didn't get a response from remote process")
     }
 

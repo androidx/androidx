@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.twoWayIpc
+package androidx.datastore.core.multiprocess.ipcActions
 
 import android.annotation.SuppressLint
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import java.io.Serializable
+import kotlinx.coroutines.flow.first
 
-/** A [Parcelable] action that can be executed in a remote process, inside a [TwoWayIpcSubject]. */
-internal abstract class IpcAction<T : Parcelable> : Parcelable {
-    abstract suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): T
+internal class ReadTextAction : IpcAction<ReadTextAction.TextValue>() {
+    @SuppressLint("BanSerializableUsage") data class TextValue(val value: String) : Serializable
+
+    override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): TextValue {
+        return TextValue(subject.datastore.data.first().text)
+    }
 }
-
-/** Utility object for [IpcAction]s that do not return a value. */
-@SuppressLint("BanParcelableUsage") @Parcelize object IpcUnit : Parcelable
