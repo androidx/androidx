@@ -158,4 +158,21 @@ class CompatAndroidRemotePaintTest {
         assertThat(paint.remoteShader).isEqualTo(remoteShader)
         assertThat(paint.shader).isEqualTo(remoteShader)
     }
+
+    @Test
+    fun asRemotePaint_createsSnapshot() {
+        val paint = CompatAndroidRemotePaint()
+        val isInteractive = RemoteBoolean.createNamedRemoteBoolean("isInteractive", true)
+        val dynamicColor = isInteractive.select(Color.White.rc, Color.Black.rc)
+        paint.remoteColor = dynamicColor
+
+        val snapshot = paint.asRemotePaint()
+
+        // Mutate the live outer paint object afterwards
+        paint.setColor(android.graphics.Color.WHITE)
+        paint.remoteColor = null
+
+        // Assert that snapshot holds the original expression
+        assertThat(snapshot.color).isEqualTo(dynamicColor)
+    }
 }

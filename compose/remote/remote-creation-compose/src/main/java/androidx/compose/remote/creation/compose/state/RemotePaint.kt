@@ -306,9 +306,9 @@ public open class CompatAndroidRemotePaint : AndroidPaint, RemotePaintConvertibl
         override var filterQuality: FilterQuality
             get() =
                 if (isFilterBitmap) {
-                    FilterQuality.None
-                } else {
                     FilterQuality.Low
+                } else {
+                    FilterQuality.None
                 }
             set(value) {
                 isFilterBitmap = value != FilterQuality.None
@@ -361,7 +361,7 @@ public open class CompatAndroidRemotePaint : AndroidPaint, RemotePaintConvertibl
 
     /** Converts this paint to a [RemotePaint]. */
     override val remotePaint: RemotePaint
-        get() = CompatRemotePaint()
+        get() = StandardRemotePaint(CompatRemotePaint())
 }
 
 /** An implementation of [RemotePaint] that wraps an [android.graphics.Paint]. */
@@ -409,9 +409,9 @@ public class AndroidRemotePaint(internal val frameworkPaint: android.graphics.Pa
         get() =
             frameworkPaint.let {
                 if (it.isFilterBitmap) {
-                    FilterQuality.None
-                } else {
                     FilterQuality.Low
+                } else {
+                    FilterQuality.None
                 }
             }
         set(value) {
@@ -586,7 +586,7 @@ public class ComposeRemotePaint(internal val composePaint: Paint) : RemotePaint 
 
 /** Converts a [androidx.compose.ui.graphics.Paint] to a [RemotePaint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Paint.asRemotePaint(): RemotePaint = ComposeRemotePaint(this)
+public fun Paint.asRemotePaint(): RemotePaint = StandardRemotePaint(ComposeRemotePaint(this))
 
 /** Converts an [android.graphics.Paint] to a [RemotePaint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -594,7 +594,7 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint =
     if (this is RemotePaintConvertible) {
         remotePaint
     } else {
-        AndroidRemotePaint(this)
+        StandardRemotePaint(AndroidRemotePaint(this))
     }
 
 private fun parseFontVariationSettings(settingsString: String?): FontVariation.Settings? {

@@ -18,11 +18,14 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintContext
+import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.state.AndroidRemotePaint
+import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
@@ -428,6 +431,30 @@ class PaintTrackerTest {
         //         assertThat(changes.fontVariationAxesSet).isTrue()
         //         assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("wght", "wdth"))
         //         assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(500f, 100f))
+    }
+
+    @Test
+    fun paintSnapshotTest() {
+        val paint = CompatAndroidRemotePaint().apply { remoteColor = Color.Red.rc }
+        recordingCanvas.drawRect(0f, 0f, 100f, 100f, paint)
+
+        // Modify the input paint immediately after capturing the draw operation
+        paint.setColor(android.graphics.Color.BLUE)
+
+        // Verify that modifying the input paint does not alter the emitted UsePaint operations
+        recordingCanvas.flush()
+        val buffer = creationState.document.buffer
+        val operations = ArrayList<Operation>()
+        buffer.buffer.index = 0
+        buffer.inflateFromBuffer(operations)
+
+        val paintData = operations.filterIsInstance<PaintData>().first()
+        val changes = TestPaintChanges()
+        paintData.mPaintData.applyPaintChange(paintContext, changes)
+
+        // If snapshotting failed, the mutation to Color.BLUE would have leaked into the recorded
+        // operation
+        assertThat(changes.mColor).isEqualTo(Color.Red.toArgb())
     }
 
     // Helper classes for verification
