@@ -14,26 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess
+package androidx.datastore.core.multiprocess
 
-import android.os.Parcelable
-import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.IpcUnit
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.core.twoWayIpc.InterProcessCompletable
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.IpcUnit
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import com.google.common.truth.Truth.assertThat
+import java.io.Serializable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.yield
-import kotlinx.parcelize.Parcelize
 import org.junit.Rule
 import org.junit.Test
 
 class InterProcessCompletableTest {
     @get:Rule val multiProcess = MultiProcessTestRule()
 
-    @Parcelize private data class Value(val value: String) : Parcelable
+    private data class Value(val value: String) : Serializable
 
-    @Parcelize
     private data class Complete(
         val hostLatch: InterProcessCompletable<Value>,
         val remoteLatch: InterProcessCompletable<Value>,

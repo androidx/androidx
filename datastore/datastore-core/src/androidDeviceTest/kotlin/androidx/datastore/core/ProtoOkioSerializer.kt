@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp
+package androidx.datastore.core
 
-import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException

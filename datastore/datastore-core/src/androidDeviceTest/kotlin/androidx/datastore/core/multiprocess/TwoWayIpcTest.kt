@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.multiprocess
+package androidx.datastore.core.multiprocess
 
-import android.os.Parcelable
-import androidx.datastore.testapp.twoWayIpc.CompositeServiceSubjectModel
-import androidx.datastore.testapp.twoWayIpc.IpcAction
-import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.core.twoWayIpc.CompositeServiceSubjectModel
+import androidx.datastore.core.twoWayIpc.IpcAction
+import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
 import com.google.common.truth.Truth.assertThat
-import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,9 +30,8 @@ import org.junit.runners.JUnit4
 class TwoWayIpcTest {
     @get:Rule val multiProcessRule = MultiProcessTestRule()
 
-    @Parcelize
     internal class MultiplyBy3Action(var input: Int) : IpcAction<MultiplyBy3Action.Output>() {
-        @Parcelize data class Output(val value: Int) : Parcelable
+        data class Output(val value: Int) : Serializable
 
         override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): Output {
             return Output(input * 3)
@@ -49,7 +47,6 @@ class TwoWayIpcTest {
                 .isEqualTo(MultiplyBy3Action.Output(9))
         }
 
-    @Parcelize
     internal class ThrowingAction : IpcAction<ThrowingAction>() {
         override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): ThrowingAction {
             error("some error i got")
@@ -65,11 +62,10 @@ class TwoWayIpcTest {
             assertThat(result.exceptionOrNull()).hasMessageThat().contains("some error i got")
         }
 
-    @Parcelize
     internal data class ValueInRemoteAction(val id: String, val value: String, val set: Boolean) :
         IpcAction<ValueInRemoteAction.Output>() {
 
-        @Parcelize data class Output(val value: String) : Parcelable
+        data class Output(val value: String) : Serializable
 
         override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): Output {
             if (set) {
@@ -106,10 +102,8 @@ class TwoWayIpcTest {
                 .isEqualTo("b")
         }
 
-    @Parcelize
     internal class SendFromRemoteProcess(val value: String) : IpcAction<SendFromRemoteProcess>() {
 
-        @Parcelize
         internal class ActionInMainProcess(val value: String) : IpcAction<ActionInMainProcess>() {
             override suspend fun invokeInRemoteProcess(
                 subject: TwoWayIpcSubject

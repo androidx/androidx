@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-// Protos for use in tests
-syntax = "proto2";
+package androidx.datastore.core.twoWayIpc
 
-package androidx.datastore.testing;
+import android.annotation.SuppressLint
+import java.io.Serializable
 
-option java_package = "androidx.datastore.testing";
-option java_outer_classname = "TestMessageProto";
-
-message FooProto {
-  optional string text = 1;
-  optional bool boolean = 2;
-  optional int32 integer = 3;
-  optional bytes bytes = 4;
+/**
+ * A [Serializable] action that can be executed in a remote process, inside a [TwoWayIpcSubject].
+ */
+internal abstract class IpcAction<T : Serializable> : Serializable {
+    abstract suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): T
 }
+
+/** Utility object for [IpcAction]s that do not return a value. */
+@SuppressLint("BanSerializableUsage") object IpcUnit : Serializable

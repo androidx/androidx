@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.testapp.twoWayIpc
+package androidx.datastore.core.twoWayIpc
 
 import android.content.ComponentName
 import android.content.Context
