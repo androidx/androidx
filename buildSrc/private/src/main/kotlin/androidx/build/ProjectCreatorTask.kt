@@ -61,6 +61,17 @@ abstract class ProjectCreatorTask : DefaultTask() {
         println()
         val userInput = services.get(UserInputHandler::class.java)
 
+        val projectTypeName =
+            userInput
+                .askUser { interaction: UserQuestions ->
+                    interaction.selectOption(
+                        "Please choose the type of project you would like to create",
+                        ProjectType.entries.map { it.description },
+                        ProjectType.ANDROID_LIBRARY.description,
+                    )
+                }
+                .get()
+
         var groupId = ""
         do {
             groupId =
@@ -83,16 +94,6 @@ abstract class ProjectCreatorTask : DefaultTask() {
                     .get()
         } while (!isArtifactIdValid(groupId, artifactId))
 
-        val projectTypeName =
-            userInput
-                .askUser { interaction: UserQuestions ->
-                    interaction.selectOption(
-                        "Please choose the type of project you would like to create",
-                        ProjectType.entries.map { it.description },
-                        ProjectType.ANDROID_LIBRARY.description,
-                    )
-                }
-                .get()
         val projectDescription =
             userInput
                 .askUser { interaction: UserQuestions ->
