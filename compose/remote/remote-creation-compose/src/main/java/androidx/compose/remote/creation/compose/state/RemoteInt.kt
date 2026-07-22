@@ -596,7 +596,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
      * value of this [RemoteInt] or `false` otherwise.
      */
-    public fun isLessThanOrEqual(other: RemoteInt): RemoteBoolean =
+    public fun isLessThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
             other,
@@ -624,7 +624,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
      * value of this [RemoteInt] or `false` otherwise.
      */
-    public fun isGreaterThanOrEqual(other: RemoteInt): RemoteBoolean =
+    public fun isGreaterThanOrEqualTo(other: RemoteInt): RemoteBoolean =
         comparisonOp(
             this,
             other,

@@ -217,11 +217,11 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun intLessThanOrEqualSelect_true() {
+    fun intLessThanOrEqualToSelect_true() {
         val v1 = RemoteInt(10)
         val v2 = RemoteInt(20)
-        val bool1 = v1.isLessThanOrEqual(v2)
-        val bool2 = v2.isLessThanOrEqual(v2)
+        val bool1 = v1.isLessThanOrEqualTo(v2)
+        val bool2 = v2.isLessThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
         val str1Id = str1.getIdForCreationState(creationState)
@@ -233,10 +233,10 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun intLessThanOrEqualSelect_false() {
+    fun intLessThanOrEqualToSelect_false() {
         val v1 = RemoteInt(10)
         val v2 = RemoteInt(20)
-        val bool = v2.isLessThanOrEqual(v1)
+        val bool = v2.isLessThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
         val strId = str.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -273,11 +273,11 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun intGreaterThanOrEqualSelect_true() {
+    fun intGreaterThanOrEqualToSelect_true() {
         val v1 = RemoteInt(20)
         val v2 = RemoteInt(10)
-        val bool1 = v1.isGreaterThanOrEqual(v2)
-        val bool2 = v2.isGreaterThanOrEqual(v2)
+        val bool1 = v1.isGreaterThanOrEqualTo(v2)
+        val bool2 = v2.isGreaterThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
         val str1Id = str1.getIdForCreationState(creationState)
@@ -289,10 +289,10 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun intGreaterThanOrEqualSelect_false() {
+    fun intGreaterThanOrEqualToSelect_false() {
         val v1 = RemoteInt(20)
         val v2 = RemoteInt(10)
-        val bool = v2.isGreaterThanOrEqual(v1)
+        val bool = v2.isGreaterThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
         val strId = str.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -387,11 +387,11 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun floatLessThanOrEqualSelect_true() {
+    fun floatLessThanOrEqualToSelect_true() {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
-        val bool1 = v1.isLessThanOrEqual(v2)
-        val bool2 = v2.isLessThanOrEqual(v2)
+        val bool1 = v1.isLessThanOrEqualTo(v2)
+        val bool2 = v2.isLessThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
         val str1Id = str1.getIdForCreationState(creationState)
@@ -403,10 +403,10 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun floatLessThanOrEqualSelect_false() {
+    fun floatLessThanOrEqualToSelect_false() {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
-        val bool = v2.isLessThanOrEqual(v1)
+        val bool = v2.isLessThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
         val strId = str.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -443,11 +443,11 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun floatGreaterThanOrEqualSelect_true() {
+    fun floatGreaterThanOrEqualToSelect_true() {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
-        val bool1 = v1.isGreaterThanOrEqual(v2)
-        val bool2 = v2.isGreaterThanOrEqual(v2)
+        val bool1 = v1.isGreaterThanOrEqualTo(v2)
+        val bool2 = v2.isGreaterThanOrEqualTo(v2)
         val str1 = bool1.select(RemoteString("true"), RemoteString("false"))
         val str2 = bool2.select(RemoteString("true"), RemoteString("false"))
         val str1Id = str1.getIdForCreationState(creationState)
@@ -459,10 +459,10 @@ class RemoteBooleanTest {
     }
 
     @Test
-    fun floatGreaterThanOrEqualSelect_false() {
+    fun floatGreaterThanOrEqualToSelect_false() {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
-        val bool = v2.isGreaterThanOrEqual(v1)
+        val bool = v2.isGreaterThanOrEqualTo(v1)
         val str = bool.select(RemoteString("true"), RemoteString("false"))
         val strId = str.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -474,7 +474,7 @@ class RemoteBooleanTest {
     fun colorIntSelect_true() {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
-        val bool = v1.isGreaterThanOrEqual(v2)
+        val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(Color.RED, Color.GREEN)
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -486,7 +486,7 @@ class RemoteBooleanTest {
     fun colorIntSelect_false() {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
-        val bool = v1.isGreaterThanOrEqual(v2)
+        val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(Color.RED, Color.GREEN)
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -498,7 +498,7 @@ class RemoteBooleanTest {
     fun colorSelect_true() {
         val v1 = RemoteFloat(20f)
         val v2 = RemoteFloat(10f)
-        val bool = v1.isGreaterThanOrEqual(v2)
+        val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(RemoteColor(Color.RED), RemoteColor(Color.GREEN))
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -510,7 +510,7 @@ class RemoteBooleanTest {
     fun colorSelect_false() {
         val v1 = RemoteFloat(10f)
         val v2 = RemoteFloat(20f)
-        val bool = v1.isGreaterThanOrEqual(v2)
+        val bool = v1.isGreaterThanOrEqualTo(v2)
         val color = bool.select(RemoteColor(Color.RED), RemoteColor(Color.GREEN))
         val colorId = color.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()

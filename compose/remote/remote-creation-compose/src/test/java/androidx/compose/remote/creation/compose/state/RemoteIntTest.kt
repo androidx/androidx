@@ -158,10 +158,10 @@ class RemoteIntTest {
     }
 
     @Test
-    fun isLessThanOrEqual() {
-        val b0 = RemoteInt(10).isLessThanOrEqual(RemoteInt(20))
-        val b1 = RemoteInt(10).isLessThanOrEqual(RemoteInt(10))
-        val b2 = RemoteInt(20).isLessThanOrEqual(RemoteInt(10))
+    fun isLessThanOrEqualTo() {
+        val b0 = RemoteInt(10).isLessThanOrEqualTo(RemoteInt(20))
+        val b1 = RemoteInt(10).isLessThanOrEqualTo(RemoteInt(10))
+        val b2 = RemoteInt(20).isLessThanOrEqualTo(RemoteInt(10))
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))
@@ -194,10 +194,10 @@ class RemoteIntTest {
     }
 
     @Test
-    fun isGreaterThanOrEqual() {
-        val b0 = RemoteInt(20).isGreaterThanOrEqual(RemoteInt(10))
-        val b1 = RemoteInt(10).isGreaterThanOrEqual(RemoteInt(10))
-        val b2 = RemoteInt(10).isGreaterThanOrEqual(RemoteInt(20))
+    fun isGreaterThanOrEqualTo() {
+        val b0 = RemoteInt(20).isGreaterThanOrEqualTo(RemoteInt(10))
+        val b1 = RemoteInt(10).isGreaterThanOrEqualTo(RemoteInt(10))
+        val b2 = RemoteInt(10).isGreaterThanOrEqualTo(RemoteInt(20))
         val result0 = b0.select(RemoteInt(1), RemoteInt(0))
         val result1 = b1.select(RemoteInt(1), RemoteInt(0))
         val result2 = b2.select(RemoteInt(1), RemoteInt(0))

@@ -673,7 +673,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is less than or equal to the
      * value of this [RemoteFloat] or `false` otherwise.
      */
-    public fun isLessThanOrEqual(other: RemoteFloat): RemoteBoolean =
+    public fun isLessThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
             other,
@@ -719,7 +719,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
      * Returns a [RemoteBoolean] that evaluates to `true` if [other] is greater than or equal to the
      * value of this [RemoteFloat] or `false` otherwise.
      */
-    public fun isGreaterThanOrEqual(other: RemoteFloat): RemoteBoolean =
+    public fun isGreaterThanOrEqualTo(other: RemoteFloat): RemoteBoolean =
         comparisonOp(
             this,
             other,
