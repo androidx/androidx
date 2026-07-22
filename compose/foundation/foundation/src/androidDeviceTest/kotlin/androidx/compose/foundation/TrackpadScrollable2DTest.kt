@@ -207,4 +207,34 @@ class TrackpadScrollable2DTest : Scrollable2DInputTest() {
             }
             Offset(previousScrollValue, previousScrollValue)
         }
+
+    @Test
+    fun scrollable_exitAndReenterTrackpadInput_doesNotHang() {
+        var total = Offset.Zero
+        val scrollable2DState = Scrollable2DState { delta ->
+            total += delta
+            delta
+        }
+        setScrollable2DContent { Modifier.scrollable2D(scrollable2DState) }
+
+        // Start pan in one block. Use an offset larger than touch slop because on API < 34,
+        // trackpad pan events are converted to touch events.
+        rule.onNodeWithTag(scrollable2DBoxTag).performTrackpadInput {
+            panStart()
+            panMoveBy(Offset(100f, 100f))
+        }
+
+        // We exited the block, Compose should be able to go idle even though the gesture is not
+        // ended.
+        // If it hangs, it will hang before entering this second block.
+        rule.onNodeWithTag(scrollable2DBoxTag).performTrackpadInput {
+            panMoveBy(Offset(100f, 100f))
+            panEnd()
+        }
+
+        rule.runOnIdle {
+            assertThat(total.x).isGreaterThan(0f)
+            assertThat(total.y).isGreaterThan(0f)
+        }
+    }
 }

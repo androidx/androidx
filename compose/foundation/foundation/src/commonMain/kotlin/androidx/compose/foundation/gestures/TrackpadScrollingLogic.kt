@@ -178,7 +178,7 @@ internal class TrackpadScrollingLogicImpl<T>(
         userScroll {
             dispatchTrackpadScroll(targetScrollDelta.value.toScrollValue())
             while (!targetScrollDelta.isEnd) {
-                targetScrollDelta = channel.busyReceive()
+                targetScrollDelta = channel.receive()
                 trackVelocity(targetScrollDelta)
                 channel.sumOrNull()?.let {
                     trackVelocity(it)
