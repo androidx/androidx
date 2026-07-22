@@ -64,6 +64,10 @@ interface Font {
     val loadingStrategy: FontLoadingStrategy
         get() = FontLoadingStrategy.Blocking
 
+    /** Variation settings to apply to this font. */
+    val variationSettings: FontVariation.Settings
+        get() = FontVariation.Empty
+
     companion object {
         /**
          * This is the global timeout for fetching an [FontLoadingStrategy.Async] font.
@@ -154,7 +158,7 @@ internal constructor(
     val resId: Int,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    val variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
+    override val variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
     loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Async,
 ) : Font {
 
