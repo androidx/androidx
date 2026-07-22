@@ -1354,10 +1354,12 @@ final class androidx.compose.material3/ScrollFieldState { // androidx.compose.ma
         final fun <get-isScrollInProgress>(): kotlin/Boolean // androidx.compose.material3/ScrollFieldState.isScrollInProgress.<get-isScrollInProgress>|<get-isScrollInProgress>(){}[0]
     final val itemCount // androidx.compose.material3/ScrollFieldState.itemCount|{}itemCount[0]
         final fun <get-itemCount>(): kotlin/Int // androidx.compose.material3/ScrollFieldState.itemCount.<get-itemCount>|<get-itemCount>(){}[0]
-    final val selectedOption // androidx.compose.material3/ScrollFieldState.selectedOption|{}selectedOption[0]
-        final fun <get-selectedOption>(): kotlin/Int // androidx.compose.material3/ScrollFieldState.selectedOption.<get-selectedOption>|<get-selectedOption>(){}[0]
     final val targetOption // androidx.compose.material3/ScrollFieldState.targetOption|{}targetOption[0]
         final fun <get-targetOption>(): kotlin/Int // androidx.compose.material3/ScrollFieldState.targetOption.<get-targetOption>|<get-targetOption>(){}[0]
+
+    final var selectedOption // androidx.compose.material3/ScrollFieldState.selectedOption|{}selectedOption[0]
+        final fun <get-selectedOption>(): kotlin/Int // androidx.compose.material3/ScrollFieldState.selectedOption.<get-selectedOption>|<get-selectedOption>(){}[0]
+        final fun <set-selectedOption>(kotlin/Int) // androidx.compose.material3/ScrollFieldState.selectedOption.<set-selectedOption>|<set-selectedOption>(kotlin.Int){}[0]
 
     final suspend fun animateScrollToOption(kotlin/Int) // androidx.compose.material3/ScrollFieldState.animateScrollToOption|animateScrollToOption(kotlin.Int){}[0]
     final suspend fun scrollToOption(kotlin/Int) // androidx.compose.material3/ScrollFieldState.scrollToOption|scrollToOption(kotlin.Int){}[0]
