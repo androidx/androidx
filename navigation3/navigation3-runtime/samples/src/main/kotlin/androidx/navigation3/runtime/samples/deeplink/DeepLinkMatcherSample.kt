@@ -32,8 +32,6 @@ import kotlinx.serialization.serializer
 
 @Serializable object ImageKey : NavKey
 
-@Serializable object HomeKey : NavKey
-
 @Serializable data class Article(val id: Int) : NavKey
 
 @Serializable data class ArticleSection(val category: String) : NavKey

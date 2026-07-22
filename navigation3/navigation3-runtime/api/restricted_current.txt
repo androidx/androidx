@@ -212,6 +212,18 @@ package androidx.navigation3.runtime.deeplink {
     property public static androidx.navigation3.runtime.deeplink.RequestExtrasKey<java.lang.String> androidx.navigation3.runtime.deeplink.DeepLinkRequest.Companion.ActionExtrasKey;
   }
 
+  public abstract class DeepLinkSerializer<T> implements kotlinx.serialization.KSerializer<T> {
+    ctor public DeepLinkSerializer();
+    method public abstract T deserialize(String value);
+    method public final T deserialize(kotlinx.serialization.encoding.Decoder decoder);
+    method @InaccessibleFromKotlin public final kotlinx.serialization.descriptors.SerialDescriptor getDescriptor();
+    method @InaccessibleFromKotlin public abstract String getSerialName();
+    method public final void serialize(kotlinx.serialization.encoding.Encoder encoder, T value);
+    method public abstract String serialize(T value);
+    property public final kotlinx.serialization.descriptors.SerialDescriptor descriptor;
+    property public abstract String serialName;
+  }
+
   public final class DeepLinkUriKt {
     method public static android.net.Uri DeepLinkUri(String uriString);
   }
