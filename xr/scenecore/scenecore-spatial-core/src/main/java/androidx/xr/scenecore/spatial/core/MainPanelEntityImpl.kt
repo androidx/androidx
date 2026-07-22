@@ -18,7 +18,6 @@ package androidx.xr.scenecore.spatial.core
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Rect
-import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PanelEntity
@@ -94,19 +93,9 @@ internal class MainPanelEntityImpl(
             } catch (e: RejectedExecutionException) {
                 // Catch this exception to prevent the loop from terminating early,
                 // ensuring subsequent listeners are still notified.
-                Log.e(
-                    TAG,
-                    "Internal Error: Failed to notify OnSetSizeCompleteListener. " +
-                        "The internal executor rejected the task. Listener: $listener",
-                    e,
-                )
             } catch (e: RuntimeException) {
-                Log.e(
-                    TAG,
-                    "Internal Error: Unexpected exception thrown by an internal OnSetSizeCompleteListener. " +
-                        "Listener: $listener",
-                    e,
-                )
+                // Catch this exception to prevent the loop from terminating early,
+                // ensuring subsequent listeners are still notified.
             }
         }
     }
@@ -220,9 +209,5 @@ internal class MainPanelEntityImpl(
             isSetSizePending.set(false)
             notifyOnSetSizeComplete()
         }
-    }
-
-    private companion object {
-        const val TAG = "MainPanelEntityImpl"
     }
 }

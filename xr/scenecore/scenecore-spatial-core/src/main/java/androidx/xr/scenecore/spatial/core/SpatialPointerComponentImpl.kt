@@ -15,7 +15,6 @@
  */
 package androidx.xr.scenecore.spatial.core
 
-import android.util.Log
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.SpatialPointerComponent
 import androidx.xr.scenecore.runtime.SpatialPointerIcon
@@ -29,11 +28,9 @@ internal class SpatialPointerComponentImpl(private val xrExtensions: XrExtension
 
     override fun onAttach(entity: Entity): Boolean {
         if (xrEntity != null) {
-            Log.e(TAG, "Already attached to entity $xrEntity")
             return false
         }
         if (entity !is AndroidXrEntity) {
-            Log.e(TAG, "Entity is not an AndroidXrEntity.")
             return false
         }
         xrEntity = entity
@@ -57,8 +54,4 @@ internal class SpatialPointerComponentImpl(private val xrExtensions: XrExtension
                     .apply()
             }
         }
-
-    companion object {
-        private const val TAG = "Runtime"
-    }
 }

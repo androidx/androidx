@@ -16,8 +16,6 @@
 
 package androidx.xr.scenecore.spatial.rendering.impress;
 
-import android.util.Log;
-
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
@@ -45,13 +43,6 @@ public abstract class BindingsResource {
         Runnable cleanupCallback =
                 () -> {
                     if (sharedDestroyedState.compareAndSet(false, true)) {
-                        // Not using mTAG to avoid holding a reference of the class in the callback.
-                        Log.d(
-                                "BindingsResource",
-                                "Bindings resource with handle "
-                                        + nativeHandle
-                                        + " is destroyed via GC");
-
                         destroyer.accept(nativeHandle);
                     }
                 };
@@ -62,9 +53,6 @@ public abstract class BindingsResource {
     public final void destroy() {
         throwIfDestroyed();
         if (mIsDestroyed.compareAndSet(false, true)) {
-            Log.d(
-                    mTAG,
-                    "Bindings resource with handle " + mNativeHandle + " is explicitly destroyed");
             releaseBindingsResource(mNativeHandle);
         }
     }

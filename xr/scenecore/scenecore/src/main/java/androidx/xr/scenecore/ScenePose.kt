@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore
 
-import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
@@ -133,16 +132,12 @@ public interface ScenePose {
 /** The BaseScenePose implements the [ScenePose] interface. */
 public abstract class BaseScenePose<out RtScenePoseType : RtScenePose>
 protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
-    private companion object {
-        private const val TAG = "BaseScenePose"
-    }
 
     override val poseInActivitySpace: Pose
         get() = rtScenePose.activitySpacePose
 
     override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {
         if (destination !is BaseScenePose<RtScenePose>) {
-            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
             return Pose.Identity
         }
         return rtScenePose.transformPoseTo(pose, destination.rtScenePose)
@@ -150,7 +145,6 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
 
     override fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3 {
         if (destination !is BaseScenePose<RtScenePose>) {
-            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
             return Vector3.Zero
         }
         return rtScenePose.transformPositionTo(position, destination.rtScenePose)
@@ -158,7 +152,6 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
 
     override fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3 {
         if (destination !is BaseScenePose<RtScenePose>) {
-            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
             return Vector3.Zero
         }
         return rtScenePose.transformVectorTo(vector, destination.rtScenePose)
@@ -166,7 +159,6 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
 
     override fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3 {
         if (destination !is BaseScenePose<RtScenePose>) {
-            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
             return Vector3.Zero
         }
         return rtScenePose.transformDirectionTo(direction, destination.rtScenePose)
