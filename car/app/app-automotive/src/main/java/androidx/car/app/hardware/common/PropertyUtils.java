@@ -412,7 +412,7 @@ public final class PropertyUtils {
     }
 
     /**
-     * Maps from status in {@link CarPropertyValue.PropertyStatus} to status
+     * Maps from status in {@code CarPropertyValue.PropertyStatus} to status
      * in {@link CarValue.StatusCode}.
      */
     static @CarValue.StatusCode int mapToStatusCodeInCarValue(int carPropertyStatus) {

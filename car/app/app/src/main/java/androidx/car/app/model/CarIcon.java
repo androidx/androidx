@@ -212,7 +212,7 @@ public final class CarIcon {
     /**
      * An icon that represents a playable media item.
      * Note: This is specifically used for category MEDIA apps. Used in conjunction with
-     * {@link Action.MEDIA_PLAYBACK}
+     * {@link Action#MEDIA_PLAYBACK}
      */
     @RequiresCarApi(8)
     public static final @NonNull CarIcon MEDIA_PLAYBACK =

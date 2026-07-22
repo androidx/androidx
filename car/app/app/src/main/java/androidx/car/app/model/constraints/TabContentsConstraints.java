@@ -39,7 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Encapsulates the constraints to apply when creating {@link TabContents}.
+ * Encapsulates the constraints to apply when creating {@link androidx.car.app.model.TabContents}.
  *
  */
 @RequiresCarApi(6)
