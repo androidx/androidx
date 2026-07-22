@@ -337,6 +337,13 @@ package androidx.a2ui.model.processor {
 
 package androidx.a2ui.model.protocol {
 
+  public final class A2uiClientCapabilities {
+    ctor public A2uiClientCapabilities(java.util.List<java.lang.String> supportedCatalogIds);
+    method @InaccessibleFromKotlin public java.util.List<java.lang.String> getSupportedCatalogIds();
+    method public java.util.Map<java.lang.String,java.util.Map<java.lang.String,java.lang.Object?>> toPayloadMap();
+    property public java.util.List<java.lang.String> supportedCatalogIds;
+  }
+
   public final class A2uiClientErrorMessage implements androidx.a2ui.model.protocol.A2uiClientToServerMessage {
     ctor @BytecodeOnly public A2uiClientErrorMessage(String!, String!, String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public A2uiClientErrorMessage(String code, String surfaceId, String message, optional java.util.Map<java.lang.String,? extends java.lang.Object?> context);
