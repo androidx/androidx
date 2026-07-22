@@ -17,9 +17,19 @@
 package androidx.compose.remote.creation.dsl
 
 import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_X
+import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Y
+import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Z
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_CALENDAR_MONTH
 import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
+import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_X
+import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_Y
+import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_Z
+import androidx.compose.remote.core.RemoteContext.FLOAT_LIGHT
+import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_X
+import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Y
+import androidx.compose.remote.core.RemoteContext.FLOAT_MAGNETIC_Z
 import androidx.compose.remote.core.RemoteContext.FLOAT_OFFSET_TO_UTC
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawTextOnCircle
@@ -793,6 +803,30 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun month(): RcFloat = RcFloat(writer, FLOAT_CALENDAR_MONTH)
 
+    // sensors
+
+    override fun accelerometerX(): RcFloat = RcFloat(writer, FLOAT_ACCELERATION_X)
+
+    override fun accelerometerY(): RcFloat = RcFloat(writer, FLOAT_ACCELERATION_Y)
+
+    override fun accelerometerZ(): RcFloat = RcFloat(writer, FLOAT_ACCELERATION_Z)
+
+    override fun gyroscopeX(): RcFloat = RcFloat(writer, FLOAT_GYRO_ROT_X)
+
+    override fun gyroscopeY(): RcFloat = RcFloat(writer, FLOAT_GYRO_ROT_Y)
+
+    override fun gyroscopeZ(): RcFloat = RcFloat(writer, FLOAT_GYRO_ROT_Z)
+
+    override fun magnetometerX(): RcFloat = RcFloat(writer, FLOAT_MAGNETIC_X)
+
+    override fun magnetometerY(): RcFloat = RcFloat(writer, FLOAT_MAGNETIC_Y)
+
+    override fun magnetometerZ(): RcFloat = RcFloat(writer, FLOAT_MAGNETIC_Z)
+
+    override fun ambientLightLevel(): RcFloat = RcFloat(writer, FLOAT_LIGHT)
+
+    // components
+
     override fun componentWidth(): RcFloat = RcFloat(writer, writer.addComponentWidthValue())
 
     override fun componentHeight(): RcFloat = RcFloat(writer, writer.addComponentHeightValue())
@@ -1545,6 +1579,15 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 }
             }
         )
+    }
+
+    override fun runAction(block: RcActionScope.() -> Unit) {
+        writer.startRunActions()
+        val scope = RcActionScopeImpl()
+        scope.block()
+        val actions = scope.build(writer)
+        actions.map { writer.addAction(it) }
+        writer.endRunActions()
     }
 
     override fun skip(type: Short, value: Int, block: RcScope.() -> Unit) {

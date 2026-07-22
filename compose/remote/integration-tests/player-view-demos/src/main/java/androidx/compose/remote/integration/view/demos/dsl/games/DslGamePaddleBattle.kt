@@ -146,13 +146,16 @@ fun RcScope.ball(
     val py2 = (paddleY + paddleHeight).flush()
     val px1 = (paddleX - paddleHalfWidth).flush()
     val px2 = (paddleX + paddleHalfWidth).flush()
-
-    impulse(20000.rf, 0.rf) {
+    val accX: RcFloat = accelerometerX() * -100f
+    val accY: RcFloat = accelerometerY() * 100f
+    impulse(200000.rf, 0.rf) {
         val ps = createParticles(variables, arrayOf(w / 2f, h / 2f, 500f.rf, 500f.rf), 1)
         val (x, y, dx, dy) = RcFloats(variables)
         returnX = x
         returnY = y
-
+        beginGlobal()
+        val count = 0.rf.flush()
+        endGlobal()
         impulseProcess() {
             // hit the walls
             particlesComparison(
@@ -185,6 +188,9 @@ fun RcScope.ball(
                     color(0xFFFFFF00.toInt())
                     style(RcPaintStyle.Fill)
                 }
+                runAction { setValue(count, count + 1f) }
+                debug("count ", count)
+
                 drawCircle(x, y, rad)
                 drawRect(px1, py1, px2, py2 + 50f.rf)
                 //                playSound(missSound)
@@ -192,7 +198,11 @@ fun RcScope.ball(
 
             }
 
-            particlesLoop(ps, null, arrayOf(x + dx * dt, y + dy * dt, dx, dy)) {
+            particlesLoop(
+                ps,
+                null,
+                arrayOf(x + dx * dt, y + dy * dt, dx * 0.999f + accX * dt, dy * 0.999f + accY * dt),
+            ) {
                 paint {
                     color(0xFF007AFF.toInt())
                     style(RcPaintStyle.Fill)
@@ -205,10 +215,7 @@ fun RcScope.ball(
                 }
                 drawCircle(x - 8f, y - 8f, 8f.rf)
 
-                val d1 = sign((x - paddleX) * (paddleX + paddleHalfWidth - x))
-                val d2 = sign(y - paddleY)
-                drawTextAnchored(createTextFromFloat(d1, 3, 2, 0), 100.rf, 200.rf, 0.rf, 0.rf, 0)
-                drawTextAnchored(createTextFromFloat(d2, 3, 2, 0), 100.rf, 200.rf, 0.rf, 3.rf, 0)
+                drawTextAnchored(createTextFromFloat(count, 3, 0, 0), 100.rf, 200.rf, 0.rf, 0.rf, 0)
             }
         }
     }

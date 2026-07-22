@@ -439,6 +439,37 @@ public interface RcScope {
     /** Moth of Year quantized to MONTHS 1-12. 1 = January */
     public fun month(): RcFloat
 
+    // sensors
+    /** Returns the current X accelerometer sensor value */
+    public fun accelerometerX(): RcFloat
+
+    /** Returns the current Y accelerometer sensor value */
+    public fun accelerometerY(): RcFloat
+
+    /** Returns the current Z accelerometer sensor value */
+    public fun accelerometerZ(): RcFloat
+
+    /** Returns the current X gyroscope sensor value */
+    public fun gyroscopeX(): RcFloat
+
+    /** Returns the current Y gyroscope sensor value */
+    public fun gyroscopeY(): RcFloat
+
+    /** Returns the current Z gyroscope sensor value */
+    public fun gyroscopeZ(): RcFloat
+
+    /** Returns the current X magnetometer sensor value */
+    public fun magnetometerX(): RcFloat
+
+    /** Returns the current Y magnetometer sensor value */
+    public fun magnetometerY(): RcFloat
+
+    /** Returns the current Z magnetometer sensor value */
+    public fun magnetometerZ(): RcFloat
+
+    /** Returns the current ambient light level */
+    public fun ambientLightLevel(): RcFloat
+
     /** Returns the component's width as a remote float. */
     public fun componentWidth(): RcFloat
 
@@ -1058,6 +1089,8 @@ public interface RcScope {
     /** Add an impulse process container contents execute for the duration of the impulse */
     public fun impulseProcess(block: RcImpulseScope.() -> Unit)
 
+    public fun runAction(block: RcActionScope.() -> Unit)
+
     /** Conditionally skip a segment */
     public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
 
@@ -1376,6 +1409,7 @@ public interface RcScope {
     }
 }
 
+/** Impulse container scope. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
 public interface RcImpulseScope : RcScope {

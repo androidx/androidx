@@ -216,6 +216,7 @@ open public class RcFloat {
         return this
     }
 
+    /** support springs for animation */
     public fun spring(
         stiffness: Float,
         damping: Float,

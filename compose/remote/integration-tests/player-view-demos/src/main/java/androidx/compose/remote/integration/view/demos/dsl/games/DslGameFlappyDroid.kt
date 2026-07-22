@@ -39,12 +39,18 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 @Suppress("RestrictedApiAndroidX")
 fun dslGameFlappyDroid(): ByteArray {
     return createRcBuffer(RcProfile(RcPlatformProfiles.ANDROIDX)) {
+        floatArrayOf()
+
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().onClick {}) {
                 val w = componentWidth()
                 val h = componentHeight()
                 val t = continuousSeconds()
 
+                //                Text(
+                //                    score.genTextId(3,0),
+                //                    fontSize = 120f.rsp
+                //                )
                 // Setup Particle System of One for Android
                 // Variables: [ y,  dy]
                 val px = 160f.rf
@@ -56,7 +62,7 @@ fun dslGameFlappyDroid(): ByteArray {
 
                 // Draw background sky & clouds
                 paint {
-                    color(0xFF35A7FF.toInt()) // Sky blue
+                    color(0xFF35A7FFL.toInt()) // Sky blue
                     style(RcPaintStyle.Fill)
                 }
                 drawRect(0f.rf, 0f.rf, w, h)
@@ -75,6 +81,7 @@ fun dslGameFlappyDroid(): ByteArray {
 
                 // 1. Detect if currently touching using the time-delta trick
                 val isTouching = sign(max(0f.rf, touchTime() - animationTime() + 0.15f))
+                val score = 0.rf.flush()
 
                 impulse(20000.rf, 0.rf) {
                     // =========== Create Paths ==========
@@ -127,6 +134,28 @@ fun dslGameFlappyDroid(): ByteArray {
                     val pdy = RcFloat(variables[1])
                     val dt = deltaTime()
                     impulseProcess() {
+                        particlesComparison(
+                            id = ps,
+                            flags = 0,
+                            min = 0.rf,
+                            max = 1.rf,
+                            condition = (pipeX - px) * (px - (pipeX + pipeWidth)),
+                            then = arrayOf(py, pdy),
+                        ) {
+                            conditionalOperations(RcConditionOp.Gt, gapHalf, abs(gapY - py)) {
+                                runAction { setValue(score, score + (1 / 74f)) }
+                                paint {
+                                    color(0x00000000L.toInt()) // Sky blue
+                                }
+                            }
+                            conditionalOperations(RcConditionOp.Gt, abs(gapY - py), gapHalf) {
+                                runAction { setValue(score, 0f) }
+                                paint {
+                                    color(0xFF990000L.toInt()) // Sky blue
+                                }
+                            }
+                            drawCircle(px, py, 60.rf)
+                        }
                         particlesLoop(
                             ps,
                             null,
@@ -135,6 +164,14 @@ fun dslGameFlappyDroid(): ByteArray {
                                 (pdy + dt * 900f) * (1f - isTouching) - isTouching * 200f,
                             ),
                         ) {
+                            paint {
+                                color(0xFF000000.toInt()) // Sky blue
+                                style(RcPaintStyle.Fill)
+                                textSize(120f)
+                            }
+
+                            drawTextAnchored(score.genTextId(3, 2), w, 0.rf, 2.rf, 2.rf, 0)
+
                             this@Canvas.drawAndroid(
                                 px,
                                 py,
@@ -171,6 +208,7 @@ private fun RcCanvasScope.drawAndroid(
     val t = continuousSeconds()
     this.save {
         translate(px, py)
+        scale(2f, 2f)
 
         // Tilt forward slightly when diving, upward when thrusting
         val tiltAngle = ifElse(isTouching, (-15f).rf, 15f.rf)
