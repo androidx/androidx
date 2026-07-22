@@ -184,7 +184,6 @@ internal class ParagraphLayoutCache(
 
         paragraph =
             layoutText(finalConstraints, layoutDirection).also {
-                isParagraphStale = false
                 prevConstraints = finalConstraints
                 val localSize =
                     finalConstraints.constrain(
@@ -218,15 +217,8 @@ internal class ParagraphLayoutCache(
     /** The natural height of text at [width] in [layoutDirection] */
     fun intrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         val localWidth = cachedIntrinsicHeightInputWidth
-        val localHeight = cachedIntrinsicHeight
-        if (
-            width == localWidth &&
-                localWidth != -1 &&
-                layoutDirection == intrinsicsLayoutDirection &&
-                paragraphIntrinsics?.hasStaleResolvedFonts != true
-        ) {
-            return localHeight
-        }
+        val localHeght = cachedIntrinsicHeight
+        if (width == localWidth && localWidth != -1) return localHeght
         val constraints = Constraints(0, width, 0, Constraints.Infinity)
         val finalConstraints =
             if (minLines > 1) {
@@ -266,11 +258,8 @@ internal class ParagraphLayoutCache(
         markDirty()
     }
 
-    /** Forces text layout recalculation on next measure pass after font resolution. */
-    private var isParagraphStale: Boolean = false
-
     /**
-     * Minimum information required to compute [ParagraphIntrinsics].
+     * Minimum information required to compute [MultiParagraphIntrinsics].
      *
      * After calling paragraphIntrinsics is cached.
      */
@@ -282,13 +271,7 @@ internal class ParagraphLayoutCache(
                     layoutDirection != intrinsicsLayoutDirection ||
                     localIntrinsics.hasStaleResolvedFonts
             ) {
-                if (localIntrinsics != null) {
-                    isParagraphStale = true
-                }
                 intrinsicsLayoutDirection = layoutDirection
-                cachedIntrinsicHeightInputWidth = -1
-                cachedIntrinsicHeight = -1
-                mMinLinesConstrainer = null
                 ParagraphIntrinsics(
                     text = text,
                     style = resolveDefaults(style, layoutDirection),
@@ -341,8 +324,6 @@ internal class ParagraphLayoutCache(
         val localParagraphIntrinsics = paragraphIntrinsics ?: return true
         // no layout yet
 
-        if (isParagraphStale) return true
-
         // async typeface changes
         if (localParagraphIntrinsics.hasStaleResolvedFonts) return true
 
@@ -371,7 +352,6 @@ internal class ParagraphLayoutCache(
         intrinsicsLayoutDirection = null
         cachedIntrinsicHeightInputWidth = -1
         cachedIntrinsicHeight = -1
-        isParagraphStale = false
         prevConstraints = Constraints.fixed(0, 0)
         layoutSize = IntSize(0, 0)
         didOverflow = false
