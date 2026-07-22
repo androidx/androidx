@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(
-    androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi::class,
-    androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class,
-)
+@file:OptIn(ExperimentalRemotePlayerApi::class, ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.player.compose.embedded
 
@@ -25,6 +22,7 @@ import android.content.Context
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -36,6 +34,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +44,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.IdlingResource
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -61,6 +61,7 @@ import java.io.ByteArrayInputStream
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -413,12 +414,14 @@ class RcPlayerRecompositionEventsTest {
             document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
         }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        var emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        // Essential to run on Main thread to align with Compose state changes and avoid deadlocks
+        // in Robolectric
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
         val collectJob =
-            testScope.launch {
+            collectorScope.launch {
                 flow.collect { bytes ->
                     val doc =
                         CoreDocument(RemoteClock.SYSTEM).apply {
@@ -428,19 +431,114 @@ class RcPlayerRecompositionEventsTest {
                         }
                     withContext(Dispatchers.Main) {
                         document = doc
-                        idlingResource.decrement()
+                        emissionCount.incrementAndGet()
                     }
                 }
             }
 
+        // Wait for 1st emission
+        rule.waitUntil(10000) {
+            ShadowLooper.idleMainLooper()
+            emissionCount.get() >= 1
+        }
+
         rule.onNodeWithText("True Branch", useUnmergedTree = true).assertExists()
 
-        idlingResource.increment()
-        rule.runOnUiThread { displayState.value = false }
+        rule.runOnUiThread {
+            displayState.value = false
+            Snapshot.sendApplyNotifications()
+        }
+
+        // Wait for 2nd emission
+        rule.waitUntil(10000) {
+            ShadowLooper.idleMainLooper()
+            emissionCount.get() >= 2
+        }
 
         rule.onNodeWithText("False Branch", useUnmergedTree = true).assertExists()
 
-        collectJob.cancel()
+        collectorJob.cancel()
+    }
+
+    @Test
+    fun testBooleanDisplayBranchChange_StressTest(): Unit = runBlocking {
+        val iterations = 50 // 100 state changes
+        val displayState = mutableStateOf(true)
+
+        val flow =
+            captureRemoteDocument(
+                context = context,
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                writerEvents = WriterEvents(),
+                coroutineContext = Dispatchers.Main,
+                content = {
+                    if (displayState.value) {
+                        RemoteText("True Branch")
+                    } else {
+                        RemoteText("False Branch")
+                    }
+                },
+            )
+
+        var document by mutableStateOf<CoreDocument?>(null)
+
+        rule.setContent {
+            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
+        }
+
+        var emissionCount = AtomicInteger(0)
+
+        val collectorJob = Job()
+        // Essential to run on Main thread to align with Compose state changes and avoid deadlocks
+        // in Robolectric
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
+
+        val collectJob =
+            collectorScope.launch {
+                flow.collect { bytes ->
+                    val doc =
+                        CoreDocument(RemoteClock.SYSTEM).apply {
+                            ByteArrayInputStream(bytes).use {
+                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                            }
+                        }
+                    withContext(Dispatchers.Main) {
+                        document = doc
+                        emissionCount.incrementAndGet()
+                    }
+                }
+            }
+
+        // Total emissions expected = iterations * 2 (one for true, one for false per iteration)
+        // Let's change the loop to be per state change to keep it simple.
+        // We start at true.
+
+        repeat(iterations * 2) { i ->
+            val expectedState = i % 2 == 0 // 0 -> true, 1 -> false, 2 -> true...
+            val expectedText = if (expectedState) "True Branch" else "False Branch"
+            val targetEmission = i + 1 // Starts at 1
+
+            // Wait for emission
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                val current = emissionCount.get()
+                current >= targetEmission
+            }
+
+            // Assert text
+            rule.onNodeWithText(expectedText, useUnmergedTree = true).assertExists()
+
+            // Toggle state
+            if (i < (iterations * 2) - 1) {
+                val nextState = !expectedState
+                rule.runOnUiThread {
+                    displayState.value = nextState
+                    Snapshot.sendApplyNotifications()
+                }
+            }
+        }
+
+        collectorJob.cancel()
     }
 
     @Test
