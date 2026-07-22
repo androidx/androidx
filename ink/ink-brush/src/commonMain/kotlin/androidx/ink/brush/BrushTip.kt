@@ -376,7 +376,12 @@ private constructor(
             " particleGapDistanceScale=$particleGapDistanceScale," +
             " particleGapDurationMillis=$particleGapDurationMillis, behaviors=$behaviors)"
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * Returns the minimum required [Version] for this [BrushTip].
+     *
+     * By default, decoding a [BrushFamily] containing a [BrushTip] with a minimum required version
+     * higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(BrushTipNative.calculateMinimumRequiredVersion(nativePointer))

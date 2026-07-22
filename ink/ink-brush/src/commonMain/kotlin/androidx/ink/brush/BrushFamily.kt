@@ -462,7 +462,12 @@ private constructor(
 
         internal val nativePointer: Long by NativePointer(nativeAlloc, InputModelNative::free)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        /**
+         * Returns the minimum required [Version] for this [InputModel].
+         *
+         * By default, decoding a [BrushFamily] containing an [InputModel] with a minimum required
+         * version higher than [Version.MAX_SUPPORTED] will fail.
+         */
         @ExperimentalInkCustomBrushApi
         public fun calculateMinimumRequiredVersion(): Version =
             Version.fromInt(InputModelNative.calculateMinimumRequiredVersion(nativePointer))

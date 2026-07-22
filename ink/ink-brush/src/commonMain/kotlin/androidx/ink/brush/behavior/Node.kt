@@ -39,7 +39,12 @@ internal constructor(
     @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(nativeAlloc, NodeNative::free)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * Returns the minimum required [Version] for this [Node].
+     *
+     * By default, decoding a [androidx.ink.brush.BrushFamily] containing a [Node] with a minimum
+     * required version higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(NodeNative.calculateMinimumRequiredVersion(nativePointer))
