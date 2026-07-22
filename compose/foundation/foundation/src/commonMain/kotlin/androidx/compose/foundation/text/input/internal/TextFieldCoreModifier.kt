@@ -422,6 +422,9 @@ internal class TextFieldCoreModifierNode(
         // update the viewport size
         scrollState.viewportSize = containerSize
 
+        // update the content size
+        scrollState.contentSize = textLayoutSize
+
         // update the maximum scroll value
         val difference = textLayoutSize - containerSize
         scrollState.maxValue = difference
