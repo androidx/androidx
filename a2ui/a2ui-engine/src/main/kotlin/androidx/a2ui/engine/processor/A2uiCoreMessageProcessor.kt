@@ -26,6 +26,7 @@ import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
+import androidx.a2ui.model.protocol.A2uiClientCapabilities
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import java.util.concurrent.ConcurrentHashMap
@@ -82,6 +83,16 @@ public class A2uiCoreMessageProcessor(
 
     /** Tracks active actors for safe lifecycle handoffs. */
     private val activeActors = ConcurrentHashMap<String, A2uiCoreSurfaceActor>()
+
+    /**
+     * The client capabilities supported by this processor instance, derived from the registered
+     * catalogs. Host applications can query this directly during system initialization to send to
+     * the agent.
+     */
+    // TODO(b/536820249): Consider combining the catalogs before advertising the capabilities
+    // TODO(b/537714970): Add inline catalog support
+    public val clientCapabilities: A2uiClientCapabilities =
+        A2uiClientCapabilities(supportedCatalogIds = catalogs.map { it.id })
 
     /** A flow of user actions and error payloads to be transmitted to the server. */
     override val outboundEvents: Flow<A2uiClientToServerMessage> = _outboundEvents.asSharedFlow()
