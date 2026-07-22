@@ -20,6 +20,7 @@ import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.view.View
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -31,16 +32,13 @@ import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume
@@ -100,10 +98,10 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
                 // Destroy previous activity, launch new activity and check for view idle.
                 recreate()
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
             }
         }
     }
@@ -117,14 +115,14 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Act. Destroy previous activity, launch new activity and check for view idle.
                 recreate()
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Assert.
-                takePictureAndWaitForImageSavedIdle()
+                takePictureAndWaitForImageSavedIdleDirect()
             }
         }
     }
@@ -136,7 +134,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
                 // Go through pause/resume then check again for view to get frames then idle.
                 moveToState(CREATED)
 
@@ -144,7 +142,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
                 moveToState(RESUMED)
 
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
                 // Go through pause/resume then check again for view to get frames then idle,
                 // the second pass is used to protect against previous observed issues.
                 moveToState(CREATED)
@@ -153,7 +151,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
                 moveToState(RESUMED)
 
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
             }
         }
     }
@@ -167,7 +165,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 for (i in 0..1) {
                     // Act. Go through pause/resume then check.
@@ -175,7 +173,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                     moveToState(RESUMED)
 
                     // Assert.
-                    takePictureAndWaitForImageSavedIdle()
+                    takePictureAndWaitForImageSavedIdleDirect()
                 }
             }
         }
@@ -192,16 +190,16 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Switch camera.
-                switchCameraAndWaitForViewfinderIdle()
+                switchCameraAndWaitForViewfinderIdleDirect()
 
                 // Go through pause/resume then check again for view to get frames then idle.
                 moveToState(CREATED)
                 withActivity { resetViewIdlingLatch() }
                 moveToState(RESUMED)
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
             }
         }
     }
@@ -219,20 +217,20 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Act. Switch camera.
-                switchCameraAndWaitForViewfinderIdle()
+                switchCameraAndWaitForViewfinderIdleDirect()
 
                 // Assert.
-                takePictureAndWaitForImageSavedIdle()
+                takePictureAndWaitForImageSavedIdleDirect()
 
                 // Act. Go through pause/resume then check again.
                 moveToState(CREATED)
                 moveToState(RESUMED)
 
                 // Assert.
-                takePictureAndWaitForImageSavedIdle()
+                takePictureAndWaitForImageSavedIdleDirect()
             }
         }
     }
@@ -244,7 +242,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         with(ActivityScenario.launch<CameraXActivity>(launchIntent)) { // Launch activity.
             use { // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Rotate to the orientation left of natural and wait for the activity to be
                 // recreated.
@@ -252,12 +250,12 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
                 // Get idling from the re-created activity.
                 withActivity { resetViewIdlingLatch() }
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 moveToState(CREATED)
                 withActivity { resetViewIdlingLatch() }
                 moveToState(RESUMED)
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
             }
         }
     }
@@ -272,7 +270,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
                 // Arrange.
                 // Ensure ActivityScenario is cleaned up properly
                 // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
 
                 // Act.
                 // Rotate to the orientation left of natural and wait for the activity to be
@@ -281,13 +279,13 @@ class ExistingActivityLifecycleTest(private val implName: String) {
 
                 // Get idling from the re-created activity.
                 withActivity { resetViewIdlingLatch() }
-                waitForViewfinderIdle()
+                waitForViewfinderIdleDirect()
                 // Go through pause/resume then check again.
                 moveToState(CREATED)
                 moveToState(RESUMED)
 
                 // Assert.
-                takePictureAndWaitForImageSavedIdle()
+                takePictureAndWaitForImageSavedIdleDirect()
             }
         }
     }
@@ -309,7 +307,7 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         ActivityScenario.launchActivityForResult<CameraXActivity>(launchIntent).use { firstActivity
             ->
             // Arrange. Check the 1st activity Preview.
-            firstActivity.waitForViewfinderIdle()
+            firstActivity.waitForViewfinderIdleDirect()
 
             // Act. Make the 1st Activity stopped and create new Activity.
             device.pressHome()
@@ -326,7 +324,10 @@ class ExistingActivityLifecycleTest(private val implName: String) {
             try {
                 secondActivity.resetViewIdlingLatch().await(60, TimeUnit.SECONDS)
                 // Check the activity launched and Preview displays frames.
-                onView(withId(R.id.viewFinder)).check(matches(isDisplayed()))
+                val viewFinder = secondActivity.findViewById<View>(R.id.viewFinder)
+                assertWithMessage("Viewfinder is not displayed")
+                    .that(viewFinder != null && viewFinder.visibility == View.VISIBLE)
+                    .isTrue()
             } finally {
                 secondActivity.finish()
             }
