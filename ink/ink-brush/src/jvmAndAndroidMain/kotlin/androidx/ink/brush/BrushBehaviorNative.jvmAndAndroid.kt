@@ -42,4 +42,6 @@ actual internal object BrushBehaviorNative {
     @UsedByNative actual external fun getDeveloperComment(nativePointer: Long): String
 
     @UsedByNative actual external fun newCopyOfNode(nativePointer: Long, index: Int): Long
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

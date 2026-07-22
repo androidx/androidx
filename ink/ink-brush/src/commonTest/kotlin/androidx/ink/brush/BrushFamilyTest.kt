@@ -192,9 +192,12 @@ class BrushFamilyTest {
         assertThat(brushFamily.textureAnimationLoopDurationMillis).isEqualTo(3000L)
     }
 
+    @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
         assertThat(BrushFamily().calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(InputModel.PASSTHROUGH_MODEL.calculateMinimumRequiredVersion())
             .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 

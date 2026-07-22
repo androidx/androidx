@@ -28,4 +28,6 @@ actual internal object NodeNative {
     }
 
     @UsedByNative actual external fun free(nodeNativePointer: Long)
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

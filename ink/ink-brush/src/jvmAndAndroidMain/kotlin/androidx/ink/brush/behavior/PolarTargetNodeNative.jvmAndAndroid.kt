@@ -45,4 +45,6 @@ actual internal object PolarTargetNodeNative {
     @UsedByNative actual external fun getMagnitudeRangeStart(nativePointer: Long): Float
 
     @UsedByNative actual external fun getMagnitudeRangeEnd(nativePointer: Long): Float
+
+    @UsedByNative actual external fun getPolarTargetMinimumRequiredVersion(targetInt: Int): Int
 }

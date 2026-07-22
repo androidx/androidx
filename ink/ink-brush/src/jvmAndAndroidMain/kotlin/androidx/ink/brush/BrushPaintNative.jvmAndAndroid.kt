@@ -58,6 +58,22 @@ actual internal object BrushPaintNative {
         nativePointer: Long,
         meshFormatNativePointer: Long,
     ): Boolean
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+
+    @UsedByNative actual external fun getBlendModeMinimumRequiredVersion(blendModeInt: Int): Int
+
+    @UsedByNative actual external fun getTextureWrapMinimumRequiredVersion(wrapInt: Int): Int
+
+    @UsedByNative actual external fun getTextureOriginMinimumRequiredVersion(originInt: Int): Int
+
+    @UsedByNative
+    actual external fun getTextureSizeUnitMinimumRequiredVersion(sizeUnitInt: Int): Int
+
+    @UsedByNative
+    actual external fun getAnimationRepeatModeMinimumRequiredVersion(
+        animationRepeatModeInt: Int
+    ): Int
 }
 
 @UsedByNative
@@ -72,6 +88,8 @@ actual internal object TextureLayerNative {
     @UsedByNative actual external fun getMappingInt(nativePointer: Long): Int
 
     @UsedByNative actual external fun getBlendModeInt(nativePointer: Long): Int
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }
 
 @UsedByNative
@@ -131,6 +149,7 @@ actual internal object StampingTextureNative {
         animationRows: Int,
         animationColumns: Int,
         animationDurationMillis: Long,
+        animationRepeatMode: Int,
         blendMode: Int,
     ): Long
 
@@ -143,6 +162,8 @@ actual internal object StampingTextureNative {
     @UsedByNative actual external fun getAnimationColumns(nativePointer: Long): Int
 
     @UsedByNative actual external fun getAnimationDurationMillis(nativePointer: Long): Long
+
+    @UsedByNative actual external fun getAnimationRepeatModeInt(nativePointer: Long): Int
 }
 
 @UsedByNative
@@ -190,4 +211,6 @@ actual internal object ColorFunctionNative {
         colorAlpha: Float,
         colorSpace: Int,
     ): Long
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

@@ -16,6 +16,8 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -208,5 +210,12 @@ class SourceNodeTest {
             }
         assertThat(sourceOutOfRangeBehaviorError.message).contains("TimeSince")
         assertThat(sourceOutOfRangeBehaviorError.message).contains("kClamp")
+    }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(Source.NORMALIZED_PRESSURE.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 }

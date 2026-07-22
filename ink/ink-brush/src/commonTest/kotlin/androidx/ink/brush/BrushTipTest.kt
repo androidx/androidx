@@ -388,4 +388,33 @@ class BrushTipTest {
                 )
             )
     }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(BrushTip().calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(
+                BrushTip(
+                        behaviors =
+                            listOf(
+                                BrushBehavior(
+                                    TargetNode(
+                                        target = Target.HUE_OFFSET_IN_RADIANS,
+                                        targetModifierRangeStart = 0f,
+                                        targetModifierRangeEnd = 1f,
+                                        input =
+                                            SourceNode(
+                                                source = Source.TIME_SINCE_STROKE_END_IN_SECONDS,
+                                                sourceValueRangeStart = 0f,
+                                                sourceValueRangeEnd = 1f,
+                                                sourceOutOfRangeBehavior = OutOfRange.CLAMP,
+                                            ),
+                                    )
+                                )
+                            )
+                    )
+                    .calculateMinimumRequiredVersion()
+            )
+            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+    }
 }

@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.nativeloader.cinterop.BrushCoatNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_create
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_free
 import androidx.ink.nativeloader.cinterop.BrushCoatNative_getBrushPaintPreferencesCount
@@ -53,4 +54,7 @@ actual internal object BrushCoatNative {
 
     actual fun newCopyOfBrushPaintPreference(nativePointer: Long, index: Int): Long =
         BrushCoatNative_newCopyOfBrushPaintPreference(nativePointer, index)
+
+    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
+        BrushCoatNative_calculateMinimumRequiredVersion(nativePointer)
 }

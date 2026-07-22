@@ -22,6 +22,7 @@ import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getAngleRangeEnd
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getAngleRangeStart
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getMagnitudeRangeEnd
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getMagnitudeRangeStart
+import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getPolarTargetMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.PolarTargetNodeNative_getTargetInt
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -59,4 +60,7 @@ actual internal object PolarTargetNodeNative {
 
     actual fun getMagnitudeRangeEnd(nativePointer: Long): Float =
         PolarTargetNodeNative_getMagnitudeRangeEnd(nativePointer)
+
+    actual fun getPolarTargetMinimumRequiredVersion(targetInt: Int): Int =
+        PolarTargetNodeNative_getPolarTargetMinimumRequiredVersion(targetInt)
 }

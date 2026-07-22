@@ -28,6 +28,7 @@ import androidx.ink.nativeloader.cinterop.BrushFamilyNative_getTextureAnimationL
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_hasFallbacks
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_newCopyOfBrushCoat
 import androidx.ink.nativeloader.cinterop.BrushFamilyNative_newCopyOfInputModel
+import androidx.ink.nativeloader.cinterop.InputModelNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.InputModelNative_createNoParametersModel
 import androidx.ink.nativeloader.cinterop.InputModelNative_createSlidingWindowModel
 import androidx.ink.nativeloader.cinterop.InputModelNative_createSlidingWindowModelWithDefaultParameters
@@ -92,6 +93,9 @@ actual internal object BrushFamilyNative {
 
 @OptIn(ExperimentalForeignApi::class, InkInternalOnlyApi::class)
 actual internal object InputModelNative {
+    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
+        InputModelNative_calculateMinimumRequiredVersion(nativePointer)
+
     actual fun createNoParametersModel(type: Int): Long =
         InputModelNative_createNoParametersModel(type)
 

@@ -64,6 +64,8 @@ actual internal object InputModelNative {
         NativeLoader.load()
     }
 
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+
     @UsedByNative actual external fun createNoParametersModel(type: Int): Long
 
     @UsedByNative

@@ -57,4 +57,6 @@ actual internal object BrushCoatNative {
      */
     @UsedByNative
     actual external fun newCopyOfBrushPaintPreference(nativePointer: Long, index: Int): Long
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

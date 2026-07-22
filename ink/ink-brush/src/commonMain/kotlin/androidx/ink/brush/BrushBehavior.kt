@@ -149,6 +149,11 @@ private constructor(
     override fun toString(): String =
         "BrushBehavior($terminalNodes, developerComment=$developerComment)"
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkCustomBrushApi
+    public fun calculateMinimumRequiredVersion(): Version =
+        Version.fromInt(BrushBehaviorNative.calculateMinimumRequiredVersion(nativePointer))
+
     public companion object {
         private fun newBrushBehaviorFromTerminalNodes(
             terminalNodes: List<TerminalNode>,
@@ -193,4 +198,6 @@ expect internal object BrushBehaviorNative {
     fun getDeveloperComment(nativePointer: Long): String
 
     fun newCopyOfNode(nativePointer: Long, index: Int): Long
+
+    fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }
