@@ -79,6 +79,7 @@ private class MultiLaneCacheWindow(
     private var previousPassItemCount = UnsetItemCount
     private var hasUpdatedVisibleItemsOnce = false
     private var previousPassVisibleItemCount = 0
+    private var hasScrolledInCurrentFrame = false
 
     /**
      * Indices for the start and end of the cache window for each lane. The items between
@@ -141,6 +142,7 @@ private class MultiLaneCacheWindow(
     private var itemsCount = 0
 
     override fun CacheWindowScope.onScroll(delta: Float) {
+        hasScrolledInCurrentFrame = true
         handleLaneResize()
         debugLog { "delta=$delta" }
         traceWindowInfo()
@@ -227,11 +229,14 @@ private class MultiLaneCacheWindow(
              * brought into composition by measure because they are needed in the measure pass and
              * we use them here.
              */
-            if (
-                isCacheWindowVisibleItemCountCheckEnabled &&
-                    visibleItemsCount != previousPassVisibleItemCount
-            ) {
-                shouldRefillWindow = true
+            if (isCacheWindowVisibleItemCountCheckEnabled) {
+                if (
+                    visibleItemsCount != previousPassVisibleItemCount &&
+                        !hasScrolledInCurrentFrame &&
+                        enableInitialPrefetch
+                ) {
+                    shouldRefillWindow = true
+                }
             }
 
             previousPassVisibleItemCount = visibleItemsCount
@@ -276,6 +281,7 @@ private class MultiLaneCacheWindow(
         }
 
         previousPassItemCount = totalItemsCount
+        hasScrolledInCurrentFrame = false
     }
 
     private fun CacheWindowScope.onDatasetChanged() {
@@ -662,12 +668,12 @@ private class MultiLaneCacheWindow(
      * of bounds requests. The same is valid if items are replaced (have the same size by key
      * changed).
      */
-    private fun cacheVisibleItemsInfo(
+    private inline fun cacheVisibleItemsInfo(
         itemIndex: Int,
         key: Any,
         itemSize: Int,
         lane: Int,
-        onExistingItemSizeReceive: (size: Int, key: Any) -> Unit,
+        crossinline onExistingItemSizeReceive: (size: Int, key: Any) -> Unit,
     ) {
         if (windowCacheWithItems.containsKey(itemIndex)) {
             val cachedSize = windowCacheWithItems[itemIndex]!!.mainAxisSize
