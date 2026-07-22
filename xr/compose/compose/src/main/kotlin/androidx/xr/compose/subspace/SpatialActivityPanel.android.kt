@@ -59,6 +59,9 @@ import java.util.concurrent.atomic.AtomicReference
  * @param modifier SubspaceModifiers to apply to the SpatialPanel. The layout size of the panel will
  *   dictate the viewport size allocated to the embedded Activity.
  * @param shape The shape of this Spatial Panel.
+ * @sample androidx.xr.compose.samples.SpatialActivityPanelSample
+ * @sample androidx.xr.compose.samples.SpatialActivityPanelLaunchedEffectSample
+ * @sample androidx.xr.compose.samples.SpatialActivityPanelRecreateSample
  */
 @Composable
 @SubspaceComposable
@@ -150,10 +153,13 @@ public fun SpatialActivityPanel(
  *
  * The provided [initialIntent] is only queued when the controller is initially created. Subsequent
  * recompositions with a different intent will be ignored. To add new intents dynamically after
- * creation, use [SpatialActivityPanelController.startActivity].
+ * creation, use [SpatialActivityPanelController.startActivity]. To replace the panel and its task
+ * stack with a new intent entirely, key the composition on the intent (e.g., using `key(intent)`).
  *
  * @param initialIntent The initial [Intent] to queue for execution inside the activity panel.
  * @return A remembered instance of [SpatialActivityPanelController].
+ * @sample androidx.xr.compose.samples.SpatialActivityPanelSample
+ * @sample androidx.xr.compose.samples.SpatialActivityPanelRecreateSample
  */
 @Composable
 public fun rememberSpatialActivityPanelController(
