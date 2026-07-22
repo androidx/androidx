@@ -363,10 +363,17 @@ public class ProfileImpl implements Profile {
         }
     }
 
+    @Override
+    @ExperimentalAddQuicHints
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings({"deprecation", "removal"})
+    public void addQuicHints(@NonNull Set<String> urls) {
+        preferQuicFor(urls);
+    }
 
     @Override
     @ExperimentalAddQuicHints
-    public void addQuicHints(@NonNull Set<String> urls) {
+    public void preferQuicFor(@NonNull Set<@NonNull String> urls) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.ADD_QUIC_HINTS_V1;
         if (feature.isSupportedByWebView()) {
             mProfileImpl.addQuicHints(urls);
