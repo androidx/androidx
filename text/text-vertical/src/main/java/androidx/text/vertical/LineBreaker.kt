@@ -17,10 +17,8 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
-import android.os.Build
 import android.text.TextPaint
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.text.vertical.LineBreaker.Result
 import java.text.BreakIterator
 import java.util.Locale
@@ -126,7 +124,6 @@ internal object LineBreaker {
      *   Defaults to Mixed.
      * @return A Result object containing the broken text lines.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun breakTextIntoLines(
         text: CharSequence,
         start: Int,
@@ -237,7 +234,6 @@ private data class Context(
         currentLineHeight = 0f
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun addRun(start: Int, end: Int, orientation: ResolvedOrientation) =
         currentLineRuns.add(createLayoutRun(text, start, end, paint, orientation))
 
@@ -308,7 +304,6 @@ private data class Context(
      * @param end The exclusive ending index of the run.
      * @param orientation The text orientation of the run (e.g., Horizontal, Vertical, TateChuYoko).
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun processRun(start: Int, end: Int, orientation: ResolvedOrientation) {
         require(
             orientation == ResolvedOrientation.Upright || orientation == ResolvedOrientation.Rotate
@@ -403,13 +398,11 @@ private data class Context(
      * @param ruby The ruby span.
      * @param orientation The text orientation mode.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun processRubyRun(start: Int, end: Int, ruby: RubySpan, orientation: TextOrientation) {
         val rubyLayout = RubyLayoutRun(text, start, end, orientation, paint, ruby)
         processNonBreakableLayout(rubyLayout)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun processTateChuYoko(start: Int, end: Int) {
         val layout = createLayoutRun(text, start, end, paint, ResolvedOrientation.TateChuYoko)
         processNonBreakableLayout(layout)
