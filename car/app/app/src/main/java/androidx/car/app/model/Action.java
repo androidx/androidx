@@ -137,8 +137,8 @@ public final class Action {
     /**
      * A standard action to show the media playback button.
      *
-     * <p>Note: ONLY apps with {@link androidx.car.app.MEDIA_TEMPLATES} can use this action. There
-     * are 2 ways to use this action.
+     * <p>Note: ONLY apps with {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES} can use
+     * this action. There are 2 ways to use this action.
      *
      * <ol>
      * <li>Used as a floating action button in a browse view, the action must provide an
@@ -225,7 +225,7 @@ public final class Action {
     /**
      * A standard action to show the media playback button.
      *
-     * <p>Note: ONLY apps with {@link androidx.car.app.MEDIA_TEMPLATES} can use this action. There
+     * <p>Note: ONLY apps with {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES} can use this action. There
      * are 2 ways to use this action.
      *
      * <ol>

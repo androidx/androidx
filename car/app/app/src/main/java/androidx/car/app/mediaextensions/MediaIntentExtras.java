@@ -43,7 +43,7 @@ public class MediaIntentExtras {
             "androidx.car.app.mediaextensions.action.MEDIA_TEMPLATE_V2";
 
     /**
-     * {@link Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
+     * {@link android.os.Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
      * specify the MediaBrowserService that user wants to start the media on.
      * <p>TYPE: String.
      * The value of this extra is the same as the
@@ -55,7 +55,7 @@ public class MediaIntentExtras {
             "android.car.intent.extra.MEDIA_COMPONENT";
 
     /**
-     * {@link Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
+     * {@link android.os.Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
      * specify the media item that should be displayed in the browse view. Must match the ids used
      * in the MediaBrowserServiceCompat api.
      * <p>TYPE: String.
@@ -64,7 +64,7 @@ public class MediaIntentExtras {
             "androidx.car.app.mediaextensions.extra.KEY_MEDIA_ID";
 
     /**
-     * {@link Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
+     * {@link android.os.Bundle} key used as a string extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
      * specify the search query to send either to the current MediaBrowserService or the one
      * specified with {@link #EXTRA_KEY_MEDIA_COMPONENT}.
      * <p>TYPE: String.
@@ -77,7 +77,7 @@ public class MediaIntentExtras {
             "android.car.media.extra.SEARCH_QUERY";
 
     /**
-     * {@link Bundle} key used as an int extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
+     * {@link android.os.Bundle} key used as an int extra field with {@link #ACTION_MEDIA_TEMPLATE_V2} to
      * specify the action for the Media Center to do after the search query is loaded.
      * <p>TYPE: int.
      * The value will be one of the following:

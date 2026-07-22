@@ -212,7 +212,7 @@ public final class Chip implements Item {
          * <p>The text must conform to
          * {@link androidx.car.app.model.constraints.CarTextConstraints#TEXT_WITH_COLORS}.
          *
-         * <p>Developers can provide a shorter {@link CarText#addVariant(CharSequence)}
+         * <p>Developers can provide a shorter {@link CarText.Builder#addVariant(CharSequence)}
          * variant in case their title length exceeds the chip width limit enforced by the host.
          *
          * @throws NullPointerException     if {@code title} is {@code null}

@@ -278,8 +278,8 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}.
          *
-         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_ONLY} in Car API 7 and
-         * below, and {@link CarTextConstraints.TEXT_AND_ICON} in Car API 8 and above.
+         * <p>{@code title} must conform to {@link CarTextConstraints#TEXT_ONLY} in Car API 7 and
+         * below, and {@link CarTextConstraints#TEXT_AND_ICON} in Car API 8 and above.
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
@@ -297,8 +297,8 @@ public final class GridItem implements Item {
         /**
          * Sets the title of the {@link GridItem}, with support for multiple length variants.
          *
-         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_ONLY} in Car API 7 and
-         * below, and {@link CarTextConstraints.TEXT_AND_ICON} in Car API 8 and above.
+         * <p>{@code title} must conform to {@link CarTextConstraints#TEXT_ONLY} in Car API 7 and
+         * below, and {@link CarTextConstraints#TEXT_AND_ICON} in Car API 8 and above.
          *
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          */
@@ -315,8 +315,8 @@ public final class GridItem implements Item {
         /**
          * Sets a secondary text string to the grid item that is displayed below the title.
          *
-         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS} in Car API
-         * 7 and below, and {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
+         * <p>{@code text} must conform to {@link CarTextConstraints#TEXT_WITH_COLORS} in Car API
+         * 7 and below, and {@link CarTextConstraints#TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
          * above.
          *
          * <h2>Text Wrapping</h2>
@@ -338,8 +338,8 @@ public final class GridItem implements Item {
          * Sets a secondary text string to the grid item that is displayed below the title, with
          * support for multiple length variants.
          *
-         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS} in Car API
-         * 7 and below, and {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
+         * <p>{@code text} must conform to {@link CarTextConstraints#TEXT_WITH_COLORS} in Car API
+         * 7 and below, and {@link CarTextConstraints#TEXT_WITH_COLORS_AND_ICON} in Car API 8 and
          * above.
          *
          * <h2>Text Wrapping</h2>

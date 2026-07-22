@@ -35,7 +35,8 @@ public final class MetadataExtras {
      *
      * <p>NOTE: media1 and media3 apps setting this extra <b>must implement</b>
      * {@link androidx.media.MediaBrowserServiceCompat#onLoadItem} or
-     * {@link  androidx.media3.session.MediaLibraryService.Callback#onGetItem} respectively.
+     * {@link  androidx.media3.session.MediaLibraryService.MediaLibrarySession.Callback#onGetItem}
+     * respectively.
      * <p>NOTE: media apps setting this extra <b>must explicitly set the subtitle property</b>.
      * <p>See {@link android.support.v4.media.MediaMetadataCompat#METADATA_KEY_DISPLAY_SUBTITLE}
      * <p>See {@link androidx.media3.common.MediaMetadata#subtitle}
@@ -69,7 +70,8 @@ public final class MetadataExtras {
      *
      * <p>NOTE: media1 and media3 apps setting this extra <b>must implement</b>
      * {@link androidx.media.MediaBrowserServiceCompat#onLoadItem} or
-     * {@link androidx.media3.session.MediaLibraryService.Callback#onGetItem} respectively.
+     * {@link androidx.media3.session.MediaLibraryService.MediaLibrarySession.Callback#onGetItem}
+     * respectively.
      * <p>NOTE: media apps setting this extra <b>must explicitly set the description property</b>.
      * <p>See {@link android.support.v4.media.MediaMetadataCompat#METADATA_KEY_DISPLAY_DESCRIPTION}
      * <p>See {@link androidx.media3.common.MediaMetadata#description}
