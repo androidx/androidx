@@ -22,7 +22,6 @@ import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.View
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.pdf.R
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
@@ -41,8 +40,6 @@ internal class ColorPaletteView
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     RecyclerView(context, attrs, defStyleAttr) {
 
-    @SuppressWarnings("VisibleForTests") // areAnimationsEnabled is also @VisibleForTesting.
-    @VisibleForTesting
     internal var areAnimationsEnabled: Boolean = true
         set(value) {
             field = value
@@ -82,23 +79,34 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         paletteItemSelectedListener = listener
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        if (width > 0) {
+            // Recalculate span count before super.onMeasure to ensure GridLayoutManager measures
+            // children with the correct number of columns during the initial measurement pass.
+            updateSpanCountForWidth(width)
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
 
-        // Recalculate span count when the width changes.
-        if (w > 0 && w != oldw) {
-            val itemWidth = resources.getDimensionPixelSize(R.dimen.color_palette_item_size)
-            val itemSpacing = resources.getDimensionPixelSize(R.dimen.padding_4dp)
+    /**
+     * Computes and applies the number of columns ([GridLayoutManager.spanCount]) that fit within
+     * the given [width] based on item dimensions and padding.
+     */
+    private fun updateSpanCountForWidth(width: Int) {
+        val itemWidth = resources.getDimensionPixelSize(R.dimen.color_palette_item_size)
+        val itemSpacing = resources.getDimensionPixelSize(R.dimen.padding_4dp)
 
-            if (itemWidth > 0) {
-                val totalItemSpace = itemWidth + itemSpacing
+        if (itemWidth > 0) {
+            val totalItemSpace = itemWidth + itemSpacing
 
-                // To calculate the number of items that can fit, we adjust the available width
-                // by adding back one spacing unit because a grid of 'n' items has 'n-1' gaps
-                val availableWidth = w - paddingLeft - paddingRight + itemSpacing
-                val newSpanCount = max(1, availableWidth / totalItemSpace)
-                val lm = layoutManager as? GridLayoutManager ?: return
-                if (newSpanCount != lm.spanCount) lm.spanCount = newSpanCount
+            // Adjust available width by adding back one unit of item spacing because a grid of 'n'
+            // items has 'n-1' gaps between them.
+            val availableWidth = width - paddingLeft - paddingRight + itemSpacing
+            val newSpanCount = max(1, availableWidth / totalItemSpace)
+            val lm = layoutManager as? GridLayoutManager ?: return
+            if (newSpanCount != lm.spanCount) {
+                lm.spanCount = newSpanCount
             }
         }
     }

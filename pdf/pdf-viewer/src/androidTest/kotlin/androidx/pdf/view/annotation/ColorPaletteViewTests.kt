@@ -25,7 +25,7 @@ import android.view.ViewGroup
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R
 import androidx.pdf.assertScreenshot
-import androidx.pdf.ink.util.clickItemAt
+import androidx.pdf.util.clickItemAt
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteAdapter
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem

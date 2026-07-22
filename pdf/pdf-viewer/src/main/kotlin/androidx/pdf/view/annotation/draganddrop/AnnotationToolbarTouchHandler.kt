@@ -16,24 +16,21 @@
 
 package androidx.pdf.view.annotation.draganddrop
 
+import android.graphics.Canvas
+import android.graphics.Point
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_UP
 import android.view.View
-import android.view.ViewConfiguration
-import kotlin.math.abs
+import androidx.core.view.ViewCompat
 
 /**
  * A delegate class that encapsulates all touch handling logic for the
  * [androidx.pdf.view.annotation.AnnotationToolbar].
  *
- * This handler is responsible for:
- * 1. **Detecting a long-press** on the contents of the toolbar to initiate a drag operation.
- * 2. **Notifying an external [ToolbarDragListener]** about the start, move, and end of a drag
- *    gesture, without handling the view movement itself.
+ * This handler is responsible for detecting a long-press on the contents of the toolbar to initiate
+ * a system drag-and-drop operation.
  *
  * @param toolbarView The [androidx.pdf.view.annotation.AnnotationToolbar] instance whose touches
  *   are being handled.
@@ -47,45 +44,22 @@ internal class AnnotationToolbarTouchHandler(
 
     internal var areAnimationsEnabled: Boolean = true
 
-    private var isDragging = false
-    private val touchSlop = ViewConfiguration.get(toolbarView.context).scaledTouchSlop
-
-    private var dragListener: ToolbarDragListener? = null
-
-    fun setOnDragListener(listener: ToolbarDragListener) {
-        dragListener = listener
-    }
+    private var lastEventProcessed: MotionEvent? = null
+    private var shouldIntercept: Boolean = false
 
     private val gestureDetector: GestureDetector =
         GestureDetector(
             toolbarView.context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onLongPress(event: MotionEvent) {
-                    startDrag(event)
-                }
-
-                override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    distanceX: Float,
-                    distanceY: Float,
-                ): Boolean {
-                    val dx = abs(e2.x - (e1?.x ?: 0f))
-                    val dy = abs(e2.y - (e1?.y ?: 0f))
-
-                    // Only make a decision once the user has moved past the touch slop threshold
-                    if (dx > touchSlop || dy > touchSlop) {
-                        gestureDetector.setIsLongpressEnabled(false)
-                    }
-
-                    // We return false here because we don't want onScroll to consume the event.
-                    // We only use it to detect the start of a scroll and disable long press.
-                    return false
+                    shouldIntercept = true
+                    startDrag()
                 }
 
                 override fun onDown(e: MotionEvent): Boolean {
                     // Re-enable long press detection at the start of every new gesture.
                     gestureDetector.setIsLongpressEnabled(true)
+                    shouldIntercept = false
                     // Necessary to continue tracking the gesture
                     return true
                 }
@@ -93,67 +67,60 @@ internal class AnnotationToolbarTouchHandler(
         )
 
     fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        // If not dragging, let buttons handle their own touches.
-        if (!isDragging && isTouchOnInteractiveChild(event)) return false
+        if (isTouchOnInteractiveChild(event)) return false
 
-        gestureDetector.onTouchEvent(event)
-
-        // If we intercept an UP/CANCEL, the system will NOT call onTouchEvent.
-        // We must clean up state here manually.
-        when (event.actionMasked) {
-            ACTION_UP,
-            ACTION_CANCEL -> {
-                if (isDragging) {
-                    endDrag()
-                    return true // Ensures child gets ACTION_CANCEL, not ACTION_UP
-                }
-            }
+        if (event.actionMasked == ACTION_DOWN) {
+            gestureDetector.setIsLongpressEnabled(true)
+            shouldIntercept = false
         }
 
-        // If dragging is in progress, "steal" the event stream from child views (buttons)
-        return isDragging
+        gestureDetector.onTouchEvent(event)
+        lastEventProcessed = event
+        return shouldIntercept
     }
 
     fun onTouchEvent(event: MotionEvent): Boolean {
-        if (!isDragging && isTouchOnInteractiveChild(event)) return false
+        if (isTouchOnInteractiveChild(event)) return false
+
+        if (event.actionMasked == ACTION_DOWN) {
+            gestureDetector.setIsLongpressEnabled(true)
+            shouldIntercept = false
+        }
 
         // TEST HOOK: If animations are disabled (e.g., during Espresso tests),
         // bypass the 500ms long-press delay and start dragging immediately.
         if (!areAnimationsEnabled && event.actionMasked == ACTION_DOWN) {
-            startDrag(event)
+            startDrag()
         }
 
-        // If we are dragging, we handle movement manually. No need to feed the detector.
-        if (!isDragging) gestureDetector.onTouchEvent(event)
-
-        when (event.actionMasked) {
-            MotionEvent.ACTION_MOVE -> {
-                if (isDragging) dragListener?.onDragMove(event)
-            }
-            ACTION_UP,
-            ACTION_CANCEL -> {
-                if (isDragging) {
-                    endDrag()
-                    return true // Notify system we've consumed event stream
-                }
-            }
+        if (lastEventProcessed !== event && !shouldIntercept) {
+            gestureDetector.onTouchEvent(event)
         }
-
-        return isDragging
+        return true
     }
 
-    private fun startDrag(event: MotionEvent) {
-        isDragging = true
-        // Critical: Stop children (buttons) from handling this touch any further
-        toolbarView.parent.requestDisallowInterceptTouchEvent(true)
+    private fun startDrag() {
         toolbarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        dragListener?.onDragStart(event)
-    }
+        ViewCompat.startDragAndDrop(
+            /* v = */ toolbarView,
+            /* data =*/ null,
+            /* shadowBuilder = */ object : View.DragShadowBuilder() {
+                override fun onProvideShadowMetrics(
+                    outShadowSize: Point,
+                    outShadowTouchPoint: Point,
+                ) {
+                    // We'll set minimum size of shadow allowed by system, as we don't require drop
+                    // shadow. ToolbarCoordinator takes care of showing anchor points.
+                    outShadowSize.set(1, 1)
+                    outShadowTouchPoint.set(0, 0)
+                }
 
-    private fun endDrag() {
-        dragListener?.onDragEnd()
-        isDragging = false
-        // Re-enable parent interception for normal scrolling behavior
-        toolbarView.parent.requestDisallowInterceptTouchEvent(false)
+                override fun onDrawShadow(canvas: Canvas) {
+                    // No - Op
+                }
+            },
+            /* myLocalState = */ null,
+            /* flags =*/ 0,
+        )
     }
 }

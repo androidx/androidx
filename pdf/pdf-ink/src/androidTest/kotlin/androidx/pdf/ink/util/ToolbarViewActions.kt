@@ -16,120 +16,95 @@
 
 package androidx.pdf.ink.util
 
-import android.os.SystemClock
-import android.view.MotionEvent
+import android.app.Activity
+import android.graphics.PointF
 import android.view.View
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.matcher.ViewMatchers
-import org.hamcrest.Matcher
+import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.draganddrop.ToolbarCoordinator
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 
+/**
+ * Helper actions for performing drag and drop on an [AnnotationToolbar] within a
+ * [ToolbarCoordinator].
+ */
 internal object ToolbarViewActions {
 
-    // Space from boundary of the view
-    private const val DELTA_FROM_BOUNDARY = 10f
+    /** Offset from the edge of the coordinator to avoid triggering system gesture insets. */
+    private const val GESTURE_SAFE_BOUNDARY_OFFSET = 60f
 
-    /**
-     * Performs a drag and drop action from the center of the toolbar to a specified target edge of
-     * the [ToolbarCoordinator].
-     *
-     * @param to The target edge to drag the toolbar towards.
-     */
-    fun performDragAndDrop(toolbarId: Int, to: DragTarget) {
-        onView(ViewMatchers.withId(toolbarId))
-            .perform(
-                object : ViewAction {
-                    override fun getConstraints(): Matcher<View> = ViewMatchers.isDisplayed()
+    /** Number of steps for [UiDevice.drag] gesture animation. */
+    private const val DRAG_STEPS = 40
 
-                    override fun getDescription(): String = "Long press and drag toolbar to $to"
-
-                    override fun perform(uiController: UiController, view: View) {
-                        val screenPos = IntArray(2)
-                        view.getLocationOnScreen(screenPos)
-
-                        // Calculate Start (Center of toolbar)
-                        val startX = screenPos[0] + view.width / 2f
-                        val startY = screenPos[1] + view.height / 2f
-
-                        // Calculate End (Target edge of Coordinator)
-                        val coordinator = view.parent as View
-                        val coordPos = IntArray(2)
-                        coordinator.getLocationOnScreen(coordPos)
-
-                        val endX: Float
-                        val endY: Float
-                        when (to) {
-                            DragTarget.LEFT -> {
-                                endX = coordPos[0].toFloat() + DELTA_FROM_BOUNDARY
-                                endY = coordPos[1].toFloat() + (coordinator.height / 2f)
-                            }
-                            DragTarget.RIGHT -> {
-                                endX =
-                                    coordPos[0].toFloat() + coordinator.width - DELTA_FROM_BOUNDARY
-                                endY = coordPos[1].toFloat() + (coordinator.height / 2f)
-                            }
-                            DragTarget.BOTTOM -> {
-                                endX = coordPos[0].toFloat() + (coordinator.width / 2f)
-                                endY =
-                                    coordPos[1].toFloat() + coordinator.height - DELTA_FROM_BOUNDARY
-                            }
-                        }
-
-                        // --- Dispatch Events ---
-                        val downTime = SystemClock.uptimeMillis()
-
-                        // Trigger point: ACTION_DOWN
-                        val downEvent =
-                            MotionEvent.obtain(
-                                downTime,
-                                downTime,
-                                MotionEvent.ACTION_DOWN,
-                                startX,
-                                startY,
-                                0,
-                            )
-                        view.dispatchTouchEvent(downEvent)
-                        downEvent.recycle()
-
-                        // We don't have to wait for long press to trigger, as for tests we've
-                        // short-circuited drag route by disabling animations.
-
-                        // ACTION_MOVE (Drag to destination)
-                        val moveTime = SystemClock.uptimeMillis()
-                        val moveEvent =
-                            MotionEvent.obtain(
-                                downTime,
-                                moveTime,
-                                MotionEvent.ACTION_MOVE,
-                                endX,
-                                endY,
-                                0,
-                            )
-                        view.dispatchTouchEvent(moveEvent)
-                        moveEvent.recycle()
-
-                        // ACTION_UP (Release)
-                        val upTime = SystemClock.uptimeMillis()
-                        val upEvent =
-                            MotionEvent.obtain(
-                                downTime,
-                                upTime,
-                                MotionEvent.ACTION_UP,
-                                endX,
-                                endY,
-                                0,
-                            )
-                        view.dispatchTouchEvent(upEvent)
-                        upEvent.recycle()
-                    }
-                }
-            )
-    }
-
+    /** Target dock edges for drag-and-drop actions. */
     enum class DragTarget {
         LEFT,
         RIGHT,
         BOTTOM,
     }
+
+    /**
+     * Drags the toolbar identified by [toolbarId] in [activity] to the specified [to] edge of its
+     * parent coordinator.
+     *
+     * @param activity active host activity containing the toolbar view
+     * @param toolbarId ID of the toolbar view to drag
+     * @param to target edge to drag the toolbar towards
+     */
+    fun performDragAndDrop(activity: Activity, toolbarId: Int, to: DragTarget) {
+        val (start, end) = calculateDragCoordinates(activity, toolbarId, to)
+        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        uiDevice.drag(start.x.toInt(), start.y.toInt(), end.x.toInt(), end.y.toInt(), DRAG_STEPS)
+    }
+
+    /** Calculates screen coordinates for starting and ending a drag-and-drop gesture. */
+    private fun calculateDragCoordinates(
+        activity: Activity,
+        toolbarId: Int,
+        to: DragTarget,
+    ): Pair<PointF, PointF> {
+        var start = PointF()
+        var end = PointF()
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val view =
+                checkNotNull(activity.findViewById<View>(toolbarId)) {
+                    "View with ID $toolbarId not found in activity"
+                }
+
+            val toolbarCoords = IntArray(2).also { view.getLocationOnScreen(it) }
+            start = PointF(toolbarCoords[0] + view.width / 2f, toolbarCoords[1] + view.height / 2f)
+
+            val coordinator = view.parent as View
+            val coordinatorCoords = IntArray(2).also { coordinator.getLocationOnScreen(it) }
+
+            end = calculateTargetCoordinates(to, coordinator, coordinatorCoords)
+        }
+
+        return Pair(start, end)
+    }
+
+    /** Calculates target drop coordinates based on [DragTarget] and coordinator bounds. */
+    private fun calculateTargetCoordinates(
+        to: DragTarget,
+        coordinator: View,
+        coordinatorCoords: IntArray,
+    ): PointF =
+        when (to) {
+            DragTarget.LEFT ->
+                PointF(
+                    coordinatorCoords[0] + GESTURE_SAFE_BOUNDARY_OFFSET,
+                    coordinatorCoords[1] + coordinator.height / 2f,
+                )
+            DragTarget.RIGHT ->
+                PointF(
+                    coordinatorCoords[0] + coordinator.width - GESTURE_SAFE_BOUNDARY_OFFSET,
+                    coordinatorCoords[1] + coordinator.height / 2f,
+                )
+            DragTarget.BOTTOM ->
+                PointF(
+                    coordinatorCoords[0] + coordinator.width / 2f,
+                    coordinatorCoords[1] + coordinator.height - GESTURE_SAFE_BOUNDARY_OFFSET,
+                )
+        }
 }
