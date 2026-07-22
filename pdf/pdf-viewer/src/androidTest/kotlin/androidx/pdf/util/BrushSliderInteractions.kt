@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.pdf.ink.util
+package androidx.pdf.util
 
 import android.view.View
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.matcher.ViewMatchers
 import com.google.android.material.slider.Slider
+import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.hamcrest.TypeSafeMatcher
 
 /** Helper function to perform set slider value to a specific index. */
 internal fun setSliderValue(value: Float): ViewAction {
@@ -46,8 +48,8 @@ internal fun setSliderValue(value: Float): ViewAction {
 
 /** Helper function to assert slider index value. */
 internal fun withSliderValue(expectedValue: Float): Matcher<View> {
-    return object : org.hamcrest.TypeSafeMatcher<View>() {
-        override fun describeTo(description: org.hamcrest.Description) {
+    return object : TypeSafeMatcher<View>() {
+        override fun describeTo(description: Description) {
             description.appendText("with slider value: $expectedValue")
         }
 

@@ -32,7 +32,6 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
 import android.widget.LinearLayout.VERTICAL
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -54,7 +53,6 @@ import androidx.pdf.view.annotation.draganddrop.ToolbarDockState
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
-import androidx.pdf.view.annotation.draganddrop.ToolbarDragListener
 import androidx.pdf.view.annotation.layout.AnnotationToolbarConstraintSet
 import androidx.pdf.view.annotation.layout.ToolTrayScrollerManager
 import androidx.pdf.view.annotation.state.AnnotationToolbarState
@@ -163,15 +161,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             viewModel.onAction(ToolbarIntent.DockStateChanged(value))
         }
 
-    /**
-     * Sets a listener to receive drag events when the toolbar is being moved and docked.
-     *
-     * @param dragListener The [ToolbarDragListener] to be notified of drag lifecycle events.
-     */
-    public fun setOnToolbarDragListener(dragListener: ToolbarDragListener) {
-        toolbarTouchHandler.setOnDragListener(dragListener)
-    }
-
     private val constraintSet = AnnotationToolbarConstraintSet(this.context)
 
     private val pen: AnnotationToolView
@@ -211,11 +200,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     // Required to disable any animation while performing espresso/screenshot tests
-    @VisibleForTesting
     internal var areAnimationsEnabled: Boolean = true
         set(value) {
             field = value
             toolbarTouchHandler.areAnimationsEnabled = value
+            colorPaletteView.areAnimationsEnabled = value
         }
 
     init {
