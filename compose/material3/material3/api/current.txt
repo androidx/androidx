@@ -3030,6 +3030,7 @@ package androidx.compose.material3 {
     method @InaccessibleFromKotlin public int getTargetOption();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scrollToOption(int option, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @InaccessibleFromKotlin public void setSelectedOption(int);
     property public boolean isScrollInProgress;
     property public int itemCount;
     property public int selectedOption;

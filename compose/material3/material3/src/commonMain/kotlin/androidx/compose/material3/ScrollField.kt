@@ -71,14 +71,27 @@ private const val InfinitePageCount = 100_000
  */
 @Stable
 class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) {
+    init {
+        require(itemCount > 0) { "itemCount must be greater than 0" }
+    }
+
     /**
      * The index of the currently selected option.
      *
      * This value is always clamped between 0 and [itemCount] - 1. When the internal pager is
      * scrolled, this value updates to reflect the item closest to the snap position.
+     *
+     * Setting this value will instantly scroll to the specified option.
      */
-    val selectedOption: Int
+    var selectedOption: Int
         get() = if (itemCount > 0) pagerState.currentPage % itemCount else 0
+        set(value) {
+            if (itemCount > 0) {
+                pagerState.requestScrollToPage(
+                    calculateTargetPage(value.coerceIn(0, itemCount - 1))
+                )
+            }
+        }
 
     /**
      * Instantly scrolls to the specified [option].
@@ -87,7 +100,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      * @see animateScrollToOption for a smooth transition.
      */
     suspend fun scrollToOption(option: Int) {
-        val targetPage = calculateTargetPage(option)
+        val targetPage = calculateTargetPage(option.coerceIn(0, itemCount - 1))
         pagerState.scrollToPage(targetPage)
     }
 
@@ -98,7 +111,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      * @see scrollToOption for an instant scroll.
      */
     suspend fun animateScrollToOption(option: Int) {
-        val targetPage = calculateTargetPage(option)
+        val targetPage = calculateTargetPage(option.coerceIn(0, itemCount - 1))
         pagerState.animateScrollToPage(targetPage)
     }
 
@@ -134,7 +147,8 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
 fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
     val initialPage =
         remember(itemCount, index) {
-            (InfinitePageCount / 2) - (InfinitePageCount / 2 % itemCount) + index
+            val coercedIndex = if (itemCount > 0) index.coerceIn(0, itemCount - 1) else 0
+            (InfinitePageCount / 2) - (InfinitePageCount / 2 % itemCount) + coercedIndex
         }
     val pagerState = rememberPagerState(initialPage = initialPage) { InfinitePageCount }
     return remember(pagerState, itemCount) { ScrollFieldState(pagerState, itemCount) }
