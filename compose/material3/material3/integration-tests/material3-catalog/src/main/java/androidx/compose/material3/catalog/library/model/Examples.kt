@@ -316,6 +316,7 @@ import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TypographyCustomFontFamilySample
 import androidx.compose.material3.samples.TypographySample
+import androidx.compose.material3.samples.UnitScrollFieldSample
 import androidx.compose.material3.samples.VerticalButtonGroupSample
 import androidx.compose.material3.samples.VerticalCenteredSliderSample
 import androidx.compose.material3.samples.VerticalFloatingToolbarWithFabSample
@@ -2278,6 +2279,14 @@ val ScrollFieldExamples =
             isExpressive = true,
         ) {
             TimeScrollFieldSample()
+        },
+        Example(
+            name = "UnitScrollFieldSample",
+            description = ScrollFieldDescription,
+            sourceUrl = ScrollFieldSourceUrl,
+            isExpressive = true,
+        ) {
+            UnitScrollFieldSample()
         },
     )
 
