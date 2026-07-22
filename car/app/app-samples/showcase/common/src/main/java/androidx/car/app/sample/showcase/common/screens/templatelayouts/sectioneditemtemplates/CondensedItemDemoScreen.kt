@@ -324,7 +324,7 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                         .setLeadingImage(
                             CarIcon.Builder(mediaIcon)
                                 .setStyle(
-                                    CarIconStyle.Builder()
+                                    CarIconStyle.Builder(CarIconStyle.TINTED)
                                         .setTint(
                                             CarColor.createCustom(
                                                 Color.argb(100, 0, 255, 0),

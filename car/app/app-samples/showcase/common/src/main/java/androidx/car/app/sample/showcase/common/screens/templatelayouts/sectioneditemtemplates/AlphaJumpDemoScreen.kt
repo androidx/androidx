@@ -234,7 +234,11 @@ class AlphaJumpDemoScreen(carContext: CarContext) : Screen(carContext) {
                                     imageResources[i % imageResources.size],
                                 )
                             )
-                            .setStyle(CarIconStyle.Builder().setTint(CarColor.PRIMARY).build())
+                            .setStyle(
+                                CarIconStyle.Builder(CarIconStyle.TINTED)
+                                    .setTint(CarColor.PRIMARY)
+                                    .build()
+                            )
                             .build()
                     )
             gridBuilderAugment?.invoke(gridBuilder, i)

@@ -80,6 +80,8 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                         .build())
                 .build();
 
+        CarIconStyle carIconStyle =
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(CarColor.GREEN).build();
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.msg_template_demo_text))
                 .setHeader(new Header.Builder().setTitle(getCarContext()
@@ -91,8 +93,7 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                                 IconCompat.createWithResource(
                                         getCarContext(),
                                         R.drawable.ic_emoji_food_beverage_white_48dp))
-                                .setStyle(
-                                        new CarIconStyle.Builder().setTint(CarColor.GREEN).build())
+                                .setStyle(carIconStyle)
                                 .build())
                 .addAction(primaryActionBuilder.build())
                 .addAction(

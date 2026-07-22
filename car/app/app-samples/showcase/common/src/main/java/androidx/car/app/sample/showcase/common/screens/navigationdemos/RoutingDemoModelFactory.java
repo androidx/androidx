@@ -182,6 +182,8 @@ public class RoutingDemoModelFactory {
         long nowUtcMillis = System.currentTimeMillis();
         long timeToDestinationMillis = TimeUnit.HOURS.toMillis(1) + TimeUnit.MINUTES.toMillis(55);
 
+        CarIconStyle carIconStyle =
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(CarColor.BLUE).build();
         return new TravelEstimate.Builder(
                 // The estimated distance to the destination.
                 Distance.create(112, Distance.UNIT_KILOMETERS),
@@ -198,7 +200,7 @@ public class RoutingDemoModelFactory {
                         new CarIcon.Builder(
                                         IconCompat.createWithResource(
                                                 mCarContext, R.drawable.ic_face_24px))
-                                .setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build())
+                                .setStyle(carIconStyle)
                                 .build())
                 .build();
     }

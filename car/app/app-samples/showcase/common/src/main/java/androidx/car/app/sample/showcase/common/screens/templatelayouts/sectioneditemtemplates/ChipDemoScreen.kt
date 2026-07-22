@@ -206,7 +206,9 @@ class ChipDemoScreen(carContext: CarContext) : Screen(carContext) {
                                 IconCompat.createWithResource(carContext, R.drawable.ic_face_24px)
                             )
                             .setStyle(
-                                CarIconStyle.Builder().setTint(customCurrentIconColor).build()
+                                CarIconStyle.Builder(CarIconStyle.TINTED)
+                                    .setTint(customCurrentIconColor)
+                                    .build()
                             )
                             .build()
                     )

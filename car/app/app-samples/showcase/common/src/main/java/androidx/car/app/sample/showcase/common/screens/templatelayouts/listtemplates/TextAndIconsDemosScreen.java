@@ -101,7 +101,7 @@ public final class TextAndIconsDemosScreen extends Screen {
                 IconCompat.createWithResource(
                         getCarContext(),
                         imageId))
-                .setStyle(new CarIconStyle.Builder().setTint(color).build())
+                .setStyle(new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(color).build())
                 .build();
     }
 

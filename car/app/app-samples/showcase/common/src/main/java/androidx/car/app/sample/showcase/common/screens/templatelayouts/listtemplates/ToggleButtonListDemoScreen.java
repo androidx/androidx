@@ -121,8 +121,11 @@ public final class ToggleButtonListDemoScreen extends Screen {
                         R.drawable.ic_fastfood_white_48dp));
 
         if (mSetTintToVector) {
-            carIconBuilder = carIconBuilder.setStyle(
-                    new CarIconStyle.Builder().setTint(CarColor.GREEN).build());
+            carIconBuilder =
+                    carIconBuilder.setStyle(
+                            new CarIconStyle.Builder(CarIconStyle.TINTED)
+                                    .setTint(CarColor.GREEN)
+                                    .build());
         }
         return carIconBuilder.build();
     }

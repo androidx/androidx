@@ -1387,6 +1387,8 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public final class CarIcon {
+    method public static androidx.car.app.model.CarIcon createOriginalIcon(androidx.core.graphics.drawable.IconCompat);
+    method public static androidx.car.app.model.CarIcon createTintedIcon(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public androidx.car.app.model.CarIconStyle? getStyle();
     method @Deprecated public androidx.car.app.model.CarColor? getTint();
@@ -1411,6 +1413,7 @@ package androidx.car.app.model {
   public static final class CarIcon.Builder {
     ctor public CarIcon.Builder(androidx.car.app.model.CarIcon);
     ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat);
+    ctor public CarIcon.Builder(androidx.core.graphics.drawable.IconCompat, androidx.car.app.model.CarIconStyle);
     method public androidx.car.app.model.CarIcon build();
     method public androidx.car.app.model.CarIcon.Builder setStyle(androidx.car.app.model.CarIconStyle);
     method @Deprecated public androidx.car.app.model.CarIcon.Builder setTint(androidx.car.app.model.CarColor);
@@ -1429,10 +1432,11 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public class CarIconStyle {
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Shape? getShape();
     method public androidx.car.app.model.CarColor? getTint();
+    field public static final androidx.car.app.model.CarIconStyle ORIGINAL;
+    field public static final androidx.car.app.model.CarIconStyle TINTED;
   }
 
   public static final class CarIconStyle.Builder {
-    ctor public CarIconStyle.Builder();
     ctor public CarIconStyle.Builder(androidx.car.app.model.CarIconStyle);
     method public androidx.car.app.model.CarIconStyle build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIconStyle.Builder setShape(androidx.car.app.model.Shape);

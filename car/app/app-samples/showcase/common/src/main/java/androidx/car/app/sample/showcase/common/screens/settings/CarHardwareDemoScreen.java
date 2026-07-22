@@ -68,6 +68,9 @@ public final class CarHardwareDemoScreen extends Screen {
 
     @Override
     public @NonNull Template onGetTemplate() {
+        CarIconStyle carIconStyle = new CarIconStyle.Builder(CarIconStyle.TINTED)
+                .setTint(CarColor.DEFAULT)
+                .build();
         ActionStrip actionStrip =
                 new ActionStrip.Builder()
                         // Add a Button to show the CarHardware info screen
@@ -77,8 +80,7 @@ public final class CarHardwareDemoScreen extends Screen {
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
                                                         R.drawable.info_gm_grey_24dp))
-                                                .setStyle(new CarIconStyle.Builder().setTint(
-                                                        CarColor.DEFAULT).build())
+                                                .setStyle(carIconStyle)
                                                 .build())
                                 .setOnClickListener(() -> getScreenManager().push(
                                         new CarHardwareInfoScreen(getCarContext())))
