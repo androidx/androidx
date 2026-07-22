@@ -99,10 +99,7 @@ public fun HorizontalFloatingToolbar(
     HorizontalOrbiter(LocalHorizontalFloatingToolbarOrbiterProperties.current) {
         Row(
             modifier =
-                Modifier.then(
-                        scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                            ?: Modifier
-                    )
+                Modifier.then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier)
                     .heightIn(min = XrFloatingToolbarTokens.HorizontalToolbarContainerHeight)
                     .background(color = colors.toolbarContainerColor)
                     .padding(contentPadding),
@@ -201,10 +198,7 @@ public fun HorizontalFloatingToolbar(
         Row(
             modifier =
                 Modifier.heightIn(XrFloatingToolbarTokens.HorizontalToolbarContainerHeight)
-                    .then(
-                        scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                            ?: Modifier
-                    ),
+                    .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier),
             horizontalArrangement = Arrangement.spacedBy(XrFloatingToolbarTokens.ToolbarToFabGap),
         ) {
             val expandedState by rememberUpdatedState(expanded)
@@ -299,10 +293,7 @@ public fun VerticalFloatingToolbar(
     VerticalOrbiter(properties = orbiterProperties) {
         Column(
             modifier =
-                Modifier.then(
-                        scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                            ?: Modifier
-                    )
+                Modifier.then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier)
                     .widthIn(min = XrFloatingToolbarTokens.VerticalToolbarContainerWidth)
                     .background(color = colors.toolbarContainerColor)
                     .padding(contentPadding),
@@ -389,10 +380,7 @@ public fun VerticalFloatingToolbar(
         Column(
             modifier =
                 Modifier.widthIn(XrFloatingToolbarTokens.VerticalToolbarContainerWidth)
-                    .then(
-                        scrollBehavior?.let { with(it) { Modifier.floatingScrollBehavior() } }
-                            ?: Modifier
-                    ),
+                    .then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier),
             verticalArrangement = Arrangement.spacedBy(XrFloatingToolbarTokens.ToolbarToFabGap),
         ) {
             val expandedState by rememberUpdatedState(expanded)

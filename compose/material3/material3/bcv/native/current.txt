@@ -350,12 +350,14 @@ sealed interface androidx.compose.material3/FloatingToolbarScrollBehavior : andr
         abstract fun <get-exitDirection>(): androidx.compose.material3/FloatingToolbarExitDirection // androidx.compose.material3/FloatingToolbarScrollBehavior.exitDirection.<get-exitDirection>|<get-exitDirection>(){}[0]
     abstract val flingAnimationSpec // androidx.compose.material3/FloatingToolbarScrollBehavior.flingAnimationSpec|{}flingAnimationSpec[0]
         abstract fun <get-flingAnimationSpec>(): androidx.compose.animation.core/DecayAnimationSpec<kotlin/Float> // androidx.compose.material3/FloatingToolbarScrollBehavior.flingAnimationSpec.<get-flingAnimationSpec>|<get-flingAnimationSpec>(){}[0]
+    abstract val floatingScrollBehaviorModifier // androidx.compose.material3/FloatingToolbarScrollBehavior.floatingScrollBehaviorModifier|{}floatingScrollBehaviorModifier[0]
+        abstract fun <get-floatingScrollBehaviorModifier>(): androidx.compose.ui/Modifier // androidx.compose.material3/FloatingToolbarScrollBehavior.floatingScrollBehaviorModifier.<get-floatingScrollBehaviorModifier>|<get-floatingScrollBehaviorModifier>(){}[0]
     abstract val snapAnimationSpec // androidx.compose.material3/FloatingToolbarScrollBehavior.snapAnimationSpec|{}snapAnimationSpec[0]
         abstract fun <get-snapAnimationSpec>(): androidx.compose.animation.core/AnimationSpec<kotlin/Float> // androidx.compose.material3/FloatingToolbarScrollBehavior.snapAnimationSpec.<get-snapAnimationSpec>|<get-snapAnimationSpec>(){}[0]
     abstract val state // androidx.compose.material3/FloatingToolbarScrollBehavior.state|{}state[0]
         abstract fun <get-state>(): androidx.compose.material3/FloatingToolbarState // androidx.compose.material3/FloatingToolbarScrollBehavior.state.<get-state>|<get-state>(){}[0]
 
-    abstract fun (androidx.compose.ui/Modifier).floatingScrollBehavior(): androidx.compose.ui/Modifier // androidx.compose.material3/FloatingToolbarScrollBehavior.floatingScrollBehavior|floatingScrollBehavior@androidx.compose.ui.Modifier(){}[0]
+    open fun (androidx.compose.ui/Modifier).floatingScrollBehavior(): androidx.compose.ui/Modifier // androidx.compose.material3/FloatingToolbarScrollBehavior.floatingScrollBehavior|floatingScrollBehavior@androidx.compose.ui.Modifier(){}[0]
 }
 
 abstract class androidx.compose.material3/TextFieldLabelPosition { // androidx.compose.material3/TextFieldLabelPosition|null[0]
