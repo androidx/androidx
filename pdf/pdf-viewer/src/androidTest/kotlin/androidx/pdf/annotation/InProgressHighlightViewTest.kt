@@ -26,6 +26,7 @@ import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.annotation.content.StampAnnotation
@@ -181,6 +182,7 @@ class InProgressHighlightViewTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun textHighlight_withError_invokesErrorCallback() {
         val exception = DeadObjectException()
@@ -347,6 +349,7 @@ class InProgressHighlightViewTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun setupActivity(
         pageInfoProvider: PageInfoProvider =
             PageInfoProvider().apply {
@@ -380,6 +383,7 @@ class InProgressHighlightViewTest {
         return MotionEvent.obtain(now, now, action, x, y, 0)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     internal class FakeTextBoundsProvider(private val pdfDocument: PdfDocument) :
         TextBoundsProvider {
         override suspend fun getTextBoundsBetweenPoints(

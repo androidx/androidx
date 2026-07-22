@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import androidx.pdf.annotation.highlights.utils.applyTransform
 import androidx.pdf.annotation.highlights.utils.computeBoundingBox
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class HighlightUtilsTest {

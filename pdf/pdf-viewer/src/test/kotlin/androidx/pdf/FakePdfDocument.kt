@@ -109,6 +109,7 @@ internal open class FakePdfDocument(
         } ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
         if (pageNum == -1) return null
         return getSampleImagePdfObject()
@@ -140,6 +141,7 @@ internal open class FakePdfDocument(
         return annotationsPerPage[pageNum] ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
         if (exceptionToThrow != null) throw exceptionToThrow
         return pageObjectsPerPage[pageNum]?.mapNotNull { keyedObject ->
@@ -401,6 +403,7 @@ internal open class FakePdfDocument(
                     ),
             )
 
+        @OptIn(ExperimentalPdfApi::class)
         fun getSampleImagePdfObject(): ImagePdfObject {
             val bounds = RectF(0f, 0f, 100f, 100f)
             val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)

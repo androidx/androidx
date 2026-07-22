@@ -30,6 +30,7 @@ import android.widget.ImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.lifecycleScope
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.featureflag.PdfFeatureFlags
@@ -118,6 +119,7 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         activePdfDocument = null
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun onInitOcrProvider(): OcrProvider {
         return MlKitOcrProvider()
     }

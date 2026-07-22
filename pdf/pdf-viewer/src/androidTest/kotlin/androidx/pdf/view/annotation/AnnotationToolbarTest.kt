@@ -19,6 +19,7 @@ package androidx.pdf.view.annotation
 import android.content.Context
 import android.view.ViewGroup.LayoutParams
 import android.widget.LinearLayout
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R
 import androidx.pdf.util.setSliderValue
@@ -57,6 +58,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@OptIn(ExperimentalPdfApi::class)
 class AnnotationToolbarTest {
 
     @get:Rule val activityRule = ActivityScenarioRule(PdfTestActivity::class.java)

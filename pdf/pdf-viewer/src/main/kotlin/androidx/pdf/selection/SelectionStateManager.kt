@@ -25,6 +25,7 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import androidx.annotation.IntDef
 import androidx.annotation.VisibleForTesting
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
@@ -70,6 +71,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 /**
  * Owns and updates all mutable state related to content selection in [androidx.pdf.view.PdfView]
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class SelectionStateManager(
     private val pdfDocument: PdfDocument,
     private val backgroundScope: CoroutineScope,

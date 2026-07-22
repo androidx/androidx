@@ -25,6 +25,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode
 import androidx.pdf.annotation.InProgressHighlightViewTest.FakeTextBoundsProvider
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
@@ -51,6 +52,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalPdfApi::class)
 class AnnotationsViewTest {
 
     private lateinit var annotationsView: AnnotationsView

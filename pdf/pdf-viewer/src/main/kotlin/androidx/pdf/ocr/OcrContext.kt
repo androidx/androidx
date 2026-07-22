@@ -19,6 +19,7 @@ package androidx.pdf.ocr
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.pdf.Dimension
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.selection.model.TextSelection
@@ -28,6 +29,7 @@ import androidx.pdf.util.toImagePoint
 
 /** Holds OCR results and the spatial data needed to map touches back to PDF pixels. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(ExperimentalPdfApi::class)
 public data class OcrContext(
     val ocrResult: OcrResult,
     val pageNum: Int,
@@ -36,6 +38,7 @@ public data class OcrContext(
 )
 
 /** Gets all recognized text in the image in PDF coordinates. */
+@OptIn(ExperimentalPdfApi::class)
 internal fun OcrContext.getAllText(): TextSelection {
     val ocrAllText = ocrResult.getAllText()
     return TextSelection(ocrAllText.text, mapOcrTextToPdfBounds(ocrAllText))
@@ -43,6 +46,7 @@ internal fun OcrContext.getAllText(): TextSelection {
 
 /** Searches for occurrences of the [query] and returns their bounding boxes in PDF coordinates. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(ExperimentalPdfApi::class)
 public fun OcrContext.search(query: String, ignoreCase: Boolean = true): List<List<RectF>> {
     return ocrResult.getSearchBounds(query, ignoreCase).map { match ->
         match.map { ocrRect -> ocrRect.toPdfRect(pageNum, imageRect, bitmapSize).toRectF() }
@@ -50,6 +54,7 @@ public fun OcrContext.search(query: String, ignoreCase: Boolean = true): List<Li
 }
 
 /** Gets text between two [PdfPoint]s on the page. */
+@OptIn(ExperimentalPdfApi::class)
 internal fun OcrContext.getText(startPoint: PdfPoint, endPoint: PdfPoint): TextSelection {
     val startImagePoint = startPoint.toImagePoint(imageRect, bitmapSize)
     val endImagePoint = endPoint.toImagePoint(imageRect, bitmapSize)
@@ -60,6 +65,7 @@ internal fun OcrContext.getText(startPoint: PdfPoint, endPoint: PdfPoint): TextS
 }
 
 /** Returns the word and its bounding boxes at the specified coordinate. */
+@OptIn(ExperimentalPdfApi::class)
 internal fun OcrContext.getWordAt(point: PdfPoint): TextSelection? {
     if (!imageRect.contains(point.x, point.y)) return null
     val imagePoint = point.toImagePoint(imageRect, bitmapSize)
@@ -69,6 +75,7 @@ internal fun OcrContext.getWordAt(point: PdfPoint): TextSelection? {
 }
 
 /** Maps [OcrText] bounds from image coordinates to PDF coordinates. */
+@OptIn(ExperimentalPdfApi::class)
 private fun OcrContext.mapOcrTextToPdfBounds(ocrText: OcrText): List<PdfRect> {
     return ocrText.bounds.map { it.toPdfRect(pageNum, imageRect, bitmapSize) }
 }

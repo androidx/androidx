@@ -18,6 +18,7 @@ package androidx.pdf.annotation.content
 
 import android.graphics.Path
 import androidx.annotation.RestrictTo
+import androidx.pdf.ExperimentalPdfApi
 
 /** Tolerance level for path approximation. */
 private const val ACCEPTABLE_TOLERANCE_IN_PATH = 0.5f
@@ -28,6 +29,7 @@ private const val ACCEPTABLE_TOLERANCE_IN_PATH = 0.5f
  * @return A [Path] object constructed from the input points. Returns an empty Path if the input
  *   list is empty.
  */
+@OptIn(ExperimentalPdfApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun List<PathPdfObject.PathInput>.getPathFromPathInputs(): Path {
     val path = Path()
@@ -47,6 +49,7 @@ public fun List<PathPdfObject.PathInput>.getPathFromPathInputs(): Path {
  * @return A list of [PathPdfObject.PathInput] constructed from the path object. Returns an empty
  *   list if the path is empty.
  */
+@OptIn(ExperimentalPdfApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Path.getPathInputsFromPath(): List<PathPdfObject.PathInput> {
 

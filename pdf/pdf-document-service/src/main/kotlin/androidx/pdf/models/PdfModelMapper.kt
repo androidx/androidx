@@ -17,6 +17,7 @@
 package androidx.pdf.models
 
 import androidx.pdf.DraftEditOperation as ParcelableDraftEditOperation
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.InsertDraftEditOperation as ParcelableInsertDraftEditOperation
 import androidx.pdf.RemoveDraftEditOperation as ParcelableRemoveDraftEditOperation
 import androidx.pdf.UpdateDraftEditOperation as ParcelableUpdateDraftEditOperation
@@ -44,6 +45,7 @@ import androidx.pdf.annotation.models.StampAnnotation as ParcelableStamp
 /**
  * Utility functions to convert between public models and their internal Parcelable representations.
  */
+@OptIn(ExperimentalPdfApi::class)
 internal object PdfModelMapper {
 
     /**

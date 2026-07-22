@@ -18,6 +18,7 @@ package androidx.pdf.ink
 
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.annotation.TextBoundsProvider
@@ -26,6 +27,7 @@ import androidx.pdf.content.PdfPageTextContent
 /**
  * An implementation of [TextBoundsProvider] that retrieves text boundaries from a [PdfDocument].
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class DocumentTextBoundsProvider(private val pdfDocument: PdfDocument) :
     TextBoundsProvider {
     override suspend fun getTextBoundsBetweenPoints(

@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.manager
 
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
 import java.util.UUID
@@ -36,6 +37,7 @@ class FakePdfAnnotationsManager : PdfAnnotationsManager {
         keysToRemove.forEach { storage.remove(it) }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getAnnotationModifications(): EditsDraft {
         TODO("Not yet implemented")
     }

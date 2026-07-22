@@ -269,7 +269,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * @return The [OcrProvider] instance to be used, or `null` if OCR (Optical Character
      *   Recognition) is not supported or desired.
      */
-    public open fun onInitOcrProvider(): OcrProvider? = null
+    @ExperimentalPdfApi public open fun onInitOcrProvider(): OcrProvider? = null
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     protected open val documentViewModel: PdfDocumentViewModel by viewModels {
@@ -372,6 +372,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Only initialize OcrProvider if it's not already set, to avoid recreation on rotation.
@@ -530,6 +531,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * search), and touch/scroll events to manage UI interactions like closing search and handling
      * gestures.
      */
+    @OptIn(ExperimentalPdfApi::class)
     private fun setupPdfView() {
         pdfViewManager =
             PdfViewManager(

@@ -28,6 +28,7 @@ import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.PdfFeature
@@ -135,6 +136,7 @@ internal open class FakePdfDocument(
         } ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
         return null
     }
@@ -165,6 +167,7 @@ internal open class FakePdfDocument(
         return annotationsPerPage[pageNum] ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getPageObjects(pageNum: Int, types: Long): List<KeyedPdfObject> {
         if (exceptionToThrow != null) throw exceptionToThrow
         return pageObjectsPerPage[pageNum]?.mapNotNull { keyedObject ->

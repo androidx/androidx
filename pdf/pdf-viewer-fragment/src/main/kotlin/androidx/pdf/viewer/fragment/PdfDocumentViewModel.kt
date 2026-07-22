@@ -29,6 +29,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.EditablePdfDocument
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
@@ -145,6 +146,7 @@ public open class PdfDocumentViewModel(
     protected val formEditInfos: ArrayList<FormEditInfo> = ArrayList()
 
     /** Provider for OCR-based search in images. */
+    @OptIn(ExperimentalPdfApi::class)
     internal var ocrProvider: OcrProvider? = null
         set(value) {
             if (field != value) {
@@ -417,6 +419,7 @@ public open class PdfDocumentViewModel(
         state[IMMERSIVE_MODE_STATE_KEY] = !isImmersiveModeDesired
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private suspend fun openDocument(uri: Uri, password: String? = null) {
         /**
          * PdfDocument, if ever created, will be stored in DocumentLoaded state. This state could be
@@ -540,6 +543,7 @@ public open class PdfDocumentViewModel(
         (_fragmentUiScreenState.value as? PdfFragmentUiState.DocumentLoaded)?.pdfDocument?.close()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun onCleared() {
         super.onCleared()
         releaseDocument()

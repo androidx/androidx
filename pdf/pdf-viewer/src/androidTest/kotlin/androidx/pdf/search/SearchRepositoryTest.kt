@@ -23,6 +23,7 @@ import android.graphics.RectF
 import android.os.DeadObjectException
 import android.os.RemoteException
 import android.util.SparseArray
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.annotation.content.KeyedPdfObject
 import androidx.pdf.content.PageMatchBounds
@@ -273,6 +274,7 @@ class SearchRepositoryTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testSearchDocument_withOcrResults() = runTest {
         val pageNum = 0
@@ -314,6 +316,7 @@ class SearchRepositoryTest {
         assertEquals(25f, matchBounds.bounds[0].bottom)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testSearchDocument_mergesNativeAndOcrResults() = runTest {
         val pageNum = 0
@@ -362,6 +365,7 @@ class SearchRepositoryTest {
         assertEquals(40f, matches[2].bounds[0].top)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testSearchDocument_noOcrProvider_onlyNativeResults() = runTest {
         val pageNum = 0
@@ -398,6 +402,7 @@ class SearchRepositoryTest {
         assertEquals(20f, matches[0].bounds[0].top)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testSearchDocument_preservesNativeResultsWhenNoOcrMatchesOnPage() = runTest {
         val pageNum = 0

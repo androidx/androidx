@@ -19,6 +19,7 @@ package androidx.pdf.annotation.highlights.utils
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import androidx.pdf.constants.PathOps
@@ -45,6 +46,7 @@ internal fun List<RectF>.computeBoundingBox(): RectF {
 }
 
 /** Converts a list of [RectF] bounds into [PathPdfObject]s. */
+@OptIn(ExperimentalPdfApi::class)
 internal fun List<RectF>.toPathPdfObjects(color: Int): List<PathPdfObject> {
     return map { rect ->
         PathPdfObject(

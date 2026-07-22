@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.drawer
 
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.content.TestPdfAnnotation
 import com.google.common.truth.Truth.assertThat
@@ -39,6 +40,7 @@ class PdfAnnotationDrawerFactoryImplTest {
         pdfAnnotationDrawerFactory = PdfAnnotationDrawerFactoryImpl(pdfObjectDrawerFactory)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun create_withStampAnnotation_returnsStampPdfAnnotationDrawer() {
         val stampAnnotation =

@@ -16,8 +16,10 @@
 
 package androidx.pdf.annotation
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 
+@OptIn(ExperimentalPdfApi::class)
 internal class FakeOnAnnotationLocatedListener : AnnotationsView.OnAnnotationLocatedListener {
     var isHit: Boolean = false
         private set

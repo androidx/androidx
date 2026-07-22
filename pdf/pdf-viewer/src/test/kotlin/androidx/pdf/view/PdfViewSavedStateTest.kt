@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.graphics.Point
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.FakePdfDocument
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageTextContent
@@ -50,6 +51,7 @@ class PdfViewSavedStateTest {
             super.onSaveInstanceState()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun createFakeSelectionStateManager(
         initialSelection: SelectionModel?
     ): SelectionStateManager =

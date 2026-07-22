@@ -22,6 +22,7 @@ import android.graphics.RectF
 import android.net.Uri
 import android.os.Parcel
 import android.text.TextUtils
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.annotation.content.ImagePdfObject
@@ -87,6 +88,7 @@ internal fun PageSelection.toViewSelection(): List<Selection> {
     return selections
 }
 
+@OptIn(ExperimentalPdfApi::class)
 internal fun ImagePdfObject.toImageSelection(pageNum: Int): ImageSelection =
     ImageSelection(
         bitmap,
@@ -94,6 +96,7 @@ internal fun ImagePdfObject.toImageSelection(pageNum: Int): ImageSelection =
     )
 
 /** The intrinsic dimensions of this object's bitmap in pixels. */
+@OptIn(ExperimentalPdfApi::class)
 internal val ImagePdfObject.bitmapSize: Point
     get() = Point(bitmap.width, bitmap.height)
 

@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.net.Uri
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPoint
@@ -460,6 +461,7 @@ class PdfDocumentViewModelTest {
         assertTrue(errorState.exception is IllegalStateException)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_ocrProvider_closedOnCleared() = runTest {
         val ocrProvider = FakeOcrProvider()
@@ -472,6 +474,7 @@ class PdfDocumentViewModelTest {
         assertTrue(ocrProvider.isClosed)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_ocrProvider_closedOnReplace() = runTest {
         val oldProvider = FakeOcrProvider()
@@ -521,6 +524,7 @@ class PdfDocumentViewModelTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private class FakeOcrProvider : OcrProvider {
         var isClosed = false
 

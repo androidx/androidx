@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Path
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import com.google.common.truth.Truth.assertThat
@@ -31,6 +32,7 @@ import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowCanvas
 import org.robolectric.shadows.ShadowPath
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PathPdfObjectDrawerTest {

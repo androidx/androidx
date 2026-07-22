@@ -19,6 +19,7 @@ package androidx.pdf.ocr
 import android.graphics.Rect
 import android.graphics.RectF
 import androidx.pdf.Dimension
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -29,6 +30,7 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@OptIn(ExperimentalPdfApi::class)
 class OcrContextTest {
 
     @Test

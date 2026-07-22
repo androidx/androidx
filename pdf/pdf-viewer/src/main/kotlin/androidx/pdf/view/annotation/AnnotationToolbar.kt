@@ -38,6 +38,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.HandlerCompat
 import androidx.core.view.isVisible
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.view.annotation.brush.BrushSizeSelectorView
 import androidx.pdf.view.annotation.brush.model.BrushSizes.highlightBrushSizes
@@ -85,6 +86,7 @@ import kotlinx.coroutines.launch
  * such as pen, highlighter, eraser, etc. aligned based on the [dockState] set.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalPdfApi
 public class AnnotationToolbar
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :

@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.pdf.annotation {
 
-  public final class AnnotationsView extends android.view.ViewGroup {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationsView extends android.view.ViewGroup {
     ctor public AnnotationsView(android.content.Context context);
     ctor public AnnotationsView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public AnnotationsView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
@@ -19,32 +19,32 @@ package androidx.pdf.annotation {
     field public static final androidx.pdf.annotation.AnnotationsView.Companion Companion;
   }
 
-  public abstract static class AnnotationsView.AnnotationMode {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public abstract static class AnnotationsView.AnnotationMode {
   }
 
-  public static final class AnnotationsView.AnnotationMode.Highlight extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class AnnotationsView.AnnotationMode.Highlight extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
     ctor public AnnotationsView.AnnotationMode.Highlight(@ColorInt int color);
     method @InaccessibleFromKotlin @ColorInt public int getColor();
     property @ColorInt public int color;
   }
 
-  public static final class AnnotationsView.AnnotationMode.Select extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class AnnotationsView.AnnotationMode.Select extends androidx.pdf.annotation.AnnotationsView.AnnotationMode {
     field public static final androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select INSTANCE;
   }
 
-  public static final class AnnotationsView.Companion {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class AnnotationsView.Companion {
   }
 
-  public static interface AnnotationsView.OnAnnotationEditListener {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static interface AnnotationsView.OnAnnotationEditListener {
     method public void onAnnotationCreated(androidx.pdf.annotation.content.PdfAnnotation annotation);
     method public void onAnnotationError(Throwable throwable);
   }
 
-  public static fun interface AnnotationsView.OnAnnotationLocatedListener {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static fun interface AnnotationsView.OnAnnotationLocatedListener {
     method public void onAnnotationsLocated(float x, float y, java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation> annotations);
   }
 
-  public static interface AnnotationsView.OnGestureClaimListener {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static interface AnnotationsView.OnGestureClaimListener {
     method public void onGestureAbandoned();
     method public void onGestureClaimed();
   }
@@ -61,7 +61,7 @@ package androidx.pdf.annotation {
     property public float zoom;
   }
 
-  public interface TextBoundsProvider {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public interface TextBoundsProvider {
     method public suspend Object? getTextBoundsBetweenPoints(int pageNum, android.graphics.PointF start, android.graphics.PointF end, kotlin.coroutines.Continuation<? super java.util.List<? extends android.graphics.RectF>>);
   }
 
@@ -69,12 +69,12 @@ package androidx.pdf.annotation {
 
 package androidx.pdf.ocr {
 
-  public interface OcrProvider extends java.io.Closeable {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public interface OcrProvider extends java.io.Closeable {
     method public void close();
     method public suspend Object? recognizeText(android.graphics.Bitmap image, kotlin.coroutines.Continuation<? super androidx.pdf.ocr.OcrResult?>);
   }
 
-  public interface OcrResult {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public interface OcrResult {
     method public androidx.pdf.ocr.OcrText getAllText();
     method @WorkerThread public java.util.List<java.util.List<android.graphics.Rect>> getSearchBounds(String searchTerm, optional boolean ignoreCase);
     method @BytecodeOnly @WorkerThread public static java.util.List! getSearchBounds$default(androidx.pdf.ocr.OcrResult!, String!, boolean, int, Object!);
@@ -82,7 +82,7 @@ package androidx.pdf.ocr {
     method public androidx.pdf.ocr.OcrText? getWordAt(int x, int y);
   }
 
-  public final class OcrText {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class OcrText {
     ctor public OcrText(String text, java.util.List<android.graphics.Rect> bounds);
     method @InaccessibleFromKotlin public java.util.List<android.graphics.Rect> getBounds();
     method @InaccessibleFromKotlin public String getText();
@@ -162,7 +162,7 @@ package androidx.pdf.view {
     method public final void setLinkClickListener(androidx.pdf.view.PdfView.LinkClickListener? listener);
     method @InaccessibleFromKotlin public final void setMaxZoom(@FloatRange(from=0.5, to=25.0) float);
     method @InaccessibleFromKotlin public final void setMinZoom(@FloatRange(from=0.5, to=25.0) float);
-    method public final void setOcrProvider(androidx.pdf.ocr.OcrProvider? ocrProvider);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final void setOcrProvider(androidx.pdf.ocr.OcrProvider? ocrProvider);
     method @InaccessibleFromKotlin public final void setPagesPerRow(int);
     method @InaccessibleFromKotlin public final void setPdfDocument(androidx.pdf.PdfDocument?);
     method @InaccessibleFromKotlin public final void setVerticalAlignment(int);
