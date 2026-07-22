@@ -18,13 +18,15 @@ package androidx.camera.camera2.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
 import android.util.Range
 import android.view.Surface
 import androidx.annotation.OptIn
+import androidx.camera.camera2.impl.Camera2Logger.warn
 import androidx.camera.camera2.impl.CameraProperties
+import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.common.UnsafeWrapper
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraInfo
@@ -46,8 +48,10 @@ import java.lang.Class
 @SuppressLint(
     "UnsafeOptInUsageError" // Suppressed due to experimental API
 )
-public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraProperties) :
-    CameraInfo, UnsafeWrapper {
+public class PhysicalCameraInfoAdapter(
+    private val cameraProperties: CameraProperties,
+    private val intrinsicZoomCalculator: IntrinsicZoomCalculator,
+) : CameraInfo, UnsafeWrapper {
 
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
@@ -104,9 +108,14 @@ public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraPrope
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
-    override fun getIntrinsicZoomRatio(): Float {
-        throw UnsupportedOperationException("Physical camera doesn't support this function")
-    }
+    override fun getIntrinsicZoomRatio(): Float =
+        intrinsicZoomCalculator.calculateIntrinsicZoomRatio(cameraProperties.metadata)
+            ?: run {
+                warn {
+                    "Failed to calculate intrinsic zoom ratio for physical camera: ${cameraProperties.cameraId}"
+                }
+                CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
+            }
 
     override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
         throw UnsupportedOperationException("Physical camera doesn't support this function")
