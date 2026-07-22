@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ink.brush.behavior
+package androidx.ink.brush
 
-import androidx.ink.nativeloader.cinterop.NodeNative_calculateMinimumRequiredVersion
-import androidx.ink.nativeloader.cinterop.NodeNative_free
+import androidx.ink.nativeloader.cinterop.SelfOverlapNative_calculateMinimumRequiredVersion
 import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
-actual internal object NodeNative {
-    actual fun free(nodeNativePointer: Long) = NodeNative_free(nodeNativePointer)
-
-    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
-        NodeNative_calculateMinimumRequiredVersion(nativePointer)
+actual internal object SelfOverlapNative {
+    actual fun calculateMinimumRequiredVersion(selfOverlapInt: Int): Int =
+        SelfOverlapNative_calculateMinimumRequiredVersion(selfOverlapInt)
 }

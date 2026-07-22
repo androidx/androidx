@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.ink.brush.behavior
+package androidx.ink.brush
 
-import androidx.ink.nativeloader.cinterop.NodeNative_calculateMinimumRequiredVersion
-import androidx.ink.nativeloader.cinterop.NodeNative_free
-import kotlinx.cinterop.ExperimentalForeignApi
+import androidx.ink.nativeloader.InkInternalOnlyApi
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
-@OptIn(ExperimentalForeignApi::class)
-actual internal object NodeNative {
-    actual fun free(nodeNativePointer: Long) = NodeNative_free(nodeNativePointer)
+@UsedByNative
+@OptIn(InkInternalOnlyApi::class)
+actual internal object InputToolTypeNative {
+    init {
+        NativeLoader.load()
+    }
 
-    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
-        NodeNative_calculateMinimumRequiredVersion(nativePointer)
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(value: Int): Int
 }

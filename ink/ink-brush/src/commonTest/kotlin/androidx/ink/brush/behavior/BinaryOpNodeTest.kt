@@ -16,6 +16,8 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.BinaryOpNode.BinaryOp
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -76,5 +78,12 @@ class BinaryOpNodeTest {
         val node3 = BinaryOpNode(BinaryOp.SUM, ConstantNode(0f), ConstantNode(2f))
         assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
         assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(BinaryOp.SUM.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 }

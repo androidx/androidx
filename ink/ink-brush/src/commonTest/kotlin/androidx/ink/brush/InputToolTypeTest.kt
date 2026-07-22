@@ -40,4 +40,11 @@ class InputToolTypeTest {
         assertThat(InputToolType.fromInt(3)).isEqualTo(InputToolType.STYLUS)
         assertFailsWith<IllegalStateException> { InputToolType.fromInt(4) }
     }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(InputToolType.STYLUS.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+    }
 }

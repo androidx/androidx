@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
@@ -94,6 +97,11 @@ private constructor(
 
         override fun toString(): String = "BinaryOp." + name
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @ExperimentalInkCustomBrushApi
+        public fun calculateMinimumRequiredVersion(): Version =
+            Version.fromInt(BinaryOpNodeNative.getOperationMinimumRequiredVersion(value))
+
         public companion object {
             private val VALUE_TO_INSTANCE = MutableIntObjectMap<BinaryOp>()
 
@@ -135,4 +143,6 @@ expect internal object BinaryOpNodeNative {
     fun create(operation: Int): Long
 
     fun getOperationInt(nativePointer: Long): Int
+
+    fun getOperationMinimumRequiredVersion(operationInt: Int): Int
 }

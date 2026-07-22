@@ -462,6 +462,11 @@ private constructor(
 
         internal val nativePointer: Long by NativePointer(nativeAlloc, InputModelNative::free)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @ExperimentalInkCustomBrushApi
+        public fun calculateMinimumRequiredVersion(): Version =
+            Version.fromInt(InputModelNative.calculateMinimumRequiredVersion(nativePointer))
+
         public companion object {
             internal fun wrapNative(inputModelType: Int, nativeAlloc: () -> Long): InputModel {
                 return when (inputModelType) {
@@ -586,6 +591,8 @@ expect internal object BrushFamilyNative {
 }
 
 expect internal object InputModelNative {
+    fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+
     fun createNoParametersModel(type: Int): Long
 
     fun createSlidingWindowModel(windowDurationMillis: Long, upsamplingFrequencyHz: Int): Long

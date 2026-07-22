@@ -16,14 +16,11 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.ink.nativeloader.cinterop.NodeNative_calculateMinimumRequiredVersion
-import androidx.ink.nativeloader.cinterop.NodeNative_free
+import androidx.ink.nativeloader.cinterop.ProgressDomainNative_calculateMinimumRequiredVersion
 import kotlinx.cinterop.ExperimentalForeignApi
 
 @OptIn(ExperimentalForeignApi::class)
-actual internal object NodeNative {
-    actual fun free(nodeNativePointer: Long) = NodeNative_free(nodeNativePointer)
-
-    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
-        NodeNative_calculateMinimumRequiredVersion(nativePointer)
+actual internal object ProgressDomainNative {
+    actual fun calculateMinimumRequiredVersion(domainInt: Int): Int =
+        ProgressDomainNative_calculateMinimumRequiredVersion(domainInt)
 }

@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.ink.nativeloader.InkInternalOnlyApi
+import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_createFromOrderedNodes
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_free
 import androidx.ink.nativeloader.cinterop.BrushBehaviorNative_getDeveloperComment
@@ -58,4 +59,7 @@ actual internal object BrushBehaviorNative {
 
     actual fun newCopyOfNode(nativePointer: Long, index: Int): Long =
         BrushBehaviorNative_newCopyOfNode(nativePointer, index)
+
+    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
+        BrushBehaviorNative_calculateMinimumRequiredVersion(nativePointer)
 }

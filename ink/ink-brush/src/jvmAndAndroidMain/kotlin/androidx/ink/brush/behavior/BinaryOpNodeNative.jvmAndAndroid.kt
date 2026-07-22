@@ -30,4 +30,6 @@ actual internal object BinaryOpNodeNative {
     @UsedByNative actual external fun create(operation: Int): Long
 
     @UsedByNative actual external fun getOperationInt(nativePointer: Long): Int
+
+    @UsedByNative actual external fun getOperationMinimumRequiredVersion(operationInt: Int): Int
 }

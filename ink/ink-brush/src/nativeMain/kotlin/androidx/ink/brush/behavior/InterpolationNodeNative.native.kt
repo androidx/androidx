@@ -19,6 +19,7 @@ package androidx.ink.brush.behavior
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.InterpolationNodeNative_create
 import androidx.ink.nativeloader.cinterop.InterpolationNodeNative_getInterpolationInt
+import androidx.ink.nativeloader.cinterop.InterpolationNodeNative_getInterpolationMinimumRequiredVersion
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
@@ -33,4 +34,7 @@ actual internal object InterpolationNodeNative {
 
     actual fun getInterpolationInt(nativePointer: Long): Int =
         InterpolationNodeNative_getInterpolationInt(nativePointer)
+
+    actual fun getInterpolationMinimumRequiredVersion(interpolationInt: Int): Int =
+        InterpolationNodeNative_getInterpolationMinimumRequiredVersion(interpolationInt)
 }

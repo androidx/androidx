@@ -16,7 +16,10 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
@@ -117,6 +120,11 @@ private constructor(
 
         override fun toString(): String = "Interpolation.$name"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        @ExperimentalInkCustomBrushApi
+        public fun calculateMinimumRequiredVersion(): Version =
+            Version.fromInt(InterpolationNodeNative.getInterpolationMinimumRequiredVersion(value))
+
         public companion object {
             private val VALUE_TO_INSTANCE = MutableIntObjectMap<Interpolation>()
 
@@ -150,4 +158,6 @@ expect internal object InterpolationNodeNative {
     fun create(interpolation: Int): Long
 
     fun getInterpolationInt(nativePointer: Long): Int
+
+    fun getInterpolationMinimumRequiredVersion(interpolationInt: Int): Int
 }

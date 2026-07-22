@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,10 @@ import androidx.ink.nativeloader.UsedByNative
 
 @UsedByNative
 @OptIn(InkInternalOnlyApi::class)
-actual internal object BrushBehaviorNative {
+actual internal object SelfOverlapNative {
     init {
         NativeLoader.load()
     }
 
-    @UsedByNative
-    actual external fun createFromOrderedNodes(
-        orderdNodeNativePointers: LongArray,
-        developerComment: String,
-    ): Long
-
-    @UsedByNative actual external fun free(nativePointer: Long)
-
-    @UsedByNative actual external fun getNodeCount(nativePointer: Long): Int
-
-    @UsedByNative actual external fun getNodeTypeInt(nativePointer: Long, index: Int): Int
-
-    @UsedByNative actual external fun getDeveloperComment(nativePointer: Long): String
-
-    @UsedByNative actual external fun newCopyOfNode(nativePointer: Long, index: Int): Long
-
-    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(selfOverlapInt: Int): Int
 }
