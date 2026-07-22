@@ -440,7 +440,10 @@
 [linuxX64]: Removed declaration androidx.compose.material3/rememberModalBottomSheetState(kotlin/Boolean, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberStandardBottomSheetState(androidx.compose.material3/SheetValue?, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberTooltipState(kotlin/Boolean, kotlin/Boolean, androidx.compose.foundation/MutatorMutex?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
-[linuxX64]: Added declaration contentOffset to androidx.compose.material3/SearchBarScrollBehavior
+[linuxX64]: Removed declaration scrollOffset from androidx.compose.material3/SearchBarScrollBehavior
+[linuxX64]: Removed declaration scrollOffsetLimit from androidx.compose.material3/SearchBarScrollBehavior
+[linuxX64]: Added declaration scrollState to androidx.compose.material3/SearchBarScrollBehavior
+[linuxX64]: Added declaration searchBarScrollBehaviorModifier to androidx.compose.material3/SearchBarScrollBehavior
 [linuxX64]: Removed declaration collapsedCoords from androidx.compose.material3/SearchBarState
 [linuxX64]: Removed declaration (androidx.compose.ui/Modifier).menuAnchor() from androidx.compose.material3/ExposedDropdownMenuBoxScope
 [linuxX64]: Removed declaration ExposedDropdownMenu(kotlin/Boolean, kotlin/Function0<kotlin/Unit>, androidx.compose.ui/Modifier?, androidx.compose.foundation/ScrollState?, kotlin/Boolean, androidx.compose.ui.graphics/Shape?, androidx.compose.ui.graphics/Color, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.foundation/BorderStroke?, kotlin/Function3<androidx.compose.foundation.layout/ColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int, kotlin/Int) from androidx.compose.material3/ExposedDropdownMenuBoxScope

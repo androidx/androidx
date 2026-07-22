@@ -146,6 +146,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -444,10 +445,7 @@ public fun AppBarWithSearch(
         backgroundColor = { appBarContainerColor },
         modifier =
             modifier
-                .then(
-                    (scrollBehavior?.let { with(it) { Modifier.searchBarScrollBehavior() } }
-                        ?: Modifier)
-                )
+                .then(scrollBehavior?.searchBarScrollBehaviorModifier ?: Modifier)
                 .fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
                 .semantics { isTraversalGroup = true },
@@ -850,11 +848,10 @@ private fun ExpandedDockedSearchBarImpl(
         val focusRequester = remember { FocusRequester() }
 
         if (hasScrim) {
-            val scrimAlpha = scrimColor.alpha * state.progress
             Box(
                 modifier =
                     Modifier.fillMaxSize()
-                        .background(scrimColor.copy(alpha = scrimAlpha))
+                        .drawBehind { drawRect(color = scrimColor, alpha = state.progress) }
                         .clickable(onClick = onDismiss)
                         .offset { state.collapsedBounds.topLeft }
             ) {
@@ -1167,6 +1164,7 @@ private constructor(
      * represents [SearchBarValue.Expanded].
      */
     @get:FloatRange(from = 0.0, to = 1.0)
+    @get:FrequentlyChangingValue
     public val progress: Float
         get() = animatable.value.coerceIn(0f, 1f)
 
@@ -1408,14 +1406,21 @@ public fun rememberSearchBarWithGapState(
 }
 
 /**
- * A [SearchBarScrollBehavior] defines how a search bar should behave when the content beneath it is
- * scrolled.
+ * A state object that can be hoisted to control and observe the search bar's scroll state. The
+ * state is read and updated by a [SearchBarScrollBehavior] implementation.
  *
- * @see [SearchBarDefaults.enterAlwaysSearchBarScrollBehavior]
+ * In most cases, this state will be created via [rememberSearchBarScrollState].
+ *
+ * @param initialScrollOffsetLimit the initial value for [SearchBarScrollState.scrollOffsetLimit]
+ * @param initialScrollOffset the initial value for [SearchBarScrollState.scrollOffset]
+ * @param initialContentOffset the initial value for [SearchBarScrollState.contentOffset]
  */
 @Stable
-public interface SearchBarScrollBehavior {
-
+public class SearchBarScrollState(
+    initialScrollOffsetLimit: Float,
+    initialScrollOffset: Float,
+    initialContentOffset: Float,
+) {
     /**
      * The search bar's current offset due to scrolling, in pixels. This offset is applied to the
      * fixed size of the search bar to control the displayed size when content is being scrolled.
@@ -1424,7 +1429,11 @@ public interface SearchBarScrollBehavior {
      *
      * Updates to the [scrollOffset] value are coerced between [scrollOffsetLimit] and 0.
      */
-    @get:FrequentlyChangingValue public var scrollOffset: Float
+    public var scrollOffset: Float
+        @FrequentlyChangingValue get() = _scrollOffset.floatValue
+        set(newOffset) {
+            _scrollOffset.floatValue = newOffset.coerceIn(scrollOffsetLimit, 0f)
+        }
 
     /**
      * The limit that a search bar can be offset due to scrolling, in pixels.
@@ -1433,7 +1442,7 @@ public interface SearchBarScrollBehavior {
      *
      * Use this limit to coerce the [scrollOffset] value when it's updated.
      */
-    public var scrollOffsetLimit: Float
+    public var scrollOffsetLimit: Float by mutableFloatStateOf(initialScrollOffsetLimit)
 
     /**
      * The total offset of the content scrolled under the search bar.
@@ -1445,7 +1454,61 @@ public interface SearchBarScrollBehavior {
      * consumes scroll events. A common implementation would update the value to be the sum of all
      * [NestedScrollConnection.onPostScroll] `consumed.y` values.
      */
-    @get:FrequentlyChangingValue public var contentOffset: Float
+    @get:FrequentlyChangingValue
+    public var contentOffset: Float by mutableFloatStateOf(initialContentOffset)
+
+    private var _scrollOffset = mutableFloatStateOf(initialScrollOffset)
+
+    public companion object {
+        /** The default [Saver] implementation for [SearchBarScrollState]. */
+        public val Saver: Saver<SearchBarScrollState, *> =
+            listSaver(
+                save = { listOf(it.scrollOffsetLimit, it.scrollOffset, it.contentOffset) },
+                restore = {
+                    SearchBarScrollState(
+                        initialScrollOffsetLimit = it[0],
+                        initialScrollOffset = it[1],
+                        initialContentOffset = it[2],
+                    )
+                },
+            )
+    }
+}
+
+/**
+ * Creates a [SearchBarScrollState] that is remembered across compositions.
+ *
+ * @param initialScrollOffsetLimit the initial value for [SearchBarScrollState.scrollOffsetLimit],
+ *   which represents the pixel limit that a search bar is allowed to scroll off-screen when the
+ *   content is scrolled.
+ * @param initialScrollOffset the initial value for [SearchBarScrollState.scrollOffset]. The initial
+ *   offset should be between [initialScrollOffsetLimit] and 0.
+ * @param initialContentOffset the initial value for [SearchBarScrollState.contentOffset].
+ */
+@Composable
+public fun rememberSearchBarScrollState(
+    initialScrollOffsetLimit: Float = -Float.MAX_VALUE,
+    initialScrollOffset: Float = 0f,
+    initialContentOffset: Float = 0f,
+): SearchBarScrollState {
+    return rememberSaveable(saver = SearchBarScrollState.Saver) {
+        SearchBarScrollState(initialScrollOffsetLimit, initialScrollOffset, initialContentOffset)
+    }
+}
+
+/**
+ * A [SearchBarScrollBehavior] defines how a search bar should behave when the content beneath it is
+ * scrolled.
+ *
+ * @see [SearchBarDefaults.enterAlwaysSearchBarScrollBehavior]
+ */
+@Stable
+public interface SearchBarScrollBehavior {
+    /**
+     * A [SearchBarScrollState] that is attached to this behavior and is read and updated when
+     * scrolling happens.
+     */
+    public val scrollState: SearchBarScrollState
 
     /**
      * A [NestedScrollConnection] that should be attached to a
@@ -1458,7 +1521,14 @@ public interface SearchBarScrollBehavior {
      * The modifier that adds scrolling behavior to the search bar component. [AppBarWithSearch]
      * applies this automatically.
      */
-    public fun Modifier.searchBarScrollBehavior(): Modifier
+    public val searchBarScrollBehaviorModifier: Modifier
+
+    @Deprecated(
+        message = "Use searchBarScrollBehaviorModifier instead.",
+        replaceWith = ReplaceWith("this.then(searchBarScrollBehaviorModifier)"),
+    )
+    public fun Modifier.searchBarScrollBehavior(): Modifier =
+        this.then(searchBarScrollBehaviorModifier)
 }
 
 /**
@@ -1470,12 +1540,12 @@ public interface SearchBarScrollBehavior {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun SearchBarScrollBehavior.overlappedFraction(): Float =
-    if (scrollOffsetLimit != 0f) {
+    if (scrollState.scrollOffsetLimit != 0f) {
         1 -
-            ((scrollOffsetLimit - contentOffset).coerceIn(
-                minimumValue = scrollOffsetLimit,
+            ((scrollState.scrollOffsetLimit - scrollState.contentOffset).coerceIn(
+                minimumValue = scrollState.scrollOffsetLimit,
                 maximumValue = 0f,
-            ) / scrollOffsetLimit)
+            ) / scrollState.scrollOffsetLimit)
     } else {
         0f
     }
@@ -1483,66 +1553,41 @@ internal fun SearchBarScrollBehavior.overlappedFraction(): Float =
 @OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private class EnterAlwaysSearchBarScrollBehavior(
-    initialOffset: Float,
-    initialOffsetLimit: Float,
-    initialContentOffset: Float,
+    override val scrollState: SearchBarScrollState,
     val canScroll: () -> Boolean,
     val reverseLayout: Boolean,
     val snapAnimationSpec: AnimationSpec<Float>,
     val flingAnimationSpec: DecayAnimationSpec<Float>,
 ) : SearchBarScrollBehavior {
-    private var _scrollOffset by mutableFloatStateOf(initialOffset)
-    private var _scrollOffsetLimit by mutableFloatStateOf(initialOffsetLimit)
-    private var _contentOffset by mutableFloatStateOf(initialContentOffset)
-
-    override var scrollOffset: Float
-        @FrequentlyChangingValue get() = _scrollOffset
-        set(newOffset) {
-            _scrollOffset = newOffset.coerceIn(scrollOffsetLimit, 0f)
-        }
-
-    override var scrollOffsetLimit: Float
-        get() = _scrollOffsetLimit
-        set(newOffset) {
-            _scrollOffsetLimit = newOffset
-        }
-
-    override var contentOffset: Float
-        @FrequentlyChangingValue get() = _contentOffset
-        set(newOffset) {
-            _contentOffset = newOffset
-        }
-
-    override fun Modifier.searchBarScrollBehavior(): Modifier {
-        return this.draggable(
+    override val searchBarScrollBehaviorModifier: Modifier =
+        Modifier.draggable(
                 orientation = Orientation.Vertical,
-                state = DraggableState { delta -> scrollOffset += delta },
+                state = DraggableState { delta -> scrollState.scrollOffset += delta },
                 onDragStopped = { velocity -> settleSearchBar(velocity) },
                 enabled = canScroll(),
             )
             .clipToBounds()
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
-                val scrollOffset = scrollOffset.roundToInt()
+                val scrollOffset = scrollState.scrollOffset.roundToInt()
                 val scrolledHeight = (placeable.height + scrollOffset).coerceAtLeast(0)
                 layout(placeable.width, scrolledHeight) {
                     placeable.placeWithLayer(0, scrollOffset)
                 }
             }
-            .onSizeChanged { size -> scrollOffsetLimit = -size.height.toFloat() }
-    }
+            .onSizeChanged { size -> scrollState.scrollOffsetLimit = -size.height.toFloat() }
 
     override val nestedScrollConnection: NestedScrollConnection =
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (!canScroll()) return Offset.Zero
-                val prevScrollOffset = scrollOffset
-                scrollOffset += available.y
+                val prevScrollOffset = scrollState.scrollOffset
+                scrollState.scrollOffset += available.y
                 // The scrollOffset is coerced between scrollOffsetLimit and 0, so we check if its
                 // value was actually changed after available.y is added. If so, the search bar is
                 // currently  in between scroll states.
                 // Note: when the content is set with reversed layout, we always return Offset.Zero.
-                return if (!reverseLayout && prevScrollOffset != scrollOffset) {
+                return if (!reverseLayout && prevScrollOffset != scrollState.scrollOffset) {
                     available.copy(x = 0f)
                 } else {
                     Offset.Zero
@@ -1558,13 +1603,13 @@ private class EnterAlwaysSearchBarScrollBehavior(
                 if (reverseLayout && available.y > 0f) {
                     // In a reversed layout, consume scroll if it's a pull down
                     // to reveal the search bar but not if it's a pull up to hide.
-                    scrollOffset += available.y
-                    contentOffset += available.y
+                    scrollState.scrollOffset += available.y
+                    scrollState.contentOffset += available.y
                     return available.copy(x = 0f)
                 }
                 if (!reverseLayout) {
-                    scrollOffset += consumed.y
-                    contentOffset += consumed.y
+                    scrollState.scrollOffset += consumed.y
+                    scrollState.contentOffset += consumed.y
                 }
                 return Offset.Zero
             }
@@ -1580,7 +1625,10 @@ private class EnterAlwaysSearchBarScrollBehavior(
         // bar, and just return Velocity.Zero.
         // Note that we don't check for 0f due to float precision with the scrollFraction
         // calculation.
-        val scrollFraction = if (scrollOffsetLimit != 0f) scrollOffset / scrollOffsetLimit else 0f
+        val scrollFraction =
+            if (scrollState.scrollOffsetLimit != 0f)
+                scrollState.scrollOffset / scrollState.scrollOffsetLimit
+            else 0f
         if (scrollFraction < 0.01f || scrollFraction == 1f) {
             return Velocity.Zero
         }
@@ -1593,54 +1641,27 @@ private class EnterAlwaysSearchBarScrollBehavior(
                 flingAnimationSpec
             ) {
                 val delta = value - lastValue
-                val initialScrollOffset = scrollOffset
-                scrollOffset = initialScrollOffset + delta
-                val consumed = abs(initialScrollOffset - scrollOffset)
+                val initialScrollOffset = scrollState.scrollOffset
+                scrollState.scrollOffset = initialScrollOffset + delta
+                val consumed = abs(initialScrollOffset - scrollState.scrollOffset)
                 lastValue = value
                 remainingVelocity = this.velocity
                 // avoid rounding errors and stop if anything is unconsumed
                 if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
             }
         }
-        if (scrollOffsetLimit < scrollOffset && scrollOffset < 0) {
-            AnimationState(initialValue = scrollOffset).animateTo(
-                targetValue = if (scrollFraction < 0.5f) 0f else scrollOffsetLimit,
+        if (
+            scrollState.scrollOffsetLimit < scrollState.scrollOffset && scrollState.scrollOffset < 0
+        ) {
+            AnimationState(initialValue = scrollState.scrollOffset).animateTo(
+                targetValue = if (scrollFraction < 0.5f) 0f else scrollState.scrollOffsetLimit,
                 animationSpec = snapAnimationSpec,
             ) {
-                scrollOffset = value
+                scrollState.scrollOffset = value
             }
         }
 
         return Velocity(0f, remainingVelocity)
-    }
-
-    companion object {
-        fun Saver(
-            canScroll: () -> Boolean,
-            snapAnimationSpec: AnimationSpec<Float>,
-            flingAnimationSpec: DecayAnimationSpec<Float>,
-        ): Saver<EnterAlwaysSearchBarScrollBehavior, *> =
-            listSaver(
-                save = {
-                    listOf(
-                        it.scrollOffset,
-                        it.scrollOffsetLimit,
-                        it.contentOffset,
-                        it.reverseLayout,
-                    )
-                },
-                restore = {
-                    EnterAlwaysSearchBarScrollBehavior(
-                        initialOffset = it[0] as Float,
-                        initialOffsetLimit = it[1] as Float,
-                        initialContentOffset = it[2] as Float,
-                        reverseLayout = it[3] as Boolean,
-                        canScroll = canScroll,
-                        snapAnimationSpec = snapAnimationSpec,
-                        flingAnimationSpec = flingAnimationSpec,
-                    )
-                },
-            )
     }
 }
 
@@ -1721,12 +1742,9 @@ public object SearchBarDefaults {
      *
      * The returned [SearchBarScrollBehavior] is remembered across compositions.
      *
-     * @param initialOffset the initial value for [SearchBarScrollBehavior.scrollOffset]. Should be
-     *   between [initialOffsetLimit] and 0.
-     * @param initialOffsetLimit the initial value for [SearchBarScrollBehavior.scrollOffsetLimit],
-     *   which represents the pixel limit that a search bar is allowed to scroll off-screen when the
-     *   content is scrolled.
-     * @param initialContentOffset the initial value for [SearchBarScrollBehavior.contentOffset].
+     * @param scrollState the state object to be used to control or observe the search bar's scroll
+     *   state. See [rememberSearchBarScrollState] for a state that is remembered across
+     *   compositions.
      * @param canScroll a callback used to determine whether scroll events are to be handled by this
      *   [SearchBarScrollBehavior].
      * @param snapAnimationSpec an [AnimationSpec] that defines how the search bar's scroll offset
@@ -1739,6 +1757,32 @@ public object SearchBarDefaults {
      */
     @Composable
     public fun enterAlwaysSearchBarScrollBehavior(
+        scrollState: SearchBarScrollState = rememberSearchBarScrollState(),
+        canScroll: () -> Boolean = { true },
+        // TODO Load the motionScheme tokens from the component tokens file
+        snapAnimationSpec: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultEffects.value(),
+        flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+        reverseLayout: Boolean = false,
+    ): SearchBarScrollBehavior =
+        remember(scrollState, canScroll, snapAnimationSpec, flingAnimationSpec, reverseLayout) {
+            EnterAlwaysSearchBarScrollBehavior(
+                scrollState = scrollState,
+                canScroll = canScroll,
+                reverseLayout = reverseLayout,
+                snapAnimationSpec = snapAnimationSpec,
+                flingAnimationSpec = flingAnimationSpec,
+            )
+        }
+
+    @Deprecated(
+        "Use `enterAlwaysSearchBarScrollBehavior` that accepts a `SearchBarScrollState` parameter.",
+        ReplaceWith(
+            "enterAlwaysSearchBarScrollBehavior(state, canScroll, snapAnimationSpec, " +
+                "flingAnimationSpec, reverseLayout)"
+        ),
+    )
+    @Composable
+    public fun enterAlwaysSearchBarScrollBehavior(
         initialOffset: Float = 0f,
         initialOffsetLimit: Float = -Float.MAX_VALUE,
         initialContentOffset: Float = 0f,
@@ -1748,29 +1792,20 @@ public object SearchBarDefaults {
         flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         reverseLayout: Boolean = false,
     ): SearchBarScrollBehavior =
-        rememberSaveable(
-            snapAnimationSpec,
-            flingAnimationSpec,
-            canScroll,
-            reverseLayout,
-            saver =
-                EnterAlwaysSearchBarScrollBehavior.Saver(
-                    canScroll = canScroll,
-                    snapAnimationSpec = snapAnimationSpec,
-                    flingAnimationSpec = flingAnimationSpec,
+        enterAlwaysSearchBarScrollBehavior(
+            scrollState =
+                rememberSearchBarScrollState(
+                    initialScrollOffset = initialOffset,
+                    initialScrollOffsetLimit = initialOffsetLimit,
+                    initialContentOffset = initialContentOffset,
                 ),
-        ) {
-            EnterAlwaysSearchBarScrollBehavior(
-                initialOffset = initialOffset,
-                initialOffsetLimit = initialOffsetLimit,
-                initialContentOffset = initialContentOffset,
-                canScroll = canScroll,
-                reverseLayout = reverseLayout,
-                snapAnimationSpec = snapAnimationSpec,
-                flingAnimationSpec = flingAnimationSpec,
-            )
-        }
+            canScroll = canScroll,
+            snapAnimationSpec = snapAnimationSpec,
+            flingAnimationSpec = flingAnimationSpec,
+            reverseLayout = reverseLayout,
+        )
 
+    @Suppress("DEPRECATION")
     @Deprecated(message = "Maintained for binary compatibility", level = HIDDEN)
     @ExperimentalMaterial3Api
     @Composable
@@ -3336,13 +3371,16 @@ private fun DockedSearchBarLayout(
                 @Suppress("UNCHECKED_CAST")
                 val slideOutSpec =
                     state.animationSpecForCollapse as? FiniteAnimationSpec<IntOffset> ?: snap()
+                val hasSufficientProgress by remember {
+                    derivedStateOf(structuralEqualityPolicy()) { state.progress > 0.1f }
+                }
                 AnimatedVisibility(
                     modifier =
                         Modifier.padding(top = dropdownGapSize ?: 0.dp)
                             .background(color = colors.containerColor, shape = dropdownShape)
                             .clip(dropdownShape)
                             .alpha(state.contentProgress),
-                    visible = state.progress > 0.1f && state.targetValue == SearchBarValue.Expanded,
+                    visible = hasSufficientProgress && state.targetValue == SearchBarValue.Expanded,
                     enter =
                         slideIn(
                             animationSpec = slideInSpec,
