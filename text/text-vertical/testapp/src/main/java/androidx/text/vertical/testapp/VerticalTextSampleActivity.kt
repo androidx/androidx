@@ -17,6 +17,7 @@
 package androidx.text.vertical.testapp
 
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.text.Layout
 import android.text.Spanned
@@ -48,7 +49,9 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -61,13 +64,13 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import androidx.text.vertical.EmphasisStyle
 import androidx.text.vertical.FontShearSpan
 import androidx.text.vertical.compose.VerticalText
 import androidx.text.vertical.compose.VerticalTextStyle
 import androidx.text.vertical.compose.buildVerticalText
-import androidx.text.vertical.compose.setStyleToPaint
 
 class VerticalTextSampleActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -299,3 +302,31 @@ private fun buildComplexText(density: Density) =
         }
         withEmphasis { text("傍点もSupportされてます。") }
     }
+
+private fun setStyleToPaint(
+    style: VerticalTextStyle,
+    typeface: Typeface,
+    density: Density,
+    out: TextPaint,
+) {
+    with(density) {
+        out.textSize =
+            if (style.fontSize.isSpecified) style.fontSize.toPx() else DefaultFontSize.toPx()
+        out.typeface = typeface
+        out.fontFeatureSettings = style.fontFeatureSettings
+        if (style.color.isSpecified) {
+            out.color = style.color.toArgb()
+        }
+        if (style.background.isSpecified) {
+            out.bgColor = style.background.toArgb()
+        }
+        if (Build.VERSION.SDK_INT >= 25) {
+            style.localeList
+                ?.map { it.platformLocale }
+                ?.toTypedArray()
+                ?.let { out.textLocales = android.os.LocaleList(*it) }
+        }
+    }
+}
+
+private val DefaultFontSize = 16.sp
