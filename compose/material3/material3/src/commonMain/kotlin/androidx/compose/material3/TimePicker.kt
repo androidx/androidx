@@ -979,7 +979,7 @@ interface TimePickerState {
     var hourInput: Int
         get() = hour
         set(value) {
-            if (value in 0..MaxHourValue) {
+            if (isValidHour(value)) {
                 hour = value
             }
         }
@@ -1017,9 +1017,22 @@ interface TimePickerState {
 val TimePickerState.isPm
     get() = hour >= 12
 
-/** `true` if the current `hourInput` represents a valid hour (0-23). */
+/**
+ * `true` if the current `hourInput` represents a valid hour (0-23 for 24h, 0-11 for 12h AM, 12-23
+ * for 12h PM).
+ */
 val TimePickerState.isHourInputValid: Boolean
-    get() = hourInput in 0..MaxHourValue
+    get() = isValidHour(hourInput)
+
+private fun TimePickerState.isValidHour(hour: Int): Boolean {
+    return if (is24hour) {
+        hour in 0..MaxHourValue
+    } else if (isPm) {
+        hour in 12..MaxHourValue
+    } else {
+        hour in 0..11
+    }
+}
 
 /** `true` if the current `minuteInput` represents a valid minute (0-59). */
 val TimePickerState.isMinuteInputValid: Boolean
@@ -1509,7 +1522,7 @@ private fun TimeInputImpl(
                         Modifier.onKeyEvent { event ->
                             val switchFocus = shouldSwitchFocusToMinute(event, hourValue, state)
 
-                            if (switchFocus) {
+                            if (switchFocus && state.isHourInputValid) {
                                 state.selection = TimePickerSelectionMode.Minute
                             }
 
@@ -1538,7 +1551,11 @@ private fun TimeInputImpl(
                         ),
                     keyboardActions =
                         KeyboardActions(
-                            onNext = { state.selection = TimePickerSelectionMode.Minute }
+                            onNext = {
+                                if (state.isHourInputValid) {
+                                    state.selection = TimePickerSelectionMode.Minute
+                                }
+                            }
                         ),
                     colors = colors,
                     shapes = shapes,
@@ -2873,7 +2890,16 @@ private fun timeInputOnChange(
                     } else {
                         newValue + if (state.isPm && !state.is24hour) 12 else 0
                     }
-                if (newValue > 1 && !state.is24hour && !a11yServicesEnabled) {
+                val isTypedTwoDigits = value.text.length == 2
+                val isTypingNewDigit = value.text.length >= prevValue.text.length
+                val is12HourAutoAdvanceDigit = !state.is24hour && newValue in 2..9
+
+                val shouldAutoAdvance =
+                    (isTypedTwoDigits || (isTypingNewDigit && is12HourAutoAdvanceDigit)) &&
+                        !a11yServicesEnabled &&
+                        state.isHourInputValid
+
+                if (shouldAutoAdvance) {
                     state.selection = TimePickerSelectionMode.Minute
                 }
             } else {
@@ -3074,9 +3100,9 @@ private fun TimePickerTextField(
             }
         }
 
-        if (shapes.orRich(true, false)) {
+        if (shapes == null || !isValid) {
             SupportingText(
-                modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
+                modifier = Modifier.fillMaxWidth(),
                 selection = selection,
                 state = state,
                 isValid = isValid,
