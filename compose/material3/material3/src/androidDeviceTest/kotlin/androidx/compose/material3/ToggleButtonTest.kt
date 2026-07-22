@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
@@ -37,6 +38,7 @@ import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -487,5 +489,38 @@ class ToggleButtonTest {
         (iconBounds.left - toggleButtonBounds.left).assertIsEqualTo(64.dp)
         (textBounds.left - iconBounds.right).assertIsEqualTo(16.dp)
         (toggleButtonBounds.right - textBounds.right).assertIsEqualTo(64.dp)
+    }
+
+    @Test
+    fun toggleButton_customStatefulBorder_widthUpdatedWhenChecked() {
+        var evaluatedBorder: BorderStroke? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            var checked by remember { mutableStateOf(false) }
+            val border =
+                if (checked) BorderStroke(2.dp, Color.Red) else BorderStroke(1.dp, Color.Blue)
+            ToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                border = border,
+                modifier = Modifier.testTag(ToggleButtonTag),
+            ) {
+                Text("test")
+            }
+            evaluatedBorder = border
+        }
+
+        // Before click (checked == false)
+        assertThat(evaluatedBorder).isNotNull()
+        assertThat(evaluatedBorder!!.width).isEqualTo(1.dp)
+        assertThat((evaluatedBorder!!.brush as SolidColor).value).isEqualTo(Color.Blue)
+
+        // Click to toggle (checked == true)
+        rule.onNodeWithTag(ToggleButtonTag).performClick()
+        rule.onNodeWithTag(ToggleButtonTag).assertIsOn()
+
+        // After click (checked == true)
+        assertThat(evaluatedBorder).isNotNull()
+        assertThat(evaluatedBorder!!.width).isEqualTo(2.dp)
+        assertThat((evaluatedBorder!!.brush as SolidColor).value).isEqualTo(Color.Red)
     }
 }

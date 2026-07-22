@@ -4479,6 +4479,8 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRoundShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSquareShape(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke? outlinedToggleButtonBorder(boolean enabled, boolean checked);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke? outlinedToggleButtonBorder(boolean, boolean, androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors(optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color disabledContainerColor, optional androidx.compose.ui.graphics.Color disabledContentColor, optional androidx.compose.ui.graphics.Color checkedContainerColor, optional androidx.compose.ui.graphics.Color checkedContentColor);

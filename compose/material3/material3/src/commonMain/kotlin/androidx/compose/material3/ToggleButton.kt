@@ -152,7 +152,7 @@ fun ToggleButton(
     val contentColor = colors.contentColor(enabled, checked)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
     val buttonShape = shapeByInteraction(shapes, pressed, checked, defaultAnimationSpec)
-    val animatedBorder = animateBorderStrokeAsState(checked, border)
+    val animatedBorder = animateBorderStrokeAsState(border)
 
     Surface(
         checked = checked,
@@ -466,7 +466,7 @@ fun OutlinedToggleButton(
     shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ButtonDefaults.MinHeight),
     colors: ToggleButtonColors = ToggleButtonDefaults.outlinedToggleButtonColors(),
     elevation: ButtonElevation? = null,
-    border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
+    border: BorderStroke? = ToggleButtonDefaults.outlinedToggleButtonBorder(enabled, checked),
     contentPadding: PaddingValues = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
@@ -919,6 +919,21 @@ object ToggleButtonDefaults {
         }
 
     /**
+     * Resolves the default [BorderStroke] used in an [OutlinedToggleButton].
+     *
+     * @param enabled controls the enabled state of the button
+     * @param checked controls the checked state of the button
+     */
+    @Composable
+    fun outlinedToggleButtonBorder(enabled: Boolean, checked: Boolean): BorderStroke? {
+        return if (checked) {
+            null
+        } else {
+            ButtonDefaults.outlinedButtonBorder(enabled)
+        }
+    }
+
+    /**
      * Resolves the recommended [ToggleButtonShapes] for a given toggle button height.
      *
      * The input height is categorized into a shape bucket (such as extra small, small, medium,
@@ -1161,22 +1176,15 @@ private fun shapeByInteraction(
 }
 
 @Composable
-private fun animateBorderStrokeAsState(checked: Boolean, border: BorderStroke?): BorderStroke? {
-    if (border == null) return null
-
-    val targetWidth = if (checked) 0.dp else border.width
+private fun animateBorderStrokeAsState(border: BorderStroke?): BorderStroke? {
+    val targetWidth = border?.width ?: 0.dp
     val animatedWidth by
         animateDpAsState(
             targetValue = targetWidth,
             animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
         )
 
-    val targetColor =
-        if (checked) {
-            Color.Transparent
-        } else {
-            (border.brush as? SolidColor)?.value ?: Color.Transparent
-        }
+    val targetColor = (border?.brush as? SolidColor)?.value ?: Color.Transparent
 
     val animatedColor by
         animateColorAsState(
@@ -1184,15 +1192,16 @@ private fun animateBorderStrokeAsState(checked: Boolean, border: BorderStroke?):
             animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
         )
 
-    if (checked && animatedWidth <= 0.dp) {
+    if (animatedWidth <= 0.dp) {
         return null
     }
 
-    return remember(animatedWidth, animatedColor, border.brush) {
-        if (border.brush is SolidColor) {
+    val brush = border?.brush
+    return remember(animatedWidth, animatedColor, brush) {
+        if (brush is SolidColor || brush == null) {
             BorderStroke(animatedWidth, SolidColor(animatedColor))
         } else {
-            BorderStroke(animatedWidth, border.brush)
+            BorderStroke(animatedWidth, brush)
         }
     }
 }
