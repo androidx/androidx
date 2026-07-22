@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -34,6 +36,8 @@ import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -216,5 +220,81 @@ class ScrollFieldTest {
         rule
             .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assertContentDescriptionEquals("Test description")
+    }
+
+    @Test
+    fun scrollFieldState_setSelectedOption() {
+        val itemCount = 10
+        lateinit var state: ScrollFieldState
+        rule.setContent {
+            state = rememberScrollFieldState(itemCount = itemCount, index = 0)
+            ScrollField(state = state, contentDescription = null)
+        }
+
+        assertThat(state.selectedOption).isEqualTo(0)
+
+        rule.runOnIdle { state.selectedOption = 5 }
+        rule.waitForIdle()
+
+        assertThat(state.selectedOption).isEqualTo(5)
+
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "5"))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun scrollFieldState_invalidItemCount() {
+        ScrollFieldState(PagerState(0) { 100 }, itemCount = 0)
+    }
+
+    @Test
+    fun scrollFieldState_scrollToOption_coerced() {
+        val itemCount = 10
+        lateinit var state: ScrollFieldState
+        rule.setContent {
+            state = rememberScrollFieldState(itemCount = itemCount, index = 5)
+            ScrollField(state = state, contentDescription = null)
+        }
+
+        rule.runOnIdle { kotlinx.coroutines.runBlocking { state.scrollToOption(20) } }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(9)
+
+        rule.runOnIdle { kotlinx.coroutines.runBlocking { state.scrollToOption(-5) } }
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(0)
+    }
+
+    @Test
+    fun scrollFieldState_animateScrollToOption_coerced() {
+        val itemCount = 10
+        lateinit var state: ScrollFieldState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            state = rememberScrollFieldState(itemCount = itemCount, index = 5)
+            scope = rememberCoroutineScope()
+            ScrollField(state = state, contentDescription = null)
+        }
+
+        scope.launch { state.animateScrollToOption(20) }
+
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isEqualTo(9)
+    }
+
+    @Test
+    fun scrollField_rememberState_coercedIndex() {
+        val itemCount = 10
+        lateinit var stateHigh: ScrollFieldState
+        lateinit var stateLow: ScrollFieldState
+        rule.setContent {
+            stateHigh = rememberScrollFieldState(itemCount = itemCount, index = 20)
+            stateLow = rememberScrollFieldState(itemCount = itemCount, index = -5)
+        }
+
+        assertThat(stateHigh.selectedOption).isEqualTo(9)
+        assertThat(stateLow.selectedOption).isEqualTo(0)
     }
 }
