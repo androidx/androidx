@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -62,6 +63,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -547,6 +549,40 @@ class SliderTest {
             Truth.assertThat((interactions[2] as PressInteraction.Cancel).press)
                 .isEqualTo(interactions.first())
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun slider_label_staysVisible_whenHoverExitsWhileStillPressedOrDragging() {
+        val labelTag = "label"
+        val interactionSource = MutableInteractionSource()
+        lateinit var scope: CoroutineScope
+        rule.setMaterialContent(lightColorScheme()) {
+            scope = rememberCoroutineScope()
+            Label(
+                label = { Text(text = "label", modifier = Modifier.testTag(labelTag)) },
+                interactionSource = interactionSource,
+            ) {
+                Box(Modifier.requiredSize(48.dp).testTag(tag))
+            }
+        }
+
+        // The label is hidden until the anchor is interacted with.
+        rule.onNodeWithTag(labelTag).assertDoesNotExist()
+
+        // Emit the interaction sequence produced when dragging the slider by its thumb: hover the
+        // thumb, press, start dragging, then exit the hover while the drag is still ongoing.
+        val hoverEnter = HoverInteraction.Enter()
+        scope.launch {
+            interactionSource.emit(hoverEnter)
+            interactionSource.emit(PressInteraction.Press(Offset.Zero))
+            interactionSource.emit(DragInteraction.Start())
+            interactionSource.emit(HoverInteraction.Exit(hoverEnter))
+        }
+        rule.waitForIdle()
+
+        // A press and a drag are still active, so the label must remain visible.
+        rule.onNodeWithTag(labelTag).assertIsDisplayed()
     }
 
     @Test
