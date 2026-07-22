@@ -34,7 +34,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.InputEventListener
-import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
 import androidx.xr.scenecore.runtime.NodeHolder
@@ -259,9 +258,6 @@ internal class FakeSceneRuntime(val executor: Executor? = null) :
 
         return entity
     }
-
-    override fun createLoggingEntity(pose: Pose): LoggingEntity =
-        object : LoggingEntity, FakeEntity() {}
 
     override fun createSubspaceNodeEntity(
         nodeHolder: NodeHolder<*>,

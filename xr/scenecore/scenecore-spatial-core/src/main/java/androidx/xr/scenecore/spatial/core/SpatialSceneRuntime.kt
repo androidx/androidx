@@ -45,7 +45,6 @@ import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
-import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper
 import androidx.xr.scenecore.runtime.MeshEntity
 import androidx.xr.scenecore.runtime.MeshFeature
@@ -476,12 +475,6 @@ private constructor(
                     scheduledExecutorService,
                 ) {}
         entity.parent = parent
-        entity.setPose(pose, Space.PARENT)
-        return entity
-    }
-
-    override fun createLoggingEntity(pose: Pose): LoggingEntity {
-        val entity = LoggingEntityImpl(checkNotNull(activity))
         entity.setPose(pose, Space.PARENT)
         return entity
     }

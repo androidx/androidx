@@ -511,81 +511,6 @@ class SpatialSceneRuntimeTest {
     }
 
     @Test
-    fun createLoggingEntity_returnsEntity() {
-        val pose = Pose()
-        val loggingEntity = testRuntime.createLoggingEntity(pose)
-        val updatedPose = Pose(Vector3(1f, pose.translation.y, pose.translation.z), pose.rotation)
-        loggingEntity.setPose(updatedPose)
-    }
-
-    @Test
-    fun loggingEntitySetParent() {
-        val pose = Pose()
-        val childEntity = testRuntime.createLoggingEntity(pose)
-        val parentEntity = testRuntime.createLoggingEntity(pose)
-
-        childEntity.parent = parentEntity
-        parentEntity.addChild(childEntity)
-
-        assertThat(childEntity.parent).isEqualTo(parentEntity)
-        assertThat(parentEntity.parent).isEqualTo(null)
-        assertThat(childEntity.children).isEmpty()
-        assertThat(parentEntity.children).containsExactly(childEntity)
-    }
-
-    @Test
-    fun loggingEntityUpdateParent() {
-        val pose = Pose()
-        val childEntity = testRuntime.createLoggingEntity(pose)
-        val parentEntity1 = testRuntime.createLoggingEntity(pose)
-        val parentEntity2 = testRuntime.createLoggingEntity(pose)
-
-        childEntity.parent = parentEntity1
-
-        assertThat(childEntity.parent).isEqualTo(parentEntity1)
-        assertThat(parentEntity1.children).containsExactly(childEntity)
-        assertThat(parentEntity2.children).isEmpty()
-
-        childEntity.parent = parentEntity2
-
-        assertThat(childEntity.parent).isEqualTo(parentEntity2)
-        assertThat(parentEntity2.children).containsExactly(childEntity)
-        assertThat(parentEntity1.children).isEmpty()
-    }
-
-    @Test
-    fun loggingEntity_getActivitySpacePose_returnsIdentityPose() {
-        val identityPose = Pose()
-        val loggingEntity = testRuntime.createLoggingEntity(identityPose)
-        assertPose(loggingEntity.activitySpacePose, identityPose)
-    }
-
-    @Test
-    fun loggingEntity_transformPoseTo_returnsIdentityPose() {
-        val identityPose = Pose()
-        val loggingEntity = testRuntime.createLoggingEntity(identityPose)
-        assertPose(loggingEntity.transformPoseTo(identityPose, loggingEntity), identityPose)
-    }
-
-    @Test
-    fun loggingEntityAddChildren() {
-        val pose = Pose()
-        val childEntity1 = testRuntime.createLoggingEntity(pose)
-        val childEntity2 = testRuntime.createLoggingEntity(pose)
-        val parentEntity = testRuntime.createLoggingEntity(pose)
-
-        parentEntity.addChild(childEntity1)
-
-        assertThat(parentEntity.children).containsExactly(childEntity1)
-
-        parentEntity.addChildren(ImmutableList.of(childEntity2))
-
-        assertThat(childEntity1.parent).isEqualTo(parentEntity)
-        assertThat(childEntity2.parent).isEqualTo(parentEntity)
-        assertThat(parentEntity.children).containsExactly(childEntity1, childEntity2)
-    }
-
-    @Test
     fun createAnchorEntity_returnsUnanchoredAnchorEntity() {
         val anchorEntity = testRuntime.createAnchorEntity()
 
@@ -1325,22 +1250,18 @@ class SpatialSceneRuntimeTest {
         val identityPose = Pose()
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(identityPose)
         val entity = createEntity()
 
         assertPose(panelEntity.getPose(), identityPose)
         assertPose(gltfEntity.getPose(), identityPose)
-        assertPose(loggingEntity.getPose(), identityPose)
         assertPose(entity.getPose(), identityPose)
 
         panelEntity.setPose(pose)
         gltfEntity.setPose(pose)
-        loggingEntity.setPose(pose)
         entity.setPose(pose)
 
         assertPose(panelEntity.getPose(), pose)
         assertPose(gltfEntity.getPose(), pose)
-        assertPose(loggingEntity.getPose(), pose)
         assertPose(entity.getPose(), pose)
     }
 
@@ -1350,12 +1271,10 @@ class SpatialSceneRuntimeTest {
         val pose = Pose(Vector3(1f, 2f, 3f), Quaternion(1f, 2f, 3f, 4f))
         val panelEntity = createPanelEntity(pose)
         val gltfEntity = createGltfEntity(pose)
-        val loggingEntity = testRuntime.createLoggingEntity(pose)
         val entity = createEntity(pose)
 
         assertPose(panelEntity.getPose(), pose)
         assertPose(gltfEntity.getPose(), pose)
-        assertPose(loggingEntity.getPose(), pose)
         assertPose(entity.getPose(), pose)
     }
 
@@ -1733,7 +1652,6 @@ class SpatialSceneRuntimeTest {
     fun addComponent_callsOnAttach() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component = mock<Component>()
         whenever(component.onAttach(any<Entity>())).thenReturn(true)
 
@@ -1742,16 +1660,12 @@ class SpatialSceneRuntimeTest {
 
         assertThat(gltfEntity.addComponent(component)).isTrue()
         verify(component).onAttach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(loggingEntity)
     }
 
     @Test
     fun addComponent_failsIfOnAttachFails() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component = mock<Component>()
         whenever(component.onAttach(any<Entity>())).thenReturn(false)
 
@@ -1760,16 +1674,12 @@ class SpatialSceneRuntimeTest {
 
         assertThat(gltfEntity.addComponent(component)).isFalse()
         verify(component).onAttach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component)).isFalse()
-        verify(component).onAttach(loggingEntity)
     }
 
     @Test
     fun removeComponent_callsOnDetach() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component = mock<Component>()
         whenever(component.onAttach(any<Entity>())).thenReturn(true)
 
@@ -1786,20 +1696,12 @@ class SpatialSceneRuntimeTest {
         gltfEntity.removeComponent(component)
 
         verify(component).onDetach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(loggingEntity)
-
-        loggingEntity.removeComponent(component)
-
-        verify(component).onDetach(loggingEntity)
     }
 
     @Test
     fun addingSameComponentTypeAgain_addsComponent() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component1 = mock<Component>()
         val component2 = mock<Component>()
         whenever(component1.onAttach(any<Entity>())).thenReturn(true)
@@ -1814,18 +1716,12 @@ class SpatialSceneRuntimeTest {
         assertThat(gltfEntity.addComponent(component2)).isTrue()
         verify(component1).onAttach(gltfEntity)
         verify(component2).onAttach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component1)).isTrue()
-        assertThat(loggingEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(loggingEntity)
-        verify(component2).onAttach(loggingEntity)
     }
 
     @Test
     fun addingDifferentComponentType_addComponentSucceeds() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component1 = mock<Component>()
         val component2: Component = mock<FakeComponent>()
         whenever(component1.onAttach(any<Entity>())).thenReturn(true)
@@ -1840,18 +1736,12 @@ class SpatialSceneRuntimeTest {
         assertThat(gltfEntity.addComponent(component2)).isTrue()
         verify(component1).onAttach(gltfEntity)
         verify(component2).onAttach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component1)).isTrue()
-        assertThat(loggingEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(loggingEntity)
-        verify(component2).onAttach(loggingEntity)
     }
 
     @Test
     fun removeAll_callsOnDetachOnAll() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component1 = mock<Component>()
         val component2: Component = mock<FakeComponent>()
         whenever(component1.onAttach(any<Entity>())).thenReturn(true)
@@ -1876,23 +1766,12 @@ class SpatialSceneRuntimeTest {
 
         verify(component1).onDetach(gltfEntity)
         verify(component2).onDetach(gltfEntity)
-
-        assertThat(loggingEntity.addComponent(component1)).isTrue()
-        assertThat(loggingEntity.addComponent(component2)).isTrue()
-        verify(component1).onAttach(loggingEntity)
-        verify(component2).onAttach(loggingEntity)
-
-        loggingEntity.removeAllComponents()
-
-        verify(component1).onDetach(loggingEntity)
-        verify(component2).onDetach(loggingEntity)
     }
 
     @Test
     fun addSameComponentTwice_callsOnAttachTwice() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component = mock<Component>()
         whenever(component.onAttach(any<Entity>())).thenReturn(true)
 
@@ -1903,16 +1782,12 @@ class SpatialSceneRuntimeTest {
         assertThat(gltfEntity.addComponent(component)).isTrue()
         assertThat(gltfEntity.addComponent(component)).isTrue()
         verify(component, times(2)).onAttach(gltfEntity)
-        assertThat(loggingEntity.addComponent(component)).isTrue()
-        assertThat(loggingEntity.addComponent(component)).isTrue()
-        verify(component, times(2)).onAttach(loggingEntity)
     }
 
     @Test
     fun removeSameComponentTwice_callsOnDetachOnce() {
         val panelEntity = createPanelEntity()
         val gltfEntity: GltfEntity = createGltfEntity()
-        val loggingEntity = testRuntime.createLoggingEntity(Pose())
         val component = mock<Component>()
         whenever(component.onAttach(any<Entity>())).thenReturn(true)
 
@@ -1930,13 +1805,6 @@ class SpatialSceneRuntimeTest {
         gltfEntity.removeComponent(component)
 
         verify(component).onDetach(gltfEntity)
-        assertThat(loggingEntity.addComponent(component)).isTrue()
-        verify(component).onAttach(loggingEntity)
-
-        loggingEntity.removeComponent(component)
-        loggingEntity.removeComponent(component)
-
-        verify(component).onDetach(loggingEntity)
     }
 
     @Test

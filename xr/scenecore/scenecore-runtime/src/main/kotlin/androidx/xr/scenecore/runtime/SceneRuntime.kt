@@ -162,9 +162,6 @@ public interface SceneRuntime : JxrRuntime {
      */
     public fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity
 
-    /** A function to create a XR Runtime Entity. */
-    public fun createLoggingEntity(pose: Pose): LoggingEntity
-
     /**
      * A factory function to create a SubspaceNodeEntity.
      *
