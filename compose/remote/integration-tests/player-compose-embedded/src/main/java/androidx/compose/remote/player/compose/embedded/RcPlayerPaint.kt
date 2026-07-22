@@ -23,7 +23,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RuntimeShader
 import android.graphics.Shader
-import android.graphics.Typeface
 import android.os.Build
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ShaderData
@@ -94,19 +93,31 @@ internal class ComposeLocalPaint {
      * on-path/anchored variants) from the current paint state: anti-aliased, the effective color,
      * the text size, and a bold/italic [android.graphics.Typeface] derived from font weight/style.
      */
-    fun toNativeTextPaint(): Paint {
-        val style =
-            when {
-                fontStyle == FontStyle.Italic && fontWeight >= 600 -> Typeface.BOLD_ITALIC
-                fontStyle == FontStyle.Italic -> Typeface.ITALIC
-                fontWeight >= 600 -> Typeface.BOLD
-                else -> Typeface.NORMAL
+    fun toNativeTextPaint(context: RemoteContext): Paint {
+        val resolver = EmbeddedPlayerTypefaceResolver(context)
+        val italic = fontStyle == FontStyle.Italic
+
+        val fontInstance =
+            if (isTypefaceSet) {
+                if (fontFamily in 0..3) {
+                    resolver.resolve(fontFamily, fontWeight, italic, null, 400, false)
+                } else {
+                    val name = context.getText(fontFamily)
+                    if (name != null) {
+                        resolver.resolve(name, fontWeight, italic, null, 400, false)
+                    } else {
+                        resolver.resolve(0, fontWeight, italic, null, 400, false)
+                    }
+                }
+            } else {
+                resolver.resolve(0, fontWeight, italic, null, 400, false)
             }
+
         return Paint().apply {
             isAntiAlias = true
             color = effectiveColor().toArgb()
             textSize = this@ComposeLocalPaint.textSize
-            typeface = Typeface.create(Typeface.DEFAULT, style)
+            typeface = fontInstance.getTypeface()
         }
     }
 }
