@@ -24,6 +24,8 @@ interface TestInterface
 
 @Serializable object TestInterfaceImplB : TestInterface
 
+@Serializable object TestInterfaceImplC : TestInterface
+
 @Serializable
 sealed class TestSealedClass {
     @Serializable data object Key1 : TestSealedClass()
@@ -90,3 +92,23 @@ enum class DirectionEnum {
 @Serializable data class TestDefaultArgKey(val name: String = "test")
 
 @Serializable data class TestArgKey(val name: String)
+
+class TestDeepLinkMatcher(filters: List<Filter> = emptyList()) :
+    DeepLinkMatcher<TestKey, DeepLinkMatcher.MatchResult<TestKey>>(filters) {
+    override fun matchRequest(request: DeepLinkRequest): MatchResult<TestKey> {
+        return MatchResult(TestKey)
+    }
+}
+
+class TestFilter(val filter: String) : DeepLinkMatcher.Filter {
+    override fun filterRequest(request: DeepLinkRequest): Boolean {
+        return filter == request.extras[MATCHER_STRING_FILTER_KEY]
+    }
+}
+
+fun DeepLinkRequest.Companion.withStringExtra(uri: String, extra: String) =
+    DeepLinkRequest(uri = DeepLinkUri(uri), extras = mapOf(MATCHER_STRING_FILTER_KEY to extra))
+
+const val MATCHER_STRING_FILTER_VALUE = "filterString"
+
+const val MATCHER_STRING_FILTER_KEY = "StringExtraKey"
