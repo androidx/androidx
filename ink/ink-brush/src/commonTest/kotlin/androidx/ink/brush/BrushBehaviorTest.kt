@@ -16,6 +16,7 @@
 
 package androidx.ink.brush
 
+import androidx.ink.brush.behavior.ConstantNode
 import androidx.ink.brush.behavior.DampingNode
 import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.OutOfRange
@@ -168,5 +169,33 @@ class BrushBehaviorTest {
     @Test
     fun createEmptyBehavior() {
         val unused = BrushBehavior(emptyList())
+    }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(
+                BrushBehavior(createTestStepBehaviorTerminalNode())
+                    .calculateMinimumRequiredVersion()
+            )
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+        // Test ProgressDomain, OutOfRange, and Node (via subtypes), which don't otherwise
+        // have a good testing home.
+        assertThat(ConstantNode(0.0f).calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(
+                TargetNode(
+                        target = Target.WIDTH_MULTIPLIER,
+                        targetModifierRangeStart = 1.0f,
+                        targetModifierRangeEnd = 1.75f,
+                        input = ConstantNode(0.0f),
+                    )
+                    .calculateMinimumRequiredVersion()
+            )
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(ProgressDomain.DISTANCE_IN_CENTIMETERS.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(OutOfRange.CLAMP.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 }

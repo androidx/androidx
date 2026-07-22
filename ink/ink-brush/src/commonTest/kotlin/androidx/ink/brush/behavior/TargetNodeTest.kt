@@ -17,6 +17,8 @@
 package androidx.ink.brush.behavior
 
 import androidx.ink.brush.ExperimentalInkAnimationApi
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -199,5 +201,12 @@ class TargetNodeTest {
                 )
             )
             .isFalse()
+    }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(Target.WIDTH_MULTIPLIER.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 }

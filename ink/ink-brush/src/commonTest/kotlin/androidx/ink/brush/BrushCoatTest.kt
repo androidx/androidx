@@ -134,6 +134,12 @@ class BrushCoatTest {
         assertThat(coat).isEqualTo(BrushCoat(customTip, customPaint))
     }
 
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(BrushCoat().calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+    }
+
     /** Brush behavior with every field different from default values. */
     private val customBehavior =
         BrushBehavior(

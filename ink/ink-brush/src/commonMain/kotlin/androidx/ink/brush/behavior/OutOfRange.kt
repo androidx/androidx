@@ -16,7 +16,11 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 
 /**
@@ -33,6 +37,12 @@ private constructor(@JvmField internal val value: Int, private val name: String)
     internal fun toSimpleString(): String = name
 
     override fun toString(): String = "OutOfRange." + name
+
+    @OptIn(InkInternalOnlyApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkCustomBrushApi
+    public fun calculateMinimumRequiredVersion(): Version =
+        Version.fromInt(OutOfRangeNative.calculateMinimumRequiredVersion(value))
 
     public companion object {
         private val VALUE_TO_INSTANCE = MutableIntObjectMap<OutOfRange>()
@@ -60,4 +70,8 @@ private constructor(@JvmField internal val value: Int, private val name: String)
          */
         @JvmField public val MIRROR: OutOfRange = OutOfRange(2, "MIRROR")
     }
+}
+
+expect internal object OutOfRangeNative {
+    fun calculateMinimumRequiredVersion(outOfRangeInt: Int): Int
 }

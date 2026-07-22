@@ -20,6 +20,7 @@ import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.SourceNodeNative_create
 import androidx.ink.nativeloader.cinterop.SourceNodeNative_getOutOfRangeBehaviorInt
 import androidx.ink.nativeloader.cinterop.SourceNodeNative_getSourceInt
+import androidx.ink.nativeloader.cinterop.SourceNodeNative_getSourceMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.SourceNodeNative_getValueRangeEnd
 import androidx.ink.nativeloader.cinterop.SourceNodeNative_getValueRangeStart
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
@@ -52,4 +53,7 @@ actual internal object SourceNodeNative {
 
     actual fun getOutOfRangeBehaviorInt(nativePointer: Long): Int =
         SourceNodeNative_getOutOfRangeBehaviorInt(nativePointer)
+
+    actual fun getSourceMinimumRequiredVersion(sourceInt: Int): Int =
+        SourceNodeNative_getSourceMinimumRequiredVersion(sourceInt)
 }

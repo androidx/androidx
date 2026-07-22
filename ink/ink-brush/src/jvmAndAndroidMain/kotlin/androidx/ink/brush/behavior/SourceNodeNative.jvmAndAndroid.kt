@@ -42,4 +42,6 @@ actual internal object SourceNodeNative {
     @UsedByNative actual external fun getValueRangeEnd(nativePointer: Long): Float
 
     @UsedByNative actual external fun getOutOfRangeBehaviorInt(nativePointer: Long): Int
+
+    @UsedByNative actual external fun getSourceMinimumRequiredVersion(sourceInt: Int): Int
 }

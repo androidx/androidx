@@ -16,7 +16,9 @@
 
 package androidx.ink.brush
 
+import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
+import androidx.ink.nativeloader.InkInternalOnlyApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
@@ -40,7 +42,9 @@ public class Version private constructor(@JvmField public val value: Int) : Comp
         private val VALUE_TO_INSTANCE = MutableIntObjectMap<Version>()
 
         @JvmStatic
-        internal fun fromInt(value: Int): Version =
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @InkInternalOnlyApi
+        public fun fromInt(value: Int): Version =
             checkNotNull(VALUE_TO_INSTANCE[value]) { "Invalid Version value: $value" }
 
         /** Included with Jetpack 1.1.0-alpha01. */

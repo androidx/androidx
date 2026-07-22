@@ -17,6 +17,7 @@
 package androidx.ink.brush
 
 import androidx.ink.nativeloader.InkInternalOnlyApi
+import androidx.ink.nativeloader.cinterop.BrushTipNative_calculateMinimumRequiredVersion
 import androidx.ink.nativeloader.cinterop.BrushTipNative_create
 import androidx.ink.nativeloader.cinterop.BrushTipNative_free
 import androidx.ink.nativeloader.cinterop.BrushTipNative_getBehaviorCount
@@ -92,4 +93,7 @@ actual internal object BrushTipNative {
 
     actual fun newCopyOfBrushBehavior(nativePointer: Long, index: Int): Long =
         BrushTipNative_newCopyOfBrushBehavior(nativePointer, index)
+
+    actual fun calculateMinimumRequiredVersion(nativePointer: Long): Int =
+        BrushTipNative_calculateMinimumRequiredVersion(nativePointer)
 }

@@ -64,4 +64,6 @@ actual internal object BrushTipNative {
     @UsedByNative actual external fun getBehaviorCount(nativePointer: Long): Int
 
     @UsedByNative actual external fun newCopyOfBrushBehavior(nativePointer: Long, index: Int): Long
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

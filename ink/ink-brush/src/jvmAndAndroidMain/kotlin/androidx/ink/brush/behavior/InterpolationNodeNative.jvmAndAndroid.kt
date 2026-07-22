@@ -30,4 +30,7 @@ actual internal object InterpolationNodeNative {
     @UsedByNative actual external fun create(interpolation: Int): Long
 
     @UsedByNative actual external fun getInterpolationInt(nativePointer: Long): Int
+
+    @UsedByNative
+    actual external fun getInterpolationMinimumRequiredVersion(interpolationInt: Int): Int
 }
