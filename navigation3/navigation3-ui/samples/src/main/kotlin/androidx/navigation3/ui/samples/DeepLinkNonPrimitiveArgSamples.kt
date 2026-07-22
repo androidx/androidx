@@ -19,29 +19,24 @@ package androidx.navigation3.ui.samples
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.deeplink.DeepLinkRequest
+import androidx.navigation3.runtime.deeplink.DeepLinkSerializer
 import androidx.navigation3.runtime.deeplink.DeepLinkUri
 import androidx.navigation3.runtime.deeplink.UriDeepLinkMatcher
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
 
 @Serializable private object HomeKey : NavKey
 
-/** Resources for [CustomArgTypeFlattenedArgsSample] */
+/** Resources for [NonPrimitiveArgFlattenedSample] */
 @Serializable private data class Name(val firstName: String, val lastName: String)
 
 @Serializable private data class ProfileKey(val name: Name, val age: Int) : NavKey
 
-/** Resources for [CustomArgTypeKSerializerSample] */
+/** Resources for [DeepLinkSerializerSample] */
 private data class Product(val id: Int, val name: String)
 
 @Serializable
@@ -51,31 +46,22 @@ private data class ProductInventoryKey(
 ) : NavKey
 
 // serializer to deserialize string value into a Product object
-private object ProductSerializer : KSerializer<Product> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("androidx.navigation3.ui.samples.Product", PrimitiveKind.STRING)
+private object ProductSerializer : DeepLinkSerializer<Product>() {
+    override val serialName: String = "androidx.navigation3.ui.samples.Product"
 
-    override fun serialize(encoder: Encoder, value: Product) {
-        encoder.encodeString("${value.id}-${value.name}")
-    }
-
-    override fun deserialize(decoder: Decoder): Product {
-        val argValue = decoder.decodeString()
-        val splitArgs = argValue.split("-", limit = 2)
-        if (splitArgs.size != 2) {
-            throw SerializationException(
-                "Invalid product format: $argValue. Expected format: id-name"
-            )
-        }
+    override fun deserialize(value: String): Product {
+        val splitArgs = value.split("-", limit = 2)
         val id =
             splitArgs[0].toIntOrNull()
                 ?: throw SerializationException("Invalid product id: ${splitArgs[0]}")
         val name = splitArgs[1]
         return Product(id, name)
     }
+
+    override fun serialize(value: Product): String = "${value.id}-${value.name}"
 }
 
-/** Resources for [ListCustomArgTypeKSerializerSample] */
+/** Resources for [ListTypeDeepLinkSerializerSample] */
 private data class Hat(val id: Int, val weight: Double)
 
 @Serializable
@@ -83,22 +69,11 @@ private data class HatListKey(val hats: List<@Serializable(with = HatSerializer:
     NavKey
 
 // serializer to deserialize string value into a Hat object
-private object HatSerializer : KSerializer<Hat> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("androidx.navigation3.ui.samples.Hat", PrimitiveKind.STRING)
+private object HatSerializer : DeepLinkSerializer<Hat>() {
+    override val serialName: String = "androidx.navigation3.ui.samples.Hat"
 
-    override fun serialize(encoder: Encoder, value: Hat) {
-        encoder.encodeString("${value.id}:${value.weight}")
-    }
-
-    override fun deserialize(decoder: Decoder): Hat {
-        val argValue = decoder.decodeString()
-        val splitArgs = argValue.split(":", limit = 2)
-        if (splitArgs.size != 2) {
-            throw SerializationException(
-                "Invalid hat format: $argValue. Expected format: id:weight"
-            )
-        }
+    override fun deserialize(value: String): Hat {
+        val splitArgs = value.split(":", limit = 2)
         val id =
             splitArgs[0].toIntOrNull()
                 ?: throw SerializationException("Invalid product id: ${splitArgs[0]}")
@@ -107,10 +82,12 @@ private object HatSerializer : KSerializer<Hat> {
                 ?: throw SerializationException("Invalid weight: ${splitArgs[1]}")
         return Hat(id, weight)
     }
+
+    override fun serialize(value: Hat) = "${value.id}:${value.weight}"
 }
 
 @Composable
-fun CustomArgTypeFlattenedArgsSample() {
+fun NonPrimitiveArgFlattenedSample() {
     val matcher =
         UriDeepLinkMatcher(
             uriPattern =
@@ -140,7 +117,7 @@ fun CustomArgTypeFlattenedArgsSample() {
 }
 
 @Composable
-fun CustomArgTypeKSerializerSample() {
+fun DeepLinkSerializerSample() {
     val matcher =
         UriDeepLinkMatcher(
             uriPattern =
@@ -167,7 +144,7 @@ fun CustomArgTypeKSerializerSample() {
 }
 
 @Composable
-fun ListCustomArgTypeKSerializerSample() {
+fun ListTypeDeepLinkSerializerSample() {
     val matcher =
         UriDeepLinkMatcher(
             uriPattern = DeepLinkUri("http://www.nav3example.com/hatList?hats={hats}"),

@@ -20,6 +20,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.navigation3.runtime.deeplink.DeepLinkSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -80,6 +81,28 @@ class RememberNavBackStackTest {
     }
 
     @Test
+    fun simpleClassRestore_deepLinkSerializer() {
+        var backStack: NavBackStack<NavKey>? = null
+        restorationTester.setContent { backStack = rememberNavBackStack() }
+
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
+
+        val key = TestNonPrimitiveArgClass(TestArg(12, 2.1))
+
+        rule.runOnUiThread {
+            backStack?.add(key)
+            // we null it to ensure recomposition happened
+            backStack = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        val expected = backStack?.get(0) as? TestNonPrimitiveArgClass
+        assertThat(expected).isNotNull()
+        assertThat(expected!!.arg.age).isEqualTo(12)
+        assertThat(expected.arg.height).isEqualTo(2.1)
+    }
+
+    @Test
     fun simpleDataClassRestore() {
         var backStack: NavBackStack<NavKey>? = null
         restorationTester.setContent { backStack = rememberNavBackStack() }
@@ -101,6 +124,28 @@ class RememberNavBackStackTest {
         assertThat(restoredDataClass).isInstanceOf<TestDataClass>()
 
         assertThat((restoredDataClass as TestDataClass).value).isEqualTo(2)
+    }
+
+    @Test
+    fun simpleDataClassRestore_deepLinkSerializer() {
+        var backStack: NavBackStack<NavKey>? = null
+        restorationTester.setContent { backStack = rememberNavBackStack() }
+
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
+
+        val key = TestNonPrimitiveArgDataClass(TestArg(12, 2.1))
+
+        rule.runOnUiThread {
+            backStack?.add(key)
+            // we null it to ensure recomposition happened
+            backStack = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        val expected = backStack?.get(0) as? TestNonPrimitiveArgDataClass
+        assertThat(expected).isNotNull()
+        assertThat(expected!!.arg.age).isEqualTo(12)
+        assertThat(expected.arg.height).isEqualTo(2.1)
     }
 
     @Test
@@ -176,6 +221,28 @@ class RememberNavBackStackTest {
                     "handle `NavKey` open polymorphism."
             )
     }
+
+    @Test
+    fun polymorphicClassRestore_deepLinkSerializer() {
+        var backStack: NavBackStack<NavKey>? = null
+        restorationTester.setContent { backStack = rememberNavBackStack() }
+
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
+
+        val key = TestNonPrimitiveArgAbstractImpl(TestArg(12, 2.1))
+
+        rule.runOnUiThread {
+            backStack?.add(key)
+            // we null it to ensure recomposition happened
+            backStack = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+        val expected = backStack?.get(0) as? TestNonPrimitiveArgAbstractImpl
+        assertThat(expected).isNotNull()
+        assertThat(expected!!.arg.age).isEqualTo(12)
+        assertThat(expected.arg.height).isEqualTo(2.1)
+    }
 }
 
 private object TestNoSerializer : NavKey
@@ -200,5 +267,37 @@ private val Configuration = SavedStateConfiguration {
             subclass(TestSealedClass::class)
             subclass(TestSealedClass.Key1::class)
         }
+    }
+}
+
+private class TestArg(val age: Int, val height: Double)
+
+@Serializable
+private class TestNonPrimitiveArgClass(
+    val arg: @Serializable(with = TestArgSerializer::class) TestArg
+) : NavKey
+
+@Serializable
+private data class TestNonPrimitiveArgDataClass(
+    val arg: @Serializable(with = TestArgSerializer::class) TestArg
+) : NavKey
+
+private abstract class TestAbstractClass : NavKey
+
+@Serializable
+private data class TestNonPrimitiveArgAbstractImpl(
+    val arg: @Serializable(with = TestArgSerializer::class) TestArg
+) : TestAbstractClass()
+
+private class TestArgSerializer : DeepLinkSerializer<TestArg>() {
+    override val serialName = "androidx.navigation3.runtime.TestArg"
+
+    override fun deserialize(value: String): TestArg {
+        val delimited = value.split("--")
+        return TestArg(delimited[0].toInt(), delimited[1].toDouble())
+    }
+
+    override fun serialize(value: TestArg): String {
+        return "${value.age}--${value.height}"
     }
 }
