@@ -15,6 +15,9 @@
  */
 package androidx.compose.ui.window
 
+import android.content.Context
+import android.os.Binder
+import android.os.IBinder
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.MEASURED_STATE_TOO_SMALL
@@ -30,6 +33,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1121,6 +1125,81 @@ class PopupTest {
 
         // Verify the window type was correctly passed to the LayoutParams
         assertThat(popupMatcher.lastSeenWindowParams!!.type).isEqualTo(customType)
+    }
+
+    @Test // Regression test for b/521173005
+    fun popup_inheritsTokenFromRootViewLayoutParams() {
+        // Simulates a ComposeView hosted inside an overlay sub-window (e.g.,
+        // TYPE_APPLICATION_SUB_PANEL from an external service). When hosted in a sub-window,
+        // calling getApplicationWindowToken() returns the sub-window token, which
+        // WindowManagerService rejects when adding another popup ("Attempted to add window with
+        // token that is a sub-window").
+        // This test verifies that when the root layout params indicate a sub-window, PopupLayout
+        // extracts and uses the valid parent window token directly from rootView.layoutParams.
+        class TestFrameLayout(val fakeSubWindowToken: IBinder, context: Context) :
+            FrameLayout(context) {
+            override fun getApplicationWindowToken(): IBinder = fakeSubWindowToken
+
+            override fun onAttachedToWindow() {
+                super.onAttachedToWindow()
+                addView(
+                    ComposeView(context).apply {
+                        setContent {
+                            CompositionLocalProvider(LocalView provides this@TestFrameLayout) {
+                                PopupTestTag(testTag) { Popup { Box(Modifier.size(50.dp)) } }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        val fakeSubWindowToken = Binder()
+        var activityToken: IBinder? = null
+        var originalLayoutParams: ViewGroup.LayoutParams? = null
+        var rootView: View? = null
+
+        try {
+            rule.setContent {
+                val defaultView = LocalView.current
+                SideEffect {
+                    if (originalLayoutParams == null) {
+                        activityToken = defaultView.windowToken
+                        val currentRootView = defaultView.rootView
+                        rootView = currentRootView
+                        originalLayoutParams = currentRootView.layoutParams
+                        currentRootView.layoutParams =
+                            WindowManager.LayoutParams().apply {
+                                (originalLayoutParams as? WindowManager.LayoutParams)?.let {
+                                    copyFrom(it)
+                                }
+                                // Mark the root view as a sub-window (1000..1999) to trigger the
+                                // sub-window token resolution path in
+                                // PopupLayout.createLayoutParams().
+                                type = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
+                                token = activityToken
+                            }
+                    }
+                }
+
+                AndroidView(factory = { context -> TestFrameLayout(fakeSubWindowToken, context) })
+            }
+
+            rule.waitForIdle()
+            val popupMatcher = PopupLayoutMatcher(testTag)
+            Espresso.onView(instanceOf(Owner::class.java))
+                .inRoot(popupMatcher)
+                .check(matches(isDisplayed()))
+
+            // Verify the popup window params inherited activityToken from rootView.layoutParams
+            // instead of the fakeSubWindowToken returned by getApplicationWindowToken()
+            val lastSeenToken = popupMatcher.lastSeenWindowParams?.token
+            assertThat(lastSeenToken).isEqualTo(activityToken)
+        } finally {
+            rootView?.let { rv ->
+                originalLayoutParams?.let { orig -> rule.runOnUiThread { rv.layoutParams = orig } }
+            }
+        }
     }
 
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {
