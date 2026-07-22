@@ -317,7 +317,23 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
 
-        updateStaticSessions(descriptorMap);
+        List<SessionRecord> staticSessions = new ArrayList<>();
+        synchronized (mLock) {
+            for (SessionRecord sessionRecord : mSessionRecords.values()) {
+                if ((sessionRecord.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0) {
+                    staticSessions.add(sessionRecord);
+                }
+            }
+        }
+        for (SessionRecord sessionRecord : staticSessions) {
+            DynamicGroupRouteControllerProxy controller =
+                    (DynamicGroupRouteControllerProxy) sessionRecord.getGroupController();
+            if (descriptorMap.containsKey(controller.getRouteId())) {
+                sessionRecord.updateSessionInfo(
+                        descriptorMap.get(controller.getRouteId()),
+                        /* dynamicRouteDescriptors= */ null);
+            }
+        }
 
         List<MediaRoute2Info> routes = new ArrayList<>();
         for (MediaRouteDescriptor desc : descriptorMap.values()) {
@@ -375,25 +391,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         }
 
         sessionRecord.updateSessionInfo(groupRoute, descriptors);
-    }
-
-    void updateStaticSessions(Map<String, MediaRouteDescriptor> routeDescriptors) {
-        List<SessionRecord> staticSessions = new ArrayList<>();
-        synchronized (mLock) {
-            for (SessionRecord sessionRecord : mSessionRecords.values()) {
-                if ((sessionRecord.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0) {
-                    staticSessions.add(sessionRecord);
-                }
-            }
-        }
-        for (SessionRecord sessionRecord : staticSessions) {
-            DynamicGroupRouteControllerProxy controller =
-                    (DynamicGroupRouteControllerProxy) sessionRecord.getGroupController();
-            if (routeDescriptors.containsKey(controller.getRouteId())) {
-                sessionRecord.updateSessionInfo(routeDescriptors.get(controller.getRouteId()),
-                        /*dynamicRouteDescriptors=*/null);
-            }
-        }
     }
 
     //TODO: Remove this
