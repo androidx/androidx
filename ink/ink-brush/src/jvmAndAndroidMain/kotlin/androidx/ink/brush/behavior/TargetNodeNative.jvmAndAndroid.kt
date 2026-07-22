@@ -39,4 +39,6 @@ actual internal object TargetNodeNative {
     @UsedByNative actual external fun getModifierRangeStart(nativePointer: Long): Float
 
     @UsedByNative actual external fun getModifierRangeEnd(nativePointer: Long): Float
+
+    @UsedByNative actual external fun getTargetMinimumRequiredVersion(targetInt: Int): Int
 }

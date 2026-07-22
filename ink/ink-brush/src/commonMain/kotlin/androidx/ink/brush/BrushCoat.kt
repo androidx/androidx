@@ -197,6 +197,11 @@ private constructor(
 
     override fun toString(): String = "BrushCoat(tip=$tip, paintPreferences=$paintPreferences)"
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkCustomBrushApi
+    public fun calculateMinimumRequiredVersion(): Version =
+        Version.fromInt(BrushCoatNative.calculateMinimumRequiredVersion(nativePointer))
+
     // Companion object gets initialized before anything else.
     public companion object {
         /** Returns a new [BrushCoat.Builder]. */
@@ -232,4 +237,6 @@ internal expect object BrushCoatNative {
      * `BrushCoat`.
      */
     fun newCopyOfBrushPaintPreference(nativePointer: Long, index: Int): Long
+
+    fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

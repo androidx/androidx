@@ -19,6 +19,7 @@ package androidx.ink.brush.behavior
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.cinterop.BinaryOpNodeNative_create
 import androidx.ink.nativeloader.cinterop.BinaryOpNodeNative_getOperationInt
+import androidx.ink.nativeloader.cinterop.BinaryOpNodeNative_getOperationMinimumRequiredVersion
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import kotlinx.cinterop.ExperimentalForeignApi
 
@@ -33,4 +34,7 @@ actual internal object BinaryOpNodeNative {
 
     actual fun getOperationInt(nativePointer: Long): Int =
         BinaryOpNodeNative_getOperationInt(nativePointer)
+
+    actual fun getOperationMinimumRequiredVersion(operationInt: Int): Int =
+        BinaryOpNodeNative_getOperationMinimumRequiredVersion(operationInt)
 }

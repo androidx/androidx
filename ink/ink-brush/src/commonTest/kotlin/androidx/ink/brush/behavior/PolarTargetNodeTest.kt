@@ -16,6 +16,8 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.Version
 import androidx.ink.brush.behavior.PolarTargetNode.PolarTarget
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -243,5 +245,15 @@ class PolarTargetNodeTest {
                 ConstantNode(5f),
             )
         assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+    }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(
+                PolarTarget.POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE
+                    .calculateMinimumRequiredVersion()
+            )
+            .isEqualTo(Version.V0_JETPACK1_0_0)
     }
 }

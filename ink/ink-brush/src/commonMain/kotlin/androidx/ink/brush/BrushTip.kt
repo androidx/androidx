@@ -376,6 +376,11 @@ private constructor(
             " particleGapDistanceScale=$particleGapDistanceScale," +
             " particleGapDurationMillis=$particleGapDurationMillis, behaviors=$behaviors)"
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @ExperimentalInkCustomBrushApi
+    public fun calculateMinimumRequiredVersion(): Version =
+        Version.fromInt(BrushTipNative.calculateMinimumRequiredVersion(nativePointer))
+
     public companion object {
         /** Returns a new [BrushTip.Builder]. */
         @JvmStatic public fun builder(): Builder = Builder()
@@ -423,4 +428,6 @@ expect internal object BrushTipNative {
     fun getBehaviorCount(nativePointer: Long): Int
 
     fun newCopyOfBrushBehavior(nativePointer: Long, index: Int): Long
+
+    fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 }

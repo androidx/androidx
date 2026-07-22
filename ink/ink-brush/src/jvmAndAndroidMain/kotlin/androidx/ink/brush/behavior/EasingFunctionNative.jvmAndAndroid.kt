@@ -69,4 +69,9 @@ actual internal object EasingFunctionNative {
     @UsedByNative actual external fun getStepsCount(nativePointer: Long): Int
 
     @UsedByNative actual external fun getStepsPositionInt(nativePointer: Long): Int
+
+    @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
+
+    @UsedByNative
+    actual external fun getStepPositionMinimumRequiredVersion(stepPositionInt: Int): Int
 }

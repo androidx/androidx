@@ -45,4 +45,11 @@ class SelfOverlapTest {
         assertThat(SelfOverlap.ACCUMULATE.toString()).isEqualTo("SelfOverlap.ACCUMULATE")
         assertThat(SelfOverlap.DISCARD.toString()).isEqualTo("SelfOverlap.DISCARD")
     }
+
+    @OptIn(ExperimentalInkCustomBrushApi::class)
+    @Test
+    fun calculateMinimumRequiredVersion_returnsExpectedValue() {
+        assertThat(SelfOverlap.ANY.calculateMinimumRequiredVersion())
+            .isEqualTo(Version.V0_JETPACK1_0_0)
+    }
 }
