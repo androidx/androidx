@@ -18,13 +18,25 @@ package androidx.navigation3.runtime.samples.deeplink
 
 import androidx.annotation.Sampled
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.deeplink.BackStackMatchResult
 import androidx.navigation3.runtime.deeplink.DeepLinkMatcher
 import androidx.navigation3.runtime.deeplink.DeepLinkRequest
 import androidx.navigation3.runtime.deeplink.DeepLinkUri
 import androidx.navigation3.runtime.deeplink.StaticKeyDeepLinkMatcher
+import androidx.navigation3.runtime.deeplink.UriDeepLinkMatcher
+import androidx.navigation3.runtime.deeplink.withBackStack
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
+
+@Serializable object UserListKey : NavKey
 
 @Serializable object ImageKey : NavKey
+
+@Serializable object HomeKey : NavKey
+
+@Serializable data class Article(val id: Int) : NavKey
+
+@Serializable data class ArticleSection(val category: String) : NavKey
 
 private const val SAMPLE_BASE_PATH = "www.nav3deeplinksample.com"
 
@@ -43,4 +55,47 @@ fun staticKeyDeepLinkMatcherSample() {
         )
     // returns a valid result as long as mimeType matches
     val matchResult: DeepLinkMatcher.MatchResult<ImageKey>? = matcher.match(request)
+}
+
+@Sampled
+fun deepLinkMatcherWithBackStackSample() {
+    val matcher =
+        UriDeepLinkMatcher(
+                uriPattern = DeepLinkUri("https://www.nav3deeplinksample.com/userlist"),
+                serializer = serializer<UserListKey>(),
+            )
+            .withBackStack { matchResult -> listOf(HomeKey, matchResult.key) }
+
+    // handling a request
+    val request = DeepLinkRequest(uri = DeepLinkUri("https://www.nav3deeplinksample.com/userlist/"))
+    // returns a BackStackMatchResult containing the matched key and the constructed back stack
+    val matchResult: BackStackMatchResult<UserListKey, NavKey>? = matcher.match(request)
+    // listOf(HomeKey, UserListKey)
+    val backStack: List<NavKey>? = matchResult?.backStack
+    val key: UserListKey? = matchResult?.key
+}
+
+@Sampled
+fun deepLinkMatcherWithConditionalBackStackSample() {
+    val matcher =
+        UriDeepLinkMatcher(
+                uriPattern = DeepLinkUri("https://www.nav3deeplinksample.com/articles/{id}"),
+                serializer = serializer<Article>(),
+            )
+            .withBackStack { matchResult ->
+                val article = matchResult.key
+                val parent =
+                    if (article.id >= 10) ArticleSection("Shipping") else ArticleSection("Returns")
+                listOf(parent, article)
+            }
+
+    // handling a request
+    val request =
+        DeepLinkRequest(uri = DeepLinkUri("https://www.nav3deeplinksample.com/articles/12"))
+
+    // returns a BackStackMatchResult containing the Article key and parent key based on article id
+    val matchResult: BackStackMatchResult<Article, NavKey>? = matcher.match(request)
+    // listOf(parent, article)
+    val backStack: List<NavKey>? = matchResult?.backStack
+    val key: Article? = matchResult?.key
 }
