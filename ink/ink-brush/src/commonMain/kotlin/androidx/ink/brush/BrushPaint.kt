@@ -153,7 +153,12 @@ private constructor(
         return result
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * Returns the minimum required [Version] for this [BrushPaint].
+     *
+     * By default, decoding a [BrushFamily] containing a [BrushPaint] with a minimum required
+     * version higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(BrushPaintNative.calculateMinimumRequiredVersion(nativePointer))
@@ -172,7 +177,12 @@ private constructor(
         @InkInternalOnlyApi
         public fun mappingInt(): Int = TextureLayerNative.getMappingInt(nativePointer)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        /**
+         * Returns the minimum required [Version] for this [TextureLayer].
+         *
+         * By default, decoding a [BrushFamily] containing a [TextureLayer] with a minimum required
+         * version higher than [Version.MAX_SUPPORTED] will fail.
+         */
         @ExperimentalInkCustomBrushApi
         public fun calculateMinimumRequiredVersion(): Version =
             Version.fromInt(TextureLayerNative.calculateMinimumRequiredVersion(nativePointer))
@@ -228,7 +238,12 @@ private constructor(
 
             override fun toString(): String = "TextureLayer.SizeUnit.$name"
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+            /**
+             * Returns the minimum required [Version] for this [SizeUnit].
+             *
+             * By default, decoding a [BrushFamily] containing a [SizeUnit] with a minimum required
+             * version higher than [Version.MAX_SUPPORTED] will fail.
+             */
             @ExperimentalInkCustomBrushApi
             public fun calculateMinimumRequiredVersion(): Version =
                 Version.fromInt(BrushPaintNative.getTextureSizeUnitMinimumRequiredVersion(value))
@@ -256,7 +271,12 @@ private constructor(
 
             override fun toString(): String = "TextureLayer.Wrap.$name"
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+            /**
+             * Returns the minimum required [Version] for this [Wrap].
+             *
+             * By default, decoding a [BrushFamily] containing a [Wrap] with a minimum required
+             * version higher than [Version.MAX_SUPPORTED] will fail.
+             */
             @ExperimentalInkCustomBrushApi
             public fun calculateMinimumRequiredVersion(): Version =
                 Version.fromInt(BrushPaintNative.getTextureWrapMinimumRequiredVersion(value))
@@ -298,7 +318,12 @@ private constructor(
 
             override fun toString(): String = "TextureLayer.BlendMode.$name"
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+            /**
+             * Returns the minimum required [Version] for this [BlendMode].
+             *
+             * By default, decoding a [BrushFamily] containing a [BlendMode] with a minimum required
+             * version higher than [Version.MAX_SUPPORTED] will fail.
+             */
             @ExperimentalInkCustomBrushApi
             public fun calculateMinimumRequiredVersion(): Version =
                 Version.fromInt(BrushPaintNative.getBlendModeMinimumRequiredVersion(value))
@@ -477,7 +502,12 @@ private constructor(
 
             override fun toString(): String = "TextureLayer.AnimationRepeatMode.$name"
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+            /**
+             * Returns the minimum required [Version] for this [AnimationRepeatMode].
+             *
+             * By default, decoding a [BrushFamily] containing an [AnimationRepeatMode] with a
+             * minimum required version higher than [Version.MAX_SUPPORTED] will fail.
+             */
             @ExperimentalInkAnimationApi
             public fun calculateMinimumRequiredVersion(): Version =
                 Version.fromInt(
@@ -850,7 +880,12 @@ private constructor(
 
             override fun toString(): String = "TilingTexture.Origin.$name"
 
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+            /**
+             * Returns the minimum required [Version] for this [Origin].
+             *
+             * By default, decoding a [BrushFamily] containing an [Origin] with a minimum required
+             * version higher than [Version.MAX_SUPPORTED] will fail.
+             */
             @ExperimentalInkCustomBrushApi
             public fun calculateMinimumRequiredVersion(): Version =
                 Version.fromInt(BrushPaintNative.getTextureOriginMinimumRequiredVersion(value))
@@ -1244,7 +1279,12 @@ private constructor(
 
         internal val nativePointer: Long by NativePointer(nativeAlloc, ColorFunctionNative::free)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        /**
+         * Returns the minimum required [Version] for this [ColorFunction].
+         *
+         * By default, decoding a [BrushFamily] containing a [ColorFunction] with a minimum required
+         * version higher than [Version.MAX_SUPPORTED] will fail.
+         */
         @ExperimentalInkCustomBrushApi
         public fun calculateMinimumRequiredVersion(): Version =
             Version.fromInt(ColorFunctionNative.calculateMinimumRequiredVersion(nativePointer))

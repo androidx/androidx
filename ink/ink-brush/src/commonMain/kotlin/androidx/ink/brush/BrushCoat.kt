@@ -197,7 +197,12 @@ private constructor(
 
     override fun toString(): String = "BrushCoat(tip=$tip, paintPreferences=$paintPreferences)"
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * Returns the minimum required [Version] for this [BrushCoat].
+     *
+     * By default, decoding a [BrushFamily] containing a [BrushCoat] with a minimum required version
+     * higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(BrushCoatNative.calculateMinimumRequiredVersion(nativePointer))
