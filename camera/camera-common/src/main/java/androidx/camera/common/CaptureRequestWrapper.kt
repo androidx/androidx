@@ -55,30 +55,9 @@ import android.hardware.camera2.CaptureRequest
  * directly by clients. For testing, use the fakes in the `androidx.camera.common.testing` package
  * (such as `FakeCaptureRequest`).
  *
- * @see Metadata
- * @see UnsafeWrapper
+ * @see CaptureRequestMetadata
  */
-public interface CaptureRequestWrapper : Metadata, UnsafeWrapper {
-    /**
-     * Retrieves the value of the specified [CaptureRequest.Key].
-     *
-     * @param key The key to query.
-     * @return The value of the key, or `null` if the key is not present or unsupported.
-     * @see android.hardware.camera2.CaptureRequest.get
-     */
-    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
-
-    /**
-     * Retrieves the value of the specified [CaptureRequest.Key], or returns [default] if the key is
-     * not present or its value is `null`.
-     *
-     * @param key The key to query.
-     * @param default The value to return if the key is not present or is `null`.
-     * @return The value of the key, or [default] if the key is not present or its value is `null`.
-     */
-    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
-        return get(key) ?: default
-    }
+public interface CaptureRequestWrapper : CaptureRequestMetadata {
 
     /**
      * The list of all [CaptureRequest.Key]s that are set or supported by this capture request.
