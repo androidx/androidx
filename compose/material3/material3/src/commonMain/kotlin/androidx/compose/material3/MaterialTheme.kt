@@ -170,6 +170,8 @@ object MaterialTheme {
      * This API is exposed to allow retrieving motion values from inside
      * `CompositionLocalConsumerModifierNode` implementations, but in most cases it's recommended to
      * read the motion values from [MaterialTheme.motionScheme].
+     *
+     * @material3expressive
      */
     @Suppress("ExperimentalPropertyAnnotation")
     @ExperimentalMaterial3ExpressiveApi

@@ -1590,6 +1590,8 @@ object ButtonDefaults {
      * Recommended [PaddingValues] for a provided button height.
      *
      * @param buttonHeight The height of the button
+     *
+     * @material3expressive
      */
     @Deprecated(
         message = "Deprecated in favor of function with hasLeadingIcon and hasTrailingIcon params",

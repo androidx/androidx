@@ -465,6 +465,8 @@ object PullToRefreshDefaults {
 
     /**
      * The default container color for the loading indicator that appears when pulling to refresh.
+     *
+     * @material3expressive
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
@@ -477,6 +479,8 @@ object PullToRefreshDefaults {
     /**
      * The default active indicator color for the loading indicator that appears when pulling to
      * refresh.
+     *
+     * @material3expressive
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
@@ -623,6 +627,8 @@ object PullToRefreshDefaults {
      * @param elevation the elevation of this indicator
      * @param maxDistance the max distance the indicator can be pulled down before a refresh is
      *   triggered on release
+     *
+     * @material3expressive
      */
     @ExperimentalMaterial3ExpressiveApi
     @Composable
