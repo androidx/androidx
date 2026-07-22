@@ -66,7 +66,7 @@ class CanvasOperationBufferTest {
         val op1 = buffer.recordRenderingOp(CanvasOp.Draw {}) // Parent op 1
 
         // Simulate recordInChildSpan behavior
-        val childSpan = buffer.createChildSpan()
+        val childSpan = buffer.insertPoint.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
         val prevLastOp = buffer.lastRenderingOp
         buffer.insertPoint = childSpan
@@ -107,7 +107,7 @@ class CanvasOperationBufferTest {
         // conditional block
         assertThat(serializedTreeAfterOptimization)
             .isEqualTo(
-                "Span(depth=0, ops=[Save(children=[Transform(Translate), DrawConditionally(true)])], child=Span(depth=1, ops=[Draw]))"
+                "Span(depth=0, ops=[SaveRestore(children=[Transform(Translate), DrawConditionally(true)])], child=Span(depth=1, ops=[Draw]))"
             )
 
         canvas.flush()
@@ -137,7 +137,7 @@ class CanvasOperationBufferTest {
         assertThat(clip.toString()).isEqualTo("Clip")
         assertThat(transformTranslate.toString()).isEqualTo("Transform(Translate)")
         assertThat(transformRotate.toString()).isEqualTo("Transform(Rotate)")
-        assertThat(saveRestore.toString()).isEqualTo("Save(children=[])")
+        assertThat(saveRestore.toString()).isEqualTo("SaveRestore(children=[])")
     }
 
     @Test

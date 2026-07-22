@@ -223,7 +223,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     internal inline fun recordInChildSpan(action: () -> Unit): CanvasOperationBuffer.Span {
-        val childSpan = buffer.createChildSpan()
+        val childSpan = buffer.insertPoint.createChildSpan()
         val prevInsertPoint = buffer.insertPoint
         val prevSaveNode = currentSaveRestoreNode
         val prevLastRenderingOp = buffer.lastRenderingOp
@@ -1610,7 +1610,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
             buffer.optimizeSpan(childSpan)
         }
         if (!childSpan.emitsWireCommands()) {
-            buffer.removeChildSpan(childSpan)
+            buffer.insertPoint.removeChildSpan(childSpan)
             return
         }
 

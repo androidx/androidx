@@ -535,7 +535,7 @@ public class RemoteCanvas(
             internalCanvas.buffer.optimizeSpan(childSpan)
         }
         if (!childSpan.emitsWireCommands()) {
-            internalCanvas.buffer.removeChildSpan(childSpan)
+            internalCanvas.buffer.insertPoint.removeChildSpan(childSpan)
             return
         }
 
