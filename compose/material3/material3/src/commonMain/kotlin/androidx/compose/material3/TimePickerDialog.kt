@@ -456,9 +456,9 @@ object TimePickerDialogDefaults {
             IconButton(modifier = modifier, onClick = onDisplayModeChange) {
                 val icon =
                     if (displayMode == TimePickerDisplayMode.Picker) {
-                        Icons.Outlined.Keyboard
+                        Icons.Filled.Keyboard
                     } else {
-                        Icons.Outlined.Schedule
+                        Icons.Filled.Schedule
                     }
                 Icon(imageVector = icon, contentDescription = contentDescription)
             }
@@ -497,9 +497,9 @@ object TimePickerDialogDefaults {
             IconButton(modifier = modifier, onClick = onDisplayModeChange) {
                 val icon =
                     if (displayMode == androidx.compose.material3.TimePickerDisplayMode.Scroll) {
-                        Icons.Outlined.Keyboard
+                        Icons.Filled.Keyboard
                     } else {
-                        Icons.Outlined.SwipeVertical
+                        Icons.Filled.SwipeVertical
                     }
                 Icon(imageVector = icon, contentDescription = contentDescription)
             }
