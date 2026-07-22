@@ -171,6 +171,41 @@ internal sealed class CanvasOp {
      */
     open fun shouldPrune(buffer: CanvasOperationBuffer): Boolean = false
 
+    /**
+     * Recursively flattens this operation into the target [dest] list during internal tree
+     * unrolling.
+     *
+     * By default, operations append themselves directly to [dest]. Composite operations like
+     * [SaveRestore] override this to omit discarded scopes, inline children of elided scopes, or
+     * retain preserved boundaries.
+     *
+     * @param dest The destination list accumulating flattened [CanvasOp] nodes.
+     */
+    open fun flattenInto(dest: MutableList<CanvasOp>) {
+        dest.add(this)
+    }
+
+    /**
+     * Flattens this operation within a dependency-aware [span] during the span optimization pass.
+     *
+     * By default, the wrapping [spanOp] is added directly to [dest]. Composite operations like
+     * [SaveRestore] override this to unroll inlined children into standalone
+     * [CanvasOperationBuffer.SpanOp] wrappers, chaining their execution order and rewiring
+     * dependent operations across the scope boundary.
+     *
+     * @param spanOp The wrapping [CanvasOperationBuffer.SpanOp] representing this operation in the
+     *   span graph.
+     * @param span The containing [CanvasOperationBuffer.Span] whose operations are being flattened.
+     * @param dest The destination list accumulating flattened [CanvasOperationBuffer.SpanOp] nodes.
+     */
+    open fun flattenInto(
+        spanOp: CanvasOperationBuffer.SpanOp,
+        span: CanvasOperationBuffer.Span,
+        dest: MutableList<CanvasOperationBuffer.SpanOp>,
+    ) {
+        dest.add(spanOp)
+    }
+
     /** Represents an actual drawing or state-setting operation (e.g., drawRect). */
     class Draw(val switchesCanvas: Boolean = false, val action: (RemoteComposeWriter) -> Unit) :
         CanvasOp() {
@@ -324,6 +359,58 @@ internal sealed class CanvasOp {
                     // Default behavior: emit matching save and restore wire commands.
                     else -> ElisionMode.PRESERVE
                 }
+        }
+
+        private fun flattenChildren() {
+            val newChildren = ArrayList<CanvasOp>(children.size)
+            for (i in 0 until children.size) {
+                children[i].flattenInto(newChildren)
+            }
+            children.clear()
+            children.addAll(newChildren)
+        }
+
+        override fun flattenInto(dest: MutableList<CanvasOp>) {
+            flattenChildren()
+            when (elisionMode) {
+                ElisionMode.DISCARD -> {}
+                ElisionMode.INLINE -> dest.addAll(children)
+                ElisionMode.PRESERVE -> dest.add(this)
+            }
+        }
+
+        override fun flattenInto(
+            spanOp: CanvasOperationBuffer.SpanOp,
+            span: CanvasOperationBuffer.Span,
+            dest: MutableList<CanvasOperationBuffer.SpanOp>,
+        ) {
+            flattenChildren()
+            when (elisionMode) {
+                ElisionMode.DISCARD -> {
+                    span.routeDependenciesAround(spanOp)
+                }
+                ElisionMode.INLINE -> {
+                    var lastInlinedOp: CanvasOperationBuffer.SpanOp? = null
+                    for (j in 0 until children.size) {
+                        val newSpanOp = CanvasOperationBuffer.SpanOp(span, children[j])
+                        if (j == 0) {
+                            newSpanOp.deps.addAll(spanOp.deps)
+                        } else {
+                            newSpanOp.deps.add(lastInlinedOp!!)
+                        }
+                        dest.add(newSpanOp)
+                        lastInlinedOp = newSpanOp
+                    }
+                    if (lastInlinedOp != null) {
+                        span.replaceDependency(spanOp, lastInlinedOp)
+                    } else {
+                        span.routeDependenciesAround(spanOp)
+                    }
+                }
+                ElisionMode.PRESERVE -> {
+                    dest.add(spanOp)
+                }
+            }
         }
 
         override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
@@ -590,6 +677,28 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             operations.clear()
             operations.addAll(sortedOps)
         }
+
+        private fun updateDependencies(oldDep: SpanOp, update: (MutableList<SpanOp>) -> Unit) {
+            for (i in 0 until operations.size) {
+                val deps = operations[i].deps
+                if (deps.remove(oldDep)) {
+                    update(deps)
+                }
+            }
+            var currentChild = child
+            while (currentChild != null) {
+                currentChild.updateDependencies(oldDep, update)
+                currentChild = currentChild.next
+            }
+        }
+
+        internal fun replaceDependency(oldDep: SpanOp, newDep: SpanOp) {
+            updateDependencies(oldDep) { it.add(newDep) }
+        }
+
+        internal fun routeDependenciesAround(oldDep: SpanOp) {
+            updateDependencies(oldDep) { it.addAll(oldDep.deps) }
+        }
     }
 
     /**
@@ -720,7 +829,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             val op = spanOp.op
             op.optimizeChildScopes(this)
             if (op.shouldPrune(this)) {
-                routeDependenciesAround(spanTreeRoot, spanOp)
+                spanTreeRoot.routeDependenciesAround(spanOp)
                 true
             } else {
                 false
@@ -959,45 +1068,6 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         ops.addAll(newOps)
     }
 
-    private fun Span.updateDependencies(oldDep: SpanOp, update: (MutableList<SpanOp>) -> Unit) {
-        for (i in 0 until operations.size) {
-            val deps = operations[i].deps
-            if (deps.remove(oldDep)) {
-                update(deps)
-            }
-        }
-        var currentChild = child
-        while (currentChild != null) {
-            currentChild.updateDependencies(oldDep, update)
-            currentChild = currentChild.next
-        }
-    }
-
-    /**
-     * Recursively traverses [span] and all its descendant child scopes to replace all dependency
-     * references pointing to [oldDep] with [newDep].
-     *
-     * This is used during inlining or transform fusing when an existing operation is replaced by a
-     * new or inlined operation and subsequent operations need to depend on the new operation.
-     */
-    private fun replaceDependency(span: Span, oldDep: SpanOp, newDep: SpanOp) {
-        span.updateDependencies(oldDep) { it.add(newDep) }
-    }
-
-    /**
-     * Recursively traverses [span] and all its descendant child scopes to route dependencies around
-     * an operation that has been elided, discarded, or cancelled ([oldDep]).
-     *
-     * If any operation in the span hierarchy directly depends on [oldDep], that dependency pointer
-     * is removed, and all operations that [oldDep] depended on ([SpanOp.deps]) are added directly
-     * to the dependent operation's dependency list. This ensures that the topological ordering and
-     * execution dependencies of subsequent operations remain unbroken when an intermediate
-     * operation is removed from the execution tree.
-     */
-    private fun routeDependenciesAround(span: Span, oldDep: SpanOp) {
-        span.updateDependencies(oldDep) { it.addAll(oldDep.deps) }
-    }
-
     /**
      * Optimizes consecutive transforms inside a [Span].
      *
@@ -1053,7 +1123,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         // sorting if an operation in the span graph directly referenced an
                         // earlier transform instead of the last one.
                         for (k in 0 until pendingSpanOps.size) {
-                            replaceDependency(span, pendingSpanOps[k], lastNewOp)
+                            span.replaceDependency(pendingSpanOps[k], lastNewOp)
                         }
                     } else {
                         // If consecutive transforms canceled each other out completely (so
@@ -1062,7 +1132,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                         // chain across the group) to ensure topologicalSort() does not bring
                         // them back via dangling dependency pointers.
                         for (k in pendingSpanOps.size - 1 downTo 0) {
-                            routeDependenciesAround(span, pendingSpanOps[k])
+                            span.routeDependenciesAround(pendingSpanOps[k])
                         }
                     }
                     pendingSpanOps.clear()
@@ -1102,88 +1172,15 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     }
 
     /**
-     * Recursively applies the elision decisions made in [CanvasOp.evaluateElision].
-     *
-     * Removes [CanvasOp.ElisionMode.DISCARD] nodes and inlines the children of
-     * [CanvasOp.ElisionMode.INLINE] nodes directly into their parent's children list.
-     */
-    private fun flatten(node: CanvasOp.SaveRestore) {
-        val newChildren =
-            buildList(node.children.size) {
-                for (i in 0 until node.children.size) {
-                    val child = node.children[i]
-                    when (child) {
-                        is CanvasOp.SaveRestore -> {
-                            flatten(child)
-                            when (child.elisionMode) {
-                                CanvasOp.ElisionMode.DISCARD -> {}
-                                CanvasOp.ElisionMode.INLINE -> {
-                                    addAll(child.children)
-                                }
-                                CanvasOp.ElisionMode.PRESERVE -> {
-                                    add(child)
-                                }
-                            }
-                        }
-                        else -> {
-                            add(child)
-                        }
-                    }
-                }
-            }
-        node.children.clear()
-        node.children.addAll(newChildren)
-    }
-
-    /**
-     * Flattens (inlines) elided [CanvasOp.SaveRestore] nodes that reside directly in a [Span].
-     *
-     * If a `Save` node is inlined, its children are flattened into the span's operations list,
-     * chained sequentially (to preserve execution order), and dependencies of subsequent operations
-     * are re-routed to the last inlined operation. If a `Save` node is discarded, dependencies are
-     * routed around it.
+     * Flattens (inlines) elided [CanvasOp.SaveRestore] nodes that reside directly in a [Span] via
+     * [CanvasOp.flattenInto].
      */
     private fun flattenSpan(span: Span) {
-        val newOps =
-            buildList(span.operations.size) {
-                for (i in 0 until span.operations.size) {
-                    val child = span.operations[i]
-                    when (val op = child.op) {
-                        is CanvasOp.SaveRestore -> {
-                            flatten(op)
-                            when (op.elisionMode) {
-                                CanvasOp.ElisionMode.DISCARD -> {
-                                    routeDependenciesAround(span, child)
-                                }
-                                CanvasOp.ElisionMode.INLINE -> {
-                                    var lastInlinedOp: SpanOp? = null
-                                    for (j in 0 until op.children.size) {
-                                        val newSpanOp = SpanOp(span, op.children[j])
-                                        if (j == 0) {
-                                            newSpanOp.deps.addAll(child.deps)
-                                        } else {
-                                            newSpanOp.deps.add(lastInlinedOp!!)
-                                        }
-                                        add(newSpanOp)
-                                        lastInlinedOp = newSpanOp
-                                    }
-                                    if (lastInlinedOp != null) {
-                                        replaceDependency(span, child, lastInlinedOp)
-                                    } else {
-                                        routeDependenciesAround(span, child)
-                                    }
-                                }
-                                CanvasOp.ElisionMode.PRESERVE -> {
-                                    add(child)
-                                }
-                            }
-                        }
-                        else -> {
-                            add(child)
-                        }
-                    }
-                }
-            }
+        val newOps = ArrayList<SpanOp>(span.operations.size)
+        for (i in 0 until span.operations.size) {
+            val child = span.operations[i]
+            child.op.flattenInto(child, span, newOps)
+        }
         span.operations.clear()
         span.operations.addAll(newOps)
     }
