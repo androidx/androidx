@@ -280,6 +280,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
     @Test
     fun performFling_shouldConsumeAllVelocityIfInTheMiddleOfTheList() {
         var stepSize = 0f
+        var velocity = 0f
         var latestAvailableVelocity = Velocity.Zero
         lateinit var lazyGridState: LazyGridState
         val inspectingNestedScrollConnection =
@@ -298,18 +299,14 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
             val density = LocalDensity.current
             lazyGridState = rememberLazyGridState(100) // middle of the grid
             stepSize = with(density) { ItemSize.toPx() }
+            velocity = with(density) { 5000.dp.toPx() } // use a not so high velocity
             Box(modifier = Modifier.fillMaxSize().nestedScroll(inspectingNestedScrollConnection)) {
                 MainLayout(state = lazyGridState)
             }
         }
 
         // act
-        onMainList().performTouchInput {
-            swipeMainAxisWithVelocity(
-                1.5f * stepSize,
-                10000f, // use a not so high velocity
-            )
-        }
+        onMainList().performTouchInput { swipeMainAxisWithVelocity(1.5f * stepSize, velocity) }
 
         // assert
         rule.runOnIdle { assertEquals(latestAvailableVelocity.toAbsoluteFloat(), 0f) }
@@ -324,12 +321,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         latestAvailableVelocity = Velocity.Zero
 
         // act
-        onMainList().performTouchInput {
-            swipeMainAxisWithVelocity(
-                -1.5f * stepSize,
-                10000f, // use a not so high velocity
-            )
-        }
+        onMainList().performTouchInput { swipeMainAxisWithVelocity(-1.5f * stepSize, velocity) }
 
         // assert
         rule.runOnIdle { assertEquals(latestAvailableVelocity.toAbsoluteFloat(), 0f) }
