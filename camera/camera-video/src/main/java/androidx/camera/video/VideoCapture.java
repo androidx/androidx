@@ -462,9 +462,24 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
                 + ", secondaryStreamSpec " + secondaryStreamSpec);
 
+        StreamSpec oldStreamSpec = getAttachedStreamSpec();
         mResolvedMediaInfo = resolveMediaInfo(primaryStreamSpec);
+        if (isInSession() && shouldResetPipeline(oldStreamSpec, primaryStreamSpec)) {
+            resetPipeline(primaryStreamSpec);
+        }
 
         return primaryStreamSpec;
+    }
+
+    private static boolean shouldResetPipeline(@Nullable StreamSpec oldStreamSpec,
+            @NonNull StreamSpec newStreamSpec) {
+        if (oldStreamSpec == null) {
+            return false;
+        }
+        return !Objects.equals(oldStreamSpec.getResolution(), newStreamSpec.getResolution())
+                || !Objects.equals(
+                        oldStreamSpec.getDynamicRange(),
+                        newStreamSpec.getDynamicRange());
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -528,11 +543,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mSessionConfigBuilder = createPipeline(
-                (VideoCaptureConfig<T>) getCurrentConfig(), attachedStreamSpec);
-        applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
-                attachedStreamSpec);
-        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+        setupPipeline(attachedStreamSpec);
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
@@ -908,8 +919,23 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @MainThread
-    @SuppressWarnings({"WeakerAccess", "unchecked"}) /* synthetic accessor */
+    @SuppressWarnings("unchecked")
+    private void setupPipeline(@NonNull StreamSpec streamSpec) {
+        mSessionConfigBuilder = createPipeline(
+                (VideoCaptureConfig<T>) getCurrentConfig(), streamSpec);
+        applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
+                streamSpec);
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+    }
+
+    @MainThread
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void resetPipeline() {
+        resetPipeline(Preconditions.checkNotNull(getAttachedStreamSpec()));
+    }
+
+    @MainThread
+    private void resetPipeline(@NonNull StreamSpec streamSpec) {
         // Do nothing when the use case has been unbound.
         if (getCamera() == null) {
             return;
@@ -917,12 +943,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         setSourceState(VideoOutput.SourceState.CONFIGURING);
         clearPipeline();
-        mSessionConfigBuilder = createPipeline(
-                (VideoCaptureConfig<T>) getCurrentConfig(),
-                Preconditions.checkNotNull(getAttachedStreamSpec()));
-        applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
-                getAttachedStreamSpec());
-        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+        setupPipeline(streamSpec);
         notifyReset();
     }
 
@@ -2079,7 +2100,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return this;
         }
 
-        @NonNull Builder<T> setVideoEncoderInfoFinder(
+        /** Sets the {@link VideoEncoderInfo.Finder} to find video encoder info. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder<T> setVideoEncoderInfoFinder(
                 VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
             getMutableConfig().insertOption(OPTION_VIDEO_ENCODER_INFO_FINDER,
                     videoEncoderInfoFinder);

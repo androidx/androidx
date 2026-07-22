@@ -328,6 +328,7 @@ public class StreamSharing extends UseCase {
             @NonNull StreamSpec primaryStreamSpec,
             @Nullable StreamSpec secondaryStreamSpec) {
         checkMainThread();
+        clearPipeline();
 
         mVirtualCameraAdapter.updateChildrenPipelineConfigs();
 
@@ -721,7 +722,6 @@ public class StreamSharing extends UseCase {
         }
 
         // Clear both StreamSharing and the children.
-        clearPipeline();
         updateSessionConfig(
                 createPipelineAndUpdateChildrenSpecs(cameraId, secondaryCameraId,
                         config, primaryStreamSpec, secondaryStreamSpec));

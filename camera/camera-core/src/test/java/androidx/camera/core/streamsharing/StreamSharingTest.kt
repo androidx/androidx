@@ -50,8 +50,10 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.ConstantObservable
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.impl.StreamSpec
@@ -73,8 +75,11 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
+import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.MediaSpec
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoOutput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -147,6 +152,9 @@ class StreamSharingTest {
 
     @After
     fun tearDown() {
+        if (streamSharing.isInSession) {
+            streamSharing.onSessionStop()
+        }
         if (streamSharing.camera != null) {
             streamSharing.unbindFromCamera(streamSharing.camera!!)
         }
@@ -1199,5 +1207,63 @@ class StreamSharingTest {
         surfaceOutput.updateTransformMatrix(glMatrix, identity)
         val det = glMatrix[0] * glMatrix[5] - glMatrix[4] * glMatrix[1]
         return det < 0
+    }
+
+    @Test
+    fun updateResolutionWithActiveChildVideoCapture_doesNotCrash() {
+        // Arrange
+        val preview = Preview.Builder().build()
+        val videoOutput =
+            object : VideoOutput {
+                override fun onSurfaceRequested(request: SurfaceRequest) {
+                    request.willNotProvideSurface()
+                }
+
+                override fun getMediaSpec(): Observable<MediaSpec> {
+                    return ConstantObservable.withValue(MediaSpec.builder().build())
+                }
+            }
+        val videoCapture =
+            VideoCapture.Builder(videoOutput)
+                .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
+                .build()
+        streamSharing =
+            StreamSharing(
+                camera,
+                secondaryCamera,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                setOf(preview, videoCapture),
+                useCaseConfigFactory,
+            )
+        streamSharing.bindToCamera(camera, null, null, defaultConfig)
+
+        // Initial resolution
+        streamSharing.onSuggestedStreamSpecUpdated(
+            StreamSpec.builder(Size(1920, 1080)).build(),
+            null,
+        )
+
+        // Start session (calls onSessionStart on children, making them active)
+        streamSharing.onSessionStart()
+        shadowOf(getMainLooper()).idle()
+
+        val adapter = streamSharing.virtualCameraAdapter
+        val videoCaptureEdgeBefore = adapter.mChildrenEdges[videoCapture]!!
+        assertThat(videoCaptureEdgeBefore.hasProvider()).isTrue()
+
+        // Act: update resolution (simulating session recreation flow)
+        streamSharing.onSuggestedStreamSpecUpdated(
+            StreamSpec.builder(Size(1080, 1920)).build(),
+            null,
+        )
+        shadowOf(getMainLooper()).idle()
+
+        val videoCaptureEdgeAfter = adapter.mChildrenEdges[videoCapture]!!
+        assertThat(videoCaptureEdgeAfter.hasProvider()).isTrue()
+
+        // Verify old edge is correctly released/cleaned up
+        assertThat(videoCaptureEdgeBefore).isNotEqualTo(videoCaptureEdgeAfter)
+        assertThat(videoCaptureEdgeBefore.isClosed).isTrue()
     }
 }
