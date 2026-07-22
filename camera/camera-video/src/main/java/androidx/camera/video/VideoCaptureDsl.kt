@@ -21,7 +21,6 @@ import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraXDsl
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalMirrorMode
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 
@@ -99,8 +98,6 @@ public class VideoCaptureScope<T : VideoOutput> internal constructor(videoOutput
      *
      * @see VideoCapture.Builder.setMirrorMode
      */
-    @get:ExperimentalMirrorMode
-    @set:ExperimentalMirrorMode
     @get:MirrorMode.Mirror
     @set:MirrorMode.Mirror
     public var mirrorMode: Int
