@@ -79,6 +79,22 @@ public abstract class NavigationEventInput {
     public var hasEnabledHandlers: Boolean = false
         private set
 
+    /**
+     * Tracks whether the connected [NavigationEventDispatcher] has any enabled
+     * [NavigationEventHandler] for back navigation matching this input's priority scope.
+     */
+    @get:JvmName("hasEnabledBackHandlers")
+    public var hasEnabledBackHandlers: Boolean = false
+        private set
+
+    /**
+     * Tracks whether the connected [NavigationEventDispatcher] has any enabled
+     * [NavigationEventHandler] for forward navigation matching this input's priority scope.
+     */
+    @get:JvmName("hasEnabledForwardHandlers")
+    public var hasEnabledForwardHandlers: Boolean = false
+        private set
+
     /** @see [NavigationEventProcessor.addInput] */
     @MainThread
     internal fun doOnAdded(dispatcher: NavigationEventDispatcher) {
@@ -121,21 +137,61 @@ public abstract class NavigationEventInput {
     }
 
     /**
-     * Called when the enabled state of handlers in the connected [NavigationEventDispatcher]
-     * changes.
+     * Called when the enabled state of handlers (either back or forward) in the connected
+     * [NavigationEventDispatcher] changes.
      *
      * This allows the input to enable or disable its own event sourcing. For example, a system back
      * gesture input might only register for gestures when `hasEnabledHandlers` is `true`.
      *
-     * The exact set of handlers this reflects depends on the
-     * [Priority][NavigationEventDispatcher.Priority] this input was registered with.
+     * The exact set of handlers this reflects depends on the [NavigationEventDispatcher.Priority]
+     * this input was registered with.
      *
-     * @param hasEnabledHandlers Whether the connected dispatcher has any enabled handlers matching
-     *   this input's priority scope.
+     * @param hasEnabledHandlers Whether the connected dispatcher has any enabled handlers (back or
+     *   forward) matching this input's priority scope.
      */
     @MainThread
     @EmptySuper
     protected open fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {}
+
+    @MainThread
+    internal fun doOnHasEnabledBackHandlersChanged(hasEnabledBackHandlers: Boolean) {
+        this.hasEnabledBackHandlers = hasEnabledBackHandlers
+        onHasEnabledBackHandlersChanged(hasEnabledBackHandlers)
+    }
+
+    /**
+     * Called when the enabled state of back handlers in the connected [NavigationEventDispatcher]
+     * changes.
+     *
+     * The exact set of handlers this reflects depends on the [NavigationEventDispatcher.Priority]
+     * this input was registered with.
+     *
+     * @param hasEnabledBackHandlers Whether the connected dispatcher has any enabled back handlers
+     *   matching this input's priority scope.
+     */
+    @MainThread
+    @EmptySuper
+    protected open fun onHasEnabledBackHandlersChanged(hasEnabledBackHandlers: Boolean) {}
+
+    @MainThread
+    internal fun doOnHasEnabledForwardHandlersChanged(hasEnabledForwardHandlers: Boolean) {
+        this.hasEnabledForwardHandlers = hasEnabledForwardHandlers
+        onHasEnabledForwardHandlersChanged(hasEnabledForwardHandlers)
+    }
+
+    /**
+     * Called when the enabled state of forward handlers in the connected
+     * [NavigationEventDispatcher] changes.
+     *
+     * The exact set of handlers this reflects depends on the [NavigationEventDispatcher.Priority]
+     * this input was registered with.
+     *
+     * @param hasEnabledForwardHandlers Whether the connected dispatcher has any enabled forward
+     *   handlers matching this input's priority scope.
+     */
+    @MainThread
+    @EmptySuper
+    protected open fun onHasEnabledForwardHandlersChanged(hasEnabledForwardHandlers: Boolean) {}
 
     @MainThread
     internal fun doOnHistoryChanged(history: NavigationEventHistory) {

@@ -114,4 +114,116 @@ class NavigationEventInputTest {
         // Should not throw an exception.
         input.doDispatch()
     }
+
+    @Test
+    fun hasEnabledHandlers_callbacksTriggeredCorrectly() {
+        val dispatcher = NavigationEventDispatcher()
+        var hasAny = false
+        var hasBack = false
+        var hasForward = false
+        val input =
+            object : NavigationEventInput() {
+                override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
+                    hasAny = hasEnabledHandlers
+                }
+
+                override fun onHasEnabledBackHandlersChanged(hasEnabledBackHandlers: Boolean) {
+                    hasBack = hasEnabledBackHandlers
+                }
+
+                override fun onHasEnabledForwardHandlersChanged(
+                    hasEnabledForwardHandlers: Boolean
+                ) {
+                    hasForward = hasEnabledForwardHandlers
+                }
+            }
+        dispatcher.addInput(input)
+
+        // Initially all are false
+        kotlin.test.assertEquals(false, hasAny)
+        kotlin.test.assertEquals(false, hasBack)
+        kotlin.test.assertEquals(false, hasForward)
+
+        val handler =
+            object :
+                NavigationEventHandler<NavigationEventInfo>(
+                    initialInfo = NavigationEventInfo.None,
+                    isBackEnabled = false,
+                    isForwardEnabled = true,
+                ) {}
+        dispatcher.addHandler(handler)
+
+        // Forward handler enabled: Any=true, Back=false, Forward=true
+        kotlin.test.assertEquals(true, hasAny)
+        kotlin.test.assertEquals(false, hasBack)
+        kotlin.test.assertEquals(true, hasForward)
+
+        handler.isBackEnabled = true
+
+        // Both enabled: Any=true, Back=true, Forward=true
+        kotlin.test.assertEquals(true, hasAny)
+        kotlin.test.assertEquals(true, hasBack)
+        kotlin.test.assertEquals(true, hasForward)
+
+        handler.isForwardEnabled = false
+
+        // Forward disabled: Any=true, Back=true, Forward=false
+        kotlin.test.assertEquals(true, hasAny)
+        kotlin.test.assertEquals(true, hasBack)
+        kotlin.test.assertEquals(false, hasForward)
+
+        handler.isBackEnabled = false
+
+        // All disabled: Any=false, Back=false, Forward=false
+        kotlin.test.assertEquals(false, hasAny)
+        kotlin.test.assertEquals(false, hasBack)
+        kotlin.test.assertEquals(false, hasForward)
+    }
+
+    @Test
+    fun hasEnabledHandlers_propertiesUpdatedCorrectly() {
+        val dispatcher = NavigationEventDispatcher()
+        val input = object : NavigationEventInput() {}
+        dispatcher.addInput(input)
+
+        // Initially all are false
+        kotlin.test.assertEquals(false, input.hasEnabledHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledBackHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledForwardHandlers)
+
+        val handler =
+            object :
+                NavigationEventHandler<NavigationEventInfo>(
+                    initialInfo = NavigationEventInfo.None,
+                    isBackEnabled = false,
+                    isForwardEnabled = true,
+                ) {}
+        dispatcher.addHandler(handler)
+
+        // Forward handler enabled: Any=true, Back=false, Forward=true
+        kotlin.test.assertEquals(true, input.hasEnabledHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledBackHandlers)
+        kotlin.test.assertEquals(true, input.hasEnabledForwardHandlers)
+
+        handler.isBackEnabled = true
+
+        // Both enabled: Any=true, Back=true, Forward=true
+        kotlin.test.assertEquals(true, input.hasEnabledHandlers)
+        kotlin.test.assertEquals(true, input.hasEnabledBackHandlers)
+        kotlin.test.assertEquals(true, input.hasEnabledForwardHandlers)
+
+        handler.isForwardEnabled = false
+
+        // Forward disabled: Any=true, Back=true, Forward=false
+        kotlin.test.assertEquals(true, input.hasEnabledHandlers)
+        kotlin.test.assertEquals(true, input.hasEnabledBackHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledForwardHandlers)
+
+        handler.isBackEnabled = false
+
+        // All disabled: Any=false, Back=false, Forward=false
+        kotlin.test.assertEquals(false, input.hasEnabledHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledBackHandlers)
+        kotlin.test.assertEquals(false, input.hasEnabledForwardHandlers)
+    }
 }
