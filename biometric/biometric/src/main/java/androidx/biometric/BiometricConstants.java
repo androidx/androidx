@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * Interface containing all of the biometric modality agnostic constants.
  *
  * NOTE: The error messages must be consistent with
- * {@link android.hardware.biometrics.BiometricConstants}
+ * {@code android.hardware.biometrics.BiometricConstants}
  */
 interface BiometricConstants {
 
