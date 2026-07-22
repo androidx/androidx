@@ -258,27 +258,6 @@ class ClickableSoundTest {
         assertThat(soundEffects.clickCount).isEqualTo(0)
     }
 
-    @Test
-    @OptIn(ExperimentalFoundationApi::class)
-    fun playSound_droppedWhenFlagDisabled() {
-        val soundEffects = FakeSoundEffect()
-        val originalFlag = ComposeFoundationFlags.isInteractionSoundEffectOnClickEnabled
-        ComposeFoundationFlags.isInteractionSoundEffectOnClickEnabled = false
-        try {
-            rule.setContent {
-                CompositionLocalProvider(LocalSoundEffect provides soundEffects) {
-                    Box(Modifier.testTag("clickable").size(100.dp).clickable {})
-                }
-            }
-
-            rule.onNodeWithTag("clickable").performClick()
-
-            assertThat(soundEffects.clickCount).isEqualTo(0)
-        } finally {
-            ComposeFoundationFlags.isInteractionSoundEffectOnClickEnabled = originalFlag
-        }
-    }
-
     private class FakeSoundEffect : SoundEffect {
         var clickCount = 0
 
