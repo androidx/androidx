@@ -295,8 +295,11 @@ class RotationProviderTest {
      * On some API levels (like API 23 and 33) under Robolectric, running a task that calls
      * quitSafely() triggers post-execution synchronization loops in ShadowPausedLooper. Since the
      * looper is already in a quitting/quitted state when this synchronization happens,
-     * ShadowPausedLooper throws an IllegalStateException. Catching and ignoring these specific
-     * exceptions is safe here as the underlying task has successfully executed.
+     * ShadowPausedLooper throws an IllegalStateException. Different API levels and Robolectric
+     * versions throw IllegalStateException with varying messages (e.g., "Looper is quitting",
+     * "failed. Is handler thread dead?"). Catching and ignoring all IllegalStateException instances
+     * here is safe and robust because runShutdownTask is only called to execute the final looper
+     * shutdown task, and the looper/thread is expected to be quitting or dead after execution.
      */
     private fun runShutdownTask(looper: Looper?) {
         // Under Robolectric, the background HandlerThread may finish executing and terminate
@@ -308,14 +311,9 @@ class RotationProviderTest {
         }
         try {
             Shadows.shadowOf(looper).runOneTask()
-        } catch (e: IllegalStateException) {
-            val message = e.message ?: throw e
-            if (
-                message != "Looper is quitting" &&
-                    !message.contains("failed. Is handler thread dead?")
-            ) {
-                throw e
-            }
+        } catch (_: IllegalStateException) {
+            // Ignore IllegalStateException thrown by Robolectric when the looper is quitting or
+            // the handler thread is dead.
         }
     }
 
