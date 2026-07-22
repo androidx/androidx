@@ -80,7 +80,6 @@ internal class AndroidWindowInsets(internal val type: Int, private val name: Str
         return insets.bottom
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     internal fun update(windowInsetsCompat: WindowInsetsCompat, typeMask: Int) {
         if (typeMask == 0 || typeMask and type != 0) {
             insets = windowInsetsCompat.getInsets(type)
@@ -112,7 +111,6 @@ internal class AndroidWindowInsets(internal val type: Int, private val name: Str
  *
  * This property should be set prior to first composition.
  */
-@OptIn(ExperimentalLayoutApi::class)
 var AbstractComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
@@ -130,7 +128,6 @@ var AbstractComposeView.consumeWindowInsets: Boolean
     level = DeprecationLevel.HIDDEN,
     message = "Please use AbstractComposeView.consumeWindowInsets",
 )
-@OptIn(ExperimentalLayoutApi::class)
 var ComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
@@ -230,7 +227,6 @@ actual val WindowInsets.Companion.safeContent: WindowInsets
  * The insets that the [WindowInsetsCompat.Type.captionBar] will consume if shown. If it cannot be
  * shown then this will be empty.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.captionBarIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
@@ -241,7 +237,6 @@ val WindowInsets.Companion.captionBarIgnoringVisibility: WindowInsets
  * represent where system UI places navigation bars. Interactive UI should avoid the navigation bars
  * area. If navigation bars cannot be shown, then this will be empty.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.navigationBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
@@ -251,7 +246,6 @@ val WindowInsets.Companion.navigationBarsIgnoringVisibility: WindowInsets
  * The insets that [WindowInsetsCompat.Type.statusBars] will consume if shown. If the status bar can
  * never be shown, then this will be empty.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.statusBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
@@ -262,7 +256,6 @@ val WindowInsets.Companion.statusBarsIgnoringVisibility: WindowInsets
  *
  * If system bars can never be shown, then this will be empty.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.systemBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
@@ -273,7 +266,6 @@ val WindowInsets.Companion.systemBarsIgnoringVisibility: WindowInsets
  *
  * If there are never tappable elements then this is empty.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.tappableElementIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
@@ -283,7 +275,6 @@ val WindowInsets.Companion.tappableElementIgnoringVisibility: WindowInsets
  * `true` when the [caption bar][captionBar] is being displayed, irrespective of whether it
  * intersects with the Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.isCaptionBarVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().captionBar.isVisible
 
@@ -291,40 +282,35 @@ val WindowInsets.Companion.isCaptionBarVisible: Boolean
  * `true` when the [soft keyboard][ime] is being displayed, irrespective of whether it intersects
  * with the Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.isImeVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().ime.isVisible
 
 /**
- * `true` when the [statusBars] are being displayed, irrespective of whether they intersects with
- * the Window.
+ * `true` when the [statusBars] are being displayed, irrespective of whether they intersect with the
+ * Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.areStatusBarsVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().statusBars.isVisible
 
 /**
- * `true` when the [navigationBars] are being displayed, irrespective of whether they intersects
- * with the Window.
+ * `true` when the [navigationBars] are being displayed, irrespective of whether they intersect with
+ * the Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.areNavigationBarsVisible: Boolean
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().navigationBars.isVisible
 
 /**
- * `true` when the [systemBars] are being displayed, irrespective of whether they intersects with
- * the Window.
+ * `true` when the [systemBars] are being displayed, irrespective of whether they intersect with the
+ * Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.areSystemBarsVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().systemBars.isVisible
 /**
- * `true` when the [tappableElement] is being displayed, irrespective of whether they intersects
- * with the Window.
+ * `true` when the [tappableElement] is being displayed, irrespective of whether they intersect with
+ * the Window.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.isTappableElementVisible: Boolean
     @Composable
     @NonRestartableComposable
@@ -336,7 +322,6 @@ val WindowInsets.Companion.isTappableElementVisible: Boolean
  *
  * This will be the same as [imeAnimationTarget] when there is no IME animation in progress.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.imeAnimationSource: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().imeAnimationSource
 
@@ -346,7 +331,6 @@ val WindowInsets.Companion.imeAnimationSource: WindowInsets
  *
  * This will be the same as [imeAnimationSource] when there is no IME animation in progress.
  */
-@ExperimentalLayoutApi
 val WindowInsets.Companion.imeAnimationTarget: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().imeAnimationTarget
 
@@ -417,7 +401,6 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
      * `true` unless the `AbstractComposeView` [AbstractComposeView.consumeWindowInsets] is set to
      * `false`.
      */
-    @OptIn(ExperimentalLayoutApi::class)
     val consumes =
         (view.parent as? View)?.getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
 
