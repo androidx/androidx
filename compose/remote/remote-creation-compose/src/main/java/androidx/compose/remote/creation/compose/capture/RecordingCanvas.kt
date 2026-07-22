@@ -327,12 +327,14 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
 
     @VisibleForTesting
     public fun usePaint(paint: Paint?) {
-        recordRenderingOp { usePaintInternal(paint?.asRemotePaint()) }
+        val paintSnapshot = snapshotPaint(paint)
+        recordRenderingOp { usePaintInternal(paintSnapshot) }
     }
 
     @VisibleForTesting
     public fun usePaint(paint: RemotePaint?) {
-        recordRenderingOp { usePaintInternal(paint) }
+        val paintSnapshot = snapshotPaint(paint)
+        recordRenderingOp { usePaintInternal(paintSnapshot) }
     }
 
     override fun drawColor(drawColor: Int) {
@@ -920,12 +922,13 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         glyphSpacing: Float,
         paint: Paint,
     ) {
+        val pathSnapshot = Path(path)
         val op =
             recordRenderingOp(paint) {
                 document.drawBitmapFontTextRunOnPath(
                     text.getIdForCreationState(creationState),
                     bitmapFont.getIdForCreationState(creationState),
-                    path,
+                    pathSnapshot,
                     start,
                     end,
                     yAdj,
@@ -983,11 +986,8 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     override fun drawPath(path: Path, paint: Paint) {
-        val paintSnapshot = snapshotPaint(paint)
-        recordRenderingOp {
-            usePaintInternal(paintSnapshot)
-            document.drawPath(path)
-        }
+        val pathSnapshot = Path(path)
+        recordRenderingOp(paint) { document.drawPath(pathSnapshot) }
     }
 
     override fun rotate(degrees: Float) {
@@ -1027,7 +1027,8 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         vOffset: Float,
         paint: Paint,
     ) {
-        recordRenderingOp(paint) { document.drawTextOnPath(text, path, hOffset, vOffset) }
+        val pathSnapshot = Path(path)
+        recordRenderingOp(paint) { document.drawTextOnPath(text, pathSnapshot, hOffset, vOffset) }
     }
 
     /**
@@ -1046,11 +1047,12 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
+        val pathSnapshot = Path(path)
         val op =
             recordRenderingOp(paint) {
                 document.drawTextOnPath(
                     text,
-                    path,
+                    pathSnapshot,
                     hOffset.getFloatIdForCreationState(creationState),
                     vOffset.getFloatIdForCreationState(creationState),
                 )
@@ -1102,11 +1104,12 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         vOffset: RemoteFloat,
         paint: Paint,
     ) {
+        val pathSnapshot = Path(path)
         val op =
             recordRenderingOp(paint) {
                 document.drawTextOnPath(
                     text.getIdForCreationState(creationState),
-                    path,
+                    pathSnapshot,
                     hOffset.getFloatIdForCreationState(creationState),
                     vOffset.getFloatIdForCreationState(creationState),
                 )
@@ -1585,9 +1588,10 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
      * @param tangentalOffset An offset in pixels from from the path along the tangent.
      */
     public fun setMatrixFromPath(path: Path, fraction: RemoteFloat, tangentalOffset: RemoteFloat) {
+        val pathSnapshot = Path(path)
         val op = recordRenderingOp {
             document.matrixFromPath(
-                document.addPathData(path),
+                document.addPathData(pathSnapshot),
                 fraction.getFloatIdForCreationState(creationState),
                 tangentalOffset.getFloatIdForCreationState(creationState),
                 3,
