@@ -19,6 +19,9 @@ package androidx.navigation3.runtime.deeplink
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.serializer
 
 class UriDeepLinkMatcherTest {
@@ -902,6 +905,160 @@ class UriDeepLinkMatcherTest {
         val key: TestSealedClass = result.key
         assertThat(backStack).containsExactly(TestSealedClass.Key1, TestSealedClass.Key2).inOrder()
         assertThat(key).isEqualTo(TestSealedClass.Key2)
+    }
+
+    @Test
+    fun matchRequest_polymorphicConcreteArgument() {
+        val name = "theName"
+        val owner = "theOwner"
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?owner={owner}&name={name}"),
+                serializer<SerializableConcreteArgKey>(),
+            )
+        val request =
+            DeepLinkRequest.fromUriString("https://example.com/path?owner=$owner&name=$name")
+        val result = matcher.match(request) as? UriMatchResult
+        assertThat(result).isNotNull()
+        assertThat(result!!.key.derived.owner).isEqualTo(owner)
+        assertThat(result.key.derived.name).isEqualTo(name)
+    }
+
+    @Test
+    fun matchRequest_polymorphicAbstractArgument() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?derived={derived}"),
+                serializer<SerializableAbstractArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/path?derived=anything")
+        val exception = assertFailsWith<SerializationException> { matcher.match(request) }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot decode field [derived] for type with serial " +
+                    "name kotlinx.serialization.Polymorphic<SerializableAbstract>. " +
+                    "Unsupported structure kind: OPEN"
+            )
+    }
+
+    @Test
+    fun matchRequest_polymorphicOpenClassKey() {
+        val name = "theName"
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?name={name}"),
+                serializer<SerializableOpenKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/path?name=$name")
+        val result = matcher.match(request) as? UriMatchResult
+        assertThat(result).isNotNull()
+        assertThat(result!!.key.name).isEqualTo(name)
+    }
+
+    @Test
+    fun matchRequest_deepLinkSerializer_interfaceImplArgument() {
+        val arg = 13
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?arg={arg}"),
+                serializer<NonSerializableInterfaceImplArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/path?arg=$arg")
+        val result = matcher.match(request) as? UriMatchResult
+        assertThat(result).isNotNull()
+        assertThat(result!!.key.arg.id).isEqualTo(arg)
+    }
+
+    @Test
+    fun matchRequest_deepLinkSerializer_abstractImplArgument() {
+        val arg = "name"
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?arg={arg}"),
+                serializer<NonSerializableAbstractImplArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/path?arg=$arg")
+        val result = matcher.match(request) as? UriMatchResult
+        assertThat(result).isNotNull()
+        assertThat(result!!.key.arg.name).isEqualTo(arg)
+    }
+
+    @Test
+    fun matchRequest_deepLinkSerializer_openImplArgument() {
+        val arg = "name"
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/path?arg={arg}"),
+                serializer<NonSerializableOpenImplArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/path?arg=$arg")
+        val result = matcher.match(request) as? UriMatchResult
+        assertThat(result).isNotNull()
+        assertThat(result!!.key.arg.name).isEqualTo(arg)
+    }
+
+    @Serializable class SerializableAbstractArgKey(val derived: SerializableAbstract) : NavKey
+
+    class NonSerializableInterfaceImpl(val id: Int) : NavKey
+
+    @Serializable
+    class NonSerializableInterfaceImplArgKey(
+        @Serializable(InterfaceImplSerializer::class) val arg: NonSerializableInterfaceImpl
+    )
+
+    object InterfaceImplSerializer : DeepLinkSerializer<NonSerializableInterfaceImpl>() {
+        override val serialName: String
+            get() = "NonSerializableInterfaceImpl"
+
+        override fun deserialize(value: String): NonSerializableInterfaceImpl {
+            return NonSerializableInterfaceImpl(value.toInt())
+        }
+
+        override fun serialize(value: NonSerializableInterfaceImpl): String {
+            return value.id.toString()
+        }
+    }
+
+    class NonSerializableAbstractImpl(override val name: String) : SerializableAbstract()
+
+    @Serializable
+    class NonSerializableAbstractImplArgKey(
+        @Serializable(AbstractImplSerializer::class) val arg: NonSerializableAbstractImpl
+    )
+
+    object AbstractImplSerializer : DeepLinkSerializer<NonSerializableAbstractImpl>() {
+        override val serialName: String
+            get() = "NonSerializableAbstractImpl"
+
+        override fun deserialize(value: String): NonSerializableAbstractImpl {
+            return NonSerializableAbstractImpl(value)
+        }
+
+        override fun serialize(value: NonSerializableAbstractImpl): String {
+            return value.name
+        }
+    }
+
+    @Serializable open class SerializableOpenKey(val name: String)
+
+    class NonSerializableOpenImpl(name: String) : SerializableOpenKey(name)
+
+    @Serializable
+    class NonSerializableOpenImplArgKey(
+        @Serializable(OpenImplSerializer::class) val arg: NonSerializableOpenImpl
+    )
+
+    object OpenImplSerializer : DeepLinkSerializer<NonSerializableOpenImpl>() {
+        override val serialName: String
+            get() = "OpenImpl"
+
+        override fun deserialize(value: String): NonSerializableOpenImpl {
+            return NonSerializableOpenImpl(value)
+        }
+
+        override fun serialize(value: NonSerializableOpenImpl): String {
+            return value.name
+        }
     }
 
     object Key1 : NavKey

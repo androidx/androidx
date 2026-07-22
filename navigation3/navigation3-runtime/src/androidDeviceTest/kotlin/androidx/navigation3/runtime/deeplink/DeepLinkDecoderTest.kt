@@ -381,4 +381,22 @@ class DeepLinkDecoderTest {
             decoder.decodeSerializableValue(serializer<SimpleKey>())
         }
     }
+
+    @Test
+    fun testDecodePolymorphic() {
+        val arguments = mapOf("name" to listOf("the name"), "owner" to listOf("the owner"))
+        val decoder = DeepLinkDecoder(arguments)
+        val decoded = decoder.decodeSerializableValue(serializer<SerializableConcrete>())
+        assertThat(decoded.name).isEqualTo("the name")
+        assertThat(decoded.owner).isEqualTo("the owner")
+    }
+
+    @Test
+    fun testDecodeNestedPolymorphic() {
+        val arguments = mapOf("name" to listOf("the name"), "owner" to listOf("the owner"))
+        val decoder = DeepLinkDecoder(arguments)
+        val decoded = decoder.decodeSerializableValue(serializer<SerializableConcreteArgKey>())
+        assertThat(decoded.derived.name).isEqualTo("the name")
+        assertThat(decoded.derived.owner).isEqualTo("the owner")
+    }
 }
