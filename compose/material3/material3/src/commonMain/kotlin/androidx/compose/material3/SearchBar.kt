@@ -142,7 +142,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -3691,7 +3690,6 @@ private fun FullScreenSearchBarLayout(
 private fun BackEventProgress.InProgress?.transform(): Float =
     if (this == null) 0f else PredictiveBack.transform(this.progress)
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DisableSoftKeyboard(content: @Composable () -> Unit) {
     InterceptPlatformTextInput(interceptor = { _, _ -> awaitCancellation() }, content = content)
