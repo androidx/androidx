@@ -46,8 +46,8 @@ abstract class ClangLinkerTask @Inject constructor(private val workerExecutor: W
         group = "Build"
     }
 
-    @get:ServiceReference(KonanBuildService.KEY)
-    abstract val konanBuildService: Property<KonanBuildService>
+    @get:ServiceReference(ClangBuildService.KEY)
+    abstract val clangBuildService: Property<ClangBuildService>
 
     @get:Nested abstract val clangParameters: ClangLinkerParameters
 
@@ -55,7 +55,7 @@ abstract class ClangLinkerTask @Inject constructor(private val workerExecutor: W
     fun archive() {
         workerExecutor.noIsolation().submit(ClangLinkerWorker::class.java) {
             it.clangParameters.set(clangParameters)
-            it.buildService.set(konanBuildService)
+            it.buildService.set(clangBuildService)
         }
     }
 }
@@ -66,7 +66,7 @@ abstract class ClangLinkerParameters {
     @get:Input abstract val linkerOutputKind: Property<LinkerOutputKind>
 
     /** The target platform for the shared file. */
-    @get:Input abstract val konanTarget: Property<SerializableKonanTarget>
+    @get:Input abstract val target: Property<SerializableNativeTarget>
 
     /** List of object files that will be added to the shared file output. */
     @get:InputFiles
@@ -89,12 +89,17 @@ abstract class ClangLinkerParameters {
 
     /** List of arguments that will be passed into linker when creating a shared library. */
     @get:Input abstract val linkerArgs: ListProperty<String>
+
+    /** List of C source files. Used to determine if linking C++ sources. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val sources: ConfigurableFileCollection
 }
 
 private abstract class ClangLinkerWorker : WorkAction<ClangLinkerWorker.Params> {
     interface Params : WorkParameters {
         val clangParameters: Property<ClangLinkerParameters>
-        val buildService: Property<KonanBuildService>
+        val buildService: Property<ClangBuildService>
     }
 
     override fun execute() {
