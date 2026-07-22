@@ -160,7 +160,7 @@ public final class CarValue<T> {
     /**
      * Returns a list of car zones associated with this {@link CarValue}.
      *
-     * <p>For a global vehicle function, the list will only contain {@link CarZone#GLOBAL_ZONE}.
+     * <p>For a global vehicle function, the list will only contain {@link CarZone#CAR_ZONE_ROW_ALL}.
      * Returns an empty list when {@link CarValue#getStatus()} is
      * {@link CarValue#STATUS_UNIMPLEMENTED}.
      */

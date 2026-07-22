@@ -126,7 +126,7 @@ final class PropertyRequestProcessor {
          *
          * @param propertyId    in {@link android.car.VehiclePropertyIds}
          * @param areaId        in {@link CarPropertyValue#getAreaId()}
-         * @param statusCode    in {@link CarPropertyValue.PropertyStatus}
+         * @param statusCode    in {@code CarPropertyValue.PropertyStatus}
          */
         @Override
         public final void onErrorEvent(int propertyId, int areaId, int statusCode) {

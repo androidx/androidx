@@ -261,7 +261,7 @@ public final class CondensedItem implements Item {
         /**
          * Sets the title of the item.
          *
-         * <p>{@code title} must conform to {@link CarTextConstraints.TEXT_AND_ICON}.
+         * <p>{@code title} must conform to {@link CarTextConstraints#TEXT_AND_ICON}.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
@@ -276,7 +276,7 @@ public final class CondensedItem implements Item {
         /**
          * Sets the text of the item.
          *
-         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON}.
+         * <p>{@code text} must conform to {@link CarTextConstraints#TEXT_WITH_COLORS_AND_ICON}.
          *
          * <p><strong>Note:</strong> This field is mutually exclusive with {@link #setProgressBar}.
          * If both are set, {@link #build()} will throw an {@link IllegalStateException}.
@@ -293,7 +293,7 @@ public final class CondensedItem implements Item {
         /**
          * Sets the text of the item.
          *
-         * <p>{@code text} must conform to {@link CarTextConstraints.TEXT_WITH_COLORS_AND_ICON}.
+         * <p>{@code text} must conform to {@link CarTextConstraints#TEXT_WITH_COLORS_AND_ICON}.
          *
          * <p><strong>Note:</strong> This field is mutually exclusive with {@link #setProgressBar}.
          * If both are set, {@link #build()} will throw an {@link IllegalStateException}.
