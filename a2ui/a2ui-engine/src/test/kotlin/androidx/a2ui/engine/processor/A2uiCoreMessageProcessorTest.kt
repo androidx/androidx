@@ -52,13 +52,23 @@ class A2uiCoreMessageProcessorTest {
 
     private companion object {
         const val CATALOG_ID = "test-catalog"
+        const val CATALOG_ID_2 = "test-catalog-2"
         const val SURFACE_A = "surface-A"
         const val SURFACE_B = "surface-B"
     }
 
-    private val catalogs = listOf(TestCatalog(CATALOG_ID))
+    private val catalogs = listOf(TestCatalog(CATALOG_ID), TestCatalog(CATALOG_ID_2))
     private val actionInterceptors = mutableListOf<A2uiActionInterceptor>()
     private val registriesCreated = mutableListOf<TestComponentRegistry>()
+
+    @Test
+    fun clientCapabilities_resolvesCatalogIdsCorrectly() {
+        val processor = createProcessor()
+        val capabilities = processor.clientCapabilities
+        assertThat(capabilities.supportedCatalogIds)
+            .containsExactly(CATALOG_ID, CATALOG_ID_2)
+            .inOrder()
+    }
 
     @Test
     fun processMessage_whenSurfaceIsNew_createsNewActor() = runTest {
@@ -97,7 +107,7 @@ class A2uiCoreMessageProcessorTest {
         val collectJob = launch { processor.collectMessages() }
 
         processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
-        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID_2))
         advanceUntilIdle()
 
         assertThat(registriesCreated).hasSize(2)
@@ -143,7 +153,7 @@ class A2uiCoreMessageProcessorTest {
         val activeSurfacesList = mutableListOf<List<A2uiSurfaceModel>>()
         val surfacesJob = launch { processor.activeSurfaces.toList(activeSurfacesList) }
         processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
-        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID_2))
         advanceUntilIdle()
 
         processor.processMessage(A2uiDeleteSurfaceMessage(SURFACE_A))
@@ -218,7 +228,7 @@ class A2uiCoreMessageProcessorTest {
 
         collectJob.cancel()
         advanceUntilIdle()
-        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID_2))
         advanceUntilIdle()
 
         assertThat(registriesCreated).hasSize(1)
@@ -252,7 +262,7 @@ class A2uiCoreMessageProcessorTest {
         val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
         val outboundJob = launch { processor.outboundEvents.toList(collectedOutbound) }
         processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
-        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID))
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_B, CATALOG_ID_2))
         advanceUntilIdle()
         val testError = A2uiClientErrorMessage("TEST", SURFACE_B, "msg")
 
