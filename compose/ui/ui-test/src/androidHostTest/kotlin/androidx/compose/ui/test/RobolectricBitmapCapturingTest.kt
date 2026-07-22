@@ -60,7 +60,8 @@ import org.robolectric.annotation.GraphicsMode
 
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.O)
+// TODO: Remove maxSdk once b/537613850 is fixed.
+@Config(minSdk = Build.VERSION_CODES.O, maxSdk = 36)
 class RobolectricBitmapCapturingTest {
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
