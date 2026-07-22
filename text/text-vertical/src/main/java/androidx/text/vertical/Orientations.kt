@@ -21,7 +21,6 @@ import android.icu.lang.UCharacter.VerticalOrientation
 import android.icu.lang.UProperty
 import android.os.Build
 import android.text.Spanned
-import androidx.annotation.RequiresApi
 
 /**
  * Represents the orientation of text within a vertical writing mode.
@@ -174,7 +173,6 @@ private class RunMerger(val end: Int, val consumer: (Int, Int, ResolvedOrientati
  *     - The exclusive end index of the orientation run.
  *     - The orientation of the range.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 internal fun forEachOrientation(
     text: CharSequence,
     start: Int,
@@ -213,7 +211,6 @@ internal fun forEachOrientation(
 }
 
 /** Iterates over characters and resolves each character's orientation property. */
-@RequiresApi(Build.VERSION_CODES.N)
 private inline fun forOrientationNoSpans(
     text: CharSequence,
     start: Int,
@@ -244,15 +241,32 @@ private inline fun forOrientationNoSpans(
  * @param cp The code point of the character.
  * @return The resolved orientation of the character.
  */
-@RequiresApi(Build.VERSION_CODES.N)
 private fun resolveOrientation(textOrientation: TextOrientation, cp: Int) =
     when (textOrientation) {
         TextOrientation.Upright -> ResolvedOrientation.Upright
         TextOrientation.Sideways -> ResolvedOrientation.Rotate
         TextOrientation.Mixed -> {
-            when (UCharacter.getIntPropertyValue(cp, UProperty.VERTICAL_ORIENTATION)) {
-                VerticalOrientation.ROTATED -> ResolvedOrientation.Rotate
-                else -> ResolvedOrientation.Upright
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                when (UCharacter.getIntPropertyValue(cp, UProperty.VERTICAL_ORIENTATION)) {
+                    VerticalOrientation.ROTATED -> ResolvedOrientation.Rotate
+                    else -> ResolvedOrientation.Upright
+                }
+            } else {
+                val block = Character.UnicodeBlock.of(cp)
+                if (
+                    block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS ||
+                        block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A ||
+                        block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS ||
+                        block == Character.UnicodeBlock.HIRAGANA ||
+                        block == Character.UnicodeBlock.KATAKANA ||
+                        block == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION ||
+                        block == Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS ||
+                        block == Character.UnicodeBlock.GENERAL_PUNCTUATION
+                ) {
+                    ResolvedOrientation.Upright
+                } else {
+                    ResolvedOrientation.Rotate
+                }
             }
         }
     }
