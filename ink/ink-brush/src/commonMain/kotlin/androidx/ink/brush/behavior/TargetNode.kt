@@ -16,7 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
@@ -105,7 +104,12 @@ private constructor(
 
         override fun toString(): String = "Target." + name
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        /**
+         * Returns the minimum required [Version] for this [Target].
+         *
+         * By default, decoding a [androidx.ink.brush.BrushFamily] containing a [Target] with a
+         * minimum required version higher than [Version.MAX_SUPPORTED] will fail.
+         */
         @ExperimentalInkCustomBrushApi
         public fun calculateMinimumRequiredVersion(): Version =
             Version.fromInt(TargetNodeNative.getTargetMinimumRequiredVersion(value))
