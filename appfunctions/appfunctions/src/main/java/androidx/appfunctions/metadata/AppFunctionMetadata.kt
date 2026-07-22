@@ -42,7 +42,7 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
  *   obtain the input/output information, and call the function accordingly.
  */
 public class AppFunctionMetadata
-// TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
+// TODO(b/508188326): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
 constructor(
     /**
@@ -73,9 +73,13 @@ constructor(
      */
     public val deprecation: AppFunctionDeprecationMetadata? = null,
     /** The name of the AppFunction. */
-    internal val name: AppFunctionName = AppFunctionName(packageName, id),
+    // TODO(b/508188326): Remove annotation once legacy observeAppFunctions API is removed.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val name: AppFunctionName = AppFunctionName(packageName, id),
     /** The metadata of the package providing this AppFunction. */
-    internal val packageMetadata: AppFunctionPackageMetadata =
+    // TODO(b/508188326): Remove annotation once legacy observeAppFunctions API is removed.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val packageMetadata: AppFunctionPackageMetadata =
         AppFunctionPackageMetadata(
             packageName = packageName,
             appFunctions = listOf(),
