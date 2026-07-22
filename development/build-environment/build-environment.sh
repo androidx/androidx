@@ -25,13 +25,41 @@
 # and managed IDE process inherits this environment).
 # -----------------------------------------------------------------------------
 
+# Extracts the session workspace name when running inside a CoG workspace or a
+# local Git worktree. Returns an empty string for standard repo checkouts.
+function androidx_extract_workspace_name() {
+  local support_root="$1"
+  case "$support_root" in
+    /google/cog/cloud/*/*)
+      local rel="${support_root#/google/cog/cloud/*/}"
+      echo "${rel%%/*}"
+      ;;
+    */.worktrees/*)
+      local rel="${support_root#*/.worktrees/}"
+      echo "${rel%%/*}"
+      ;;
+    */.system_generated/worktrees/*)
+      local rel="${support_root#*/.system_generated/worktrees/}"
+      echo "${rel%%/*}"
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
 function androidx_apply_build_environment() {
   local support_root="${support_root:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)}"
 
+  local ws_name=""
   if [ -z "$OUT_DIR" ]; then
-    if [[ "$support_root" == /google/cog/* ]]; then
-      export OUT_DIR="$HOME/androidxout"
+    ws_name="$(androidx_extract_workspace_name "$support_root")"
+
+    if [[ -n "$ws_name" ]]; then
+      # Isolated session workspace (CoG / Git Worktree)
+      export OUT_DIR="$HOME/androidxout/$ws_name"
     else
+      # Standard repository checkout (Repo / Busytown)
       local checkout_root
       checkout_root="$(cd "$support_root/../.." && pwd -P)"
       export OUT_DIR="$checkout_root/out"
@@ -40,10 +68,19 @@ function androidx_apply_build_environment() {
 
   mkdir -p "$OUT_DIR"
   OUT_DIR="$(cd "$OUT_DIR" && pwd -P)"
-  export TMPDIR="$OUT_DIR/tmp"
 
-  export GRADLE_USER_HOME="$OUT_DIR/.gradle"
-  export KONAN_DATA_DIR="$OUT_DIR/.konan"
+  if [[ -n "$ws_name" ]]; then
+    # Isolated session workspace (CoG / Git Worktree)
+    export GRADLE_USER_HOME="${GRADLE_USER_HOME:-$HOME/androidxout/.gradle}"
+    export KONAN_DATA_DIR="${KONAN_DATA_DIR:-$HOME/androidxout/.konan}"
+  else
+    # Explicit OUT_DIR or standard repository checkout
+    export GRADLE_USER_HOME="$OUT_DIR/.gradle"
+    export KONAN_DATA_DIR="$OUT_DIR/.konan"
+  fi
+
+  export TMPDIR="$OUT_DIR/tmp"
+  mkdir -p "$TMPDIR"
 
   # Unset ANDROID_BUILD_TOP so Lint does not assume platform build context
   unset ANDROID_BUILD_TOP
