@@ -20,7 +20,6 @@ import android.graphics.Typeface
 import android.os.Build
 import android.os.LocaleList
 import android.text.TextPaint
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -208,14 +207,13 @@ private fun VerticalTextImpl(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun setStyleToPaint(
+private fun setStyleToPaint(
     style: VerticalTextStyle,
     typeface: Typeface,
     density: Density,
     out: TextPaint,
 ) {
-    return with(density) {
+    with(density) {
         out.textSize =
             if (style.fontSize.isSpecified) style.fontSize.toPx() else DefaultFontSize.toPx()
         out.typeface = typeface
