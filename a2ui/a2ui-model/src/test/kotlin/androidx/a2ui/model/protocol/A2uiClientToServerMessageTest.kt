@@ -24,9 +24,9 @@ import org.junit.Test
 class A2uiClientToServerMessageTest {
 
     @Test
-    fun a2uiUserAction_allArgumentsProvided_allPropertiesAreStored() {
+    fun a2uiClientEventMessage_allArgumentsProvided_allPropertiesAreStored() {
         val full =
-            A2uiUserAction(
+            A2uiClientEventMessage(
                 TEST_ACTION_TYPE,
                 TEST_SURFACE_ID,
                 TEST_COMPONENT_ID,
@@ -42,17 +42,22 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiUserAction_onlyRequiredArgumentsProvided_contextIsEmpty() {
+    fun a2uiClientEventMessage_onlyRequiredArgumentsProvided_contextIsEmpty() {
         val minimal =
-            A2uiUserAction(TEST_ACTION_TYPE, TEST_SURFACE_ID, TEST_COMPONENT_ID, TEST_TIMESTAMP)
+            A2uiClientEventMessage(
+                TEST_ACTION_TYPE,
+                TEST_SURFACE_ID,
+                TEST_COMPONENT_ID,
+                TEST_TIMESTAMP,
+            )
 
         assertThat(minimal.context).isEmpty()
     }
 
     @Test
-    fun a2uiUserAction_instanceCreated_isInstanceOfClientToServerMessage() {
+    fun a2uiClientEventMessage_instanceCreated_isInstanceOfClientToServerMessage() {
         val action =
-            A2uiUserAction(
+            A2uiClientEventMessage(
                 TEST_ACTION_TYPE,
                 TEST_SURFACE_ID,
                 TEST_COMPONENT_ID,
@@ -64,17 +69,17 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiUserAction_equalsAndHashCode_contracts() {
+    fun a2uiClientEventMessage_equalsAndHashCode_contracts() {
         EqualsTester()
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
                     TEST_TIMESTAMP,
                     TEST_CONTEXT,
                 ),
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
@@ -83,7 +88,7 @@ class A2uiClientToServerMessageTest {
                 ),
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE_2,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
@@ -92,7 +97,7 @@ class A2uiClientToServerMessageTest {
                 )
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID_2,
                     TEST_COMPONENT_ID,
@@ -101,7 +106,7 @@ class A2uiClientToServerMessageTest {
                 )
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID_2,
@@ -110,7 +115,7 @@ class A2uiClientToServerMessageTest {
                 )
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
@@ -119,7 +124,7 @@ class A2uiClientToServerMessageTest {
                 )
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
@@ -128,7 +133,7 @@ class A2uiClientToServerMessageTest {
                 )
             )
             .addEqualityGroup(
-                A2uiUserAction(
+                A2uiClientEventMessage(
                     TEST_ACTION_TYPE,
                     TEST_SURFACE_ID,
                     TEST_COMPONENT_ID,
@@ -140,9 +145,9 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiUserAction_toString_returnsExpectedFormat() {
+    fun a2uiClientEventMessage_toString_returnsExpectedFormat() {
         val action =
-            A2uiUserAction(
+            A2uiClientEventMessage(
                 TEST_ACTION_TYPE,
                 TEST_SURFACE_ID,
                 TEST_COMPONENT_ID,
@@ -152,14 +157,15 @@ class A2uiClientToServerMessageTest {
 
         assertThat(action.toString())
             .isEqualTo(
-                "A2uiUserAction(type=$TEST_ACTION_TYPE, surfaceId=$TEST_SURFACE_ID, " +
+                "A2uiClientEventMessage(type=$TEST_ACTION_TYPE, surfaceId=$TEST_SURFACE_ID, " +
                     "componentId=$TEST_COMPONENT_ID, timestamp=$TEST_TIMESTAMP_STR, context=$TEST_CONTEXT)"
             )
     }
 
     @Test
-    fun a2uiClientError_allArgumentsProvided_allPropertiesAreStored() {
-        val full = A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
+    fun a2uiClientErrorMessage_allArgumentsProvided_allPropertiesAreStored() {
+        val full =
+            A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
 
         assertThat(full.code).isEqualTo(TEST_ERROR_CODE)
         assertThat(full.surfaceId).isEqualTo(TEST_SURFACE_ID)
@@ -168,16 +174,16 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiClientError_onlyRequiredArgumentsProvided_contextIsEmpty() {
-        val minimal = A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE)
+    fun a2uiClientErrorMessage_onlyRequiredArgumentsProvided_contextIsEmpty() {
+        val minimal = A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE)
 
         assertThat(minimal.context).isEmpty()
     }
 
     @Test
-    fun a2uiClientError_validationError_withExactlyPath_instantiatesCorrectly() {
+    fun a2uiClientErrorMessage_validationError_withExactlyPath_instantiatesCorrectly() {
         val validErr =
-            A2uiClientError(
+            A2uiClientErrorMessage(
                 "VALIDATION_FAILED",
                 TEST_SURFACE_ID,
                 TEST_MESSAGE,
@@ -188,16 +194,16 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiClientError_validationError_withoutPath_throwsException() {
+    fun a2uiClientErrorMessage_validationError_withoutPath_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            A2uiClientError("VALIDATION_FAILED", TEST_SURFACE_ID, TEST_MESSAGE)
+            A2uiClientErrorMessage("VALIDATION_FAILED", TEST_SURFACE_ID, TEST_MESSAGE)
         }
     }
 
     @Test
-    fun a2uiClientError_validationError_withExtraContext_throwsException() {
+    fun a2uiClientErrorMessage_validationError_withExtraContext_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            A2uiClientError(
+            A2uiClientErrorMessage(
                 "VALIDATION_FAILED",
                 TEST_SURFACE_ID,
                 TEST_MESSAGE,
@@ -207,9 +213,9 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiClientError_validationError_withNonStringPath_throwsException() {
+    fun a2uiClientErrorMessage_validationError_withNonStringPath_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            A2uiClientError(
+            A2uiClientErrorMessage(
                 "VALIDATION_FAILED",
                 TEST_SURFACE_ID,
                 TEST_MESSAGE,
@@ -219,44 +225,71 @@ class A2uiClientToServerMessageTest {
     }
 
     @Test
-    fun a2uiClientError_instanceCreated_isInstanceOfClientToServerMessage() {
-        val error = A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
+    fun a2uiClientErrorMessage_instanceCreated_isInstanceOfClientToServerMessage() {
+        val error =
+            A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
 
         assertThat(error).isInstanceOf(A2uiClientToServerMessage::class.java)
     }
 
     @Test
-    fun a2uiClientError_equalsAndHashCode_contracts() {
+    fun a2uiClientErrorMessage_equalsAndHashCode_contracts() {
         EqualsTester()
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT),
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT),
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE,
+                    TEST_SURFACE_ID,
+                    TEST_MESSAGE,
+                    TEST_CONTEXT,
+                ),
+                A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT),
             )
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE_2, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE_2,
+                    TEST_SURFACE_ID,
+                    TEST_MESSAGE,
+                    TEST_CONTEXT,
+                )
             )
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID_2, TEST_MESSAGE, TEST_CONTEXT)
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE,
+                    TEST_SURFACE_ID_2,
+                    TEST_MESSAGE,
+                    TEST_CONTEXT,
+                )
             )
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE_2, TEST_CONTEXT)
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE,
+                    TEST_SURFACE_ID,
+                    TEST_MESSAGE_2,
+                    TEST_CONTEXT,
+                )
             )
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT_2)
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE,
+                    TEST_SURFACE_ID,
+                    TEST_MESSAGE,
+                    TEST_CONTEXT_2,
+                )
             )
             .addEqualityGroup(
-                A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, emptyMap())
+                A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, emptyMap())
             )
             .testEquals()
     }
 
     @Test
-    fun a2uiClientError_toString_returnsExpectedFormat() {
-        val error = A2uiClientError(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
+    fun a2uiClientErrorMessage_toString_returnsExpectedFormat() {
+        val error =
+            A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT)
 
         assertThat(error.toString())
             .isEqualTo(
-                "A2uiClientError(code=$TEST_ERROR_CODE, surfaceId=$TEST_SURFACE_ID, " +
+                "A2uiClientErrorMessage(code=$TEST_ERROR_CODE, surfaceId=$TEST_SURFACE_ID, " +
                     "message=$TEST_MESSAGE, context=$TEST_CONTEXT)"
             )
     }

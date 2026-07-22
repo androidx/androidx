@@ -17,19 +17,20 @@
 package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.model.A2uiCoreDynamicEvaluatorImpl
+import androidx.a2ui.engine.model.A2uiCoreExecutionContext
 import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.processor.A2uiActionInterceptor
-import androidx.a2ui.model.protocol.A2uiClientError
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
-import androidx.a2ui.model.protocol.A2uiUserAction
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -65,6 +66,8 @@ internal class A2uiCoreSurfaceActor(
     private val onActorIdleAndDeleted: (A2uiCoreSurfaceActor) -> Boolean,
     private val onDispatchMessageToProcessor: (A2uiEngineMessage) -> Unit,
 ) {
+    private val actionHandler = A2uiActionHandler(actionInterceptors) { handleOutboundEvent(it) }
+
     private val channel = Channel<A2uiEngineMessage>(Channel.UNLIMITED)
 
     /** Confined to the actor's coroutine loop. Requires no synchronization. */
@@ -221,21 +224,22 @@ internal class A2uiCoreSurfaceActor(
     }
 
     private suspend fun handleAction(message: A2uiEngineActionMessage) {
-        // Execute the interceptors chain. The output of one feeds the next.
-        // If any interceptor returns null, the action is consumed and dropped.
-        var currentAction: A2uiUserAction = message.action
-        for (interceptor in actionInterceptors) {
-            currentAction = interceptor.onInterceptAction(currentAction) ?: return
-        }
-
-        // TODO(annabelo): Handle local function actions
-        // For now, all un-intercepted actions are emitted to the server.
-        handleOutboundEvent(currentAction)
+        val surface = surfaceGroup.getSurface(surfaceId) ?: return
+        val executionContext =
+            A2uiCoreExecutionContext(
+                componentId = message.action.componentId,
+                catalog = surface.catalog,
+                dispatchError = { ex, cId -> surface.dispatchError(ex, cId) },
+                valueResolver = { path -> surface.dataModel[path] },
+                dynamicEvaluator = A2uiCoreDynamicEvaluatorImpl,
+                cacheProvider = surface,
+            )
+        actionHandler.handleAction(message.action, executionContext)
     }
 
     private fun handleA2uiException(exception: A2uiException) {
         val error =
-            A2uiClientError(
+            A2uiClientErrorMessage(
                 code = exception.code,
                 surfaceId = surfaceId,
                 message = exception.message ?: "",
