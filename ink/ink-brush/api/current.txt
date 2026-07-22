@@ -58,6 +58,7 @@ package androidx.ink.brush {
     ctor @BytecodeOnly public BrushBehavior(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes);
     ctor public BrushBehavior(java.util.List<? extends androidx.ink.brush.behavior.TerminalNode> terminalNodes, optional String developerComment);
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @InaccessibleFromKotlin public String getDeveloperComment();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.behavior.TerminalNode> getTerminalNodes();
     property public String developerComment;
@@ -76,6 +77,7 @@ package androidx.ink.brush {
     ctor @BytecodeOnly public BrushCoat(androidx.ink.brush.BrushTip!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushCoat(optional androidx.ink.brush.BrushTip tip, optional @Size(min=1L) java.util.List<androidx.ink.brush.BrushPaint> paintPreferences);
     method public static androidx.ink.brush.BrushCoat.Builder builder();
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method public androidx.ink.brush.BrushCoat copy(optional androidx.ink.brush.BrushTip tip, optional @Size(min=1L) java.util.List<androidx.ink.brush.BrushPaint> paintPreferences);
     method @BytecodeOnly public static androidx.ink.brush.BrushCoat! copy$default(androidx.ink.brush.BrushCoat!, androidx.ink.brush.BrushTip!, java.util.List!, int, Object!);
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint> getPaintPreferences();
@@ -141,6 +143,7 @@ package androidx.ink.brush {
   }
 
   public abstract static class BrushFamily.InputModel {
+    method @SuppressCompatibility public final androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushFamily.InputModel.Companion Companion;
     field public static final androidx.ink.brush.BrushFamily.InputModel DEFAULT_INPUT_MODEL;
     field public static final androidx.ink.brush.BrushFamily.InputModel PASSTHROUGH_MODEL;
@@ -166,6 +169,7 @@ package androidx.ink.brush {
     ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers);
     ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions);
     ctor public BrushPaint(optional java.util.List<? extends androidx.ink.brush.BrushPaint.TextureLayer> textureLayers, optional java.util.List<? extends androidx.ink.brush.BrushPaint.ColorFunction> colorFunctions, optional androidx.ink.brush.SelfOverlap selfOverlap);
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.ColorFunction> getColorFunctions();
     method @InaccessibleFromKotlin public androidx.ink.brush.SelfOverlap getSelfOverlap();
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushPaint.TextureLayer> getTextureLayers();
@@ -176,6 +180,7 @@ package androidx.ink.brush {
   }
 
   public abstract static class BrushPaint.ColorFunction {
+    method @SuppressCompatibility public final androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @ColorInt public final int transformColorIntArgb(@ColorInt int colorIntArgb);
     field public static final androidx.ink.brush.BrushPaint.ColorFunction.Companion Companion;
   }
@@ -235,12 +240,14 @@ package androidx.ink.brush {
   }
 
   public abstract static class BrushPaint.TextureLayer {
+    method @SuppressCompatibility public final androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @InaccessibleFromKotlin public final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode getBlendMode();
     property public final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode blendMode;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.Companion Companion;
   }
 
   public static final class BrushPaint.TextureLayer.BlendMode {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode.Companion Companion;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode DST;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.BlendMode DST_ATOP;
@@ -275,6 +282,7 @@ package androidx.ink.brush {
   }
 
   public static final class BrushPaint.TextureLayer.SizeUnit {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit BRUSH_SIZE;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit.Companion Companion;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.SizeUnit STROKE_COORDINATES;
@@ -286,6 +294,7 @@ package androidx.ink.brush {
   }
 
   public static final class BrushPaint.TextureLayer.Wrap {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.Wrap CLAMP;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.Wrap.Companion Companion;
     field public static final androidx.ink.brush.BrushPaint.TextureLayer.Wrap MIRROR;
@@ -348,6 +357,7 @@ package androidx.ink.brush {
   }
 
   public static final class BrushPaint.TilingTexture.Origin {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin.Companion Companion;
     field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin FIRST_STROKE_INPUT;
     field public static final androidx.ink.brush.BrushPaint.TilingTexture.Origin LAST_STROKE_INPUT;
@@ -364,6 +374,7 @@ package androidx.ink.brush {
     ctor @BytecodeOnly public BrushTip(float, float, float, float, float, float, float, long, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BrushTip(optional @FloatRange(from=0.0, toInclusive=false) float scaleX, optional @FloatRange(from=0.0, toInclusive=false) float scaleY, optional @FloatRange(from=0.0, to=1.0) float cornerRounding, optional @FloatRange(from=-90.0, to=90.0) @androidx.ink.geometry.AngleDegreesFloat float slantDegrees, optional @FloatRange(from=0.0, to=1.0) float pinch, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional @FloatRange(from=0.0, toInclusive=false) float particleGapDistanceScale, optional @IntRange(from=0L) long particleGapDurationMillis, optional java.util.List<androidx.ink.brush.BrushBehavior> behaviors);
     method public static androidx.ink.brush.BrushTip.Builder builder();
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method public androidx.ink.brush.BrushTip copy(optional @FloatRange(from=0.0, toInclusive=false) float scaleX, optional @FloatRange(from=0.0, toInclusive=false) float scaleY, optional @FloatRange(from=0.0, to=1.0) float cornerRounding, optional @FloatRange(from=-90.0, to=90.0) @androidx.ink.geometry.AngleDegreesFloat float slantDegrees, optional @FloatRange(from=0.0, to=1.0) float pinch, optional @androidx.ink.geometry.AngleDegreesFloat float rotationDegrees, optional @FloatRange(from=0.0, toInclusive=false) float particleGapDistanceScale, optional @IntRange(from=0L) long particleGapDurationMillis, optional java.util.List<androidx.ink.brush.BrushBehavior> behaviors);
     method @BytecodeOnly public static androidx.ink.brush.BrushTip! copy$default(androidx.ink.brush.BrushTip!, float, float, float, float, float, float, float, long, java.util.List!, int, Object!);
     method @InaccessibleFromKotlin public java.util.List<androidx.ink.brush.BrushBehavior> getBehaviors();
@@ -418,6 +429,7 @@ package androidx.ink.brush {
   }
 
   public final class InputToolType {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.InputToolType.Companion Companion;
     field public static final androidx.ink.brush.InputToolType MOUSE;
     field public static final androidx.ink.brush.InputToolType STYLUS;
@@ -433,6 +445,7 @@ package androidx.ink.brush {
   }
 
   public final class SelfOverlap {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.SelfOverlap ACCUMULATE;
     field public static final androidx.ink.brush.SelfOverlap ANY;
     field public static final androidx.ink.brush.SelfOverlap.Companion Companion;
@@ -559,6 +572,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class BinaryOpNode.BinaryOp {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.BinaryOpNode.BinaryOp AND_THEN;
     field public static final androidx.ink.brush.behavior.BinaryOpNode.BinaryOp.Companion Companion;
     field public static final androidx.ink.brush.behavior.BinaryOpNode.BinaryOp MAX;
@@ -596,6 +610,7 @@ package androidx.ink.brush.behavior {
   }
 
   public abstract class EasingFunction {
+    method @SuppressCompatibility public final androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.EasingFunction.Companion Companion;
   }
 
@@ -650,6 +665,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class EasingFunction.StepPosition {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.EasingFunction.StepPosition.Companion Companion;
     field public static final androidx.ink.brush.behavior.EasingFunction.StepPosition JUMP_BOTH;
     field public static final androidx.ink.brush.behavior.EasingFunction.StepPosition JUMP_END;
@@ -703,6 +719,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class InterpolationNode.Interpolation {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.InterpolationNode.Interpolation.Companion Companion;
     field public static final androidx.ink.brush.behavior.InterpolationNode.Interpolation INVERSE_LERP;
     field public static final androidx.ink.brush.behavior.InterpolationNode.Interpolation LERP;
@@ -714,6 +731,7 @@ package androidx.ink.brush.behavior {
   }
 
   public abstract class Node {
+    method @SuppressCompatibility public final androidx.ink.brush.Version calculateMinimumRequiredVersion();
     method @InaccessibleFromKotlin public final java.util.List<androidx.ink.brush.behavior.ValueNode> getInputs();
     property public final java.util.List<androidx.ink.brush.behavior.ValueNode> inputs;
     field public static final androidx.ink.brush.behavior.Node.Companion Companion;
@@ -733,6 +751,7 @@ package androidx.ink.brush.behavior {
   }
 
   public final class OutOfRange {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.OutOfRange CLAMP;
     field public static final androidx.ink.brush.behavior.OutOfRange.Companion Companion;
     field public static final androidx.ink.brush.behavior.OutOfRange MIRROR;
@@ -764,6 +783,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class PolarTargetNode.PolarTarget {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.PolarTargetNode.PolarTarget.Companion Companion;
     field public static final androidx.ink.brush.behavior.PolarTargetNode.PolarTarget POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE;
     field public static final androidx.ink.brush.behavior.PolarTargetNode.PolarTarget POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE;
@@ -775,6 +795,7 @@ package androidx.ink.brush.behavior {
   }
 
   public final class ProgressDomain {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.ProgressDomain.Companion Companion;
     field public static final androidx.ink.brush.behavior.ProgressDomain DISTANCE_IN_CENTIMETERS;
     field public static final androidx.ink.brush.behavior.ProgressDomain DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE;
@@ -810,6 +831,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class SourceNode.Source {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED;
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED;
     field public static final androidx.ink.brush.behavior.SourceNode.Source ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED;
@@ -903,6 +925,7 @@ package androidx.ink.brush.behavior {
   }
 
   public static final class TargetNode.Target {
+    method @SuppressCompatibility public androidx.ink.brush.Version calculateMinimumRequiredVersion();
     field public static final androidx.ink.brush.behavior.TargetNode.Target CORNER_ROUNDING_OFFSET;
     field public static final androidx.ink.brush.behavior.TargetNode.Target.Companion Companion;
     field public static final androidx.ink.brush.behavior.TargetNode.Target HEIGHT_MULTIPLIER;

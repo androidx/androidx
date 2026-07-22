@@ -149,7 +149,12 @@ private constructor(
     override fun toString(): String =
         "BrushBehavior($terminalNodes, developerComment=$developerComment)"
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    /**
+     * Returns the minimum required [Version] for this [BrushBehavior].
+     *
+     * By default, decoding a [BrushFamily] containing a [BrushBehavior] with a minimum required
+     * version higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(BrushBehaviorNative.calculateMinimumRequiredVersion(nativePointer))

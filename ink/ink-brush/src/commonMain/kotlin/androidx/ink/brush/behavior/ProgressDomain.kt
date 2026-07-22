@@ -16,7 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
@@ -40,8 +39,13 @@ internal constructor(@JvmField internal val value: Int, private val name: String
 
     override fun toString(): String = "ProgressDomain.$name"
 
+    /**
+     * Returns the minimum required [Version] for this [ProgressDomain].
+     *
+     * By default, decoding a [androidx.ink.brush.BrushFamily] containing a [ProgressDomain] with a
+     * minimum required version higher than [Version.MAX_SUPPORTED] will fail.
+     */
     @OptIn(InkInternalOnlyApi::class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     public fun calculateMinimumRequiredVersion(): Version =
         Version.fromInt(ProgressDomainNative.calculateMinimumRequiredVersion(value))

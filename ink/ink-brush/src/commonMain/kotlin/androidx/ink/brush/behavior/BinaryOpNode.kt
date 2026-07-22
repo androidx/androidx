@@ -16,7 +16,6 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.Version
@@ -97,7 +96,12 @@ private constructor(
 
         override fun toString(): String = "BinaryOp." + name
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+        /**
+         * Returns the minimum required [Version] for this [BinaryOp].
+         *
+         * By default, decoding a [androidx.ink.brush.BrushFamily] containing a [BinaryOp] with a
+         * minimum required version higher than [Version.MAX_SUPPORTED] will fail.
+         */
         @ExperimentalInkCustomBrushApi
         public fun calculateMinimumRequiredVersion(): Version =
             Version.fromInt(BinaryOpNodeNative.getOperationMinimumRequiredVersion(value))
