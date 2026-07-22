@@ -151,6 +151,10 @@ fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
  * ScrollField for time selection:
  *
  * @sample androidx.compose.material3.samples.TimeScrollFieldSample
+ *
+ * ScrollField for unit selection:
+ *
+ * @sample androidx.compose.material3.samples.UnitScrollFieldSample
  * @param state the state object to be used to control or observe the pager's state.
  * @param contentDescription text used by accessibility services to describe what this field
  *   selects. This should include the available range when it is not obvious from context (e.g.,

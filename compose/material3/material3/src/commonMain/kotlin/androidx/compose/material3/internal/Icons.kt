@@ -274,6 +274,217 @@ internal object Icons {
             }
 
         private var _moreVert: ImageVector? = null
+
+        internal val Schedule: ImageVector
+            get() {
+                if (_schedule != null) {
+                    return _schedule!!
+                }
+                _schedule =
+                    materialIcon(name = "Filled.Schedule") {
+                        materialPath {
+                            moveTo(15.3f, 16.7f)
+                            lineToRelative(1.4f, -1.4f)
+                            lineTo(13f, 11.6f)
+                            verticalLineTo(7f)
+                            horizontalLineTo(11f)
+                            verticalLineToRelative(5.4f)
+                            lineToRelative(4.3f, 4.3f)
+                            close()
+                            moveTo(12f, 22f)
+                            quadTo(9.93f, 22f, 8.1f, 21.21f)
+                            quadTo(6.28f, 20.43f, 4.93f, 19.08f)
+                            quadTo(3.58f, 17.73f, 2.79f, 15.9f)
+                            reflectiveQuadTo(2f, 12f)
+                            quadTo(2f, 9.92f, 2.79f, 8.1f)
+                            quadTo(3.58f, 6.27f, 4.93f, 4.93f)
+                            quadTo(6.28f, 3.57f, 8.1f, 2.79f)
+                            quadTo(9.93f, 2f, 12f, 2f)
+                            reflectiveQuadToRelative(3.9f, 0.79f)
+                            reflectiveQuadToRelative(3.17f, 2.14f)
+                            quadToRelative(1.35f, 1.35f, 2.14f, 3.17f)
+                            quadTo(22f, 9.92f, 22f, 12f)
+                            reflectiveQuadToRelative(-0.79f, 3.9f)
+                            reflectiveQuadToRelative(-2.14f, 3.17f)
+                            quadToRelative(-1.35f, 1.35f, -3.17f, 2.14f)
+                            reflectiveQuadTo(12f, 22f)
+                            close()
+                        }
+                    }
+                return _schedule!!
+            }
+
+        private var _schedule: ImageVector? = null
+
+        internal val Keyboard: ImageVector
+            get() {
+                if (_keyboard != null) {
+                    return _keyboard!!
+                }
+                _keyboard =
+                    materialIcon(name = "Filled.Keyboard") {
+                        materialPath {
+                            moveTo(4f, 19f)
+                            quadTo(3.18f, 19f, 2.59f, 18.41f)
+                            reflectiveQuadTo(2f, 17f)
+                            verticalLineTo(7f)
+                            quadTo(2f, 6.18f, 2.59f, 5.59f)
+                            reflectiveQuadTo(4f, 5f)
+                            horizontalLineTo(20f)
+                            quadToRelative(0.83f, 0f, 1.41f, 0.59f)
+                            quadTo(22f, 6.18f, 22f, 7f)
+                            verticalLineTo(17f)
+                            quadToRelative(0f, 0.82f, -0.59f, 1.41f)
+                            reflectiveQuadTo(20f, 19f)
+                            horizontalLineTo(4f)
+                            close()
+                            moveTo(8f, 16f)
+                            horizontalLineToRelative(8f)
+                            verticalLineTo(14f)
+                            horizontalLineTo(8f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveTo(5f, 13f)
+                            horizontalLineTo(7f)
+                            verticalLineTo(11f)
+                            horizontalLineTo(5f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(11f)
+                            horizontalLineTo(8f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(11f)
+                            horizontalLineTo(11f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(11f)
+                            horizontalLineTo(14f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(11f)
+                            horizontalLineTo(17f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveTo(5f, 10f)
+                            horizontalLineTo(7f)
+                            verticalLineTo(8f)
+                            horizontalLineTo(5f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(8f)
+                            horizontalLineTo(8f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(8f)
+                            horizontalLineTo(11f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(8f)
+                            horizontalLineTo(14f)
+                            verticalLineToRelative(2f)
+                            close()
+                            moveToRelative(3f, 0f)
+                            horizontalLineToRelative(2f)
+                            verticalLineTo(8f)
+                            horizontalLineTo(17f)
+                            verticalLineToRelative(2f)
+                            close()
+                        }
+                    }
+                return _keyboard!!
+            }
+
+        private var _keyboard: ImageVector? = null
+
+        internal val SwipeVertical: ImageVector
+            get() {
+                if (_swipeVertical != null) {
+                    return _swipeVertical!!
+                }
+                _swipeVertical =
+                    materialIcon(name = "Filled.SwipeVertical") {
+                        materialPath {
+                            moveTo(16.45f, 20.83f)
+                            quadToRelative(-0.57f, 0.2f, -1.16f, 0.19f)
+                            reflectiveQuadTo(14.15f, 20.73f)
+                            lineTo(7.6f, 17.68f)
+                            lineToRelative(0.45f, -1f)
+                            quadToRelative(0.25f, -0.5f, 0.7f, -0.81f)
+                            reflectiveQuadToRelative(1f, -0.36f)
+                            lineToRelative(1.7f, -0.13f)
+                            lineTo(8.65f, 7.7f)
+                            quadTo(8.5f, 7.3f, 8.68f, 6.94f)
+                            reflectiveQuadTo(9.25f, 6.43f)
+                            quadToRelative(0.4f, -0.15f, 0.76f, 0.02f)
+                            reflectiveQuadToRelative(0.51f, 0.57f)
+                            lineToRelative(2.4f, 6.58f)
+                            lineToRelative(0.95f, -0.35f)
+                            lineTo(12.95f, 10.68f)
+                            quadTo(12.8f, 10.27f, 12.93f, 9.79f)
+                            reflectiveQuadTo(13.45f, 9.15f)
+                            reflectiveQuadToRelative(0.76f, 0.03f)
+                            reflectiveQuadToRelative(0.51f, 0.58f)
+                            lineToRelative(1.02f, 2.82f)
+                            lineToRelative(0.93f, -0.35f)
+                            lineTo(16f, 10.35f)
+                            quadTo(15.85f, 9.95f, 16.03f, 9.59f)
+                            quadTo(16.2f, 9.23f, 16.6f, 9.07f)
+                            reflectiveQuadTo(17.36f, 9.1f)
+                            quadToRelative(0.36f, 0.17f, 0.51f, 0.57f)
+                            lineToRelative(0.68f, 1.88f)
+                            lineTo(19.5f, 11.2f)
+                            quadToRelative(-0.15f, -0.4f, 0.03f, -0.76f)
+                            quadTo(19.7f, 10.07f, 20.1f, 9.92f)
+                            reflectiveQuadToRelative(0.76f, 0.03f)
+                            reflectiveQuadToRelative(0.51f, 0.57f)
+                            lineToRelative(1.38f, 3.75f)
+                            quadToRelative(0.58f, 1.58f, -0.11f, 3.06f)
+                            quadToRelative(-0.69f, 1.49f, -2.26f, 2.06f)
+                            lineToRelative(-3.93f, 1.43f)
+                            close()
+                            moveTo(2f, 22f)
+                            verticalLineTo(20.5f)
+                            horizontalLineTo(4.03f)
+                            quadTo(2.55f, 18.7f, 1.78f, 16.52f)
+                            reflectiveQuadTo(1f, 12f)
+                            reflectiveQuadTo(1.78f, 7.47f)
+                            reflectiveQuadTo(4.03f, 3.5f)
+                            horizontalLineTo(2f)
+                            verticalLineTo(2f)
+                            horizontalLineTo(7f)
+                            verticalLineTo(7f)
+                            horizontalLineTo(5.5f)
+                            verticalLineTo(4.1f)
+                            quadTo(4.05f, 5.75f, 3.28f, 7.77f)
+                            reflectiveQuadTo(2.5f, 12f)
+                            reflectiveQuadToRelative(0.78f, 4.23f)
+                            reflectiveQuadTo(5.5f, 19.9f)
+                            verticalLineTo(17f)
+                            horizontalLineTo(7f)
+                            verticalLineToRelative(5f)
+                            horizontalLineTo(2f)
+                            close()
+                        }
+                    }
+                return _swipeVertical!!
+            }
+
+        private var _swipeVertical: ImageVector? = null
     }
 
     internal object Outlined {
