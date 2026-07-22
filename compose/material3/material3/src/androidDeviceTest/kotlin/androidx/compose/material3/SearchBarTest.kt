@@ -647,6 +647,7 @@ class SearchBarTest {
         // Dismiss search bar
         Espresso.pressBack()
         rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(200L)
 
         rule.onNodeWithTag(ContentTestTag).assertDoesNotExist()
         rule.onNodeWithTag(ExpandedInputFieldTestTag).assertDoesNotExist()
