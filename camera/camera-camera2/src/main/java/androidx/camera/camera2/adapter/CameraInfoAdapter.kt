@@ -122,7 +122,7 @@ constructor(
                     CameraConfig(physicalCameraId),
                     cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId),
                 )
-            PhysicalCameraInfoAdapter(cameraProperties)
+            PhysicalCameraInfoAdapter(cameraProperties, intrinsicZoomCalculator)
         }
     }
 
