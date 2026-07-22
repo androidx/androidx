@@ -146,7 +146,6 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.integration.core.button.MirrorModeButton;
@@ -168,6 +167,7 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.ScreenFlashView;
 import androidx.camera.viewfinder.core.ZoomGestureDetector;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -177,6 +177,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -735,7 +736,6 @@ public class CameraXActivity extends AppCompatActivity {
             RecordUi.State state = mRecordUi.getState();
             switch (state) {
                 case IDLE:
-                    createDefaultVideoFolderIfNotExist();
                     final PendingRecording pendingRecording;
                     String fileName = "video_" + System.currentTimeMillis();
                     String extension = "mp4";
@@ -1120,7 +1120,6 @@ public class CameraXActivity extends AppCompatActivity {
     @SuppressLint("RestrictedApiAndroidX")
     private ImageCapture.@NonNull OutputFileOptions createOutputFileOptions(
             @ImageCapture.OutputFormat int imageOutputFormat) {
-        createDefaultPictureFolderIfNotExist();
         Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS",
                 Locale.US);
 
@@ -1235,7 +1234,7 @@ public class CameraXActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Throwable t) {
                     throw new RuntimeException(t);
                 }
-            }, CameraXExecutors.directExecutor());
+            }, MoreExecutors.directExecutor());
         });
     }
 
@@ -1252,7 +1251,7 @@ public class CameraXActivity extends AppCompatActivity {
                 ListenableFuture<Integer> future =
                         getCameraControl().setExposureCompensationIndex(ec + 1);
                 Futures.addCallback(future, mEVFutureCallback,
-                        CameraXExecutors.mainThreadExecutor());
+                        ContextCompat.getMainExecutor(this));
             } else {
                 showEVToast(String.format("EV: %.2f", range.getUpper()
                         * exposureState.getExposureCompensationStep().floatValue()));
@@ -1271,7 +1270,7 @@ public class CameraXActivity extends AppCompatActivity {
                 ListenableFuture<Integer> future =
                         getCameraControl().setExposureCompensationIndex(ec - 1);
                 Futures.addCallback(future, mEVFutureCallback,
-                        CameraXExecutors.mainThreadExecutor());
+                        ContextCompat.getMainExecutor(this));
             } else {
                 showEVToast(String.format("EV: %.2f", range.getLower()
                         * exposureState.getExposureCompensationStep().floatValue()));
@@ -1586,6 +1585,7 @@ public class CameraXActivity extends AppCompatActivity {
                 Collections.singletonList(R.id.top_buttons_layout));
 
         mFileWriterExecutorService = Executors.newSingleThreadExecutor();
+        ListenableFuture<Void> folderFuture = ensureDefaultFoldersExist();
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
         Set<DynamicRange> displaySupportedHighDynamicRanges = Collections.emptySet();
         if (Build.VERSION.SDK_INT >= 30) {
@@ -1728,6 +1728,21 @@ public class CameraXActivity extends AppCompatActivity {
             updateAppUIForE2ETest();
         }
 
+        Futures.addCallback(folderFuture, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                initCameraAndPermissions();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(TAG, "Failed to create default folders", t);
+                initCameraAndPermissions();
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+    private void initCameraAndPermissions() {
         CameraXViewModel viewModel = new ViewModelProvider(this).get(CameraXViewModel.class);
         viewModel.getCameraProvider().observe(this, cameraProviderResult -> {
             mCameraProviderResult = cameraProviderResult;
@@ -1736,7 +1751,7 @@ public class CameraXActivity extends AppCompatActivity {
 
                 mCameraProvider = cameraProviderResult.getProvider();
                 requireNonNull(mCameraProvider).addCameraPresenceListener(
-                        CameraXExecutors.mainThreadExecutor(),
+                        ContextCompat.getMainExecutor(this),
                         new CameraPresenceChangeListener(CameraXActivity.this,
                                 mCameraIterateButton));
 
@@ -2240,9 +2255,24 @@ public class CameraXActivity extends AppCompatActivity {
         return false;
     }
 
+    private ListenableFuture<Void> ensureDefaultFoldersExist() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mFileWriterExecutorService.execute(() -> {
+                try {
+                    createDefaultPictureFolderIfNotExist();
+                    createDefaultVideoFolderIfNotExist();
+                    completer.set(null);
+                } catch (Exception e) {
+                    completer.setException(e);
+                }
+            });
+            return "ensureDefaultFoldersExist";
+        });
+    }
+
     void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        if (createFolder(pictureFolder)) {
+        if (!createFolder(pictureFolder)) {
             Log.e(TAG, "Failed to create directory: " + pictureFolder);
         }
     }
@@ -2352,7 +2382,7 @@ public class CameraXActivity extends AppCompatActivity {
                                     Log.e(TAG, "Focus and metering failed.", t);
                                 }
                             },
-                            CameraXExecutors.mainThreadExecutor());
+                            ContextCompat.getMainExecutor(CameraXActivity.this));
                     return true;
                 }
             };
