@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage.usagereporting;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.AppSearchResult;
@@ -34,6 +35,7 @@ import org.jspecify.annotations.Nullable;
  */
 @HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
 public abstract class TakenActionGenericDocument extends GenericDocument {
     protected static final String PROPERTY_PATH_ACTION_TYPE = "actionType";
 
