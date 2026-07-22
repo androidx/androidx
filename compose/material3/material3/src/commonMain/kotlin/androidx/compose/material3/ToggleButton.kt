@@ -296,6 +296,8 @@ fun ElevatedToggleButton(
  * @see [FilledTonalButton] for a static button that doesn't need to be toggled.
  * @see [FilledTonalIconToggleButton] for a toggleable button where the content is specifically an
  *   [Icon].
+ *
+ * @material3expressive
  */
 @Deprecated(
     message = "Use FilledTonalToggleButton instead.",

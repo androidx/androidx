@@ -496,7 +496,11 @@ private fun LoadingIndicatorImpl(
     }
 }
 
-/** Contains default values by the [LoadingIndicator]. */
+/**
+ * Contains default values by the [LoadingIndicator].
+ *
+ * @material3expressive
+ */
 @ExperimentalMaterial3ExpressiveApi
 object LoadingIndicatorDefaults {
 
