@@ -322,17 +322,19 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         mainAxisGap: Int,
         isHorizontal: Boolean,
     ) {
-        lines.fastForEach { line ->
+        val isMainAxisReverse = isMainAxisReversedForLayout(flexBoxConfig = flexBoxConfig)
+        lines.fastForEach(flexBoxConfig.isCrossAxisReverse, 0, lines.size) { line ->
             positionItemsOnMainAxis(
                 items = items,
                 flexBoxConfig = flexBoxConfig,
                 containerMainAxisSize = if (isHorizontal) layoutWidth else layoutHeight,
                 line = line,
                 mainAxisGap = mainAxisGap,
-                isMainAxisReverse = isMainAxisReversedForLayout(flexBoxConfig = flexBoxConfig),
+                isMainAxisReverse = isMainAxisReverse,
             )
 
-            items.fastForEachUntil(line.startIndex, line.endIndex) { item ->
+            // In reverse directions the last item of a line has the smallest main-axis position.
+            items.fastForEach(isMainAxisReverse, line.startIndex, line.endIndex) { item ->
                 val x =
                     if (isHorizontal) {
                         item.mainPosition
@@ -794,10 +796,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
                 else -> if (flexBoxConfig.isCrossAxisReverse) freeSpace else 0
             }
 
-        val indices =
-            if (flexBoxConfig.isCrossAxisReverse) lines.indices.reversed() else lines.indices
-        for (index in indices) {
-            val line = lines[index]
+        lines.fastForEach(flexBoxConfig.isCrossAxisReverse, 0, lines.size) { line ->
             line.crossStart = crossPosition
             crossPosition += line.crossAxisSize + spaceInBetweenLines + crossAxisGap
         }
@@ -2740,13 +2739,20 @@ private inline fun <T> ArrayList<T>.fastForEachUntil(
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-private inline fun <T> ArrayList<T>.fastSumBy(
-    fromIndex: Int,
-    toIndex: Int,
-    selector: (T) -> Int,
-): Int {
+private inline fun <T> ArrayList<T>.fastForEach(
+    isReversed: Boolean,
+    startIndex: Int,
+    endIndex: Int,
+    selector: (T) -> Unit,
+) {
     contract { callsInPlace(selector) }
-    var sum = 0
-    fastForEachUntil(fromIndex, toIndex) { sum += selector(it) }
-    return sum
+    if (isReversed) {
+        for (i in endIndex - 1 downTo startIndex) {
+            selector(get(i))
+        }
+    } else {
+        for (i in startIndex until endIndex) {
+            selector(get(i))
+        }
+    }
 }
