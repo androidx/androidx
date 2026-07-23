@@ -62,6 +62,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,7 +87,7 @@ import kotlinx.coroutines.launch
 @Sampled
 @OptIn(ExperimentalMaterial3Api::class)
 fun PrimaryTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
@@ -110,7 +111,7 @@ fun PrimaryTextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun PrimaryIconTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
@@ -158,7 +159,7 @@ fun PrimaryIconTabs() {
 @Sampled
 @OptIn(ExperimentalMaterial3Api::class)
 fun SecondaryTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
@@ -183,7 +184,7 @@ fun SecondaryTextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3 with lots of text")
     Column {
         PrimaryTabRow(selectedTabIndex = state) {
@@ -207,7 +208,7 @@ fun TextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SecondaryIconTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
@@ -254,7 +255,7 @@ fun SecondaryIconTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TextAndIconTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titlesAndIcons =
         listOf(
             "Tab 1" to Icons.Filled.Favorite,
@@ -284,7 +285,7 @@ fun TextAndIconTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun LeadingIconTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titlesAndIcons =
         listOf(
             "Tab" to Icons.Filled.Favorite,
@@ -318,7 +319,7 @@ fun LeadingIconTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingPrimaryTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles =
         listOf(
             "Tab 1",
@@ -350,7 +351,7 @@ fun ScrollingPrimaryTextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingSecondaryTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles =
         listOf(
             "Tab 1",
@@ -382,7 +383,7 @@ fun ScrollingSecondaryTextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingTextTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles =
         listOf(
             "Tab 1",
@@ -415,7 +416,7 @@ fun ScrollingTextTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun FancyTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
     Column {
         SecondaryTabRow(selectedTabIndex = state) {
@@ -436,7 +437,7 @@ fun FancyTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun FancyIndicatorTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
 
     Column {
@@ -466,7 +467,7 @@ fun FancyIndicatorTabs() {
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun FancyIndicatorContainerTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles = listOf("Tab 1", "Tab 2", "Tab 3")
 
     Column {
@@ -597,7 +598,7 @@ fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ScrollingFancyIndicatorContainerTabs() {
-    var state by remember { mutableStateOf(0) }
+    var state by rememberSaveable { mutableStateOf(0) }
     val titles =
         listOf(
             "Tab 1",
