@@ -1229,11 +1229,11 @@ class A2uiComponentScopeImplTest {
     private fun createCatalog(functions: List<A2uiFunction> = emptyList()) =
         object : A2uiCoreCatalog {
             override val id: String = "TestCatalog"
-            override val components = emptyList<A2uiCoreComponentDefinition>()
+            override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
             override val functions = emptyList<A2uiFunction>()
             override val themeSchema: A2uiSchema? = null
 
-            override fun getComponent(name: String) = null
+            override fun getComponentDefinition(name: String) = null
 
             override fun getFunction(name: String) = functions.find { it.definition.name == name }
         }

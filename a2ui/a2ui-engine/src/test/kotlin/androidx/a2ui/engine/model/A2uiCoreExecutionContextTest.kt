@@ -245,10 +245,10 @@ class A2uiCoreExecutionContextTest {
     private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :
         A2uiCoreCatalog {
         override val id: String = "test_catalog"
-        override val components: List<A2uiCoreComponentDefinition> = emptyList()
+        override val componentDefinitions: List<A2uiCoreComponentDefinition> = emptyList()
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String): A2uiCoreComponentDefinition? = null
+        override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? = null
 
         override fun getFunction(name: String): A2uiFunction? =
             functions.find { it.definition.name == name }
