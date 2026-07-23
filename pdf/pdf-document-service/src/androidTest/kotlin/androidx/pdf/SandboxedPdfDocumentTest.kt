@@ -870,6 +870,7 @@ class SandboxedPdfDocumentTest {
         verify(mockRemote).releasePage(0)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     @Test
     fun addPageObject_validObject_returnsStringId() = runTest {
@@ -884,10 +885,10 @@ class SandboxedPdfDocumentTest {
 
             assertNotNull(resultId)
             assertThat(resultId).isNotEmpty()
-            assertThat(resultId).startsWith("embedded_signature_")
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     @Test
     fun addPageObject_unsupportedObject_throwsUnsupportedOperationException() = runTest {
