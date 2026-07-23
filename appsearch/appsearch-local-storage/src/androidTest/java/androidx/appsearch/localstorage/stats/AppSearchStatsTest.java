@@ -52,8 +52,14 @@ public class AppSearchStatsTest {
         final int onExecutorLatencyMillis = 13;
         final int getUserInstanceLatencyMillis = 14;
         final int pvmBinderLatencyMillis = 15;
-        final int requestPayloadSize = 16;
-        final int responsePayloadSize = 17;
+        final int icingRequestBytes1 = 16;
+        final int icingRequestBytes2 = 17;
+        final int icingResponseBytes1 = 18;
+        final int icingResponseBytes2 = 19;
+        final int appsearchRequestBytes1 = 20;
+        final int appsearchRequestBytes2 = 21;
+        final int appsearchResponseBytes1 = 22;
+        final int appsearchResponseBytes2 = 23;
         final int enabled_features = 3; // 0b0011
 
         final @CallStats.CallType int callType =
@@ -82,8 +88,14 @@ public class AppSearchStatsTest {
                 .setOnExecutorLatencyMillis(onExecutorLatencyMillis)
                 .setGetUserInstanceLatency(getUserInstanceLatencyMillis)
                 .setPvmBinderLatency(pvmBinderLatencyMillis)
-                .setRequestPayloadSize(requestPayloadSize)
-                .setResponsePayloadSize(responsePayloadSize)
+                .addIcingSearchEngineRequestBytes(icingRequestBytes1)
+                .addIcingSearchEngineRequestBytes(icingRequestBytes2)
+                .addIcingSearchEngineResponseBytes(icingResponseBytes1)
+                .addIcingSearchEngineResponseBytes(icingResponseBytes2)
+                .addAppSearchRequestBytes(appsearchRequestBytes1)
+                .addAppSearchRequestBytes(appsearchRequestBytes2)
+                .addAppSearchResponseBytes(appsearchResponseBytes1)
+                .addAppSearchResponseBytes(appsearchResponseBytes2)
                 .build();
 
         assertThat(cStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -106,8 +118,7 @@ public class AppSearchStatsTest {
                 .isEqualTo(getVmLatency1 + getVmLatency2);
         assertThat(cStats.getUnblockedAppSearchLatencyMillis())
                 .isEqualTo(unblockedAppSearchLatencyMillis);
-        assertThat(cStats.getNumIcingCalls())
-                .isEqualTo(2);
+        assertThat(cStats.getNumIcingCalls()).isEqualTo(2);
         assertThat(cStats.getCallReceivedTimestampMillis())
                 .isEqualTo(callReceivedTimestampMillis);
         assertThat(cStats.getLastCallTypeHoldExecutor())
@@ -120,10 +131,14 @@ public class AppSearchStatsTest {
                 .isEqualTo(getUserInstanceLatencyMillis);
         assertThat(cStats.getPvmBinderLatencyMillis())
                 .isEqualTo(pvmBinderLatencyMillis);
-        assertThat(cStats.getRequestPayloadSize())
-                .isEqualTo(requestPayloadSize);
-        assertThat(cStats.getResponsePayloadSize())
-                .isEqualTo(responsePayloadSize);
+        assertThat(cStats.getIcingSearchEngineRequestBytes())
+                .isEqualTo(icingRequestBytes1 + icingRequestBytes2);
+        assertThat(cStats.getIcingSearchEngineResponseBytes())
+                .isEqualTo(icingResponseBytes1 + icingResponseBytes2);
+        assertThat(cStats.getAppSearchRequestBytes())
+                .isEqualTo(appsearchRequestBytes1 + appsearchRequestBytes2);
+        assertThat(cStats.getAppSearchResponseBytes())
+                .isEqualTo(appsearchResponseBytes1 + appsearchResponseBytes2);
         String expectedString = "CallStats {\n"
                 + "  packageName=com.google.test,\n"
                 + "  database=testDataBase,\n"
@@ -139,8 +154,10 @@ public class AppSearchStatsTest {
                 + "  onExecutorLatencyMillis=13,\n"
                 + "  getUserInstanceLatencyMillis=14,\n"
                 + "  pvmBinderLatencyMillis=15,\n"
-                + "  requestPayloadSize=16,\n"
-                + "  responsePayloadSize=17,\n"
+                + "  icingSearchEngineRequestBytes=33,\n"
+                + "  icingSearchEngineResponseBytes=37,\n"
+                + "  appsearchRequestBytes=41,\n"
+                + "  appsearchResponseBytes=45,\n"
                 + "  enabledFeatures=11,\n"
                 + "  javaLockAcquisitionLatencyMillis=4,\n"
                 + "  lastBlockingOperation=36,\n"
