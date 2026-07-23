@@ -3193,8 +3193,11 @@ private fun TopAppBarLayout(
                         Modifier.layoutId("title")
                             .padding(horizontal = TopAppBarHorizontalPadding)
                             .then(
-                                if (hideTitleSemantics) Modifier.clearAndSetSemantics {}
-                                else Modifier
+                                if (hideTitleSemantics) {
+                                    Modifier.clearAndSetSemantics {}
+                                } else {
+                                    Modifier.semantics { isTraversalGroup = true }
+                                }
                             )
                             .graphicsLayer { alpha = titleAlpha() },
                     horizontalAlignment = titleHorizontalAlignment,
