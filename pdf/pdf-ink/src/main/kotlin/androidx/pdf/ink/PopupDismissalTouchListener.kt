@@ -19,6 +19,7 @@ package androidx.pdf.ink
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.view.annotation.AnnotationToolbar
 
 /**
@@ -28,6 +29,7 @@ import androidx.pdf.view.annotation.AnnotationToolbar
  * dismisses the popup, ensuring that the touch does not pass through to underlying views
  * (preventing accidental drawing or scrolling).
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class PopupDismissalTouchListener(private val annotationToolbar: AnnotationToolbar) :
     View.OnTouchListener {
 

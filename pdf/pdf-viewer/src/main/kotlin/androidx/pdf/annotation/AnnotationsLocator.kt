@@ -24,7 +24,7 @@ import android.graphics.Region
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.ViewConfiguration
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.HighlightAnnotation
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PathPdfObject
@@ -115,6 +115,7 @@ internal class AnnotationsLocator(
     /**
      * Determines if the given touch point (as a Region and RectF) intersects with an annotation.
      */
+    @OptIn(ExperimentalPdfApi::class)
     private fun isAnnotationHit(
         annotation: PdfAnnotation,
         touchRegion: Region,

@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.MainThread
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Highlight
 import androidx.pdf.annotation.AnnotationsView.AnnotationMode.Select
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
@@ -46,6 +47,7 @@ import androidx.pdf.annotation.highlights.InProgressHighlightsView
  * This inherits [ViewGroup] but does not support adding arbitrary children via [addView] or in a
  * layout.
  */
+@ExperimentalPdfApi
 public class AnnotationsView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -280,17 +282,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 
-    /**
-     * Holds all annotations for a single PDF page and their transformation matrix.
-     *
-     * @property keyedAnnotations List of [PdfAnnotation]s on the page.
-     * @property transform [Matrix] to apply when drawing these annotations.
-     */
-    internal data class PageAnnotationsData(
-        val keyedAnnotations: List<KeyedPdfAnnotation>,
-        val transform: Matrix,
-    )
-
     /** Defines the current interaction mode of the [AnnotationsView]. */
     public abstract class AnnotationMode internal constructor() {
         /** Mode for selecting existing annotations (e.g. erase, drag, scale). */
@@ -365,3 +356,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 }
+
+/**
+ * Holds all annotations for a single PDF page and their transformation matrix.
+ *
+ * @property keyedAnnotations List of [PdfAnnotation]s on the page.
+ * @property transform [Matrix] to apply when drawing these annotations.
+ */
+internal data class PageAnnotationsData(
+    val keyedAnnotations: List<KeyedPdfAnnotation>,
+    val transform: Matrix,
+)

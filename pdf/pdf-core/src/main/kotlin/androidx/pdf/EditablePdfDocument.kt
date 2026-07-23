@@ -47,7 +47,7 @@ public interface EditablePdfDocument : PdfDocument {
      * @return List of annotationId for each operation in sequence of the order they were enqueued.
      * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
-    public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
+    @ExperimentalPdfApi public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
 
     /**
      * Creates a [PdfWriteHandle] which can be used to save the document to a

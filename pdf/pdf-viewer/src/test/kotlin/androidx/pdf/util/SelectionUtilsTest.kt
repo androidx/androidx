@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Parcel
 import android.text.TextUtils
 import androidx.pdf.Dimension
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.annotation.content.ImagePdfObject
@@ -131,6 +132,7 @@ class SelectionUtilsTest {
         assertThat(textSelection.bounds[1].top).isEqualTo(20f)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun imagePdfObject_toImageSelection_returnsCorrectSelection() {
         val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
@@ -147,6 +149,7 @@ class SelectionUtilsTest {
         assertThat(imageSelection.bounds[0].top).isEqualTo(20f)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun imagePdfObject_bitmapSize_returnsCorrectSize() {
         val bitmap = Bitmap.createBitmap(50, 100, Bitmap.Config.ARGB_8888)

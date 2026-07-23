@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.manager
 
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.decomposeAnnotationId
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
@@ -55,6 +56,7 @@ internal class PdfDocumentAnnotationsManager(
         return reconciledAnnotations + draftAnnotations
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getAnnotationModifications(): EditsDraft {
         val draftModificationsSnapshot = draftState.getModificationsSnapshot()
         val persistedModificationsSnapshot = operationsTracker.getModificationsSnapshot()

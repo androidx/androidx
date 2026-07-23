@@ -33,8 +33,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.R
+import androidx.pdf.compose.FastScrollConfiguration.Companion.withDrawableAndDimensionIds
+import androidx.pdf.compose.FastScrollConfiguration.Companion.withDrawableIdsAndDp
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.ocr.OcrProvider
@@ -82,7 +85,7 @@ public fun PdfViewer(
     modifier: Modifier = Modifier,
     isFormFillingEnabled: Boolean = false,
     isImageSelectionEnabled: Boolean = false,
-    ocrProvider: OcrProvider? = null,
+    @OptIn(ExperimentalPdfApi::class) ocrProvider: OcrProvider? = null,
     minZoom: Float = PdfView.MIN_PERMISSIBLE_ZOOM,
     maxZoom: Float = PdfView.MAX_PERMISSIBLE_ZOOM,
     verticalAlignment: Int = PdfView.VERTICAL_ALIGNMENT_CENTER,
@@ -177,7 +180,7 @@ public fun PdfViewer(
             view.horizontalPageSpacing = horizontalPageSpacingPx
             view.verticalPageSpacing = verticalPageSpacingPx
             view.isImageSelectionEnabled = isImageSelectionEnabled
-            view.setOcrProvider(ocrProvider)
+            @OptIn(ExperimentalPdfApi::class) view.setOcrProvider(ocrProvider)
         },
     )
 }

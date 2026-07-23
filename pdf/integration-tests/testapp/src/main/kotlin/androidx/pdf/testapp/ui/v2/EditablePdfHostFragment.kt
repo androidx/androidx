@@ -38,6 +38,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.R as PdfR
 import androidx.pdf.ink.EditablePdfViewerFragment
@@ -52,6 +53,7 @@ import java.io.IOException
 import kotlinx.coroutines.launch
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+@OptIn(ExperimentalPdfApi::class)
 class EditablePdfHostFragment : EditablePdfViewerFragment() {
     private val viewModel: EditablePdfHostViewModel by viewModels()
 

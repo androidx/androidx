@@ -25,6 +25,7 @@ package androidx.pdf
  *   edited (inserted, updated, or removed) before the failure occurred.
  * @param cause The underlying cause of the failure.
  */
+@ExperimentalPdfApi
 public class PdfEditApplyException(
     public val failureIndex: Int,
     public val appliedEditIds: List<String>,

@@ -26,6 +26,7 @@ import android.os.RemoteException
 import android.util.SparseArray
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.FakePdfDocument
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
@@ -75,6 +76,7 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@OptIn(ExperimentalPdfApi::class)
 class SelectionStateManagerTest {
     private val testDispatcher = StandardTestDispatcher()
     private val testScope = TestScope(testDispatcher)

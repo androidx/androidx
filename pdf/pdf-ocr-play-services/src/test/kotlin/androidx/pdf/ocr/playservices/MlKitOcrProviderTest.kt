@@ -18,6 +18,7 @@ package androidx.pdf.ocr.playservices
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import androidx.pdf.ExperimentalPdfApi
 import com.google.common.truth.Truth.assertThat
 import com.google.mlkit.vision.text.Text
 import kotlin.test.assertFailsWith
@@ -32,6 +33,7 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@OptIn(ExperimentalPdfApi::class)
 class MlKitOcrProviderTest {
 
     private lateinit var provider: MlKitOcrProvider

@@ -16,12 +16,14 @@
 
 package androidx.pdf.annotation.drawer
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PdfObject
 
 /**
  * Fake implementation for [PdfObjectDrawerFactory] for testing purposes. It returns instances of
  * [FakePdfObjectDrawer].
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class FakePdfObjectDrawerFactory : PdfObjectDrawerFactory {
     // Keep track of created drawers to inspect them later if needed.
     val createdDrawers = mutableMapOf<PdfObject, FakePdfObjectDrawer<out PdfObject>>()

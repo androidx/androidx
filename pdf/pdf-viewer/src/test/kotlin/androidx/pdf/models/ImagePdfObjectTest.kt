@@ -18,6 +18,7 @@ package androidx.pdf.models
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.util.toImageSelection
 import com.google.common.truth.Truth.assertThat
@@ -25,6 +26,7 @@ import kotlin.test.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ImagePdfObjectTest {

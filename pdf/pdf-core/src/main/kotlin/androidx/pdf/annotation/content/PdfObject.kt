@@ -16,8 +16,10 @@
 
 package androidx.pdf.annotation.content
 
+import androidx.pdf.ExperimentalPdfApi
+
 /**
  * This sealed interface represents specific types of PDF objects, such as [PathPdfObject] and
  * [ImagePdfObject].
  */
-public sealed interface PdfObject
+@ExperimentalPdfApi public sealed interface PdfObject

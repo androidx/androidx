@@ -23,7 +23,7 @@ import android.graphics.RectF
 import android.os.SystemClock
 import android.util.SparseArray
 import android.view.MotionEvent
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.HighlightAnnotation
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PathPdfObject
@@ -234,6 +234,7 @@ class AnnotationsLocatorTest {
         return sparseArray
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun createStampAnnotation(bounds: RectF): StampAnnotation {
         val width = bounds.width()
         val height = bounds.height()

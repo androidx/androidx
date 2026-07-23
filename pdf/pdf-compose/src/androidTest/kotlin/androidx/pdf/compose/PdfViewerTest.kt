@@ -36,6 +36,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfPoint
 import androidx.pdf.selection.PdfSelectionMenuKeys.CopyKey
@@ -65,6 +66,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalPdfApi::class)
 @LargeTest
 class PdfViewerTest {
     @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())

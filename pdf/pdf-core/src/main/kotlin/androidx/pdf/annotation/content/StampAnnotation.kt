@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.content
 
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 
 /**
  * Represents a stamp annotation in a PDF document.
@@ -30,6 +31,7 @@ import android.graphics.RectF
  * @property pdfObjects A list of [PdfObject] instances that define the visual appearance of the
  *   stamp.
  */
+@OptIn(ExperimentalPdfApi::class)
 public class StampAnnotation(
     pageNum: Int,
     public val bounds: RectF,

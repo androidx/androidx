@@ -18,10 +18,12 @@ package androidx.pdf.annotation.drawer
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PdfObject
 import androidx.pdf.annotation.content.StampAnnotation
 
 /** Draws [StampAnnotation] instances on a [Canvas]. */
+@OptIn(ExperimentalPdfApi::class)
 internal class StampPdfAnnotationDrawer(
     private val pdfObjectDrawerFactory: PdfObjectDrawerFactory
 ) : PdfAnnotationDrawer<StampAnnotation> {

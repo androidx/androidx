@@ -18,14 +18,17 @@ package androidx.pdf.ocr
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import androidx.pdf.ExperimentalPdfApi
 import kotlin.math.pow
 
+@OptIn(ExperimentalPdfApi::class)
 class FakeOcrProvider(private val fakeResult: OcrResult? = null) : OcrProvider {
     override suspend fun recognizeText(image: Bitmap): OcrResult? = fakeResult
 
     override fun close() {}
 }
 
+@OptIn(ExperimentalPdfApi::class)
 class FakeOcrResult(
     private val characters: List<OcrText> = emptyList(),
     private val words: List<OcrText> = emptyList(),

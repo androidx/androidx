@@ -16,11 +16,13 @@
 
 package androidx.pdf.ink.model
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.ink.EditablePdfViewerFragment
 
 /**
  * Exception thrown when [EditablePdfViewerFragment.applyDraftEdits] is called while an apply
  * operation is already in progress.
  */
+@ExperimentalPdfApi
 public class ApplyInProgressException internal constructor() :
     IllegalStateException("Another apply operation is already in progress.")

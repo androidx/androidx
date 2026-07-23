@@ -18,6 +18,7 @@ package androidx.pdf.annotation.operations
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.registry.AnnotationHandleRegistry
 
@@ -68,7 +69,7 @@ public interface AnnotationOperationsTracker {
      * @return An [EditsDraft] object containing the ordered collection of operations (Inserts,
      *   Updates, Removes).
      */
-    public fun getModificationsSnapshot(): EditsDraft
+    @OptIn(ExperimentalPdfApi::class) public fun getModificationsSnapshot(): EditsDraft
 
     /**
      * Returns the new annotation if the annotation with [key] has been updated. Returns null

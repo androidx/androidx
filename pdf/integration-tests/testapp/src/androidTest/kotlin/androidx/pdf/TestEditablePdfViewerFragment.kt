@@ -40,6 +40,7 @@ import java.util.UUID
  * A subclass fragment from [EditablePdfViewerFragment] to include
  * [androidx.test.espresso.IdlingResource] while loading pdf document.
  */
+@OptIn(ExperimentalPdfApi::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
 
