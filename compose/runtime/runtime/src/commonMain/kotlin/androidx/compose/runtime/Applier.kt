@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.annotation.EmptySuper
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 
 /**
@@ -43,13 +44,13 @@ public interface Applier<N> {
      * Called when the [Composer] is about to begin applying changes using this applier.
      * [onEndChanges] will be called when changes are complete.
      */
-    public fun onBeginChanges() {}
+    @EmptySuper public fun onBeginChanges() {}
 
     /**
      * Called when the [Composer] is finished applying changes using this applier. A call to
      * [onBeginChanges] will always precede a call to [onEndChanges].
      */
-    public fun onEndChanges() {}
+    @EmptySuper public fun onEndChanges() {}
 
     /**
      * Indicates that the applier is getting traversed "down" the tree. When this gets called,

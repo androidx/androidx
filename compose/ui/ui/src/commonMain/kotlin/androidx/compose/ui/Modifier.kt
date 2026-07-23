@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import androidx.annotation.EmptySuper
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.internal.PlatformOptimizedCancellationException
@@ -312,7 +313,7 @@ interface Modifier {
          * that the state of the tree is "final" for this round of changes, you should use the
          * [sideEffect] API to schedule the calculation to be done at that time.
          */
-        open fun onAttach() {}
+        @EmptySuper open fun onAttach() {}
 
         /**
          * Called when the node is not attached to a [androidx.compose.ui.layout.Layout] which is
@@ -322,7 +323,7 @@ interface Modifier {
          * still be able to traverse inside of this method. Ideally we would not allow you to
          * trigger side effects here.
          */
-        open fun onDetach() {}
+        @EmptySuper open fun onDetach() {}
 
         /**
          * Called when the node is about to be moved to a pool of layouts ready to be reused. For
@@ -339,7 +340,7 @@ interface Modifier {
          *
          * @sample androidx.compose.ui.samples.ModifierNodeResetSample
          */
-        open fun onReset() {}
+        @EmptySuper open fun onReset() {}
 
         /**
          * This can be called to register [effect] as a function to be executed after all of the
