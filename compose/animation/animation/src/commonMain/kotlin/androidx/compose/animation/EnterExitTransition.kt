@@ -440,7 +440,7 @@ public fun slideOut(
  */
 @Stable
 public fun scaleIn(
-    animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+    animationSpec: FiniteAnimationSpec<Float> = DefaultScaleSpring,
     initialScale: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
 ): EnterTransition {
@@ -470,7 +470,7 @@ public fun scaleIn(
  */
 @Stable
 public fun scaleOut(
-    animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+    animationSpec: FiniteAnimationSpec<Float> = DefaultScaleSpring,
     targetScale: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
 ): ExitTransition {
@@ -1486,10 +1486,10 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 transitionSpec = {
                     when {
                         EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                            enter.config.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            enter.config.fade?.animationSpec ?: DefaultAlphaSpring
                         EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                            exit.config.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
-                        else -> DefaultAlphaAndScaleSpring
+                            exit.config.fade?.animationSpec ?: DefaultAlphaSpring
+                        else -> DefaultAlphaSpring
                     }
                 },
                 forcedInitialValue = mutableTransformState.alphaHandoffValue,
@@ -1506,10 +1506,10 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                 transitionSpec = {
                     when {
                         EnterExitState.PreEnter isTransitioningTo EnterExitState.Visible ->
-                            enter.config.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
+                            enter.config.scale?.animationSpec ?: DefaultScaleSpring
                         EnterExitState.Visible isTransitioningTo EnterExitState.PostExit ->
-                            exit.config.scale?.animationSpec ?: DefaultAlphaAndScaleSpring
-                        else -> DefaultAlphaAndScaleSpring
+                            exit.config.scale?.animationSpec ?: DefaultScaleSpring
+                        else -> DefaultScaleSpring
                     }
                 },
                 forcedInitialValue = mutableTransformState.scaleHandoffValue,
@@ -1564,7 +1564,15 @@ internal val TransformOriginVectorConverter =
         convertFromVector = { TransformOrigin(it.v1, it.v2) },
     )
 
-private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
+private val DefaultAlphaSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
+
+private val DefaultScaleSpring =
+    spring<Float>(
+        stiffness = Spring.StiffnessMediumLow,
+        // 0.002f threshold (0.2%) prevents visual discontinuities/popping near the target scale
+        // (e.g. ~1px cutoff on a 500px element) while ensuring timely animation completion.
+        visibilityThreshold = 0.002f,
+    )
 
 private val DefaultColorAnimationSpec = spring<Color>(stiffness = Spring.StiffnessMediumLow)
 
