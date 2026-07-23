@@ -184,7 +184,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         isFeatureOn: Boolean,
         modifier: SubspaceModifier = SubspaceModifier,
         width: Int = 360,
-        height: Int = 140,
+        height: Int = 130,
         isYawUpdateEnabled: Boolean = true,
         pitchLimits: PitchLimits? = PitchLimits.UNCONSTRAINED,
         container:
@@ -228,7 +228,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         var isYawEnabled: Boolean by remember { mutableStateOf(true) }
         var isPitchClamped: Boolean by remember { mutableStateOf(false) }
 
-        var modifier: SubspaceModifier = SubspaceModifier.width(400.dp).height(250.dp)
+        var modifier: SubspaceModifier = SubspaceModifier.width(360.dp).height(140.dp)
         if (isFeatureOn) {
             modifier =
                 modifier.rotateToLookAtUser(
@@ -243,21 +243,21 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 modifier =
                     Modifier.fillMaxSize()
                         .background(if (isFeatureOn) Purple40 else PurpleGrey40)
-                        .padding(16.dp),
+                        .padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = "Interactive Constraints",
                     color = Color.White,
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                 )
 
                 // Yaw Switch
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -271,7 +271,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
 
                 // Pitch Switch
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -409,8 +409,9 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                         width = 260,
                         height = 80,
                     ) { modifier, content ->
-                        // Offset by 5dp on Z axis to prevent clipping with parent panel
-                        SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
+                        // Offset by 100dp on Z axis to provide 3D clearance when child rotates to
+                        // face user
+                        SpatialPanel(modifier = modifier.offset(z = 100.dp), content = content)
                     }
                 }
 
@@ -435,8 +436,9 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                         width = 260,
                         height = 80,
                     ) { modifier, content ->
-                        // Offset by 5dp on Z axis to prevent clipping with parent panel
-                        SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
+                        // Offset by 100dp on Z axis to provide 3D clearance when child rotates to
+                        // face user
+                        SpatialPanel(modifier = modifier.offset(z = 100.dp), content = content)
                     }
                 }
                 // Panel with massive manual offset
