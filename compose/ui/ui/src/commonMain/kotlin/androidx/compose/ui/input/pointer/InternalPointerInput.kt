@@ -52,6 +52,15 @@ internal data class PointerInputEventData(
     val originalEventPosition: Offset = Offset.Zero,
 )
 
+/** The classification of the current gesture. */
+internal enum class PointerClassification {
+    None,
+    Ambiguous,
+    DeepPress,
+    Pinch,
+    Pan,
+}
+
 /**
  * Represents a pointer input event internally.
  *
@@ -72,4 +81,8 @@ internal expect class InternalPointerEvent(
     var suppressMovementConsumption: Boolean
 
     fun activeHoverEvent(pointerId: PointerId): Boolean
+
+    val activeGesture: PointerClassification
+    val isGestureStart: Boolean
+    val isGestureEnd: Boolean
 }

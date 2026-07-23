@@ -112,10 +112,13 @@ internal actual constructor(
              * of the fake finger press + move + release
              */
             val isTwoFingerSwipe =
-                Build.VERSION.SDK_INT >= 34 &&
-                    motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
-            val isPinch =
-                Build.VERSION.SDK_INT >= 34 && motionEvent.classification == CLASSIFICATION_PINCH
+                if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
+                    internalPointerEvent?.activeGesture == PointerClassification.Pan
+                } else {
+                    Build.VERSION.SDK_INT >= 34 &&
+                        motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
+                }
+            val isPinch = internalPointerEvent?.activeGesture == PointerClassification.Pinch
             val isPinchReinterpretation =
                 isPinch && ComposeUiFlags.isTrackpadPinchReinterpretationEnabled
             return when (motionEvent.actionMasked) {

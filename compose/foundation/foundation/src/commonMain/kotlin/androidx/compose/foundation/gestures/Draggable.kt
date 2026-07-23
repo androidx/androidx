@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -48,7 +49,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
@@ -789,6 +793,7 @@ internal abstract class DragGestureNode(
             }
     }
 
+    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
     private fun processInitialDownState(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -796,9 +801,18 @@ internal abstract class DragGestureNode(
     ) {
         /** Wait for a down event in any pass. */
         if (pointerEvent.changes.isEmpty()) return
-        if (!pointerEvent.isChangedToDown(requireUnconsumed = false)) return
-
-        val firstDown = pointerEvent.changes.first()
+        val firstDown =
+            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
+                // We use isAnyChangedToDown instead of isChangedToDown to handle cases where a
+                // persistent pointer (like a trackpad hover pointer) co-exists with a new touch
+                // pointer in the same event. If we used isChangedToDown (which requires all
+                // pointers to change to down), the touch gesture would be ignored because the
+                // hover pointer didn't change to down.
+                pointerEvent.changes.fastFirstOrNull { it.changedToDownIgnoreConsumed() } ?: return
+            } else {
+                if (!pointerEvent.isChangedToDown(requireUnconsumed = false)) return
+                pointerEvent.changes.first()
+            }
         val awaitTouchSlop =
             when (state.awaitTouchSlop) {
                 DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized -> {
@@ -1367,3 +1381,32 @@ private fun isDragAngleAlignedWithOrientation(
 
 private const val HorizontalAngleUpperBounds = 30
 private const val VerticalAngleUpperBounds = 90
+
+/**
+ * Returns true if any pointer in the event changed to down, provided there are no other active
+ * pressed pointers that did not change to down.
+ *
+ * This is used instead of [PointerEvent.isChangedToDown] to allow touch gestures to start even when
+ * a persistent non-pressed pointer (like a trackpad hover pointer) is present in the same event,
+ * while still ignoring new down events if there is already an active touch gesture.
+ */
+private fun PointerEvent.isAnyChangedToDown(requireUnconsumed: Boolean): Boolean {
+    val onlyPrimaryButtonCausesDown =
+        firstDownRefersToPrimaryMouseButtonOnly() &&
+            changes.fastAll { it.type == PointerType.Mouse }
+    if (onlyPrimaryButtonCausesDown && !buttons.isPrimaryPressed) return false
+
+    // Check if there are any other pressed pointers that did not change to down.
+    // If so, we ignore this event to match the old behavior where all pressed pointers
+    // must have changed to down (i.e. we don't start on ACTION_POINTER_DOWN if another
+    // pointer is already active).
+    val hasOtherActivePressedPointer =
+        changes.fastAny {
+            it.pressed &&
+                !(if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed())
+        }
+    if (hasOtherActivePressedPointer) return false
+    return changes.fastAny {
+        if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed()
+    }
+}
