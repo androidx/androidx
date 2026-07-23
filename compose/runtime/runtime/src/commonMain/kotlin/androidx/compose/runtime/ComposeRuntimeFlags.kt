@@ -16,10 +16,16 @@
 
 package androidx.compose.runtime
 
-import kotlin.jvm.JvmField
+import kotlin.jvm.JvmStatic
 
 @ExperimentalComposeApi
 public object ComposeRuntimeFlags {
+    /**
+     * Constant to control the default value of [isLinkBufferComposerEnabled], extracted for
+     * convenience.
+     */
+    @Suppress("FeatureFlagSetup") private const val isLinkBufferComposerEnabledByDefault = false
+
     /**
      * A feature flag than can be used to enable the link-list based slot table implementation
      * instead of the gap buffer based slot table. The linked-list implementation is designed to
@@ -44,9 +50,13 @@ public object ComposeRuntimeFlags {
      * rules:
      * ```
      * -assumevalues public class androidx.compose.runtime.ComposeRuntimeFlags {
-     *     static boolean isLinkBufferComposerEnabled return true;
+     *     static boolean isLinkBufferComposerEnabled() return true;
      * }
      * ```
+     *
+     * Assigning to this property in a build that has been optimized by R8 will always no-op
+     * regardless of whether you declare the configuration rule in your app. In minified builds,
+     * this flag can only be configured by R8.
      *
      * The Compose runtime ships with a default proguard configuration rule that matches this flag's
      * default (disabled) value that ships with the library. Changing this field programmatically in
@@ -55,7 +65,19 @@ public object ComposeRuntimeFlags {
      * assignments to this flag become no-ops.
      */
     // TODO: b/485957718
-    @JvmField
-    @field:Suppress("MutableBareField")
-    public var isLinkBufferComposerEnabled: Boolean = false
+    @JvmStatic
+    @Suppress("FeatureFlagSetup")
+    public var isLinkBufferComposerEnabled: Boolean = isLinkBufferComposerEnabledByDefault
+        get() = if (isMinified) isLinkBufferComposerEnabledByDefault else field
+        set(value) {
+            if (!isMinified) {
+                field = value
+            }
+        }
+
+    /**
+     * Assigned to `true` via proguard rule. When the Runtime is used with an application's release
+     * build, assignments to [isLinkBufferComposerEnabled] are ignored.
+     */
+    @Suppress("FeatureFlagSetup") private var isMinified = false
 }

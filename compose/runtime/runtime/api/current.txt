@@ -149,9 +149,10 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
-    property public boolean isLinkBufferComposerEnabled;
+    method @InaccessibleFromKotlin public static boolean isLinkBufferComposerEnabled();
+    method @InaccessibleFromKotlin public static void setLinkBufferComposerEnabled(boolean);
+    property public static boolean isLinkBufferComposerEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
-    field public static boolean isLinkBufferComposerEnabled;
   }
 
   public sealed nonexhaustive interface Composer {
