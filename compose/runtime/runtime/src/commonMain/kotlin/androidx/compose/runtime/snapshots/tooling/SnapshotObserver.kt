@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.snapshots.tooling
 
+import androidx.annotation.EmptySuper
 import androidx.collection.ScatterSet
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.collection.wrapIntoSet
@@ -67,6 +68,7 @@ public interface SnapshotObserver {
      *   [onCreated]. This allows correlating which snapshot observers returned by [onPreCreate] to
      *   the [snapshot] that was created.
      */
+    @EmptySuper
     public fun onCreated(
         snapshot: Snapshot,
         parent: Snapshot?,
@@ -80,7 +82,7 @@ public interface SnapshotObserver {
      *
      * @param snapshot information about the snapshot that was created.
      */
-    public fun onPreDispose(snapshot: Snapshot) {}
+    @EmptySuper public fun onPreDispose(snapshot: Snapshot) {}
 
     /**
      * Called after a snapshot is applied.
@@ -96,7 +98,7 @@ public interface SnapshotObserver {
      * @param snapshot the snapshot that was applied.
      * @param changed the set of objects that were modified during the snapshot.
      */
-    public fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
+    @EmptySuper public fun onApplied(snapshot: Snapshot, changed: Set<Any>) {}
 }
 
 /**
