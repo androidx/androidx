@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.Rule
@@ -40,7 +41,7 @@ class ProjectCreatorTaskTest {
             [groups]
             BAR = { group = "androidx.bar" }
             FOO = { group = "androidx.foo", atomicGroupVersion = "versions.FOO" }
-        """
+            """
                 .trimIndent()
         )
 
@@ -49,6 +50,7 @@ class ProjectCreatorTaskTest {
                 "androidx.bar",
                 "bar-foo",
                 ProjectType.ANDROID_LIBRARY,
+                "",
                 "",
                 projectSetup.rootDir,
             )
@@ -59,6 +61,7 @@ class ProjectCreatorTaskTest {
                 "androidx.foo",
                 "foo-abc",
                 ProjectType.ANDROID_LIBRARY,
+                "",
                 "",
                 projectSetup.rootDir,
             )
@@ -75,7 +78,7 @@ class ProjectCreatorTaskTest {
 
             [groups]
             FOO = { group = "androidx.foo", atomicGroupVersion = "versions.FOO" }
-        """
+            """
                 .trimIndent()
         )
 
@@ -85,6 +88,7 @@ class ProjectCreatorTaskTest {
                 "bar-foo",
                 ProjectType.ANDROID_LIBRARY,
                 "",
+                "",
                 projectSetup.rootDir,
             )
         val catalogEditor = VersionCatalogEditor(file, projectSpec)
@@ -92,15 +96,15 @@ class ProjectCreatorTaskTest {
         assertThat(file.readText())
             .isEqualTo(
                 """
-            [versions]
-            BAR = "1.0.0-alpha01"
-            FOO = "1.0.0-alpha01"
+                [versions]
+                BAR = "1.0.0-alpha01"
+                FOO = "1.0.0-alpha01"
 
-            [groups]
-            BAR = { group = "androidx.bar", atomicGroupVersion = "versions.BAR" }
-            FOO = { group = "androidx.foo", atomicGroupVersion = "versions.FOO" }
+                [groups]
+                BAR = { group = "androidx.bar", atomicGroupVersion = "versions.BAR" }
+                FOO = { group = "androidx.foo", atomicGroupVersion = "versions.FOO" }
 
-        """
+                """
                     .trimIndent()
             )
     }
@@ -110,12 +114,12 @@ class ProjectCreatorTaskTest {
         val file = tempFolder.newFile()
         file.writeText(
             """
-                // Stuff before includeProject section
-                class MyClass {
-                }
-                // End stuff before includeProject section
+            // Stuff before includeProject section
+            class MyClass {
+            }
+            // End stuff before includeProject section
 
-                includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+            includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
             """
                 .trimIndent()
         )
@@ -126,21 +130,22 @@ class ProjectCreatorTaskTest {
                 "foo-bar",
                 ProjectType.ANDROID_LIBRARY,
                 "",
+                "",
                 projectSetup.rootDir,
             )
         gradleSettingsEditor.updateSettingsGradle(projectSpec)
         assertThat(file.readText())
             .isEqualTo(
                 """
-            // Stuff before includeProject section
-            class MyClass {
-            }
-            // End stuff before includeProject section
+                // Stuff before includeProject section
+                class MyClass {
+                }
+                // End stuff before includeProject section
 
-            includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-            includeProject(":foo:foo-bar", [BuildType.MAIN])
+                includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+                includeProject(":foo:foo-bar", [BuildType.MAIN])
 
-        """
+                """
                     .trimIndent()
             )
     }
@@ -150,31 +155,72 @@ class ProjectCreatorTaskTest {
         val file = tempFolder.newFile()
         file.writeText(
             """
-                // Stuff before includeProject section
-                class MyClass {
-                }
-                // End stuff before includeProject section
-
-                includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-            """
-                .trimIndent()
-        )
-        val gradleSettingsEditor = GradleSettingsEditor(file)
-        val projectSpec =
-            ProjectSpec("androidx.foo", "foo-bar", ProjectType.KMP, "", projectSetup.rootDir)
-        gradleSettingsEditor.updateSettingsGradle(projectSpec)
-        assertThat(file.readText())
-            .isEqualTo(
-                """
             // Stuff before includeProject section
             class MyClass {
             }
             // End stuff before includeProject section
 
             includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
-            includeProject(":foo:foo-bar", [BuildType.KMP])
+            """
+                .trimIndent()
+        )
+        val gradleSettingsEditor = GradleSettingsEditor(file)
+        val projectSpec =
+            ProjectSpec("androidx.foo", "foo-bar", ProjectType.KMP, "", "", projectSetup.rootDir)
+        gradleSettingsEditor.updateSettingsGradle(projectSpec)
+        assertThat(file.readText())
+            .isEqualTo(
+                """
+                // Stuff before includeProject section
+                class MyClass {
+                }
+                // End stuff before includeProject section
 
-        """
+                includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+                includeProject(":foo:foo-bar", [BuildType.KMP])
+
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testUpdateSettingsGradleFileTestAppProject() {
+        val file = tempFolder.newFile()
+        file.writeText(
+            """
+            // Stuff before includeProject section
+            class MyClass {
+            }
+            // End stuff before includeProject section
+
+            includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+            """
+                .trimIndent()
+        )
+        val gradleSettingsEditor = GradleSettingsEditor(file)
+        val projectSpec =
+            ProjectSpec(
+                "androidx.activity",
+                "testapp",
+                ProjectType.TEST_APP,
+                "",
+                "activity/integration-tests/testapp",
+                projectSetup.rootDir,
+            )
+        gradleSettingsEditor.updateSettingsGradle(projectSpec)
+        assertThat(file.readText())
+            .isEqualTo(
+                """
+                // Stuff before includeProject section
+                class MyClass {
+                }
+                // End stuff before includeProject section
+
+                includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+                includeProject(":activity:integration-tests:testapp", [BuildType.MAIN])
+
+                """
                     .trimIndent()
             )
     }
@@ -182,7 +228,7 @@ class ProjectCreatorTaskTest {
     @Test
     fun validateName_valid() {
         assertTrue(isGroupIdValid("androidx.foo"))
-        assertTrue(isArtifactIdValid("androidx.foo", "foo-bar"))
+        assertTrue(isArtifactIdValid("androidx.foo", "foo-bar", ProjectType.KMP))
     }
 
     @Test
@@ -194,7 +240,7 @@ class ProjectCreatorTaskTest {
 
     @Test
     fun validateName_invalidArtifactId() {
-        assertFalse(isArtifactIdValid("androidx.foo", "bar"))
+        assertFalse(isArtifactIdValid("androidx.foo", "bar", ProjectType.ANDROID_LIBRARY))
     }
 
     @Test
@@ -214,10 +260,31 @@ class ProjectCreatorTaskTest {
     }
 
     @Test
-    fun getGradleProjectCoordinates() {
-        assertThat(getGradleProjectCoordinates("androidx.foo", "foo-bar")).isEqualTo(":foo:foo-bar")
-        assertThat(getGradleProjectCoordinates("androidx.foo.bar", "bar-qux"))
-            .isEqualTo(":foo:bar:bar-qux")
+    fun testGetGradleProjectCoordinates() {
+        val projectSpec1 =
+            ProjectSpec("androidx.foo", "foo-bar", ProjectType.ANDROID_LIBRARY, "", "", File(""))
+        val projectSpec2 =
+            ProjectSpec(
+                "androidx.foo.bar",
+                "bar-qux",
+                ProjectType.ANDROID_LIBRARY,
+                "",
+                "",
+                File(""),
+            )
+        val projectSpec3 =
+            ProjectSpec(
+                "androidx.activity",
+                "testapp",
+                ProjectType.TEST_APP,
+                "",
+                "activity/integration-tests/testapp",
+                File(""),
+            )
+        assertThat(getGradleProjectCoordinates(projectSpec1)).isEqualTo(":foo:foo-bar")
+        assertThat(getGradleProjectCoordinates(projectSpec2)).isEqualTo(":foo:bar:bar-qux")
+        assertThat(getGradleProjectCoordinates(projectSpec3))
+            .isEqualTo(":activity:integration-tests:testapp")
     }
 
     @Test

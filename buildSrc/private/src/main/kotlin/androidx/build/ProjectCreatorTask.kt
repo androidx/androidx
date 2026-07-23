@@ -84,22 +84,6 @@ abstract class ProjectCreatorTask : DefaultTask() {
                     }
                     .get()
         } while (!isGroupIdValid(groupId))
-        var artifactId = ""
-        do {
-            artifactId =
-                userInput
-                    .askUser { interaction: UserQuestions ->
-                        interaction.askQuestion("Enter artifact id (e.g. core-telecom)", "none")
-                    }
-                    .get()
-        } while (!isArtifactIdValid(groupId, artifactId))
-
-        val projectDescription =
-            userInput
-                .askUser { interaction: UserQuestions ->
-                    interaction.askQuestion("Enter project description", "none")
-                }
-                .get()
 
         val projectType = ProjectType.entries.find { it.description == projectTypeName }
 
@@ -107,23 +91,70 @@ abstract class ProjectCreatorTask : DefaultTask() {
             error("Unknown project type: $projectTypeName")
         }
 
-        return ProjectSpec(groupId, artifactId, projectType, projectDescription, supportDir)
+        var artifactId = ""
+        do {
+            artifactId =
+                userInput
+                    .askUser { interaction: UserQuestions ->
+                        interaction.askQuestion(
+                            """Enter artifact id (e.g. ${if (projectType != ProjectType.TEST_APP) "core-telecom" else "testapp"})""",
+                            if (projectType != ProjectType.TEST_APP) "none" else "testapp",
+                        )
+                    }
+                    .get()
+        } while (!isArtifactIdValid(groupId, artifactId, projectType))
+
+        val projectDescription =
+            if (projectType != ProjectType.TEST_APP) {
+                userInput
+                    .askUser { interaction: UserQuestions ->
+                        interaction.askQuestion("Enter project description", "none")
+                    }
+                    .get()
+            } else {
+                ""
+            }
+
+        val projectDir: String? =
+            if (projectType == ProjectType.TEST_APP) {
+                userInput
+                    .askUser { interaction: UserQuestions ->
+                        interaction.askQuestion(
+                            "Enter directory that you want your testapp to be created in",
+                            """${groupId.removePrefix("androidx.").replace(".", "/")}/integration-tests/${artifactId}""",
+                        )
+                    }
+                    .get()
+            } else {
+                null
+            } // if the project type is not a test app, the directory will be calculated using a
+        // combination of group id and artifact id
+
+        return ProjectSpec(
+            groupId,
+            artifactId,
+            projectType,
+            projectDescription,
+            projectDir,
+            supportDir,
+        )
     }
 
     private fun printTodoList(projectSpec: ProjectSpec) {
         val buildGradlePath = projectSpec.fullArtifactPath.resolve("build.gradle")
-        val ownersFilePath = projectSpec.fullArtifactPath.resolve("OWNERS")
-        val packageDocsPath =
-            getPackageDocumentationFileDir(projectSpec)
-                .resolve(
-                    getPackageDocumentationFilename(
-                        projectSpec.groupIdWithPrefix,
-                        projectSpec.artifactId,
+        if (projectSpec.projectType != ProjectType.TEST_APP) {
+            val ownersFilePath = projectSpec.fullArtifactPath.resolve("OWNERS")
+            val packageDocsPath =
+                getPackageDocumentationFileDir(projectSpec)
+                    .resolve(
+                        getPackageDocumentationFilename(
+                            projectSpec.groupIdWithPrefix,
+                            projectSpec.artifactId,
+                        )
                     )
-                )
 
-        println(
-            """
+            println(
+                """
             ---
             Created the project. The following TODOs need to be completed by you:
 
@@ -140,8 +171,20 @@ abstract class ProjectCreatorTask : DefaultTask() {
             6. Check the libraryversions.toml file:
                ${supportDir.resolve("libraryversions.toml").path}
             """
-                .trimIndent()
-        )
+                    .trimIndent()
+            )
+        } else {
+            println(
+                """
+                ---
+                Created the project. The following TODOs need to be completed by you:
+
+                1. Check the namespace and compileSdk in the build.gradle of the new testapp
+                2. Check the AndroidManifest.xml
+                """
+                    .trimIndent()
+            )
+        }
     }
 }
 
@@ -152,7 +195,7 @@ internal class GradleSettingsEditor(val settingsGradleFile: File) {
         val newLine = getNewSettingsGradleLine(spec)
 
         val insertLine =
-            settingsLines.indexOfFirst { it.contains("includeProject") && it > newLine }
+            settingsLines.indexOfFirst { it.startsWith("includeProject") && it > newLine }
         if (insertLine != -1) {
             settingsLines.add(insertLine, newLine)
         } else {
@@ -164,7 +207,7 @@ internal class GradleSettingsEditor(val settingsGradleFile: File) {
 
     private fun getNewSettingsGradleLine(spec: ProjectSpec): String {
         val buildType = getBuildType(spec)
-        val gradlePath = getGradleProjectCoordinates(spec.groupId, spec.artifactId)
+        val gradlePath = getGradleProjectCoordinates(spec)
         return "includeProject(\"$gradlePath\", [BuildType.$buildType])"
     }
 
@@ -199,6 +242,9 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
     }
 
     fun updateLibraryVersionsToml() {
+        if (spec.projectType == ProjectType.TEST_APP) {
+            return
+        }
         val tomlLines = tomlFile.readLines().toMutableList()
         val tomlParseResult: TomlParseResult = Toml.parse(tomlFile.toPath())
 
@@ -289,6 +335,9 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
 
 internal class DocsTotBuildGradleEditor(val docsTotBuildGradleFile: File) {
     fun updateDocsTotBuildGradle(spec: ProjectSpec) {
+        if (spec.projectType == ProjectType.TEST_APP) {
+            return
+        }
         if (
             ("test" in spec.groupId ||
                 "test" in spec.artifactId ||
@@ -334,7 +383,7 @@ internal class DocsTotBuildGradleEditor(val docsTotBuildGradleFile: File) {
             )
             return null
         }
-        val gradlePath = getGradleProjectCoordinates(groupId, artifactId)
+        val gradlePath = getGradleProjectCoordinates(this)
         return """    ${if (projectType == ProjectType.KMP) "kmpDocs" else "docs"}(project("$gradlePath"))"""
     }
 }
@@ -347,22 +396,25 @@ internal class ProjectGenerator {
         // create src dir
         createSrcDir(spec)
 
-        // create OWNERS file
-        val ownersFile = File(spec.fullArtifactPath, "OWNERS")
-        ownersFile.writeText("# example@google.com\n")
+        if (spec.projectType != ProjectType.TEST_APP) {
+            // create OWNERS file
+            val ownersFile = File(spec.fullArtifactPath, "OWNERS")
+            ownersFile.writeText("# example@google.com\n")
+
+            // Write current.txt, res-current.txt, and restricted_current.txt
+            for (signatureFileName: String in
+                listOf("current", "res-current", "restricted_current")) {
+                val txtFile = File(spec.fullArtifactPath, "api/$signatureFileName.txt")
+                txtFile.parentFile.mkdirs()
+                txtFile.writeText(
+                    if (signatureFileName != "res-current") "// Signature format: 4.0\n" else ""
+                )
+            }
+        }
 
         // create build.gradle file
         val buildGradleFile = File(spec.fullArtifactPath, "build.gradle")
         buildGradleFile.writeText(spec.getBuildGradleText(isGroupIdAtomic))
-
-        // Write current.txt, res-current.txt, and restricted_current.txt
-        for (signatureFileName: String in listOf("current", "res-current", "restricted_current")) {
-            val txtFile = File(spec.fullArtifactPath, "api/$signatureFileName.txt")
-            txtFile.parentFile.mkdirs()
-            txtFile.writeText(
-                if (signatureFileName != "res-current") "// Signature format: 4.0\n" else ""
-            )
-        }
     }
 
     private fun createSrcDir(spec: ProjectSpec) {
@@ -375,13 +427,15 @@ internal class ProjectGenerator {
                 )
             }"
 
-        val docFile =
-            File(
-                spec.fullArtifactPath,
-                "$fullPath/${getPackageDocumentationFilename(spec.groupId, spec.artifactId)}",
-            )
-        docFile.parentFile.mkdirs()
-        docFile.writeText(spec.toPackageDocsText())
+        if (spec.projectType != ProjectType.TEST_APP) {
+            val docFile =
+                File(
+                    spec.fullArtifactPath,
+                    "$fullPath/${getPackageDocumentationFilename(spec.groupId, spec.artifactId)}",
+                )
+            docFile.parentFile.mkdirs()
+            docFile.writeText(spec.toPackageDocsText())
+        }
 
         if (spec.projectType == ProjectType.JAVA) {
             val packageInfoFile = File(spec.fullArtifactPath, "$fullPath/package-info.java")
@@ -398,6 +452,59 @@ internal class ProjectGenerator {
             testFile.parentFile.mkdirs()
             testFile.writeText(spec.createTestFileText())
         }
+
+        if (spec.projectType == ProjectType.TEST_APP) {
+            val mainActivityFile = File(spec.fullArtifactPath, """${fullPath}/MainActivity.kt""")
+            mainActivityFile.parentFile.mkdirs()
+            mainActivityFile.writeText(spec.getTestAppMainActivityFile())
+
+            val androidManifestFile =
+                File(spec.fullArtifactPath, """${basePath}/AndroidManifest.xml""")
+            androidManifestFile.parentFile.mkdirs()
+            androidManifestFile.writeText(getAndroidManifestXmlFile())
+        }
+    }
+
+    private fun getAndroidManifestXmlFile(): String {
+        return """
+            <?xml version="1.0" encoding="utf-8"?>
+            <!--
+            ${getAOSPHeader()}
+            -->
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+                <application android:name=".TestAppApplication" >
+                    <activity android:name=".MainActivity"
+                        android:exported="true">
+                        <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+                            <category android:name="android.intent.category.LAUNCHER" />
+                        </intent-filter>
+                    </activity>
+                </application>
+
+            </manifest>
+        """
+            .trimIndent()
+    }
+
+    private fun ProjectSpec.getTestAppMainActivityFile(): String {
+        return """
+            ${getAOSPHeader()}
+
+            package ${groupIdWithPrefix}.${artifactId}
+
+            import android.app.Activity
+            import android.os.Bundle
+
+            class MainActivity : Activity() {
+
+                override fun onCreate(savedInstanceState: Bundle?) {
+                    super.onCreate(savedInstanceState)
+                }
+            }
+        """
+            .trimIndent()
     }
 
     private fun ProjectSpec.getPackageInfoFileText(): String {
@@ -463,7 +570,7 @@ internal class ProjectGenerator {
              * Please use the task when creating a new project, rather than copying an existing project and
              * modifying its settings.
              */
-            import androidx.build.SoftwareType
+            ${if (projectType != ProjectType.TEST_APP) "import androidx.build.SoftwareType" else ""}
             ${if (projectType == ProjectType.KMP) "import androidx.build.PlatformIdentifier" else ""}
 
             plugins {
@@ -482,7 +589,7 @@ internal class ProjectGenerator {
                 ${getMultiplatformBuildGradleText()}
             }
                     """
-                ProjectType.ANDROID_LIBRARY -> """
+                ProjectType.ANDROID_LIBRARY, ProjectType.TEST_APP -> """
             android {
                 namespace = "${generatePackageName(groupId, artifactId)}"
             }
@@ -494,14 +601,19 @@ internal class ProjectGenerator {
             }
                     """
             }
-        }
-
+            }
+            ${
+            if (projectType != ProjectType.TEST_APP) {
+            """
             androidx {
                 name = "${groupId}:${artifactId}"
                 type = SoftwareType.${getLibraryType(artifactId)}
                 ${if (isGroupIdAtomic) "" else "mavenVersion = LibraryVersions.${getGroupIdVersionMacro(groupId)}"}
                 inceptionYear = "${getYear()}"
                 description = "$description"
+            }
+            """
+            } else {""}
             }
         """
             .trimIndent()
@@ -564,6 +676,7 @@ internal class ProjectGenerator {
             ProjectType.ANDROID_LIBRARY -> """id("com.android.library")"""
             ProjectType.KMP -> ""
             ProjectType.JAVA -> """id("java-library")"""
+            ProjectType.TEST_APP -> """id("com.android.application")"""
         }
     }
 
@@ -572,6 +685,7 @@ internal class ProjectGenerator {
             ProjectType.ANDROID_LIBRARY -> "kotlin"
             ProjectType.KMP -> "kotlin"
             ProjectType.JAVA -> "java"
+            ProjectType.TEST_APP -> "kotlin"
         }
     }
 
@@ -590,6 +704,7 @@ private fun getPackageDocumentationFileDir(spec: ProjectSpec): File {
             ProjectType.JAVA -> {
                 "src/main/java/"
             }
+            ProjectType.TEST_APP -> error("Test apps don't have package documentation")
         } + spec.groupIdWithPrefix.replace('.', '/')
     return File(spec.fullArtifactPath, subPath)
 }
@@ -599,6 +714,7 @@ internal enum class ProjectType(val description: String) {
     ANDROID_LIBRARY("Android (AAR)"),
     KMP("KMP (All platforms) (AAR)"),
     JAVA("Java (JVM - JAR)"),
+    TEST_APP("Test app"),
 }
 
 @VisibleForTesting
@@ -607,12 +723,18 @@ internal data class ProjectSpec(
     val artifactId: String,
     val projectType: ProjectType,
     val description: String,
+    val projectDir: String?, // used for testapps
     val supportRoot: File,
 ) {
     val groupId = groupIdWithPrefix.removePrefix("androidx.")
 
     val fullArtifactPath =
-        File(supportRoot, groupId.replace('.', '/')).resolve(artifactId.removePrefix("compose-"))
+        if (projectDir != null) {
+            File(supportRoot, projectDir)
+        } else {
+            File(supportRoot, groupId.replace('.', '/'))
+                .resolve(artifactId.removePrefix("compose-"))
+        }
 }
 
 @VisibleForTesting
@@ -634,7 +756,16 @@ internal fun isGroupIdValid(groupId: String): Boolean {
 }
 
 @VisibleForTesting
-internal fun isArtifactIdValid(groupId: String, artifactId: String): Boolean {
+internal fun isArtifactIdValid(
+    groupId: String,
+    artifactId: String,
+    projectType: ProjectType,
+): Boolean {
+    // test apps don't need artifact id validation, most of the time they will just be called
+    // "testapp"
+    if (projectType == ProjectType.TEST_APP) {
+        return true
+    }
     val finalGroupWord = groupId.substringAfterLast('.')
     if (!artifactId.startsWith(finalGroupWord)) {
         println("Artifact ID must start with the last segment of the Group ID ($finalGroupWord).")
@@ -658,8 +789,11 @@ internal fun getGroupIdVersionMacro(groupId: String): String {
     return groupId.removePrefix("androidx.").replace(".", "_").uppercase()
 }
 
-internal fun getGradleProjectCoordinates(groupId: String, artifactId: String): String {
-    return ":${groupId.removePrefix("androidx.").replace(".", ":")}:${artifactId.removePrefix("compose-")}"
+internal fun getGradleProjectCoordinates(spec: ProjectSpec): String {
+    if (spec.projectType == ProjectType.TEST_APP && spec.projectDir != null) {
+        return ":" + spec.projectDir.replace("/", ":")
+    }
+    return ":${spec.groupId.replace(".", ":")}:${spec.artifactId.removePrefix("compose-")}"
 }
 
 internal fun getLibraryType(artifactId: String): String =
