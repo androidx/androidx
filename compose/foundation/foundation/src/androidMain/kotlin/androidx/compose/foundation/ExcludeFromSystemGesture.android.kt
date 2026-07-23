@@ -29,7 +29,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
  * @see View.setSystemGestureExclusionRects
  */
 @Deprecated("Use systemGestureExclusion", replaceWith = ReplaceWith("systemGestureExclusion"))
-fun Modifier.excludeFromSystemGesture() = systemGestureExclusion()
+public fun Modifier.excludeFromSystemGesture(): Modifier = systemGestureExclusion()
 
 /**
  * Excludes a rectangle within the local layout coordinates from the system gesture. After layout,
@@ -41,5 +41,5 @@ fun Modifier.excludeFromSystemGesture() = systemGestureExclusion()
  * @see View.setSystemGestureExclusionRects
  */
 @Deprecated("Use systemGestureExclusion", replaceWith = ReplaceWith("systemGestureExclusion"))
-fun Modifier.excludeFromSystemGesture(exclusion: (LayoutCoordinates) -> Rect) =
+public fun Modifier.excludeFromSystemGesture(exclusion: (LayoutCoordinates) -> Rect): Modifier =
     systemGestureExclusion(exclusion)

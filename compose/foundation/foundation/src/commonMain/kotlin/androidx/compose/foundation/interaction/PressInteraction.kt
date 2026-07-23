@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.collect
  * @see Release
  * @see Cancel
  */
-interface PressInteraction : Interaction {
+public interface PressInteraction : Interaction {
     /**
      * An interaction representing a press event on a component.
      *
@@ -47,7 +47,7 @@ interface PressInteraction : Interaction {
      * @see Release
      * @see Cancel
      */
-    class Press(val pressPosition: Offset) : PressInteraction
+    public class Press(public val pressPosition: Offset) : PressInteraction
 
     /**
      * An interaction representing the release of a [Press] event on a component.
@@ -56,7 +56,7 @@ interface PressInteraction : Interaction {
      * @see androidx.compose.foundation.clickable
      * @see Press
      */
-    class Release(val press: Press) : PressInteraction
+    public class Release(public val press: Press) : PressInteraction
 
     /**
      * An interaction representing the cancellation of a [Press] event on a component.
@@ -65,7 +65,7 @@ interface PressInteraction : Interaction {
      * @see androidx.compose.foundation.clickable
      * @see Press
      */
-    class Cancel(val press: Press) : PressInteraction
+    public class Cancel(public val press: Press) : PressInteraction
 }
 
 /**
@@ -78,7 +78,7 @@ interface PressInteraction : Interaction {
  * @return [State] representing whether this component is being pressed or not
  */
 @Composable
-fun InteractionSource.collectIsPressedAsState(): State<Boolean> {
+public fun InteractionSource.collectIsPressedAsState(): State<Boolean> {
     val isPressed = remember { mutableStateOf(false) }
     LaunchedEffect(this) {
         val pressInteractions = mutableListOf<PressInteraction.Press>()

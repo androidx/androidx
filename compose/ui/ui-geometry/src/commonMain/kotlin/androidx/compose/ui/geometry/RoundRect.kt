@@ -26,33 +26,33 @@ import kotlin.math.min
 /** An immutable rounded rectangle with custom radii for all four corners. */
 @Immutable
 @Suppress("DataClassDefinition")
-data class RoundRect(
+public data class RoundRect(
     /** The offset of the left edge of this rectangle from the x axis */
-    val left: Float,
+    public val left: Float,
     /** The offset of the top edge of this rectangle from the y axis */
-    val top: Float,
+    public val top: Float,
     /** The offset of the right edge of this rectangle from the x axis */
-    val right: Float,
+    public val right: Float,
     /** The offset of the bottom edge of this rectangle from the y axis */
-    val bottom: Float,
+    public val bottom: Float,
     /** The top-left radius */
-    val topLeftCornerRadius: CornerRadius = CornerRadius.Zero,
+    public val topLeftCornerRadius: CornerRadius = CornerRadius.Zero,
 
     /** The top-right radius */
-    val topRightCornerRadius: CornerRadius = CornerRadius.Zero,
+    public val topRightCornerRadius: CornerRadius = CornerRadius.Zero,
 
     /** The bottom-right radius */
-    val bottomRightCornerRadius: CornerRadius = CornerRadius.Zero,
+    public val bottomRightCornerRadius: CornerRadius = CornerRadius.Zero,
 
     /** The bottom-left radius */
-    val bottomLeftCornerRadius: CornerRadius = CornerRadius.Zero,
+    public val bottomLeftCornerRadius: CornerRadius = CornerRadius.Zero,
 ) {
     /** The distance between the left and right edges of this rectangle. */
-    val width: Float
+    public val width: Float
         get() = right - left
 
     /** The distance between the top and bottom edges of this rectangle. */
-    val height: Float
+    public val height: Float
         get() = bottom - top
 
     /**
@@ -131,7 +131,7 @@ data class RoundRect(
      * time it is called on a particular [RoundRect] instance. When using this method, prefer to
      * reuse existing [RoundRect]s rather than recreating the object each time.
      */
-    operator fun contains(point: Offset): Boolean {
+    public operator fun contains(point: Offset): Boolean {
         if (point.x < left || point.x >= right || point.y < top || point.y >= bottom) {
             return false
             // outside bounding box
@@ -189,7 +189,7 @@ data class RoundRect(
         return newX * newX + newY * newY <= 1.0f
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         val tlRadius = topLeftCornerRadius
         val trRadius = topRightCornerRadius
         val brRadius = bottomRightCornerRadius
@@ -214,9 +214,10 @@ data class RoundRect(
             "bottomLeft=$blRadius)"
     }
 
-    companion object {
+    public companion object {
         /** A rounded rectangle with all the values set to zero. */
-        @kotlin.jvm.JvmStatic val Zero = RoundRect(0.0f, 0.0f, 0.0f, 0.0f, CornerRadius.Zero)
+        @kotlin.jvm.JvmStatic
+        public val Zero: RoundRect = RoundRect(0.0f, 0.0f, 0.0f, 0.0f, CornerRadius.Zero)
     }
 }
 
@@ -224,7 +225,7 @@ data class RoundRect(
  * Construct a rounded rectangle from its left, top, right, and bottom edges, and the same radii
  * along its horizontal axis and its vertical axis.
  */
-fun RoundRect(
+public fun RoundRect(
     left: Float,
     top: Float,
     right: Float,
@@ -249,14 +250,19 @@ fun RoundRect(
  * Construct a rounded rectangle from its left, top, right, and bottom edges, and the same radius in
  * each corner.
  */
-fun RoundRect(left: Float, top: Float, right: Float, bottom: Float, cornerRadius: CornerRadius) =
-    RoundRect(left, top, right, bottom, cornerRadius.x, cornerRadius.y)
+public fun RoundRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    cornerRadius: CornerRadius,
+): RoundRect = RoundRect(left, top, right, bottom, cornerRadius.x, cornerRadius.y)
 
 /**
  * Construct a rounded rectangle from its bounding box and the same radii along its horizontal axis
  * and its vertical axis.
  */
-fun RoundRect(rect: Rect, radiusX: Float, radiusY: Float): RoundRect =
+public fun RoundRect(rect: Rect, radiusX: Float, radiusY: Float): RoundRect =
     RoundRect(
         left = rect.left,
         top = rect.top,
@@ -269,7 +275,7 @@ fun RoundRect(rect: Rect, radiusX: Float, radiusY: Float): RoundRect =
 /**
  * Construct a rounded rectangle from its bounding box and a radius that is the same in each corner.
  */
-fun RoundRect(rect: Rect, cornerRadius: CornerRadius): RoundRect =
+public fun RoundRect(rect: Rect, cornerRadius: CornerRadius): RoundRect =
     RoundRect(rect = rect, radiusX = cornerRadius.x, radiusY = cornerRadius.y)
 
 /**
@@ -278,7 +284,7 @@ fun RoundRect(rect: Rect, cornerRadius: CornerRadius): RoundRect =
  *
  * The corner radii default to [CornerRadius.Zero], i.e. right-angled corners
  */
-fun RoundRect(
+public fun RoundRect(
     rect: Rect,
     topLeft: CornerRadius = CornerRadius.Zero,
     topRight: CornerRadius = CornerRadius.Zero,
@@ -297,7 +303,7 @@ fun RoundRect(
     )
 
 /** Returns a new [RoundRect] translated by the given offset. */
-fun RoundRect.translate(offset: Offset): RoundRect =
+public fun RoundRect.translate(offset: Offset): RoundRect =
     RoundRect(
         left = left + offset.x,
         top = top + offset.y,
@@ -310,7 +316,7 @@ fun RoundRect.translate(offset: Offset): RoundRect =
     )
 
 /** The bounding box of this rounded rectangle (the rectangle with no rounded corners). */
-val RoundRect.boundingRect: Rect
+public val RoundRect.boundingRect: Rect
     get() = Rect(left, top, right, bottom)
 
 /**
@@ -318,7 +324,7 @@ val RoundRect.boundingRect: Rect
  * diagonal traveling through the middle of the curve corners. The middle of a corner is the
  * intersection of the curve with its respective quadrant bisector.
  */
-val RoundRect.safeInnerRect: Rect
+public val RoundRect.safeInnerRect: Rect
     get() {
         val insetFactor = 0.29289321881f // 1-cos(pi/4)
 
@@ -336,16 +342,16 @@ val RoundRect.safeInnerRect: Rect
     }
 
 /** Whether this rounded rectangle encloses a non-zero area. Negative areas are considered empty. */
-val RoundRect.isEmpty
+public val RoundRect.isEmpty: Boolean
     get() = left >= right || top >= bottom
 
 /** Whether all coordinates of this rounded rectangle are finite. */
-val RoundRect.isFinite
+public val RoundRect.isFinite: Boolean
     get() =
         left.fastIsFinite() && top.fastIsFinite() && right.fastIsFinite() && bottom.fastIsFinite()
 
 /** Whether this rounded rectangle is a simple rectangle with zero corner radii. */
-val RoundRect.isRect
+public val RoundRect.isRect: Boolean
     get(): Boolean =
         topLeftCornerRadius.isZero() &&
             topRightCornerRadius.isZero() &&
@@ -353,7 +359,7 @@ val RoundRect.isRect
             bottomRightCornerRadius.isZero()
 
 /** Whether this rounded rectangle has no side with a straight section. */
-val RoundRect.isEllipse
+public val RoundRect.isEllipse: Boolean
     get(): Boolean =
         topLeftCornerRadius.packedValue == topRightCornerRadius.packedValue &&
             topRightCornerRadius.packedValue == bottomRightCornerRadius.packedValue &&
@@ -362,31 +368,31 @@ val RoundRect.isEllipse
             height <= 2.0 * topLeftCornerRadius.y
 
 /** Whether this rounded rectangle would draw as a circle. */
-val RoundRect.isCircle
+public val RoundRect.isCircle: Boolean
     get() = width == height && isEllipse
 
 /**
  * The lesser of the magnitudes of the [RoundRect.width] and the [RoundRect.height] of this rounded
  * rectangle.
  */
-val RoundRect.minDimension
+public val RoundRect.minDimension: Float
     get(): Float = min(width.absoluteValue, height.absoluteValue)
 
-val RoundRect.maxDimension
+public val RoundRect.maxDimension: Float
     get(): Float = max(width.absoluteValue, height.absoluteValue)
 
 /**
  * The offset to the point halfway between the left and right and the top and bottom edges of this
  * rectangle.
  */
-val RoundRect.center: Offset
+public val RoundRect.center: Offset
     get() = Offset((left + width / 2.0f), (top + height / 2.0f))
 
 /**
  * Returns `true` if the rounded rectangle have the same radii in both the horizontal and vertical
  * direction for all corners.
  */
-val RoundRect.isSimple: Boolean
+public val RoundRect.isSimple: Boolean
     get() =
         topLeftCornerRadius.isCircular() &&
             topLeftCornerRadius.packedValue == topRightCornerRadius.packedValue &&
@@ -406,7 +412,7 @@ val RoundRect.isSimple: Boolean
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as an
  * `AnimationController`.
  */
-fun lerp(start: RoundRect, stop: RoundRect, fraction: Float): RoundRect =
+public fun lerp(start: RoundRect, stop: RoundRect, fraction: Float): RoundRect =
     RoundRect(
         left = lerp(start.left, stop.left, fraction),
         top = lerp(start.top, stop.top, fraction),

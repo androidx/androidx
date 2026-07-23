@@ -21,10 +21,10 @@ import android.graphics.PathDashPathEffect
 /** Obtain a reference to the Android PathEffect type */
 internal class AndroidPathEffect(val nativePathEffect: android.graphics.PathEffect) : PathEffect
 
-fun PathEffect.asAndroidPathEffect(): android.graphics.PathEffect =
+public fun PathEffect.asAndroidPathEffect(): android.graphics.PathEffect =
     (this as AndroidPathEffect).nativePathEffect
 
-fun android.graphics.PathEffect.toComposePathEffect(): PathEffect = AndroidPathEffect(this)
+public fun android.graphics.PathEffect.toComposePathEffect(): PathEffect = AndroidPathEffect(this)
 
 internal actual fun actualCornerPathEffect(radius: Float): PathEffect =
     AndroidPathEffect(android.graphics.CornerPathEffect(radius))

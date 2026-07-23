@@ -35,79 +35,79 @@ import kotlin.math.roundToInt
 
 /** A group in the slot table. Represents either a call or an emitted node. */
 @UiToolingDataApi
-sealed class Group(
+public sealed class Group(
     /** The key is the key generated for the group */
-    val key: Any?,
+    public val key: Any?,
 
     /** The name of the function called, if provided */
-    val name: String?,
+    public val name: String?,
 
     /** The source location that produce the group if it can be determined */
-    val location: SourceLocation?,
+    public val location: SourceLocation?,
 
     /**
      * An optional value that identifies a Group independently of movement caused by recompositions.
      */
-    val identity: Any?,
+    public val identity: Any?,
 
     /** The bounding layout box for the group. */
-    val box: IntRect,
+    public val box: IntRect,
 
     /** Any data that was stored in the slot table for the group */
-    val data: Collection<Any?>,
+    public val data: Collection<Any?>,
 
     /** The child groups of this group */
-    val children: Collection<Group>,
+    public val children: Collection<Group>,
 
     /** True if the group is for an inline function call */
-    val isInline: Boolean,
+    public val isInline: Boolean,
 ) {
     /** Modifier information for the Group, or empty list if there isn't any. */
-    open val modifierInfo: List<ModifierInfo>
+    public open val modifierInfo: List<ModifierInfo>
         get() = emptyList()
 
     /** Parameter information for Groups that represent calls */
-    open val parameters: List<ParameterInformation>
+    public open val parameters: List<ParameterInformation>
         get() = emptyList()
 }
 
 @UiToolingDataApi
 @Suppress("DataClassDefinition")
-data class ParameterInformation(
-    val name: String,
-    val value: Any?,
-    val fromDefault: Boolean,
-    val static: Boolean,
-    val compared: Boolean,
-    val inlineClass: String?,
-    val stable: Boolean,
+public data class ParameterInformation(
+    public val name: String,
+    public val value: Any?,
+    public val fromDefault: Boolean,
+    public val static: Boolean,
+    public val compared: Boolean,
+    public val inlineClass: String?,
+    public val stable: Boolean,
 )
 
 /** Source location of the call that produced the call group. */
 @UiToolingDataApi
 @Suppress("DataClassDefinition")
-data class SourceLocation(
+public data class SourceLocation(
     /** A 0 offset line number of the source location. */
-    val lineNumber: Int,
+    public val lineNumber: Int,
 
     /**
      * Offset into the file. The offset is calculated as the number of UTF-16 code units from the
      * beginning of the file to the first UTF-16 code unit of the call that produced the group.
      */
-    val offset: Int,
+    public val offset: Int,
 
     /**
      * The length of the source code. The length is calculated as the number of UTF-16 code units
      * that that make up the call expression.
      */
-    val length: Int,
+    public val length: Int,
 
     /**
      * The file name (without path information) of the source file that contains the call that
      * produced the group. A source file names are not guaranteed to be unique, [packageHash] is
      * included to help disambiguate files with duplicate names.
      */
-    val sourceFile: String?,
+    public val sourceFile: String?,
 
     /**
      * A hash code of the package name of the file. This hash is calculated by,
@@ -118,12 +118,12 @@ data class SourceLocation(
      * which file is referenced by [sourceFile]. This number is -1 if there was no package hash
      * information generated such as when the file does not contain a package declaration.
      */
-    val packageHash: Int,
+    public val packageHash: Int,
 )
 
 /** A group that represents the invocation of a component */
 @UiToolingDataApi
-class CallGroup(
+public class CallGroup(
     key: Any?,
     name: String?,
     box: IntRect,
@@ -137,11 +137,11 @@ class CallGroup(
 
 /** A group that represents an emitted node */
 @UiToolingDataApi
-class NodeGroup(
+public class NodeGroup(
     key: Any?,
 
     /** An emitted node */
-    val node: Any,
+    public val node: Any,
     box: IntRect,
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
@@ -164,7 +164,7 @@ private object EmptyGroup :
 /** A key that has being joined together to form one key. */
 @UiToolingDataApi
 @Suppress("DataClassDefinition")
-data class JoinedKey(val left: Any?, val right: Any?)
+public data class JoinedKey(public val left: Any?, public val right: Any?)
 
 internal val emptyBox = IntRect(0, 0, 0, 0)
 
@@ -422,9 +422,9 @@ private class CompositionCallStack<T, R>(
 
 /** A cache of [SourceInformationContext] that optionally can be specified when using [mapTree]. */
 @UiToolingDataApi
-class ContextCache {
+public class ContextCache {
     /** Clears the cache. */
-    fun clear() {
+    public fun clear() {
         contexts.clear()
     }
 
@@ -437,24 +437,24 @@ class ContextCache {
  * See the factory argument of [mapTree].
  */
 @UiToolingDataApi
-interface SourceContext {
+public interface SourceContext {
     /** The name of the Composable or null if not applicable. */
-    val name: String?
+    public val name: String?
 
     /** The bounds of the Composable if known. */
-    val bounds: IntRect
+    public val bounds: IntRect
 
     /** The [SourceLocation] of where the Composable was called. */
-    val location: SourceLocation?
+    public val location: SourceLocation?
 
     /** The parameters of the Composable. */
-    val parameters: List<ParameterInformation>
+    public val parameters: List<ParameterInformation>
 
     /** The current depth into the [CompositionGroup] tree. */
-    val depth: Int
+    public val depth: Int
 
     /** The source context is for a call to an inline composable function */
-    val isInline: Boolean
+    public val isInline: Boolean
         get() = false
 }
 
@@ -470,7 +470,7 @@ interface SourceContext {
  * save some time if the values of [CompositionGroup.sourceInfo] are not unique.
  */
 @UiToolingDataApi
-fun <T> CompositionData.mapTree(
+public fun <T> CompositionData.mapTree(
     factory: (CompositionGroup, SourceContext, List<T>) -> T?,
     cache: ContextCache = ContextCache(),
 ): T? {
@@ -523,7 +523,9 @@ internal fun <T, R> CompositionData.mapTreeWithStitching(
 
 /** Return the parameters found for this [CompositionGroup]. */
 @UiToolingDataApi
-fun CompositionGroup.findParameters(cache: ContextCache? = null): List<ParameterInformation> {
+public fun CompositionGroup.findParameters(
+    cache: ContextCache? = null
+): List<ParameterInformation> {
     val information = sourceInfo ?: return emptyList()
     val context =
         if (cache == null) sourceInformationContextOf(information)
@@ -539,7 +541,8 @@ fun CompositionGroup.findParameters(cache: ContextCache? = null): List<Parameter
  * Return a group tree for for the slot table that represents the entire content of the slot table.
  */
 @UiToolingDataApi
-fun CompositionData.asTree(): Group = compositionGroups.firstOrNull()?.getGroup(null) ?: EmptyGroup
+public fun CompositionData.asTree(): Group =
+    compositionGroups.firstOrNull()?.getGroup(null) ?: EmptyGroup
 
 internal fun IntRect.union(other: IntRect): IntRect {
     if (this == emptyBox) return other else if (other == emptyBox) return this
@@ -732,7 +735,7 @@ private const val STABLE_BITS = 0b100
 
 /** The source position of the group extracted from the key, if one exists for the group. */
 @UiToolingDataApi
-val Group.position: String?
+public val Group.position: String?
     get() = keyPosition(key)
 
 private fun Class<*>.accessibleField(name: String): Field? =

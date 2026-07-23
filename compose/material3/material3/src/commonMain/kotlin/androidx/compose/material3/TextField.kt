@@ -201,7 +201,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextField(
+public fun TextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -361,7 +361,7 @@ fun TextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextField(
+public fun TextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -511,7 +511,7 @@ fun TextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextField(
+public fun TextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,

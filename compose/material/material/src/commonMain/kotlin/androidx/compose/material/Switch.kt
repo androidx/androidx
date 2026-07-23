@@ -90,7 +90,7 @@ import kotlinx.coroutines.flow.collectLatest
  */
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
-fun Switch(
+public fun Switch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
@@ -191,7 +191,7 @@ fun Switch(
  * See [SwitchDefaults.colors] for the default implementation that follows Material specifications.
  */
 @Stable
-interface SwitchColors {
+public interface SwitchColors {
 
     /**
      * Represents the color used for the switch's thumb, depending on [enabled] and [checked].
@@ -199,7 +199,7 @@ interface SwitchColors {
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable fun thumbColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun thumbColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the color used for the switch's track, depending on [enabled] and [checked].
@@ -207,7 +207,7 @@ interface SwitchColors {
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
-    @Composable fun trackColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun trackColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
 @Composable
@@ -306,7 +306,7 @@ private val ThumbPressedElevation
     get() = 6.dp
 
 /** Contains the default values used by [Switch] */
-object SwitchDefaults {
+public object SwitchDefaults {
     /**
      * Creates a [SwitchColors] that represents the different colors used in a [Switch] in different
      * states.
@@ -325,7 +325,7 @@ object SwitchDefaults {
      * @param disabledUncheckedTrackColor the color used for the track when disabled and unchecked
      */
     @Composable
-    fun colors(
+    public fun colors(
         checkedThumbColor: Color = MaterialTheme.colors.secondaryVariant,
         checkedTrackColor: Color = checkedThumbColor,
         checkedTrackAlpha: Float = 0.54f,

@@ -55,28 +55,28 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
  * what's left from B.
  */
 @ExperimentalFoundationApi
-fun interface ReceiveContentListener {
+public fun interface ReceiveContentListener {
 
     /**
      * Optional callback that's called when a dragging session starts. All [contentReceiver] nodes
      * in the current composition tree receives this callback immediately.
      */
-    fun onDragStart() = Unit
+    public fun onDragStart(): Unit = Unit
 
     /**
      * Optional callback that's called when a dragging session ends by either successful drop, or
      * cancellation. All [contentReceiver] nodes in the current composition tree receives this
      * callback immediately.
      */
-    fun onDragEnd() = Unit
+    public fun onDragEnd(): Unit = Unit
 
     /** Optional callback that's called when a dragging item moves into this node's coordinates. */
-    fun onDragEnter() = Unit
+    public fun onDragEnter(): Unit = Unit
 
     /**
      * Optional callback that's called when a dragging item moves out of this node's coordinates.
      */
-    fun onDragExit() = Unit
+    public fun onDragExit(): Unit = Unit
 
     /**
      * Callback that's triggered when a content is successfully committed.
@@ -90,5 +90,5 @@ fun interface ReceiveContentListener {
      *   that receives content by DragAndDrop should insert the remaining text from the receive
      *   chain to the drop position.
      */
-    fun onReceive(transferableContent: TransferableContent): TransferableContent?
+    public fun onReceive(transferableContent: TransferableContent): TransferableContent?
 }

@@ -25,10 +25,10 @@ import kotlin.jvm.JvmInline
 /** A class to control how back navigation should behave in a [ThreePaneScaffoldNavigator]. */
 @ExperimentalMaterial3AdaptiveApi
 @JvmInline
-value class BackNavigationBehavior private constructor(private val description: String) {
+public value class BackNavigationBehavior private constructor(private val description: String) {
     override fun toString(): String = this.description
 
-    companion object {
+    public companion object {
         /**
          * Pop the latest destination from the backstack.
          *
@@ -37,7 +37,7 @@ value class BackNavigationBehavior private constructor(private val description: 
          * device size changes in the middle of the navigation, this [BackNavigationBehavior] may
          * result in unintuitive behavior.
          */
-        val PopLatest = BackNavigationBehavior("PopLatest")
+        public val PopLatest: BackNavigationBehavior = BackNavigationBehavior("PopLatest")
 
         /**
          * Pop destinations from the backstack until there is a change in the scaffold value. In
@@ -47,7 +47,8 @@ value class BackNavigationBehavior private constructor(private val description: 
          * destination is a different [ThreePaneScaffoldRole]. In a multi-pane layout, this will
          * skip entries until the [PaneAdaptedValue] of any pane changes.
          */
-        val PopUntilScaffoldValueChange = BackNavigationBehavior("PopUntilScaffoldValueChange")
+        public val PopUntilScaffoldValueChange: BackNavigationBehavior =
+            BackNavigationBehavior("PopUntilScaffoldValueChange")
 
         /**
          * Pop destinations from the backstack until there is a change in the current destination
@@ -55,7 +56,7 @@ value class BackNavigationBehavior private constructor(private val description: 
          * considered "active", as determined by the `pane` of the current
          * [ThreePaneScaffoldDestinationItem].
          */
-        val PopUntilCurrentDestinationChange =
+        public val PopUntilCurrentDestinationChange: BackNavigationBehavior =
             BackNavigationBehavior("PopUntilCurrentDestinationChange")
 
         /**
@@ -70,6 +71,7 @@ value class BackNavigationBehavior private constructor(private val description: 
          * device size changes in the middle of the navigation, this [BackNavigationBehavior] may
          * result in unintuitive behavior.
          */
-        val PopUntilContentChange = BackNavigationBehavior("PopUntilContentChange")
+        public val PopUntilContentChange: BackNavigationBehavior =
+            BackNavigationBehavior("PopUntilContentChange")
     }
 }

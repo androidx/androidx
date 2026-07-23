@@ -35,10 +35,10 @@ import androidx.compose.ui.graphics.drawscope.Fill
  * Can be used for defining a shape of the component background, a shape of shadows cast by the
  * component, or to clip the contents.
  */
-sealed class Outline {
+public sealed class Outline {
     /** Rectangular area. */
     @Immutable
-    class Rectangle(val rect: Rect) : Outline() {
+    public class Rectangle(public val rect: Rect) : Outline() {
 
         override val bounds: Rect
             get() = rect
@@ -59,7 +59,7 @@ sealed class Outline {
 
     /** Rectangular area with rounded corners. */
     @Immutable
-    class Rounded(val roundRect: RoundRect) : Outline() {
+    public class Rounded(public val roundRect: RoundRect) : Outline() {
 
         /**
          * Optional Path to be created for the RoundRect if the corner radii are not identical This
@@ -101,7 +101,7 @@ sealed class Outline {
      * Note that if you use this path for drawing the shadow on Android versions less than 10 the
      * shadow will not be drawn for the concave paths. See [Path.isConvex].
      */
-    class Generic(val path: Path) : Outline() {
+    public class Generic(public val path: Path) : Outline() {
         override val bounds: Rect
             get() = path.getBounds()
 
@@ -110,11 +110,11 @@ sealed class Outline {
     }
 
     /** Return the bounds of the outline */
-    abstract val bounds: Rect
+    public abstract val bounds: Rect
 }
 
 /** Adds the [outline] to the [Path]. */
-fun Path.addOutline(outline: Outline) =
+public fun Path.addOutline(outline: Outline): Unit =
     when (outline) {
         is Outline.Rectangle -> addRect(outline.rect)
         is Outline.Rounded -> addRoundRect(outline.roundRect)
@@ -132,14 +132,14 @@ fun Path.addOutline(outline: Outline) =
  * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
  * @param blendMode: Blending algorithm to be applied to the outline
  */
-fun DrawScope.drawOutline(
+public fun DrawScope.drawOutline(
     outline: Outline,
     color: Color,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
-) =
+): Unit =
     drawOutlineHelper(
         outline,
         { rect ->
@@ -172,14 +172,14 @@ fun DrawScope.drawOutline(
  * @param colorFilter: ColorFilter to apply to the [Brush] when drawn into the destination
  * @param blendMode: Blending algorithm to be applied to the outline
  */
-fun DrawScope.drawOutline(
+public fun DrawScope.drawOutline(
     outline: Outline,
     brush: Brush,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
-) =
+): Unit =
     drawOutlineHelper(
         outline,
         { rect ->
@@ -246,7 +246,7 @@ private inline fun DrawScope.drawOutlineHelper(
  * @param outline the outline to draw.
  * @param paint the paint used for the drawing.
  */
-fun Canvas.drawOutline(outline: Outline, paint: Paint) =
+public fun Canvas.drawOutline(outline: Outline, paint: Paint): Unit =
     when (outline) {
         is Outline.Rectangle -> drawRect(outline.rect, paint)
         is Outline.Rounded -> {

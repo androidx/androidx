@@ -39,7 +39,9 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @sample androidx.compose.ui.samples.PreRotaryEventSample
  */
-fun Modifier.onRotaryScrollEvent(onRotaryScrollEvent: (RotaryScrollEvent) -> Boolean): Modifier =
+public fun Modifier.onRotaryScrollEvent(
+    onRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
+): Modifier =
     this then
         RotaryInputElement(onRotaryScrollEvent = onRotaryScrollEvent, onPreRotaryScrollEvent = null)
 
@@ -63,7 +65,7 @@ fun Modifier.onRotaryScrollEvent(onRotaryScrollEvent: (RotaryScrollEvent) -> Boo
  * @return true if the event is consumed, false otherwise.
  * @sample androidx.compose.ui.samples.PreRotaryEventSample
  */
-fun Modifier.onPreRotaryScrollEvent(
+public fun Modifier.onPreRotaryScrollEvent(
     onPreRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
 ): Modifier =
     this then

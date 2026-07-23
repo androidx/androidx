@@ -31,7 +31,7 @@ import androidx.compose.ui.platform.LocalResources
  */
 @Composable
 @ReadOnlyComposable
-fun stringResource(@StringRes id: Int): String {
+public fun stringResource(@StringRes id: Int): String {
     return LocalResources.current.getString(id)
 }
 
@@ -44,7 +44,7 @@ fun stringResource(@StringRes id: Int): String {
  */
 @Composable
 @ReadOnlyComposable
-fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
+public fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
     return LocalResources.current.getString(id, *formatArgs)
 }
 
@@ -56,7 +56,7 @@ fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
  */
 @Composable
 @ReadOnlyComposable
-fun stringArrayResource(@ArrayRes id: Int): Array<String> {
+public fun stringArrayResource(@ArrayRes id: Int): Array<String> {
     return LocalResources.current.getStringArray(id)
 }
 
@@ -69,7 +69,7 @@ fun stringArrayResource(@ArrayRes id: Int): Array<String> {
  */
 @Composable
 @ReadOnlyComposable
-fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
+public fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
     return LocalResources.current.getQuantityString(id, count)
 }
 
@@ -83,6 +83,6 @@ fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
  */
 @Composable
 @ReadOnlyComposable
-fun pluralStringResource(@PluralsRes id: Int, count: Int, vararg formatArgs: Any): String {
+public fun pluralStringResource(@PluralsRes id: Int, count: Int, vararg formatArgs: Any): String {
     return LocalResources.current.getQuantityString(id, count, *formatArgs)
 }

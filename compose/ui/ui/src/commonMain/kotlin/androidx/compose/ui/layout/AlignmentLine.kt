@@ -50,10 +50,10 @@ import kotlin.math.min
  * @see HorizontalAlignmentLine
  */
 @Immutable
-sealed class AlignmentLine(internal val merger: (Int, Int) -> Int) {
-    companion object {
+public sealed class AlignmentLine(internal val merger: (Int, Int) -> Int) {
+    public companion object {
         /** Constant representing that an [AlignmentLine] has not been provided. */
-        const val Unspecified = Int.MIN_VALUE
+        public const val Unspecified: Int = Int.MIN_VALUE
     }
 }
 
@@ -74,7 +74,7 @@ internal fun AlignmentLine.merge(position1: Int, position2: Int) = merger(positi
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
+public class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**
  * A horizontal [AlignmentLine]. Defines an horizontal offset line that can be used by parent
@@ -88,16 +88,16 @@ class VerticalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
  *
  * @param merger How to merge two alignment line values defined by different children
  */
-class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
+public class HorizontalAlignmentLine(merger: (Int, Int) -> Int) : AlignmentLine(merger)
 
 /**
  * [AlignmentLine] defined by the baseline of a first line of a
  * [androidx.compose.foundation.text.BasicText]
  */
-val FirstBaseline = HorizontalAlignmentLine(::min)
+public val FirstBaseline: HorizontalAlignmentLine = HorizontalAlignmentLine(::min)
 
 /**
  * [AlignmentLine] defined by the baseline of the last line of a
  * [androidx.compose.foundation.text.BasicText]
  */
-val LastBaseline = HorizontalAlignmentLine(::max)
+public val LastBaseline: HorizontalAlignmentLine = HorizontalAlignmentLine(::max)

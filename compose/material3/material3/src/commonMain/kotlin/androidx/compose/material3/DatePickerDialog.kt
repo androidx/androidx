@@ -48,7 +48,7 @@ import androidx.compose.ui.window.DialogProperties
  * @param content the content of the dialog (i.e. a [DatePicker], for example)
  */
 @Composable
-expect fun DatePickerDialog(
+public expect fun DatePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,

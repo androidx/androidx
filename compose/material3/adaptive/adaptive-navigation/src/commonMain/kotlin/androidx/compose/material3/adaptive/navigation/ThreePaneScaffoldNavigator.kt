@@ -68,24 +68,24 @@ import kotlin.collections.removeLast as removeLastKt
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-interface ThreePaneScaffoldNavigator<T> {
+public interface ThreePaneScaffoldNavigator<T> {
     /**
      * The current layout directives that the associated three pane scaffold needs to follow. It's
      * supposed to be automatically updated when the window configuration changes.
      */
-    val scaffoldDirective: PaneScaffoldDirective
+    public val scaffoldDirective: PaneScaffoldDirective
 
     /**
      * The current state of the associated three pane scaffold, used to query the transition between
      * layout states.
      */
-    val scaffoldState: ThreePaneScaffoldState
+    public val scaffoldState: ThreePaneScaffoldState
 
     /**
      * The current layout value of the associated three pane scaffold, which represents unique
      * layout states of the scaffold.
      */
-    val scaffoldValue: ThreePaneScaffoldValue
+    public val scaffoldValue: ThreePaneScaffoldValue
 
     /**
      * Returns the scaffold value associated with the previous destination, assuming there is a
@@ -94,7 +94,7 @@ interface ThreePaneScaffoldNavigator<T> {
      * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
      *   during the back navigation. See [BackNavigationBehavior].
      */
-    fun peekPreviousScaffoldValue(
+    public fun peekPreviousScaffoldValue(
         backNavigationBehavior: BackNavigationBehavior =
             BackNavigationBehavior.PopUntilScaffoldValueChange
     ): ThreePaneScaffoldValue
@@ -105,7 +105,7 @@ interface ThreePaneScaffoldNavigator<T> {
      * Implementors of this interface should ensure this value is updated whenever a navigation
      * operation is performed.
      */
-    val currentDestination: ThreePaneScaffoldDestinationItem<T>?
+    public val currentDestination: ThreePaneScaffoldDestinationItem<T>?
 
     /**
      * Indicates if the navigator should be aware of pane destination history when deciding the
@@ -114,7 +114,7 @@ interface ThreePaneScaffoldNavigator<T> {
      *
      * @see calculateThreePaneScaffoldValue for more detailed explanation about history awareness.
      */
-    var isDestinationHistoryAware: Boolean
+    public var isDestinationHistoryAware: Boolean
 
     /**
      * Navigates to a new destination, possibly with an animation, and suspends until the animation
@@ -128,7 +128,7 @@ interface ThreePaneScaffoldNavigator<T> {
      * @param pane the new destination pane.
      * @param contentKey the optional key or id representing the content of the new destination.
      */
-    suspend fun navigateTo(pane: ThreePaneScaffoldRole, contentKey: T? = null)
+    public suspend fun navigateTo(pane: ThreePaneScaffoldRole, contentKey: T? = null)
 
     /**
      * Returns `true` if there is a previous destination to navigate back to.
@@ -139,7 +139,7 @@ interface ThreePaneScaffoldNavigator<T> {
      * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
      *   during the back navigation. See [BackNavigationBehavior].
      */
-    fun canNavigateBack(
+    public fun canNavigateBack(
         backNavigationBehavior: BackNavigationBehavior =
             BackNavigationBehavior.PopUntilScaffoldValueChange
     ): Boolean
@@ -154,7 +154,7 @@ interface ThreePaneScaffoldNavigator<T> {
      * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
      *   during the back navigation. See [BackNavigationBehavior].
      */
-    suspend fun navigateBack(
+    public suspend fun navigateBack(
         backNavigationBehavior: BackNavigationBehavior =
             BackNavigationBehavior.PopUntilScaffoldValueChange
     ): Boolean
@@ -170,7 +170,7 @@ interface ThreePaneScaffoldNavigator<T> {
      *   during the back navigation. See [BackNavigationBehavior].
      * @param fraction the progress fraction of the transition of backwards navigation.
      */
-    suspend fun seekBack(
+    public suspend fun seekBack(
         backNavigationBehavior: BackNavigationBehavior =
             BackNavigationBehavior.PopUntilScaffoldValueChange,
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1.0f,
@@ -199,7 +199,7 @@ interface ThreePaneScaffoldNavigator<T> {
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <T> rememberListDetailPaneScaffoldNavigator(
+public fun <T> rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
@@ -233,7 +233,7 @@ fun <T> rememberListDetailPaneScaffoldNavigator(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 @Suppress("DEPRECATION") // TODO (conradchen): deprecate this and support V2 of it
-fun rememberListDetailPaneScaffoldNavigator(
+public fun rememberListDetailPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
@@ -269,7 +269,7 @@ fun rememberListDetailPaneScaffoldNavigator(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 @Suppress("DEPRECATION") // TODO (conradchen): deprecate this and support V2 of it
-fun <T> rememberSupportingPaneScaffoldNavigator(
+public fun <T> rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
@@ -302,7 +302,7 @@ fun <T> rememberSupportingPaneScaffoldNavigator(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun rememberSupportingPaneScaffoldNavigator(
+public fun rememberSupportingPaneScaffoldNavigator(
     scaffoldDirective: PaneScaffoldDirective =
         calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =

@@ -21,38 +21,39 @@ internal actual fun createPlatformTextStyle(
     paragraphStyle: PlatformParagraphStyle?,
 ): PlatformTextStyle = implementedInJetBrainsFork()
 
-actual class PlatformTextStyle {
-    actual val spanStyle: PlatformSpanStyle?
+public actual class PlatformTextStyle {
+    public actual val spanStyle: PlatformSpanStyle?
         get() = implementedInJetBrainsFork()
 
-    actual val paragraphStyle: PlatformParagraphStyle?
+    public actual val paragraphStyle: PlatformParagraphStyle?
         get() = implementedInJetBrainsFork()
 }
 
-actual class PlatformParagraphStyle {
-    actual companion object {
-        actual val Default: PlatformParagraphStyle = implementedInJetBrainsFork()
+public actual class PlatformParagraphStyle {
+    public actual companion object {
+        public actual val Default: PlatformParagraphStyle = implementedInJetBrainsFork()
     }
 
-    actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle =
+    public actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle =
         implementedInJetBrainsFork()
 }
 
-actual class PlatformSpanStyle {
-    actual companion object {
-        actual val Default: PlatformSpanStyle = implementedInJetBrainsFork()
+public actual class PlatformSpanStyle {
+    public actual companion object {
+        public actual val Default: PlatformSpanStyle = implementedInJetBrainsFork()
     }
 
-    actual fun merge(other: PlatformSpanStyle?): PlatformSpanStyle = implementedInJetBrainsFork()
+    public actual fun merge(other: PlatformSpanStyle?): PlatformSpanStyle =
+        implementedInJetBrainsFork()
 }
 
-actual fun lerp(
+public actual fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
     fraction: Float,
 ): PlatformParagraphStyle = implementedInJetBrainsFork()
 
-actual fun lerp(
+public actual fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
     fraction: Float,

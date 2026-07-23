@@ -39,7 +39,7 @@ private val DefaultCacheSize: Int = 8
  *   would miss the cache.
  */
 @Composable
-fun rememberTextMeasurer(cacheSize: Int = DefaultCacheSize): TextMeasurer {
+public fun rememberTextMeasurer(cacheSize: Int = DefaultCacheSize): TextMeasurer {
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current

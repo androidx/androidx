@@ -32,44 +32,44 @@ import kotlin.math.min
  */
 @Immutable
 @Suppress("DataClassDefinition")
-data class Rect(
+public data class Rect(
     /** The offset of the left edge of this rectangle from the x axis. */
-    @Stable val left: Float,
+    @Stable public val left: Float,
 
     /** The offset of the top edge of this rectangle from the y axis. */
-    @Stable val top: Float,
+    @Stable public val top: Float,
 
     /** The offset of the right edge of this rectangle from the x axis. */
-    @Stable val right: Float,
+    @Stable public val right: Float,
 
     /** The offset of the bottom edge of this rectangle from the y axis. */
-    @Stable val bottom: Float,
+    @Stable public val bottom: Float,
 ) {
 
-    companion object {
+    public companion object {
         /** A rectangle with left, top, right, and bottom edges all at zero. */
-        @Stable val Zero: Rect = Rect(0.0f, 0.0f, 0.0f, 0.0f)
+        @Stable public val Zero: Rect = Rect(0.0f, 0.0f, 0.0f, 0.0f)
     }
 
     /** The distance between the left and right edges of this rectangle. */
     @Stable
-    inline val width: Float
+    public inline val width: Float
         get() = right - left
 
     /** The distance between the top and bottom edges of this rectangle. */
     @Stable
-    inline val height: Float
+    public inline val height: Float
         get() = bottom - top
 
     /** The distance between the upper-left corner and the lower-right corner of this rectangle. */
     @Stable
-    val size: Size
+    public val size: Size
         get() = Size(width, height)
 
     /** Whether any of the coordinates of this rectangle are equal to positive infinity. */
     // included for consistency with Offset and Size
     @Stable
-    val isInfinite: Boolean
+    public val isInfinite: Boolean
         get() =
             (left == Float.POSITIVE_INFINITY) or
                 (top == Float.POSITIVE_INFINITY) or
@@ -78,7 +78,7 @@ data class Rect(
 
     /** Whether all coordinates of this rectangle are finite. */
     @Stable
-    val isFinite: Boolean
+    public val isFinite: Boolean
         get() =
             ((left.toRawBits() and 0x7fffffff) < FloatInfinityBase) and
                 ((top.toRawBits() and 0x7fffffff) < FloatInfinityBase) and
@@ -87,7 +87,7 @@ data class Rect(
 
     /** Whether this rectangle encloses a non-zero area. Negative areas are considered empty. */
     @Stable
-    val isEmpty: Boolean
+    public val isEmpty: Boolean
         get() = (left >= right) or (top >= bottom)
 
     /**
@@ -97,7 +97,7 @@ data class Rect(
      * [translate].
      */
     @Stable
-    fun translate(offset: Offset): Rect {
+    public fun translate(offset: Offset): Rect {
         return Rect(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
     }
 
@@ -106,18 +106,18 @@ data class Rect(
      * y components.
      */
     @Stable
-    fun translate(translateX: Float, translateY: Float): Rect {
+    public fun translate(translateX: Float, translateY: Float): Rect {
         return Rect(left + translateX, top + translateY, right + translateX, bottom + translateY)
     }
 
     /** Returns a new rectangle with edges moved outwards by the given delta. */
     @Stable
-    fun inflate(delta: Float): Rect {
+    public fun inflate(delta: Float): Rect {
         return Rect(left - delta, top - delta, right + delta, bottom + delta)
     }
 
     /** Returns a new rectangle with edges moved inwards by the given delta. */
-    @Stable fun deflate(delta: Float): Rect = inflate(-delta)
+    @Stable public fun deflate(delta: Float): Rect = inflate(-delta)
 
     /**
      * Returns a new rectangle that is the intersection of the given rectangle and this rectangle.
@@ -125,7 +125,7 @@ data class Rect(
      * overlap, then the resulting Rect will have a negative width or height.
      */
     @Stable
-    fun intersect(other: Rect): Rect {
+    public fun intersect(other: Rect): Rect {
         return Rect(
             max(left, other.left),
             max(top, other.top),
@@ -140,7 +140,12 @@ data class Rect(
      * overlap, then the resulting Rect will have a negative width or height.
      */
     @Stable
-    fun intersect(otherLeft: Float, otherTop: Float, otherRight: Float, otherBottom: Float): Rect {
+    public fun intersect(
+        otherLeft: Float,
+        otherTop: Float,
+        otherRight: Float,
+        otherBottom: Float,
+    ): Rect {
         return Rect(
             max(left, otherLeft),
             max(top, otherTop),
@@ -150,7 +155,7 @@ data class Rect(
     }
 
     /** Whether `other` has a nonzero area of overlap with this rectangle. */
-    fun overlaps(other: Rect): Boolean {
+    public fun overlaps(other: Rect): Boolean {
         return (left < other.right) and
             (other.left < right) and
             (top < other.bottom) and
@@ -158,27 +163,27 @@ data class Rect(
     }
 
     /** The lesser of the magnitudes of the [width] and the [height] of this rectangle. */
-    val minDimension: Float
+    public val minDimension: Float
         get() = min(width.absoluteValue, height.absoluteValue)
 
     /** The greater of the magnitudes of the [width] and the [height] of this rectangle. */
-    val maxDimension: Float
+    public val maxDimension: Float
         get() = max(width.absoluteValue, height.absoluteValue)
 
     /** The offset to the intersection of the top and left edges of this rectangle. */
-    val topLeft: Offset
+    public val topLeft: Offset
         get() = Offset(left, top)
 
     /** The offset to the center of the top edge of this rectangle. */
-    val topCenter: Offset
+    public val topCenter: Offset
         get() = Offset(left + width / 2.0f, top)
 
     /** The offset to the intersection of the top and right edges of this rectangle. */
-    val topRight: Offset
+    public val topRight: Offset
         get() = Offset(right, top)
 
     /** The offset to the center of the left edge of this rectangle. */
-    val centerLeft: Offset
+    public val centerLeft: Offset
         get() = Offset(left, top + height / 2.0f)
 
     /**
@@ -187,25 +192,25 @@ data class Rect(
      *
      * See also [Size.center].
      */
-    val center: Offset
+    public val center: Offset
         get() = Offset(left + width / 2.0f, top + height / 2.0f)
 
     /** The offset to the center of the right edge of this rectangle. */
-    val centerRight: Offset
+    public val centerRight: Offset
         get() = Offset(right, top + height / 2.0f)
 
     /** The offset to the intersection of the bottom and left edges of this rectangle. */
-    val bottomLeft: Offset
+    public val bottomLeft: Offset
         get() = Offset(left, bottom)
 
     /** The offset to the center of the bottom edge of this rectangle. */
-    val bottomCenter: Offset
+    public val bottomCenter: Offset
         get() {
             return Offset(left + width / 2.0f, bottom)
         }
 
     /** The offset to the intersection of the bottom and right edges of this rectangle. */
-    val bottomRight: Offset
+    public val bottomRight: Offset
         get() {
             return Offset(right, bottom)
         }
@@ -216,13 +221,13 @@ data class Rect(
      *
      * Rectangles include their top and left edges but exclude their bottom and right edges.
      */
-    operator fun contains(offset: Offset): Boolean {
+    public operator fun contains(offset: Offset): Boolean {
         val x = offset.x
         val y = offset.y
         return (x >= left) and (x < right) and (y >= top) and (y < bottom)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         "Rect.fromLTRB(" +
             "${left.toStringAsFixed(1)}, " +
             "${top.toStringAsFixed(1)}, " +
@@ -240,7 +245,7 @@ data class Rect(
  *   respectively
  */
 @Stable
-fun Rect(offset: Offset, size: Size): Rect =
+public fun Rect(offset: Offset, size: Size): Rect =
     Rect(offset.x, offset.y, offset.x + size.width, offset.y + size.height)
 
 /**
@@ -251,7 +256,7 @@ fun Rect(offset: Offset, size: Size): Rect =
  * @param bottomRight Offset representing the bottom and right edges of the rectangle
  */
 @Stable
-fun Rect(topLeft: Offset, bottomRight: Offset): Rect =
+public fun Rect(topLeft: Offset, bottomRight: Offset): Rect =
     Rect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
 
 /**
@@ -261,7 +266,7 @@ fun Rect(topLeft: Offset, bottomRight: Offset): Rect =
  * @param radius Radius of the circle to enclose
  */
 @Stable
-fun Rect(center: Offset, radius: Float): Rect =
+public fun Rect(center: Offset, radius: Float): Rect =
     Rect(center.x - radius, center.y - radius, center.x + radius, center.y + radius)
 
 /**
@@ -278,7 +283,7 @@ fun Rect(center: Offset, radius: Float): Rect =
  * `AnimationController`.
  */
 @Stable
-fun lerp(start: Rect, stop: Rect, fraction: Float): Rect =
+public fun lerp(start: Rect, stop: Rect, fraction: Float): Rect =
     Rect(
         lerp(start.left, stop.left, fraction),
         lerp(start.top, stop.top, fraction),

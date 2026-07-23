@@ -19,10 +19,10 @@ package androidx.compose.ui.test
 import kotlin.jvm.JvmInline
 
 @JvmInline
-actual value class MouseButton(val buttonId: Int) {
-    actual companion object {
-        actual val Primary: MouseButton = implementedInJetBrainsFork()
-        actual val Secondary: MouseButton = implementedInJetBrainsFork()
-        actual val Tertiary: MouseButton = implementedInJetBrainsFork()
+public actual value class MouseButton(public val buttonId: Int) {
+    public actual companion object {
+        public actual val Primary: MouseButton = implementedInJetBrainsFork()
+        public actual val Secondary: MouseButton = implementedInJetBrainsFork()
+        public actual val Tertiary: MouseButton = implementedInJetBrainsFork()
     }
 }

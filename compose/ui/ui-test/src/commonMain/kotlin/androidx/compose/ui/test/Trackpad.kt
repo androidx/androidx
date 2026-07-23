@@ -22,15 +22,15 @@ import kotlin.jvm.JvmInline
  * Representation of a trackpad button with its associated [ID][buttonId] for the current platform.
  */
 @JvmInline
-expect value class TrackpadButton(val buttonId: Int) {
-    companion object {
+public expect value class TrackpadButton(public val buttonId: Int) {
+    public companion object {
         /** The primary trackpad button. Typically the left trackpad button. */
-        val Primary: TrackpadButton
+        public val Primary: TrackpadButton
 
         /** The secondary trackpad button. Typically the right trackpad button. */
-        val Secondary: TrackpadButton
+        public val Secondary: TrackpadButton
 
         /** The tertiary trackpad button. Typically the middle trackpad button. */
-        val Tertiary: TrackpadButton
+        public val Tertiary: TrackpadButton
     }
 }

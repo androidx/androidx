@@ -40,7 +40,7 @@ import androidx.compose.runtime.setValue
  * [setContent] and useful for testing [androidx.compose.runtime.saveable.rememberSaveable]
  * integration. It is not testing the integration with any other life cycles or Activity callbacks.
  */
-class StateRestorationTester(private val composeTestRule: ComposeContentTestRule) {
+public class StateRestorationTester(private val composeTestRule: ComposeContentTestRule) {
 
     private var registry: RestorationRegistry? = null
 
@@ -50,7 +50,7 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
      *
      * @see ComposeContentTestRule.setContent
      */
-    fun setContent(composable: @Composable () -> Unit) {
+    public fun setContent(composable: @Composable () -> Unit) {
         composeTestRule.setContent {
             InjectRestorationRegistry { registry ->
                 this.registry = registry
@@ -67,7 +67,7 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
      * when the state restoration is happening. Note that the state stored via regular state() or
      * remember() will be lost.
      */
-    fun emulateSavedInstanceStateRestore() {
+    public fun emulateSavedInstanceStateRestore() {
         val registry = checkNotNull(registry) { "setContent should be called first!" }
         composeTestRule.runOnIdle { registry.saveStateAndDisposeChildren() }
         composeTestRule.runOnIdle { registry.emitChildrenWithRestoredState() }

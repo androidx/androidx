@@ -20,16 +20,16 @@ import kotlin.jvm.JvmDefaultWithCompatibility
 
 /** The info about the graphics layers used by tooling. */
 @JvmDefaultWithCompatibility
-interface GraphicLayerInfo {
+public interface GraphicLayerInfo {
     /**
      * The ID of the layer. This is used by tooling to match a layer to the associated LayoutNode.
      */
-    val layerId: Long
+    public val layerId: Long
 
     /**
      * The uniqueDrawingId of the owner view of this graphics layer. This is used by tooling to
      * match a layer to the associated owner AndroidComposeView.
      */
-    val ownerViewId: Long
+    public val ownerViewId: Long
         get() = 0
 }

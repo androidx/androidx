@@ -34,7 +34,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.trace
 
 /** Owns [SemanticsNode] objects and notifies listeners of changes to the semantics tree */
-class SemanticsOwner
+public class SemanticsOwner
 internal constructor(
     private val rootNode: LayoutNode,
     private val outerSemanticsNode: EmptySemanticsModifier,
@@ -44,12 +44,12 @@ internal constructor(
      * The root node of the semantics tree. Does not contain any unmerged data. May contain merged
      * data.
      */
-    val rootSemanticsNode: SemanticsNode
+    public val rootSemanticsNode: SemanticsNode
         get() {
             return SemanticsNode(rootNode, mergingEnabled = true)
         }
 
-    val unmergedRootSemanticsNode: SemanticsNode
+    public val unmergedRootSemanticsNode: SemanticsNode
         get() {
             return SemanticsNode(
                 outerSemanticsNode = outerSemanticsNode,
@@ -89,7 +89,7 @@ internal constructor(
  *   For example, the children of [androidx.compose.ui.layout.SubcomposeLayout] which are retained
  *   to be reused in future are considered deactivated.
  */
-fun SemanticsOwner.getAllSemanticsNodes(
+public fun SemanticsOwner.getAllSemanticsNodes(
     mergingEnabled: Boolean,
     skipDeactivatedNodes: Boolean = true,
 ): List<SemanticsNode> {
@@ -103,7 +103,7 @@ fun SemanticsOwner.getAllSemanticsNodes(
 
 @Suppress("unused")
 @Deprecated(message = "Use a new overload instead", level = DeprecationLevel.HIDDEN)
-fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean) =
+public fun SemanticsOwner.getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> =
     getAllSemanticsNodes(mergingEnabled, true)
 
 /**

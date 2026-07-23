@@ -149,7 +149,7 @@ import kotlin.math.roundToInt
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -309,7 +309,7 @@ fun OutlinedTextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -466,7 +466,7 @@ fun OutlinedTextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,

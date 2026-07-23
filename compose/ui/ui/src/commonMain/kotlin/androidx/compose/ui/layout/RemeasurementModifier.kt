@@ -24,14 +24,14 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
  * modifier is applied to.
  */
 @JvmDefaultWithCompatibility
-interface RemeasurementModifier : Modifier.Element {
+public interface RemeasurementModifier : Modifier.Element {
     /**
      * This method is executed when the modifier is attached to the layout node.
      *
      * @param remeasurement [Remeasurement] object associated with the layout node the modifier is
      *   applied to.
      */
-    fun onRemeasurementAvailable(remeasurement: Remeasurement)
+    public fun onRemeasurementAvailable(remeasurement: Remeasurement)
 }
 
 /**
@@ -39,11 +39,11 @@ interface RemeasurementModifier : Modifier.Element {
  * actions which are needed for some complex layouts. In most cases you don't need it as measuring
  * and layout should be correctly working automatically for most cases.
  */
-interface Remeasurement {
+public interface Remeasurement {
     /**
      * Performs the node remeasuring synchronously even if the node was not marked as needs
      * remeasure before. Useful for cases like when during scrolling you need to re-execute the
      * measure block to consume the scroll offset and remeasure your children in a blocking way.
      */
-    fun forceRemeasure()
+    public fun forceRemeasure()
 }

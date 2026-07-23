@@ -32,14 +32,14 @@ import kotlinx.coroutines.flow.collect
  * @see Enter
  * @see Exit
  */
-interface HoverInteraction : Interaction {
+public interface HoverInteraction : Interaction {
     /**
      * An interaction representing a hover event on a component.
      *
      * @see androidx.compose.foundation.hoverable
      * @see Exit
      */
-    class Enter : HoverInteraction
+    public class Enter : HoverInteraction
 
     /**
      * An interaction representing a [Enter] event being released on a component.
@@ -48,7 +48,7 @@ interface HoverInteraction : Interaction {
      * @see androidx.compose.foundation.hoverable
      * @see Enter
      */
-    class Exit(val enter: Enter) : HoverInteraction
+    public class Exit(public val enter: Enter) : HoverInteraction
 }
 
 /**
@@ -61,7 +61,7 @@ interface HoverInteraction : Interaction {
  * @return [State] representing whether this component is being hovered or not
  */
 @Composable
-fun InteractionSource.collectIsHoveredAsState(): State<Boolean> {
+public fun InteractionSource.collectIsHoveredAsState(): State<Boolean> {
     val isHovered = remember { mutableStateOf(false) }
     LaunchedEffect(this) {
         val hoverInteractions = mutableListOf<HoverInteraction.Enter>()

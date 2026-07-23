@@ -20,7 +20,7 @@ import androidx.compose.ui.state.ToggleableState.Off
 import androidx.compose.ui.state.ToggleableState.On
 
 /** Enum that represents possible toggleable states. */
-enum class ToggleableState {
+public enum class ToggleableState {
     /** State that means a component is on */
     On,
     /** State that means a component is off */
@@ -34,4 +34,4 @@ enum class ToggleableState {
  *
  * @param value whether the ToggleableState is on or off
  */
-fun ToggleableState(value: Boolean) = if (value) On else Off
+public fun ToggleableState(value: Boolean): ToggleableState = if (value) On else Off

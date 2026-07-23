@@ -71,7 +71,7 @@ import org.junit.rules.TestRule
             "createComposeRule(ComposeUiTestConfig(effectContext))",
     replaceWith = ReplaceWith("createComposeRule(ComposeUiTestConfig(effectContext))"),
 )
-actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
+public actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
 /**
@@ -92,7 +92,7 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule {
+public actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule {
     return createAndroidComposeRule<ComponentActivity>(config)
 }
 
@@ -120,7 +120,7 @@ actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRul
  */
 @OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION")
-actual fun createComposeRule(): ComposeContentTestRule {
+public actual fun createComposeRule(): ComposeContentTestRule {
     return if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
         // We set the timeout to INFINITE to retain the legacy behavior of not enforcing a timeout
         // for this overload. We are doing this to avoid breaking pre-existing tests with the
@@ -171,7 +171,7 @@ actual fun createComposeRule(): ComposeContentTestRule {
             "createAndroidComposeRule<Activity>(ComposeUiTestConfig(effectContext))",
     replaceWith = ReplaceWith("createAndroidComposeRule<A>(ComposeUiTestConfig(effectContext))"),
 )
-inline fun <reified A : ComponentActivity> createAndroidComposeRule(
+public inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     return createAndroidComposeRule(A::class.java, effectContext)
@@ -196,7 +196,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-inline fun <reified A : ComponentActivity> createAndroidComposeRule(
+public inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     config: ComposeUiTestConfig
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     return createAndroidComposeRule(A::class.java, config)
@@ -226,7 +226,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
  */
 @Suppress("DEPRECATION")
-inline fun <reified A : ComponentActivity> createAndroidComposeRule():
+public inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     return createAndroidComposeRule(A::class.java)
 }
@@ -272,7 +272,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     replaceWith =
         ReplaceWith("createAndroidComposeRule(activityClass, ComposeUiTestConfig(effectContext))"),
 )
-fun <A : ComponentActivity> createAndroidComposeRule(
+public fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
@@ -303,7 +303,7 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-fun <A : ComponentActivity> createAndroidComposeRule(
+public fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     config: ComposeUiTestConfig,
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
@@ -339,7 +339,7 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  */
 @OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION")
-fun <A : ComponentActivity> createAndroidComposeRule(
+public fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
     if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
@@ -390,7 +390,7 @@ fun <A : ComponentActivity> createAndroidComposeRule(
             "createEmptyComposeRule(ComposeUiTestConfig(effectContext))",
     replaceWith = ReplaceWith("createEmptyComposeRule(ComposeUiTestConfig(effectContext))"),
 )
-fun createEmptyComposeRule(
+public fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
@@ -421,7 +421,7 @@ fun createEmptyComposeRule(
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-fun createEmptyComposeRule(config: ComposeUiTestConfig): ComposeTestRule =
+public fun createEmptyComposeRule(config: ComposeUiTestConfig): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },
         config = config,
@@ -455,7 +455,7 @@ fun createEmptyComposeRule(config: ComposeUiTestConfig): ComposeTestRule =
  */
 @Suppress("DEPRECATION")
 @OptIn(ExperimentalTestApi::class)
-fun createEmptyComposeRule(): ComposeTestRule =
+public fun createEmptyComposeRule(): ComposeTestRule =
     if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
         // We set the timeout to INFINITE to retain the legacy behavior of not enforcing a timeout
         // for this overload. We are doing this to avoid breaking pre-existing tests with the
@@ -508,7 +508,7 @@ fun createEmptyComposeRule(): ComposeTestRule =
             "AndroidComposeTestRule(activityRule, ComposeUiTestConfig(effectContext), activityProvider)"
         ),
 )
-fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
+public fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
     activityRule: R,
     effectContext: CoroutineContext = EmptyCoroutineContext,
     activityProvider: (R) -> A,
@@ -542,7 +542,7 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
  *   environment-specific settings.
  * @param activityProvider Function to retrieve the Activity from the given [activityRule].
  */
-fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
+public fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
     activityRule: R,
     config: ComposeUiTestConfig,
     activityProvider: (R) -> A,
@@ -581,7 +581,7 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
  */
 @OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION")
-fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
+public fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule(
     activityRule: R,
     activityProvider: (R) -> A,
 ): AndroidComposeTestRule<R, A> {

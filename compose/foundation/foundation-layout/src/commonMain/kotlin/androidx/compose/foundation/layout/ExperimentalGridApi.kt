@@ -20,4 +20,4 @@ package androidx.compose.foundation.layout
     "This foundation layout API is experimental and is likely to change or be removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalGridApi
+public annotation class ExperimentalGridApi

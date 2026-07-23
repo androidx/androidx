@@ -68,7 +68,7 @@ import androidx.compose.ui.text.style.TextOverflow
     "Use Text or BasicText and pass an AnnotatedString that contains a LinkAnnotation. " +
         "Check LinkAnnotation's documentation for more details and samples."
 )
-fun ClickableText(
+public fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,

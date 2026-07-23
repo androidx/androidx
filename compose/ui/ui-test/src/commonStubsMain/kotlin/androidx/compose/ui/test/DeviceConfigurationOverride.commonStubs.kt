@@ -19,18 +19,18 @@ package androidx.compose.ui.test
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 
-actual fun DeviceConfigurationOverride.Companion.ForcedSize(
+public actual fun DeviceConfigurationOverride.Companion.ForcedSize(
     size: DpSize
 ): DeviceConfigurationOverride = implementedInJetBrainsFork()
 
-actual fun DeviceConfigurationOverride.Companion.FontScale(
+public actual fun DeviceConfigurationOverride.Companion.FontScale(
     fontScale: Float
 ): DeviceConfigurationOverride = implementedInJetBrainsFork()
 
-actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
+public actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
     layoutDirection: LayoutDirection
 ): DeviceConfigurationOverride = implementedInJetBrainsFork()
 
-actual fun DeviceConfigurationOverride.Companion.WindowSize(
+public actual fun DeviceConfigurationOverride.Companion.WindowSize(
     size: DpSize
 ): DeviceConfigurationOverride = implementedInJetBrainsFork()

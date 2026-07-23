@@ -40,7 +40,7 @@ import kotlinx.coroutines.coroutineScope
  * @see androidx.compose.foundation.gestures.scrollable
  */
 @JvmDefaultWithCompatibility
-interface ScrollableState {
+public interface ScrollableState {
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
@@ -50,7 +50,7 @@ interface ScrollableState {
      * If [scroll] is called from elsewhere with the [scrollPriority] higher or equal to ongoing
      * scroll, ongoing scroll will be canceled.
      */
-    suspend fun scroll(
+    public suspend fun scroll(
         scrollPriority: MutatePriority = MutatePriority.Default,
         block: suspend ScrollScope.() -> Unit,
     )
@@ -70,13 +70,13 @@ interface ScrollableState {
      * @param delta amount of scroll dispatched in the nested scroll process
      * @return the amount of delta consumed
      */
-    fun dispatchRawDelta(delta: Float): Float
+    public fun dispatchRawDelta(delta: Float): Float
 
     /**
      * Whether this [ScrollableState] is currently scrolling by gesture, fling or programmatically
      * or not.
      */
-    val isScrollInProgress: Boolean
+    public val isScrollInProgress: Boolean
 
     /**
      * Whether this [ScrollableState] can scroll forward (consume a positive delta). This is
@@ -89,7 +89,7 @@ interface ScrollableState {
      *
      * @sample androidx.compose.foundation.samples.CanScrollSample
      */
-    val canScrollForward: Boolean
+    public val canScrollForward: Boolean
         get() = true
 
     /**
@@ -103,7 +103,7 @@ interface ScrollableState {
      *
      * @sample androidx.compose.foundation.samples.CanScrollSample
      */
-    val canScrollBackward: Boolean
+    public val canScrollBackward: Boolean
         get() = true
 
     /**
@@ -112,7 +112,7 @@ interface ScrollableState {
      * - This [ScrollableState] was scrolling forward in its last scroll action.
      */
     @get:Suppress("GetterSetterNames")
-    val lastScrolledForward: Boolean
+    public val lastScrolledForward: Boolean
         get() = false
 
     /**
@@ -121,7 +121,7 @@ interface ScrollableState {
      * - This [ScrollableState] was scrolling backward in its last scroll action.
      */
     @get:Suppress("GetterSetterNames")
-    val lastScrolledBackward: Boolean
+    public val lastScrolledBackward: Boolean
         get() = false
 
     /**
@@ -130,7 +130,7 @@ interface ScrollableState {
      * This property may be `null` if scroll indicators are not applicable or if the underlying
      * scrollable component does not support or provide this state.
      */
-    val scrollIndicatorState: ScrollIndicatorState?
+    public val scrollIndicatorState: ScrollIndicatorState?
         get() = null
 }
 
@@ -148,7 +148,7 @@ interface ScrollableState {
  *   receives the delta in pixels. Callers should update their state in this lambda and return the
  *   amount of delta consumed
  */
-fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
+public fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
     return DefaultScrollableState(consumeScrollDelta)
 }
 
@@ -167,19 +167,19 @@ fun ScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
  *   amount of delta consumed
  */
 @Composable
-fun rememberScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
+public fun rememberScrollableState(consumeScrollDelta: (Float) -> Float): ScrollableState {
     val lambdaState = rememberUpdatedState(consumeScrollDelta)
     return remember { ScrollableState { lambdaState.value.invoke(it) } }
 }
 
 /** Scope used for suspending scroll blocks */
-interface ScrollScope {
+public interface ScrollScope {
     /**
      * Attempts to scroll forward by [pixels] px.
      *
      * @return the amount of the requested scroll that was consumed (that is, how far it scrolled)
      */
-    fun scrollBy(pixels: Float): Float
+    public fun scrollBy(pixels: Float): Float
 }
 
 private class DefaultScrollableState(val onDelta: (Float) -> Float) : ScrollableState {

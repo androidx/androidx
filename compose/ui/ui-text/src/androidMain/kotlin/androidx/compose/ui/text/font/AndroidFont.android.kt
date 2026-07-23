@@ -41,7 +41,7 @@ import java.io.File
  *   the font is loaded
  */
 @Stable
-fun Font(
+public fun Font(
     path: String,
     assetManager: AssetManager,
     weight: FontWeight = FontWeight.Normal,
@@ -62,7 +62,7 @@ fun Font(
  */
 @Stable
 @Suppress("StreamFiles")
-fun Font(
+public fun Font(
     file: File,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
@@ -82,7 +82,7 @@ fun Font(
  */
 @RequiresApi(26)
 @Stable
-fun Font(
+public fun Font(
     fileDescriptor: ParcelFileDescriptor,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
@@ -124,10 +124,10 @@ fun Font(
  *   several fonts
  * @param variationSettings the settings that will be applied to this font, if supported by the font
  */
-abstract class AndroidFont
-constructor(
-    final override val loadingStrategy: FontLoadingStrategy,
-    val typefaceLoader: TypefaceLoader,
+public abstract class AndroidFont
+public constructor(
+    public final override val loadingStrategy: FontLoadingStrategy,
+    public val typefaceLoader: TypefaceLoader,
     variationSettings: FontVariation.Settings,
 ) : Font {
 
@@ -135,7 +135,7 @@ constructor(
         "Replaced with fontVariation constructor",
         ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())"),
     )
-    constructor(
+    public constructor(
         loadingStrategy: FontLoadingStrategy,
         typefaceLoader: TypefaceLoader,
     ) : this(loadingStrategy, typefaceLoader, FontVariation.Settings())
@@ -151,7 +151,7 @@ constructor(
      * Subclasses may safely apply all variation settings without querying the font file. Android
      * will ignore any unsupported axis.
      */
-    final override val variationSettings: FontVariation.Settings = variationSettings
+    public final override val variationSettings: FontVariation.Settings = variationSettings
 
     /**
      * Loader for loading an [AndroidFont] and producing an [android.graphics.Typeface].
@@ -178,7 +178,7 @@ constructor(
      * subclass and share them between [AndroidFont] instances to avoid allocations or allow
      * caching.
      */
-    interface TypefaceLoader {
+    public interface TypefaceLoader {
         /**
          * Immediately load the font in a blocking manner such that it will be available this frame.
          *
@@ -198,7 +198,7 @@ constructor(
          * @param font the font to load which contains this loader as [AndroidFont.typefaceLoader]
          * @return [android.graphics.Typeface] for loaded font, or null if the font fails to load
          */
-        fun loadBlocking(context: Context, font: AndroidFont): Typeface?
+        public fun loadBlocking(context: Context, font: AndroidFont): Typeface?
 
         /**
          * Asynchronously load the font, from either local or remote sources such that it will cause
@@ -224,7 +224,7 @@ constructor(
          * @param font the font to load which contains this loader as [AndroidFont.typefaceLoader]
          * @return [android.graphics.Typeface] for loaded font, or null if not available
          */
-        suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface?
+        public suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface?
     }
 }
 

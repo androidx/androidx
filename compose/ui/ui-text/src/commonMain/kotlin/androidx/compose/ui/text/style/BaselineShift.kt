@@ -30,26 +30,26 @@ import androidx.compose.ui.util.lerp
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class BaselineShift(val multiplier: Float) {
-    companion object {
+public value class BaselineShift(public val multiplier: Float) {
+    public companion object {
         /** Default baseline shift for superscript. */
         @Stable
-        val Superscript
+        public val Superscript: BaselineShift
             get() = BaselineShift(0.5f)
 
         /** Default baseline shift for subscript */
         @Stable
-        val Subscript
+        public val Subscript: BaselineShift
             get() = BaselineShift(-0.5f)
 
         /** Constant for no baseline shift. */
         @Stable
-        val None
+        public val None: BaselineShift
             get() = BaselineShift(0.0f)
 
         /** Represents an unset [BaselineShift] value. */
         @Stable
-        val Unspecified
+        public val Unspecified: BaselineShift
             get() = BaselineShift(Float.NaN)
     }
 }
@@ -59,7 +59,7 @@ value class BaselineShift(val multiplier: Float) {
  *
  * @see BaselineShift.Unspecified
  */
-inline val BaselineShift.isSpecified: Boolean
+public inline val BaselineShift.isSpecified: Boolean
     get() = !multiplier.isNaN()
 
 /**
@@ -73,12 +73,12 @@ internal inline val BaselineShift.isApplicable: Boolean
  * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
  * returned.
  */
-inline fun BaselineShift.takeOrElse(block: () -> BaselineShift): BaselineShift {
+public inline fun BaselineShift.takeOrElse(block: () -> BaselineShift): BaselineShift {
     return if (multiplier.isNaN()) block() else this
 }
 
 /** Linearly interpolate two [BaselineShift]s. */
 @Stable
-fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
+public fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
     return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
 }

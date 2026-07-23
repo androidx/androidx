@@ -30,6 +30,7 @@ import androidx.compose.material3.internal.childSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
@@ -96,7 +97,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 @NonRestartableComposable
-fun Surface(
+public fun Surface(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     color: Color = MaterialTheme.colorScheme.surface,
@@ -198,7 +199,7 @@ fun Surface(
  */
 @Composable
 @NonRestartableComposable
-fun Surface(
+public fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -331,7 +332,7 @@ fun Surface(
  */
 @Composable
 @NonRestartableComposable
-fun Surface(
+public fun Surface(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -466,7 +467,7 @@ fun Surface(
  */
 @Composable
 @NonRestartableComposable
-fun Surface(
+public fun Surface(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -616,4 +617,4 @@ private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color =
  * calculating surface tonal colors, and is *not* used for drawing the shadow in a [Surface].
  */
 // TODO(b/179787782): Add sample after catalog app lands in aosp.
-val LocalAbsoluteTonalElevation = compositionLocalOf { 0.dp }
+public val LocalAbsoluteTonalElevation: ProvidableCompositionLocal<Dp> = compositionLocalOf { 0.dp }

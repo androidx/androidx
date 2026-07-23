@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.input
 
 /** Defines an interactable undo history. */
-class UndoState internal constructor(private val state: TextFieldState) {
+public class UndoState internal constructor(private val state: TextFieldState) {
 
     /**
      * Whether it is possible to execute a meaningful undo action right now. If this value is false,
@@ -25,7 +25,7 @@ class UndoState internal constructor(private val state: TextFieldState) {
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    val canUndo: Boolean
+    public val canUndo: Boolean
         get() = state.textUndoManager.canUndo
 
     /**
@@ -34,24 +34,24 @@ class UndoState internal constructor(private val state: TextFieldState) {
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    val canRedo: Boolean
+    public val canRedo: Boolean
         get() = state.textUndoManager.canRedo
 
     /**
      * Reverts the latest edit action or a group of actions that are merged together. Calling it
      * repeatedly can continue undoing the previous actions.
      */
-    fun undo() {
+    public fun undo() {
         state.textUndoManager.undo(state)
     }
 
     /** Re-applies a change that was previously reverted via [undo]. */
-    fun redo() {
+    public fun redo() {
         state.textUndoManager.redo(state)
     }
 
     /** Clears all undo and redo history up to this point. */
-    fun clearHistory() {
+    public fun clearHistory() {
         state.textUndoManager.clearHistory()
     }
 }

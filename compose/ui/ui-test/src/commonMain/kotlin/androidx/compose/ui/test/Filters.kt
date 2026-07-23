@@ -34,7 +34,7 @@ import kotlin.js.JsName
  *
  * @see SemanticsProperties.Disabled
  */
-fun isEnabled(): SemanticsMatcher =
+public fun isEnabled(): SemanticsMatcher =
     SemanticsMatcher("is enabled") { SemanticsProperties.Disabled !in it.config }
 
 /**
@@ -42,7 +42,7 @@ fun isEnabled(): SemanticsMatcher =
  *
  * @see SemanticsProperties.Disabled
  */
-fun isNotEnabled(): SemanticsMatcher =
+public fun isNotEnabled(): SemanticsMatcher =
     SemanticsMatcher("is not enabled") { SemanticsProperties.Disabled in it.config }
 
 /**
@@ -50,14 +50,14 @@ fun isNotEnabled(): SemanticsMatcher =
  *
  * @see SemanticsProperties.ToggleableState
  */
-fun isToggleable(): SemanticsMatcher = hasKey(SemanticsProperties.ToggleableState)
+public fun isToggleable(): SemanticsMatcher = hasKey(SemanticsProperties.ToggleableState)
 
 /**
  * Returns whether the node is toggled.
  *
  * @see SemanticsProperties.ToggleableState
  */
-fun isOn(): SemanticsMatcher =
+public fun isOn(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.ToggleableState, ToggleableState.On)
 
 /**
@@ -65,7 +65,7 @@ fun isOn(): SemanticsMatcher =
  *
  * @see SemanticsProperties.ToggleableState
  */
-fun isOff(): SemanticsMatcher =
+public fun isOff(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.ToggleableState, ToggleableState.Off)
 
 /**
@@ -73,14 +73,14 @@ fun isOff(): SemanticsMatcher =
  *
  * @see SemanticsProperties.Selected
  */
-fun isSelectable(): SemanticsMatcher = hasKey(SemanticsProperties.Selected)
+public fun isSelectable(): SemanticsMatcher = hasKey(SemanticsProperties.Selected)
 
 /**
  * Returns whether the node is selected.
  *
  * @see SemanticsProperties.Selected
  */
-fun isSelected(): SemanticsMatcher =
+public fun isSelected(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Selected, true)
 
 /**
@@ -88,7 +88,7 @@ fun isSelected(): SemanticsMatcher =
  *
  * @see SemanticsProperties.Selected
  */
-fun isNotSelected(): SemanticsMatcher =
+public fun isNotSelected(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Selected, false)
 
 /**
@@ -96,28 +96,30 @@ fun isNotSelected(): SemanticsMatcher =
  *
  * @see SemanticsProperties.Focused
  */
-fun isFocusable(): SemanticsMatcher = hasKey(SemanticsProperties.Focused)
+public fun isFocusable(): SemanticsMatcher = hasKey(SemanticsProperties.Focused)
 
 /**
  * Return whether the node is not able to receive focus.
  *
  * @see SemanticsProperties.Focused
  */
-fun isNotFocusable(): SemanticsMatcher = SemanticsMatcher.keyNotDefined(SemanticsProperties.Focused)
+public fun isNotFocusable(): SemanticsMatcher =
+    SemanticsMatcher.keyNotDefined(SemanticsProperties.Focused)
 
 /**
  * Returns whether the node is focused.
  *
  * @see SemanticsProperties.Focused
  */
-fun isFocused(): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Focused, true)
+public fun isFocused(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Focused, true)
 
 /**
  * Returns whether the node is not focused.
  *
  * @see SemanticsProperties.Focused
  */
-fun isNotFocused(): SemanticsMatcher =
+public fun isNotFocused(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Focused, false)
 
 /**
@@ -125,28 +127,29 @@ fun isNotFocused(): SemanticsMatcher =
  *
  * @see SemanticsActions.OnClick
  */
-fun hasClickAction(): SemanticsMatcher = hasKey(SemanticsActions.OnClick)
+public fun hasClickAction(): SemanticsMatcher = hasKey(SemanticsActions.OnClick)
 
 /**
  * Return whether the node has no semantics click action defined.
  *
  * @see SemanticsActions.OnClick
  */
-fun hasNoClickAction(): SemanticsMatcher = SemanticsMatcher.keyNotDefined(SemanticsActions.OnClick)
+public fun hasNoClickAction(): SemanticsMatcher =
+    SemanticsMatcher.keyNotDefined(SemanticsActions.OnClick)
 
 /**
  * Return whether the node has a semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollBy
  */
-fun hasScrollAction(): SemanticsMatcher = hasKey(SemanticsActions.ScrollBy)
+public fun hasScrollAction(): SemanticsMatcher = hasKey(SemanticsActions.ScrollBy)
 
 /**
  * Return whether the node has no semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollBy
  */
-fun hasNoScrollAction(): SemanticsMatcher =
+public fun hasNoScrollAction(): SemanticsMatcher =
     SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollBy)
 
 /**
@@ -161,7 +164,7 @@ fun hasNoScrollAction(): SemanticsMatcher =
  * @param ignoreCase Whether case should be ignored.
  * @see SemanticsProperties.ContentDescription
  */
-fun hasContentDescription(
+public fun hasContentDescription(
     value: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -197,7 +200,7 @@ fun hasContentDescription(
  * @param values List of values to match (the order does not matter)
  * @see SemanticsProperties.ContentDescription
  */
-fun hasContentDescriptionExactly(vararg values: String): SemanticsMatcher {
+public fun hasContentDescriptionExactly(vararg values: String): SemanticsMatcher {
     val expected = values.toList()
     return SemanticsMatcher(
         "${SemanticsProperties.ContentDescription.name} = " + "[${values.joinToString(",")}]"
@@ -225,7 +228,7 @@ fun hasContentDescriptionExactly(vararg values: String): SemanticsMatcher {
  * @see SemanticsProperties.Text
  * @see SemanticsProperties.EditableText
  */
-fun hasText(
+public fun hasText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -274,7 +277,7 @@ fun hasText(
     message = "Replaced by hasTextExactly that includes the includeInputText parameter",
     level = DeprecationLevel.HIDDEN,
 )
-fun hasTextExactly(
+public fun hasTextExactly(
     vararg textValues: String,
     includeEditableText: Boolean = true,
 ): SemanticsMatcher {
@@ -314,7 +317,7 @@ fun hasTextExactly(
  * @see SemanticsProperties.EditableText
  * @see SemanticsProperties.InputText
  */
-fun hasTextExactly(
+public fun hasTextExactly(
     vararg textValues: String,
     includeEditableText: Boolean = true,
     includeInputText: Boolean = false,
@@ -344,7 +347,7 @@ fun hasTextExactly(
  * @param value Value to match.
  * @see SemanticsProperties.StateDescription
  */
-fun hasStateDescription(value: String): SemanticsMatcher =
+public fun hasStateDescription(value: String): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, value)
 
 /**
@@ -352,7 +355,7 @@ fun hasStateDescription(value: String): SemanticsMatcher =
  *
  * @see SemanticsProperties.Heading
  */
-fun isHeading(): SemanticsMatcher = hasKey(SemanticsProperties.Heading)
+public fun isHeading(): SemanticsMatcher = hasKey(SemanticsProperties.Heading)
 
 /**
  * Returns whether the node's range info matches exactly to the given accessibility range info.
@@ -360,7 +363,7 @@ fun isHeading(): SemanticsMatcher = hasKey(SemanticsProperties.Heading)
  * @param rangeInfo range info to match.
  * @see SemanticsProperties.ProgressBarRangeInfo
  */
-fun hasProgressBarRangeInfo(rangeInfo: ProgressBarRangeInfo): SemanticsMatcher =
+public fun hasProgressBarRangeInfo(rangeInfo: ProgressBarRangeInfo): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo, rangeInfo)
 
 /**
@@ -369,7 +372,7 @@ fun hasProgressBarRangeInfo(rangeInfo: ProgressBarRangeInfo): SemanticsMatcher =
  * @param testTag Value to match.
  * @see SemanticsProperties.TestTag
  */
-fun hasTestTag(testTag: String): SemanticsMatcher =
+public fun hasTestTag(testTag: String): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.TestTag, testTag)
 
 /**
@@ -380,7 +383,7 @@ fun hasTestTag(testTag: String): SemanticsMatcher =
  *
  * @see SemanticsProperties.IsDialog
  */
-fun isDialog(): SemanticsMatcher = hasKey(SemanticsProperties.IsDialog)
+public fun isDialog(): SemanticsMatcher = hasKey(SemanticsProperties.IsDialog)
 
 /**
  * Returns whether the node is a popup.
@@ -390,7 +393,7 @@ fun isDialog(): SemanticsMatcher = hasKey(SemanticsProperties.IsDialog)
  *
  * @see SemanticsProperties.IsPopup
  */
-fun isPopup(): SemanticsMatcher = hasKey(SemanticsProperties.IsPopup)
+public fun isPopup(): SemanticsMatcher = hasKey(SemanticsProperties.IsPopup)
 
 /**
  * Returns whether the node is hidden from accessibility.
@@ -400,7 +403,7 @@ fun isPopup(): SemanticsMatcher = hasKey(SemanticsProperties.IsPopup)
  *
  * @see SemanticsProperties.HideFromAccessibility
  */
-fun isHiddenFromAccessibility(): SemanticsMatcher =
+public fun isHiddenFromAccessibility(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility)
 
 /**
@@ -408,7 +411,7 @@ fun isHiddenFromAccessibility(): SemanticsMatcher =
  *
  * @param actionType the action to match.
  */
-fun hasImeAction(actionType: ImeAction) =
+public fun hasImeAction(actionType: ImeAction): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.ImeAction, actionType)
 
 /**
@@ -418,7 +421,7 @@ fun hasImeAction(actionType: ImeAction) =
  *
  * @see SemanticsActions.SetText
  */
-fun hasSetTextAction() = hasKey(SemanticsActions.SetText)
+public fun hasSetTextAction(): SemanticsMatcher = hasKey(SemanticsActions.SetText)
 
 /**
  * Returns whether the node defines a semantics action to insert text on it.
@@ -427,7 +430,8 @@ fun hasSetTextAction() = hasKey(SemanticsActions.SetText)
  *
  * @see SemanticsActions.InsertTextAtCursor
  */
-fun hasInsertTextAtCursorAction() = hasKey(SemanticsActions.InsertTextAtCursor)
+public fun hasInsertTextAtCursorAction(): SemanticsMatcher =
+    hasKey(SemanticsActions.InsertTextAtCursor)
 
 /**
  * Returns whether the node defines a semantics action to perform the
@@ -435,14 +439,14 @@ fun hasInsertTextAtCursorAction() = hasKey(SemanticsActions.InsertTextAtCursor)
  *
  * @see SemanticsActions.OnImeAction
  */
-fun hasPerformImeAction() = hasKey(SemanticsActions.OnImeAction)
+public fun hasPerformImeAction(): SemanticsMatcher = hasKey(SemanticsActions.OnImeAction)
 
 /**
  * Returns whether the node defines a semantics action to request focus.
  *
  * @see SemanticsActions.RequestFocus
  */
-fun hasRequestFocusAction() = hasKey(SemanticsActions.RequestFocus)
+public fun hasRequestFocusAction(): SemanticsMatcher = hasKey(SemanticsActions.RequestFocus)
 
 /**
  * Returns whether the node defines the ability to scroll to an item index.
@@ -451,18 +455,18 @@ fun hasRequestFocusAction() = hasKey(SemanticsActions.RequestFocus)
  * [scrollable][androidx.compose.foundation.gestures.scrollable] doesn't have items with an index,
  * while [LazyColumn][androidx.compose.foundation.lazy.LazyColumn] does.
  */
-fun hasScrollToIndexAction() = hasKey(SemanticsActions.ScrollToIndex)
+public fun hasScrollToIndexAction(): SemanticsMatcher = hasKey(SemanticsActions.ScrollToIndex)
 
 /**
  * Returns whether the node defines the ability to scroll to an item identified by a key, such as
  * [LazyColumn][androidx.compose.foundation.lazy.LazyColumn] or
  * [LazyRow][androidx.compose.foundation.lazy.LazyRow].
  */
-fun hasScrollToKeyAction() =
+public fun hasScrollToKeyAction(): SemanticsMatcher =
     hasKey(SemanticsActions.ScrollToIndex).and(hasKey(SemanticsProperties.IndexForKey))
 
 /** Returns whether the node defines the ability to scroll to content identified by a matcher. */
-fun hasScrollToNodeAction() =
+public fun hasScrollToNodeAction(): SemanticsMatcher =
     hasKey(SemanticsActions.ScrollToIndex)
         .and(hasKey(SemanticsActions.ScrollBy))
         .and(
@@ -475,21 +479,22 @@ fun hasScrollToNodeAction() =
  *
  * @see SemanticsProperties.IsEditable
  */
-fun isEditable() = SemanticsMatcher.expectValue(SemanticsProperties.IsEditable, true)
+public fun isEditable(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.IsEditable, true)
 
 /**
  * Return whether the node is the root semantics node.
  *
  * There is always one root in every node tree, added implicitly by Compose.
  */
-fun isRoot() = SemanticsMatcher("isRoot") { it.isRoot }
+public fun isRoot(): SemanticsMatcher = SemanticsMatcher("isRoot") { it.isRoot }
 
 /**
  * Returns whether the node's parent satisfies the given matcher.
  *
  * Returns false if no parent exists.
  */
-fun hasParent(matcher: SemanticsMatcher): SemanticsMatcher {
+public fun hasParent(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the parent's node semantics
     //  in the error message or say that no parent was found.
     return SemanticsMatcher("hasParentThat(${matcher.description})") {
@@ -498,7 +503,7 @@ fun hasParent(matcher: SemanticsMatcher): SemanticsMatcher {
 }
 
 /** Returns whether the node has at least one child that satisfies the given matcher. */
-fun hasAnyChild(matcher: SemanticsMatcher): SemanticsMatcher {
+public fun hasAnyChild(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the children nodes semantics
     //  in the error message or say that no children were found.
     return SemanticsMatcher("hasAnyChildThat(${matcher.description})") {
@@ -511,7 +516,7 @@ fun hasAnyChild(matcher: SemanticsMatcher): SemanticsMatcher {
  *
  * Sibling is defined as a any other node that shares the same parent.
  */
-fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
+public fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
     //  in the error message or say that no siblings were found.
     return SemanticsMatcher("hasAnySiblingThat(${matcher.description})") {
@@ -536,7 +541,7 @@ fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
  *
  * In case of C1, we would check the matcher against A and B
  */
-fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
+public fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the ancestor nodes semantics
     //  in the error message or say that no ancestors were found.
     return SemanticsMatcher("hasAnyAncestorThat(${matcher.description})") {
@@ -559,7 +564,7 @@ fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
  *
  * In case of A, we would check the matcher against B,C1 and C2
  */
-fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {
+public fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
     //  it might be too much to show. But we could at least warn if there were no descendants found.
     return SemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {

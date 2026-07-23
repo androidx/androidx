@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.LayoutDirection
  *   the platform default, which is smaller than the screen width.
  */
 @Immutable
-expect class PopupProperties {
-    constructor(
+public expect class PopupProperties {
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -52,23 +52,23 @@ expect class PopupProperties {
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
         clippingEnabled: Boolean = true,
     )
 
-    val focusable: Boolean
-    val dismissOnBackPress: Boolean
-    val dismissOnClickOutside: Boolean
-    val clippingEnabled: Boolean
-    val usePlatformDefaultWidth: Boolean
+    public val focusable: Boolean
+    public val dismissOnBackPress: Boolean
+    public val dismissOnClickOutside: Boolean
+    public val clippingEnabled: Boolean
+    public val usePlatformDefaultWidth: Boolean
 }
 
 /** Calculates the position of a [Popup] on screen. */
 @Immutable
-interface PopupPositionProvider {
+public interface PopupPositionProvider {
     /**
      * Calculates the position of a [Popup] on screen.
      *
@@ -83,7 +83,7 @@ interface PopupPositionProvider {
      * @param popupContentSize The size of the popup's content.
      * @return The window relative position where the popup should be positioned.
      */
-    fun calculatePosition(
+    public fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
@@ -135,7 +135,7 @@ internal class AlignmentOffsetPositionProvider(val alignment: Alignment, val off
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-expect fun Popup(
+public expect fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntOffset = IntOffset(0, 0),
     onDismissRequest: (() -> Unit)? = null,
@@ -155,7 +155,7 @@ expect fun Popup(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-expect fun Popup(
+public expect fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)? = null,
     properties: PopupProperties = PopupProperties(),

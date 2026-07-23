@@ -35,4 +35,4 @@ import androidx.compose.runtime.ComposableTargetMarker
     AnnotationTarget.TYPE,
     AnnotationTarget.TYPE_PARAMETER,
 )
-annotation class VectorComposable()
+public annotation class VectorComposable()

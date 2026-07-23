@@ -31,13 +31,13 @@ import androidx.compose.runtime.Stable
  * @see MultiLine
  */
 @Stable
-sealed interface TextFieldLineLimits {
+public sealed interface TextFieldLineLimits {
 
     /**
      * The text field is always a single line tall, ignores newlines in the text, and scrolls
      * horizontally when the text overflows.
      */
-    object SingleLine : TextFieldLineLimits {
+    public object SingleLine : TextFieldLineLimits {
 
         override fun toString(): String {
             return "TextFieldLineLimits.SingleLine"
@@ -55,8 +55,10 @@ sealed interface TextFieldLineLimits {
      * the [heightIn] modifier.
      */
     @Immutable
-    class MultiLine(val minHeightInLines: Int = 1, val maxHeightInLines: Int = Int.MAX_VALUE) :
-        TextFieldLineLimits {
+    public class MultiLine(
+        public val minHeightInLines: Int = 1,
+        public val maxHeightInLines: Int = Int.MAX_VALUE,
+    ) : TextFieldLineLimits {
         init {
             requirePrecondition(minHeightInLines in 1..maxHeightInLines) {
                 "Expected 1 ≤ minHeightInLines ≤ maxHeightInLines, were " +
@@ -84,7 +86,7 @@ sealed interface TextFieldLineLimits {
         }
     }
 
-    companion object {
-        val Default: TextFieldLineLimits = MultiLine()
+    public companion object {
+        public val Default: TextFieldLineLimits = MultiLine()
     }
 }

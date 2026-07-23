@@ -34,7 +34,7 @@ import androidx.compose.ui.semantics.generateSemanticsId
         semantics properties instead.
         """
 )
-interface Autofill {
+public interface Autofill {
 
     /**
      * Request autofill for the specified node.
@@ -43,7 +43,7 @@ interface Autofill {
      *
      * This function is usually called when an autofill-able component gains focus.
      */
-    fun requestAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode)
+    public fun requestAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode)
 
     /**
      * Cancel a previously supplied autofill request.
@@ -52,7 +52,7 @@ interface Autofill {
      *
      * This function is usually called when an autofill-able component loses focus.
      */
-    fun cancelAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode)
+    public fun cancelAutofillForNode(autofillNode: @Suppress("Deprecation") AutofillNode)
 }
 
 /**
@@ -77,14 +77,14 @@ interface Autofill {
         androidx.compose.ui.autofill.ContentDataType instead.
         """
 )
-class AutofillNode(
-    val autofillTypes: List<@Suppress("Deprecation") AutofillType> = listOf(),
-    var boundingBox: Rect? = null,
-    val onFill: ((String) -> Unit)?,
+public class AutofillNode(
+    public val autofillTypes: List<@Suppress("Deprecation") AutofillType> = listOf(),
+    public var boundingBox: Rect? = null,
+    public val onFill: ((String) -> Unit)?,
 ) {
-    val id: Int = generateSemanticsId()
+    public val id: Int = generateSemanticsId()
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is @Suppress("Deprecation") AutofillNode) return false
 
@@ -95,7 +95,7 @@ class AutofillNode(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = autofillTypes.hashCode()
         result = 31 * result + (boundingBox?.hashCode() ?: 0)
         result = 31 * result + (onFill?.hashCode() ?: 0)

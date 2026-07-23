@@ -48,4 +48,4 @@ package androidx.compose.foundation.layout
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalLayoutApi object ComposeFoundationLayoutFlags {}
+@ExperimentalLayoutApi public object ComposeFoundationLayoutFlags {}

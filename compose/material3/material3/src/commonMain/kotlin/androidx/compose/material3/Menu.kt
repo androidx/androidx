@@ -160,7 +160,7 @@ import kotlin.math.min
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
-expect fun DropdownMenu(
+public expect fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -203,7 +203,7 @@ expect fun DropdownMenu(
  * @param content the content of this dropdown menu.
  */
 @Composable
-fun DropdownMenuPopup(
+public fun DropdownMenuPopup(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -268,7 +268,7 @@ fun DropdownMenuPopup(
  * @param content the content of this menu group, typically [DropdownMenuItem]s.
  */
 @Composable
-fun DropdownMenuGroup(
+public fun DropdownMenuGroup(
     shapes: MenuGroupShapes,
     modifier: Modifier = Modifier,
     containerColor: Color = MenuDefaults.groupStandardContainerColor,
@@ -332,7 +332,7 @@ fun DropdownMenuGroup(
  *   interactions will still happen internally.
  */
 @Composable
-expect fun DropdownMenuItem(
+public expect fun DropdownMenuItem(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -377,7 +377,7 @@ expect fun DropdownMenuItem(
  */
 @JvmName("DropdownMenuItemNew")
 @Composable
-fun DropdownMenuItem(
+public fun DropdownMenuItem(
     onClick: () -> Unit,
     text: @Composable () -> Unit,
     shape: Shape,
@@ -439,7 +439,7 @@ fun DropdownMenuItem(
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("DropdownMenuItem")
 @Composable
-fun DropdownMenuItemLegacy(
+public fun DropdownMenuItemLegacy(
     onClick: () -> Unit,
     text: @Composable () -> Unit,
     shape: Shape,
@@ -512,7 +512,7 @@ fun DropdownMenuItemLegacy(
  */
 @JvmName("DropdownMenuItemChecked")
 @Composable
-fun DropdownMenuItem(
+public fun DropdownMenuItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     text: @Composable () -> Unit,
@@ -583,7 +583,7 @@ fun DropdownMenuItem(
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("DropdownMenuItem")
 @Composable
-fun DropdownMenuItemLegacy(
+public fun DropdownMenuItemLegacy(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     text: @Composable () -> Unit,
@@ -660,7 +660,7 @@ fun DropdownMenuItemLegacy(
  */
 @JvmName("DropdownMenuItemSelected")
 @Composable
-fun DropdownMenuItem(
+public fun DropdownMenuItem(
     selected: Boolean,
     onClick: () -> Unit,
     text: @Composable () -> Unit,
@@ -731,7 +731,7 @@ fun DropdownMenuItem(
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("DropdownMenuItem")
 @Composable
-fun DropdownMenuItemLegacy(
+public fun DropdownMenuItemLegacy(
     selected: Boolean,
     onClick: () -> Unit,
     text: @Composable () -> Unit,
@@ -784,42 +784,42 @@ fun DropdownMenuItemLegacy(
  *   default colors used in a [DropdownMenuItem].
  */
 @Immutable
-class MenuItemColors(
-    val textColor: Color,
-    val leadingIconColor: Color,
+public class MenuItemColors(
+    public val textColor: Color,
+    public val leadingIconColor: Color,
     @Deprecated("Use trailingContentColor instead.", ReplaceWith("trailingContentColor"))
-    val trailingIconColor: Color,
-    val disabledTextColor: Color,
-    val disabledLeadingIconColor: Color,
+    public val trailingIconColor: Color,
+    public val disabledTextColor: Color,
+    public val disabledLeadingIconColor: Color,
     @Deprecated(
         "Use disabledTrailingContentColor instead.",
         ReplaceWith("disabledTrailingContentColor"),
     )
-    val disabledTrailingIconColor: Color,
+    public val disabledTrailingIconColor: Color,
 ) {
 
     /** The container color of this menu item when enabled and unselected. */
-    var containerColor: Color = Color.Unspecified
+    public var containerColor: Color = Color.Unspecified
         internal set
 
     /** The container color of this menu item when not enabled */
-    var disabledContainerColor: Color = Color.Unspecified
+    public var disabledContainerColor: Color = Color.Unspecified
         internal set
 
     /** The container color of this menu item when enabled and selected. */
-    var selectedContainerColor: Color = Color.Unspecified
+    public var selectedContainerColor: Color = Color.Unspecified
         internal set
 
     /** The text color of this menu item when enabled and selected. */
-    var selectedTextColor: Color = Color.Unspecified
+    public var selectedTextColor: Color = Color.Unspecified
         internal set
 
     /** The leading icon color of this menu item when enabled and selected. */
-    var selectedLeadingIconColor: Color = Color.Unspecified
+    public var selectedLeadingIconColor: Color = Color.Unspecified
         internal set
 
     /** The trailing content color of this menu item when enabled and selected. */
-    var selectedTrailingContentColor: Color = Color.Unspecified
+    public var selectedTrailingContentColor: Color = Color.Unspecified
         internal set
 
     /** The trailing icon color of this menu item when enabled and selected. */
@@ -828,19 +828,19 @@ class MenuItemColors(
         ReplaceWith("selectedTrailingContentColor"),
         level = DeprecationLevel.HIDDEN,
     )
-    val selectedTrailingIconColor: Color
+    public val selectedTrailingIconColor: Color
         get() = selectedTrailingContentColor
 
     /** The trailing content color of this menu item when enabled and unselected. */
-    val trailingContentColor: Color
+    public val trailingContentColor: Color
         @Suppress("DEPRECATION") get() = trailingIconColor
 
     /** The trailing content color of this menu item when not enabled. */
-    val disabledTrailingContentColor: Color
+    public val disabledTrailingContentColor: Color
         @Suppress("DEPRECATION") get() = disabledTrailingIconColor
 
     // Secondary constructor to initialize all 12 properties
-    constructor(
+    public constructor(
         textColor: Color,
         leadingIconColor: Color,
         trailingIconColor: Color,
@@ -875,14 +875,14 @@ class MenuItemColors(
      */
     @JvmName("copy-tNS2XkQ")
     @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    fun copyLegacy(
+    public fun copyLegacy(
         textColor: Color = this.textColor,
         leadingIconColor: Color = this.leadingIconColor,
         trailingIconColor: Color = this.trailingContentColor,
         disabledTextColor: Color = this.disabledTextColor,
         disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
         disabledTrailingIconColor: Color = this.disabledTrailingContentColor,
-    ) =
+    ): MenuItemColors =
         copy(
             textColor = textColor,
             leadingIconColor = leadingIconColor,
@@ -897,7 +897,7 @@ class MenuItemColors(
      * the Color.Unspecified to mean “use the value from the source”
      */
     @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    fun copyLegacy(
+    public fun copyLegacy(
         textColor: Color = this.textColor,
         containerColor: Color = this.containerColor,
         leadingIconColor: Color = this.leadingIconColor,
@@ -910,7 +910,7 @@ class MenuItemColors(
         selectedContainerColor: Color = this.selectedContainerColor,
         selectedLeadingIconColor: Color = this.selectedLeadingIconColor,
         selectedTrailingIconColor: Color = this.selectedTrailingContentColor,
-    ) =
+    ): MenuItemColors =
         MenuItemColors(
             textColor.takeOrElse { this.textColor },
             leadingIconColor.takeOrElse { this.leadingIconColor },
@@ -931,7 +931,7 @@ class MenuItemColors(
      * the Color.Unspecified to mean “use the value from the source”
      */
     @JvmName("copyNew")
-    fun copy(
+    public fun copy(
         textColor: Color = this.textColor,
         containerColor: Color = this.containerColor,
         leadingIconColor: Color = this.leadingIconColor,
@@ -944,7 +944,7 @@ class MenuItemColors(
         selectedContainerColor: Color = this.selectedContainerColor,
         selectedLeadingIconColor: Color = this.selectedLeadingIconColor,
         selectedTrailingContentColor: Color = this.selectedTrailingContentColor,
-    ) =
+    ): MenuItemColors =
         MenuItemColors(
             textColor = textColor.takeOrElse { this.textColor },
             leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
@@ -971,14 +971,14 @@ class MenuItemColors(
      * the Color.Unspecified to mean “use the value from the source”
      */
     @JvmName("copyNew")
-    fun copy(
+    public fun copy(
         textColor: Color = this.textColor,
         leadingIconColor: Color = this.leadingIconColor,
         trailingContentColor: Color = this.trailingContentColor,
         disabledTextColor: Color = this.disabledTextColor,
         disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
         disabledTrailingContentColor: Color = this.disabledTrailingContentColor,
-    ) =
+    ): MenuItemColors =
         MenuItemColors(
             textColor = textColor,
             leadingIconColor = leadingIconColor,
@@ -1115,9 +1115,12 @@ class MenuItemColors(
  * @param selectedShape the [Shape] to use when the item is selected.
  */
 @Immutable
-class MenuItemShapes(val shape: Shape, val selectedShape: Shape) {
+public class MenuItemShapes(public val shape: Shape, public val selectedShape: Shape) {
     /** Returns a copy of this MenuItemShapes, optionally overriding some of the values. */
-    fun copy(shape: Shape? = this.shape, selectedShape: Shape? = this.selectedShape) =
+    public fun copy(
+        shape: Shape? = this.shape,
+        selectedShape: Shape? = this.selectedShape,
+    ): MenuItemShapes =
         MenuItemShapes(
             shape = shape.takeOrElse { this.shape },
             selectedShape = selectedShape.takeOrElse { this.selectedShape },
@@ -1147,9 +1150,12 @@ class MenuItemShapes(val shape: Shape, val selectedShape: Shape) {
  * @param inactiveShape the [Shape] to use when the group has stop being hovered.
  */
 @Immutable
-class MenuGroupShapes(val shape: Shape, val inactiveShape: Shape) {
+public class MenuGroupShapes(public val shape: Shape, public val inactiveShape: Shape) {
     /** Returns a copy of this MenuGroupShapes, optionally overriding some of the values. */
-    fun copy(shape: Shape? = this.shape, inactiveShape: Shape? = this.inactiveShape) =
+    public fun copy(
+        shape: Shape? = this.shape,
+        inactiveShape: Shape? = this.inactiveShape,
+    ): MenuGroupShapes =
         MenuGroupShapes(
             shape = shape.takeOrElse { this.shape },
             inactiveShape = inactiveShape.takeOrElse { this.inactiveShape },
@@ -1176,15 +1182,15 @@ class MenuGroupShapes(val shape: Shape, val inactiveShape: Shape) {
  * Provides context for calculating candidate menu positioning coordinates relative to window
  * bounds.
  */
-interface MenuPositionScope {
+public interface MenuPositionScope {
     /** The bounds of the anchor relative to window layout bounds. */
-    val anchorBounds: IntRect
+    public val anchorBounds: IntRect
     /** The overall size of the hosting window. */
-    val windowSize: IntSize
+    public val windowSize: IntSize
     /** The calculated dimensions of the menu popup. */
-    val menuSize: IntSize
+    public val menuSize: IntSize
     /** The current active layout direction (LTR or RTL). */
-    val layoutDirection: LayoutDirection
+    public val layoutDirection: LayoutDirection
 }
 
 internal class MenuPositionScopeImpl(
@@ -1201,19 +1207,19 @@ internal class MenuPositionScopeImpl(
  * [End], [Left], [Right]) or providing a [Custom] implementation for complex positioning logic.
  */
 @Immutable
-class MenuAnchorPosition
+public class MenuAnchorPosition
 private constructor(
     internal val xCandidates: MenuPositionScope.() -> IntList,
     internal val yCandidates: MenuPositionScope.() -> IntList,
 ) {
-    companion object {
+    public companion object {
         /**
          * Position the menu above its anchor.
          *
          * The menu's bottom edge is aligned with the anchor's top edge by default. If there is
          * insufficient space, alternative positions (such as below the anchor) will be attempted.
          */
-        val Above =
+        public val Above: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1257,7 +1263,7 @@ private constructor(
          * The menu's top edge is aligned with the anchor's bottom edge by default. If there is
          * insufficient space, alternative positions (such as above the anchor) will be attempted.
          */
-        val Below =
+        public val Below: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1300,7 +1306,7 @@ private constructor(
          *
          * This strategy positions the menu on the left side regardless of the layout direction.
          */
-        val Left =
+        public val Left: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1342,7 +1348,7 @@ private constructor(
          *
          * This strategy positions the menu on the right side regardless of the layout direction.
          */
-        val Right =
+        public val Right: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1385,7 +1391,7 @@ private constructor(
          * In LTR layouts, this positions the menu on the left side of the anchor. In RTL layouts,
          * this positions the menu on the right side of the anchor.
          */
-        val Start =
+        public val Start: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1428,7 +1434,7 @@ private constructor(
          * In LTR layouts, this positions the menu on the right side of the anchor. In RTL layouts,
          * this positions the menu on the left side of the anchor.
          */
-        val End =
+        public val End: MenuAnchorPosition =
             MenuAnchorPosition(
                 xCandidates = {
                     MenuPosition.xValuesFromCandidates(
@@ -1475,10 +1481,10 @@ private constructor(
          * @param yCandidates Lambda that determines the list of candidate y coordinates for the
          *   menu relative to the window bounds.
          */
-        fun Custom(
+        public fun Custom(
             xCandidates: MenuPositionScope.() -> IntList,
             yCandidates: MenuPositionScope.() -> IntList,
-        ) = MenuAnchorPosition(xCandidates, yCandidates)
+        ): MenuAnchorPosition = MenuAnchorPosition(xCandidates, yCandidates)
     }
 }
 
@@ -1486,14 +1492,14 @@ private constructor(
  * [PopupPositionProvider] that communicates the [TransformOrigin] to dropdown menu's
  * implementation.
  */
-interface DropdownMenuPopupPositionProvider : PopupPositionProvider {
+public interface DropdownMenuPopupPositionProvider : PopupPositionProvider {
     /**
      * The calculated [TransformOrigin] of the dropdown menu popup relative to its anchor.
      *
      * This origin is used to animate (e.g. scale) the menu from the correct point relative to where
      * the menu is positioned.
      */
-    val transformOrigin: TransformOrigin
+    public val transformOrigin: TransformOrigin
 }
 
 /**

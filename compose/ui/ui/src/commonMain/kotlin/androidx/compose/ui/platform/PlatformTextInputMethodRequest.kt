@@ -20,4 +20,4 @@ package androidx.compose.ui.platform
  * Represents a request to open a platform-specific text input session via
  * `PlatformTextInputModifierNode.textInputSession`.
  */
-expect interface PlatformTextInputMethodRequest
+public expect interface PlatformTextInputMethodRequest

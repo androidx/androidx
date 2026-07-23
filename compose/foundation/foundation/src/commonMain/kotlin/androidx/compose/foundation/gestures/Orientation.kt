@@ -20,7 +20,7 @@ package androidx.compose.foundation.gestures
  * Class to define possible directions in which common gesture modifiers like [draggable] and
  * [scrollable] can drag.
  */
-enum class Orientation {
+public enum class Orientation {
     /** Vertical orientation representing Y axis */
     Vertical,
 

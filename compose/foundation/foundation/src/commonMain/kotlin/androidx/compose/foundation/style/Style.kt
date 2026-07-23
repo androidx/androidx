@@ -27,8 +27,8 @@ package androidx.compose.foundation.style
  * @see Style
  */
 @ExperimentalFoundationStyleApi
-fun interface CustomStyle<ScopeT : CustomStyleScope> {
-    fun ScopeT.applyStyle()
+public fun interface CustomStyle<ScopeT : CustomStyleScope> {
+    public fun ScopeT.applyStyle()
 }
 
 /**
@@ -57,9 +57,9 @@ fun interface CustomStyle<ScopeT : CustomStyleScope> {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-fun interface Style : CustomStyle<StyleScope> {
-    companion object : Style {
-        @Suppress("MissingJvmstatic") override fun StyleScope.applyStyle() {}
+public fun interface Style : CustomStyle<StyleScope> {
+    public companion object : Style {
+        @Suppress("MissingJvmstatic") public override fun StyleScope.applyStyle() {}
     }
 }
 
@@ -69,14 +69,15 @@ fun interface Style : CustomStyle<StyleScope> {
  *
  * @param other the style to merge into the receiver.
  */
-@ExperimentalFoundationStyleApi infix fun Style.then(other: Style): Style = Style(this, other)
+@ExperimentalFoundationStyleApi
+public infix fun Style.then(other: Style): Style = Style(this, other)
 
 /**
  * Combine multiple Style objects together. Styles whose argument positions are further "to the
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
-fun Style(style1: Style, style2: Style): Style =
+public fun Style(style1: Style, style2: Style): Style =
     when {
         style1 === Style -> style2
         style2 === Style -> style1
@@ -91,7 +92,7 @@ fun Style(style1: Style, style2: Style): Style =
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
-fun Style(style1: Style, style2: Style, style3: Style): Style =
+public fun Style(style1: Style, style2: Style, style3: Style): Style =
     when {
         style1 === Style -> Style(style2, style3)
         style2 === Style -> Style(style1, style3)
@@ -115,7 +116,7 @@ fun Style(style1: Style, style2: Style, style3: Style): Style =
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
-fun Style(vararg styles: Style): Style =
+public fun Style(vararg styles: Style): Style =
     if (styles.fastAny { it === Style }) {
         val count = styles.fastCount { it !== Style }
         when (count) {

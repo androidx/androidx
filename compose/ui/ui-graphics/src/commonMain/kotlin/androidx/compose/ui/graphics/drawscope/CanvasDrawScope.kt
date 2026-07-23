@@ -49,9 +49,9 @@ import androidx.compose.ui.unit.LayoutDirection
  * Implementation of [DrawScope] that issues drawing commands into the specified canvas and bounds
  * via [CanvasDrawScope.draw]
  */
-class CanvasDrawScope : DrawScope {
+public class CanvasDrawScope : DrawScope {
 
-    @PublishedApi internal val drawParams = DrawParams()
+    @PublishedApi internal val drawParams: DrawParams = DrawParams()
 
     override val layoutDirection: LayoutDirection
         get() = drawParams.layoutDirection
@@ -62,7 +62,7 @@ class CanvasDrawScope : DrawScope {
     override val fontScale: Float
         get() = drawParams.density.fontScale
 
-    override val drawContext =
+    override val drawContext: DrawContext =
         object : DrawContext {
             override var canvas: Canvas
                 get() = drawParams.canvas
@@ -118,7 +118,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawLine(
             start,
             end,
@@ -146,7 +146,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawLine(
             start,
             end,
@@ -172,7 +172,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
@@ -190,7 +190,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawRect(
             left = topLeft.x,
             top = topLeft.y,
@@ -207,7 +207,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawImage(
             image,
             topLeft,
@@ -236,7 +236,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawImageRect(
             image,
             srcOffset,
@@ -258,7 +258,7 @@ class CanvasDrawScope : DrawScope {
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
         filterQuality: FilterQuality,
-    ) =
+    ): Unit =
         drawParams.canvas.drawImageRect(
             image,
             srcOffset,
@@ -278,7 +278,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawRoundRect(
             topLeft.x,
             topLeft.y,
@@ -299,7 +299,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawRoundRect(
             topLeft.x,
             topLeft.y,
@@ -319,7 +319,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawCircle(
             center,
             radius,
@@ -335,7 +335,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawCircle(
             center,
             radius,
@@ -351,7 +351,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
@@ -369,7 +369,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawOval(
             left = topLeft.x,
             top = topLeft.y,
@@ -390,7 +390,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawArc(
             left = topLeft.x,
             top = topLeft.y,
@@ -414,7 +414,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawArc(
             left = topLeft.x,
             top = topLeft.y,
@@ -434,7 +434,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawPath(
             path,
             configurePaint(color, style, alpha, colorFilter, blendMode),
@@ -448,7 +448,7 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawPath(
             path,
             configurePaint(brush, style, alpha, colorFilter, blendMode),
@@ -465,7 +465,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawPoints(
             pointMode,
             points,
@@ -493,7 +493,7 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
-    ) =
+    ): Unit =
         drawParams.canvas.drawPoints(
             pointMode,
             points,
@@ -522,7 +522,7 @@ class CanvasDrawScope : DrawScope {
      *   draw within
      * @param block lambda that is called to issue drawing commands on this [DrawScope]
      */
-    inline fun draw(
+    public inline fun draw(
         density: Density,
         layoutDirection: LayoutDirection,
         canvas: Canvas,

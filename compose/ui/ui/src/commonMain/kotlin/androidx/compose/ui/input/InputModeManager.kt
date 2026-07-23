@@ -24,9 +24,9 @@ import androidx.compose.runtime.setValue
  * The [InputModeManager] is accessible as a CompositionLocal, that provides the current
  * [InputMode].
  */
-interface InputModeManager {
+public interface InputModeManager {
     /** The current [InputMode]. */
-    val inputMode: InputMode
+    public val inputMode: InputMode
 
     /**
      * Send a request to change the [InputMode].
@@ -38,26 +38,26 @@ interface InputModeManager {
      * @param inputMode The requested [InputMode].
      * @return true if the system is in the requested mode, after processing this request.
      */
-    fun requestInputMode(inputMode: InputMode): Boolean
+    public fun requestInputMode(inputMode: InputMode): Boolean
 }
 
 /** This value is used to represent the InputMode that the system is currently in. */
 @kotlin.jvm.JvmInline
-value class InputMode internal constructor(@Suppress("unused") private val value: Int) {
-    override fun toString() =
+public value class InputMode internal constructor(@Suppress("unused") private val value: Int) {
+    public override fun toString(): String =
         when (this) {
             Touch -> "Touch"
             Keyboard -> "Keyboard"
             else -> "Error"
         }
 
-    companion object {
+    public companion object {
         /** The system is put into [Touch] mode when a user touches the screen. */
-        val Touch
+        public val Touch: InputMode
             get() = InputMode(1)
 
         /** The system is put into [Keyboard] mode when a user presses a hardware key. */
-        val Keyboard
+        public val Keyboard: InputMode
             get() = InputMode(2)
     }
 }

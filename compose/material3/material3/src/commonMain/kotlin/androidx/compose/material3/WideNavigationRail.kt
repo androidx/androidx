@@ -157,7 +157,7 @@ import kotlinx.coroutines.launch
  * @param content the content of this wide navigation rail, typically [WideNavigationRailItem]s
  */
 @Composable
-fun WideNavigationRail(
+public fun WideNavigationRail(
     modifier: Modifier = Modifier,
     state: WideNavigationRailState = rememberWideNavigationRailState(),
     shape: Shape = WideNavigationRailDefaults.shape,
@@ -446,7 +446,7 @@ private fun WideNavigationRailLayout(
  * @param content the content of this modal wide navigation rail, usually [WideNavigationRailItem]s
  */
 @Composable
-fun ModalWideNavigationRail(
+public fun ModalWideNavigationRail(
     modifier: Modifier = Modifier,
     state: WideNavigationRailState = rememberWideNavigationRailState(),
     hideOnCollapse: Boolean = false,
@@ -648,7 +648,7 @@ fun ModalWideNavigationRail(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun ModalWideNavigationRail(
+public fun ModalWideNavigationRail(
     modifier: Modifier = Modifier,
     state: WideNavigationRailState = rememberWideNavigationRailState(),
     hideOnCollapse: Boolean = false,
@@ -718,7 +718,7 @@ fun ModalWideNavigationRail(
  *   [WideNavigationRailItemDefaults.indicatorPadding] to correctly handle animations.
  */
 @Composable
-fun WideNavigationRailItem(
+public fun WideNavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -797,7 +797,7 @@ fun WideNavigationRailItem(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun WideNavigationRailItem(
+public fun WideNavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -809,7 +809,7 @@ fun WideNavigationRailItem(
         WideNavigationRailItemDefaults.iconPositionFor(railExpanded),
     colors: NavigationItemColors = WideNavigationRailItemDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
-) =
+): Unit =
     WideNavigationRailItem(
         selected,
         onClick,
@@ -841,26 +841,26 @@ fun WideNavigationRailItem(
  *   [LocalContentColor]
  */
 @Immutable
-class WideNavigationRailColors
+public class WideNavigationRailColors
 constructor(
-    val containerColor: Color,
-    val contentColor: Color,
-    val modalContainerColor: Color,
-    val modalScrimColor: Color,
-    val modalContentColor: Color,
+    public val containerColor: Color,
+    public val contentColor: Color,
+    public val modalContainerColor: Color,
+    public val modalScrimColor: Color,
+    public val modalContentColor: Color,
 ) {
 
     /**
      * Returns a copy of this NavigationRailColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”.
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         contentColor: Color = this.contentColor,
         modalContainerColor: Color = this.modalContainerColor,
         modalScrimColor: Color = this.modalScrimColor,
         modalContentColor: Color = this.modalContentColor,
-    ) =
+    ): WideNavigationRailColors =
         WideNavigationRailColors(
             containerColor = containerColor.takeOrElse { this.containerColor },
             contentColor = contentColor.takeOrElse { this.contentColor },
@@ -869,7 +869,7 @@ constructor(
             modalContentColor = modalContentColor.takeOrElse { this.modalContentColor },
         )
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is WideNavigationRailColors) return false
 
@@ -881,7 +881,7 @@ constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = containerColor.hashCode()
         result = 31 * result + contentColor.hashCode()
         result = 31 * result + modalContainerColor.hashCode()
@@ -893,17 +893,17 @@ constructor(
 }
 
 /** Defaults used in [WideNavigationRail]. */
-object WideNavigationRailDefaults {
+public object WideNavigationRailDefaults {
     /** Default container shape of a wide navigation rail. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = NavigationRailCollapsedTokens.ContainerShape.value
 
     /** Default arrangement for a wide navigation rail. */
-    val arrangement: Arrangement.Vertical
+    public val arrangement: Arrangement.Vertical
         get() = Arrangement.Top
 
     /** Default window insets for a wide navigation rail. */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -911,22 +911,24 @@ object WideNavigationRailDefaults {
             )
 
     /** Default container shape of a collapsed [ModalWideNavigationRail]. */
-    val modalCollapsedShape: Shape
+    public val modalCollapsedShape: Shape
         @Composable get() = shape
 
     /** Default container shape of a expanded [ModalWideNavigationRail]. */
-    val modalExpandedShape: Shape
+    public val modalExpandedShape: Shape
         @Composable get() = NavigationRailExpandedTokens.ModalContainerShape.value
 
     /** Properties used to customize the window behavior of a [ModalWideNavigationRail]. */
-    val ModalExpandedProperties: ModalWideNavigationRailProperties =
+    public val ModalExpandedProperties: ModalWideNavigationRailProperties =
         createDefaultModalWideNavigationRailProperties()
 
     /**
      * Creates a [WideNavigationRailColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultWideWideNavigationRailColors
+    @Composable
+    public fun colors(): WideNavigationRailColors =
+        MaterialTheme.colorScheme.defaultWideWideNavigationRailColors
 
     /**
      * Creates a [WideNavigationRailColors] with the provided colors according to the Material
@@ -944,7 +946,7 @@ object WideNavigationRailDefaults {
      *   [LocalContentColor] if [modalContainerColor] is not a color from the theme
      */
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = WideNavigationRailDefaults.containerColor,
         contentColor: Color = contentColorFor(containerColor),
         modalContainerColor: Color = NavigationRailExpandedTokens.ModalContainerColor.value,
@@ -961,7 +963,7 @@ object WideNavigationRailDefaults {
         )
 
     /** The default content padding used for [WideNavigationRail] and [ModalWideNavigationRail]. */
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(
             start = 0.dp,
             top = WNRVerticalPadding,
@@ -992,7 +994,7 @@ object WideNavigationRailDefaults {
 }
 
 /** Defaults used in [WideNavigationRailItem]. */
-object WideNavigationRailItemDefaults {
+public object WideNavigationRailItemDefaults {
 
     /**
      * The default indicator padding of a [WideNavigationRailItem].
@@ -1004,7 +1006,7 @@ object WideNavigationRailItemDefaults {
      * @param railExpanded whether the associated [WideNavigationRail] is expanded or collapsed
      */
     @Composable
-    fun indicatorPadding(
+    public fun indicatorPadding(
         railExpanded: Boolean,
         collapsedPadding: PaddingValues = IndicatorCollapsedPadding,
         expandedPadding: PaddingValues = IndicatorExpandedPadding,
@@ -1017,14 +1019,16 @@ object WideNavigationRailItemDefaults {
      * The default icon position of a [WideNavigationRailItem] given whether the associated
      * [WideNavigationRail] is collapsed or expanded.
      */
-    fun iconPositionFor(railExpanded: Boolean) =
+    public fun iconPositionFor(railExpanded: Boolean): NavigationItemIconPosition =
         if (railExpanded) NavigationItemIconPosition.Start else NavigationItemIconPosition.Top
 
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultWideNavigationRailItemColors
+    @Composable
+    public fun colors(): NavigationItemColors =
+        MaterialTheme.colorScheme.defaultWideNavigationRailItemColors
 
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
@@ -1040,7 +1044,7 @@ object WideNavigationRailItemDefaults {
      * @return the resulting [NavigationItemColors] used for [WideNavigationRailItem]
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = NavigationRailColorTokens.ItemActiveIcon.value,
         selectedTextColor: Color = NavigationRailColorTokens.ItemActiveLabelText.value,
         selectedIndicatorColor: Color = NavigationRailColorTokens.ItemActiveIndicator.value,
@@ -1062,7 +1066,7 @@ object WideNavigationRailItemDefaults {
     /**
      * The default padding to be applied when the associated [WideNavigationRailItem] is collapsed.
      */
-    val IndicatorCollapsedPadding =
+    public val IndicatorCollapsedPadding: PaddingValues =
         PaddingValues(
             horizontal = ItemTopIconIndicatorHorizontalPadding,
             vertical = ItemTopIconIndicatorVerticalPadding,
@@ -1071,7 +1075,7 @@ object WideNavigationRailItemDefaults {
     /**
      * The default padding to be applied when the associated [WideNavigationRailItem] is expanded.
      */
-    val IndicatorExpandedPadding =
+    public val IndicatorExpandedPadding: PaddingValues =
         PaddingValues(
             horizontal = NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
             vertical = ItemStartIconIndicatorVerticalPadding,
@@ -1110,8 +1114,8 @@ internal expect fun createDefaultModalWideNavigationRailProperties():
  *   the back button. If true, pressing the back button will call onDismissRequest.
  */
 @Immutable
-expect class ModalWideNavigationRailProperties(shouldDismissOnBackPress: Boolean = true) {
-    val shouldDismissOnBackPress: Boolean
+public expect class ModalWideNavigationRailProperties(shouldDismissOnBackPress: Boolean = true) {
+    public val shouldDismissOnBackPress: Boolean
 }
 
 @Composable

@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -87,7 +88,7 @@ import androidx.compose.ui.unit.dp
  */
 @ExperimentalMaterialApi
 @Composable
-fun Chip(
+public fun Chip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -179,7 +180,7 @@ fun Chip(
  */
 @ExperimentalMaterialApi
 @Composable
-fun FilterChip(
+public fun FilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -291,13 +292,13 @@ fun FilterChip(
  */
 @Stable
 @ExperimentalMaterialApi
-interface ChipColors {
+public interface ChipColors {
     /**
      * Represents the background color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable fun backgroundColor(enabled: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the content color for this chip, depending on [enabled], see
@@ -305,14 +306,14 @@ interface ChipColors {
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable fun contentColor(enabled: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the leading icon's content color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable fun leadingIconContentColor(enabled: Boolean): State<Color>
+    @Composable public fun leadingIconContentColor(enabled: Boolean): State<Color>
 }
 
 // TODO(b/182821022): Add links choice and input chip colors.
@@ -323,14 +324,14 @@ interface ChipColors {
  * [ChipDefaults.outlinedFilterChipColors] for the default colors used in a outlined [FilterChip].
  */
 @ExperimentalMaterialApi
-interface SelectableChipColors {
+public interface SelectableChipColors {
     /**
      * Represents the background color for this chip, depending on [enabled] and [selected].
      *
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable fun backgroundColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
      * Represents the content color for this chip, depending on [enabled] and [selected].
@@ -338,7 +339,7 @@ interface SelectableChipColors {
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable fun contentColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
      * Represents the leading icon color for this chip, depending on [enabled] and [selected].
@@ -346,17 +347,17 @@ interface SelectableChipColors {
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable fun leadingIconColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun leadingIconColor(enabled: Boolean, selected: Boolean): State<Color>
 }
 
 /** Contains the baseline values used by chips. */
 @ExperimentalMaterialApi
-object ChipDefaults {
+public object ChipDefaults {
     /**
      * The min height applied for a chip. Note that you can override it by applying Modifier.height
      * directly on a chip.
      */
-    val MinHeight = 32.dp
+    public val MinHeight: Dp = 32.dp
 
     /**
      * Creates a [ChipColors] that represents the default background and content colors used in a
@@ -371,7 +372,7 @@ object ChipDefaults {
      * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled
      */
     @Composable
-    fun chipColors(
+    public fun chipColors(
         backgroundColor: Color =
             MaterialTheme.colors.onSurface
                 .copy(alpha = SurfaceOverlayOpacity)
@@ -410,7 +411,7 @@ object ChipDefaults {
      * @para leadingIconContentColor the color of this chip's start icon when enabled
      */
     @Composable
-    fun outlinedChipColors(
+    public fun outlinedChipColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentOpacity),
         leadingIconContentColor: Color = contentColor.copy(alpha = LeadingIconOpacity),
@@ -444,7 +445,7 @@ object ChipDefaults {
      * @param selectedLeadingIconColor the color of this chip's start icon when selected
      */
     @Composable
-    fun filterChipColors(
+    public fun filterChipColors(
         backgroundColor: Color =
             MaterialTheme.colors.onSurface
                 .copy(alpha = SurfaceOverlayOpacity)
@@ -499,7 +500,7 @@ object ChipDefaults {
      * @param selectedLeadingIconColor the color of this chip's start icon when selected
      */
     @Composable
-    fun outlinedFilterChipColors(
+    public fun outlinedFilterChipColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.onSurface.copy(ContentOpacity),
         leadingIconColor: Color = contentColor.copy(LeadingIconOpacity),
@@ -534,7 +535,7 @@ object ChipDefaults {
         )
 
     /** The border used by all types of outlined chips */
-    val outlinedBorder: BorderStroke
+    public val outlinedBorder: BorderStroke
         @Composable
         get() =
             BorderStroke(
@@ -543,22 +544,22 @@ object ChipDefaults {
             )
 
     /** The color opacity used for chip's leading icon color */
-    const val LeadingIconOpacity = 0.54f
+    public const val LeadingIconOpacity: Float = 0.54f
 
     /** The color opacity used for chip's content color */
-    const val ContentOpacity = 0.87f
+    public const val ContentOpacity: Float = 0.87f
 
     /** The color opacity used for the outlined chip's border color */
-    const val OutlinedBorderOpacity = 0.12f
+    public const val OutlinedBorderOpacity: Float = 0.12f
 
     /** The outlined chip's border size */
-    val OutlinedBorderSize = 1.dp
+    public val OutlinedBorderSize: Dp = 1.dp
 
     /** The size of a chip's leading icon */
-    val LeadingIconSize = 20.dp
+    public val LeadingIconSize: Dp = 20.dp
 
     /** The size of a standalone selected icon */
-    val SelectedIconSize = 18.dp
+    public val SelectedIconSize: Dp = 18.dp
 }
 
 /** Default [ChipColors] implementation. */

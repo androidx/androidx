@@ -105,7 +105,7 @@ import kotlin.math.roundToInt
  * @param content The carousel's content Composable
  */
 @Composable
-fun HorizontalMultiBrowseCarousel(
+public fun HorizontalMultiBrowseCarousel(
     state: CarouselState,
     preferredItemWidth: Dp,
     modifier: Modifier = Modifier,
@@ -176,7 +176,7 @@ fun HorizontalMultiBrowseCarousel(
  * @param content The carousel's content Composable
  */
 @Composable
-fun HorizontalUncontainedCarousel(
+public fun HorizontalUncontainedCarousel(
     state: CarouselState,
     itemWidth: Dp,
     modifier: Modifier = Modifier,
@@ -237,7 +237,7 @@ fun HorizontalUncontainedCarousel(
  * @param content The carousel's content Composable
  */
 @Composable
-fun HorizontalCenteredHeroCarousel(
+public fun HorizontalCenteredHeroCarousel(
     state: CarouselState,
     modifier: Modifier = Modifier,
     maxItemWidth: Dp = Dp.Unspecified,
@@ -698,7 +698,7 @@ private fun getProgress(before: Keyline, after: Keyline, unadjustedOffset: Float
 }
 
 /** Contains the default values used by [Carousel]. */
-object CarouselDefaults {
+public object CarouselDefaults {
 
     /**
      * A [TargetedFlingBehavior] that limits a fling to one item at a time. [snapAnimationSpec] can
@@ -712,7 +712,7 @@ object CarouselDefaults {
      *   [snapAnimationSpec] to approach the snapped position
      */
     @Composable
-    fun singleAdvanceFlingBehavior(
+    public fun singleAdvanceFlingBehavior(
         state: CarouselState,
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     ): TargetedFlingBehavior {
@@ -744,7 +744,7 @@ object CarouselDefaults {
      *   snapped position
      */
     @Composable
-    fun multiBrowseFlingBehavior(
+    public fun multiBrowseFlingBehavior(
         state: CarouselState,
         decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
@@ -777,7 +777,7 @@ object CarouselDefaults {
      *   velocity and does not snap to anything post-fling.
      */
     @Composable
-    fun noSnapFlingBehavior(): TargetedFlingBehavior {
+    public fun noSnapFlingBehavior(): TargetedFlingBehavior {
         val decayLayoutInfoProvider = remember {
             object : SnapLayoutInfoProvider {
                 override fun calculateSnapOffset(velocity: Float): Float = 0f
@@ -788,10 +788,10 @@ object CarouselDefaults {
     }
 
     /** The minimum size that a carousel strategy can choose its small items to be. * */
-    val MinSmallItemSize = 40.dp
+    public val MinSmallItemSize: Dp = 40.dp
 
     /** The maximum size that a carousel strategy can choose its small items to be. * */
-    val MaxSmallItemSize = 56.dp
+    public val MaxSmallItemSize: Dp = 56.dp
 
     internal val AnchorSize = 10.dp
     internal const val MediumLargeItemDiffThreshold = 0.85f

@@ -182,7 +182,7 @@ import kotlinx.coroutines.launch
  *   behavior.
  */
 @Composable
-fun DatePicker(
+public fun DatePicker(
     state: DatePickerState,
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() },
@@ -258,7 +258,7 @@ fun DatePicker(
  * [rememberDatePickerState].
  */
 @Stable
-interface DatePickerState {
+public interface DatePickerState {
 
     /**
      * A timestamp that represents the selected date _start_ of the day in _UTC_ milliseconds from
@@ -267,7 +267,7 @@ interface DatePickerState {
      * @throws IllegalArgumentException in case the value is set with a timestamp that does not fall
      *   within the [yearRange].
      */
-    @get:Suppress("AutoBoxing") var selectedDateMillis: Long?
+    @get:Suppress("AutoBoxing") public var selectedDateMillis: Long?
 
     /**
      * A timestamp that represents the currently displayed month _start_ date in _UTC_ milliseconds
@@ -276,47 +276,47 @@ interface DatePickerState {
      * @throws IllegalArgumentException in case the value is set with a timestamp that does not fall
      *   within the [yearRange].
      */
-    var displayedMonthMillis: Long
+    public var displayedMonthMillis: Long
 
     /** A [DisplayMode] that represents the current UI mode (i.e. picker or input). */
-    var displayMode: DisplayMode
+    public var displayMode: DisplayMode
 
     /** An [IntRange] that holds the year range that the date picker will be limited to. */
-    val yearRange: IntRange
+    public val yearRange: IntRange
 
     /**
      * A [SelectableDates] that is consulted to check if a date is allowed.
      *
      * In case a date is not allowed to be selected, it will appear disabled in the UI.
      */
-    val selectableDates: SelectableDates
+    public val selectableDates: SelectableDates
 
     /**
      * A locale that will be used when formatting dates, determining the input format, week-days,
      * and more.
      */
-    val locale: CalendarLocale
+    public val locale: CalendarLocale
 }
 
 /** An interface that controls the selectable dates and years in the date pickers UI. */
 @Stable
-interface SelectableDates {
+public interface SelectableDates {
 
     /**
      * Returns true if the date item representing the [utcTimeMillis] should be enabled for
      * selection in the UI.
      */
-    fun isSelectableDate(utcTimeMillis: Long) = true
+    public fun isSelectableDate(utcTimeMillis: Long): Boolean = true
 
     /**
      * Returns true if a given [year] should be enabled for selection in the UI. When a year is
      * defined as non selectable, all the dates in that year will also be non selectable.
      */
-    fun isSelectableYear(year: Int) = true
+    public fun isSelectableYear(year: Int): Boolean = true
 }
 
 /** A date formatter interface used by [DatePicker]. */
-interface DatePickerFormatter {
+public interface DatePickerFormatter {
 
     /**
      * Format a given [monthMillis] to a string representation of the month and the year (i.e.
@@ -325,7 +325,10 @@ interface DatePickerFormatter {
      * @param monthMillis timestamp in _UTC_ milliseconds from the epoch that represents the month
      * @param locale a [CalendarLocale] to use when formatting the month and year
      */
-    fun formatMonthYear(@Suppress("AutoBoxing") monthMillis: Long?, locale: CalendarLocale): String?
+    public fun formatMonthYear(
+        @Suppress("AutoBoxing") monthMillis: Long?,
+        locale: CalendarLocale,
+    ): String?
 
     /**
      * Format a given [dateMillis] to a string representation of the date (i.e. Mar 27, 2021).
@@ -336,7 +339,7 @@ interface DatePickerFormatter {
      *   description. In these cases, the output may include a more descriptive wording that will be
      *   passed to a screen readers.
      */
-    fun formatDate(
+    public fun formatDate(
         @Suppress("AutoBoxing") dateMillis: Long?,
         locale: CalendarLocale,
         forContentDescription: Boolean = false,
@@ -346,19 +349,19 @@ interface DatePickerFormatter {
 /** Represents the different modes that a date picker can be at. */
 @Immutable
 @JvmInline
-value class DisplayMode internal constructor(internal val value: Int) {
+public value class DisplayMode internal constructor(internal val value: Int) {
 
-    companion object {
+    public companion object {
         /** Date picker mode */
-        val Picker
+        public val Picker: DisplayMode
             get() = DisplayMode(0)
 
         /** Date text input mode */
-        val Input
+        public val Input: DisplayMode
             get() = DisplayMode(1)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Picker -> "Picker"
             Input -> "Input"
@@ -384,7 +387,7 @@ value class DisplayMode internal constructor(internal val value: Int) {
  *   case a date is not allowed to be selected, it will appear disabled in the UI.
  */
 @Composable
-fun rememberDatePickerState(
+public fun rememberDatePickerState(
     @Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
     yearRange: IntRange = DatePickerDefaults.YearRange,
@@ -439,7 +442,7 @@ fun rememberDatePickerState(
  *   year that is out of the year range.
  * @see rememberDatePickerState
  */
-fun DatePickerState(
+public fun DatePickerState(
     locale: CalendarLocale,
     @Suppress("AutoBoxing") initialSelectedDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedDateMillis,
@@ -458,13 +461,14 @@ fun DatePickerState(
 
 /** Contains default values used by the [DatePicker]. */
 @Stable
-object DatePickerDefaults {
+public object DatePickerDefaults {
 
     /**
      * Creates a [DatePickerColors] that will potentially animate between the provided colors
      * according to the Material specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultDatePickerColors
+    @Composable
+    public fun colors(): DatePickerColors = MaterialTheme.colorScheme.defaultDatePickerColors
 
     /**
      * Creates a [DatePickerColors] that will potentially animate between the provided colors
@@ -506,7 +510,7 @@ object DatePickerDefaults {
      *   [DisplayMode.Input]. See [OutlinedTextFieldDefaults.colors].
      */
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = Color.Unspecified,
         titleContentColor: Color = Color.Unspecified,
         headlineContentColor: Color = Color.Unspecified,
@@ -643,7 +647,7 @@ object DatePickerDefaults {
      * @param selectedDateDescriptionSkeleton a date format skeleton used to format a selected date
      *   to be used as content description for screen readers (e.g. "Saturday, March 27, 2021")
      */
-    fun dateFormatter(
+    public fun dateFormatter(
         yearSelectionSkeleton: String = YearMonthSkeleton,
         selectedDateSkeleton: String = YearAbbrMonthDaySkeleton,
         selectedDateDescriptionSkeleton: String = YearMonthWeekdayDaySkeleton,
@@ -662,7 +666,7 @@ object DatePickerDefaults {
      * @param contentColor the content color of this title
      */
     @Composable
-    fun DatePickerTitle(
+    public fun DatePickerTitle(
         displayMode: DisplayMode,
         modifier: Modifier = Modifier,
         contentColor: Color = colors().titleContentColor,
@@ -695,7 +699,7 @@ object DatePickerDefaults {
      * @param contentColor the content color of this headline
      */
     @Composable
-    fun DatePickerHeadline(
+    public fun DatePickerHeadline(
         @Suppress("AutoBoxing") selectedDateMillis: Long?,
         displayMode: DisplayMode,
         dateFormatter: DatePickerFormatter,
@@ -780,32 +784,32 @@ object DatePickerDefaults {
     }
 
     /** The range of years for the date picker dialogs. */
-    val YearRange: IntRange = IntRange(1900, 2100)
+    public val YearRange: IntRange = IntRange(1900, 2100)
 
     /** The default tonal elevation used for [DatePickerDialog]. */
-    val TonalElevation: Dp = ElevationTokens.Level0
+    public val TonalElevation: Dp = ElevationTokens.Level0
 
     /** The default shape for date picker dialogs. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = DatePickerModalTokens.ContainerShape.value
 
     /** A default [SelectableDates] that allows all dates to be selected. */
-    val AllDates: SelectableDates = object : SelectableDates {}
+    public val AllDates: SelectableDates = object : SelectableDates {}
 
     /**
      * A date format skeleton used to format the date picker's year selection menu button (e.g.
      * "March 2021")
      */
-    const val YearMonthSkeleton: String = "yMMMM"
+    public const val YearMonthSkeleton: String = "yMMMM"
 
     /** A date format skeleton used to format a selected date (e.g. "Mar 27, 2021") */
-    const val YearAbbrMonthDaySkeleton: String = "yMMMd"
+    public const val YearAbbrMonthDaySkeleton: String = "yMMMd"
 
     /**
      * A date format skeleton used to format a selected date to be used as content description for
      * screen readers (e.g. "Saturday, March 27, 2021")
      */
-    const val YearMonthWeekdayDaySkeleton: String = "yMMMMEEEEd"
+    public const val YearMonthWeekdayDaySkeleton: String = "yMMMMEEEEd"
 }
 
 internal expect inline fun formatHeadlineDescription(
@@ -851,39 +855,39 @@ internal expect inline fun formatHeadlineDescription(
  *   default implementation that follows Material specifications.
  */
 @Immutable
-class DatePickerColors(
-    val containerColor: Color,
-    val titleContentColor: Color,
-    val headlineContentColor: Color,
-    val weekdayContentColor: Color,
-    val subheadContentColor: Color,
-    val navigationContentColor: Color,
-    val yearContentColor: Color,
-    val disabledYearContentColor: Color,
-    val currentYearContentColor: Color,
-    val selectedYearContentColor: Color,
-    val disabledSelectedYearContentColor: Color,
-    val selectedYearContainerColor: Color,
-    val disabledSelectedYearContainerColor: Color,
-    val dayContentColor: Color,
-    val disabledDayContentColor: Color,
-    val selectedDayContentColor: Color,
-    val disabledSelectedDayContentColor: Color,
-    val selectedDayContainerColor: Color,
-    val disabledSelectedDayContainerColor: Color,
-    val todayContentColor: Color,
-    val todayDateBorderColor: Color,
-    val dayInSelectionRangeContainerColor: Color,
-    val dayInSelectionRangeContentColor: Color,
-    val dividerColor: Color,
-    val dateTextFieldColors: TextFieldColors,
+public class DatePickerColors(
+    public val containerColor: Color,
+    public val titleContentColor: Color,
+    public val headlineContentColor: Color,
+    public val weekdayContentColor: Color,
+    public val subheadContentColor: Color,
+    public val navigationContentColor: Color,
+    public val yearContentColor: Color,
+    public val disabledYearContentColor: Color,
+    public val currentYearContentColor: Color,
+    public val selectedYearContentColor: Color,
+    public val disabledSelectedYearContentColor: Color,
+    public val selectedYearContainerColor: Color,
+    public val disabledSelectedYearContainerColor: Color,
+    public val dayContentColor: Color,
+    public val disabledDayContentColor: Color,
+    public val selectedDayContentColor: Color,
+    public val disabledSelectedDayContentColor: Color,
+    public val selectedDayContainerColor: Color,
+    public val disabledSelectedDayContainerColor: Color,
+    public val todayContentColor: Color,
+    public val todayDateBorderColor: Color,
+    public val dayInSelectionRangeContainerColor: Color,
+    public val dayInSelectionRangeContentColor: Color,
+    public val dividerColor: Color,
+    public val dateTextFieldColors: TextFieldColors,
 ) {
     /**
      * Returns a copy of this DatePickerColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source” // For `dateTextFieldColors`
      * use null to mean "use the value from source"
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         titleContentColor: Color = this.titleContentColor,
         headlineContentColor: Color = this.headlineContentColor,
@@ -908,8 +912,8 @@ class DatePickerColors(
         dayInSelectionRangeContainerColor: Color = this.dayInSelectionRangeContainerColor,
         dayInSelectionRangeContentColor: Color = this.dayInSelectionRangeContentColor,
         dividerColor: Color = this.dividerColor,
-        dateTextFieldColors: TextFieldColors? = this.dateTextFieldColors,
-    ) =
+        dateTextFieldColors: TextFieldColors? = null,
+    ): DatePickerColors =
         DatePickerColors(
             containerColor.takeOrElse { this.containerColor },
             titleContentColor.takeOrElse { this.titleContentColor },

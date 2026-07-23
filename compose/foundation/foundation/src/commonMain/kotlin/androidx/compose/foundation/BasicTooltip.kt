@@ -73,7 +73,7 @@ import kotlinx.coroutines.withTimeout
  */
 @Composable
 @ExperimentalFoundationApi
-fun BasicTooltipBox(
+public fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,
@@ -113,7 +113,7 @@ fun BasicTooltipBox(
 )
 @Composable
 @ExperimentalFoundationApi
-fun BasicTooltipBox(
+public fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,
@@ -271,7 +271,7 @@ private fun Modifier.anchorSemantics(
  */
 @Composable
 @ExperimentalFoundationApi
-fun rememberBasicTooltipState(
+public fun rememberBasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex,
@@ -298,7 +298,7 @@ fun rememberBasicTooltipState(
  */
 @Stable
 @ExperimentalFoundationApi
-fun BasicTooltipState(
+public fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex,
@@ -371,9 +371,9 @@ private class BasicTooltipStateImpl(
  */
 @Stable
 @ExperimentalFoundationApi
-interface BasicTooltipState {
+public interface BasicTooltipState {
     /** [Boolean] that indicates if the tooltip is currently being shown or not. */
-    val isVisible: Boolean
+    public val isVisible: Boolean
 
     /**
      * [Boolean] that determines if the tooltip associated with this will be persistent or not. If
@@ -382,7 +382,7 @@ interface BasicTooltipState {
      * false, the tooltip will dismiss after a short duration. Ideally, this should be set to true
      * when there is actionable content being displayed within a tooltip.
      */
-    val isPersistent: Boolean
+    public val isPersistent: Boolean
 
     /**
      * Show the tooltip associated with the current [BasicTooltipState]. When this method is called
@@ -390,28 +390,28 @@ interface BasicTooltipState {
      *
      * @param mutatePriority [MutatePriority] to be used.
      */
-    suspend fun show(mutatePriority: MutatePriority = MutatePriority.Default)
+    public suspend fun show(mutatePriority: MutatePriority = MutatePriority.Default)
 
     /**
      * Dismiss the tooltip associated with this [BasicTooltipState] if it's currently being shown.
      */
-    fun dismiss()
+    public fun dismiss()
 
     /** Clean up when the this state leaves Composition. */
-    fun onDispose()
+    public fun onDispose()
 }
 
 /** BasicTooltip defaults that contain default values for tooltips created. */
 @ExperimentalFoundationApi
-object BasicTooltipDefaults {
+public object BasicTooltipDefaults {
     /** The global/default [MutatorMutex] used to sync Tooltips. */
-    val GlobalMutatorMutex: MutatorMutex = MutatorMutex()
+    public val GlobalMutatorMutex: MutatorMutex = MutatorMutex()
 
     /**
      * The default duration, in milliseconds, that non-persistent tooltips will show on the screen
      * before dismissing.
      */
-    const val TooltipDuration = 1500L
+    public const val TooltipDuration: Long = 1500L
 }
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")

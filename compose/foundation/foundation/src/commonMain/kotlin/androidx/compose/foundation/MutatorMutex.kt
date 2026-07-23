@@ -31,7 +31,7 @@ import kotlinx.coroutines.sync.withLock
  * as `>` to another has a higher priority. A mutation of equal or greater priority will interrupt
  * the current mutation in progress.
  */
-enum class MutatePriority {
+public enum class MutatePriority {
     /**
      * The default priority for mutations. Can be interrupted by other [Default], [UserInput] or
      * [PreventUserInput] priority operations. [Default] priority should be used for programmatic
@@ -77,7 +77,7 @@ internal class MutationInterruptedException :
  * @sample androidx.compose.foundation.samples.mutatorMutexStateObject
  */
 @Stable
-class MutatorMutex {
+public class MutatorMutex {
     private class Mutator(val priority: MutatePriority, val job: Job) {
         fun canInterrupt(other: Mutator) = priority >= other.priority
 
@@ -114,10 +114,10 @@ class MutatorMutex {
      * @param block mutation code to run mutually exclusive with any other call to [mutate] or
      *   [mutateWith].
      */
-    suspend fun <R> mutate(
+    public suspend fun <R> mutate(
         priority: MutatePriority = MutatePriority.Default,
         block: suspend () -> R,
-    ) = coroutineScope {
+    ): R = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 
         tryMutateOrCancel(mutator)
@@ -153,11 +153,11 @@ class MutatorMutex {
      * @param block mutation code to run mutually exclusive with any other call to [mutate] or
      *   [mutateWith].
      */
-    suspend fun <T, R> mutateWith(
+    public suspend fun <T, R> mutateWith(
         receiver: T,
         priority: MutatePriority = MutatePriority.Default,
         block: suspend T.() -> R,
-    ) = coroutineScope {
+    ): R = coroutineScope {
         val mutator = Mutator(priority, coroutineContext[Job]!!)
 
         tryMutateOrCancel(mutator)
@@ -184,7 +184,7 @@ class MutatorMutex {
      * @return true if the [block] was executed, false if there was another active caller and the
      *   [block] was not executed.
      */
-    inline fun tryMutate(block: () -> Unit): Boolean {
+    public inline fun tryMutate(block: () -> Unit): Boolean {
         val didLock = tryLock()
         if (didLock) {
             try {

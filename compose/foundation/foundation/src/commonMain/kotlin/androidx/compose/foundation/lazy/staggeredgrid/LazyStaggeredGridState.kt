@@ -53,6 +53,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -78,7 +79,7 @@ import kotlinx.coroutines.launch
  * @return created and memoized [LazyStaggeredGridState] with given parameters.
  */
 @Composable
-fun rememberLazyStaggeredGridState(
+public fun rememberLazyStaggeredGridState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyStaggeredGridState =
@@ -92,7 +93,7 @@ fun rememberLazyStaggeredGridState(
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class LazyStaggeredGridState
+public class LazyStaggeredGridState
 internal constructor(
     initialFirstVisibleItems: IntArray,
     initialFirstVisibleOffsets: IntArray,
@@ -103,7 +104,7 @@ internal constructor(
      * @param initialFirstVisibleItemIndex initial value for [firstVisibleItemIndex]
      * @param initialFirstVisibleItemOffset initial value for [firstVisibleItemScrollOffset]
      */
-    constructor(
+    public constructor(
         initialFirstVisibleItemIndex: Int = 0,
         initialFirstVisibleItemOffset: Int = 0,
     ) : this(
@@ -126,7 +127,7 @@ internal constructor(
      * This property is observable and when use it in composable function it will be recomposed on
      * each scroll, potentially causing performance issues.
      */
-    val firstVisibleItemIndex: Int
+    public val firstVisibleItemIndex: Int
         get() = scrollPosition.index
 
     /**
@@ -135,7 +136,7 @@ internal constructor(
      * This property is observable and when use it in composable function it will be recomposed on
      * each scroll, potentially causing performance issues.
      */
-    val firstVisibleItemScrollOffset: Int
+    public val firstVisibleItemScrollOffset: Int
         get() = scrollPosition.scrollOffset
 
     /** holder for current scroll position */
@@ -153,7 +154,7 @@ internal constructor(
      * This property is observable and when use it in composable function it will be recomposed on
      * each scroll, potentially causing performance issues.
      */
-    val layoutInfo: LazyStaggeredGridLayoutInfo
+    public val layoutInfo: LazyStaggeredGridLayoutInfo
         get() = layoutInfoState.value
 
     /** backing state for [layoutInfo] */
@@ -253,8 +254,8 @@ internal constructor(
      * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
      * [isScrollInProgress].
      */
-    val interactionSource
-        get(): InteractionSource = mutableInteractionSource
+    public val interactionSource: InteractionSource
+        get() = mutableInteractionSource
 
     /** backing field mutable field for [interactionSource] */
     internal val mutableInteractionSource = MutableInteractionSource()
@@ -402,7 +403,7 @@ internal constructor(
      *   positive offset refers to forward scroll, so in a reversed list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun scrollToItem(
+    public suspend fun scrollToItem(
         /* @IntRange(from = 0) */
         index: Int,
         scrollOffset: Int = 0,
@@ -418,7 +419,7 @@ internal constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun animateScrollToItem(
+    public suspend fun animateScrollToItem(
         /* @IntRange(from = 0) */
         index: Int,
         scrollOffset: Int = 0,
@@ -448,7 +449,7 @@ internal constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         // Cancel any scroll in progress.
         if (isScrollInProgress) {
             layoutInfoState.value.coroutineScope.launch { stopScroll() }
@@ -716,9 +717,9 @@ internal constructor(
         return indices
     }
 
-    companion object {
+    public companion object {
         /** The default implementation of [Saver] for [LazyStaggeredGridState] */
-        val Saver =
+        public val Saver: Saver<LazyStaggeredGridState, Any> =
             listSaver(
                 save = { state ->
                     listOf(state.scrollPosition.indices, state.scrollPosition.scrollOffsets)

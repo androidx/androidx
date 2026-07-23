@@ -33,7 +33,7 @@ package androidx.compose.ui.graphics
  * If you need to query the direction of individual contours, you should [divide][Path.divide] the
  * path first.
  */
-fun Path.computeDirection(): Path.Direction {
+public fun Path.computeDirection(): Path.Direction {
     var first = true
 
     val iterator = iterator()
@@ -164,7 +164,7 @@ fun Path.computeDirection(): Path.Direction {
  *   a newly allocated list if the [contours] parameter was left unspecified, or the [contours]
  *   parameter.
  */
-fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path> {
+public fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path> {
     var path = Path()
 
     var first = true
@@ -228,7 +228,7 @@ fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path
  *   allocated [Path] if the [destination] parameter was left unspecified, or the [destination]
  *   parameter.
  */
-fun Path.reverse(destination: Path = Path()): Path {
+public fun Path.reverse(destination: Path = Path()): Path {
     val iterator = iterator()
 
     val count = iterator.calculateSize(false)

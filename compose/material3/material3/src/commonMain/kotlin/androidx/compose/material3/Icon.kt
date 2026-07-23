@@ -62,7 +62,7 @@ import androidx.compose.ui.semantics.semantics
  *   is applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -98,7 +98,7 @@ fun Icon(
  *   applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -135,7 +135,7 @@ fun Icon(
  *   applied.
  */
 @Composable
-fun Icon(
+public fun Icon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -182,7 +182,7 @@ fun Icon(
  * @param modifier the [Modifier] to be applied to this icon
  */
 @Composable
-fun Icon(
+public fun Icon(
     painter: Painter,
     tint: ColorProducer?,
     contentDescription: String?,

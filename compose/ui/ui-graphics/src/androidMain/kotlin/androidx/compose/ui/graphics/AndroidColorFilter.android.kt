@@ -28,10 +28,10 @@ import java.lang.IllegalArgumentException
 internal actual typealias NativeColorFilter = android.graphics.ColorFilter
 
 /** Obtain a [android.graphics.ColorFilter] instance from this [ColorFilter] */
-fun ColorFilter.asAndroidColorFilter(): android.graphics.ColorFilter = nativeColorFilter
+public fun ColorFilter.asAndroidColorFilter(): android.graphics.ColorFilter = nativeColorFilter
 
 /** Create a [ColorFilter] from the given [android.graphics.ColorFilter] instance */
-fun android.graphics.ColorFilter.asComposeColorFilter(): ColorFilter {
+public fun android.graphics.ColorFilter.asComposeColorFilter(): ColorFilter {
     return if (
         Build.VERSION_CODES.Q <= Build.VERSION.SDK_INT && this is AndroidBlendModeColorFilter
     ) {

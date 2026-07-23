@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.platform
 
-interface Clipboard {
+public interface Clipboard {
 
     /**
      * Returns the clipboard entry that's provided by the platform's ClipboardManager.
@@ -31,7 +31,7 @@ interface Clipboard {
      * [nativeClipboard] and `primaryClipDescription` on Android to circumvent this issue if you are
      * only interested in querying what is available in the clipboard.
      */
-    suspend fun getClipEntry(): ClipEntry?
+    public suspend fun getClipEntry(): ClipEntry?
 
     /**
      * Puts the given [clipEntry] in platform's ClipboardManager.
@@ -39,11 +39,11 @@ interface Clipboard {
      * @param clipEntry Platform specific clip object that either holds data or links to it. Pass
      *   null to clear the clipboard.
      */
-    suspend fun setClipEntry(clipEntry: ClipEntry?)
+    public suspend fun setClipEntry(clipEntry: ClipEntry?)
 
     /** Returns the native clipboard that exposes the full functionality of platform clipboard. */
     @Suppress("DEPRECATION")
     @Deprecated("Use platform-specific extension to get platform reference")
-    val nativeClipboard: NativeClipboard
+    public val nativeClipboard: NativeClipboard
         get() = throw NotImplementedError()
 }

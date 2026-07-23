@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
  *
  * @sample androidx.compose.foundation.layout.samples.safeDrawingPaddingSample
  */
-actual fun Modifier.safeDrawingPadding() =
+actual public fun Modifier.safeDrawingPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "safeDrawingPadding" }, safeDrawingLambda)
 
 private val safeDrawingLambda: WindowInsetsHolder.() -> WindowInsets = { safeDrawing }
@@ -57,7 +57,7 @@ private val safeDrawingLambda: WindowInsetsHolder.() -> WindowInsets = { safeDra
  *
  * @sample androidx.compose.foundation.layout.samples.safeGesturesPaddingSample
  */
-actual fun Modifier.safeGesturesPadding() =
+actual public fun Modifier.safeGesturesPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "safeGesturesPadding" }, safeGesturesLambda)
 
 private val safeGesturesLambda: WindowInsetsHolder.() -> WindowInsets = { safeGestures }
@@ -76,7 +76,7 @@ private val safeGesturesLambda: WindowInsetsHolder.() -> WindowInsets = { safeGe
  *
  * @sample androidx.compose.foundation.layout.samples.safeContentPaddingSample
  */
-actual fun Modifier.safeContentPadding() =
+actual public fun Modifier.safeContentPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "safeContentPadding" }, safeContentLambda)
 
 private val safeContentLambda: WindowInsetsHolder.() -> WindowInsets = { safeContent }
@@ -95,7 +95,7 @@ private val safeContentLambda: WindowInsetsHolder.() -> WindowInsets = { safeCon
  *
  * @sample androidx.compose.foundation.layout.samples.systemBarsPaddingSample
  */
-actual fun Modifier.systemBarsPadding() =
+actual public fun Modifier.systemBarsPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "systemBarsPadding" }, systemBarsLambda)
 
 private val systemBarsLambda: WindowInsetsHolder.() -> WindowInsets = { systemBars }
@@ -114,7 +114,7 @@ private val systemBarsLambda: WindowInsetsHolder.() -> WindowInsets = { systemBa
  *
  * @sample androidx.compose.foundation.layout.samples.displayCutoutPaddingSample
  */
-actual fun Modifier.displayCutoutPadding() =
+actual public fun Modifier.displayCutoutPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "displayCutoutPadding" }, displayCutoutLambda)
 
 private val displayCutoutLambda: WindowInsetsHolder.() -> WindowInsets = { displayCutout }
@@ -133,7 +133,7 @@ private val displayCutoutLambda: WindowInsetsHolder.() -> WindowInsets = { displ
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-actual fun Modifier.statusBarsPadding() =
+actual public fun Modifier.statusBarsPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "statusBarsPadding" }, statusBarsLambda)
 
 private val statusBarsLambda: WindowInsetsHolder.() -> WindowInsets = { statusBars }
@@ -152,7 +152,7 @@ private val statusBarsLambda: WindowInsetsHolder.() -> WindowInsets = { statusBa
  *
  * @sample androidx.compose.foundation.layout.samples.imePaddingSample
  */
-actual fun Modifier.imePadding() =
+actual public fun Modifier.imePadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "imePadding" }, imeLambda)
 
 private val imeLambda: WindowInsetsHolder.() -> WindowInsets = { ime }
@@ -171,7 +171,7 @@ private val imeLambda: WindowInsetsHolder.() -> WindowInsets = { ime }
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-actual fun Modifier.navigationBarsPadding() =
+actual public fun Modifier.navigationBarsPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "navigationBarsPadding" }, navigationBarsLambda)
 
 private val navigationBarsLambda: WindowInsetsHolder.() -> WindowInsets = { navigationBars }
@@ -190,7 +190,7 @@ private val navigationBarsLambda: WindowInsetsHolder.() -> WindowInsets = { navi
  *
  * @sample androidx.compose.foundation.layout.samples.captionBarPaddingSample
  */
-actual fun Modifier.captionBarPadding() =
+actual public fun Modifier.captionBarPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "captionBarPadding" }, captionBarLambda)
 
 private val captionBarLambda: WindowInsetsHolder.() -> WindowInsets = { captionBar }
@@ -209,7 +209,7 @@ private val captionBarLambda: WindowInsetsHolder.() -> WindowInsets = { captionB
  *
  * @sample androidx.compose.foundation.layout.samples.waterfallPaddingSample
  */
-actual fun Modifier.waterfallPadding() =
+actual public fun Modifier.waterfallPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "waterfallPadding" }, waterfallLambda)
 
 private val waterfallLambda: WindowInsetsHolder.() -> WindowInsets = { waterfall }
@@ -228,7 +228,7 @@ private val waterfallLambda: WindowInsetsHolder.() -> WindowInsets = { waterfall
  *
  * @sample androidx.compose.foundation.layout.samples.systemGesturesPaddingSample
  */
-actual fun Modifier.systemGesturesPadding() =
+actual public fun Modifier.systemGesturesPadding(): Modifier =
     windowInsetsPadding(debugInspectorInfo { name = "systemGesturesPadding" }, systemGesturesLambda)
 
 private val systemGesturesLambda: WindowInsetsHolder.() -> WindowInsets = { systemGestures }
@@ -249,7 +249,7 @@ private val systemGesturesLambda: WindowInsetsHolder.() -> WindowInsets = { syst
  *
  * @sample androidx.compose.foundation.layout.samples.mandatorySystemGesturesPaddingSample
  */
-actual fun Modifier.mandatorySystemGesturesPadding() =
+actual public fun Modifier.mandatorySystemGesturesPadding(): Modifier =
     windowInsetsPadding(
         debugInspectorInfo { name = "mandatorySystemGesturesPadding" },
         mandatorySystemGesturesLambda,

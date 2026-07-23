@@ -28,12 +28,12 @@ import androidx.compose.ui.graphics.colorspace.WhitePoint
 
 /** Convert the Compose [ColorSpace] into an Android framework [android.graphics.ColorSpace] */
 @RequiresApi(Build.VERSION_CODES.O)
-fun ColorSpace.toAndroidColorSpace(): android.graphics.ColorSpace =
+public fun ColorSpace.toAndroidColorSpace(): android.graphics.ColorSpace =
     with(ColorSpaceVerificationHelper) { androidColorSpace() }
 
 /** Convert the [android.graphics.ColorSpace] into a Compose [ColorSpace] */
 @RequiresApi(Build.VERSION_CODES.O)
-fun android.graphics.ColorSpace.toComposeColorSpace() =
+public fun android.graphics.ColorSpace.toComposeColorSpace(): ColorSpace =
     with(ColorSpaceVerificationHelper) { composeColorSpace() }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

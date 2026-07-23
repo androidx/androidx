@@ -19,18 +19,18 @@ package androidx.compose.ui.test
 import android.view.MotionEvent
 
 @JvmInline
-actual value class TrackpadButton(val buttonId: Int) {
-    actual companion object {
+public actual value class TrackpadButton(public val buttonId: Int) {
+    public actual companion object {
         /** The left trackpad button */
-        actual val Primary
+        public actual val Primary: TrackpadButton
             get() = TrackpadButton(MotionEvent.BUTTON_PRIMARY)
 
         /** The right trackpad button */
-        actual val Secondary
+        public actual val Secondary: TrackpadButton
             get() = TrackpadButton(MotionEvent.BUTTON_SECONDARY)
 
         /** The middle trackpad button */
-        actual val Tertiary
+        public actual val Tertiary: TrackpadButton
             get() = TrackpadButton(MotionEvent.BUTTON_TERTIARY)
     }
 }

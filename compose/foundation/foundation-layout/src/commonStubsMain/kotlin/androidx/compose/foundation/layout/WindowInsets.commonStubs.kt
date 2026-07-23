@@ -19,44 +19,44 @@ package androidx.compose.foundation.layout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Path
 
-actual val WindowInsets.Companion.captionBar: WindowInsets
+actual public val WindowInsets.Companion.captionBar: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.displayCutout: WindowInsets
+actual public val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.ime: WindowInsets
+actual public val WindowInsets.Companion.ime: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+actual public val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.navigationBars: WindowInsets
+actual public val WindowInsets.Companion.navigationBars: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.statusBars: WindowInsets
+actual public val WindowInsets.Companion.statusBars: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.systemBars: WindowInsets
+actual public val WindowInsets.Companion.systemBars: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.systemGestures: WindowInsets
+actual public val WindowInsets.Companion.systemGestures: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.tappableElement: WindowInsets
+actual public val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.waterfall: WindowInsets
+actual public val WindowInsets.Companion.waterfall: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.cutoutPath: Path?
+actual public val WindowInsets.Companion.cutoutPath: Path?
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.safeDrawing: WindowInsets
+actual public val WindowInsets.Companion.safeDrawing: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.safeGestures: WindowInsets
+actual public val WindowInsets.Companion.safeGestures: WindowInsets
     @Composable get() = implementedInJetBrainsFork()
 
-actual val WindowInsets.Companion.safeContent: WindowInsets
+actual public val WindowInsets.Companion.safeContent: WindowInsets
     @Composable get() = implementedInJetBrainsFork()

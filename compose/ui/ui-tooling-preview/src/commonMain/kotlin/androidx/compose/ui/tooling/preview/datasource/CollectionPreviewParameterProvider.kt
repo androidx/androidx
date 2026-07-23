@@ -18,8 +18,8 @@ package androidx.compose.ui.tooling.preview.datasource
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
-open class CollectionPreviewParameterProvider<T>(private val collection: Collection<T>) :
-    PreviewParameterProvider<T> {
+public open class CollectionPreviewParameterProvider<T>
+public constructor(private val collection: Collection<T>) : PreviewParameterProvider<T> {
     override val values: Sequence<T>
         get() = collection.asSequence()
 }

@@ -27,7 +27,7 @@ package androidx.compose.ui.test
  *
  * @sample androidx.compose.ui.test.samples.rotaryInputScroll
  */
-interface RotaryInjectionScope : InjectionScope {
+public interface RotaryInjectionScope : InjectionScope {
     /**
      * Sends a scroll event that represents a rotation that will result in a scroll distance of
      * [horizontalScrollPixels]. The event will be sent at the current event time. Positive
@@ -36,7 +36,7 @@ interface RotaryInjectionScope : InjectionScope {
      *
      * @param horizontalScrollPixels The amount of scroll, in pixels
      */
-    fun rotateToScrollHorizontally(horizontalScrollPixels: Float)
+    public fun rotateToScrollHorizontally(horizontalScrollPixels: Float)
 
     /**
      * Sends a scroll event that represents a rotation that will result in a scroll distance of
@@ -46,7 +46,7 @@ interface RotaryInjectionScope : InjectionScope {
      *
      * @param verticalScrollPixels The amount of scroll, in pixels
      */
-    fun rotateToScrollVertically(verticalScrollPixels: Float)
+    public fun rotateToScrollVertically(verticalScrollPixels: Float)
 }
 
 internal class RotaryInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :

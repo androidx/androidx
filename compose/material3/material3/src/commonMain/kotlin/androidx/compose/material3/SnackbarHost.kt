@@ -60,7 +60,7 @@ import kotlinx.coroutines.sync.withLock
  * This state is usually [remember]ed and used to provide a [SnackbarHost] to a [Scaffold].
  */
 @Stable
-class SnackbarHostState {
+public class SnackbarHostState {
 
     /**
      * Only one [Snackbar] can be shown at a time. Since a suspending Mutex is a fair queue, this
@@ -69,7 +69,7 @@ class SnackbarHostState {
     private val mutex = Mutex()
 
     /** The current [SnackbarData] being shown by the [SnackbarHost], or `null` if none. */
-    var currentSnackbarData by mutableStateOf<SnackbarData?>(null)
+    public var currentSnackbarData: SnackbarData? by mutableStateOf<SnackbarData?>(null)
         private set
 
     /**
@@ -97,7 +97,7 @@ class SnackbarHostState {
      * @return [SnackbarResult.ActionPerformed] if option action has been clicked or
      *   [SnackbarResult.Dismissed] if snackbar has been dismissed via timeout or by the user
      */
-    suspend fun showSnackbar(
+    public suspend fun showSnackbar(
         message: String,
         actionLabel: String? = null,
         withDismissAction: Boolean = false,
@@ -122,7 +122,7 @@ class SnackbarHostState {
      * @return [SnackbarResult.ActionPerformed] if option action has been clicked or
      *   [SnackbarResult.Dismissed] if snackbar has been dismissed via timeout or by the user
      */
-    suspend fun showSnackbar(visuals: SnackbarVisuals): SnackbarResult =
+    public suspend fun showSnackbar(visuals: SnackbarVisuals): SnackbarResult =
         mutex.withLock {
             try {
                 return suspendCancellableCoroutine { continuation ->
@@ -214,7 +214,7 @@ class SnackbarHostState {
  *   appearance based on the [SnackbarData] provided as a param
  */
 @Composable
-fun SnackbarHost(
+public fun SnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     snackbar: @Composable (SnackbarData) -> Unit = { Snackbar(it) },
@@ -250,11 +250,11 @@ fun SnackbarHost(
  * @property duration duration of the Snackbar
  */
 @Stable
-interface SnackbarVisuals {
-    val message: String
-    val actionLabel: String?
-    val withDismissAction: Boolean
-    val duration: SnackbarDuration
+public interface SnackbarVisuals {
+    public val message: String
+    public val actionLabel: String?
+    public val withDismissAction: Boolean
+    public val duration: SnackbarDuration
 }
 
 /**
@@ -264,18 +264,18 @@ interface SnackbarVisuals {
  * @property visuals Holds the visual representation for a particular [Snackbar].
  */
 @Stable
-interface SnackbarData {
-    val visuals: SnackbarVisuals
+public interface SnackbarData {
+    public val visuals: SnackbarVisuals
 
     /** Function to be called when Snackbar action has been performed to notify the listeners. */
-    fun performAction()
+    public fun performAction()
 
     /** Function to be called when Snackbar is dismissed either by timeout or by the user. */
-    fun dismiss()
+    public fun dismiss()
 }
 
 /** Possible results of the [SnackbarHostState.showSnackbar] call */
-enum class SnackbarResult {
+public enum class SnackbarResult {
     /** [Snackbar] that is shown has been dismissed either by timeout of by user */
     Dismissed,
 
@@ -284,7 +284,7 @@ enum class SnackbarResult {
 }
 
 /** Possible durations of the [Snackbar] in [SnackbarHost] */
-enum class SnackbarDuration {
+public enum class SnackbarDuration {
     /** Show the Snackbar for a short period of time */
     Short,
 

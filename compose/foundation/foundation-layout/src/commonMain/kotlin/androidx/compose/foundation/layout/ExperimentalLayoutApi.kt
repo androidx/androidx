@@ -18,4 +18,4 @@ package androidx.compose.foundation.layout
 
 @RequiresOptIn("The API of this layout is experimental and is likely to change in the future.")
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalLayoutApi
+public annotation class ExperimentalLayoutApi

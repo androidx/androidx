@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi
  * for devices that do not support the corresponding blend mode. Usages of [BlendMode] types that
  * are not supported will fallback onto the default of [BlendMode.SrcOver]
  */
-actual fun BlendMode.isSupported(): Boolean {
+public actual fun BlendMode.isSupported(): Boolean {
     // All blend modes supported on Android Q /API level 29+
     // For older API levels we first check to see if we are consuming the default BlendMode
     // or SrcOver which is supported on all platforms

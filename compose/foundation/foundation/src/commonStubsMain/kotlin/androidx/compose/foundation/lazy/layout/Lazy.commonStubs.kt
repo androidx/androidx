@@ -18,4 +18,4 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.implementedInJetBrainsFork
 
-actual fun getDefaultLazyLayoutKey(index: Int): Any = implementedInJetBrainsFork()
+public actual fun getDefaultLazyLayoutKey(index: Int): Any = implementedInJetBrainsFork()

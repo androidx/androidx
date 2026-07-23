@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.toIntSize
  * @param bottom number of pixels to inset the bottom drawing bound
  * @param block lambda that is called to issue drawing commands within the inset coordinate space
  */
-inline fun DrawScope.inset(
+public inline fun DrawScope.inset(
     left: Float,
     top: Float,
     right: Float,
@@ -82,7 +82,7 @@ inline fun DrawScope.inset(
  * @param block lambda that is called to issue additional drawing commands within the modified
  *   coordinate space
  */
-inline fun DrawScope.inset(inset: Float, block: DrawScope.() -> Unit) {
+public inline fun DrawScope.inset(inset: Float, block: DrawScope.() -> Unit) {
     drawContext.transform.inset(inset, inset, inset, inset)
     try {
         block()
@@ -101,11 +101,11 @@ inline fun DrawScope.inset(inset: Float, block: DrawScope.() -> Unit) {
  * @param block lambda that is called to issue additional drawing commands within the modified
  *   coordinate space
  */
-inline fun DrawScope.inset(
+public inline fun DrawScope.inset(
     horizontal: Float = 0.0f,
     vertical: Float = 0.0f,
     block: DrawScope.() -> Unit,
-) = inset(horizontal, vertical, horizontal, vertical, block)
+): Unit = inset(horizontal, vertical, horizontal, vertical, block)
 
 /**
  * Translate the coordinate space by the given delta in pixels in both the x and y coordinates
@@ -116,7 +116,11 @@ inline fun DrawScope.inset(
  * @param block lambda that is called to issue drawing commands within the translated coordinate
  *   space
  */
-inline fun DrawScope.translate(left: Float = 0.0f, top: Float = 0.0f, block: DrawScope.() -> Unit) {
+public inline fun DrawScope.translate(
+    left: Float = 0.0f,
+    top: Float = 0.0f,
+    block: DrawScope.() -> Unit,
+) {
     drawContext.transform.translate(left, top)
     try {
         block()
@@ -134,8 +138,11 @@ inline fun DrawScope.translate(left: Float = 0.0f, top: Float = 0.0f, block: Dra
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda that is called to issue drawing commands within the rotated coordinate space
  */
-inline fun DrawScope.rotate(degrees: Float, pivot: Offset = center, block: DrawScope.() -> Unit) =
-    withTransform({ rotate(degrees, pivot) }, block)
+public inline fun DrawScope.rotate(
+    degrees: Float,
+    pivot: Offset = center,
+    block: DrawScope.() -> Unit,
+): Unit = withTransform({ rotate(degrees, pivot) }, block)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point. The
@@ -145,7 +152,7 @@ inline fun DrawScope.rotate(degrees: Float, pivot: Offset = center, block: DrawS
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda that is called to issue drawing commands within the rotated coordinate space
  */
-inline fun DrawScope.rotateRad(
+public inline fun DrawScope.rotateRad(
     radians: Float,
     pivot: Offset = center,
     block: DrawScope.() -> Unit,
@@ -164,12 +171,12 @@ inline fun DrawScope.rotateRad(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda used to issue drawing commands within the scaled coordinate space
  */
-inline fun DrawScope.scale(
+public inline fun DrawScope.scale(
     scaleX: Float,
     scaleY: Float,
     pivot: Offset = center,
     block: DrawScope.() -> Unit,
-) = withTransform({ scale(scaleX, scaleY, pivot) }, block)
+): Unit = withTransform({ scale(scaleX, scaleY, pivot) }, block)
 
 /**
  * Add an axis-aligned scale to the current transform, scaling both the horizontal direction and the
@@ -181,8 +188,11 @@ inline fun DrawScope.scale(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda used to issue drawing commands within the scaled coordinate space
  */
-inline fun DrawScope.scale(scale: Float, pivot: Offset = center, block: DrawScope.() -> Unit) =
-    withTransform({ scale(scale, scale, pivot) }, block)
+public inline fun DrawScope.scale(
+    scale: Float,
+    pivot: Offset = center,
+    block: DrawScope.() -> Unit,
+): Unit = withTransform({ scale(scale, scale, pivot) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given rectangle indicated
@@ -199,14 +209,14 @@ inline fun DrawScope.scale(scale: Float, pivot: Offset = center, block: DrawScop
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  *   within the provided clip
  */
-inline fun DrawScope.clipRect(
+public inline fun DrawScope.clipRect(
     left: Float = 0.0f,
     top: Float = 0.0f,
     right: Float = size.width,
     bottom: Float = size.height,
     clipOp: ClipOp = ClipOp.Intersect,
     block: DrawScope.() -> Unit,
-) = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
+): Unit = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given path. This method
@@ -218,11 +228,11 @@ inline fun DrawScope.clipRect(
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  *   within the provided clip
  */
-inline fun DrawScope.clipPath(
+public inline fun DrawScope.clipPath(
     path: Path,
     clipOp: ClipOp = ClipOp.Intersect,
     block: DrawScope.() -> Unit,
-) = withTransform({ clipPath(path, clipOp) }, block)
+): Unit = withTransform({ clipPath(path, clipOp) }, block)
 
 /**
  * Provides access to draw directly with the underlying [Canvas]. This is helpful for situations to
@@ -230,7 +240,8 @@ inline fun DrawScope.clipPath(
  *
  * @param block Lambda callback to issue drawing commands on the provided [Canvas]
  */
-inline fun DrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawContext.canvas)
+public inline fun DrawScope.drawIntoCanvas(block: (Canvas) -> Unit): Unit =
+    block(drawContext.canvas)
 
 /**
  * Perform 1 or more transformations and execute drawing commands with the specified transformations
@@ -242,10 +253,10 @@ inline fun DrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawContext
  * @param drawBlock Callback invoked to issue drawing operations after the transformations are
  *   applied
  */
-inline fun DrawScope.withTransform(
+public inline fun DrawScope.withTransform(
     transformBlock: DrawTransform.() -> Unit,
     drawBlock: DrawScope.() -> Unit,
-) =
+): Unit =
     with(drawContext) {
         // Transformation can include inset calls which change the drawing area
         // so cache the previous size before the transformation is done
@@ -265,7 +276,7 @@ inline fun DrawScope.withTransform(
     message = "Please use a new overload accepting nullable GraphicsLayer",
     level = DeprecationLevel.HIDDEN,
 )
-inline fun DrawScope.draw(
+public inline fun DrawScope.draw(
     density: Density,
     layoutDirection: LayoutDirection,
     canvas: Canvas,
@@ -290,7 +301,7 @@ inline fun DrawScope.draw(
  *   is not provided by a [GraphicsLayer], for example in the case of a software-accelerated drawing
  * @param block lambda that is called to issue drawing commands on this [DrawScope]
  */
-inline fun DrawScope.draw(
+public inline fun DrawScope.draw(
     density: Density,
     layoutDirection: LayoutDirection,
     canvas: Canvas,
@@ -342,24 +353,24 @@ inline fun DrawScope.draw(
  */
 @DrawScopeMarker
 @JvmDefaultWithCompatibility
-interface DrawScope : Density {
+public interface DrawScope : Density {
 
     /**
      * The current [DrawContext] that contains the dependencies needed to create the drawing
      * environment
      */
-    val drawContext: DrawContext
+    public val drawContext: DrawContext
 
     /** Center of the current bounds of the drawing environment */
-    val center: Offset
+    public val center: Offset
         get() = drawContext.size.center
 
     /** Provides the dimensions of the current drawing environment */
-    val size: Size
+    public val size: Size
         get() = drawContext.size
 
     /** The layout direction of the layout being drawn in. */
-    val layoutDirection: LayoutDirection
+    public val layoutDirection: LayoutDirection
 
     /**
      * Draws a line between the given points using the given paint. The line is stroked.
@@ -375,7 +386,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode the blending algorithm to apply to the [brush]
      */
-    fun drawLine(
+    public fun drawLine(
         brush: Brush,
         start: Offset,
         end: Offset,
@@ -401,7 +412,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode the blending algorithm to apply to the [color]
      */
-    fun drawLine(
+    public fun drawLine(
         color: Color,
         start: Offset,
         end: Offset,
@@ -427,7 +438,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawRect(
+    public fun drawRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -451,7 +462,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] source pixels
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawRect(
+    public fun drawRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -473,7 +484,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [image] when drawn into the destination
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawImage(
+    public fun drawImage(
         image: ImageBitmap,
         topLeft: Offset = Offset.Zero,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
@@ -515,7 +526,7 @@ interface DrawScope : Density {
                 "androidx.compose.ui.graphics.FilterQuality",
             ),
     ) // Binary API compatibility.
-    fun drawImage(
+    public fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
@@ -552,7 +563,7 @@ interface DrawScope : Density {
      *   into the destination. The default is [FilterQuality.Low] which scales using a bilinear
      *   sampling algorithm
      */
-    fun drawImage(
+    public fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
@@ -593,7 +604,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawRoundRect(
+    public fun drawRoundRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -619,7 +630,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the color
      */
-    fun drawRoundRect(
+    public fun drawRoundRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -643,7 +654,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawCircle(
+    public fun drawCircle(
         brush: Brush,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
@@ -666,7 +677,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawCircle(
+    public fun drawCircle(
         color: Color,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
@@ -691,7 +702,7 @@ interface DrawScope : Density {
      * @param blendMode Blending algorithm to be applied to the brush
      * @sample androidx.compose.ui.graphics.samples.DrawScopeOvalBrushSample
      */
-    fun drawOval(
+    public fun drawOval(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -716,7 +727,7 @@ interface DrawScope : Density {
      * @param blendMode Blending algorithm to be applied to the brush
      * @sample androidx.compose.ui.graphics.samples.DrawScopeOvalColorSample
      */
-    fun drawOval(
+    public fun drawOval(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -746,7 +757,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
-    fun drawArc(
+    public fun drawArc(
         brush: Brush,
         startAngle: Float,
         sweepAngle: Float,
@@ -779,7 +790,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
-    fun drawArc(
+    public fun drawArc(
         color: Color,
         startAngle: Float,
         sweepAngle: Float,
@@ -805,7 +816,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPath(
+    public fun drawPath(
         path: Path,
         color: Color,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
@@ -827,7 +838,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPath(
+    public fun drawPath(
         path: Path,
         brush: Brush,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
@@ -852,7 +863,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPoints(
+    public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         color: Color,
@@ -880,7 +891,7 @@ interface DrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPoints(
+    public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         brush: Brush,
@@ -898,10 +909,10 @@ interface DrawScope : Density {
      * will retarget the underlying canvas of the provided DrawScope to draw within the layer itself
      * and reset it to the original canvas on the conclusion of this method call.
      */
-    fun GraphicsLayer.record(
+    public fun GraphicsLayer.record(
         size: IntSize = this@DrawScope.size.toIntSize(),
         block: DrawScope.() -> Unit,
-    ) =
+    ): Unit =
         record(this@DrawScope, this@DrawScope.layoutDirection, size) {
             this@DrawScope.draw(
                 // we can use this@record.drawContext directly as the values in this@DrawScope
@@ -919,30 +930,30 @@ interface DrawScope : Density {
     private fun Size.offsetSize(offset: Offset): Size =
         Size(this.width - offset.x, this.height - offset.y)
 
-    companion object {
+    public companion object {
 
         /**
          * Default blending mode used for each drawing operation. This ensures that content is drawn
          * on top of the pixels in the destination
          */
-        val DefaultBlendMode: BlendMode = BlendMode.SrcOver
+        public val DefaultBlendMode: BlendMode = BlendMode.SrcOver
 
         /**
          * Default FilterQuality used for determining the filtering algorithm to apply when scaling
          * [ImageBitmap] objects. Maps to the default behavior of bilinear filtering
          */
-        val DefaultFilterQuality: FilterQuality = FilterQuality.Low
+        public val DefaultFilterQuality: FilterQuality = FilterQuality.Low
     }
 }
 
 /** Represents how the shapes should be drawn within a [DrawScope] */
-sealed class DrawStyle
+public sealed class DrawStyle
 
 /**
  * Default [DrawStyle] indicating shapes should be drawn completely filled in with the provided
  * color or pattern
  */
-object Fill : DrawStyle()
+public object Fill : DrawStyle()
 
 /**
  * [DrawStyle] that provides information for drawing content with a stroke
@@ -957,29 +968,29 @@ object Fill : DrawStyle()
  * @param pathEffect Effect to apply to the stroke, null indicates a solid stroke line is to be
  *   drawn
  */
-class Stroke(
-    val width: Float = 0.0f,
-    val miter: Float = DefaultMiter,
-    val cap: StrokeCap = DefaultCap,
-    val join: StrokeJoin = DefaultJoin,
-    val pathEffect: PathEffect? = null,
+public class Stroke(
+    public val width: Float = 0.0f,
+    public val miter: Float = DefaultMiter,
+    public val cap: StrokeCap = DefaultCap,
+    public val join: StrokeJoin = DefaultJoin,
+    public val pathEffect: PathEffect? = null,
 ) : DrawStyle() {
-    companion object {
+    public companion object {
 
         /** Width to indicate a hairline stroke of 1 pixel */
-        const val HairlineWidth = 0.0f
+        public const val HairlineWidth: Float = 0.0f
 
         /** Default miter length used in combination with joins */
-        const val DefaultMiter: Float = 4.0f
+        public const val DefaultMiter: Float = 4.0f
 
         /** Default cap used for line endings */
-        val DefaultCap = StrokeCap.Butt
+        public val DefaultCap: StrokeCap = StrokeCap.Butt
 
         /** Default join style used for connections between line and curve segments */
-        val DefaultJoin = StrokeJoin.Miter
+        public val DefaultJoin: StrokeJoin = StrokeJoin.Miter
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Stroke) return false
 
@@ -992,7 +1003,7 @@ class Stroke(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = width.hashCode()
         result = 31 * result + miter.hashCode()
         result = 31 * result + cap.hashCode()
@@ -1001,7 +1012,7 @@ class Stroke(
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "Stroke(width=$width, miter=$miter, cap=$cap, join=$join, pathEffect=$pathEffect)"
     }
 }

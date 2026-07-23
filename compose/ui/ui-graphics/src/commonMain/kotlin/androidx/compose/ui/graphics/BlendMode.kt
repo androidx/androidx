@@ -45,12 +45,12 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class BlendMode internal constructor(@Suppress("unused") private val value: Int) {
+public value class BlendMode internal constructor(@Suppress("unused") private val value: Int) {
 
-    companion object {
+    public companion object {
 
         /** Drop both the source and destination images, leaving nothing. */
-        val Clear
+        public val Clear: BlendMode
             get() = BlendMode(0)
 
         /**
@@ -58,7 +58,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * Conceptually, the destination is first cleared, then the source image is painted.
          */
-        val Src
+        public val Src: BlendMode
             get() = BlendMode(1)
 
         /**
@@ -66,7 +66,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * Conceptually, the source image is discarded, leaving the destination untouched.
          */
-        val Dst
+        public val Dst: BlendMode
             get() = BlendMode(2)
 
         /**
@@ -75,7 +75,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * This is the default value. It represents the most intuitive case, where shapes are
          * painted on top of what is below, with transparent areas showing the destination layer.
          */
-        val SrcOver
+        public val SrcOver: BlendMode
             get() = BlendMode(3)
 
         /**
@@ -86,7 +86,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * This is useful when the source image should have been painted before the destination
          * image, but could not be.
          */
-        val DstOver
+        public val DstOver: BlendMode
             get() = BlendMode(4)
 
         /**
@@ -99,7 +99,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * To reverse the semantic of the mask (only showing the source where the destination is
          * absent, rather than where it is present), consider [SrcOut].
          */
-        val SrcIn
+        public val SrcIn: BlendMode
             get() = BlendMode(5)
 
         /**
@@ -112,7 +112,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * To reverse the semantic of the mask (only showing the source where the destination is
          * present, rather than where it is absent), consider [DstOut].
          */
-        val DstIn
+        public val DstIn: BlendMode
             get() = BlendMode(6)
 
         /**
@@ -127,7 +127,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * This corresponds to the "Source out Destination" Porter-Duff operator.
          */
-        val SrcOut
+        public val SrcOut: BlendMode
             get() = BlendMode(7)
 
         /**
@@ -142,7 +142,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * This corresponds to the "Destination out Source" Porter-Duff operator.
          */
-        val DstOut
+        public val DstOut: BlendMode
             get() = BlendMode(8)
 
         /**
@@ -155,7 +155,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * For a variant with the destination on top instead of the source, see [DstAtop].
          */
-        val SrcAtop
+        public val SrcAtop: BlendMode
             get() = BlendMode(9)
 
         /**
@@ -168,14 +168,14 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * For a variant with the source on top instead of the destination, see [SrcAtop].
          */
-        val DstAtop
+        public val DstAtop: BlendMode
             get() = BlendMode(10)
 
         /**
          * Apply a bitwise `xor` operator to the source and destination images. This leaves
          * transparency where they would overlap.
          */
-        val Xor
+        public val Xor: BlendMode
             get() = BlendMode(11)
 
         /**
@@ -184,7 +184,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * Transparency in a pixel of one of the images reduces the contribution of that image to
          * the corresponding output pixel, as if the color of that pixel in that image was darker.
          */
-        val Plus
+        public val Plus: BlendMode
             get() = BlendMode(12)
 
         /**
@@ -203,7 +203,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which combines [Modulate] and [Screen] to favor the destination image.
          * * [Hardlight], which combines [Modulate] and [Screen] to favor the source image.
          */
-        val Modulate
+        public val Modulate: BlendMode
             get() = BlendMode(13)
 
         /**
@@ -229,7 +229,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which combines [Modulate] and [Screen] to favor the destination image.
          * * [Hardlight], which combines [Modulate] and [Screen] to favor the source image.
          */
-        val Screen
+        public val Screen: BlendMode
             get() = BlendMode(14) // The last coeff mode.
 
         /**
@@ -250,7 +250,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Hardlight], which is similar to [Overlay] but favors the source image instead of the
          *   destination image.
          */
-        val Overlay
+        public val Overlay: BlendMode
             get() = BlendMode(15)
 
         /**
@@ -259,7 +259,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The opacity of the output image is computed in the same way as for [SrcOver].
          */
-        val Darken
+        public val Darken: BlendMode
             get() = BlendMode(16)
 
         /**
@@ -268,7 +268,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The opacity of the output image is computed in the same way as for [SrcOver].
          */
-        val Lighten
+        public val Lighten: BlendMode
             get() = BlendMode(17)
 
         /**
@@ -280,7 +280,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val ColorDodge
+        public val ColorDodge: BlendMode
             get() = BlendMode(18)
 
         /**
@@ -292,7 +292,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val ColorBurn
+        public val ColorBurn: BlendMode
             get() = BlendMode(19)
 
         /**
@@ -315,7 +315,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Overlay], which is similar to [Hardlight] but favors the destination image instead of
          *   the source image.
          */
-        val Hardlight
+        public val Hardlight: BlendMode
             get() = BlendMode(20)
 
         /**
@@ -328,7 +328,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * See also:
          * * [BlendMode.Color], which is a more subtle tinting effect.
          */
-        val Softlight
+        public val Softlight: BlendMode
             get() = BlendMode(21)
 
         /**
@@ -342,7 +342,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The effect is similar to [Exclusion] but harsher.
          */
-        val Difference
+        public val Difference: BlendMode
             get() = BlendMode(22)
 
         /**
@@ -356,7 +356,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * The effect is similar to [Difference] but softer.
          */
-        val Exclusion
+        public val Exclusion: BlendMode
             get() = BlendMode(23)
 
         /**
@@ -375,7 +375,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val Multiply
+        public val Multiply: BlendMode
             get() = BlendMode(24) // The last separable mode.
 
         /**
@@ -389,7 +389,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          *
          * **NOTE** This [BlendMode] can only be used on Android API level 29 and above
          */
-        val Hue
+        public val Hue: BlendMode
             get() = BlendMode(25)
 
         /**
@@ -406,7 +406,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [BlendMode.Color], which also applies the hue of the source image.
          * * [Luminosity], which applies the luminosity of the source image to the destination.
          */
-        val Saturation
+        public val Saturation: BlendMode
             get() = BlendMode(26)
 
         /**
@@ -426,7 +426,7 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * * [Softlight], which is a similar tinting effect but also tints white.
          * * [Saturation], which only applies the saturation of the source image.
          */
-        val Color
+        public val Color: BlendMode
             get() = BlendMode(27)
 
         /**
@@ -442,11 +442,11 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
          * See also:
          * * [Saturation], which applies the saturation of the source image to the destination.
          */
-        val Luminosity
+        public val Luminosity: BlendMode
             get() = BlendMode(28)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Clear -> "Clear"
             Src -> "Src"
@@ -487,4 +487,4 @@ value class BlendMode internal constructor(@Suppress("unused") private val value
  * supported as it is the default drawing algorithm. If a [BlendMode] that is not supported is used,
  * the default of SrcOver is consumed instead.
  */
-expect fun BlendMode.isSupported(): Boolean
+public expect fun BlendMode.isSupported(): Boolean

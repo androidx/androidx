@@ -29,13 +29,13 @@ import androidx.compose.ui.node.visitSelfAndChildren
  * Implement this interface create a modifier node that can be used to observe focus state changes
  * to a [FocusTargetNode] down the hierarchy.
  */
-interface FocusEventModifierNode : DelegatableNode {
+public interface FocusEventModifierNode : DelegatableNode {
 
     /**
      * A parent FocusEventNode is notified of [FocusState] changes to the [FocusTargetNode]
      * associated with this [FocusEventModifierNode].
      */
-    fun onFocusEvent(focusState: FocusState)
+    public fun onFocusEvent(focusState: FocusState)
 }
 
 internal fun FocusEventModifierNode.invalidateFocusEvent() {

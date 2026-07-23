@@ -60,7 +60,7 @@ import androidx.compose.ui.Modifier
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <T> NavigableListDetailPaneScaffold(
+public fun <T> NavigableListDetailPaneScaffold(
     navigator: ThreePaneScaffoldNavigator<T>,
     listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     detailPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
@@ -117,7 +117,7 @@ fun <T> NavigableListDetailPaneScaffold(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <T> NavigableSupportingPaneScaffold(
+public fun <T> NavigableSupportingPaneScaffold(
     navigator: ThreePaneScaffoldNavigator<T>,
     mainPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     supportingPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,

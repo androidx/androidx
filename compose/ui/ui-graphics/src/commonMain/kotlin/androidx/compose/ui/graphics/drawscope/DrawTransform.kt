@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
  * @param vertical number of pixels to inset both top and bottom bounds. Zero by default.
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun DrawTransform.inset(horizontal: Float = 0.0f, vertical: Float = 0.0f) =
+public inline fun DrawTransform.inset(horizontal: Float = 0.0f, vertical: Float = 0.0f): Unit =
     inset(horizontal, vertical, horizontal, vertical)
 
 /**
@@ -43,7 +43,8 @@ inline fun DrawTransform.inset(horizontal: Float = 0.0f, vertical: Float = 0.0f)
  *
  * @param inset number of pixels to inset left, top, right, and bottom bounds.
  */
-@Suppress("NOTHING_TO_INLINE") inline fun DrawTransform.inset(inset: Float) = inset(inset, inset)
+@Suppress("NOTHING_TO_INLINE")
+public inline fun DrawTransform.inset(inset: Float): Unit = inset(inset, inset)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point. The
@@ -53,7 +54,7 @@ inline fun DrawTransform.inset(horizontal: Float = 0.0f, vertical: Float = 0.0f)
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun DrawTransform.rotateRad(radians: Float, pivot: Offset = center) =
+public inline fun DrawTransform.rotateRad(radians: Float, pivot: Offset = center): Unit =
     rotate(degrees(radians), pivot)
 
 /**
@@ -65,18 +66,19 @@ inline fun DrawTransform.rotateRad(radians: Float, pivot: Offset = center) =
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun DrawTransform.scale(scale: Float, pivot: Offset = center) = scale(scale, scale, pivot)
+public inline fun DrawTransform.scale(scale: Float, pivot: Offset = center): Unit =
+    scale(scale, scale, pivot)
 
 /** Defines transformations that can be applied to a drawing environment */
 @DrawScopeMarker
 @JvmDefaultWithCompatibility
-interface DrawTransform {
+public interface DrawTransform {
 
     /** Get the current size of the CanvasTransform */
-    val size: Size
+    public val size: Size
 
     /** Convenience method to obtain the current position of the current transformation */
-    val center: Offset
+    public val center: Offset
         get() = Offset(size.width / 2, size.height / 2)
 
     /**
@@ -90,7 +92,7 @@ interface DrawTransform {
      * @param right number of pixels to inset the right drawing bound
      * @param bottom number of pixels to inset the bottom drawing bound
      */
-    fun inset(left: Float, top: Float, right: Float, bottom: Float)
+    public fun inset(left: Float, top: Float, right: Float, bottom: Float)
 
     /**
      * Reduces the clip region to the intersection of the current clip and the given rectangle
@@ -105,7 +107,7 @@ interface DrawTransform {
      * @param bottom Bottom bound of the rectangle to clip
      * @param clipOp Clipping operation to perform on the given bounds
      */
-    fun clipRect(
+    public fun clipRect(
         left: Float = 0.0f,
         top: Float = 0.0f,
         right: Float = size.width,
@@ -121,7 +123,7 @@ interface DrawTransform {
      * @param clipOp Clipping operation to conduct on the given bounds, defaults to
      *   [ClipOp.Intersect]
      */
-    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.Intersect)
+    public fun clipPath(path: Path, clipOp: ClipOp = ClipOp.Intersect)
 
     /**
      * Translate the coordinate space by the given delta in pixels in both the x and y coordinates
@@ -130,7 +132,7 @@ interface DrawTransform {
      * @param left Pixels to translate the coordinate space in the x-axis
      * @param top Pixels to translate the coordinate space in the y-axis
      */
-    fun translate(left: Float = 0.0f, top: Float = 0.0f)
+    public fun translate(left: Float = 0.0f, top: Float = 0.0f)
 
     /**
      * Add a rotation (in degrees clockwise) to the current transform at the given pivot point. The
@@ -140,7 +142,7 @@ interface DrawTransform {
      * @param pivot The coordinates for the pivot point, defaults to the center of the coordinate
      *   space
      */
-    fun rotate(degrees: Float, pivot: Offset = center)
+    public fun rotate(degrees: Float, pivot: Offset = center)
 
     /**
      * Add an axis-aligned scale to the current transform, scaling by the first argument in the
@@ -152,12 +154,12 @@ interface DrawTransform {
      * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate
      *   space
      */
-    fun scale(scaleX: Float, scaleY: Float, pivot: Offset = center)
+    public fun scale(scaleX: Float, scaleY: Float, pivot: Offset = center)
 
     /**
      * Transform the drawing environment by the given matrix
      *
      * @param matrix transformation matrix used to transform the drawing environment
      */
-    fun transform(matrix: Matrix)
+    public fun transform(matrix: Matrix)
 }

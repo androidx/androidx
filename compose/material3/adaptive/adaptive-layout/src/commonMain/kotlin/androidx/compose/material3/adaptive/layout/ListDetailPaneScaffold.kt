@@ -78,7 +78,7 @@ import androidx.compose.ui.Modifier
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun ListDetailPaneScaffold(
+public fun ListDetailPaneScaffold(
     directive: PaneScaffoldDirective,
     value: ThreePaneScaffoldValue,
     listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
@@ -165,7 +165,7 @@ fun ListDetailPaneScaffold(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun ListDetailPaneScaffold(
+public fun ListDetailPaneScaffold(
     directive: PaneScaffoldDirective,
     scaffoldState: ThreePaneScaffoldState,
     listPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
@@ -197,7 +197,7 @@ fun ListDetailPaneScaffold(
 
 /** Provides default values of [ListDetailPaneScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
-object ListDetailPaneScaffoldDefaults {
+public object ListDetailPaneScaffoldDefaults {
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies] for [ListDetailPaneScaffold].
      *
@@ -205,7 +205,7 @@ object ListDetailPaneScaffoldDefaults {
      * @param listPaneAdaptStrategy the adapt strategy of the secondary pane
      * @param extraPaneAdaptStrategy the adapt strategy of the tertiary pane
      */
-    fun adaptStrategies(
+    public fun adaptStrategies(
         detailPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         listPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         extraPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
@@ -235,25 +235,25 @@ object ListDetailPaneScaffoldDefaults {
  * three pane scaffolds. We suggest you to use the values defined here instead of the raw
  * [ThreePaneScaffoldRole] under the context of [ListDetailPaneScaffold] for better code clarity.
  */
-object ListDetailPaneScaffoldRole {
+public object ListDetailPaneScaffoldRole {
     /**
      * The list pane of [ListDetailPaneScaffold], which is supposed to hold a list of item summaries
      * that can be selected from, for example, the inbox mail list of a mail app. It maps to
      * [ThreePaneScaffoldRole.Secondary].
      */
-    val List = ThreePaneScaffoldRole.Secondary
+    public val List: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Secondary
 
     /**
      * The detail pane of [ListDetailPaneScaffold], which is supposed to hold the detailed info of a
      * selected item, for example, the mail content currently being viewed. It maps to
      * [ThreePaneScaffoldRole.Primary].
      */
-    val Detail = ThreePaneScaffoldRole.Primary
+    public val Detail: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Primary
 
     /**
      * The extra pane of [ListDetailPaneScaffold], which is supposed to hold any supplementary info
      * besides the list and the detail panes, for example, a task list or a mini-calendar view of a
      * mail app. It maps to [ThreePaneScaffoldRole.Tertiary].
      */
-    val Extra = ThreePaneScaffoldRole.Tertiary
+    public val Extra: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Tertiary
 }

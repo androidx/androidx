@@ -51,12 +51,12 @@ import androidx.compose.ui.unit.dp
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class BlurredEdgeTreatment(val shape: Shape?) {
+public value class BlurredEdgeTreatment(public val shape: Shape?) {
 
-    companion object {
+    public companion object {
 
         /** Bounded [BlurredEdgeTreatment] that clips content bounds to a rectangular shape */
-        val Rectangle
+        public val Rectangle: BlurredEdgeTreatment
             get() = BlurredEdgeTreatment(RectangleShape)
 
         /**
@@ -68,7 +68,7 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
          *
          * @see TileMode.Decal
          */
-        val Unbounded
+        public val Unbounded: BlurredEdgeTreatment
             get() = BlurredEdgeTreatment(null)
     }
 }
@@ -92,7 +92,7 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
  * Example usage:
  */
 @Stable
-fun Modifier.blur(
+public fun Modifier.blur(
     radiusX: Dp,
     radiusY: Dp,
     edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle,
@@ -143,7 +143,7 @@ fun Modifier.blur(
  * Example usage:
  */
 @Stable
-fun Modifier.blur(
+public fun Modifier.blur(
     radius: Dp,
     edgeTreatment: BlurredEdgeTreatment = BlurredEdgeTreatment.Rectangle,
-) = blur(radius, radius, edgeTreatment)
+): Modifier = blur(radius, radius, edgeTreatment)

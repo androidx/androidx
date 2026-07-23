@@ -26,11 +26,11 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  *   [T] must be storable in a Bundle.
  */
 @ExperimentalMaterial3AdaptiveApi
-class ThreePaneScaffoldDestinationItem<out T>(
-    val pane: ThreePaneScaffoldRole,
-    val contentKey: T? = null,
+public class ThreePaneScaffoldDestinationItem<out T>(
+    public val pane: ThreePaneScaffoldRole,
+    public val contentKey: T? = null,
 ) {
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldDestinationItem<*>) return false
 
@@ -40,13 +40,13 @@ class ThreePaneScaffoldDestinationItem<out T>(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = pane.hashCode()
         result = 31 * result + (contentKey?.hashCode() ?: 0)
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "ThreePaneScaffoldDestinationItem(pane=$pane, contentKey=$contentKey)"
     }
 }

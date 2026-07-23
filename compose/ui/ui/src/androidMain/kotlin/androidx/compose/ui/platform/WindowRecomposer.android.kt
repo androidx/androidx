@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
  *
  * See [findViewTreeCompositionContext].
  */
-var View.compositionContext: CompositionContext?
+public var View.compositionContext: CompositionContext?
     get() = getTag(R.id.androidx_compose_ui_view_composition_context) as? CompositionContext
     set(value) {
         setTag(R.id.androidx_compose_ui_view_composition_context, value)
@@ -80,7 +80,7 @@ var View.compositionContext: CompositionContext?
  *
  * See [compositionContext] to get or set the parent [CompositionContext] for a specific view.
  */
-fun View.findViewTreeCompositionContext(): CompositionContext? {
+public fun View.findViewTreeCompositionContext(): CompositionContext? {
     var found: CompositionContext? = compositionContext
     if (found != null) return found
     var parent: ViewParent? = parent
@@ -135,7 +135,7 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
 
 /** A factory for creating an Android window-scoped [Recomposer]. See [createRecomposer]. */
 @InternalComposeUiApi
-fun interface WindowRecomposerFactory {
+public fun interface WindowRecomposerFactory {
     /**
      * Get a [Recomposer] for the window where [windowRootView] is at the root of the window's
      * [View] hierarchy. The factory is responsible for establishing a policy for
@@ -143,9 +143,9 @@ fun interface WindowRecomposerFactory {
      * hard reference to the returned [Recomposer] until it [joins][Recomposer.join] after shutting
      * down.
      */
-    fun createRecomposer(windowRootView: View): Recomposer
+    public fun createRecomposer(windowRootView: View): Recomposer
 
-    companion object {
+    public companion object {
         /**
          * A [WindowRecomposerFactory] that creates **lifecycle-aware** [Recomposer]s.
          *
@@ -157,14 +157,14 @@ fun interface WindowRecomposerFactory {
          * least [Lifecycle.State.STARTED], causing animations and other uses of
          * [MonotonicFrameClock] APIs to suspend until a **visible** frame will be produced.
          */
-        val LifecycleAware: WindowRecomposerFactory = WindowRecomposerFactory { rootView ->
+        public val LifecycleAware: WindowRecomposerFactory = WindowRecomposerFactory { rootView ->
             rootView.createLifecycleAwareWindowRecomposer()
         }
     }
 }
 
 @InternalComposeUiApi
-object WindowRecomposerPolicy {
+public object WindowRecomposerPolicy {
 
     private val factory =
         AtomicReference<WindowRecomposerFactory>(WindowRecomposerFactory.LifecycleAware)
@@ -182,11 +182,11 @@ object WindowRecomposerPolicy {
         factory: WindowRecomposerFactory,
     ): Boolean = this.factory.compareAndSet(expected, factory)
 
-    fun setFactory(factory: WindowRecomposerFactory) {
+    public fun setFactory(factory: WindowRecomposerFactory) {
         this.factory.set(factory)
     }
 
-    inline fun <R> withFactory(factory: WindowRecomposerFactory, block: () -> R): R {
+    public inline fun <R> withFactory(factory: WindowRecomposerFactory, block: () -> R): R {
         var cause: Throwable? = null
         val oldFactory = getAndSetFactory(factory)
         return try {
@@ -314,7 +314,7 @@ internal val View.windowRecomposer: Recomposer
  * Recomposition and associated [frame-based][MonotonicFrameClock] effects may be throttled or
  * paused while the [Lifecycle] is not at least [Lifecycle.State.STARTED].
  */
-fun View.createLifecycleAwareWindowRecomposer(
+public fun View.createLifecycleAwareWindowRecomposer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     lifecycle: Lifecycle? = null,
 ): Recomposer {

@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.collect
  * @see Stop
  * @see Cancel
  */
-interface DragInteraction : Interaction {
+public interface DragInteraction : Interaction {
     /**
      * An interaction representing a drag event on a component.
      *
@@ -41,7 +41,7 @@ interface DragInteraction : Interaction {
      * @see Stop
      * @see Cancel
      */
-    class Start : DragInteraction
+    public class Start : DragInteraction
 
     /**
      * An interaction representing the stopping of a [Start] event on a component.
@@ -50,7 +50,7 @@ interface DragInteraction : Interaction {
      * @see androidx.compose.foundation.gestures.draggable
      * @see Start
      */
-    class Stop(val start: Start) : DragInteraction
+    public class Stop(public val start: Start) : DragInteraction
 
     /**
      * An interaction representing the cancellation of a [Start] event on a component.
@@ -59,7 +59,7 @@ interface DragInteraction : Interaction {
      * @see androidx.compose.foundation.gestures.draggable
      * @see Start
      */
-    class Cancel(val start: Start) : DragInteraction
+    public class Cancel(public val start: Start) : DragInteraction
 }
 
 /**
@@ -75,7 +75,7 @@ interface DragInteraction : Interaction {
  * @return [State] representing whether this component is being dragged or not
  */
 @Composable
-fun InteractionSource.collectIsDraggedAsState(): State<Boolean> {
+public fun InteractionSource.collectIsDraggedAsState(): State<Boolean> {
     val isDragged = remember { mutableStateOf(false) }
     LaunchedEffect(this) {
         val dragInteractions = mutableListOf<DragInteraction.Start>()

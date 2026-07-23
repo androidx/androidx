@@ -35,8 +35,8 @@ import kotlin.jvm.JvmInline
  * @property value internal integer representation of the hyphenation mode.
  */
 @JvmInline
-value class Hyphens internal constructor(val value: Int) {
-    companion object {
+public value class Hyphens internal constructor(public val value: Int) {
+    public companion object {
         /**
          * Lines will break with no hyphenation.
          *
@@ -50,7 +50,7 @@ value class Hyphens internal constructor(val value: Int) {
          * +---------+
          * </pre>
          */
-        val None
+        public val None: Hyphens
             get() = Hyphens(1)
 
         /**
@@ -64,11 +64,11 @@ value class Hyphens internal constructor(val value: Int) {
          * +---------+
          * </pre>
          */
-        val Auto
+        public val Auto: Hyphens
             get() = Hyphens(2)
 
         /** Represents an unset [Hyphens] value. */
-        val Unspecified
+        public val Unspecified: Hyphens
             get() = Hyphens(0)
 
         /**
@@ -80,7 +80,7 @@ value class Hyphens internal constructor(val value: Int) {
          * @throws IllegalArgumentException if [value] is invalid.
          * @see androidx.compose.ui.text.style.Hyphens.value
          */
-        fun valueOf(value: Int): Hyphens {
+        public fun valueOf(value: Int): Hyphens {
             requirePrecondition(value in 0..2) {
                 "The given value=$value is not recognized by Hyphens."
             }
@@ -88,7 +88,7 @@ value class Hyphens internal constructor(val value: Int) {
         }
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             None -> "Hyphens.None"
             Auto -> "Hyphens.Auto"
@@ -102,13 +102,13 @@ value class Hyphens internal constructor(val value: Int) {
  *
  * @see Hyphens.Unspecified
  */
-inline val Hyphens.isSpecified: Boolean
+public inline val Hyphens.isSpecified: Boolean
     get() = value != 0
 
 /**
  * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
  * returned.
  */
-inline fun Hyphens.takeOrElse(block: () -> Hyphens): Hyphens {
+public inline fun Hyphens.takeOrElse(block: () -> Hyphens): Hyphens {
     return if (isSpecified) this else block()
 }

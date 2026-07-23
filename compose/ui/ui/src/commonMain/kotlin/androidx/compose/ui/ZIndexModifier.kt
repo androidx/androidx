@@ -37,7 +37,8 @@ import androidx.compose.ui.unit.Constraints
  *
  * @sample androidx.compose.ui.samples.ZIndexModifierSample
  */
-@Stable fun Modifier.zIndex(zIndex: Float): Modifier = this then ZIndexElement(zIndex = zIndex)
+@Stable
+public fun Modifier.zIndex(zIndex: Float): Modifier = this then ZIndexElement(zIndex = zIndex)
 
 internal data class ZIndexElement(val zIndex: Float) : ModifierNodeElement<ZIndexNode>() {
     override fun create() = ZIndexNode(zIndex)

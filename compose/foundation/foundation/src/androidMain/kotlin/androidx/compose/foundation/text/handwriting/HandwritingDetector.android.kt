@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.IntSize
  * @param callback a callback which will be triggered when stylus handwriting is detected
  * @sample androidx.compose.foundation.samples.HandwritingDetectorSample
  */
-fun Modifier.handwritingDetector(callback: () -> Unit) =
+public fun Modifier.handwritingDetector(callback: () -> Unit): Modifier =
     if (isStylusHandwritingSupported) {
         this.stylusHoverIcon(handwritingPointerIcon, false, HandwritingBoundsExpansion)
             .then(HandwritingDetectorElement(callback))

@@ -19,5 +19,5 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.input.key.KeyEvent
 
-actual val KeyEvent.isTypedEvent: Boolean
+public actual val KeyEvent.isTypedEvent: Boolean
     get() = implementedInJetBrainsFork()

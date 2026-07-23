@@ -34,7 +34,10 @@ import androidx.compose.ui.util.fastCoerceIn
  */
 @ExperimentalMaterialApi
 // TODO: Consider whether the state parameter should be replaced with lambdas.
-fun Modifier.pullRefreshIndicatorTransform(state: PullRefreshState, scale: Boolean = false) =
+public fun Modifier.pullRefreshIndicatorTransform(
+    state: PullRefreshState,
+    scale: Boolean = false,
+): Modifier =
     // Essentially we only want to clip the at the top, so the indicator will not appear when
     // the position is 0. It is preferable to clip the indicator as opposed to the layout that
     // contains the indicator, as this would also end up clipping shadows drawn by items in a

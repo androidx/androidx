@@ -41,20 +41,20 @@ import androidx.compose.ui.unit.dp
  * Use the [WindowInsets.Companion] extensions to retrieve [WindowInsets] for the current window.
  */
 @Stable
-interface WindowInsets {
+public interface WindowInsets {
     /** The space, in pixels, at the left of the window that the inset represents. */
-    fun getLeft(density: Density, layoutDirection: LayoutDirection): Int
+    public fun getLeft(density: Density, layoutDirection: LayoutDirection): Int
 
     /** The space, in pixels, at the top of the window that the inset represents. */
-    fun getTop(density: Density): Int
+    public fun getTop(density: Density): Int
 
     /** The space, in pixels, at the right of the window that the inset represents. */
-    fun getRight(density: Density, layoutDirection: LayoutDirection): Int
+    public fun getRight(density: Density, layoutDirection: LayoutDirection): Int
 
     /** The space, in pixels, at the bottom of the window that the inset represents. */
-    fun getBottom(density: Density): Int
+    public fun getBottom(density: Density): Int
 
-    companion object
+    public companion object
 }
 
 /**
@@ -66,12 +66,13 @@ interface WindowInsets {
  * Note: This API as experimental since it doesn't enforce the right consumption patterns.
  */
 @ExperimentalLayoutApi
-class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {
+public class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) :
+    WindowInsets {
     /**
      * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight], and
      * [bottom][getBottom] values.
      */
-    var insets by mutableStateOf(initialInsets)
+    public var insets: WindowInsets by mutableStateOf(initialInsets)
 
     override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
         insets.getLeft(density, layoutDirection)
@@ -89,9 +90,9 @@ class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)
  * should apply.
  */
 @kotlin.jvm.JvmInline
-value class WindowInsetsSides private constructor(private val value: Int) {
+public value class WindowInsetsSides private constructor(private val value: Int) {
     /** Returns a [WindowInsetsSides] containing sides defied in [sides] and the sides in `this`. */
-    operator fun plus(sides: WindowInsetsSides): WindowInsetsSides =
+    public operator fun plus(sides: WindowInsetsSides): WindowInsetsSides =
         WindowInsetsSides(value or sides.value)
 
     internal fun hasAny(sides: WindowInsetsSides): Boolean = (value and sides.value) != 0
@@ -112,7 +113,7 @@ value class WindowInsetsSides private constructor(private val value: Int) {
         if (value and Bottom.value == Bottom.value) appendPlus("Bottom")
     }
 
-    companion object {
+    public companion object {
         //     _---- allowLeft  in ltr
         //    /
         //    | _--- allowRight in ltr
@@ -148,7 +149,7 @@ value class WindowInsetsSides private constructor(private val value: Int) {
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
-        val Start
+        public val Start: WindowInsetsSides
             get() = AllowLeftInLtr + AllowRightInRtl
 
         /**
@@ -158,46 +159,46 @@ value class WindowInsetsSides private constructor(private val value: Int) {
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
-        val End
+        public val End: WindowInsetsSides
             get() = AllowRightInLtr + AllowLeftInRtl
 
         /** Indicates a [WindowInsets] top side. */
-        val Top
+        public val Top: WindowInsetsSides
             get() = WindowInsetsSides(1 shl 4)
 
         /** Indicates a [WindowInsets] bottom side. */
-        val Bottom
+        public val Bottom: WindowInsetsSides
             get() = WindowInsetsSides(1 shl 5)
 
         /**
          * Indicates a [WindowInsets] left side. Most layouts will prefer using [Start] or [End] to
          * account for [LayoutDirection].
          */
-        val Left
+        public val Left: WindowInsetsSides
             get() = AllowLeftInLtr + AllowLeftInRtl
 
         /**
          * Indicates a [WindowInsets] right side. Most layouts will prefer using [Start] or [End] to
          * account for [LayoutDirection].
          */
-        val Right
+        public val Right: WindowInsetsSides
             get() = AllowRightInLtr + AllowRightInRtl
 
         /**
          * Indicates a [WindowInsets] horizontal sides. This is a combination of [Left] and [Right]
          * sides, or [Start] and [End] sides.
          */
-        val Horizontal
+        public val Horizontal: WindowInsetsSides
             get() = Left + Right
 
         /** Indicates a [WindowInsets] [Top] and [Bottom] sides. */
-        val Vertical
+        public val Vertical: WindowInsetsSides
             get() = Top + Bottom
     }
 }
 
 /** Returns a [WindowInsets] that has the maximum values of this [WindowInsets] and [insets]. */
-fun WindowInsets.union(insets: WindowInsets): WindowInsets = UnionInsets(this, insets)
+public fun WindowInsets.union(insets: WindowInsets): WindowInsets = UnionInsets(this, insets)
 
 /**
  * Returns the values in this [WindowInsets] that are not also in [insets]. For example, if this
@@ -208,20 +209,20 @@ fun WindowInsets.union(insets: WindowInsets): WindowInsets = UnionInsets(this, i
  * and this has a [WindowInsets.getTop] of `0`, the returned [WindowInsets] will have a
  * [WindowInsets.getTop] value of `0`.
  */
-fun WindowInsets.exclude(insets: WindowInsets): WindowInsets = ExcludeInsets(this, insets)
+public fun WindowInsets.exclude(insets: WindowInsets): WindowInsets = ExcludeInsets(this, insets)
 
 /**
  * Returns a [WindowInsets] that has values of this, added to the values of [insets]. For example,
  * if this has a top of 10 and insets has a top of 5, the returned [WindowInsets] will have a top
  * of 15.
  */
-fun WindowInsets.add(insets: WindowInsets): WindowInsets = AddedInsets(this, insets)
+public fun WindowInsets.add(insets: WindowInsets): WindowInsets = AddedInsets(this, insets)
 
 /**
  * Returns a [WindowInsets] that eliminates all dimensions except the ones that are enabled. For
  * example, to have a [WindowInsets] at the bottom of the screen, pass [WindowInsetsSides.Bottom].
  */
-fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this, sides)
+public fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this, sides)
 
 /**
  * Convert a [WindowInsets] to a [PaddingValues] and uses [LocalDensity] for DP to pixel conversion.
@@ -234,7 +235,8 @@ fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this
  */
 @ReadOnlyComposable
 @Composable
-fun WindowInsets.asPaddingValues(): PaddingValues = InsetsPaddingValues(this, LocalDensity.current)
+public fun WindowInsets.asPaddingValues(): PaddingValues =
+    InsetsPaddingValues(this, LocalDensity.current)
 
 /**
  * Convert a [WindowInsets] to a [PaddingValues] and uses [density] for DP to pixel conversion.
@@ -245,29 +247,33 @@ fun WindowInsets.asPaddingValues(): PaddingValues = InsetsPaddingValues(this, Lo
  *
  * @sample androidx.compose.foundation.layout.samples.paddingValuesSample
  */
-fun WindowInsets.asPaddingValues(density: Density): PaddingValues =
+public fun WindowInsets.asPaddingValues(density: Density): PaddingValues =
     InsetsPaddingValues(this, density)
 
 /** Convert a [PaddingValues] to a [WindowInsets]. */
 internal fun PaddingValues.asInsets(): WindowInsets = PaddingValuesInsets(this)
 
 /** Create a [WindowInsets] with fixed dimensions of 0 on all sides. */
-fun WindowInsets(): WindowInsets = EmptyWindowInsets
+public fun WindowInsets(): WindowInsets = EmptyWindowInsets
 
 /**
  * Create a [WindowInsets] with fixed dimensions.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsInt
  */
-fun WindowInsets(left: Int = 0, top: Int = 0, right: Int = 0, bottom: Int = 0): WindowInsets =
-    FixedIntInsets(left, top, right, bottom)
+public fun WindowInsets(
+    left: Int = 0,
+    top: Int = 0,
+    right: Int = 0,
+    bottom: Int = 0,
+): WindowInsets = FixedIntInsets(left, top, right, bottom)
 
 /**
  * Create a [WindowInsets] with fixed dimensions, using [Dp] values.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsDp
  */
-fun WindowInsets(
+public fun WindowInsets(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
@@ -657,39 +663,39 @@ private class InsetsPaddingValues(val insets: WindowInsets, private val density:
 }
 
 /** An insets type representing the window of a caption bar. */
-expect val WindowInsets.Companion.captionBar: WindowInsets
+expect public val WindowInsets.Companion.captionBar: WindowInsets
     @Composable get
 
 /** This [WindowInsets] represents the area with the display cutout (e.g. for camera). */
-expect val WindowInsets.Companion.displayCutout: WindowInsets
+expect public val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable get
 
 /** An insets type representing the window of the software keyboard. */
-expect val WindowInsets.Companion.ime: WindowInsets
+expect public val WindowInsets.Companion.ime: WindowInsets
     @Composable get
 
 /**
  * These insets represent the space where system gestures have priority over application gestures.
  */
-expect val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+expect public val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
     @Composable get
 
 /**
  * These insets represent where system UI places navigation bars. Interactive UI should avoid the
  * navigation bars area.
  */
-expect val WindowInsets.Companion.navigationBars: WindowInsets
+expect public val WindowInsets.Companion.navigationBars: WindowInsets
     @Composable get
 
 /** These insets represent status bar. */
-expect val WindowInsets.Companion.statusBars: WindowInsets
+expect public val WindowInsets.Companion.statusBars: WindowInsets
     @Composable get
 
 /**
  * These insets represent all system bars. Includes [statusBars], [captionBar] as well as
  * [navigationBars], but not [ime].
  */
-expect val WindowInsets.Companion.systemBars: WindowInsets
+expect public val WindowInsets.Companion.systemBars: WindowInsets
     @Composable get
 
 /**
@@ -697,38 +703,38 @@ expect val WindowInsets.Companion.systemBars: WindowInsets
  * and may consume some or all touch input, e.g. due to the system bar occupying it, or it being
  * reserved for touch-only gestures.
  */
-expect val WindowInsets.Companion.systemGestures: WindowInsets
+expect public val WindowInsets.Companion.systemGestures: WindowInsets
     @Composable get
 
 /** Returns the tappable element insets. */
-expect val WindowInsets.Companion.tappableElement: WindowInsets
+expect public val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable get
 
 /** The insets for the curved areas in a waterfall display. */
-expect val WindowInsets.Companion.waterfall: WindowInsets
+expect public val WindowInsets.Companion.waterfall: WindowInsets
     @Composable get
 
 /** The path for the cutout, if any. */
-expect val WindowInsets.Companion.cutoutPath: Path?
+expect public val WindowInsets.Companion.cutoutPath: Path?
     @Composable get
 
 /**
  * The insets that include areas where content may be covered by other drawn content. This includes
  * all [systemBars], [displayCutout], and [ime].
  */
-expect val WindowInsets.Companion.safeDrawing: WindowInsets
+expect public val WindowInsets.Companion.safeDrawing: WindowInsets
     @Composable get
 
 /**
  * The insets that include areas where gestures may be confused with other input, including
  * [systemGestures], [mandatorySystemGestures], [waterfall], and [tappableElement].
  */
-expect val WindowInsets.Companion.safeGestures: WindowInsets
+expect public val WindowInsets.Companion.safeGestures: WindowInsets
     @Composable get
 
 /**
  * The insets that include all areas that may be drawn over or have gesture confusion, including
  * everything in [safeDrawing] and [safeGestures].
  */
-expect val WindowInsets.Companion.safeContent: WindowInsets
+expect public val WindowInsets.Companion.safeContent: WindowInsets
     @Composable get

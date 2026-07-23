@@ -45,60 +45,60 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.ceil
 
-const val DefaultGroupName = ""
-const val DefaultRotation = 0.0f
-const val DefaultPivotX = 0.0f
-const val DefaultPivotY = 0.0f
-const val DefaultScaleX = 1.0f
-const val DefaultScaleY = 1.0f
-const val DefaultTranslationX = 0.0f
-const val DefaultTranslationY = 0.0f
+public const val DefaultGroupName: String = ""
+public const val DefaultRotation: Float = 0.0f
+public const val DefaultPivotX: Float = 0.0f
+public const val DefaultPivotY: Float = 0.0f
+public const val DefaultScaleX: Float = 1.0f
+public const val DefaultScaleY: Float = 1.0f
+public const val DefaultTranslationX: Float = 0.0f
+public const val DefaultTranslationY: Float = 0.0f
 
-val EmptyPath = emptyList<PathNode>()
+public val EmptyPath: List<PathNode> = emptyList<PathNode>()
 
-const val DefaultPathName = ""
-const val DefaultStrokeLineWidth = 0.0f
-const val DefaultStrokeLineMiter = 4.0f
-const val DefaultTrimPathStart = 0.0f
-const val DefaultTrimPathEnd = 1.0f
-const val DefaultTrimPathOffset = 0.0f
+public const val DefaultPathName: String = ""
+public const val DefaultStrokeLineWidth: Float = 0.0f
+public const val DefaultStrokeLineMiter: Float = 4.0f
+public const val DefaultTrimPathStart: Float = 0.0f
+public const val DefaultTrimPathEnd: Float = 1.0f
+public const val DefaultTrimPathOffset: Float = 0.0f
 
-val DefaultStrokeLineCap
+public val DefaultStrokeLineCap: StrokeCap
     get() = StrokeCap.Butt
-val DefaultStrokeLineJoin
+public val DefaultStrokeLineJoin: StrokeJoin
     get() = StrokeJoin.Miter
-val DefaultTintBlendMode
+public val DefaultTintBlendMode: BlendMode
     get() = BlendMode.SrcIn
-val DefaultTintColor
+public val DefaultTintColor: Color
     get() = Color.Transparent
-val DefaultFillType
+public val DefaultFillType: PathFillType
     get() = PathFillType.NonZero
 
-inline fun PathData(block: PathBuilder.() -> Unit) =
+public inline fun PathData(block: PathBuilder.() -> Unit): List<PathNode> =
     with(PathBuilder()) {
         block()
         nodes
     }
 
-fun addPathNodes(pathStr: String?) =
+public fun addPathNodes(pathStr: String?): List<PathNode> =
     if (pathStr == null) {
         EmptyPath
     } else {
         PathParser().parsePathString(pathStr).toNodes()
     }
 
-sealed class VNode {
+public sealed class VNode {
     /**
      * Callback invoked whenever the node in the vector tree is modified in a way that would change
      * the output of the Vector
      */
     internal open var invalidateListener: ((VNode) -> Unit)? = null
 
-    fun invalidate() {
+    public fun invalidate() {
         invalidateListener?.invoke(this)
     }
 
-    abstract fun DrawScope.draw()
+    public abstract fun DrawScope.draw()
 }
 
 internal class VectorComponent(val root: GroupComponent) : VNode() {

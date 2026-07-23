@@ -54,7 +54,7 @@ import androidx.compose.ui.text.internal.requirePrecondition
  * @param variationSettings font variation settings, unset by default to load default VF from system
  * @throws IllegalArgumentException if familyName is empty
  */
-fun Font(
+public fun Font(
     familyName: DeviceFontFamilyName,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
@@ -73,7 +73,7 @@ fun Font(
  * @see Typeface
  */
 @JvmInline
-value class DeviceFontFamilyName(val name: String) {
+public value class DeviceFontFamilyName(public val name: String) {
     init {
         requirePrecondition(name.isNotEmpty()) { "name may not be empty" }
     }

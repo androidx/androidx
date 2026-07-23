@@ -23,16 +23,16 @@ import androidx.compose.ui.implementedInJetBrainsFork
 import androidx.compose.ui.unit.IntOffset
 
 @Immutable
-actual class PopupProperties
-actual constructor(
-    actual val focusable: Boolean,
-    actual val dismissOnBackPress: Boolean,
-    actual val dismissOnClickOutside: Boolean,
-    actual val clippingEnabled: Boolean,
-    actual val usePlatformDefaultWidth: Boolean,
+public actual class PopupProperties
+public actual constructor(
+    public actual val focusable: Boolean,
+    public actual val dismissOnBackPress: Boolean,
+    public actual val dismissOnClickOutside: Boolean,
+    public actual val clippingEnabled: Boolean,
+    public actual val usePlatformDefaultWidth: Boolean,
 ) {
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    actual constructor(
+    public actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
@@ -47,7 +47,7 @@ actual constructor(
 }
 
 @Composable
-actual fun Popup(
+public actual fun Popup(
     alignment: Alignment,
     offset: IntOffset,
     onDismissRequest: (() -> Unit)?,
@@ -56,7 +56,7 @@ actual fun Popup(
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
-actual fun Popup(
+public actual fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,

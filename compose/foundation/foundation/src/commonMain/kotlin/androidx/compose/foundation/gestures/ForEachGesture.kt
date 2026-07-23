@@ -27,7 +27,7 @@ import kotlinx.coroutines.isActive
  * A gesture was canceled and cannot continue, likely because another gesture has taken over the
  * pointer input stream.
  */
-class GestureCancellationException(message: String? = null) : CancellationException(message)
+public class GestureCancellationException(message: String? = null) : CancellationException(message)
 
 /**
  * Repeatedly calls [block] to handle gestures. If there is a [CancellationException], it will wait
@@ -41,7 +41,7 @@ class GestureCancellationException(message: String? = null) : CancellationExcept
     message = "Use awaitEachGesture instead. forEachGesture() can drop events between gestures.",
     replaceWith = ReplaceWith("awaitEachGesture(block)"),
 )
-suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.() -> Unit) {
+public suspend fun PointerInputScope.forEachGesture(block: suspend PointerInputScope.() -> Unit) {
     val currentContext = currentCoroutineContext()
     while (currentContext.isActive) {
         try {
@@ -94,7 +94,9 @@ internal suspend fun AwaitPointerEventScope.awaitAllPointersUp(
  * [block] is run within [PointerInputScope.awaitPointerEventScope] and will loop entirely within
  * the [AwaitPointerEventScope] so events will not be lost between gestures.
  */
-suspend fun PointerInputScope.awaitEachGesture(block: suspend AwaitPointerEventScope.() -> Unit) {
+public suspend fun PointerInputScope.awaitEachGesture(
+    block: suspend AwaitPointerEventScope.() -> Unit
+) {
     val currentContext = currentCoroutineContext()
     awaitPointerEventScope {
         while (currentContext.isActive) {

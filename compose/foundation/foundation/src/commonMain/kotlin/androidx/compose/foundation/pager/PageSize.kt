@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.Dp
  * @sample androidx.compose.foundation.samples.CustomPageSizeSample
  */
 @Stable
-interface PageSize {
+public interface PageSize {
 
     /**
      * Based on [availableSpace] pick a size for the pages
@@ -37,11 +37,14 @@ interface PageSize {
      * @param availableSpace The amount of space in pixels the pages in this Pager can use.
      * @param pageSpacing The amount of space in pixels used to separate pages.
      */
-    fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int
+    public fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int
 
     /** Pages take up the whole Pager size. */
-    object Fill : PageSize {
-        override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
+    public object Fill : PageSize {
+        public override fun Density.calculateMainAxisPageSize(
+            availableSpace: Int,
+            pageSpacing: Int,
+        ): Int {
             return availableSpace
         }
     }
@@ -51,18 +54,21 @@ interface PageSize {
      *
      * @param pageSize A fixed size for pages
      */
-    class Fixed(val pageSize: Dp) : PageSize {
-        override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
+    public class Fixed(public val pageSize: Dp) : PageSize {
+        public override fun Density.calculateMainAxisPageSize(
+            availableSpace: Int,
+            pageSpacing: Int,
+        ): Int {
             return pageSize.roundToPx()
         }
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Fixed) return false
             return pageSize == other.pageSize
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             return pageSize.hashCode()
         }
     }

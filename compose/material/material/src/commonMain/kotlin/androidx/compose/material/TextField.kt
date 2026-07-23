@@ -175,7 +175,7 @@ import kotlin.math.roundToInt
  *   interactions will still happen internally.
  */
 @Composable
-fun TextField(
+public fun TextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -321,7 +321,7 @@ fun TextField(
  *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
 @Composable
-fun TextField(
+public fun TextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -398,7 +398,7 @@ fun TextField(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun TextField(
+public fun TextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -511,7 +511,7 @@ fun TextField(
  *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
 @Composable
-fun TextField(
+public fun TextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -588,7 +588,7 @@ fun TextField(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun TextField(
+public fun TextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,

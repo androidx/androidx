@@ -51,7 +51,7 @@ import kotlin.jvm.JvmField
  *      }
  */
 @ExperimentalTestApi
-object AndroidComposeUiTestFlags {
+public object AndroidComposeUiTestFlags {
     /**
      * Enables or disables setting the default initial
      * [InputMode][androidx.compose.ui.input.InputMode] in parameterless test setup functions
@@ -69,5 +69,7 @@ object AndroidComposeUiTestFlags {
      */
     // TODO(b/508814902): Remove this flag once developers have had sufficient time to migrate their
     // tests to the new ComposeUiTestConfig defaults.
-    @JvmField @field:Suppress("MutableBareField") var isInputModeSetForDeviceTests: Boolean = true
+    @JvmField
+    @field:Suppress("MutableBareField")
+    public var isInputModeSetForDeviceTests: Boolean = true
 }

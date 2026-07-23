@@ -21,7 +21,7 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /** Interface for text-related toolbar. */
 @JvmDefaultWithCompatibility
-interface TextToolbar {
+public interface TextToolbar {
     /**
      * Show the floating toolbar(post-M) or primary toolbar(pre-M) for copying, cutting and pasting
      * text.
@@ -39,7 +39,7 @@ interface TextToolbar {
      * @param onAutofillRequested callback to autofill the field. If null, the autofill option will
      *   not be shown.
      */
-    fun showMenu(
+    public fun showMenu(
         rect: Rect,
         onCopyRequested: (() -> Unit)? = null,
         onPasteRequested: (() -> Unit)? = null,
@@ -71,7 +71,7 @@ interface TextToolbar {
      * @param onSelectAllRequested callback to select all the text content. If null, the select all
      *   option will not be shown.
      */
-    fun showMenu(
+    public fun showMenu(
         rect: Rect,
         onCopyRequested: (() -> Unit)? = null,
         onPasteRequested: (() -> Unit)? = null,
@@ -80,12 +80,12 @@ interface TextToolbar {
     )
 
     /** Hide the floating toolbar(post-M) or primary toolbar(pre-M). */
-    fun hide()
+    public fun hide()
 
     /**
      * Return the [TextToolbarStatus] to check if the toolbar is shown or hidden.
      *
      * @return [TextToolbarStatus] of [TextToolbar].
      */
-    val status: TextToolbarStatus
+    public val status: TextToolbarStatus
 }

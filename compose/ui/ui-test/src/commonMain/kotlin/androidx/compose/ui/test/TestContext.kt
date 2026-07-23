@@ -24,7 +24,7 @@ import androidx.compose.ui.node.RootForTest
  * [ComposeUiTest] and friends, for example the [InputDispatcher] or the implementation of some
  * assertions and actions.
  */
-class TestContext internal constructor(internal val testOwner: TestOwner) {
+public class TestContext internal constructor(internal val testOwner: TestOwner) {
 
     /**
      * Stores the [InputDispatcherState] of each [RootForTest]. The state will be restored in an

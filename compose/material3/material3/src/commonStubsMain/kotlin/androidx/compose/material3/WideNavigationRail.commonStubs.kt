@@ -26,8 +26,8 @@ import androidx.compose.runtime.Immutable
  *   the back button. If true, pressing the back button will call onDismissRequest.
  */
 @Immutable
-actual class ModalWideNavigationRailProperties
-actual constructor(actual val shouldDismissOnBackPress: Boolean)
+public actual class ModalWideNavigationRailProperties
+public actual constructor(public actual val shouldDismissOnBackPress: Boolean)
 
 internal actual fun createDefaultModalWideNavigationRailProperties():
     ModalWideNavigationRailProperties = implementedInJetBrainsFork()

@@ -96,7 +96,7 @@ import androidx.compose.ui.unit.LayoutDirection
  *   [androidx.compose.foundation.gestures.LocalBringIntoViewSpec] which by default has a platform
  *   dependent implementation.
  */
-fun Modifier.scrollableArea(
+public fun Modifier.scrollableArea(
     state: ScrollableState,
     orientation: Orientation,
     enabled: Boolean = true,
@@ -184,7 +184,7 @@ fun Modifier.scrollableArea(
  *   [androidx.compose.foundation.gestures.LocalBringIntoViewSpec] which by default has a platform
  *   dependent implementation.
  */
-fun Modifier.scrollableArea(
+public fun Modifier.scrollableArea(
     state: ScrollableState,
     orientation: Orientation,
     overscrollEffect: OverscrollEffect?,

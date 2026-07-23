@@ -36,7 +36,7 @@ import androidx.compose.foundation.text.contextmenu.data.TextContextMenuTextClas
  * @param onClick Action to perform upon the item being clicked/pressed.
  * @sample androidx.compose.foundation.samples.AppendItemToTextContextMenuAndroid
  */
-fun TextContextMenuBuilderScope.item(
+public fun TextContextMenuBuilderScope.item(
     key: Any,
     label: String,
     @DrawableRes leadingIcon: Int = Resources.ID_NULL,

@@ -20,10 +20,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.implementedInJetBrainsFork
 
 @Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
+public actual class TextMotion private constructor() {
+    public actual companion object {
+        public actual val Static: TextMotion = implementedInJetBrainsFork()
 
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
+        public actual val Animated: TextMotion = implementedInJetBrainsFork()
     }
 }

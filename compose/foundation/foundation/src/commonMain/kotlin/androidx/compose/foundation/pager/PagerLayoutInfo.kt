@@ -27,18 +27,18 @@ import androidx.compose.ui.util.fastCoerceAtMost
  *
  * Use [PagerState.layoutInfo] to retrieve this
  */
-sealed interface PagerLayoutInfo {
+public sealed interface PagerLayoutInfo {
     /** A list of all pages that are currently visible in the [Pager] */
-    val visiblePagesInfo: List<PageInfo>
+    public val visiblePagesInfo: List<PageInfo>
 
     /**
      * The main axis size of the Pages in this [Pager] provided by the [PageSize] API in the Pager
      * definition. This is provided in pixels.
      */
-    val pageSize: Int
+    public val pageSize: Int
 
     /** The spacing in pixels provided in the [Pager] creation. */
-    val pageSpacing: Int
+    public val pageSpacing: Int
 
     /**
      * The start offset of the layout's viewport in pixels. You can think of it as a minimum offset
@@ -48,7 +48,7 @@ sealed interface PagerLayoutInfo {
      *
      * You can use it to understand what items from [visiblePagesInfo] are fully visible.
      */
-    val viewportStartOffset: Int
+    public val viewportStartOffset: Int
 
     /**
      * The end offset of the layout's viewport in pixels. You can think of it as a maximum offset
@@ -56,41 +56,43 @@ sealed interface PagerLayoutInfo {
      *
      * You can use it to understand what items from [visiblePagesInfo] are fully visible.
      */
-    val viewportEndOffset: Int
+    public val viewportEndOffset: Int
 
     /**
      * The content padding in pixels applied before the first page in the direction of scrolling.
      * For example it is a top content padding for [VerticalPager] with reverseLayout set to false.
      */
-    val beforeContentPadding: Int
+    public val beforeContentPadding: Int
 
     /**
      * The content padding in pixels applied after the last page in the direction of scrolling. For
      * example it is a bottom content padding for [VerticalPager] with reverseLayout set to false.
      */
-    val afterContentPadding: Int
+    public val afterContentPadding: Int
 
     /**
      * The size of the viewport in pixels. It is the [Pager] layout size including all the content
      * paddings.
      */
-    val viewportSize: IntSize
+    public val viewportSize: IntSize
 
     /** The [Pager] orientation. */
-    val orientation: Orientation
+    public val orientation: Orientation
 
     /** True if the direction of scrolling and layout is reversed. */
-    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") val reverseLayout: Boolean
+    @Suppress("GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
+    public val reverseLayout: Boolean
 
     /**
      * Pages to compose and layout before and after the list of visible pages. This will be coerced
      * between 0 and the page count. This does not include the pages automatically composed and laid
      * out by the pre-fetcher in the direction of the scroll during scroll events.
      */
-    val beyondViewportPageCount: Int
+    public val beyondViewportPageCount: Int
 
     /** The calculation of how this Pager performs snapping of pages. */
-    val snapPosition: SnapPosition
+    public val snapPosition: SnapPosition
 }
 
 internal val PagerLayoutInfo.mainAxisViewportSize: Int

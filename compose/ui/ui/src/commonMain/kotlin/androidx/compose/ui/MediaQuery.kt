@@ -41,20 +41,20 @@ import kotlin.jvm.JvmInline
  * scope is used by [mediaQuery] to evaluate conditions based on the device and window state.
  */
 @ExperimentalMediaQueryApi
-interface UiMediaScope {
+public interface UiMediaScope {
     /**
      * The current posture of the application window.
      *
      * This reflects how the window is laid out on the screen, which may be affected by the device's
      * physical state. See [Posture] for possible values.
      */
-    val windowPosture: Posture
+    public val windowPosture: Posture
 
     /** The current width of the application window. */
-    @get:FrequentlyChangingValue val windowWidth: Dp
+    @get:FrequentlyChangingValue public val windowWidth: Dp
 
     /** The current height of the application window. */
-    @get:FrequentlyChangingValue val windowHeight: Dp
+    @get:FrequentlyChangingValue public val windowHeight: Dp
 
     /**
      * The highest-precision pointing device currently available.
@@ -64,7 +64,7 @@ interface UiMediaScope {
      * [PointerPrecision.Coarse] if both are present). See [PointerPrecision] for all possible
      * values.
      */
-    val pointerPrecision: PointerPrecision
+    public val pointerPrecision: PointerPrecision
 
     /**
      * The type of keyboard currently available or connected.
@@ -73,13 +73,13 @@ interface UiMediaScope {
      * on-screen soft keyboard ([KeyboardKind.Virtual]). If neither is detected, it returns
      * [KeyboardKind.None].
      */
-    val keyboardKind: KeyboardKind
+    public val keyboardKind: KeyboardKind
 
     /** Whether the microphone is supported on the current device. */
-    @get:Suppress("GetterSetterNames") val hasMicrophone: Boolean
+    @get:Suppress("GetterSetterNames") public val hasMicrophone: Boolean
 
     /** Whether the camera is supported on the current device. */
-    @get:Suppress("GetterSetterNames") val hasCamera: Boolean
+    @get:Suppress("GetterSetterNames") public val hasCamera: Boolean
 
     /**
      * The typical distance between the user and the device screen.
@@ -90,7 +90,7 @@ interface UiMediaScope {
      * Note that this is a broad categorization and does not represent a precise physical
      * measurement. It is based on the device type and its typical usage context.
      */
-    val viewingDistance: ViewingDistance
+    public val viewingDistance: ViewingDistance
 
     /**
      * Describes the posture of the window, typically on a foldable device.
@@ -104,8 +104,8 @@ interface UiMediaScope {
      */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class Posture private constructor(private val value: Int) {
-        override fun toString(): String =
+    public value class Posture private constructor(private val value: Int) {
+        public override fun toString(): String =
             when (this) {
                 Flat -> "Flat"
                 Tabletop -> "Tabletop"
@@ -113,21 +113,21 @@ interface UiMediaScope {
                 else -> "Unknown"
             }
 
-        companion object {
+        public companion object {
             /**
              * Represents a flat posture, where the window's display area on a foldable device is
              * flat (either fully open or closed). It's the default posture for non-foldable
              * devices, or when the window does not span across a hinge or fold (such as in
              * split-screen mode on a single panel).
              */
-            val Flat
+            public val Flat: Posture
                 get() = Posture(0)
 
             /**
              * Represents a device in a semi-open state, similar to a laptop. The window spans
              * across a horizontal fold or hinge, splitting the display area into two logical parts.
              */
-            val Tabletop
+            public val Tabletop: Posture
                 get() = Posture(1)
 
             /**
@@ -135,7 +135,7 @@ interface UiMediaScope {
              * window spans across a vertical fold or hinge, splitting the display area into two
              * logical parts.
              */
-            val Book
+            public val Book: Posture
                 get() = Posture(2)
         }
     }
@@ -143,8 +143,8 @@ interface UiMediaScope {
     /** Describes the precision of the available pointing devices. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class PointerPrecision private constructor(private val value: Int) {
-        override fun toString(): String =
+    public value class PointerPrecision private constructor(private val value: Int) {
+        public override fun toString(): String =
             when (this) {
                 Fine -> "Fine"
                 Coarse -> "Coarse"
@@ -153,24 +153,24 @@ interface UiMediaScope {
                 else -> "Unknown"
             }
 
-        companion object {
+        public companion object {
             /**
              * Represents a pointing device with high precision, such as a mouse, trackpad, or
              * stylus.
              */
-            val Fine
+            public val Fine: PointerPrecision
                 get() = PointerPrecision(0)
 
             /** Represents a pointing device with limited precision, such as a touchscreen. */
-            val Coarse
+            public val Coarse: PointerPrecision
                 get() = PointerPrecision(1)
 
             /** Represents a pointing device with low precision, such as a joystick. */
-            val Blunt
+            public val Blunt: PointerPrecision
                 get() = PointerPrecision(2)
 
             /** Indicates that no pointing device is available. */
-            val None
+            public val None: PointerPrecision
                 get() = PointerPrecision(3)
         }
     }
@@ -178,8 +178,8 @@ interface UiMediaScope {
     /** Describes the kind of keyboard available. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class KeyboardKind private constructor(private val value: Int) {
-        override fun toString(): String =
+    public value class KeyboardKind private constructor(private val value: Int) {
+        public override fun toString(): String =
             when (this) {
                 Physical -> "Physical"
                 Virtual -> "Virtual"
@@ -187,13 +187,13 @@ interface UiMediaScope {
                 else -> "Unknown"
             }
 
-        companion object {
+        public companion object {
             /** Represents a physical hardware keyboard. */
-            val Physical
+            public val Physical: KeyboardKind
                 get() = KeyboardKind(0)
 
             /** Represents an on-screen virtual keyboard (IME). */
-            val Virtual
+            public val Virtual: KeyboardKind
                 get() = KeyboardKind(1)
 
             /**
@@ -202,7 +202,7 @@ interface UiMediaScope {
              * This state occurs when no physical keyboard is connected to the device, and the
              * on-screen software keyboard (IME) is currently hidden or closed.
              */
-            val None
+            public val None: KeyboardKind
                 get() = KeyboardKind(2)
         }
     }
@@ -210,8 +210,8 @@ interface UiMediaScope {
     /** Describes the typical distance between the user and the screen. */
     @JvmInline
     @ExperimentalMediaQueryApi
-    value class ViewingDistance private constructor(private val value: Int) {
-        override fun toString(): String =
+    public value class ViewingDistance private constructor(private val value: Int) {
+        public override fun toString(): String =
             when (this) {
                 Near -> "Near"
                 Medium -> "Medium"
@@ -219,23 +219,23 @@ interface UiMediaScope {
                 else -> "Unknown"
             }
 
-        companion object {
+        public companion object {
             /**
              * Represents a device used within close range, such as a handheld phone, tablet,
              * laptop, or desktop monitor. This is the default for most personal devices.
              */
-            val Near
+            public val Near: ViewingDistance
                 get() = ViewingDistance(0)
 
             /**
              * Represents a device positioned slightly further away, such as an automotive device,
              * or a tablet in a dock mode.
              */
-            val Medium
+            public val Medium: ViewingDistance
                 get() = ViewingDistance(1)
 
             /** Represents a device viewed from a significant distance, such as a television. */
-            val Far
+            public val Far: ViewingDistance
                 get() = ViewingDistance(2)
         }
     }
@@ -250,7 +250,7 @@ interface UiMediaScope {
  * result in a runtime error.
  */
 @ExperimentalMediaQueryApi
-val LocalUiMediaScope: ProvidableCompositionLocal<UiMediaScope> =
+public val LocalUiMediaScope: ProvidableCompositionLocal<UiMediaScope> =
     computedDefaultOf("LocalUiMediaScope") {
         LocalOwner.currentValue.uiMediaScope ?: noLocalProvidedFor("LocalUiMediaScope")
     }
@@ -273,7 +273,7 @@ val LocalUiMediaScope: ProvidableCompositionLocal<UiMediaScope> =
 @ExperimentalMediaQueryApi
 @Composable
 @ReadOnlyComposable
-inline fun <T> mediaQuery(query: UiMediaScope.() -> T): T = LocalUiMediaScope.current.query()
+public inline fun <T> mediaQuery(query: UiMediaScope.() -> T): T = LocalUiMediaScope.current.query()
 
 /**
  * Evaluates a query against the current [UiMediaScope], wrapped in a [derivedStateOf].
@@ -292,7 +292,7 @@ inline fun <T> mediaQuery(query: UiMediaScope.() -> T): T = LocalUiMediaScope.cu
  */
 @ExperimentalMediaQueryApi
 @Composable
-fun <T> derivedMediaQuery(query: UiMediaScope.() -> T): State<T> {
+public fun <T> derivedMediaQuery(query: UiMediaScope.() -> T): State<T> {
     val mediaScope = LocalUiMediaScope.current
     val currentQuery by rememberUpdatedState(query)
 
@@ -311,7 +311,7 @@ fun <T> derivedMediaQuery(query: UiMediaScope.() -> T): State<T> {
  * @return The immediate result of the query.
  */
 @ExperimentalMediaQueryApi
-inline fun <T> CompositionLocalAccessorScope.mediaQuery(query: UiMediaScope.() -> T): T =
+public inline fun <T> CompositionLocalAccessorScope.mediaQuery(query: UiMediaScope.() -> T): T =
     LocalUiMediaScope.currentValue.query()
 
 /**
@@ -330,5 +330,6 @@ inline fun <T> CompositionLocalAccessorScope.mediaQuery(query: UiMediaScope.() -
  * @return The immediate result of the query.
  */
 @ExperimentalMediaQueryApi
-inline fun <T> CompositionLocalConsumerModifierNode.mediaQuery(query: UiMediaScope.() -> T): T =
-    currentValueOf(LocalUiMediaScope).query()
+public inline fun <T> CompositionLocalConsumerModifierNode.mediaQuery(
+    query: UiMediaScope.() -> T
+): T = currentValueOf(LocalUiMediaScope).query()

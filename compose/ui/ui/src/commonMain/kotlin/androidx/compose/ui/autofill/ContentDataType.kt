@@ -22,24 +22,24 @@ package androidx.compose.ui.autofill
  * Autofill services use the [ContentDataType] to determine what kind of field is associated with
  * the component.
  */
-expect sealed interface ContentDataType {
-    companion object {
+public expect sealed interface ContentDataType {
+    public companion object {
         /**
          * Indicates that the associated component does not have a data type, and therefore is not
          * autofillable.
          */
-        val None: ContentDataType
+        public val None: ContentDataType
 
         /** Indicates that the associated component is a text field. */
-        val Text: ContentDataType
+        public val Text: ContentDataType
 
         /** Indicates that the associated component is a list. */
-        val List: ContentDataType
+        public val List: ContentDataType
 
         /** Indicates that the associated component is a date. */
-        val Date: ContentDataType
+        public val Date: ContentDataType
 
         /** Indicates that the associated component is a toggle. */
-        val Toggle: ContentDataType
+        public val Toggle: ContentDataType
     }
 }

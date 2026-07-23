@@ -35,7 +35,7 @@ import androidx.compose.ui.tryPopulateReflectively
  * @see Modifier.Node
  * @see Modifier.Element
  */
-abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, InspectableValue {
+public abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, InspectableValue {
 
     private var _inspectorValues: InspectorInfo? = null
     private val inspectorValues: InspectorInfo
@@ -61,14 +61,14 @@ abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, Inspec
      * This will be called the first time the modifier is applied to the Layout and it should
      * construct and return the corresponding [Modifier.Node] instance.
      */
-    abstract fun create(): N
+    public abstract fun create(): N
 
     /**
      * Called when a modifier is applied to a Layout whose inputs have changed from the previous
      * application. This function will have the current node instance passed in as a parameter, and
      * it is expected that the node will be brought up to date.
      */
-    abstract fun update(node: N)
+    public abstract fun update(node: N)
 
     /**
      * Populates an [InspectorInfo] object with attributes to display in the layout inspector. This
@@ -86,7 +86,7 @@ abstract class ModifierNodeElement<N : Modifier.Node> : Modifier.Element, Inspec
      * to call `super`. Doing so may result in duplicate properties appearing in the layout
      * inspector.
      */
-    open fun InspectorInfo.inspectableProperties() {
+    public open fun InspectorInfo.inspectableProperties() {
         tryPopulateReflectively(this@ModifierNodeElement)
     }
 

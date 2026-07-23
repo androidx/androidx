@@ -19,18 +19,18 @@ package androidx.compose.ui.test
 import android.view.MotionEvent
 
 @JvmInline
-actual value class MouseButton(val buttonId: Int) {
-    actual companion object {
+public actual value class MouseButton(public val buttonId: Int) {
+    public actual companion object {
         /** The left mouse button */
-        actual val Primary
+        public actual val Primary: MouseButton
             get() = MouseButton(MotionEvent.BUTTON_PRIMARY)
 
         /** The right mouse button */
-        actual val Secondary
+        public actual val Secondary: MouseButton
             get() = MouseButton(MotionEvent.BUTTON_SECONDARY)
 
         /** The middle mouse button */
-        actual val Tertiary
+        public actual val Tertiary: MouseButton
             get() = MouseButton(MotionEvent.BUTTON_TERTIARY)
     }
 }

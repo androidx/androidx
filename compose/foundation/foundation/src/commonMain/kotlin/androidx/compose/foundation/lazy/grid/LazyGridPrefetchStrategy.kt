@@ -39,7 +39,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
  * the request.
  */
 @ExperimentalFoundationApi
-interface LazyGridPrefetchStrategy {
+public interface LazyGridPrefetchStrategy {
 
     /**
      * A [PrefetchScheduler] implementation which will be used to execute prefetch requests for this
@@ -50,7 +50,7 @@ interface LazyGridPrefetchStrategy {
         "Customization of PrefetchScheduler is no longer supported. LazyLayout will attach " +
             "an appropriate scheduler internally."
     )
-    val prefetchScheduler: PrefetchScheduler?
+    public val prefetchScheduler: PrefetchScheduler?
         get() = null
 
     /**
@@ -62,7 +62,7 @@ interface LazyGridPrefetchStrategy {
      *   0 indicates scrolling up.
      * @param layoutInfo the current [LazyGridLayoutInfo]
      */
-    fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo)
+    public fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo)
 
     /**
      * onVisibleItemsUpdated is invoked when the LazyGrid scrolls if the visible items have changed.
@@ -70,7 +70,7 @@ interface LazyGridPrefetchStrategy {
      * @param layoutInfo the current [LazyGridLayoutInfo]. Info about the updated visible items can
      *   be found in [LazyGridLayoutInfo.visibleItemsInfo].
      */
-    fun LazyGridPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyGridLayoutInfo)
+    public fun LazyGridPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyGridLayoutInfo)
 
     /**
      * onNestedPrefetch is invoked when a parent LazyLayout has prefetched content which contains
@@ -89,12 +89,12 @@ interface LazyGridPrefetchStrategy {
      * @param firstVisibleItemIndex the index of the first visible item. It should be used to start
      *   prefetching from the correct index in case the grid has been created at a non-zero offset.
      */
-    fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int)
+    public fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int)
 }
 
 /** Scope for callbacks in [LazyGridPrefetchStrategy] which allows prefetches to be requested. */
 @ExperimentalFoundationApi
-interface LazyGridPrefetchScope {
+public interface LazyGridPrefetchScope {
 
     /**
      * Schedules a prefetch for the given line index. Requests are executed in the order they're
@@ -106,7 +106,7 @@ interface LazyGridPrefetchScope {
      *
      * @param lineIndex index of the row or column to prefetch
      */
-    fun scheduleLinePrefetch(lineIndex: Int): List<LazyLayoutPrefetchState.PrefetchHandle>
+    public fun scheduleLinePrefetch(lineIndex: Int): List<LazyLayoutPrefetchState.PrefetchHandle>
 
     /**
      * Schedules a prefetch for the given line index. Requests are executed in the order they're
@@ -124,7 +124,7 @@ interface LazyGridPrefetchScope {
      *   items are available as a parameter of this callback. See [LazyGridPrefetchResultScope] for
      *   information about the line prefetched.
      */
-    fun scheduleLinePrefetch(
+    public fun scheduleLinePrefetch(
         lineIndex: Int,
         onPrefetchFinished: (LazyGridPrefetchResultScope.() -> Unit)?,
     ): List<LazyLayoutPrefetchState.PrefetchHandle> = scheduleLinePrefetch(lineIndex)
@@ -142,7 +142,7 @@ interface LazyGridPrefetchScope {
  *   automatically.
  */
 @ExperimentalFoundationApi
-fun LazyGridPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyGridPrefetchStrategy =
+public fun LazyGridPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyGridPrefetchStrategy =
     DefaultLazyGridPrefetchStrategy(nestedPrefetchItemCount)
 
 /**
@@ -310,19 +310,19 @@ private class DefaultLazyGridPrefetchStrategy(private val initialNestedPrefetchI
  * information about a prefetched item.
  */
 @ExperimentalFoundationApi
-sealed interface LazyGridPrefetchResultScope {
+public sealed interface LazyGridPrefetchResultScope {
 
     /** The number of items in this prefetched line. */
-    val lineItemCount: Int
+    public val lineItemCount: Int
 
     /** The index of the prefetched line */
-    val lineIndex: Int
+    public val lineIndex: Int
 
     /**
      * Returns the main axis size in pixels of a prefecthed item in this line. [itemIndexInLine] is
      * the item index from 0 to [lineItemCount] -1.
      */
-    fun getMainAxisSize(itemIndexInLine: Int): Int
+    public fun getMainAxisSize(itemIndexInLine: Int): Int
 }
 
 @OptIn(ExperimentalFoundationApi::class)

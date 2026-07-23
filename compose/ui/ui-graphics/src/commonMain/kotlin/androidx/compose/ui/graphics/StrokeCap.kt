@@ -21,25 +21,25 @@ import androidx.compose.runtime.Immutable
 /** Styles to use for line endings. See [Paint.strokeCap]. */
 @Immutable
 @kotlin.jvm.JvmInline
-value class StrokeCap internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class StrokeCap internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /** Begin and end contours with a flat edge and no extension. */
-        val Butt
+        public val Butt: StrokeCap
             get() = StrokeCap(0)
 
         /** Begin and end contours with a semi-circle extension. */
-        val Round
+        public val Round: StrokeCap
             get() = StrokeCap(1)
 
         /**
          * Begin and end contours with a half square extension. This is similar to extending each
          * contour by half the stroke width (as given by [Paint.strokeWidth]).
          */
-        val Square
+        public val Square: StrokeCap
             get() = StrokeCap(2)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Butt -> "Butt"
             Round -> "Round"

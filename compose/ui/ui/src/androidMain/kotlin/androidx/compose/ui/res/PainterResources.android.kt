@@ -54,7 +54,7 @@ import androidx.compose.ui.platform.LocalResources
  * @return [Painter] used for drawing the loaded resource
  */
 @Composable
-fun painterResource(@DrawableRes id: Int): Painter {
+public fun painterResource(@DrawableRes id: Int): Painter {
     val context = LocalContext.current
 
     val res = LocalResources.current
@@ -114,7 +114,7 @@ private fun loadImageBitmapResource(path: CharSequence, res: Resources, id: Int)
 }
 
 /** [Throwable] that is thrown in situations where a resource failed to load. */
-class ResourceResolutionException(message: String, cause: Throwable) :
+public class ResourceResolutionException(message: String, cause: Throwable) :
     RuntimeException(message, cause)
 
 private const val errorMessage =

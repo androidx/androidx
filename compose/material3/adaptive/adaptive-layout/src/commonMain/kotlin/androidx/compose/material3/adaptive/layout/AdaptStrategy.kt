@@ -28,13 +28,13 @@ import androidx.compose.ui.Alignment
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-sealed interface AdaptStrategy {
+public sealed interface AdaptStrategy {
     /** Override this function to provide the resulted adapted state. */
     @Deprecated(
         "This function is deprecated in favor of directly using the info carried by the " +
             "strategy instances to make adaptation decisions."
     )
-    fun adapt(): PaneAdaptedValue = PaneAdaptedValue.Hidden
+    public fun adapt(): PaneAdaptedValue = PaneAdaptedValue.Hidden
 
     @Immutable
     private class Simple(private val description: String) : AdaptStrategy {
@@ -59,16 +59,16 @@ sealed interface AdaptStrategy {
      *   three pane scaffolds, the type of this parameter is supposed to be [ThreePaneScaffoldRole].
      */
     @Immutable
-    class Reflow(internal val reflowUnder: PaneScaffoldRole) : AdaptStrategy {
-        override fun toString() = "AdaptStrategy[Reflow to $reflowUnder]"
+    public class Reflow(internal val reflowUnder: PaneScaffoldRole) : AdaptStrategy {
+        public override fun toString(): String = "AdaptStrategy[Reflow to $reflowUnder]"
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Reflow) return false
             return reflowUnder == other.reflowUnder
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             return reflowUnder.hashCode()
         }
     }
@@ -104,7 +104,7 @@ sealed interface AdaptStrategy {
      *   levitated.
      */
     @Immutable
-    class Levitate(
+    public class Levitate(
         internal val alignment: Alignment = Alignment.Center,
         internal val scrim: (@Composable () -> Unit)? = null,
         internal val dragToResizeState: DragToResizeState? = null,
@@ -114,14 +114,15 @@ sealed interface AdaptStrategy {
             message = "Keep the old constructor for binary compatibility",
             level = DeprecationLevel.HIDDEN,
         )
-        constructor(
+        public constructor(
             alignment: Alignment = Alignment.Center,
             scrim: (@Composable () -> Unit)? = null,
         ) : this(alignment, scrim, null)
 
-        override fun toString() = "AdaptStrategy[Levitate, alignment=$alignment, scrim=$scrim]"
+        public override fun toString(): String =
+            "AdaptStrategy[Levitate, alignment=$alignment, scrim=$scrim]"
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Levitate) return false
             if (alignment != other.alignment) return false
@@ -130,7 +131,7 @@ sealed interface AdaptStrategy {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = alignment.hashCode()
             result = 31 * result + scrim.hashCode()
             result = 31 * result + dragToResizeState.hashCode()
@@ -144,7 +145,8 @@ sealed interface AdaptStrategy {
          *
          * @see onlyIfSinglePane
          */
-        @Composable fun onlyIf(condition: Boolean): AdaptStrategy = if (condition) this else Hide
+        @Composable
+        public fun onlyIf(condition: Boolean): AdaptStrategy = if (condition) this else Hide
 
         /**
          * This is a convenient function to only levitate the associated pane when it's a
@@ -152,15 +154,15 @@ sealed interface AdaptStrategy {
          * of the recent destinations.
          */
         @Composable
-        fun onlyIfSinglePane(scaffoldDirective: PaneScaffoldDirective): AdaptStrategy =
+        public fun onlyIfSinglePane(scaffoldDirective: PaneScaffoldDirective): AdaptStrategy =
             onlyIf(scaffoldDirective.isSinglePaneLayout())
     }
 
-    companion object {
+    public companion object {
         /**
          * The default [AdaptStrategy] that suggests the layout to hide the associated pane when it
          * has to be adapted, i.e., cannot be displayed in its [PaneAdaptedValue.Expanded] state.
          */
-        val Hide: AdaptStrategy = Simple("Hide")
+        public val Hide: AdaptStrategy = Simple("Hide")
     }
 }

@@ -16,7 +16,7 @@
 
 package androidx.compose.material3
 
-actual class CalendarLocale {
+public actual class CalendarLocale {
     init {
         implementedInJetBrainsFork()
     }

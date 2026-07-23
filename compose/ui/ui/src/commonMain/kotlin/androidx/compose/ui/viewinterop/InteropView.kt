@@ -25,4 +25,4 @@ import androidx.compose.ui.InternalComposeUiApi
  */
 @Suppress("KmpExperimentalMismatch") // actuals are not experimental
 @InternalComposeUiApi
-expect class InteropView
+public expect class InteropView

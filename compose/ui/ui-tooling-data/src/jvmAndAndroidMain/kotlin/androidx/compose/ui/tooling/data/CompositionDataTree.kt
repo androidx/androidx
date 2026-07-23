@@ -47,7 +47,7 @@ import androidx.compose.runtime.tooling.findCompositionInstance
  */
 @UiToolingDataApi
 @OptIn(UiToolingDataApi::class)
-fun <T, R> Set<CompositionData>.makeTree(
+public fun <T, R> Set<CompositionData>.makeTree(
     prepareResult: (CompositionInstance) -> Unit,
     createNode: (CompositionGroup, SourceContext, List<T>, List<R>) -> T?,
     createResult: (CompositionInstance, T?, List<CompositionInstance>) -> R?,

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.TextUnit
  * developers can lay out text with different font sizes and do certain logic depending on whether
  * or not the text overflows.
  */
-sealed interface TextAutoSizeLayoutScope : Density {
+public sealed interface TextAutoSizeLayoutScope : Density {
     /**
      * Lay out the text and return the result of the measurement
      *
@@ -39,7 +39,7 @@ sealed interface TextAutoSizeLayoutScope : Density {
      * @param fontSize The font size to lay the text out with
      * @return The result of the measurement
      */
-    fun performLayout(
+    public fun performLayout(
         constraints: Constraints,
         text: AnnotatedString,
         fontSize: TextUnit,

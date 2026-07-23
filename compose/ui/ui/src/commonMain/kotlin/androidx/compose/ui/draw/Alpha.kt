@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.graphicsLayer
  * Example usage:
  */
 @Stable
-fun Modifier.alpha(
+public fun Modifier.alpha(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     alpha: Float
-) = if (alpha != 1.0f) graphicsLayer(alpha = alpha, clip = true) else this
+): Modifier = if (alpha != 1.0f) graphicsLayer(alpha = alpha, clip = true) else this

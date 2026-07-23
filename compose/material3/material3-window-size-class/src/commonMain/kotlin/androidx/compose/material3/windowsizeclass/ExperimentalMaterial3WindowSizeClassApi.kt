@@ -21,4 +21,4 @@ package androidx.compose.material3.windowsizeclass
         "be removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalMaterial3WindowSizeClassApi
+public annotation class ExperimentalMaterial3WindowSizeClassApi

@@ -37,7 +37,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
  * [Modifier.appendTextContextMenuComponents][appendTextContextMenuComponents] and
  * [Modifier.filterTextContextMenuComponents][filterTextContextMenuComponents]
  */
-interface TextContextMenuProvider {
+public interface TextContextMenuProvider {
     /**
      * Shows the text context menu.
      *
@@ -46,17 +46,19 @@ interface TextContextMenuProvider {
      *
      * @param dataProvider provides the data necessary to show the text context menu.
      */
-    suspend fun showTextContextMenu(dataProvider: TextContextMenuDataProvider)
+    public suspend fun showTextContextMenu(dataProvider: TextContextMenuDataProvider)
 }
 
 /** Provide a [TextContextMenuProvider] to be used for the text context menu dropdown. */
-val LocalTextContextMenuDropdownProvider: ProvidableCompositionLocal<TextContextMenuProvider?> =
+public val LocalTextContextMenuDropdownProvider:
+    ProvidableCompositionLocal<TextContextMenuProvider?> =
     compositionLocalOf {
         null
     }
 
 /** Provide a [TextContextMenuProvider] to be used for the text context menu toolbar. */
-val LocalTextContextMenuToolbarProvider: ProvidableCompositionLocal<TextContextMenuProvider?> =
+public val LocalTextContextMenuToolbarProvider:
+    ProvidableCompositionLocal<TextContextMenuProvider?> =
     compositionLocalOf {
         null
     }
@@ -66,14 +68,14 @@ val LocalTextContextMenuToolbarProvider: ProvidableCompositionLocal<TextContextM
  *
  * All functions on this interface are expected to be snapshot-aware.
  */
-interface TextContextMenuDataProvider {
+public interface TextContextMenuDataProvider {
     /**
      * Provides the position to place the context menu around. The position should be relative to
      * the provided [destinationCoordinates].
      *
      * This function is snapshot-aware.
      */
-    fun position(destinationCoordinates: LayoutCoordinates): Offset
+    public fun position(destinationCoordinates: LayoutCoordinates): Offset
 
     /**
      * Provides a bounding box to place the context menu around. The position should be relative to
@@ -81,12 +83,12 @@ interface TextContextMenuDataProvider {
      *
      * This function is snapshot-aware.
      */
-    fun contentBounds(destinationCoordinates: LayoutCoordinates): Rect
+    public fun contentBounds(destinationCoordinates: LayoutCoordinates): Rect
 
     /**
      * Provides the components used to fill the context menu.
      *
      * This function is snapshot-aware.
      */
-    fun data(): TextContextMenuData
+    public fun data(): TextContextMenuData
 }

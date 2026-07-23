@@ -22,28 +22,28 @@ package androidx.compose.foundation.lazy.layout
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.Interval> {
-    abstract val intervals: IntervalList<Interval>
+public abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.Interval> {
+    public abstract val intervals: IntervalList<Interval>
 
     /** The total amount of items in all the intervals. */
-    val itemCount: Int
+    public val itemCount: Int
         get() = intervals.size
 
     /** Returns item key based on a global index. */
-    fun getKey(index: Int): Any =
+    public fun getKey(index: Int): Any =
         withInterval(index) { localIndex, content ->
             content.key?.invoke(localIndex) ?: getDefaultLazyLayoutKey(index)
         }
 
     /** Returns content type based on a global index. */
-    fun getContentType(index: Int): Any? =
+    public fun getContentType(index: Int): Any? =
         withInterval(index) { localIndex, content -> content.type.invoke(localIndex) }
 
     /**
      * Runs a [block] on the content of the interval associated with the provided [globalIndex] with
      * providing a local index in the given interval.
      */
-    inline fun <T> withInterval(
+    public inline fun <T> withInterval(
         globalIndex: Int,
         block: (localIntervalIndex: Int, content: Interval) -> T,
     ): T {
@@ -59,13 +59,13 @@ abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.In
      * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
      * change.
      */
-    interface Interval {
+    public interface Interval {
         /** Returns item key based on a local index for the current interval. */
-        val key: ((index: Int) -> Any)?
+        public val key: ((index: Int) -> Any)?
             get() = null
 
         /** Returns item type based on a local index for the current interval. */
-        val type: ((index: Int) -> Any?)
+        public val type: ((index: Int) -> Any?)
             get() = { null }
     }
 }

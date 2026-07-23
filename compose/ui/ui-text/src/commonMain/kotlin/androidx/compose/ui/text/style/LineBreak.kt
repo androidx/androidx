@@ -48,30 +48,30 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 @Immutable
-expect value class LineBreak
+public expect value class LineBreak
 @Suppress("KmpVisibilityMismatch")
 private constructor(internal val mask: Int) {
-    companion object {
+    public companion object {
         /**
          * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal text
          * reflow when editing.
          */
-        @Stable val Simple: LineBreak
+        @Stable public val Simple: LineBreak
 
         /**
          * Looser breaking rules, suitable for short text such as titles or narrow newspaper
          * columns. For longer lines of text, use [Paragraph] for improved readability.
          */
-        @Stable val Heading: LineBreak
+        @Stable public val Heading: LineBreak
 
         /**
          * Slower, higher quality line breaking for improved readability. Suitable for larger
          * amounts of text.
          */
-        @Stable val Paragraph: LineBreak
+        @Stable public val Paragraph: LineBreak
 
         /** Represents an unset [LineBreak] value. */
-        @Stable val Unspecified: LineBreak
+        @Stable public val Unspecified: LineBreak
     }
 }
 
@@ -81,5 +81,5 @@ private constructor(internal val mask: Int) {
  * @see LineBreak.Unspecified
  */
 @Stable
-inline val LineBreak.isSpecified: Boolean
+public inline val LineBreak.isSpecified: Boolean
     get() = this != LineBreak.Unspecified

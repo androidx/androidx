@@ -86,23 +86,23 @@ import kotlin.math.roundToLong
  * @sample androidx.compose.ui.test.samples.indirectPointerInputSwipeRight
  */
 @JvmDefaultWithCompatibility
-interface IndirectPointerInjectionScope : Density {
+public interface IndirectPointerInjectionScope : Density {
     /** The default time between two successive events. */
-    val eventPeriodMillis
+    public val eventPeriodMillis: Long
         get() = InputDispatcher.eventPeriodMillis
 
     /**
      * Adds the given [durationMillis] to the current event time, delaying the next event by that
      * time.
      */
-    fun advanceEventTime(durationMillis: Long = eventPeriodMillis)
+    public fun advanceEventTime(durationMillis: Long = eventPeriodMillis)
 
     /**
      * The dimensions of the external indirect pointer input device that provide the boundaries for
      * indirect input. If you go outside these dimensions, the tests will throw an exception. Note:
      * This is not related to the screen coordinates.
      */
-    val inputDeviceSize: IntSize
+    public val inputDeviceSize: IntSize
 
     /**
      * The primary axis for motion from an [IndirectPointerEvent]. Indirect input devices (such as
@@ -114,7 +114,7 @@ interface IndirectPointerInjectionScope : Density {
      * vertical list to scroll vertically - even though the direction of motion on the input device
      * is horizontal in both cases.
      */
-    val indirectPointerEventPrimaryDirectionalMotionAxis:
+    public val indirectPointerEventPrimaryDirectionalMotionAxis:
         IndirectPointerEventPrimaryDirectionalMotionAxis
 
     /**
@@ -122,14 +122,14 @@ interface IndirectPointerInjectionScope : Density {
      * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] from the
      * [SemanticsNodeInteraction] on which the input injection method is called.
      */
-    val viewConfiguration: ViewConfiguration
+    public val viewConfiguration: ViewConfiguration
 
     /**
      * Returns the current position of the given [pointerId]. The default [pointerId] is 0. The
      * position is returned in the coordinate system of the device sending the input (see
      * [inputDeviceSize]). It is NOT related to the screen location.
      */
-    fun currentPosition(pointerId: Int = 0): Offset?
+    public fun currentPosition(pointerId: Int = 0): Offset?
 
     /**
      * Sends a down event for the pointer with the given [pointerId] at [position] on the external
@@ -145,7 +145,7 @@ interface IndirectPointerInjectionScope : Density {
      * @param position The position of the down event, in the input device's coordinate system.
      * @throws IllegalArgumentException if the given pointer id is already down.
      */
-    fun down(pointerId: Int, position: Offset)
+    public fun down(pointerId: Int, position: Offset)
 
     /**
      * Sends a down event for the default pointer at [position] on the indirect pointer input device
@@ -158,7 +158,7 @@ interface IndirectPointerInjectionScope : Density {
      * @param position The position of the down event, in the input device's coordinate system.
      * @throws IllegalArgumentException if the given pointer id is already down.
      */
-    fun down(position: Offset) {
+    public fun down(position: Offset) {
         down(0, position)
     }
 
@@ -174,7 +174,7 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun moveTo(pointerId: Int, position: Offset, delayMillis: Long = eventPeriodMillis) {
+    public fun moveTo(pointerId: Int, position: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerTo(pointerId, position)
         move(delayMillis)
     }
@@ -190,7 +190,7 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis) {
+    public fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis) {
         moveTo(0, position, delayMillis)
     }
 
@@ -205,7 +205,7 @@ interface IndirectPointerInjectionScope : Density {
      *   coordinate system
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun updatePointerTo(pointerId: Int, position: Offset)
+    public fun updatePointerTo(pointerId: Int, position: Offset)
 
     /**
      * Updates the position of the default pointer (`pointerId = 0`) to the given [position] within
@@ -217,7 +217,7 @@ interface IndirectPointerInjectionScope : Density {
      *   coordinate system
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun updatePointerTo(position: Offset) {
+    public fun updatePointerTo(position: Offset) {
         updatePointerTo(0, position)
     }
 
@@ -233,7 +233,7 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun moveBy(pointerId: Int, delta: Offset, delayMillis: Long = eventPeriodMillis) {
+    public fun moveBy(pointerId: Int, delta: Offset, delayMillis: Long = eventPeriodMillis) {
         updatePointerBy(pointerId, delta)
         move(delayMillis)
     }
@@ -250,7 +250,7 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
+    public fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
         moveBy(0, delta, delayMillis)
     }
 
@@ -264,7 +264,7 @@ interface IndirectPointerInjectionScope : Density {
      *   x-position, and subtract 10.px from the pointer's y-position.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun updatePointerBy(pointerId: Int, delta: Offset) {
+    public fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
         val currentPosition = currentPosition(pointerId) ?: Offset.Zero
 
@@ -288,7 +288,7 @@ interface IndirectPointerInjectionScope : Density {
      *   x-position, and subtract 10.px from the pointer's y-position.
      * @throws IllegalArgumentException if the pointer id is not yet down.
      */
-    fun updatePointerBy(delta: Offset) {
+    public fun updatePointerBy(delta: Offset) {
         updatePointerBy(0, delta)
     }
 
@@ -300,7 +300,7 @@ interface IndirectPointerInjectionScope : Density {
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
      */
-    fun move(delayMillis: Long = eventPeriodMillis)
+    public fun move(delayMillis: Long = eventPeriodMillis)
 
     /**
      * Sends a move event [delayMillis] after the last sent event without updating any of the
@@ -318,7 +318,7 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      */
     @Suppress("PrimitiveInCollection")
-    fun moveWithHistoryMultiPointer(
+    public fun moveWithHistoryMultiPointer(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<List<Offset>>,
         delayMillis: Long = eventPeriodMillis,
@@ -341,11 +341,11 @@ interface IndirectPointerInjectionScope : Density {
      *   by default.
      */
     @Suppress("PrimitiveInCollection")
-    fun moveWithHistory(
+    public fun moveWithHistory(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<Offset>,
         delayMillis: Long = eventPeriodMillis,
-    ) =
+    ): Unit =
         moveWithHistoryMultiPointer(
             relativeHistoricalTimes,
             listOf(historicalCoordinates),
@@ -358,7 +358,7 @@ interface IndirectPointerInjectionScope : Density {
      *
      * @param pointerId The id of the pointer to liftup, as supplied in [down]
      */
-    fun up(pointerId: Int = 0)
+    public fun up(pointerId: Int = 0)
 
     /**
      * Sends a cancel event [delayMillis] after the last sent event to cancel the current gesture.
@@ -367,7 +367,7 @@ interface IndirectPointerInjectionScope : Density {
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
      */
-    fun cancel(delayMillis: Long = eventPeriodMillis)
+    public fun cancel(delayMillis: Long = eventPeriodMillis)
 }
 
 /**
@@ -375,7 +375,7 @@ interface IndirectPointerInjectionScope : Density {
  * indirect input. If you go outside this width, the tests will throw an exception. Note: This is
  * not related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceWidth: Int
+public val IndirectPointerInjectionScope.inputDeviceWidth: Int
     get() = inputDeviceSize.width
 
 /**
@@ -383,7 +383,7 @@ val IndirectPointerInjectionScope.inputDeviceWidth: Int
  * indirect input. If you go outside this height, the tests will throw an exception. Note: This is
  * not related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceHeight: Int
+public val IndirectPointerInjectionScope.inputDeviceHeight: Int
     get() = inputDeviceSize.height
 
 /**
@@ -391,7 +391,7 @@ val IndirectPointerInjectionScope.inputDeviceHeight: Int
  * px, where (0, 0) is the top left corner of the indirect pointer input device. Note: This is not
  * related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceLeft: Float
+public val IndirectPointerInjectionScope.inputDeviceLeft: Float
     get() = 0f
 
 /**
@@ -399,7 +399,7 @@ val IndirectPointerInjectionScope.inputDeviceLeft: Float
  * where (0, 0) is the top left corner of the indirect pointer input device. Note: This is not
  * related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceTop: Float
+public val IndirectPointerInjectionScope.inputDeviceTop: Float
     get() = 0f
 
 /**
@@ -407,7 +407,7 @@ val IndirectPointerInjectionScope.inputDeviceTop: Float
  * px, where (0, 0) is the top left corner of the indirect pointer input device. Note: This is not
  * related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceCenterX: Float
+public val IndirectPointerInjectionScope.inputDeviceCenterX: Float
     get() = inputDeviceWidth / 2f
 
 /**
@@ -415,7 +415,7 @@ val IndirectPointerInjectionScope.inputDeviceCenterX: Float
  * px, where (0, 0) is the top left corner of the indirect pointer input device. Note: This is not
  * related to the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceCenterY: Float
+public val IndirectPointerInjectionScope.inputDeviceCenterY: Float
     get() = inputDeviceHeight / 2f
 
 /**
@@ -427,7 +427,7 @@ val IndirectPointerInjectionScope.inputDeviceCenterY: Float
  * `inputDeviceRight == inputDeviceWidth - 1f`, because pixels are 0-based. If `inputDeviceWidth ==
  * 0`, `inputDeviceRight == 0` too.
  */
-val IndirectPointerInjectionScope.inputDeviceRight: Float
+public val IndirectPointerInjectionScope.inputDeviceRight: Float
     get() = inputDeviceWidth.let { if (it == 0) 0f else it - 1f }
 
 /**
@@ -439,7 +439,7 @@ val IndirectPointerInjectionScope.inputDeviceRight: Float
  * particular, `inputDeviceBottom == inputDeviceHeight - 1f`, because pixels are 0-based. If
  * `inputDeviceHeight == 0`, `inputDeviceBottom == 0` too.
  */
-val IndirectPointerInjectionScope.inputDeviceBottom: Float
+public val IndirectPointerInjectionScope.inputDeviceBottom: Float
     get() = inputDeviceHeight.let { if (it == 0) 0f else it - 1f }
 
 /**
@@ -447,7 +447,7 @@ val IndirectPointerInjectionScope.inputDeviceBottom: Float
  * the top left corner of the indirect pointer input device. Note: This is not related to the screen
  * coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceTopLeft: Offset
+public val IndirectPointerInjectionScope.inputDeviceTopLeft: Offset
     get() = Offset(inputDeviceLeft, inputDeviceTop)
 
 /**
@@ -455,7 +455,7 @@ val IndirectPointerInjectionScope.inputDeviceTopLeft: Offset
  * (0, 0) is the top left corner of the indirect pointer input device. Note: This is not related to
  * the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceTopCenter: Offset
+public val IndirectPointerInjectionScope.inputDeviceTopCenter: Offset
     get() = Offset(inputDeviceCenterX, inputDeviceTop)
 
 /**
@@ -465,7 +465,7 @@ val IndirectPointerInjectionScope.inputDeviceTopCenter: Offset
  *
  * Note that `inputDeviceTopRight.x != inputDeviceWidth`, see [inputDeviceRight].
  */
-val IndirectPointerInjectionScope.inputDeviceTopRight: Offset
+public val IndirectPointerInjectionScope.inputDeviceTopRight: Offset
     get() = Offset(inputDeviceRight, inputDeviceTop)
 
 /**
@@ -473,7 +473,7 @@ val IndirectPointerInjectionScope.inputDeviceTopRight: Offset
  * (0, 0) is the top left corner of the indirect pointer input device. Note: This is not related to
  * the screen coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceCenterLeft: Offset
+public val IndirectPointerInjectionScope.inputDeviceCenterLeft: Offset
     get() = Offset(inputDeviceLeft, inputDeviceCenterY)
 
 /**
@@ -481,7 +481,7 @@ val IndirectPointerInjectionScope.inputDeviceCenterLeft: Offset
  * left corner of the indirect pointer input device. Note: This is not related to the screen
  * coordinates.
  */
-val IndirectPointerInjectionScope.inputDeviceCenter: Offset
+public val IndirectPointerInjectionScope.inputDeviceCenter: Offset
     get() = Offset(inputDeviceCenterX, inputDeviceCenterY)
 
 /**
@@ -491,7 +491,7 @@ val IndirectPointerInjectionScope.inputDeviceCenter: Offset
  *
  * Note that `inputDeviceCenterRight.x != inputDeviceWidth`, see [inputDeviceRight].
  */
-val IndirectPointerInjectionScope.inputDeviceCenterRight: Offset
+public val IndirectPointerInjectionScope.inputDeviceCenterRight: Offset
     get() = Offset(inputDeviceRight, inputDeviceCenterY)
 
 /**
@@ -501,7 +501,7 @@ val IndirectPointerInjectionScope.inputDeviceCenterRight: Offset
  *
  * Note that `inputDeviceBottomLeft.y != inputDeviceHeight`, see [inputDeviceBottom].
  */
-val IndirectPointerInjectionScope.inputDeviceBottomLeft: Offset
+public val IndirectPointerInjectionScope.inputDeviceBottomLeft: Offset
     get() = Offset(inputDeviceLeft, inputDeviceBottom)
 
 /**
@@ -511,7 +511,7 @@ val IndirectPointerInjectionScope.inputDeviceBottomLeft: Offset
  *
  * Note that `inputDeviceBottomCenter.y != inputDeviceHeight`, see [inputDeviceBottom].
  */
-val IndirectPointerInjectionScope.inputDeviceBottomCenter: Offset
+public val IndirectPointerInjectionScope.inputDeviceBottomCenter: Offset
     get() = Offset(inputDeviceCenterX, inputDeviceBottom)
 
 /**
@@ -522,7 +522,7 @@ val IndirectPointerInjectionScope.inputDeviceBottomCenter: Offset
  * Note that `inputDeviceBottomRight.x != inputDeviceWidth` and `inputDeviceBottomRight.y !=
  * inputDeviceHeight`, see [inputDeviceRight] and [inputDeviceBottom].
  */
-val IndirectPointerInjectionScope.inputDeviceBottomRight: Offset
+public val IndirectPointerInjectionScope.inputDeviceBottomRight: Offset
     get() = Offset(inputDeviceRight, inputDeviceBottom)
 
 /**
@@ -536,7 +536,7 @@ val IndirectPointerInjectionScope.inputDeviceBottomRight: Offset
  *   system ([IndirectPointerInjectionScope.inputDeviceSize]). If omitted, the defaultStartLocation
  *   will be used.
  */
-fun IndirectPointerInjectionScope.click(position: Offset = inputDeviceCenter) {
+public fun IndirectPointerInjectionScope.click(position: Offset = inputDeviceCenter) {
     down(position)
     move()
     up()
@@ -555,7 +555,7 @@ fun IndirectPointerInjectionScope.click(position: Offset = inputDeviceCenter) {
  *   defaultStartLocation will be used.
  * @param durationMillis The time between the down and the up event.
  */
-fun IndirectPointerInjectionScope.longClick(
+public fun IndirectPointerInjectionScope.longClick(
     position: Offset = inputDeviceCenter,
     durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100,
 ) {
@@ -584,7 +584,7 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
  * @param delayMillis The time between the up event of the first click and the down event of the
  *   second click
  */
-fun IndirectPointerInjectionScope.doubleClick(
+public fun IndirectPointerInjectionScope.doubleClick(
     position: Offset = inputDeviceCenter,
     delayMillis: Long = viewConfiguration.defaultDoubleTapDelayMillis,
 ) {
@@ -616,7 +616,11 @@ fun IndirectPointerInjectionScope.doubleClick(
  *   device's coordinate system ([IndirectPointerInjectionScope.inputDeviceSize]).
  * @param durationMillis The duration of the swipe gesture (default duration is 200 milliseconds)
  */
-fun IndirectPointerInjectionScope.swipe(start: Offset, end: Offset, durationMillis: Long = 200) {
+public fun IndirectPointerInjectionScope.swipe(
+    start: Offset,
+    end: Offset,
+    durationMillis: Long = 200,
+) {
     val durationFloat = durationMillis.toFloat()
     swipe(curve = { lerp(start, end, it / durationFloat) }, durationMillis = durationMillis)
 }
@@ -640,7 +644,7 @@ fun IndirectPointerInjectionScope.swipe(start: Offset, end: Offset, durationMill
  *   sampled
  */
 @Suppress("PrimitiveInCollection")
-fun IndirectPointerInjectionScope.swipe(
+public fun IndirectPointerInjectionScope.swipe(
     curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList(),
@@ -668,7 +672,7 @@ fun IndirectPointerInjectionScope.swipe(
  *   sampled
  */
 @Suppress("PrimitiveInCollection")
-fun IndirectPointerInjectionScope.multiTouchSwipe(
+public fun IndirectPointerInjectionScope.multiTouchSwipe(
     curves: List<(timeMillis: Long) -> Offset>,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList(),
@@ -727,7 +731,7 @@ fun IndirectPointerInjectionScope.multiTouchSwipe(
  *   coordinate system ([IndirectPointerInjectionScope.inputDeviceSize]).
  * @param durationMillis the duration of the pinch gesture
  */
-fun IndirectPointerInjectionScope.pinch(
+public fun IndirectPointerInjectionScope.pinch(
     start0: Offset,
     end0: Offset,
     start1: Offset,
@@ -777,7 +781,7 @@ fun IndirectPointerInjectionScope.pinch(
  *   velocity. The error message will suggest changes to the input parameters such that a swipe will
  *   become feasible.
  */
-fun IndirectPointerInjectionScope.swipeWithVelocity(
+public fun IndirectPointerInjectionScope.swipeWithVelocity(
     start: Offset,
     end: Offset,
     @FloatRange(from = 0.0) endVelocity: Float,
@@ -808,7 +812,11 @@ fun IndirectPointerInjectionScope.swipeWithVelocity(
  * @param endY The y-coordinate of the end of the swipe. Must be less than or equal to the [startY].
  * @param durationMillis The duration of the swipe. By default, 200 milliseconds.
  */
-fun IndirectPointerInjectionScope.swipeUp(startY: Float, endY: Float, durationMillis: Long = 200) {
+public fun IndirectPointerInjectionScope.swipeUp(
+    startY: Float,
+    endY: Float,
+    durationMillis: Long = 200,
+) {
     require(startY >= endY) { "startY=$startY needs to be greater than or equal to endY=$endY" }
     val start = Offset(inputDeviceCenter.x, startY)
     val end = Offset(inputDeviceCenter.x, endY)
@@ -826,7 +834,7 @@ fun IndirectPointerInjectionScope.swipeUp(startY: Float, endY: Float, durationMi
  *   [startY].
  * @param durationMillis The duration of the swipe. By default, 200 milliseconds.
  */
-fun IndirectPointerInjectionScope.swipeDown(
+public fun IndirectPointerInjectionScope.swipeDown(
     startY: Float,
     endY: Float,
     durationMillis: Long = 200,
@@ -847,7 +855,7 @@ fun IndirectPointerInjectionScope.swipeDown(
  * @param endX The x-coordinate of the end of the swipe. Must be less than or equal to the [startX].
  * @param durationMillis The duration of the swipe. By default, 200 milliseconds.
  */
-fun IndirectPointerInjectionScope.swipeLeft(
+public fun IndirectPointerInjectionScope.swipeLeft(
     startX: Float,
     endX: Float,
     durationMillis: Long = 200,
@@ -869,7 +877,7 @@ fun IndirectPointerInjectionScope.swipeLeft(
  *   [startX].
  * @param durationMillis The duration of the swipe. By default, 200 milliseconds.
  */
-fun IndirectPointerInjectionScope.swipeRight(
+public fun IndirectPointerInjectionScope.swipeRight(
     startX: Float,
     endX: Float,
     durationMillis: Long = 200,

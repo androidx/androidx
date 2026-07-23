@@ -54,10 +54,10 @@ import kotlinx.coroutines.launch
  *   [FocusInteraction.Focus] when this element is being focused.
  */
 @Stable
-fun Modifier.focusable(
+public fun Modifier.focusable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-) =
+): Modifier =
     this.then(
         if (enabled) {
             FocusableElement(interactionSource)
@@ -88,7 +88,7 @@ fun Modifier.focusable(
  * @sample androidx.compose.foundation.samples.FocusableFocusGroupSample
  */
 @Stable
-fun Modifier.focusGroup(): Modifier {
+public fun Modifier.focusGroup(): Modifier {
     return this.then(FocusGroupElement)
 }
 

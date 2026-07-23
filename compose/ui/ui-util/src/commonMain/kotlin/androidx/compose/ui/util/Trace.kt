@@ -16,6 +16,6 @@
 
 package androidx.compose.ui.util
 
-expect inline fun <T> trace(sectionName: String, block: () -> T): T
+public expect inline fun <T> trace(sectionName: String, block: () -> T): T
 
-expect fun traceValue(tag: String, value: Long)
+public expect fun traceValue(tag: String, value: Long)

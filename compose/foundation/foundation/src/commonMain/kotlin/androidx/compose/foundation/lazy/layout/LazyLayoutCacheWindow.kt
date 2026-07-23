@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
  * prepared in the Lazy Layout Cache Window area in advance to improve scroll performance.
  */
 @Stable
-interface LazyLayoutCacheWindow {
+public interface LazyLayoutCacheWindow {
     /**
      * Determines whether the cache window populates after a non-scroll related trigger. When set to
      * `true`, the cache window will use non-scroll triggers to start the caching process. For
@@ -37,7 +37,7 @@ interface LazyLayoutCacheWindow {
      * initial composition and item reordering, during which the layout is in a non-scroll state,
      * providing the opportunity to populate the window.
      */
-    val isNonScrollCachingEnabled: Boolean
+    public val isNonScrollCachingEnabled: Boolean
         get() = true
 
     /**
@@ -47,7 +47,7 @@ interface LazyLayoutCacheWindow {
      *
      * @param viewport The size of the viewport in this Lazy Layout in pixels.
      */
-    fun Density.calculateAheadWindow(viewport: Int): Int = 0
+    public fun Density.calculateAheadWindow(viewport: Int): Int = 0
 
     /**
      * Calculates the window area in pixels for keeping items in the scroll counter direction,
@@ -56,7 +56,7 @@ interface LazyLayoutCacheWindow {
      *
      * @param viewport The size of the viewport in this Lazy Layout in pixels.
      */
-    fun Density.calculateBehindWindow(viewport: Int): Int = 0
+    public fun Density.calculateBehindWindow(viewport: Int): Int = 0
 }
 
 /**
@@ -73,7 +73,7 @@ interface LazyLayoutCacheWindow {
  *   include initial composition and item reordering, during which the layout is in a non-scroll
  *   state, providing the opportunity to populate the window.
  */
-fun LazyLayoutCacheWindow(
+public fun LazyLayoutCacheWindow(
     ahead: Dp = 0.dp,
     behind: Dp = 0.dp,
     isNonScrollCachingEnabled: Boolean = true,
@@ -119,7 +119,7 @@ private class DpLazyLayoutCacheWindow(
  *   include initial composition and item reordering, during which the layout is in a non-scroll
  *   state, providing the opportunity to populate the window.
  */
-fun LazyLayoutCacheWindow(
+public fun LazyLayoutCacheWindow(
     @FloatRange(from = 0.0) aheadFraction: Float = 0.0f,
     @FloatRange(from = 0.0) behindFraction: Float = 0.0f,
     isNonScrollCachingEnabled: Boolean = true,

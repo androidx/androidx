@@ -92,7 +92,7 @@ import androidx.compose.ui.unit.dp
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Button(
+public fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -167,7 +167,7 @@ fun Button(
  */
 @Composable
 @NonRestartableComposable
-fun OutlinedButton(
+public fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -178,7 +178,7 @@ fun OutlinedButton(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
-) =
+): Unit =
     Button(
         onClick = onClick,
         modifier = modifier,
@@ -224,7 +224,7 @@ fun OutlinedButton(
  */
 @Composable
 @NonRestartableComposable
-fun TextButton(
+public fun TextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -235,7 +235,7 @@ fun TextButton(
     colors: ButtonColors = ButtonDefaults.textButtonColors(),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
     content: @Composable RowScope.() -> Unit,
-) =
+): Unit =
     Button(
         onClick = onClick,
         modifier = modifier,
@@ -255,14 +255,15 @@ fun TextButton(
  * See [ButtonDefaults.elevation] for the default elevation used in a [Button].
  */
 @Stable
-interface ButtonElevation {
+public interface ButtonElevation {
     /**
      * Represents the elevation used in a button, depending on [enabled] and [interactionSource].
      *
      * @param enabled whether the button is enabled
      * @param interactionSource the [InteractionSource] for this button
      */
-    @Composable fun elevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp>
+    @Composable
+    public fun elevation(enabled: Boolean, interactionSource: InteractionSource): State<Dp>
 }
 
 /**
@@ -273,29 +274,29 @@ interface ButtonElevation {
  * [ButtonDefaults.textButtonColors] for the default colors used in a [TextButton].
  */
 @Stable
-interface ButtonColors {
+public interface ButtonColors {
     /**
      * Represents the background color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    @Composable fun backgroundColor(enabled: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the content color for this button, depending on [enabled].
      *
      * @param enabled whether the button is enabled
      */
-    @Composable fun contentColor(enabled: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean): State<Color>
 }
 
 /** Contains the default values used by [Button] */
-object ButtonDefaults {
+public object ButtonDefaults {
     private val ButtonHorizontalPadding = 16.dp
     private val ButtonVerticalPadding = 8.dp
 
     /** The default content padding used by [Button] */
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
@@ -307,27 +308,27 @@ object ButtonDefaults {
      * The default min width applied for the [Button]. Note that you can override it by applying
      * Modifier.widthIn directly on [Button].
      */
-    val MinWidth = 64.dp
+    public val MinWidth: Dp = 64.dp
 
     /**
      * The default min height applied for the [Button]. Note that you can override it by applying
      * Modifier.heightIn directly on [Button].
      */
-    val MinHeight = 36.dp
+    public val MinHeight: Dp = 36.dp
 
     /**
      * The default size of the icon when used inside a [Button].
      *
      * @sample androidx.compose.material.samples.ButtonWithIconSample
      */
-    val IconSize = 18.dp
+    public val IconSize: Dp = 18.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside a [Button].
      *
      * @sample androidx.compose.material.samples.ButtonWithIconSample
      */
-    val IconSpacing = 8.dp
+    public val IconSpacing: Dp = 8.dp
 
     /**
      * Creates a [ButtonElevation] that will animate between the provided values according to the
@@ -340,7 +341,7 @@ object ButtonDefaults {
      */
     @Deprecated("Use another overload of elevation", level = DeprecationLevel.HIDDEN)
     @Composable
-    fun elevation(
+    public fun elevation(
         defaultElevation: Dp = 2.dp,
         pressedElevation: Dp = 8.dp,
         disabledElevation: Dp = 0.dp,
@@ -366,7 +367,7 @@ object ButtonDefaults {
      */
     @Suppress("UNUSED_PARAMETER")
     @Composable
-    fun elevation(
+    public fun elevation(
         defaultElevation: Dp = 2.dp,
         pressedElevation: Dp = 8.dp,
         disabledElevation: Dp = 0.dp,
@@ -400,7 +401,7 @@ object ButtonDefaults {
      * @param disabledContentColor the content color of this [Button] when not enabled
      */
     @Composable
-    fun buttonColors(
+    public fun buttonColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         disabledBackgroundColor: Color =
@@ -426,7 +427,7 @@ object ButtonDefaults {
      * @param disabledContentColor the content color of this [OutlinedButton] when not enabled
      */
     @Composable
-    fun outlinedButtonColors(
+    public fun outlinedButtonColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color =
@@ -448,7 +449,7 @@ object ButtonDefaults {
      * @param disabledContentColor the content color of this [TextButton] when not enabled
      */
     @Composable
-    fun textButtonColors(
+    public fun textButtonColors(
         backgroundColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color =
@@ -462,13 +463,13 @@ object ButtonDefaults {
         )
 
     /** The default color opacity used for an [OutlinedButton]'s border color */
-    const val OutlinedBorderOpacity = 0.12f
+    public const val OutlinedBorderOpacity: Float = 0.12f
 
     /** The default [OutlinedButton]'s border size */
-    val OutlinedBorderSize = 1.dp
+    public val OutlinedBorderSize: Dp = 1.dp
 
     /** The default disabled content color used by all types of [Button]s */
-    val outlinedBorder: BorderStroke
+    public val outlinedBorder: BorderStroke
         @Composable
         get() =
             BorderStroke(
@@ -479,7 +480,7 @@ object ButtonDefaults {
     private val TextButtonHorizontalPadding = 8.dp
 
     /** The default content padding used by [TextButton] */
-    val TextButtonContentPadding =
+    public val TextButtonContentPadding: PaddingValues =
         PaddingValues(
             start = TextButtonHorizontalPadding,
             top = ContentPadding.calculateTopPadding(),

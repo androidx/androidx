@@ -54,10 +54,10 @@ import androidx.compose.ui.util.fastRoundToInt
  *   constraints and used to calculate the resulting size according to [ratio]
  */
 @Stable
-fun Modifier.aspectRatio(
+public fun Modifier.aspectRatio(
     @FloatRange(from = 0.0, fromInclusive = false) ratio: Float,
     matchHeightConstraintsFirst: Boolean = false,
-) =
+): Modifier =
     this.then(
         AspectRatioElement(
             ratio,

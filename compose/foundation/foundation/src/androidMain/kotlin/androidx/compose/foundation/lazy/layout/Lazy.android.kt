@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 
-actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
+public actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
 
 @SuppressLint("BanParcelableUsage")
 private data class DefaultLazyKey(private val index: Int) : Parcelable {

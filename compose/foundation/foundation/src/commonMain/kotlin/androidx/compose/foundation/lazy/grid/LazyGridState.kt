@@ -74,7 +74,7 @@ import kotlinx.coroutines.launch
  *   [LazyGridState.firstVisibleItemScrollOffset]
  */
 @Composable
-fun rememberLazyGridState(
+public fun rememberLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyGridState {
@@ -97,7 +97,7 @@ fun rememberLazyGridState(
  */
 @ExperimentalFoundationApi
 @Composable
-fun rememberLazyGridState(
+public fun rememberLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
     prefetchStrategy: LazyGridPrefetchStrategy = remember { LazyGridPrefetchStrategy() },
@@ -125,7 +125,7 @@ fun rememberLazyGridState(
  */
 @ExperimentalFoundationApi
 @Composable
-fun rememberLazyGridState(
+public fun rememberLazyGridState(
     cacheWindow: LazyLayoutCacheWindow,
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
@@ -152,9 +152,9 @@ fun rememberLazyGridState(
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class LazyGridState
+public class LazyGridState
 @ExperimentalFoundationApi
-constructor(
+public constructor(
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
     internal val prefetchStrategy: LazyGridPrefetchStrategy = LazyGridPrefetchStrategy(),
@@ -168,7 +168,7 @@ constructor(
      *   [LazyGridState.firstVisibleItemScrollOffset]
      */
     @ExperimentalFoundationApi
-    constructor(
+    public constructor(
         cacheWindow: LazyLayoutCacheWindow,
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
@@ -183,7 +183,7 @@ constructor(
      * @param firstVisibleItemScrollOffset the initial value for
      *   [LazyGridState.firstVisibleItemScrollOffset]
      */
-    constructor(
+    public constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
     ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, LazyGridPrefetchStrategy())
@@ -219,14 +219,14 @@ constructor(
      *
      * @sample androidx.compose.foundation.samples.UsingGridScrollPositionInCompositionSample
      */
-    val firstVisibleItemIndex: Int
+    public val firstVisibleItemIndex: Int
         @FrequentlyChangingValue get() = scrollPosition.index
 
     /**
      * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the amount
      * that the item is offset backwards
      */
-    val firstVisibleItemScrollOffset: Int
+    public val firstVisibleItemScrollOffset: Int
         @FrequentlyChangingValue get() = scrollPosition.scrollOffset
 
     /** Backing state for [layoutInfo] */
@@ -246,7 +246,7 @@ constructor(
      *
      * @sample androidx.compose.foundation.samples.UsingGridLayoutInfoForSideEffectSample
      */
-    val layoutInfo: LazyGridLayoutInfo
+    public val layoutInfo: LazyGridLayoutInfo
         @FrequentlyChangingValue get() = layoutInfoState.value
 
     /**
@@ -254,7 +254,7 @@ constructor(
      * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
      * [isScrollInProgress].
      */
-    val interactionSource: InteractionSource
+    public val interactionSource: InteractionSource
         get() = internalInteractionSource
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
@@ -453,7 +453,7 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun scrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public suspend fun scrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         scroll { snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true) }
     }
 
@@ -474,7 +474,7 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         // Cancel any scroll in progress.
         if (isScrollInProgress) {
             layoutInfoState.value.coroutineScope.launch { stopScroll() }
@@ -637,7 +637,10 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public suspend fun animateScrollToItem(
+        @AndroidXIntRange(from = 0) index: Int,
+        scrollOffset: Int = 0,
+    ) {
         scroll {
             LazyLayoutScrollScope(this@LazyGridState, this)
                 .animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
@@ -716,9 +719,9 @@ constructor(
         firstItemIndex: Int,
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [LazyGridState]. */
-        val Saver: Saver<LazyGridState, *> =
+        public val Saver: Saver<LazyGridState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {

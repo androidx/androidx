@@ -79,7 +79,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @see [androidx.compose.foundation.lazy.LazyColumn]
  */
 @Composable
-inline fun Column(
+public inline fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -291,7 +291,7 @@ internal fun createColumnConstraints(
 @LayoutScopeMarker
 @Immutable
 @JvmDefaultWithCompatibility
-interface ColumnScope {
+public interface ColumnScope {
     /**
      * Size the element's height proportional to its [weight] relative to other weighted sibling
      * elements in the [Column]. The parent will divide the vertical space remaining after measuring
@@ -309,7 +309,7 @@ interface ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleColumn
      */
     @Stable
-    fun Modifier.weight(
+    public fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true,
     ): Modifier
@@ -322,7 +322,7 @@ interface ColumnScope {
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignInColumn
      */
-    @Stable fun Modifier.align(alignment: Alignment.Horizontal): Modifier
+    @Stable public fun Modifier.align(alignment: Alignment.Horizontal): Modifier
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
@@ -339,7 +339,7 @@ interface ColumnScope {
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleRelativeToSiblingsInColumn
      */
-    @Stable fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine): Modifier
+    @Stable public fun Modifier.alignBy(alignmentLine: VerticalAlignmentLine): Modifier
 
     /**
      * Position the element horizontally such that the alignment line for the content as determined
@@ -357,7 +357,7 @@ interface ColumnScope {
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleRelativeToSiblings
      */
-    @Stable fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
+    @Stable public fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
 @PublishedApi

@@ -35,7 +35,7 @@ import androidx.compose.ui.text.TextLayoutResult
  */
 // Open for testing purposes.
 @Deprecated("Use PlatformTextInputModifierNode instead.")
-open class TextInputService(private val platformTextInputService: PlatformTextInputService) {
+public open class TextInputService(private val platformTextInputService: PlatformTextInputService) {
     private val _currentInputSession: AtomicReference<TextInputSession?> = AtomicReference(null)
 
     internal val currentInputSession: TextInputSession?
@@ -53,7 +53,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      * @param onImeActionPerformed callback to inform if an IME action such as [ImeAction.Done] etc
      *   occurred.
      */
-    open fun startInput(
+    public open fun startInput(
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
@@ -71,7 +71,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      */
     @InternalTextApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun startInput() {
+    public fun startInput() {
         platformTextInputService.startInput()
         val nextSession = TextInputSession(this, platformTextInputService)
         _currentInputSession.set(nextSession)
@@ -84,7 +84,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      *
      * @param session the session returned by [startInput] call.
      */
-    open fun stopInput(session: TextInputSession) {
+    public open fun stopInput(session: TextInputSession) {
         if (_currentInputSession.compareAndSet(session, null)) {
             platformTextInputService.stopInput()
         }
@@ -92,7 +92,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
 
     @InternalTextApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun stopInput() {
+    public fun stopInput() {
         // This is a direct stop call, there's no need to compare the current input session.
         _currentInputSession.set(null)
         platformTextInputService.stopInput()
@@ -115,7 +115,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         replaceWith = ReplaceWith("textInputSession.showSoftwareKeyboard()"),
     )
     // TODO(b/183448615) @InternalTextApi
-    fun showSoftwareKeyboard() {
+    public fun showSoftwareKeyboard() {
         if (currentInputSession != null) {
             platformTextInputService.showSoftwareKeyboard()
         }
@@ -129,7 +129,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
         replaceWith = ReplaceWith("textInputSession.hideSoftwareKeyboard()"),
     )
     // TODO(b/183448615) @InternalTextApi
-    fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
+    public fun hideSoftwareKeyboard(): Unit = platformTextInputService.hideSoftwareKeyboard()
 }
 
 /**
@@ -139,7 +139,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
  * [isOpen] will return false and all further calls will have no effect.
  */
 @Deprecated("Use PlatformTextInputModifierNode instead.")
-class TextInputSession(
+public class TextInputSession(
     private val textInputService: TextInputService,
     private val platformTextInputService: PlatformTextInputService,
 ) {
@@ -148,7 +148,7 @@ class TextInputSession(
      *
      * A session may be closed at any time by [TextInputService] or by calling [dispose].
      */
-    val isOpen: Boolean
+    public val isOpen: Boolean
         get() = textInputService.currentInputSession == this
 
     /**
@@ -159,7 +159,7 @@ class TextInputSession(
      * Note, [TextInputService] may also close this input session at any time without calling
      * dispose. Calling dispose after this session has been closed has no effect.
      */
-    fun dispose() {
+    public fun dispose() {
         textInputService.stopInput(this)
     }
 
@@ -192,7 +192,7 @@ class TextInputSession(
      * @param rect the rectangle that describes the boundaries on the screen that requires focus
      * @return false if this session expired and no action was performed
      */
-    fun notifyFocusedRect(rect: Rect): Boolean = ensureOpenSession {
+    public fun notifyFocusedRect(rect: Rect): Boolean = ensureOpenSession {
         platformTextInputService.notifyFocusedRect(rect)
     }
 
@@ -209,14 +209,14 @@ class TextInputSession(
      * @param decorationBoxBounds visible bounds of the decoration box in text layout coordinates,
      *   or an empty rectangle if the decoration box is not visible
      */
-    fun updateTextLayoutResult(
+    public fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect,
-    ) = ensureOpenSession {
+    ): Boolean = ensureOpenSession {
         platformTextInputService.updateTextLayoutResult(
             textFieldValue,
             offsetMapping,
@@ -242,7 +242,7 @@ class TextInputSession(
      * @param newValue final state of the editing buffer that was requested by the application
      * @return false if this session expired and no action was performed
      */
-    fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue): Boolean =
+    public fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue): Boolean =
         ensureOpenSession {
             platformTextInputService.updateState(oldValue, newValue)
         }
@@ -263,7 +263,7 @@ class TextInputSession(
      */
     // TODO(b/241399013) Deprecate when out of API freeze.
     // @Deprecated("Use SoftwareKeyboardController.show() instead.")
-    fun showSoftwareKeyboard(): Boolean = ensureOpenSession {
+    public fun showSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.showSoftwareKeyboard()
     }
 
@@ -280,20 +280,20 @@ class TextInputSession(
      */
     // TODO(b/241399013) Deprecate when out of API freeze.
     // @Deprecated("Use SoftwareKeyboardController.hide() instead.")
-    fun hideSoftwareKeyboard(): Boolean = ensureOpenSession {
+    public fun hideSoftwareKeyboard(): Boolean = ensureOpenSession {
         platformTextInputService.hideSoftwareKeyboard()
     }
 }
 
 /** Platform specific text input service. */
 @Deprecated("Use PlatformTextInputModifierNode instead.")
-interface PlatformTextInputService {
+public interface PlatformTextInputService {
     /**
      * Start text input session for given client.
      *
      * @see TextInputService.startInput
      */
-    fun startInput(
+    public fun startInput(
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
@@ -306,14 +306,14 @@ interface PlatformTextInputService {
      *
      * @see TextInputService.startInput
      */
-    fun startInput() {}
+    public fun startInput(): Unit {}
 
     /**
      * Stop text input session.
      *
      * @see TextInputService.stopInput
      */
-    fun stopInput()
+    public fun stopInput()
 
     /**
      * Request showing onscreen keyboard
@@ -322,21 +322,21 @@ interface PlatformTextInputService {
      *
      * @see TextInputService.showSoftwareKeyboard
      */
-    fun showSoftwareKeyboard()
+    public fun showSoftwareKeyboard()
 
     /**
      * Hide software keyboard
      *
      * @see TextInputService.hideSoftwareKeyboard
      */
-    fun hideSoftwareKeyboard()
+    public fun hideSoftwareKeyboard()
 
     /**
      * Notify the new editor model to IME.
      *
      * @see TextInputSession.updateState
      */
-    fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue)
+    public fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue)
 
     /**
      * Notify the focused rectangle to the system.
@@ -346,19 +346,19 @@ interface PlatformTextInputService {
      * For example, desktop systems show a popup near the focused input area (for some languages).
      */
     // TODO(b/262648050) Try to find a better API.
-    fun notifyFocusedRect(rect: Rect) {}
+    public fun notifyFocusedRect(rect: Rect): Unit {}
 
     /**
      * Notify the input service of layout and position changes.
      *
      * @see TextInputSession.updateTextLayoutResult
      */
-    fun updateTextLayoutResult(
+    public fun updateTextLayoutResult(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect,
-    ) {}
+    ): Unit {}
 }

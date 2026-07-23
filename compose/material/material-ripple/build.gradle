@@ -73,6 +73,5 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2020"
     description = "Material ripple used to build interactive components"
-    legacyDisableKotlinStrictApiMode = true
 }
 

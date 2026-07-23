@@ -25,7 +25,7 @@ import androidx.compose.ui.internal.checkPrecondition
  *
  * @throws IllegalStateException If the modifier node is not [attached][Modifier.Node.isAttached].
  */
-fun DelegatableNode.requireView(): View {
+public fun DelegatableNode.requireView(): View {
     checkPrecondition(node.isAttached) {
         "Cannot get View because the Modifier node is not currently attached."
     }

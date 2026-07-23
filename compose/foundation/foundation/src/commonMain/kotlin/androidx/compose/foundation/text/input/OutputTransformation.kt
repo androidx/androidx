@@ -24,7 +24,7 @@ import androidx.compose.runtime.Stable
  * [BasicTextField].
  */
 @Stable
-fun interface OutputTransformation {
+public fun interface OutputTransformation {
 
     /**
      * Given a [TextFieldBuffer] that contains the contents of a [TextFieldState], modifies the
@@ -54,5 +54,5 @@ fun interface OutputTransformation {
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldAnnotatedOutputTransformationSample
      */
-    fun TextFieldBuffer.transformOutput()
+    public fun TextFieldBuffer.transformOutput()
 }

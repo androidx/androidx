@@ -25,9 +25,9 @@ import androidx.annotation.Size
  * @see Illuminant
  */
 @Suppress("DataClassDefinition")
-data class WhitePoint(val x: Float, val y: Float) {
+public data class WhitePoint(public val x: Float, public val y: Float) {
     /** Illuminant for CIE XYZ white point */
-    constructor(x: Float, y: Float, z: Float) : this(x, y, z, x + y + z)
+    public constructor(x: Float, y: Float, z: Float) : this(x, y, z, x + y + z)
 
     @Suppress("UNUSED_PARAMETER")
     private constructor(x: Float, y: Float, z: Float, sum: Float) : this(x / sum, y / sum)

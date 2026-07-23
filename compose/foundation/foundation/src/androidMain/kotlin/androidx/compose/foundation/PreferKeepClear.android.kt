@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @see View.setPreferKeepClearRects
  */
-fun Modifier.preferKeepClear() =
+public fun Modifier.preferKeepClear(): Modifier =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         this
     } else {
@@ -52,7 +52,7 @@ fun Modifier.preferKeepClear() =
  *
  * @see View.setPreferKeepClearRects
  */
-fun Modifier.preferKeepClear(rectProvider: (LayoutCoordinates) -> Rect) =
+public fun Modifier.preferKeepClear(rectProvider: (LayoutCoordinates) -> Rect): Modifier =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         this
     } else {

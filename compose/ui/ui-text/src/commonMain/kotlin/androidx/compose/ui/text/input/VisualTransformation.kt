@@ -21,14 +21,14 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 
 /** The transformed text with offset offset mapping */
-class TransformedText(
+public class TransformedText(
     /** The transformed text */
-    val text: AnnotatedString,
+    public val text: AnnotatedString,
 
     /** The map used for bidirectional offset mapping from original to transformed text. */
-    val offsetMapping: OffsetMapping,
+    public val offsetMapping: OffsetMapping,
 ) {
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TransformedText) return false
         if (text != other.text) return false
@@ -36,13 +36,13 @@ class TransformedText(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + offsetMapping.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "TransformedText(text=$text, offsetMapping=$offsetMapping)"
     }
 }
@@ -55,7 +55,7 @@ class TransformedText(
  * [PasswordVisualTransformation].
  */
 @Immutable
-fun interface VisualTransformation {
+public fun interface VisualTransformation {
     /**
      * Change the visual output of given text.
      *
@@ -75,12 +75,12 @@ fun interface VisualTransformation {
      * @param text The original text
      * @return the pair of filtered text and offset translator.
      */
-    fun filter(text: AnnotatedString): TransformedText
+    public fun filter(text: AnnotatedString): TransformedText
 
-    companion object {
+    public companion object {
         /** A special visual transformation object indicating that no transformation is applied. */
         @Stable
-        val None: VisualTransformation = VisualTransformation { text ->
+        public val None: VisualTransformation = VisualTransformation { text ->
             TransformedText(text, OffsetMapping.Identity)
         }
     }
@@ -93,22 +93,22 @@ fun interface VisualTransformation {
  *
  * @param mask The mask character used instead of original text.
  */
-class PasswordVisualTransformation(val mask: Char = '\u2022') : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
+public class PasswordVisualTransformation(public val mask: Char = '\u2022') : VisualTransformation {
+    public override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
             AnnotatedString(mask.toString().repeat(text.text.length)),
             OffsetMapping.Identity,
         )
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PasswordVisualTransformation) return false
         if (mask != other.mask) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return mask.hashCode()
     }
 }

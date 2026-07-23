@@ -118,7 +118,7 @@ import kotlinx.coroutines.launch
  * Please refer to the samples to learn how to use this API.
  */
 @Composable
-fun HorizontalPager(
+public fun HorizontalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -161,7 +161,7 @@ fun HorizontalPager(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun HorizontalPager(
+public fun HorizontalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -201,7 +201,7 @@ fun HorizontalPager(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun HorizontalPager(
+public fun HorizontalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -292,7 +292,7 @@ fun HorizontalPager(
  * Please refer to the sample to learn how to use this API.
  */
 @Composable
-fun VerticalPager(
+public fun VerticalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -335,7 +335,7 @@ fun VerticalPager(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun VerticalPager(
+public fun VerticalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -375,7 +375,7 @@ fun VerticalPager(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun VerticalPager(
+public fun VerticalPager(
     state: PagerState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -412,7 +412,7 @@ fun VerticalPager(
 }
 
 /** Contains the default values used by [Pager]. */
-object PagerDefaults {
+public object PagerDefaults {
 
     /**
      * A [snapFlingBehavior] that will snap pages to the start of the layout. One can use the given
@@ -465,7 +465,7 @@ object PagerDefaults {
      * velocity, the Pager will use [snapAnimationSpec] + [snapAnimationSpec] in a similar fashion.
      */
     @Composable
-    fun flingBehavior(
+    public fun flingBehavior(
         state: PagerState,
         pagerSnapDistance: PagerSnapDistance = PagerSnapDistance.atMost(1),
         decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
@@ -520,7 +520,7 @@ object PagerDefaults {
      * @param state state of the pager
      */
     @Composable
-    fun bringIntoViewSpec(state: PagerState): BringIntoViewSpec {
+    public fun bringIntoViewSpec(state: PagerState): BringIntoViewSpec {
         val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
         val layoutDirection = LocalLayoutDirection.current
         return remember(state, defaultBringIntoViewSpec, layoutDirection) {
@@ -536,7 +536,7 @@ object PagerDefaults {
      *   direction the nested scroll connection will operate and react on.
      */
     @Composable
-    fun pageNestedScrollConnection(
+    public fun pageNestedScrollConnection(
         state: PagerState,
         orientation: Orientation,
     ): NestedScrollConnection {
@@ -551,7 +551,7 @@ object PagerDefaults {
      * and layout before and after the visible pages. It does not include the pages automatically
      * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
      */
-    const val BeyondViewportPageCount = 0
+    public const val BeyondViewportPageCount: Int = 0
 }
 
 internal fun SnapPosition.currentPageOffset(

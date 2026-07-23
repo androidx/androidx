@@ -40,8 +40,10 @@ import androidx.compose.ui.geometry.Rect
  * @param tolerance When [path] contains conic curves, defines the maximum distance between the
  *   original conic curve and its quadratic approximations. Set to 0.5 by default.
  */
-fun PathHitTester(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) =
-    PathHitTester().apply { updatePath(path, tolerance) }
+public fun PathHitTester(
+    path: Path,
+    @FloatRange(from = 0.0) tolerance: Float = 0.5f,
+): PathHitTester = PathHitTester().apply { updatePath(path, tolerance) }
 
 private val EmptyPath = Path()
 
@@ -49,7 +51,7 @@ private val EmptyPath = Path()
  * A [PathHitTester] is used to query whether certain x/y coordinates lie inside a given [Path]. A
  * [PathHitTester] is optimized to perform multiple queries against a single path.
  */
-class PathHitTester {
+public class PathHitTester {
     private var path = EmptyPath
     private var tolerance = 0.5f
 
@@ -81,7 +83,7 @@ class PathHitTester {
      * @param tolerance When [path] contains conic curves, defines the maximum distance between the
      *   original conic curve and its quadratic approximations. Set to 0.5 by default.
      */
-    fun updatePath(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) {
+    public fun updatePath(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) {
         this.path = path
         this.tolerance = tolerance
         bounds = path.getBounds()
@@ -114,7 +116,7 @@ class PathHitTester {
      * @param position The x/y coordinates of the point to test.
      * @return True if [position] is inside this path, false otherwise.
      */
-    operator fun contains(position: Offset): Boolean {
+    public operator fun contains(position: Offset): Boolean {
         // TODO: If/when Compose supports inverse fill types, compute this value
         val isInverse = false
 

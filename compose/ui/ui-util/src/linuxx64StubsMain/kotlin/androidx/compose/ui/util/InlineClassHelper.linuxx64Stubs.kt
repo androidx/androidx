@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.util
 
-actual fun floatFromBits(bits: Int): Float = implementedInJetBrainsFork()
+public actual fun floatFromBits(bits: Int): Float = implementedInJetBrainsFork()
 
-actual fun doubleFromBits(bits: Long): Double = implementedInJetBrainsFork()
+public actual fun doubleFromBits(bits: Long): Double = implementedInJetBrainsFork()
 
-actual fun Float.fastRoundToInt(): Int = implementedInJetBrainsFork()
+public actual fun Float.fastRoundToInt(): Int = implementedInJetBrainsFork()
 
-actual fun Double.fastRoundToInt(): Int = implementedInJetBrainsFork()
+public actual fun Double.fastRoundToInt(): Int = implementedInJetBrainsFork()

@@ -68,7 +68,8 @@ import kotlin.math.roundToInt
  * @see MinimumInteractiveLeftAlignmentLine
  */
 @Stable
-fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
+public fun Modifier.minimumInteractiveComponentSize(): Modifier =
+    this then MinimumInteractiveModifier
 
 internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteractiveModifierNode>() {
 
@@ -196,7 +197,8 @@ internal class MinimumInteractiveModifierNode :
  * @see minimumInteractiveComponentSize
  * @see MinimumInteractiveLeftAlignmentLine
  */
-val MinimumInteractiveTopAlignmentLine = HorizontalAlignmentLine(::min)
+public val MinimumInteractiveTopAlignmentLine: HorizontalAlignmentLine =
+    HorizontalAlignmentLine(::min)
 
 /**
  * The vertical [AlignmentLine] representing the left edge of the component's original visual bounds
@@ -232,7 +234,7 @@ val MinimumInteractiveTopAlignmentLine = HorizontalAlignmentLine(::min)
  * @see minimumInteractiveComponentSize
  * @see MinimumInteractiveTopAlignmentLine
  */
-val MinimumInteractiveLeftAlignmentLine = VerticalAlignmentLine(::min)
+public val MinimumInteractiveLeftAlignmentLine: VerticalAlignmentLine = VerticalAlignmentLine(::min)
 
 /**
  * CompositionLocal that configures whether Material components that have a visual size that is
@@ -248,7 +250,7 @@ val MinimumInteractiveLeftAlignmentLine = VerticalAlignmentLine(::min)
     replaceWith = ReplaceWith("LocalMinimumInteractiveComponentSize"),
     level = DeprecationLevel.WARNING,
 )
-val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
+public val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
     staticCompositionLocalOf {
         true
     }
@@ -261,7 +263,7 @@ val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Bool
  * of a layout / near to another component without any padding, there will not be enough space for
  * an accessible touch target.
  */
-val LocalMinimumInteractiveComponentSize: ProvidableCompositionLocal<Dp> =
+public val LocalMinimumInteractiveComponentSize: ProvidableCompositionLocal<Dp> =
     staticCompositionLocalOf {
         48.dp
     }

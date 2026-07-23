@@ -24,82 +24,82 @@ import androidx.annotation.RestrictTo
  *
  * Note: the constants are lifted from Android API: `android.content.res.Configuration.uiMode`.
  */
-object AndroidUiModes {
+public object AndroidUiModes {
 
     /** Bits that encode the mode type. */
-    const val UI_MODE_TYPE_MASK: Int = 0x0f
+    public const val UI_MODE_TYPE_MASK: Int = 0x0f
 
     /** [UI_MODE_TYPE_MASK] value indicating that no mode type has been set. */
-    const val UI_MODE_TYPE_UNDEFINED: Int = 0x00
+    public const val UI_MODE_TYPE_UNDEFINED: Int = 0x00
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to
      * [no UI mode]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier)
      * resource qualifier specified.
      */
-    const val UI_MODE_TYPE_NORMAL: Int = 0x01
+    public const val UI_MODE_TYPE_NORMAL: Int = 0x01
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [desk]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier) resource
      * qualifier.
      */
-    const val UI_MODE_TYPE_DESK: Int = 0x02
+    public const val UI_MODE_TYPE_DESK: Int = 0x02
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [car]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier) resource
      * qualifier.
      */
-    const val UI_MODE_TYPE_CAR: Int = 0x03
+    public const val UI_MODE_TYPE_CAR: Int = 0x03
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [television]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier)
      * resource qualifier.
      */
-    const val UI_MODE_TYPE_TELEVISION: Int = 0x04
+    public const val UI_MODE_TYPE_TELEVISION: Int = 0x04
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [appliance]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier)
      * resource qualifier.
      */
-    const val UI_MODE_TYPE_APPLIANCE: Int = 0x05
+    public const val UI_MODE_TYPE_APPLIANCE: Int = 0x05
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [watch]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier) resource
      * qualifier.
      */
-    const val UI_MODE_TYPE_WATCH: Int = 0x06
+    public const val UI_MODE_TYPE_WATCH: Int = 0x06
 
     /**
      * [UI_MODE_TYPE_MASK] value that corresponds to the
      * [vrheadset]({@docRoot}guide/topics/resources/providing-resources.html#UiModeQualifier)
      * resource qualifier.
      */
-    const val UI_MODE_TYPE_VR_HEADSET: Int = 0x07
+    public const val UI_MODE_TYPE_VR_HEADSET: Int = 0x07
 
     /** Bits that encode the night mode. */
-    const val UI_MODE_NIGHT_MASK: Int = 0x30
+    public const val UI_MODE_NIGHT_MASK: Int = 0x30
 
     /** [UI_MODE_NIGHT_MASK] value indicating that no mode type has been set. */
-    const val UI_MODE_NIGHT_UNDEFINED: Int = 0x00
+    public const val UI_MODE_NIGHT_UNDEFINED: Int = 0x00
 
     /**
      * [UI_MODE_NIGHT_MASK] value that corresponds to the
      * [notnight]({@docRoot}guide/topics/resources/providing-resources.html#NightQualifier) resource
      * qualifier.
      */
-    const val UI_MODE_NIGHT_NO: Int = 0x10
+    public const val UI_MODE_NIGHT_NO: Int = 0x10
 
     /**
      * [UI_MODE_NIGHT_MASK] value that corresponds to the
      * [night]({@docRoot}guide/topics/resources/providing-resources.html#NightQualifier) resource
      * qualifier.
      */
-    const val UI_MODE_NIGHT_YES: Int = 0x20
+    public const val UI_MODE_NIGHT_YES: Int = 0x20
 }
 
 /** Annotation of setting uiMode in [Preview]. */
@@ -124,4 +124,4 @@ object AndroidUiModes {
             AndroidUiModes.UI_MODE_NIGHT_YES,
         ]
 )
-annotation class AndroidUiMode
+public annotation class AndroidUiMode

@@ -41,7 +41,7 @@ internal class AndroidIndirectPointerEvent(
 }
 
 /** Returns the underlying [MotionEvent] for additional information and cross module testing. */
-val IndirectPointerEvent.nativeEvent: MotionEvent
+public val IndirectPointerEvent.nativeEvent: MotionEvent
     get() = (this as AndroidIndirectPointerEvent).nativeEvent
 
 /**
@@ -58,7 +58,7 @@ val IndirectPointerEvent.nativeEvent: MotionEvent
  * @param motionEvent The [MotionEvent] to convert to an [IndirectPointerEvent].
  */
 @TestOnly
-fun IndirectPointerEvent(
+public fun IndirectPointerEvent(
     changes: List<IndirectPointerInputChange>,
     type: IndirectPointerEventType,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis,

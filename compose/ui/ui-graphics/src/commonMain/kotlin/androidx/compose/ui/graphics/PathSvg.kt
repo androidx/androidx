@@ -37,7 +37,7 @@ import androidx.compose.ui.graphics.vector.PathParser
  * @throws IllegalArgumentException if the path data contains an invalid instruction
  * @see toSvg
  */
-fun Path.addSvg(pathData: String) {
+public fun Path.addSvg(pathData: String) {
     // TODO: PathParser will allocate a bunch of PathNodes which aren't necessary here,
     //       we should instead have an internal version of parsePathString() that adds
     //       commands directly to a path without creating intermediate nodes
@@ -56,7 +56,7 @@ fun Path.addSvg(pathData: String) {
  * @see androidx.compose.ui.graphics.vector.PathParser
  * @see addSvg
  */
-fun Path.toSvg(asDocument: Boolean = false) = buildString {
+public fun Path.toSvg(asDocument: Boolean = false): String = buildString {
     val bounds = this@toSvg.getBounds()
 
     if (asDocument) {

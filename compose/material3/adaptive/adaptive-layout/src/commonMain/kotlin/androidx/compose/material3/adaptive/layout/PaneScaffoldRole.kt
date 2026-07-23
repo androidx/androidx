@@ -21,10 +21,10 @@ package androidx.compose.material3.adaptive.layout
  *
  * @see ThreePaneScaffoldRole
  */
-interface PaneScaffoldRole
+public interface PaneScaffoldRole
 
 /** The set of the available pane roles of [ThreePaneScaffold]. */
-enum class ThreePaneScaffoldRole : PaneScaffoldRole {
+public enum class ThreePaneScaffoldRole : PaneScaffoldRole {
     /**
      * The primary pane of [ThreePaneScaffold]. It is supposed to have the highest priority during
      * layout adaptation and usually contains the most important content of the screen, like content

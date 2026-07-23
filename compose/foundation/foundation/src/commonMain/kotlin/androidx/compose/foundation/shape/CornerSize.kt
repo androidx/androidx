@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.Dp
 
 /** Defines size of a corner in pixels. For example for rounded shape it can be a corner radius. */
 @Immutable
-interface CornerSize {
+public interface CornerSize {
     /**
      * Converts the [CornerSize] to pixels.
      *
@@ -36,7 +36,7 @@ interface CornerSize {
      * @param density the current density of the screen.
      * @return resolved size of the corner in pixels
      */
-    fun toPx(shapeSize: Size, density: Density): Float
+    public fun toPx(shapeSize: Size, density: Density): Float
 }
 
 /**
@@ -44,7 +44,7 @@ interface CornerSize {
  *
  * @param size the corner size defined in [Dp].
  */
-@Stable fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
+@Stable public fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
 private data class DpCornerSize(private val size: Dp) : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) = with(density) { size.toPx() }
@@ -60,7 +60,7 @@ private data class DpCornerSize(private val size: Dp) : CornerSize, InspectableV
  *
  * @param size the corner size defined in pixels.
  */
-@Stable fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
+@Stable public fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
 
 private data class PxCornerSize(private val size: Float) : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) = size
@@ -78,7 +78,7 @@ private data class PxCornerSize(private val size: Float) : CornerSize, Inspectab
  *   or larger then 100 percents.
  */
 @Stable
-fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
+public fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
     PercentCornerSize(percent.toFloat())
 
 /**
@@ -106,7 +106,7 @@ private data class PercentCornerSize(
 
 /** [CornerSize] always equals to zero. */
 @Stable
-val ZeroCornerSize: CornerSize =
+public val ZeroCornerSize: CornerSize =
     object : CornerSize, InspectableValue {
         override fun toPx(shapeSize: Size, density: Density) = 0.0f
 

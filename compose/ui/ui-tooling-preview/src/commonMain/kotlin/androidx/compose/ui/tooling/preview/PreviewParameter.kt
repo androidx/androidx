@@ -24,12 +24,12 @@ import kotlin.reflect.KClass
  * parameters. This allows providing sample information for previews.
  */
 @JvmDefaultWithCompatibility
-interface PreviewParameterProvider<T> {
+public interface PreviewParameterProvider<T> {
     /** [Sequence] of values of type [T] to be passed as @[Preview] parameter. */
-    val values: Sequence<T>
+    public val values: Sequence<T>
 
     /** Returns the number of elements in the [values] [Sequence]. */
-    val count
+    public val count: Int
         get() = values.count()
 
     /**
@@ -51,7 +51,7 @@ interface PreviewParameterProvider<T> {
      * @return A custom name for the preview for the value at the given [index], or `null` or an
      *   empty string to use the default.
      */
-    fun getDisplayName(index: Int): String? = null
+    public fun getDisplayName(index: Int): String? = null
 }
 
 /**
@@ -61,7 +61,7 @@ interface PreviewParameterProvider<T> {
  *   parameter.
  * @param limit Max number of values from [provider] to inject to this parameter.
  */
-annotation class PreviewParameter(
-    val provider: KClass<out PreviewParameterProvider<*>>,
-    val limit: Int = Int.MAX_VALUE,
+public annotation class PreviewParameter(
+    public val provider: KClass<out PreviewParameterProvider<*>>,
+    public val limit: Int = Int.MAX_VALUE,
 )

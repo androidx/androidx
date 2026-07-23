@@ -81,7 +81,9 @@ internal expect object DragAndDropSourceDefaults {
  *   the [DragAndDropTransferData] to be transferred. If null is returned, the drag and drop
  *   transfer won't be started.
  */
-fun Modifier.dragAndDropSource(transferData: (Offset) -> DragAndDropTransferData?): Modifier =
+public fun Modifier.dragAndDropSource(
+    transferData: (Offset) -> DragAndDropTransferData?
+): Modifier =
     this then
         DragAndDropSourceWithDefaultShadowElement(
             // TODO: Expose this as public argument
@@ -102,7 +104,7 @@ fun Modifier.dragAndDropSource(transferData: (Offset) -> DragAndDropTransferData
  *   the [DragAndDropTransferData] to be transferred. If null is returned, the drag and drop
  *   transfer won't be started.
  */
-fun Modifier.dragAndDropSource(
+public fun Modifier.dragAndDropSource(
     drawDragDecoration: DrawScope.() -> Unit,
     transferData: (Offset) -> DragAndDropTransferData?,
 ): Modifier =

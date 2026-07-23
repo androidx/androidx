@@ -25,7 +25,7 @@ import androidx.compose.runtime.Stable
  * and the page where it will settle.
  */
 @Stable
-interface PagerSnapDistance {
+public interface PagerSnapDistance {
 
     /**
      * Provides a chance to change where the [Pager] fling will settle.
@@ -41,7 +41,7 @@ interface PagerSnapDistance {
      *   and the total count of pages in this pager. If an invalid value is passed, the pager will
      *   coerce within the valid values.
      */
-    fun calculateTargetPage(
+    public fun calculateTargetPage(
         startPage: Int,
         suggestedTargetPage: Int,
         velocity: Float,
@@ -49,13 +49,13 @@ interface PagerSnapDistance {
         pageSpacing: Int,
     ): Int
 
-    companion object {
+    public companion object {
         /**
          * Limits the maximum number of pages that can be flung per fling gesture.
          *
          * @param pages The maximum number of extra pages that can be flung at once.
          */
-        fun atMost(pages: Int): PagerSnapDistance {
+        public fun atMost(pages: Int): PagerSnapDistance {
             requirePrecondition(pages >= 0) {
                 "pages should be greater than or equal to 0. You have used $pages."
             }

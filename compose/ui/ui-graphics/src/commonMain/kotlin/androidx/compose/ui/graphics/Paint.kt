@@ -17,16 +17,17 @@
 package androidx.compose.ui.graphics
 
 /** Default alpha value used on [Paint]. This value will draw source content fully opaque. */
-const val DefaultAlpha: Float = 1.0f
+public const val DefaultAlpha: Float = 1.0f
 
-@Deprecated("Use direct reference to platform type instead of typealias") expect class NativePaint
+@Deprecated("Use direct reference to platform type instead of typealias")
+public expect class NativePaint
 
-expect fun Paint(): Paint
+public expect fun Paint(): Paint
 
-interface Paint {
+public interface Paint {
     @Suppress("DEPRECATION")
     @Deprecated("Use platform-specific extension to get platform reference")
-    fun asFrameworkPaint(): NativePaint {
+    public fun asFrameworkPaint(): NativePaint {
         throw NotImplementedError()
     }
 
@@ -34,10 +35,10 @@ interface Paint {
      * Configures the alpha value between 0f to 1f representing fully transparent to fully opaque
      * for the color drawn with this Paint
      */
-    var alpha: Float
+    public var alpha: Float
 
     /** Whether to apply anti-aliasing to lines and images drawn on the canvas. Defaults to true. */
-    var isAntiAlias: Boolean
+    public var isAntiAlias: Boolean
 
     /**
      * The color to use when stroking or filling a shape. Defaults to opaque black. See also:
@@ -45,7 +46,7 @@ interface Paint {
      * [color]. [shader], which overrides [color] with more elaborate effects. This color is not
      * used when compositing. To colorize a layer, use [colorFilter].
      */
-    var color: Color
+    public var color: Color
 
     /**
      * A blend mode to apply when a shape is drawn or a layer is composited. The source colors are
@@ -57,26 +58,26 @@ interface Paint {
      * [Canvas.restore] is called. [BlendMode], which discusses the user of [Canvas.saveLayer] with
      * [blendMode].
      */
-    var blendMode: BlendMode
+    public var blendMode: BlendMode
 
     /**
      * Whether to paint inside shapes, the edges of shapes, or both. Defaults to
      * [PaintingStyle.Fill].
      */
-    var style: PaintingStyle
+    public var style: PaintingStyle
 
     /**
      * How wide to make edges drawn when [style] is set to [PaintingStyle.Stroke]. The width is
      * given in logical pixels measured in the direction orthogonal to the direction of the path.
      * Defaults to 0.0, which correspond to a hairline width.
      */
-    var strokeWidth: Float
+    public var strokeWidth: Float
 
     /**
      * The kind of finish to place on the end of lines drawn when [style] is set to
      * [PaintingStyle.Stroke]. Defaults to [StrokeCap.Butt], i.e. no caps.
      */
-    var strokeCap: StrokeCap
+    public var strokeCap: StrokeCap
 
     /**
      * The kind of finish to place on the joins between segments. This applies to paths drawn when
@@ -84,7 +85,7 @@ interface Paint {
      * [Canvas.drawPoints]. Defaults to [StrokeJoin.Miter], i.e. sharp corners. See also
      * [strokeMiterLimit] to control when miters are replaced by bevels.
      */
-    var strokeJoin: StrokeJoin
+    public var strokeJoin: StrokeJoin
 
     /**
      * The limit for miters to be drawn on segments when the join is set to [StrokeJoin.Miter] and
@@ -94,13 +95,13 @@ interface Paint {
      * on the length of the miter. Defaults to 4.0. Using zero as a limit will cause a
      * [StrokeJoin.Bevel] join to be used all the time.
      */
-    var strokeMiterLimit: Float
+    public var strokeMiterLimit: Float
 
     /**
      * Controls the performance vs quality trade-off to use when applying when drawing images, as
      * with [Canvas.drawImageRect] Defaults to [FilterQuality.Low].
      */
-    var filterQuality: FilterQuality
+    public var filterQuality: FilterQuality
 
     /**
      * The shader to use when stroking or filling a shape.
@@ -112,15 +113,15 @@ interface Paint {
      * [colorFilter], which overrides [shader]. [color], which is used if [shader] and [colorFilter]
      * are null.
      */
-    var shader: Shader?
+    public var shader: Shader?
 
     /**
      * A color filter to apply when a shape is drawn or when a layer is composited. See
      * [ColorFilter] for details. When a shape is being drawn, [colorFilter] overrides [color] and
      * [shader].
      */
-    var colorFilter: ColorFilter?
+    public var colorFilter: ColorFilter?
 
     /** Specifies the [PathEffect] applied to the geometry of the shape that is drawn */
-    var pathEffect: PathEffect?
+    public var pathEffect: PathEffect?
 }

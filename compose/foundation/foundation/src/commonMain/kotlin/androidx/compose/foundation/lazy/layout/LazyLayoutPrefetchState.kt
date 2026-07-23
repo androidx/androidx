@@ -47,7 +47,7 @@ import kotlin.time.TimeSource.Monotonic.markNow
  */
 @Suppress("DEPRECATION") // b/420551535
 @Stable
-class LazyLayoutPrefetchState() {
+public class LazyLayoutPrefetchState() {
 
     /**
      * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
@@ -61,7 +61,7 @@ class LazyLayoutPrefetchState() {
      */
     @Deprecated("Please use overload without Prefetch Scheduler.")
     @ExperimentalFoundationApi
-    constructor(
+    public constructor(
         prefetchScheduler: PrefetchScheduler? = null,
         onNestedPrefetch: (NestedPrefetchScope.() -> Unit)? = null,
     ) : this() {
@@ -77,7 +77,7 @@ class LazyLayoutPrefetchState() {
      *   children. See [NestedPrefetchScope].
      */
     @ExperimentalFoundationApi
-    constructor(onNestedPrefetch: (NestedPrefetchScope.() -> Unit)? = null) : this() {
+    public constructor(onNestedPrefetch: (NestedPrefetchScope.() -> Unit)? = null) : this() {
         this.onNestedPrefetch = onNestedPrefetch
     }
 
@@ -117,7 +117,7 @@ class LazyLayoutPrefetchState() {
      *   request. Use [PrefetchHandle.cancel] to cancel the request or [PrefetchHandle.markAsUrgent]
      *   to mark the request as urgent.
      */
-    fun schedulePrecomposition(@IntRange(from = 0) index: Int): PrefetchHandle =
+    public fun schedulePrecomposition(@IntRange(from = 0) index: Int): PrefetchHandle =
         schedulePrecomposition(index, true)
 
     /**
@@ -156,7 +156,7 @@ class LazyLayoutPrefetchState() {
      *   request. Use [PrefetchHandle.cancel] to cancel the request or [PrefetchHandle.markAsUrgent]
      *   to mark the request as urgent.
      */
-    fun schedulePrecompositionAndPremeasure(
+    public fun schedulePrecompositionAndPremeasure(
         @IntRange(from = 0) index: Int,
         constraints: Constraints,
         onItemPremeasured: (PrefetchResultScope.() -> Unit)? = null,
@@ -210,12 +210,12 @@ class LazyLayoutPrefetchState() {
     }
 
     /** A handle to control some aspects of the prefetch request. */
-    sealed interface PrefetchHandle {
+    public sealed interface PrefetchHandle {
         /**
          * Notifies the prefetcher that previously scheduled item is no longer needed. If the item
          * was precomposed already it will be disposed.
          */
-        fun cancel()
+        public fun cancel()
 
         /**
          * Marks this prefetch request as urgent, which is a way to communicate that the requested
@@ -224,23 +224,23 @@ class LazyLayoutPrefetchState() {
          * For urgent requests we can proceed with doing the prefetch even if the available time in
          * the frame is less than we spend on similar prefetch requests on average.
          */
-        fun markAsUrgent()
+        public fun markAsUrgent()
     }
 
     /**
      * A scope for [schedulePrecompositionAndPremeasure] callbacks. The scope provides additional
      * information about a prefetched item.
      */
-    sealed interface PrefetchResultScope {
+    public sealed interface PrefetchResultScope {
 
         /** The amount of placeables composed into this item. */
-        val placeablesCount: Int
+        public val placeablesCount: Int
 
         /** The index of the prefetched item. */
-        val index: Int
+        public val index: Int
 
         /** Retrieves the latest measured size for a given placeable [placeableIndex] in pixels. */
-        fun getSize(@IntRange(from = 0) placeableIndex: Int): IntSize
+        public fun getSize(@IntRange(from = 0) placeableIndex: Int): IntSize
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -278,7 +278,7 @@ internal const val UnspecifiedNestedPrefetchCount = -1
  * A scope which allows nested prefetches to be requested for the precomposition of a LazyLayout.
  */
 @ExperimentalFoundationApi
-sealed interface NestedPrefetchScope {
+public sealed interface NestedPrefetchScope {
 
     /**
      * The projected number of nested items that should be prefetched during a Nested Prefetching of
@@ -286,7 +286,7 @@ sealed interface NestedPrefetchScope {
      * Lazy Layout will use information about an item's content type and number of visible items to
      * calculate the necessary number of items that a child layout will need to prefetch.
      */
-    val nestedPrefetchItemCount: Int
+    public val nestedPrefetchItemCount: Int
         get() = UnspecifiedNestedPrefetchCount
 
     /**
@@ -301,7 +301,7 @@ sealed interface NestedPrefetchScope {
         "Please use schedulePrecomposition(index) instead",
         level = DeprecationLevel.WARNING,
     )
-    fun schedulePrefetch(index: Int) = schedulePrecomposition(index)
+    public fun schedulePrefetch(index: Int): Unit = schedulePrecomposition(index)
 
     /**
      * Requests a child index to be precomposed as part of the prefetch of a parent LazyLayout.
@@ -311,7 +311,7 @@ sealed interface NestedPrefetchScope {
      *
      * @param index item index to prefetch.
      */
-    fun schedulePrecomposition(index: Int)
+    public fun schedulePrecomposition(index: Int)
 
     /**
      * Requests a child index to be prefetched as part of the prefetch of a parent LazyLayout.
@@ -323,7 +323,7 @@ sealed interface NestedPrefetchScope {
         "Please use schedulePremeasure(index, constraints) instead",
         level = DeprecationLevel.WARNING,
     )
-    fun schedulePrefetch(index: Int, constraints: Constraints) =
+    public fun schedulePrefetch(index: Int, constraints: Constraints): Unit =
         schedulePrecompositionAndPremeasure(index, constraints)
 
     /**
@@ -333,7 +333,7 @@ sealed interface NestedPrefetchScope {
      * @param index the index of the child to prefetch.
      * @param constraints [Constraints] to use for premeasuring.
      */
-    fun schedulePrecompositionAndPremeasure(index: Int, constraints: Constraints)
+    public fun schedulePrecompositionAndPremeasure(index: Int, constraints: Constraints)
 }
 
 /**

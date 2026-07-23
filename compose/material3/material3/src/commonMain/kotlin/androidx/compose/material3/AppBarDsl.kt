@@ -44,7 +44,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 import kotlin.math.max
 
 /** DSL scope for building the content of an [AppBarRow] and [AppBarColumn]. */
-sealed interface AppBarScope {
+public sealed interface AppBarScope {
 
     /**
      * Adds a clickable item to the [AppBarRow] or [AppBarColumn].
@@ -54,7 +54,7 @@ sealed interface AppBarScope {
      * @param enabled Whether the item is enabled.
      * @param label The text label for the item, used in the overflow menu.
      */
-    fun clickableItem(
+    public fun clickableItem(
         onClick: () -> Unit,
         icon: @Composable () -> Unit,
         label: String,
@@ -70,7 +70,7 @@ sealed interface AppBarScope {
      * @param enabled Whether the item is enabled.
      * @param label The text label for the item, used in the overflow menu.
      */
-    fun toggleableItem(
+    public fun toggleableItem(
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         icon: @Composable () -> Unit,
@@ -85,7 +85,7 @@ sealed interface AppBarScope {
      * @param menuContent The composable to display in the overflow menu. It receives an
      *   [AppBarMenuState] instance.
      */
-    fun customItem(
+    public fun customItem(
         appbarContent: @Composable () -> Unit,
         menuContent: @Composable (AppBarMenuState) -> Unit,
     )
@@ -243,24 +243,24 @@ internal class CustomAppBarItem(
 }
 
 /** State class for the overflow menu in [AppBarRow] and [AppBarColumn]. */
-class AppBarMenuState {
+public class AppBarMenuState {
     /** Indicates whether the overflow menu is currently expanded. */
     @Deprecated("Keeping for binary compatibility", level = DeprecationLevel.HIDDEN)
-    var isExpanded = false
+    public var isExpanded: Boolean = false
         get() = isShowing
         private set
 
     /** Indicates whether the overflow menu is currently showing. */
-    var isShowing by mutableStateOf(false)
+    public var isShowing: Boolean by mutableStateOf(false)
         private set
 
     /** Closes the overflow menu. */
-    fun dismiss() {
+    public fun dismiss(): Unit {
         isShowing = false
     }
 
     /** Show the overflow menu. */
-    fun show() {
+    public fun show(): Unit {
         isShowing = true
     }
 }
@@ -431,7 +431,7 @@ internal class OverflowMeasurePolicy(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBarOverflowIndicator(
+public fun AppBarOverflowIndicator(
     menuState: AppBarMenuState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

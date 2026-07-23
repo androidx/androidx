@@ -81,7 +81,7 @@ import kotlin.math.sqrt
  * @param elevation the elevation of this TopAppBar.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     title: @Composable () -> Unit,
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
@@ -158,7 +158,7 @@ fun TopAppBar(
  * @param elevation the elevation of this TopAppBar.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable (() -> Unit)? = null,
@@ -211,7 +211,7 @@ fun TopAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
@@ -260,7 +260,7 @@ fun TopAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -325,7 +325,7 @@ fun TopAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
@@ -395,7 +395,7 @@ fun BottomAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -424,21 +424,21 @@ fun BottomAppBar(
 }
 
 /** Contains default values used for [TopAppBar] and [BottomAppBar]. */
-object AppBarDefaults {
+public object AppBarDefaults {
     // TODO: clarify elevation in surface mapping - spec says 0.dp but it appears to have an
     //  elevation overlay applied in dark theme examples.
     /** Default elevation used for [TopAppBar]. */
-    val TopAppBarElevation = 4.dp
+    public val TopAppBarElevation: Dp = 4.dp
 
     /** Default elevation used for [BottomAppBar]. */
-    val BottomAppBarElevation = 8.dp
+    public val BottomAppBarElevation: Dp = 8.dp
 
     /** Default padding used for [TopAppBar] and [BottomAppBar]. */
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(start = AppBarHorizontalPadding, end = AppBarHorizontalPadding)
 
     /** Recommended insets to be used and consumed by the top app bars */
-    val topAppBarWindowInsets: WindowInsets
+    public val topAppBarWindowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -446,7 +446,7 @@ object AppBarDefaults {
             )
 
     /** Recommended insets to be used and consumed by the bottom app bars */
-    val bottomAppBarWindowInsets: WindowInsets
+    public val bottomAppBarWindowInsets: WindowInsets
         @Composable
         get() {
             return WindowInsets.systemBarsForVisualComponents.only(

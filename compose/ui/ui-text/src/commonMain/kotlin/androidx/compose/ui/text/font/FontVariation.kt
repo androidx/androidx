@@ -31,9 +31,9 @@ import androidx.compose.ui.unit.TextUnit
  * To learn more about the font variation settings, see the list supported by
  * [fonts.google.com](https://fonts.google.com/variablefonts#axis-definitions).
  */
-object FontVariation {
+public object FontVariation {
     /** An empty [Settings] instance. */
-    val Empty = Settings(emptyList())
+    public val Empty: Settings = Settings(emptyList())
 
     /**
      * A collection of settings to apply to a single font.
@@ -41,10 +41,10 @@ object FontVariation {
      * Settings must be unique on [Setting.axisName]
      */
     @Immutable
-    class Settings
+    public class Settings
     internal constructor(
         /** All settings, unique by [FontVariation.Setting.axisName] */
-        val settings: List<Setting>
+        public val settings: List<Setting>
     ) {
         /**
          * True if density is required to resolve any of these settings
@@ -67,7 +67,7 @@ object FontVariation {
          *
          * Settings must be unique on [Setting.axisName]
          */
-        constructor(vararg settings: Setting) : this(settings.asList())
+        public constructor(vararg settings: Setting) : this(settings.asList())
 
         /**
          * Merges the given [other] settings into this [Settings] instance.
@@ -84,7 +84,7 @@ object FontVariation {
          * @param other The settings to merge into this instance. If `null`, this instance is
          *   returned.
          */
-        fun merge(other: Settings?): Settings {
+        public fun merge(other: Settings?): Settings {
             if (other == null || other.settings.isEmpty()) return this
             if (this.settings.isEmpty()) return other
             return Settings(mergeLists(settings, other.settings))
@@ -109,7 +109,7 @@ object FontVariation {
          * @param overrides The individual settings to merge into this instance.
          * @throws IllegalArgumentException if [overrides] contains duplicate axes.
          */
-        fun merge(vararg overrides: Setting): Settings {
+        public fun merge(vararg overrides: Setting): Settings {
             if (overrides.isEmpty()) return this
 
             val overridesList = overrides.asList()
@@ -120,7 +120,7 @@ object FontVariation {
             return Settings(mergeLists(settings, overridesList))
         }
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Settings) return false
 
@@ -129,18 +129,18 @@ object FontVariation {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             return settings.hashCode()
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "Settings(settings=$settings)"
         }
     }
 
     /** Represents a single point in a variation, such as 0.7 or 100 */
     @Immutable
-    sealed interface Setting {
+    public sealed interface Setting {
         /**
          * Convert a value to a final value for use as a font variation setting.
          *
@@ -148,17 +148,17 @@ object FontVariation {
          *
          * @param density to resolve from Compose types to feature-specific ranges.
          */
-        fun toVariationValue(density: Density?): Float
+        public fun toVariationValue(density: Density?): Float
 
         /**
          * True if this setting requires density to resolve
          *
          * When false, may toVariationValue may be called with null or any Density
          */
-        val needsDensity: Boolean
+        public val needsDensity: Boolean
 
         /** The font variation axis, such as 'wdth' or 'ital' */
-        val axisName: String
+        public val axisName: String
     }
 
     @Immutable
@@ -268,7 +268,7 @@ object FontVariation {
      * @param name axis name, must be 4 characters
      * @param value value for axis, not validated and directly passed to font
      */
-    fun Setting(name: String, value: Float): Setting {
+    public fun Setting(name: String, value: Float): Setting {
         requirePrecondition(name.length == 4) {
             "Name must be exactly four characters. Actual: '$name'"
         }
@@ -290,7 +290,7 @@ object FontVariation {
      *
      * @param value [0.0f, 1.0f]
      */
-    fun italic(value: Float): Setting {
+    public fun italic(value: Float): Setting {
         requirePrecondition(value in 0.0f..1.0f) { "'ital' must be in 0.0f..1.0f. Actual: $value" }
         return SettingFloat("ital", value)
     }
@@ -312,7 +312,7 @@ object FontVariation {
      *
      * @param textSize font-size at the expected display, must be in sp
      */
-    fun opticalSizing(textSize: TextUnit): Setting {
+    public fun opticalSizing(textSize: TextUnit): Setting {
         requirePrecondition(textSize.isSp) { "'opsz' must be provided in sp units" }
         return SettingTextUnit("opsz", textSize)
     }
@@ -327,7 +327,7 @@ object FontVariation {
      *
      * @param value -90f to 90f, represents an angle
      */
-    fun slant(value: Float): Setting {
+    public fun slant(value: Float): Setting {
         requirePrecondition(value in -90f..90f) { "'slnt' must be in -90f..90f. Actual: $value" }
         return SettingFloat("slnt", value)
     }
@@ -343,7 +343,7 @@ object FontVariation {
      *
      * @param value > 0.0f represents the width
      */
-    fun width(value: Float): Setting {
+    public fun width(value: Float): Setting {
         requirePrecondition(value > 0.0f) { "'wdth' must be strictly > 0.0f. Actual: $value" }
         return SettingFloat("wdth", value)
     }
@@ -368,7 +368,7 @@ object FontVariation {
      *
      * @param value weight, in 1..1000
      */
-    fun weight(value: Int): Setting {
+    public fun weight(value: Int): Setting {
         requirePrecondition(value in 1..1000) {
             "'wght' value must be in [1, 1000]. Actual: $value"
         }
@@ -390,7 +390,7 @@ object FontVariation {
      *
      * @param value grade, in -1000..1000
      */
-    fun grade(value: Int): Setting {
+    public fun grade(value: Int): Setting {
         requirePrecondition(value in -1000..1000) { "'GRAD' must be in -1000..1000" }
         return SettingInt("GRAD", value)
     }
@@ -404,7 +404,7 @@ object FontVariation {
      * @return settings that configure [FontWeight] and [FontStyle] on a font that supports 'wght'
      *   and 'ital'
      */
-    fun Settings(weight: FontWeight, style: FontStyle, vararg settings: Setting): Settings {
+    public fun Settings(weight: FontWeight, style: FontStyle, vararg settings: Setting): Settings {
         return Settings(weight(weight.weight), italic(style.value.toFloat()), *settings)
     }
 

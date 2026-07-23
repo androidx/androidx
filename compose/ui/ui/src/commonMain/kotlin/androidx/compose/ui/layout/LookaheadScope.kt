@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.IntSize
  */
 @UiComposable
 @Composable
-fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit) {
+public fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit): Unit {
     val scope = remember { LookaheadScopeImpl() }
     ReusableComposeNode<LayoutNode, Applier<Any>>(
         factory = { LayoutNode(isVirtual = true) },
@@ -99,7 +99,7 @@ fun LookaheadScope(content: @Composable @UiComposable LookaheadScope.() -> Unit)
  * @sample androidx.compose.ui.samples.approachLayoutSample
  * @see ApproachLayoutModifierNode
  */
-fun Modifier.approachLayout(
+public fun Modifier.approachLayout(
     isMeasurementApproachInProgress: (lookaheadSize: IntSize) -> Boolean,
     isPlacementApproachInProgress:
         Placeable.PlacementScope.(lookaheadCoordinates: LayoutCoordinates) -> Boolean =
@@ -200,12 +200,12 @@ private class ApproachLayoutModifierNodeImpl(
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
-interface LookaheadScope {
+public interface LookaheadScope {
     /**
      * Converts a [LayoutCoordinates] into a [LayoutCoordinates] in the Lookahead coordinate space.
      * This can be used for layouts within [LookaheadScope].
      */
-    fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
+    public fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
 
     /**
      * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is only accessible from
@@ -215,7 +215,7 @@ interface LookaheadScope {
      * the lookahead coordinates of the lookaheadScope is needed, suggest converting the returned
      * coordinates using [toLookaheadCoordinates].
      */
-    val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
+    public val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
 
     /**
      * Converts [relativeToSource] in [sourceCoordinates]'s lookahead coordinate space into local
@@ -228,7 +228,7 @@ interface LookaheadScope {
      * [includeMotionFrameOfReference] as `false` to get their position while excluding the
      * additional Offset.
      */
-    fun LayoutCoordinates.localLookaheadPositionOf(
+    public fun LayoutCoordinates.localLookaheadPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset = Offset.Zero,
         includeMotionFrameOfReference: Boolean = true,
@@ -252,7 +252,7 @@ interface LookaheadScope {
  *
  * @param sourceCoordinates A [LayoutCoordinates] within the subtree of the given [LookaheadScope].
  */
-fun LookaheadScope.lookaheadScopeCoordinates(
+public fun LookaheadScope.lookaheadScopeCoordinates(
     sourceCoordinates: LayoutCoordinates
 ): LayoutCoordinates {
     require(sourceCoordinates is LookaheadCapablePlaceable) {

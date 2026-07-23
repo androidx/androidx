@@ -20,10 +20,11 @@
 package androidx.compose.ui.util
 
 // See explanation in InlineClassHelper.kt
-actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
+public actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
 
-actual inline fun doubleFromBits(bits: Long): Double = java.lang.Double.longBitsToDouble(bits)
+public actual inline fun doubleFromBits(bits: Long): Double =
+    java.lang.Double.longBitsToDouble(bits)
 
-actual inline fun Float.fastRoundToInt(): Int = Math.round(this)
+public actual inline fun Float.fastRoundToInt(): Int = Math.round(this)
 
-actual inline fun Double.fastRoundToInt(): Int = Math.round(this).toInt()
+public actual inline fun Double.fastRoundToInt(): Int = Math.round(this).toInt()

@@ -37,7 +37,7 @@ import androidx.window.core.layout.WindowSizeClass
  */
 @Composable
 @Suppress("DEPRECATION")
-fun currentWindowAdaptiveInfoV2(): WindowAdaptiveInfo =
+public fun currentWindowAdaptiveInfoV2(): WindowAdaptiveInfo =
     currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true)
 
 /**
@@ -56,7 +56,9 @@ fun currentWindowAdaptiveInfoV2(): WindowAdaptiveInfo =
     DeprecationLevel.WARNING,
 )
 @Composable
-fun currentWindowAdaptiveInfo(supportLargeAndXLargeWidth: Boolean = false): WindowAdaptiveInfo {
+public fun currentWindowAdaptiveInfo(
+    supportLargeAndXLargeWidth: Boolean = false
+): WindowAdaptiveInfo {
     // Workaround (b/358626778): Directly using WindowInfo.containerDpSize breaks tests based on
     //   DeviceConfigurationOverride.ForcedSize. Those clients need to migrate to
     //   DeviceConfigurationOverride.WindowSize when its available.
@@ -85,7 +87,7 @@ fun currentWindowAdaptiveInfo(supportLargeAndXLargeWidth: Boolean = false): Wind
 )
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun currentWindowDpSize(): DpSize = LocalWindowInfo.current.containerDpSize
+public fun currentWindowDpSize(): DpSize = LocalWindowInfo.current.containerDpSize
 
 /**
  * Returns and automatically update the current window size. It's a convenient function of getting
@@ -99,7 +101,7 @@ fun currentWindowDpSize(): DpSize = LocalWindowInfo.current.containerDpSize
     DeprecationLevel.WARNING,
 )
 @Composable
-fun currentWindowSize(): IntSize = LocalWindowInfo.current.containerSize
+public fun currentWindowSize(): IntSize = LocalWindowInfo.current.containerSize
 
 /**
  * This class collects window info that affects adaptation decisions. An adaptive layout is supposed
@@ -110,7 +112,10 @@ fun currentWindowSize(): IntSize = LocalWindowInfo.current.containerSize
  * @constructor create an instance of [WindowAdaptiveInfo]
  */
 @Immutable
-class WindowAdaptiveInfo(val windowSizeClass: WindowSizeClass, val windowPosture: Posture) {
+public class WindowAdaptiveInfo(
+    public val windowSizeClass: WindowSizeClass,
+    public val windowPosture: Posture,
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is WindowAdaptiveInfo) return false

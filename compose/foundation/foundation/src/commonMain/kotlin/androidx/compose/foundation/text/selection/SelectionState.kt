@@ -40,7 +40,7 @@ import androidx.compose.ui.util.fastMapNotNull
  *
  * @sample androidx.compose.foundation.samples.SelectionStateSample
  */
-class SelectionState {
+public class SelectionState {
     /** Current [Selection] for this SelectionState. */
     internal var selection: Selection? by mutableStateOf(null)
 
@@ -70,7 +70,7 @@ class SelectionState {
      * as an AnnotatedString in the list. This field is backed by
      * [androidx.compose.runtime.mutableStateOf] so it can be observed by Composables.
      */
-    val selectedTexts: List<AnnotatedString>
+    public val selectedTexts: List<AnnotatedString>
         get() = _selectedTexts
 
     /** Updates selectedTexts to reflect new selected texts. */
@@ -87,12 +87,12 @@ class SelectionState {
      *
      * @sample androidx.compose.foundation.samples.SelectAllSample
      */
-    fun selectAll() {
+    public fun selectAll() {
         manager?.selectAll()
     }
 
     /** Clears the current selection for the [SelectionContainer] and removes selection handles. */
-    fun clear() {
+    public fun clear() {
         manager?.onRelease()
     }
 
@@ -111,7 +111,7 @@ class SelectionState {
      *
      * @sample androidx.compose.foundation.samples.ExtendSelectionSample
      */
-    fun extendSelectionByWord() {
+    public fun extendSelectionByWord() {
         manager?.extendSelectionByWord()
     }
 
@@ -127,7 +127,7 @@ class SelectionState {
      * @sample androidx.compose.foundation.samples.SelectQuerySample
      * @sample androidx.compose.foundation.samples.SelectThirdTextSample
      */
-    fun getSelectableTexts(): List<AnnotatedString> = manager?.getSelectableTexts().orEmpty()
+    public fun getSelectableTexts(): List<AnnotatedString> = manager?.getSelectableTexts().orEmpty()
 
     /**
      * Sets the selection to the specified [TextRange] within the global space of all Texts inside
@@ -140,7 +140,7 @@ class SelectionState {
      * @sample androidx.compose.foundation.samples.SelectQuerySample
      * @sample androidx.compose.foundation.samples.SelectThirdTextSample
      */
-    fun select(range: TextRange) {
+    public fun select(range: TextRange) {
         manager?.setSelection(range)
     }
 
@@ -149,9 +149,9 @@ class SelectionState {
      *
      * @see rememberSelectionState
      */
-    companion object {
+    public companion object {
         @Suppress("UNCHECKED_CAST")
-        val Saver: Saver<SelectionState, Any> =
+        public val Saver: Saver<SelectionState, Any> =
             listSaver(
                 save = { state ->
                     listOf(
@@ -223,6 +223,6 @@ class SelectionState {
  * to manually save and restore the state.
  */
 @Composable
-fun rememberSelectionState(): SelectionState {
+public fun rememberSelectionState(): SelectionState {
     return rememberSaveable(saver = SelectionState.Saver) { SelectionState() }
 }

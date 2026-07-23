@@ -21,9 +21,9 @@ package androidx.compose.ui.hapticfeedback
  * [HapticFeedback.performHapticFeedback].
  */
 @kotlin.jvm.JvmInline
-value class HapticFeedbackType(internal val value: Int) {
+public value class HapticFeedbackType(internal val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Confirm -> "Confirm"
             ContextClick -> "ContextClick"
@@ -42,20 +42,20 @@ value class HapticFeedbackType(internal val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * A haptic effect to signal the confirmation or successful completion of a user
          * interaction..
          */
-        val Confirm
+        public val Confirm: HapticFeedbackType
             get() = PlatformHapticFeedbackType.Confirm
 
         /** The user has performed a context click on an object. */
-        val ContextClick
+        public val ContextClick: HapticFeedbackType
             get() = PlatformHapticFeedbackType.ContextClick
 
         /** The user has finished a gesture (e.g. on the soft keyboard). */
-        val GestureEnd
+        public val GestureEnd: HapticFeedbackType
             get() = PlatformHapticFeedbackType.GestureEnd
 
         /**
@@ -63,56 +63,56 @@ value class HapticFeedbackType(internal val value: Int) {
          * gesture action is eligible at a certain threshold of movement, and can be cancelled by
          * moving back past the threshold.
          */
-        val GestureThresholdActivate
+        public val GestureThresholdActivate: HapticFeedbackType
             get() = PlatformHapticFeedbackType.GestureThresholdActivate
 
         /** The user has pressed a soft keyboard key. */
-        val KeyboardTap
+        public val KeyboardTap: HapticFeedbackType
             get() = PlatformHapticFeedbackType.KeyboardTap
 
         /**
          * The user has performed a long press on an object that is resulting in an action being
          * performed.
          */
-        val LongPress
+        public val LongPress: HapticFeedbackType
             get() = PlatformHapticFeedbackType.LongPress
 
         /** A haptic effect to signal the rejection or failure of a user interaction. */
-        val Reject
+        public val Reject: HapticFeedbackType
             get() = PlatformHapticFeedbackType.Reject
 
         /**
          * The user is switching between a series of many potential choices, for example minutes on
          * a clock face, or individual percentages.
          */
-        val SegmentFrequentTick
+        public val SegmentFrequentTick: HapticFeedbackType
             get() = PlatformHapticFeedbackType.SegmentFrequentTick
 
         /**
          * The user is switching between a series of potential choices, for example items in a list
          * or discrete points on a slider.
          */
-        val SegmentTick
+        public val SegmentTick: HapticFeedbackType
             get() = PlatformHapticFeedbackType.SegmentTick
 
         /** The user has performed a selection/insertion handle move on text field. */
-        val TextHandleMove
+        public val TextHandleMove: HapticFeedbackType
             get() = PlatformHapticFeedbackType.TextHandleMove
 
         /** The user has toggled a switch or button into the off position. */
-        val ToggleOff
+        public val ToggleOff: HapticFeedbackType
             get() = PlatformHapticFeedbackType.ToggleOff
 
         /** The user has toggled a switch or button into the on position. */
-        val ToggleOn
+        public val ToggleOn: HapticFeedbackType
             get() = PlatformHapticFeedbackType.ToggleOn
 
         /** The user has pressed on a virtual on-screen key. */
-        val VirtualKey
+        public val VirtualKey: HapticFeedbackType
             get() = PlatformHapticFeedbackType.VirtualKey
 
         /** Returns a list of possible values of [HapticFeedbackType]. */
-        fun values(): List<HapticFeedbackType> =
+        public fun values(): List<HapticFeedbackType> =
             listOf(
                 Confirm,
                 ContextClick,

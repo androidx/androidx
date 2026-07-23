@@ -133,7 +133,7 @@ import kotlin.math.roundToInt
  *   [ExposedDropdownMenu][ExposedDropdownMenuBoxScope.ExposedDropdownMenu].
  */
 @Composable
-fun ExposedDropdownMenuBox(
+public fun ExposedDropdownMenuBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -248,7 +248,7 @@ fun ExposedDropdownMenuBox(
 }
 
 /** Scope for [ExposedDropdownMenuBox]. */
-sealed class ExposedDropdownMenuBoxScope {
+public sealed class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to an element inside the [ExposedDropdownMenuBoxScope],
      * typically a text field or an icon within the text field. It's responsible for requesting
@@ -262,7 +262,7 @@ sealed class ExposedDropdownMenuBoxScope {
      *   interactions with the menu. It does not affect the enabled state of other kinds of
      *   interactions, such as [TextField]'s `enabled` parameter.
      */
-    abstract fun Modifier.menuAnchor(
+    public abstract fun Modifier.menuAnchor(
         type: ExposedDropdownMenuAnchorType,
         enabled: Boolean = true,
     ): Modifier
@@ -278,7 +278,7 @@ sealed class ExposedDropdownMenuBoxScope {
      * @param matchAnchorWidth whether the menu's width should be forcefully constrained to match
      *   the width of the text field to which it's attached.
      */
-    abstract fun Modifier.exposedDropdownSize(matchAnchorWidth: Boolean = true): Modifier
+    public abstract fun Modifier.exposedDropdownSize(matchAnchorWidth: Boolean = true): Modifier
 
     internal abstract val anchorType: ExposedDropdownMenuAnchorType
 
@@ -290,7 +290,7 @@ sealed class ExposedDropdownMenuBoxScope {
         level = DeprecationLevel.HIDDEN,
     )
     @Composable
-    fun ExposedDropdownMenu(
+    public fun ExposedDropdownMenu(
         expanded: Boolean,
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
@@ -340,7 +340,7 @@ sealed class ExposedDropdownMenuBoxScope {
  * @param content the content of the menu
  */
 @Composable
-fun ExposedDropdownMenuBoxScope.ExposedDropdownMenu(
+public fun ExposedDropdownMenuBoxScope.ExposedDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -403,14 +403,14 @@ private abstract class ExposedDropdownMenuBoxScopeImpl : ExposedDropdownMenuBoxS
 
 /** The type of anchor for an exposed dropdown menu. */
 @JvmInline
-value class ExposedDropdownMenuAnchorType private constructor(private val name: String) {
-    companion object {
+public value class ExposedDropdownMenuAnchorType private constructor(private val name: String) {
+    public companion object {
         /**
          * A non-editable primary anchor of the dropdown menu, such as a read-only text field.
          *
          * When this anchor opens the menu, focus will move to the menu.
          */
-        val PrimaryNotEditable
+        public val PrimaryNotEditable: ExposedDropdownMenuAnchorType
             get() = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
 
         /**
@@ -420,7 +420,7 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * When this anchor opens the menu, focus will remain on the text field in order to allow
          * typing.
          */
-        val PrimaryEditable
+        public val PrimaryEditable: ExposedDropdownMenuAnchorType
             get() = ExposedDropdownMenuAnchorType("PrimaryEditable")
 
         /**
@@ -430,11 +430,11 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * When this anchor opens the menu, if accessibility services are enabled, focus will move
          * to the menu. Otherwise, focus will remain on the text field in order to allow typing.
          */
-        val SecondaryEditable
+        public val SecondaryEditable: ExposedDropdownMenuAnchorType
             get() = ExposedDropdownMenuAnchorType("SecondaryEditable")
     }
 
-    override fun toString(): String = name
+    public override fun toString(): String = name
 }
 
 private fun ExposedDropdownMenuAnchorType.hasGreaterOrEqualPriorityThan(
@@ -449,7 +449,7 @@ private fun ExposedDropdownMenuAnchorType.hasGreaterOrEqualPriorityThan(
     }
 
 /** Contains default values used by Exposed Dropdown Menu. */
-object ExposedDropdownMenuDefaults {
+public object ExposedDropdownMenuDefaults {
     /**
      * Default trailing icon for Exposed Dropdown Menu.
      *
@@ -457,7 +457,7 @@ object ExposedDropdownMenuDefaults {
      * @param modifier the [Modifier] to be applied to this icon
      */
     @Composable
-    fun TrailingIcon(expanded: Boolean, modifier: Modifier = Modifier) {
+    public fun TrailingIcon(expanded: Boolean, modifier: Modifier = Modifier) {
         Icon(Icons.Filled.ArrowDropDown, null, modifier.rotate(if (expanded) 180f else 0f))
     }
 
@@ -510,7 +510,7 @@ object ExposedDropdownMenuDefaults {
      * @param errorSuffixColor the suffix color for this text field when in error state
      */
     @Composable
-    fun textFieldColors(
+    public fun textFieldColors(
         focusedTextColor: Color = FilledAutocompleteTokens.FieldFocusInputTextColor.value,
         unfocusedTextColor: Color = FilledAutocompleteTokens.FieldInputTextColor.value,
         disabledTextColor: Color =
@@ -671,7 +671,7 @@ object ExposedDropdownMenuDefaults {
      * @param errorSuffixColor the suffix color for this text field when in error state
      */
     @Composable
-    fun outlinedTextFieldColors(
+    public fun outlinedTextFieldColors(
         focusedTextColor: Color = OutlinedAutocompleteTokens.FieldFocusInputTextColor.value,
         unfocusedTextColor: Color = OutlinedAutocompleteTokens.FieldInputTextColor.value,
         disabledTextColor: Color =
@@ -789,7 +789,7 @@ object ExposedDropdownMenuDefaults {
      * Padding for [DropdownMenuItem]s within [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] to
      * align them properly with [TextField] components.
      */
-    val ItemContentPadding: PaddingValues =
+    public val ItemContentPadding: PaddingValues =
         PaddingValues(horizontal = ExposedDropdownMenuItemHorizontalPadding, vertical = 0.dp)
 }
 

@@ -20,9 +20,9 @@ import androidx.compose.runtime.Stable
 
 /** Specifies how to handle overflowing text. */
 @kotlin.jvm.JvmInline
-value class TextOverflow internal constructor(internal val value: Int) {
+public value class TextOverflow internal constructor(internal val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Clip -> "Clip"
             Ellipsis -> "Ellipsis"
@@ -33,14 +33,14 @@ value class TextOverflow internal constructor(internal val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Clips overflowing text to fit its container.
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowClipSample
          */
         @Stable
-        val Clip
+        public val Clip: TextOverflow
             get() = TextOverflow(1)
 
         /**
@@ -51,7 +51,7 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * @sample androidx.compose.ui.text.samples.TextOverflowEllipsisSample
          */
         @Stable
-        val Ellipsis
+        public val Ellipsis: TextOverflow
             get() = TextOverflow(2)
 
         /**
@@ -67,7 +67,7 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * `Modifier.clipToBounds`.
          */
         @Stable
-        val Visible
+        public val Visible: TextOverflow
             get() = TextOverflow(3)
 
         /**
@@ -79,7 +79,7 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * line or maxLines=1).
          */
         @Stable
-        val StartEllipsis
+        public val StartEllipsis: TextOverflow
             get() = TextOverflow(4)
 
         /**
@@ -91,7 +91,7 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * line or maxLines=1).
          */
         @Stable
-        val MiddleEllipsis
+        public val MiddleEllipsis: TextOverflow
             get() = TextOverflow(5)
     }
 }

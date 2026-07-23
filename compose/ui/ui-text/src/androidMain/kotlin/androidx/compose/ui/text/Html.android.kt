@@ -84,7 +84,7 @@ import org.xml.sax.XMLReader
  * @sample androidx.compose.ui.text.samples.AnnotatedStringFromHtml
  * @see LinkAnnotation
  */
-fun AnnotatedString.Companion.fromHtml(
+public fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
     linkStyles: TextLinkStyles? = null,
     linkInteractionListener: LinkInteractionListener? = null,

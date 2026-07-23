@@ -38,7 +38,10 @@ import androidx.compose.ui.geometry.Rect
  * @constructor create an instance of [Posture]
  */
 @Immutable
-class Posture(val isTabletop: Boolean = false, val hingeList: List<HingeInfo> = emptyList()) {
+public class Posture(
+    public val isTabletop: Boolean = false,
+    public val hingeList: List<HingeInfo> = emptyList(),
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Posture) return false
@@ -60,27 +63,27 @@ class Posture(val isTabletop: Boolean = false, val hingeList: List<HingeInfo> = 
 }
 
 /** Returns the list of vertical hinge bounds that are separating. */
-val Posture.separatingVerticalHingeBounds
+public val Posture.separatingVerticalHingeBounds: List<Rect>
     get() = hingeList.getBounds { isVertical && isSeparating }
 
 /** Returns the list of vertical hinge bounds that are occluding. */
-val Posture.occludingVerticalHingeBounds
+public val Posture.occludingVerticalHingeBounds: List<Rect>
     get() = hingeList.getBounds { isVertical && isOccluding }
 
 /** Returns the list of all vertical hinge bounds. */
-val Posture.allVerticalHingeBounds
+public val Posture.allVerticalHingeBounds: List<Rect>
     get() = hingeList.getBounds { isVertical }
 
 /** Returns the list of horizontal hinge bounds that are separating. */
-val Posture.separatingHorizontalHingeBounds
+public val Posture.separatingHorizontalHingeBounds: List<Rect>
     get() = hingeList.getBounds { !isVertical && isSeparating }
 
 /** Returns the list of horizontal hinge bounds that are occluding. */
-val Posture.occludingHorizontalHingeBounds
+public val Posture.occludingHorizontalHingeBounds: List<Rect>
     get() = hingeList.getBounds { !isVertical && isOccluding }
 
 /** Returns the list of all horizontal hinge bounds. */
-val Posture.allHorizontalHingeBounds
+public val Posture.allHorizontalHingeBounds: List<Rect>
     get() = hingeList.getBounds { !isVertical }
 
 /**
@@ -96,12 +99,12 @@ val Posture.allHorizontalHingeBounds
  * @param isOccluding `true` if the hinge conceals part of the display.
  */
 @Immutable
-class HingeInfo(
-    val bounds: Rect,
-    val isFlat: Boolean,
-    val isVertical: Boolean,
-    val isSeparating: Boolean,
-    val isOccluding: Boolean,
+public class HingeInfo(
+    public val bounds: Rect,
+    public val isFlat: Boolean,
+    public val isVertical: Boolean,
+    public val isSeparating: Boolean,
+    public val isOccluding: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

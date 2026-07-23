@@ -19,7 +19,7 @@ package androidx.compose.ui.focus
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 @JvmDefaultWithCompatibility
-interface FocusManager {
+public interface FocusManager {
     /**
      * Call this function to clear focus from the currently focused component, and set the focus to
      * the root focus modifier.
@@ -28,7 +28,7 @@ interface FocusManager {
      *   components that have Captured focus.
      * @sample androidx.compose.ui.samples.ClearFocusSample
      */
-    fun clearFocus(force: Boolean = false)
+    public fun clearFocus(force: Boolean = false)
 
     /**
      * Moves focus in the specified [direction][FocusDirection].
@@ -39,5 +39,5 @@ interface FocusManager {
      * @return true if focus was moved successfully. false if the focused item is unchanged.
      * @sample androidx.compose.ui.samples.MoveFocusSample
      */
-    fun moveFocus(focusDirection: FocusDirection): Boolean
+    public fun moveFocus(focusDirection: FocusDirection): Boolean
 }

@@ -187,7 +187,7 @@ import kotlinx.coroutines.launch
  *   [Interaction]s and customize the appearance / behavior of this slider in different states.
  */
 @Composable
-fun Slider(
+public fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -287,7 +287,7 @@ fun Slider(
  */
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @Composable
-fun Slider(
+public fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -307,7 +307,7 @@ fun Slider(
         SliderDefaults.Track(colors = colors, enabled = enabled, sliderState = sliderState)
     },
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-) =
+): Unit =
     Slider(
         value = value,
         onValueChange = onValueChange,
@@ -386,7 +386,7 @@ fun Slider(
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  */
 @Composable
-fun Slider(
+public fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -476,7 +476,7 @@ fun Slider(
  *   lambda receives a [SliderState] which is used to obtain the current active track.
  */
 @Composable
-fun Slider(
+public fun Slider(
     state: SliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -549,7 +549,7 @@ fun Slider(
 @ExperimentalMaterial3ExpressiveApi
 @JvmName("VerticalSlider")
 @Composable
-fun VerticalSliderLegacy(
+public fun VerticalSliderLegacy(
     state: SliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -573,7 +573,7 @@ fun VerticalSliderLegacy(
             trackCornerSize = Dp.Unspecified,
         )
     },
-) =
+): Unit =
     VerticalSlider(
         state = state,
         modifier = modifier,
@@ -623,7 +623,7 @@ fun VerticalSliderLegacy(
  */
 @JvmName("VerticalSliderNew")
 @Composable
-fun VerticalSlider(
+public fun VerticalSlider(
     state: SliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -698,7 +698,7 @@ fun VerticalSlider(
  *   in different state. See [SliderDefaults.colors] to customize.
  */
 @Composable
-fun RangeSlider(
+public fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
@@ -806,7 +806,7 @@ fun RangeSlider(
  */
 @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @Composable
-fun RangeSlider(
+public fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
@@ -838,7 +838,7 @@ fun RangeSlider(
         )
     },
     @IntRange(from = 0) steps: Int = 0,
-) =
+): Unit =
     RangeSlider(
         value = value,
         onValueChange = onValueChange,
@@ -912,7 +912,7 @@ fun RangeSlider(
 @Deprecated("mainted for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("RangeSliderLegacy")
 @Composable
-fun RangeSliderLegacy(
+public fun RangeSliderLegacy(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
@@ -944,7 +944,7 @@ fun RangeSliderLegacy(
             rangeSliderState = rangeSliderState,
         )
     },
-) =
+): Unit =
     RangeSlider(
         value = value,
         onValueChange = onValueChange,
@@ -1017,7 +1017,7 @@ fun RangeSliderLegacy(
  *   The lambda receives a [RangeSliderState] which is used to obtain the current active track.
  */
 @Composable
-fun RangeSlider(
+public fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
@@ -1124,7 +1124,7 @@ fun RangeSlider(
 @Deprecated("maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @JvmName("RangeSliderLegacy")
 @Composable
-fun RangeSliderLegacy(
+public fun RangeSliderLegacy(
     state: RangeSliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -1152,7 +1152,7 @@ fun RangeSliderLegacy(
             rangeSliderState = rangeSliderState,
         )
     },
-) =
+): Unit =
     RangeSlider(
         state = state,
         modifier = modifier,
@@ -1209,7 +1209,7 @@ fun RangeSliderLegacy(
  *   The lambda receives a [RangeSliderState] which is used to obtain the current active track.
  */
 @Composable
-fun RangeSlider(
+public fun RangeSlider(
     state: RangeSliderState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -2010,13 +2010,13 @@ private fun RangeSliderImpl(
 
 /** Object to hold defaults used by [Slider] */
 @Stable
-object SliderDefaults {
+public object SliderDefaults {
 
     /**
      * Creates a [SliderColors] that represents the different colors used in parts of the [Slider]
      * in different states.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultSliderColors
+    @Composable public fun colors(): SliderColors = MaterialTheme.colorScheme.defaultSliderColors
 
     /**
      * Creates a [SliderColors] that represents the different colors used in parts of the [Slider]
@@ -2046,7 +2046,7 @@ object SliderDefaults {
      *   the track when Slider is disabled and when `steps` are specified on it
      */
     @Composable
-    fun colors(
+    public fun colors(
         thumbColor: Color = Color.Unspecified,
         activeTrackColor: Color = Color.Unspecified,
         activeTickColor: Color = Color.Unspecified,
@@ -2115,13 +2115,13 @@ object SliderDefaults {
      * @param thumbSize the size of the thumb.
      */
     @Composable
-    fun Thumb(
+    public fun Thumb(
         interactionSource: MutableInteractionSource,
         modifier: Modifier = Modifier,
         colors: SliderColors = colors(),
         enabled: Boolean = true,
         thumbSize: DpSize = ThumbSize,
-    ) =
+    ): Unit =
         Thumb(
             interactionSource = interactionSource,
             modifier = modifier,
@@ -2158,14 +2158,14 @@ object SliderDefaults {
     )
     @ExperimentalMaterial3ExpressiveApi
     @Composable
-    fun Thumb(
+    public fun Thumb(
         interactionSource: MutableInteractionSource,
         sliderState: SliderState,
         modifier: Modifier = Modifier,
         colors: SliderColors = colors(),
         enabled: Boolean = true,
         thumbSize: DpSize = ThumbSize,
-    ) =
+    ): Unit =
         Thumb(
             interactionSource = interactionSource,
             isVertical = sliderState.isVertical,
@@ -2191,14 +2191,14 @@ object SliderDefaults {
      * @param thumbSize the size of the thumb.
      */
     @Composable
-    fun Thumb(
+    public fun Thumb(
         interactionSource: MutableInteractionSource,
         isVertical: Boolean,
         modifier: Modifier = Modifier,
         colors: SliderColors = colors(),
         enabled: Boolean = true,
         thumbSize: DpSize = if (isVertical) VerticalThumbSize else ThumbSize,
-    ) =
+    ): Unit =
         ThumbContent(
             interactionSource = interactionSource,
             modifier = modifier,
@@ -2223,7 +2223,7 @@ object SliderDefaults {
     @Suppress("DEPRECATION")
     @Composable
     @Deprecated("Use version that supports slider state")
-    fun Track(
+    public fun Track(
         sliderPositions: SliderPositions,
         modifier: Modifier = Modifier,
         colors: SliderColors = colors(),
@@ -2297,7 +2297,7 @@ object SliderDefaults {
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
     @Composable
-    fun Track(
+    public fun Track(
         sliderState: SliderState,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
@@ -2351,7 +2351,7 @@ object SliderDefaults {
      * @param trackInsideCornerSize size of the corners towards the thumb when a gap is set.
      */
     @Composable
-    fun Track(
+    public fun Track(
         sliderState: SliderState,
         trackCornerSize: Dp,
         modifier: Modifier = Modifier,
@@ -2405,7 +2405,7 @@ object SliderDefaults {
      * @param trackCornerSize size of the external corners.
      */
     @Composable
-    fun CenteredTrack(
+    public fun CenteredTrack(
         sliderState: SliderState,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
@@ -2578,7 +2578,7 @@ object SliderDefaults {
         level = DeprecationLevel.HIDDEN,
     )
     @Composable
-    fun Track(
+    public fun Track(
         rangeSliderState: RangeSliderState,
         modifier: Modifier = Modifier,
         colors: SliderColors = colors(),
@@ -2611,7 +2611,7 @@ object SliderDefaults {
      * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
     @Composable
-    fun Track(
+    public fun Track(
         rangeSliderState: RangeSliderState,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
@@ -2660,7 +2660,7 @@ object SliderDefaults {
      * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
      */
     @Composable
-    fun Track(
+    public fun Track(
         rangeSliderState: RangeSliderState,
         trackCornerSize: Dp,
         modifier: Modifier = Modifier,
@@ -3071,15 +3071,15 @@ object SliderDefaults {
      * @param size the size of the indicator.
      * @param color the color of the indicator.
      */
-    fun DrawScope.drawStopIndicator(offset: Offset, size: Dp, color: Color) {
+    public fun DrawScope.drawStopIndicator(offset: Offset, size: Dp, color: Color) {
         drawCircle(color = color, center = offset, radius = size.toPx() / 2f)
     }
 
     /** The default size for the stop indicator at the end of the track. */
-    val TrackStopIndicatorSize: Dp = SliderTokens.StopIndicatorSize
+    public val TrackStopIndicatorSize: Dp = SliderTokens.StopIndicatorSize
 
     /** The default size for the ticks if steps are greater than 0. */
-    val TickSize: Dp = SliderTokens.StopIndicatorSize
+    public val TickSize: Dp = SliderTokens.StopIndicatorSize
 
     private val trackPath = Path()
 }
@@ -3598,24 +3598,24 @@ private class RangeSliderLogic(
  *   default implementation that follows Material specifications.
  */
 @Immutable
-class SliderColors(
-    val thumbColor: Color,
-    val activeTrackColor: Color,
-    val activeTickColor: Color,
-    val inactiveTrackColor: Color,
-    val inactiveTickColor: Color,
-    val disabledThumbColor: Color,
-    val disabledActiveTrackColor: Color,
-    val disabledActiveTickColor: Color,
-    val disabledInactiveTrackColor: Color,
-    val disabledInactiveTickColor: Color,
+public class SliderColors(
+    public val thumbColor: Color,
+    public val activeTrackColor: Color,
+    public val activeTickColor: Color,
+    public val inactiveTrackColor: Color,
+    public val inactiveTickColor: Color,
+    public val disabledThumbColor: Color,
+    public val disabledActiveTrackColor: Color,
+    public val disabledActiveTickColor: Color,
+    public val disabledInactiveTrackColor: Color,
+    public val disabledInactiveTickColor: Color,
 ) {
 
     /**
      * Returns a copy of this SelectableChipColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         thumbColor: Color = this.thumbColor,
         activeTrackColor: Color = this.activeTrackColor,
         activeTickColor: Color = this.activeTickColor,
@@ -3626,7 +3626,7 @@ class SliderColors(
         disabledActiveTickColor: Color = this.disabledActiveTickColor,
         disabledInactiveTrackColor: Color = this.disabledInactiveTrackColor,
         disabledInactiveTickColor: Color = this.disabledInactiveTickColor,
-    ) =
+    ): SliderColors =
         SliderColors(
             thumbColor.takeOrElse { this.thumbColor },
             activeTrackColor.takeOrElse { this.activeTrackColor },
@@ -3727,7 +3727,7 @@ private enum class RangeSliderComponents {
 @Suppress("DEPRECATION")
 @Deprecated("Not necessary with the introduction of Slider state")
 @Stable
-class SliderPositions(
+public class SliderPositions(
     initialActiveRange: ClosedFloatingPointRange<Float> = 0f..1f,
     initialTickFractions: FloatArray = floatArrayOf(),
 ) {
@@ -3735,7 +3735,7 @@ class SliderPositions(
      * [ClosedFloatingPointRange] that indicates the current active range for the start to thumb for
      * a [Slider] and start thumb to end thumb for a [RangeSlider].
      */
-    var activeRange: ClosedFloatingPointRange<Float> by mutableStateOf(initialActiveRange)
+    public var activeRange: ClosedFloatingPointRange<Float> by mutableStateOf(initialActiveRange)
         internal set
 
     /**
@@ -3743,7 +3743,7 @@ class SliderPositions(
      * should be within the range [0f, 1f]. If the track is continuous, then tickFractions will be
      * an empty [FloatArray].
      */
-    var tickFractions: FloatArray by mutableStateOf(initialTickFractions)
+    public var tickFractions: FloatArray by mutableStateOf(initialTickFractions)
         internal set
 
     override fun equals(other: Any?): Boolean {
@@ -3778,19 +3778,19 @@ class SliderPositions(
  * @param valueRange range of values that Slider values can take. [value] will be coerced to this
  *   range.
  */
-class SliderState
+public class SliderState
 @RememberInComposition
-constructor(
+public constructor(
     value: Float = 0f,
-    @IntRange(from = 0) val steps: Int = 0,
-    var onValueChangeFinished: (() -> Unit)? = null,
-    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) public val steps: Int = 0,
+    public var onValueChangeFinished: (() -> Unit)? = null,
+    public val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 ) : DraggableState {
 
     private var valueState by mutableFloatStateOf(value)
 
     /** [Float] that indicates the value that the thumb currently is in respect to the track. */
-    var value: Float
+    public var value: Float
         set(newVal) {
             valueState =
                 if (shouldAutoSnap) {
@@ -3863,7 +3863,7 @@ constructor(
     }
 
     /** Callback in which value should be updated. */
-    var onValueChange: ((Float) -> Unit)? = null
+    public var onValueChange: ((Float) -> Unit)? = null
 
     /**
      * Controls the auto-snapping mechanism for slider steps.
@@ -3879,7 +3879,7 @@ constructor(
      * Since this is defined on the state, it can be dynamically toggled during gestures or
      * animations without triggering a full layout recomposition.
      */
-    @get:JvmName("shouldAutoSnap") var shouldAutoSnap: Boolean = true
+    @get:JvmName("shouldAutoSnap") public var shouldAutoSnap: Boolean = true
 
     internal val tickFractions = stepsToTickFractions(steps)
     private var totalWidth by mutableIntStateOf(0)
@@ -3891,7 +3891,7 @@ constructor(
     internal var orientation = Horizontal
 
     /** Whether the slider is vertical. */
-    val isVertical: Boolean
+    public val isVertical: Boolean
         get() = orientation == Vertical
 
     internal var reverseVerticalDirection = false
@@ -3902,7 +3902,7 @@ constructor(
      * The value is coerced (clamped) to the bounds of [valueRange] before calculating its
      * fractional position (from `0f` to `1f`) on the track.
      */
-    val coercedValueAsFraction: Float
+    public val coercedValueAsFraction: Float
         get() =
             calcFraction(
                 valueRange.start,
@@ -3917,7 +3917,7 @@ constructor(
      * programmatically via [drag]) and set back to `false` when the gesture completes or is
      * cancelled.
      */
-    var isDragging by mutableStateOf(false)
+    public var isDragging: Boolean by mutableStateOf(false)
         private set
 
     internal fun updateDimensions(newTotalWidth: Int, newTotalHeight: Int) {
@@ -3957,7 +3957,7 @@ constructor(
     private fun scaleToOffset(minPx: Float, maxPx: Float, userValue: Float) =
         scale(valueRange.start, valueRange.endInclusive, userValue, minPx, maxPx)
 
-    companion object {
+    public companion object {
         /**
          * The default [Saver] implementation for [SliderState].
          *
@@ -3967,7 +3967,7 @@ constructor(
          *   this range.
          * @param onValueChangeFinished lambda to be invoked when value change has ended.
          */
-        fun Saver(
+        public fun Saver(
             steps: Int,
             valueRange: ClosedFloatingPointRange<Float>,
             onValueChangeFinished: (() -> Unit)?,
@@ -3989,7 +3989,7 @@ constructor(
             replaceWith = ReplaceWith("Saver(steps, valueRange, onValueChangeFinished)"),
             level = DeprecationLevel.HIDDEN,
         )
-        fun Saver(
+        public fun Saver(
             onValueChangeFinished: (() -> Unit)?,
             valueRange: ClosedFloatingPointRange<Float>,
         ): Saver<SliderState, *> =
@@ -4027,7 +4027,7 @@ constructor(
  *   range.
  */
 @Composable
-fun rememberSliderState(
+public fun rememberSliderState(
     value: Float = 0f,
     @IntRange(from = 0) steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
@@ -4071,14 +4071,14 @@ fun rememberSliderState(
  *   defines the absolute boundaries/constraints of the slider (from minimum to maximum), and the
  *   individual thumb values ([activeRangeStart] and [activeRangeEnd]) are coerced to this range.
  */
-class RangeSliderState
+public class RangeSliderState
 @RememberInComposition
-constructor(
+public constructor(
     activeRangeStart: Float = 0f,
     activeRangeEnd: Float = 1f,
-    @IntRange(from = 0) val steps: Int = 0,
-    var onValueChangeFinished: (() -> Unit)? = null,
-    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) public val steps: Int = 0,
+    public var onValueChangeFinished: (() -> Unit)? = null,
+    public val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
 ) {
     private val coercedStart = activeRangeStart.coerceIn(valueRange)
     private val coercedEnd = activeRangeEnd.coerceIn(valueRange)
@@ -4086,7 +4086,7 @@ constructor(
     private var activeRangeEndState by mutableFloatStateOf(maxOf(coercedStart, coercedEnd))
 
     /** [Float] that indicates the start of the current active range for the [RangeSlider]. */
-    var activeRangeStart: Float
+    public var activeRangeStart: Float
         set(newVal) {
             val coercedValue = newVal.coerceIn(valueRange.start, activeRangeEnd)
             val snappedValue =
@@ -4101,7 +4101,7 @@ constructor(
         get() = activeRangeStartState
 
     /** [Float] that indicates the end of the current active range for the [RangeSlider]. */
-    var activeRangeEnd: Float
+    public var activeRangeEnd: Float
         set(newVal) {
             val coercedValue = newVal.coerceIn(activeRangeStart, valueRange.endInclusive)
             val snappedValue =
@@ -4203,7 +4203,7 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * The default [Saver] implementation for [RangeSliderState].
          *
@@ -4223,7 +4223,7 @@ constructor(
          *   and [activeRangeEnd] will be coerced to this range.
          * @param onValueChangeFinished lambda to be invoked when value change has ended.
          */
-        fun Saver(
+        public fun Saver(
             steps: Int,
             valueRange: ClosedFloatingPointRange<Float>,
             onValueChangeFinished: (() -> Unit)?,
@@ -4246,7 +4246,7 @@ constructor(
             replaceWith = ReplaceWith("Saver(steps, valueRange, onValueChangeFinished)"),
             level = DeprecationLevel.HIDDEN,
         )
-        fun Saver(
+        public fun Saver(
             onValueChangeFinished: (() -> Unit)?,
             valueRange: ClosedFloatingPointRange<Float>,
         ): Saver<RangeSliderState, *> =
@@ -4290,7 +4290,7 @@ constructor(
  *   individual thumb values ([activeRangeStart] and [activeRangeEnd]) are coerced to this range.
  */
 @Composable
-fun rememberRangeSliderState(
+public fun rememberRangeSliderState(
     activeRangeStart: Float = 0f,
     activeRangeEnd: Float = 1f,
     @IntRange(from = 0) steps: Int = 0,

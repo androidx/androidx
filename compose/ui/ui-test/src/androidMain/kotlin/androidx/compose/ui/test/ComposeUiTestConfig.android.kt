@@ -47,12 +47,12 @@ import kotlinx.coroutines.test.TestDispatcher
  *   [InputMode.Touch].
  */
 @Immutable
-actual class ComposeUiTestConfig
-actual constructor(
-    actual val effectContext: CoroutineContext,
-    actual val runTestContext: CoroutineContext,
-    actual val testTimeout: Duration,
-    actual val inputMode: InputMode,
+public actual class ComposeUiTestConfig
+public actual constructor(
+    public actual val effectContext: CoroutineContext,
+    public actual val runTestContext: CoroutineContext,
+    public actual val testTimeout: Duration,
+    public actual val inputMode: InputMode,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

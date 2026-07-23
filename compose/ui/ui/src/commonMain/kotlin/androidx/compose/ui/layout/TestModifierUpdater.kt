@@ -32,8 +32,8 @@ import androidx.compose.ui.node.LayoutNode
     level = DeprecationLevel.ERROR,
 )
 /*@VisibleForTesting*/
-class TestModifierUpdater internal constructor(private val node: LayoutNode) {
-    fun updateModifier(modifier: Modifier) {
+public class TestModifierUpdater internal constructor(private val node: LayoutNode) {
+    public fun updateModifier(modifier: Modifier) {
         node.modifier = modifier
     }
 }
@@ -46,7 +46,7 @@ class TestModifierUpdater internal constructor(private val node: LayoutNode) {
 /*@VisibleForTesting*/
 @Composable
 @Suppress("DEPRECATION_ERROR")
-fun TestModifierUpdaterLayout(onAttached: (TestModifierUpdater) -> Unit) {
+public fun TestModifierUpdaterLayout(onAttached: (TestModifierUpdater) -> Unit) {
     val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
     val measurePolicy = MeasurePolicy { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}

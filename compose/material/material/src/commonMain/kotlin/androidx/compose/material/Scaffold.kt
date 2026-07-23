@@ -58,7 +58,11 @@ import kotlin.jvm.JvmInline
  * @param snackbarHostState instance of [SnackbarHostState] to be used to show [Snackbar]s inside of
  *   the [Scaffold]
  */
-@Stable class ScaffoldState(val drawerState: DrawerState, val snackbarHostState: SnackbarHostState)
+@Stable
+public class ScaffoldState(
+    public val drawerState: DrawerState,
+    public val snackbarHostState: SnackbarHostState,
+)
 
 /**
  * Creates a [ScaffoldState] with the default animation clock and memoizes it.
@@ -68,34 +72,34 @@ import kotlin.jvm.JvmInline
  *   the [Scaffold]
  */
 @Composable
-fun rememberScaffoldState(
+public fun rememberScaffoldState(
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): ScaffoldState = remember { ScaffoldState(drawerState, snackbarHostState) }
 
 /** The possible positions for a [FloatingActionButton] attached to a [Scaffold]. */
 @JvmInline
-value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * Position FAB at the bottom of the screen at the start, above the [BottomAppBar] (if it
          * exists)
          */
-        val Start
+        public val Start: FabPosition
             get() = FabPosition(0)
 
         /**
          * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
          * exists)
          */
-        val Center
+        public val Center: FabPosition
             get() = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
          * exists)
          */
-        val End
+        public val End: FabPosition
             get() = FabPosition(2)
     }
 
@@ -178,7 +182,7 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
  *   of the scroll, and not on the scroll itself.
  */
 @Composable
-fun Scaffold(
+public fun Scaffold(
     contentWindowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
@@ -305,7 +309,7 @@ fun Scaffold(
  *   of the scroll, and not on the scroll itself.
  */
 @Composable
-fun Scaffold(
+public fun Scaffold(
     modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBar: @Composable () -> Unit = {},
@@ -349,9 +353,9 @@ fun Scaffold(
 }
 
 /** Object containing various default values for [Scaffold] component. */
-object ScaffoldDefaults {
+public object ScaffoldDefaults {
     /** Recommended insets to be used and consumed by the scaffold content slot */
-    val contentWindowInsets: WindowInsets
+    public val contentWindowInsets: WindowInsets
         @Composable get() = WindowInsets.systemBarsForVisualComponents
 }
 

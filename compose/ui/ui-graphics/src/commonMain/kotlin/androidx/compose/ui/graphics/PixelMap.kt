@@ -33,12 +33,12 @@ import androidx.annotation.IntRange
  * @see ImageBitmap.readPixels
  * @See ImageBitmap.toPixelMap
  */
-class PixelMap(
-    val buffer: IntArray,
-    val width: Int,
-    val height: Int,
-    val bufferOffset: Int,
-    val stride: Int,
+public class PixelMap(
+    public val buffer: IntArray,
+    public val width: Int,
+    public val height: Int,
+    public val bufferOffset: Int,
+    public val stride: Int,
 ) {
     /**
      * Obtain the color of the pixel at the given coordinate.
@@ -46,6 +46,6 @@ class PixelMap(
      * @param x the horizontal pixel coordinate, minimum 1
      * @param y the vertical pixel coordinate, minimum 1
      */
-    operator fun get(@IntRange(from = 0) x: Int, @IntRange(from = 0) y: Int): Color =
+    public operator fun get(@IntRange(from = 0) x: Int, @IntRange(from = 0) y: Int): Color =
         Color(buffer[bufferOffset + y * stride + x])
 }
