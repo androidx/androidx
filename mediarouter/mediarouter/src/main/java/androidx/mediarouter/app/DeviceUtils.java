@@ -58,12 +58,15 @@ final class DeviceUtils {
 
     /**
      * Returns a device specific string representation of wifi warning description. It can be one
-     * of the following values: {@link #{R.string.mr_chooser_wifi_warning_description_phone} and
-     * @link #{R.string.mr_chooser_wifi_warning_description_tablet} and
-     * @link #{R.string.mr_chooser_wifi_warning_description_tv} and
-     * @link #{R.string.mr_chooser_wifi_warning_description_watch} and
-     * @link #{R.string.mr_chooser_wifi_warning_description_car} and
-     * @link #{R.string.mr_chooser_wifi_warning_description_unknown}}
+     * of the following values:
+     * <ul>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_phone}</li>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_tablet}</li>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_tv}</li>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_watch}</li>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_car}</li>
+     *     <li>{@code R.string.mr_chooser_wifi_warning_description_unknown}</li>
+     * </ul>
      */
     static String getDialogChooserWifiWarningDescription(@NonNull Context context) {
         if (isPhone(context) || isFoldable(context)) {
