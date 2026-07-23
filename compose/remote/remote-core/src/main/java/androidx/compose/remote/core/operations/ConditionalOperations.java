@@ -50,6 +50,9 @@ public class ConditionalOperations extends PaintOperation
     float mVarB;
     float mVarAOut;
     float mVarBOut;
+    float mVarAOld;
+    float mVarBOld;
+    boolean mDirty;
 
     /** Equality comparison */
     public static final byte TYPE_EQ = 0;
@@ -69,6 +72,9 @@ public class ConditionalOperations extends PaintOperation
     /** Greater than or equal comparison */
     public static final byte TYPE_GTE = 5;
 
+    /** if ether value changed */
+    public static final byte TYPE_CHANGED = 6;
+
     private static final String[] TYPE_STR = {"EQ", "NEQ", "LT", "LTE", "GT", "GTE"};
 
     @Override
@@ -85,6 +91,13 @@ public class ConditionalOperations extends PaintOperation
     public void updateVariables(@NonNull RemoteContext context) {
         mVarAOut = Float.isNaN(mVarA) ? context.getFloat(Utils.idFromNan(mVarA)) : mVarA;
         mVarBOut = Float.isNaN(mVarB) ? context.getFloat(Utils.idFromNan(mVarB)) : mVarB;
+        if (mType == TYPE_CHANGED && (mVarAOld != mVarAOut || mVarBOld != mVarBOut)) {
+            mVarAOld = mVarAOut;
+            mVarBOld = mVarBOut;
+            mDirty = true;
+        } else {
+            mDirty = false;
+        }
         for (Operation op : mList) {
             if (op instanceof VariableSupport && op.isDirty()) {
                 ((VariableSupport) op).updateVariables(context);
@@ -173,7 +186,11 @@ public class ConditionalOperations extends PaintOperation
             case TYPE_GTE:
                 run = mVarAOut >= mVarBOut;
                 break;
+            case TYPE_CHANGED:
+                run = mDirty;
+                break;
         }
+        mDirty = false;
         if (run) {
             for (Operation op : mList) {
                 remoteContext.incrementOpCount();
@@ -184,6 +201,7 @@ public class ConditionalOperations extends PaintOperation
                 }
             }
         }
+
     }
 
     /**

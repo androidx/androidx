@@ -22,6 +22,7 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -46,6 +47,7 @@ public class SoundSupport {
 
     private static final String TAG = "SoundSupport";
 
+
     /** SC-format header magic bytes. */
     private static final byte SC_MAGIC_0 = 0x53; // 'S'
     private static final byte SC_MAGIC_1 = 0x43; // 'C'
@@ -64,6 +66,7 @@ public class SoundSupport {
 
     /** Maps sound ID → pre-loaded AudioTrack. */
     private final Map<Integer, AudioTrack> mTracks = new HashMap<>();
+    private Context mAttributionContext;
 
     /**
      * Read the device's native output sample rate from {@link AudioManager}. Must be called
@@ -71,6 +74,11 @@ public class SoundSupport {
      * subsequent sound loads use the correct rate for fast-mixer eligibility.
      */
     public void init(@NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mAttributionContext = context
+                    .getApplicationContext()
+                    .createAttributionContext("RemoteCompose_audio_support");
+        }
         AudioManager am = context.getSystemService(AudioManager.class);
         if (am != null) {
             String rateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
@@ -169,6 +177,7 @@ public class SoundSupport {
                 return;
             }
         }
+
         track.play();
     }
 
@@ -202,7 +211,9 @@ public class SoundSupport {
                         .build())
                 .setBufferSizeInBytes(bufSize)
                 .setTransferMode(AudioTrack.MODE_STATIC);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            builder.setContext(mAttributionContext);
+        }
         builder.setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
 
         AudioTrack track = builder.build();
