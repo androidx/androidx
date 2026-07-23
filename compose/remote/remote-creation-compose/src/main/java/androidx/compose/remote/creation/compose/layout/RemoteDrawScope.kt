@@ -99,17 +99,15 @@ internal constructor(
     }
 
     /** Draws a circle. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawCircle(
         paint: RemotePaint?,
-        center: RemoteOffset = this@RemoteDrawScope.center,
         radius: RemoteFloat,
+        center: RemoteOffset = this@RemoteDrawScope.center,
     ) {
         RemoteSize(radius * 2f, radius * 2f)
         remoteCanvas.drawCircle(center.x, center.y, radius, paint)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawOval(
         paint: RemotePaint?,
         topLeft: RemoteOffset = RemoteOffset.Zero,
@@ -145,7 +143,6 @@ internal constructor(
     }
 
     /** Draws a line. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawLine(paint: RemotePaint?, start: RemoteOffset, end: RemoteOffset) {
         remoteCanvas.drawLine(start.x, start.y, end.x, end.y, paint)
     }
@@ -235,12 +232,20 @@ internal constructor(
         text: RemoteString,
         anchorX: RemoteFloat,
         anchorY: RemoteFloat,
+        paint: RemotePaint? = null,
         panX: RemoteFloat = 0f.rf,
         panY: RemoteFloat = 0f.rf,
         flags: Int = 0,
-        paint: RemotePaint?,
     ) {
-        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panX, panY, flags, paint)
+        remoteCanvas.drawAnchoredText(
+            text = text,
+            anchorX = anchorX,
+            anchorY = anchorY,
+            panx = panX,
+            pany = panY,
+            flags = flags,
+            paint = paint,
+        )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

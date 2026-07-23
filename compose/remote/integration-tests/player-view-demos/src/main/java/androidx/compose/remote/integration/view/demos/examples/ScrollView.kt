@@ -131,14 +131,13 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             dayNames[j].rs,
                             40f.rf,
                             20f.rf,
-                            1f.rf,
-                            0f.rf,
                             paint =
                                 RemotePaint().apply {
                                     color = Color.White.rc
                                     typeface =
                                         RemoteTypeface.create("default", RemoteTypeface.Style.Bold)
                                 },
+                            panX = 1f.rf,
                         )
                     }
                     for (i in 0 until 6) {
@@ -170,9 +169,8 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                                     "$number".rs,
                                     40f.rf,
                                     20f.rf,
-                                    1f.rf,
-                                    0f.rf,
                                     paint = RemotePaint().apply { color = Color.White.rc },
+                                    panX = 1f.rf,
                                 )
                             }
                         } else {
@@ -181,9 +179,8 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                                     "$number".rs,
                                     40f.rf,
                                     20f.rf,
-                                    1f.rf,
-                                    0f.rf,
                                     paint = RemotePaint().apply { color = Color.Black.rc },
+                                    panX = 1f.rf,
                                 )
                             }
                         }

@@ -281,15 +281,15 @@ class RcPlayerShaderTest {
                         "Hi".rs,
                         50f.rf,
                         50f.rf,
-                        0f.rf,
-                        0f.rf,
-                        0,
                         RemotePaint().apply {
                             color =
                                 androidx.compose.remote.creation.compose.state.RemoteColor(
                                     Color.Black
                                 )
                         },
+                        0f.rf,
+                        0f.rf,
+                        0,
                     )
                 }
             }

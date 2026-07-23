@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("RestrictedApiAndroidX") // Referring to drawCircle, drawLine, drawOval
 
 package androidx.wear.compose.remote.material3.previews
 
@@ -26,8 +25,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteContentPreview
@@ -43,7 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 // Individual-feature confirmation previews (tranche: P5 RemoteCanvas draw primitives) for the
 // embedded RcPlayer vs the legacy player. Parameterized over PlayerImpl.
 
-private fun fill(argb: Long) = RemotePaint { color = RemoteColor(Color(argb)) }
+private fun fill(argb: Long) = RemotePaint { color = Color(argb).rc }
 
 /** Canvas drawRect: an inset filled rectangle. */
 @Preview(showBackground = true, widthDp = 220, heightDp = 220)
@@ -105,7 +104,7 @@ private fun RcCanvasLinePreview(
         Stage {
             RemoteCanvas(modifier = RemoteModifier.size(180.rdp)) {
                 val stroke = RemotePaint {
-                    color = RemoteColor(Color(0xFFFF5722))
+                    color = Color(0xFFFF5722).rc
                     style = PaintingStyle.Stroke
                     strokeWidth = 14f.rf
                     strokeCap = StrokeCap.Round
