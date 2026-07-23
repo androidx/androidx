@@ -241,9 +241,6 @@ public class CoreDocument implements Serializable {
         return mReferencedOperations.get(id);
     }
 
-    void onBitmapData(@NonNull BitmapData bitmap) {
-        mBitmapMemory += bitmap.getHeight() * bitmap.getWidth() * 4;
-    }
 
     /** Keep track of components */
     public void onComponentId(int id) {
@@ -915,6 +912,16 @@ public class CoreDocument implements Serializable {
         }
     }
 
+    private void calculateBitmapMemory() {
+        mBitmapMemory = 0;
+        recursiveTraverse(mOperations, (op) -> {
+            if (op instanceof BitmapData) {
+                BitmapData bitmap = (BitmapData) op;
+                mBitmapMemory += (long) bitmap.getHeight() * bitmap.getWidth() * 4;
+            }
+        });
+    }
+
     // ============== Sound support ==================
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface SoundEngine {
@@ -1323,11 +1330,11 @@ public class CoreDocument implements Serializable {
         }
         mTouchVersion = featureIntValue(Header.FEATURE_TOUCH_VERSION);
         mDensityBehavior = featureIntValue(Header.DOC_DENSITY_BEHAVIOR);
-        mBitmapMemory = 0;
         mOperations = nestContainers(mOperations, true);
         mCurrentId = maxId;
         mOperations = expandMacros(mOperations);
         hasTouchOperations |= finishInflation(mOperations, null, null);
+        calculateBitmapMemory();
 
         mBuffer = buffer;
         for (Operation op : mOperations) {
@@ -1427,9 +1434,6 @@ public class CoreDocument implements Serializable {
         LayoutComponent lastLayoutComponent = null;
 
         for (Operation o : operations) {
-            if (document != null && o instanceof BitmapData) {
-                document.onBitmapData((BitmapData) o);
-            }
             if (o instanceof Container) {
                 if (containers.size() >= Limits.MAX_NESTING_DEPTH) {
                     throw new RuntimeException("Maximum container nesting depth of "
