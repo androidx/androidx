@@ -16,14 +16,16 @@
 package androidx.lifecycle
 
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider.Factory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
- * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory that creates [SavedStateHandle] for
- * every requested [ViewModel]. The subclasses implement [create] to actually instantiate
- * `androidx.lifecycle.ViewModel`s.
+ * Abstract [ViewModelProvider.Factory] that creates a [SavedStateHandle] for every requested
+ * [ViewModel].
+ *
+ * Subclasses implement the abstract [create] method to instantiate [ViewModel]s.
  *
  * **Deprecated:** Use [viewModelFactory] or implement [ViewModelProvider.Factory] directly,
  * combined with [CreationExtras.createSavedStateHandle]. This base class creates a
@@ -37,16 +39,16 @@ import androidx.savedstate.SavedStateRegistryOwner
 @Deprecated(
     "Use `viewModelFactory` or implement `ViewModelProvider.Factory`, combined with `CreationExtras.createSavedStateHandle()`."
 )
-public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Factory {
+public abstract class AbstractSavedStateViewModelFactory : Factory {
     private val owner: SavedStateRegistryOwner?
     private val defaultArgs: Bundle?
 
     /**
-     * Constructs this factory.
+     * Constructs a new [AbstractSavedStateViewModelFactory].
      *
-     * When a factory is constructed this way, a component for which [SavedStateHandle] is scoped
-     * must have called [enableSavedStateHandles]. See [CreationExtras.createSavedStateHandle] docs
-     * for more details.
+     * When constructed this way, the component for which the [SavedStateHandle] is scoped must have
+     * called [enableSavedStateHandles]. See [CreationExtras.createSavedStateHandle] for more
+     * details.
      */
     public constructor() {
         this.owner = null
@@ -54,13 +56,11 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
     }
 
     /**
-     * Constructs this factory.
+     * Constructs a new [AbstractSavedStateViewModelFactory].
      *
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
-     *   [ViewModels][ViewModel]
-     * @param defaultArgs values from this `Bundle` will be used as defaults by [SavedStateHandle]
-     *   passed in [ViewModels][ViewModel] if there is no previously saved state or previously saved
-     *   state misses a value by such key
+     *   [ViewModel]s
+     * @param defaultArgs default values to populate the [SavedStateHandle] if no state is restored
      */
     public constructor(owner: SavedStateRegistryOwner, defaultArgs: Bundle?) {
         this.owner = owner
@@ -68,12 +68,13 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
     }
 
     /**
-     * Creates a new instance of the given `Class`.
+     * Creates a new instance of the given [Class].
      *
-     * @param modelClass a `Class` whose instance is requested
-     * @param extras an additional information for this creation request
-     * @return a newly created ViewModel
-     * @throws IllegalStateException if no VIEW_MODEL_KEY provided by ViewModelProvider
+     * @param modelClass [Class] of the [ViewModel] to create
+     * @param extras [CreationExtras] passed to the [Factory] to create the [ViewModel]
+     * @return new [ViewModel] instance of type [T]
+     * @throws IllegalStateException if the [extras] do not contain
+     *   [ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY]
      */
     public override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val key =
@@ -104,13 +105,13 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
     }
 
     /**
-     * Creates a new instance of the given `Class`.
+     * Creates a new instance of the given [Class].
      *
-     * @param modelClass a `Class` whose instance is requested
-     * @return a newly created ViewModel
-     * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
-     * @throws UnsupportedOperationException if AbstractSavedStateViewModelFactory constructed with
-     *   empty constructor, therefore no [SavedStateRegistryOwner] available for lifecycle
+     * @param modelClass [Class] of the [ViewModel] to create
+     * @return new [ViewModel] instance of type [T]
+     * @throws IllegalArgumentException if the given [modelClass] is a local or anonymous class
+     * @throws UnsupportedOperationException if this factory was constructed with the empty
+     *   constructor, and therefore has no [SavedStateRegistryOwner]
      */
     public override fun <T : ViewModel> create(modelClass: Class<T>): T {
         // ViewModelProvider calls correct create that support same modelClass with different keys
@@ -124,12 +125,12 @@ public abstract class AbstractSavedStateViewModelFactory : ViewModelProvider.Fac
     }
 
     /**
-     * Creates a new instance of the given `Class`.
+     * Creates a new instance of the given [Class].
      *
-     * @param key a key associated with the requested ViewModel
-     * @param modelClass a `Class` whose instance is requested
-     * @param handle a handle to saved state associated with the requested ViewModel
-     * @return the newly created ViewModel </T>
+     * @param key key associated with the requested [ViewModel]
+     * @param modelClass [Class] of the [ViewModel] to create
+     * @param handle [SavedStateHandle] associated with the [ViewModel] to create
+     * @return new [ViewModel] instance of type [T]
      */
     protected abstract fun <T : ViewModel> create(
         key: String,
