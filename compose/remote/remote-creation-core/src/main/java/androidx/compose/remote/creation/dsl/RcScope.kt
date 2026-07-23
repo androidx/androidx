@@ -1049,8 +1049,14 @@ public interface RcScope {
         block: RcScope.() -> Unit,
     )
 
-    /** Add an impulse container */
+    /**
+     * Add an impulse container contents execute once when conditions are met except for
+     * impulseProcess
+     */
     public fun impulse(duration: RcFloat, start: RcFloat, block: RcImpulseScope.() -> Unit)
+
+    /** Add an impulse process container contents execute for the duration of the impulse */
+    public fun impulseProcess(block: RcImpulseScope.() -> Unit)
 
     /** Conditionally skip a segment */
     public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
@@ -1364,6 +1370,10 @@ public interface RcScope {
 
     /** Conclude a skip block opened by beginSkip using the typed token. */
     public fun endSkip(token: RcSkipToken): Unit = endSkip(token.offset)
+
+    public fun RcFloats(variables: FloatArray): Array<RcFloat> {
+        return Array<RcFloat>(variables.size) { RcFloat(variables[it]) }
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1480,6 +1490,18 @@ public interface RcCanvasScope : RcScope {
         touchSpec: FloatArray?,
         easingSpec: FloatArray?,
         vararg exp: Float,
+    ): RcFloat
+
+    public fun addTouch(
+        defValue: RcFloat,
+        min: RcFloat,
+        max: RcFloat,
+        stopMode: RcTouchStopMode = RcTouchStopMode.Gently,
+        velocity: RcFloat,
+        notchHaptic: RcHaptic = RcHaptic.NoHaptics,
+        touchSpec: FloatArray? = null,
+        easingSpec: FloatArray? = null,
+        exp: RcFloat,
     ): RcFloat
 
     /**
