@@ -104,8 +104,8 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
          * @param context The application's context.
          * @param text The text to be displayed in this title chip. Text will be displayed in 1 line
          *     and truncated if it doesn't fit.
-         * @param clickable Associated {@link Clickable} for click events. When the TitleChip is
-         *     clicked it will fire the associated action.
+         * @param clickable Associated {@link androidx.wear.tiles.ModifiersBuilders.Clickable} for
+         *     click events. When the TitleChip is clicked it will fire the associated action.
          * @param deviceParameters The device parameters used for styling text.
          */
         public Builder(
