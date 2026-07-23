@@ -38,13 +38,11 @@ public class FakeEncoder(
 
     override fun getConfiguredBitrate(): Int = configuredBitrate
 
-    override fun start() {}
-
-    override fun stop() {}
+    override fun start(expectedStartTimeUs: Long) {}
 
     override fun stop(expectedStopTimeUs: Long) {}
 
-    override fun pause() {}
+    override fun pause(expectedPauseTimeUs: Long) {}
 
     override fun release() {
         isReleaseCalled = true
