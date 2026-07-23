@@ -28,8 +28,8 @@ public interface A2uiCoreCatalog {
      */
     public val id: String
 
-    /** The list of components available in this catalog. */
-    public val components: List<A2uiCoreComponentDefinition>
+    /** The list of component definitions available in this catalog. */
+    public val componentDefinitions: List<A2uiCoreComponentDefinition>
 
     /** The list of functions available in this catalog. */
     public val functions: List<A2uiFunction>
@@ -43,7 +43,7 @@ public interface A2uiCoreCatalog {
      * @param name The name of the component.
      * @return The component definition, or `null` if it is not registered in this catalog.
      */
-    public fun getComponent(name: String): A2uiCoreComponentDefinition?
+    public fun getComponentDefinition(name: String): A2uiCoreComponentDefinition?
 
     /**
      * Retrieves a function implementation by its unique name.

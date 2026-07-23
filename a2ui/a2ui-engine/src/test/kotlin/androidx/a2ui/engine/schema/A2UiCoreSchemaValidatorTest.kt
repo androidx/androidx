@@ -764,11 +764,11 @@ class A2UiCoreSchemaValidatorTest {
             }
         return object : A2uiCoreCatalog {
             override val id = "test"
-            override val components = emptyList<A2uiCoreComponentDefinition>()
+            override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
             override val functions = wrappedFunctions
             override val themeSchema: A2uiSchema? = null
 
-            override fun getComponent(name: String) = null
+            override fun getComponentDefinition(name: String) = null
 
             override fun getFunction(name: String): A2uiFunction? {
                 return functions.find { it.definition.name == name }

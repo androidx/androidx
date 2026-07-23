@@ -16,13 +16,13 @@
 
 package androidx.a2ui.compose.runtime
 
-import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.compose.runtime.Stable
 
 /**
  * Represents a fully resolved and ready for rendering A2UI component.
  *
- * @property surface The [A2uiCoreSurfaceModel] containing the data, components, and catalog.
+ * @property surface The [A2uiSurfaceModel] containing the data, components, and catalog.
  * @property type The string identifier of the component's type (e.g., `"Text"`, `"Button"`).
  * @property properties The stable [A2uiComponentProperties] payload defining the component's
  *   structure and dynamic data bindings.
@@ -31,7 +31,7 @@ import androidx.compose.runtime.Stable
  */
 @Stable
 public class A2uiComponentModel(
-    public val surface: A2uiCoreSurfaceModel,
+    public val surface: A2uiSurfaceModel,
     public val type: String,
     public val properties: A2uiComponentProperties,
     public val scope: A2uiComponentScope,

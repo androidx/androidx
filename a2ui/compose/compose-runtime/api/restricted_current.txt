@@ -2,14 +2,14 @@
 package androidx.a2ui.compose.runtime {
 
   @androidx.compose.runtime.Stable public final class A2uiComponentModel {
-    ctor public A2uiComponentModel(androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface, String type, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.a2ui.compose.runtime.A2uiComponentScope scope);
+    ctor public A2uiComponentModel(androidx.a2ui.model.processor.A2uiSurfaceModel surface, String type, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.a2ui.compose.runtime.A2uiComponentScope scope);
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.A2uiComponentProperties getProperties();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.A2uiComponentScope getScope();
-    method @InaccessibleFromKotlin public androidx.a2ui.engine.model.A2uiCoreSurfaceModel getSurface();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.processor.A2uiSurfaceModel getSurface();
     method @InaccessibleFromKotlin public String getType();
     property public androidx.a2ui.compose.runtime.A2uiComponentProperties properties;
     property public androidx.a2ui.compose.runtime.A2uiComponentScope scope;
-    property public androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface;
+    property public androidx.a2ui.model.processor.A2uiSurfaceModel surface;
     property public String type;
   }
 
@@ -119,6 +119,14 @@ package androidx.a2ui.compose.runtime {
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringEnum$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.String>> stringList(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
+  }
+
+  public interface A2uiRuntimeCatalog {
+  }
+
+  public final class A2uiRuntimeMessageProcessorKt {
+    method public static androidx.a2ui.model.processor.A2uiMessageProcessor a2uiRuntimeMessageProcessor(java.util.List<? extends androidx.a2ui.compose.runtime.A2uiRuntimeCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
+    method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! a2uiRuntimeMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class ChildListA2uiProperty extends androidx.a2ui.compose.runtime.A2uiProperty<java.util.List<? extends androidx.a2ui.compose.runtime.A2uiComponentReference>> {

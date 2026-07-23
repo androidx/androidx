@@ -322,11 +322,11 @@ class A2uiActionHandlerTest {
 
     private class FakeCatalog(val func: A2uiFunction? = null) : A2uiCoreCatalog {
         override val id = "fake"
-        override val components = emptyList<A2uiCoreComponentDefinition>()
+        override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
         override val functions = if (func != null) listOf(func) else emptyList()
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String) = null
+        override fun getComponentDefinition(name: String) = null
 
         override fun getFunction(name: String) = if (name == func?.definition?.name) func else null
     }
