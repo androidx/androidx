@@ -149,6 +149,7 @@ STARTUP = "1.2.0-rc01"
 SWIPEREFRESHLAYOUT = "1.2.0-rc01"
 TESTSCREENSHOT = "1.0.0-alpha01"
 TEST_UIAUTOMATOR = "2.5.0-alpha01"
+TEST_BACKUP = "1.0.0-alpha01"
 TEXT = "1.0.0-beta01"
 TRACING = "2.1.0-alpha01"
 TRACING_DRIVER = "1.0.0-alpha01"
@@ -305,6 +306,7 @@ STABLE_AIDL = { group = "androidx.stableaidl", atomicGroupVersion = "versions.ST
 STARTUP = { group = "androidx.startup", atomicGroupVersion = "versions.STARTUP" }
 SWIPEREFRESHLAYOUT = { group = "androidx.swiperefreshlayout", atomicGroupVersion = "versions.SWIPEREFRESHLAYOUT" }
 TESTSCREENSHOT = { group = "androidx.test.screenshot", atomicGroupVersion = "versions.TESTSCREENSHOT" }
+TEST_BACKUP = { group = "androidx.test.backup", atomicGroupVersion = "versions.TEST_BACKUP" }
 TEST_UIAUTOMATOR = { group = "androidx.test.uiautomator", atomicGroupVersion = "versions.TEST_UIAUTOMATOR" }
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TRACING = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING" }
