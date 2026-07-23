@@ -15,7 +15,9 @@
  */
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to FitBox, RemoteCollapsibleColumn, RemoteCollapsibleRow, RemoteText, background
+) // Referring to FitBox, RemoteCollapsibleColumn, RemoteCollapsibleRow, RemoteText, background,
+
+// height, heightIn, width, widthIn
 
 package androidx.compose.remote.integration.view.demos.examples
 

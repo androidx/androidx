@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to background, horizontalGradient, remote-material3
+@file:Suppress("RestrictedApiAndroidX") // Referring to horizontalGradient, remote-material3
 
 package androidx.wear.compose.remote.material3.previews
 
