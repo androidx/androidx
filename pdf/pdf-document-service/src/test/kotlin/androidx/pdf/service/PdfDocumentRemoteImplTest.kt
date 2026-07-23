@@ -16,6 +16,8 @@
 
 package androidx.pdf.service
 
+import android.graphics.Bitmap
+import android.graphics.RectF
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresExtension
@@ -27,11 +29,15 @@ import androidx.pdf.RenderParams.Companion.RENDER_MODE_FOR_DISPLAY
 import androidx.pdf.adapter.FakePdfDocumentRenderer
 import androidx.pdf.adapter.FakePdfDocumentRendererFactory
 import androidx.pdf.annotation.createStampAnnotationWithPath
+import androidx.pdf.annotation.models.ImagePdfObject
+import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.isSignatureFeatureAvailable
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.FileOutputStream
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -169,6 +175,46 @@ class PdfDocumentRemoteImplTest {
         assertThat(result).isInstanceOf(DraftEditResult.Success::class.java)
         val success = result as DraftEditResult.Success
         assertThat(success.ids).containsExactly("1000")
+    }
+
+    @Test
+    fun addPageObject_withImagePdfObject_addsObjectAndReturnsSignatureId() {
+
+        if (!isSignatureFeatureAvailable()) return
+        // Arrange
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        val pageNum = 0
+        val dummyBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val bounds = RectF(0f, 0f, 50f, 50f)
+        val imagePdfObject = ImagePdfObject(dummyBitmap, bounds)
+
+        // Act
+        val resultId = remote.addPageObject(pageNum, imagePdfObject)
+
+        // Assert
+        assertThat(resultId).isNotNull()
+        assertThat(resultId).startsWith("embedded_signature_")
+    }
+
+    @Test
+    fun addPageObject_withUnsupportedObject_throwsUnsupportedOperationException() {
+        if (!isSignatureFeatureAvailable()) return
+        // Arrange
+        val fakeRenderer = FakePdfDocumentRenderer()
+        val remote = createRemoteWithRenderer(fakeRenderer)
+
+        val pageNum = 0
+        val unsupportedPdfObject = org.mockito.Mockito.mock(PdfObject::class.java)
+
+        // Act & Assert
+        val exception =
+            assertThrows(UnsupportedOperationException::class.java) {
+                remote.addPageObject(pageNum, unsupportedPdfObject)
+            }
+
+        assertThat(exception).hasMessageThat().contains("is not currently supported")
     }
 
     @Test

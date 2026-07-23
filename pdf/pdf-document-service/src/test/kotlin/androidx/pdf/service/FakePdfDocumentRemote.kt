@@ -176,6 +176,10 @@ internal class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         TODO("Not yet implemented")
     }
 
+    override fun addPageObject(pageNumber: Int, pdfObject: PdfObject): String {
+        return "fake_embedded_object_${System.currentTimeMillis()}"
+    }
+
     override fun getBatchedPageObjects(
         pageNum: Int,
         batchIndex: Int,
