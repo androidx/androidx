@@ -321,10 +321,10 @@ package androidx.a2ui.model.processor {
 
   public interface A2uiMessageProcessor {
     method public suspend Object? collectMessages(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.a2ui.model.protocol.A2uiClientToServerMessage> getOutboundEvents();
     method public void processMessage(androidx.a2ui.model.protocol.A2uiServerToClientMessage message);
-    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> activeSurfaces;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> activeSurfaces;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.a2ui.model.protocol.A2uiClientToServerMessage> outboundEvents;
   }
 
