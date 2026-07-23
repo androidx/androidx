@@ -24,6 +24,7 @@ import androidx.pdf.annotation.content.RemoveDraftEditOperation
 import androidx.pdf.annotation.content.UpdateDraftEditOperation
 
 /** Represents a read-only sequence of draft edit operations for a PDF document. */
+@ExperimentalPdfApi
 public open class EditsDraft
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

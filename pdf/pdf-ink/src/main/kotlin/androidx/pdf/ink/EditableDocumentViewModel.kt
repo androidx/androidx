@@ -28,6 +28,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.EditablePdfDocument
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfEditApplyException
 import androidx.pdf.PdfFeature
@@ -276,6 +277,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         viewModelScope.launch { refreshVisibleAnnotations(startPage..endPage) }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     internal fun applyDraftEdits() {
         val document = editablePdfDocument
         if (document?.isFeatureSupported(PdfFeature.ANNOTATIONS) == false)

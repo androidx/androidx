@@ -19,7 +19,8 @@ package androidx.pdf.annotation.drawer
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.util.SparseArray
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.annotation.PageAnnotationsData
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
 import androidx.pdf.annotation.content.TestPdfAnnotation
@@ -46,6 +47,7 @@ class PdfAnnotationCollectionDrawerTest {
             PdfDocumentAnnotationsDrawerImpl(fakeAnnotationDrawerFactory)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun draw_emptyPageData_noFactoryInteraction() {
         val emptyPageData = SparseArray<PageAnnotationsData>()
@@ -55,6 +57,7 @@ class PdfAnnotationCollectionDrawerTest {
         assertThat(fakeAnnotationDrawerFactory.createdDrawers).isEmpty()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun draw_pageDataWithNoAnnotations_noFactoryInteraction() {
         val pagesAnnotationDataWithEmptyAnnotations =
@@ -70,6 +73,7 @@ class PdfAnnotationCollectionDrawerTest {
         assertThat(fakeAnnotationDrawerFactory.createdDrawers).isEmpty()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun draw_singleAnnotationOnSinglePage_delegatesToFactoryAndDrawer() {
         val keyedAnnotation =
@@ -108,6 +112,7 @@ class PdfAnnotationCollectionDrawerTest {
         )
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun draw_multipleAnnotationsOnSinglePage_delegatesToFactoryAndDrawers() {
         val keyedAnnotation1 =
@@ -157,6 +162,7 @@ class PdfAnnotationCollectionDrawerTest {
             )
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun draw_annotationsAcrossMultiplePages_delegatesWithCorrectTransforms() {
         val keyedAnnotationPage0 =

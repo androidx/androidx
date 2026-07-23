@@ -18,12 +18,14 @@ package androidx.pdf.annotation.drawer
 
 import android.graphics.Canvas
 import android.graphics.Matrix
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PdfObject
 
 /**
  * Fake implementation of [PdfObjectDrawer] for testing purposes. It records the arguments of the
  * draw method invocations.
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class FakePdfObjectDrawer<T : PdfObject> : PdfObjectDrawer<T> {
     data class DrawInvocation<T : PdfObject>(
         val pdfObject: T,

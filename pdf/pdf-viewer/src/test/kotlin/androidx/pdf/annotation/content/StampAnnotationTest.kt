@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPdfApi::class)
+
 package androidx.pdf.annotation.content
 
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals

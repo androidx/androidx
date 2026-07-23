@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.operations
 
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.MutableEditsDraft
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
@@ -47,6 +48,7 @@ class FakeAnnotationOperationsTracker : AnnotationOperationsTracker {
         operations.remove(key)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun getModificationsSnapshot(): EditsDraft {
         return MutableEditsDraft().toEditsDraft()
     }

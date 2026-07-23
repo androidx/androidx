@@ -19,7 +19,7 @@ package androidx.pdf.annotation.drawer
 import android.graphics.Canvas
 import android.util.SparseArray
 import androidx.core.util.forEach
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.annotation.PageAnnotationsData
 import androidx.pdf.annotation.content.PdfAnnotation
 
 /**

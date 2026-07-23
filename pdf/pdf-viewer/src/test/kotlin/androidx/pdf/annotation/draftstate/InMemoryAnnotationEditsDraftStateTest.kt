@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.draftstate
 
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.StampAnnotation
 import androidx.pdf.annotation.content.StampAnnotationTest.Companion.getSampleStampAnnotation
@@ -173,6 +174,7 @@ class InMemoryAnnotationEditsDraftStateTest {
         draftState.removeAnnotation(99, "any_id")
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun assertStampAnnotationEquals(
         expectedAnnotation: StampAnnotation,
         actualAnnotation: StampAnnotation,

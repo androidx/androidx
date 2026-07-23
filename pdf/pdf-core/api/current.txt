@@ -3,11 +3,11 @@ package androidx.pdf {
 
   public interface EditablePdfDocument extends androidx.pdf.PdfDocument {
     method public suspend Object? applyEdit(androidx.pdf.models.FormEditInfo record, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? applyEdits(androidx.pdf.EditsDraft editsDraft, kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public suspend Object? applyEdits(androidx.pdf.EditsDraft editsDraft, kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
     method public androidx.pdf.PdfWriteHandle createWriteHandle();
   }
 
-  public class EditsDraft {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public class EditsDraft {
     method public final kotlin.Pair<androidx.pdf.EditsDraft,androidx.pdf.EditsDraft> splitAt(int index);
   }
 
@@ -22,7 +22,7 @@ package androidx.pdf {
     property public int color;
   }
 
-  public final class MutableEditsDraft extends androidx.pdf.EditsDraft {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class MutableEditsDraft extends androidx.pdf.EditsDraft {
     ctor public MutableEditsDraft();
     method public void insert(androidx.pdf.annotation.content.PdfAnnotation annotation);
     method public void remove(String annotationId, int pageNum);
@@ -31,7 +31,7 @@ package androidx.pdf {
   }
 
   public interface PdfDocument extends java.io.Closeable {
-    method public default void addOnEditAppliedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnEditAppliedListener listener);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public default void addOnEditAppliedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnEditAppliedListener listener);
     method public void addOnPdfContentInvalidatedListener(java.util.concurrent.Executor executor, androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
     method public suspend Object? getAnnotationsForPage(int pageNum, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.annotation.content.KeyedPdfAnnotation>>);
     method @InaccessibleFromKotlin public int getFormType();
@@ -51,7 +51,7 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public androidx.pdf.RenderParams getRenderParams();
     method public suspend Object? getSelectionBounds(int pageNumber, android.graphics.PointF start, android.graphics.PointF stop, kotlin.coroutines.Continuation<? super androidx.pdf.content.PageSelection?>);
     method @InaccessibleFromKotlin public android.net.Uri getUri();
-    method public default void removeOnEditAppliedListener(androidx.pdf.PdfDocument.OnEditAppliedListener listener);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public default void removeOnEditAppliedListener(androidx.pdf.PdfDocument.OnEditAppliedListener listener);
     method public void removeOnPdfContentInvalidatedListener(androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
     method public suspend Object? searchDocument(String query, kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super android.util.SparseArray<java.util.List<androidx.pdf.content.PageMatchBounds>>>);
     property public abstract int formType;
@@ -126,7 +126,7 @@ package androidx.pdf {
     field public static final int PDF_FORM_TYPE_XFA_FULL = 2; // 0x2
   }
 
-  public static interface PdfDocument.OnEditAppliedListener {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static interface PdfDocument.OnEditAppliedListener {
     method public void onEditApplied(int pageNum, String editId);
   }
 
@@ -163,7 +163,7 @@ package androidx.pdf {
     property public java.util.List<androidx.pdf.content.PdfPageGotoLinkContent> gotoLinks;
   }
 
-  public final class PdfEditApplyException extends java.lang.Exception {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class PdfEditApplyException extends java.lang.Exception {
     ctor public PdfEditApplyException(int failureIndex, java.util.List<java.lang.String> appliedEditIds, Throwable cause);
     method @InaccessibleFromKotlin public java.util.List<java.lang.String> getAppliedEditIds();
     method @InaccessibleFromKotlin public int getFailureIndex();
@@ -261,7 +261,7 @@ package androidx.pdf.annotation.content {
     property public int color;
   }
 
-  public final class ImagePdfObject implements androidx.pdf.annotation.content.PdfObject {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class ImagePdfObject implements androidx.pdf.annotation.content.PdfObject {
     ctor public ImagePdfObject(android.graphics.Bitmap bitmap, android.graphics.RectF bounds);
     method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
     method @InaccessibleFromKotlin public android.graphics.RectF getBounds();
@@ -285,7 +285,7 @@ package androidx.pdf.annotation.content {
     property public androidx.pdf.annotation.content.PdfObject pdfObject;
   }
 
-  public final class PathPdfObject implements androidx.pdf.annotation.content.PdfObject {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class PathPdfObject implements androidx.pdf.annotation.content.PdfObject {
     ctor public PathPdfObject(int brushColor, float brushWidth, java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs);
     method @InaccessibleFromKotlin public int getBrushColor();
     method @InaccessibleFromKotlin public float getBrushWidth();
@@ -295,7 +295,7 @@ package androidx.pdf.annotation.content {
     property public java.util.List<androidx.pdf.annotation.content.PathPdfObject.PathInput> inputs;
   }
 
-  public static final class PathPdfObject.PathInput {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class PathPdfObject.PathInput {
     ctor public PathPdfObject.PathInput(float x, float y, int command);
     method @InaccessibleFromKotlin public int getCommand();
     method @InaccessibleFromKotlin public float getX();
@@ -308,7 +308,7 @@ package androidx.pdf.annotation.content {
     field public static final int MOVE_TO = 0; // 0x0
   }
 
-  public static final class PathPdfObject.PathInput.Companion {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class PathPdfObject.PathInput.Companion {
     property public static int LINE_TO;
     property public static int MOVE_TO;
   }
@@ -318,7 +318,7 @@ package androidx.pdf.annotation.content {
     property public int pageNum;
   }
 
-  public sealed exhaustive interface PdfObject {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public sealed exhaustive interface PdfObject {
   }
 
   public final class StampAnnotation extends androidx.pdf.annotation.content.PdfAnnotation {

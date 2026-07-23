@@ -19,6 +19,7 @@ package androidx.pdf.ocr
 import android.graphics.Bitmap
 import android.graphics.Rect
 import androidx.annotation.WorkerThread
+import androidx.pdf.ExperimentalPdfApi
 import java.io.Closeable
 
 /**
@@ -27,6 +28,7 @@ import java.io.Closeable
  * Implementations should handle the complexity of OCR (Optical Character Recognition) processing
  * and return a structured [OcrResult] that allows for spatial queries.
  */
+@ExperimentalPdfApi
 public interface OcrProvider : Closeable {
     /**
      * Processes the given [image] and returns recognized text results.
@@ -47,7 +49,7 @@ public interface OcrProvider : Closeable {
  * @property bounds A list of [Rect] objects representing the visual bounding boxes of the text. The
  *   bounds are typically aggregated by line to optimize for rendering and selection.
  */
-public class OcrText(public val text: String, public val bounds: List<Rect>)
+@ExperimentalPdfApi public class OcrText(public val text: String, public val bounds: List<Rect>)
 
 /**
  * Represents the complete result of an OCR process, providing methods to query text spatially.
@@ -55,6 +57,7 @@ public class OcrText(public val text: String, public val bounds: List<Rect>)
  * This interface manages the mapping between the raw recognized text and its visual coordinates in
  * the original image.
  */
+@ExperimentalPdfApi
 public interface OcrResult {
     /**
      * Returns all recognized text and its corresponding bounding boxes.

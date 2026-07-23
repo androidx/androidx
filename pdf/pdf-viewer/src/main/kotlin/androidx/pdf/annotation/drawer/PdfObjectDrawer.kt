@@ -19,6 +19,7 @@ package androidx.pdf.annotation.drawer
 import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PdfObject
 
 /**
@@ -26,6 +27,7 @@ import androidx.pdf.annotation.content.PdfObject
  *
  * @param T The type of [PdfObject] that this drawer can handle.
  */
+@OptIn(ExperimentalPdfApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface PdfObjectDrawer<T : PdfObject> {
 

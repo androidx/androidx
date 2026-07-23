@@ -270,6 +270,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
         val parcelablePdfObject = withDocument { document ->
@@ -307,6 +308,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
         val parcelableOperations = editsDraft.operations.map { it.toParcelable() }
@@ -384,6 +386,7 @@ public class SandboxedPdfDocument(
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun addOnEditAppliedListener(
         executor: Executor,
         listener: PdfDocument.OnEditAppliedListener,
@@ -391,6 +394,7 @@ public class SandboxedPdfDocument(
         onEditsAppliedListenerEntries.add(OnEditsAppliedListenerEntry(executor, listener))
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun removeOnEditAppliedListener(listener: PdfDocument.OnEditAppliedListener) {
         for (onEditsAppliedListener in onEditsAppliedListenerEntries) {
             if (onEditsAppliedListener.listener == listener) {
@@ -595,10 +599,9 @@ public class SandboxedPdfDocument(
         val listener: PdfDocument.OnPdfContentInvalidatedListener,
     )
 
-    private data class OnEditsAppliedListenerEntry(
-        val executor: Executor,
-        val listener: PdfDocument.OnEditAppliedListener,
-    )
+    @OptIn(ExperimentalPdfApi::class)
+    private data class OnEditsAppliedListenerEntry
+    constructor(val executor: Executor, val listener: PdfDocument.OnEditAppliedListener)
 
     /**
      * Verifies that the document has not been explicitly closed.

@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.view.annotation.AnnotationToolbar
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
@@ -44,6 +45,7 @@ import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_
  * It also applied the correct layout parameters and orientation for toolbar's final docked state.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(ExperimentalPdfApi::class)
 public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
     ConstraintLayout(context, attrs) {
 

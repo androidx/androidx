@@ -21,6 +21,7 @@ import android.util.SparseArray
 import androidx.annotation.RestrictTo
 import androidx.core.util.isEmpty
 import androidx.core.util.isNotEmpty
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.ocr.OcrContextRepository
@@ -59,6 +60,7 @@ import kotlinx.coroutines.withContext
  *   to Dispatcher.IO.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalPdfApi::class)
 public class SearchRepository(
     private val pdfDocument: PdfDocument,
     private var ocrContextRepository: OcrContextRepository? = null,

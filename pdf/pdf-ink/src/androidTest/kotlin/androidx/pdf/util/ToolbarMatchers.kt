@@ -19,10 +19,12 @@ package androidx.pdf.util
 import android.graphics.RectF
 import android.view.View
 import androidx.ink.authoring.InProgressStrokesView
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.view.annotation.AnnotationToolbar
 import androidx.test.espresso.matcher.BoundedMatcher
 import org.hamcrest.Matcher
 
+@OptIn(ExperimentalPdfApi::class)
 internal object ToolbarMatchers {
     /**
      * Verifies that the [InProgressStrokesView] has a mask that matches the bounds of the toolbar.

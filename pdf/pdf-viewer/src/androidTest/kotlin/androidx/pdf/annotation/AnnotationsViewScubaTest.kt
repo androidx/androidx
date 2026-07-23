@@ -27,6 +27,7 @@ import androidx.pdf.ANNOTATION_VIEW_SINGLE_SQUARE_NO_TRANSFORM
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_COMBINED_TRANSFORM
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_SCALED
 import androidx.pdf.ANNOTATION_VIEW_SQUARE_TRANSLATED
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PathPdfObject
@@ -232,6 +233,7 @@ class AnnotationViewScubaTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun setupAnnotationViewInActivity(
         viewportState: PdfViewportState,
         annotationData: SparseArray<List<KeyedPdfAnnotation>>,
@@ -254,6 +256,7 @@ class AnnotationViewScubaTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun createSquareAnnotation(
         size: Float = DEFAULT_SQUARE_SIZE,
         pageNumber: Int = 0,

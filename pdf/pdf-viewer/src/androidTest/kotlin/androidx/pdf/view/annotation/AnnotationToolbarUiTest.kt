@@ -33,6 +33,7 @@ import android.content.res.Configuration
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup.LayoutParams
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R as PdfR
 import androidx.pdf.assertScreenshot
@@ -62,6 +63,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@OptIn(ExperimentalPdfApi::class)
 class AnnotationToolbarUiTest {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)

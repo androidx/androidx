@@ -21,6 +21,7 @@ import android.graphics.Point
 import android.graphics.RectF
 import android.view.ViewGroup
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.annotation.content.KeyedPdfObject
@@ -87,6 +88,7 @@ class PdfViewAccessibilityManagerTest {
         pdfView.lastFastScrollerVisibility = false
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun onPopulateNodeForVirtualView_withOcrText_combinesText() = runTest {
         val ocrTextString = "OCR detected text"

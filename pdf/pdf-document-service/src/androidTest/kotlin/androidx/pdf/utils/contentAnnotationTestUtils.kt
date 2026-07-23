@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPdfApi::class)
+
 package androidx.pdf.utils
 
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.content.PathPdfObject.PathInput
 import androidx.pdf.annotation.content.StampAnnotation

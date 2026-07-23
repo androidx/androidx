@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.compose.PdfViewer
 import androidx.pdf.compose.PdfViewerState
 import androidx.pdf.testapp.R
@@ -51,6 +52,7 @@ class PdfComposeFragment() : Fragment() {
 
     private val CommentKey = Any()
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

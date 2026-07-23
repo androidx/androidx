@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.RectF
 import androidx.pdf.DraftEditOperation as ParcelableDraftEditOperation
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.InsertDraftEditOperation as ParcelableInsertDraftEditOperation
 import androidx.pdf.RemoveDraftEditOperation as ParcelableRemoveDraftEditOperation
 import androidx.pdf.UpdateDraftEditOperation as ParcelableUpdateDraftEditOperation
@@ -48,6 +49,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class PdfModelMapperTest {

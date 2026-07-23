@@ -119,6 +119,7 @@ internal open class FakeEditablePdfDocument(
         } ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
         return null
     }
@@ -141,6 +142,7 @@ internal open class FakeEditablePdfDocument(
         return emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
         val results = mutableListOf<String>()
 
@@ -306,6 +308,7 @@ internal open class FakeEditablePdfDocument(
         override fun close() {}
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun addOnEditAppliedListener(
         executor: Executor,
         listener: PdfDocument.OnEditAppliedListener,
@@ -313,6 +316,7 @@ internal open class FakeEditablePdfDocument(
         TODO("Not yet implemented")
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun removeOnEditAppliedListener(listener: PdfDocument.OnEditAppliedListener) {
         TODO("Not yet implemented")
     }

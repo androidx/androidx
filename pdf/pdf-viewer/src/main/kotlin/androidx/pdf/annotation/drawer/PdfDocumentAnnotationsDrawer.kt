@@ -18,7 +18,7 @@ package androidx.pdf.annotation.drawer
 
 import android.graphics.Canvas
 import android.util.SparseArray
-import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.annotation.PageAnnotationsData
 
 /** Draws a collection of PDF annotations. */
 internal interface PdfDocumentAnnotationsDrawer {

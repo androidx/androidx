@@ -16,6 +16,7 @@
 
 package androidx.pdf.annotation.manager
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.TestPdfAnnotation
@@ -461,6 +462,7 @@ class PdfDocumentAnnotationsManagerTest {
         assertThat(manager.getAnnotations(pageNum)).hasSize(1)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun getAnnotationModifications_mixedPages_returnsSortedDraft() = runTest {
         // Page 2 ADD
