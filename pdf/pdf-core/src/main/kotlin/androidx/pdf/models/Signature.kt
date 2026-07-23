@@ -15,67 +15,67 @@
  */
 package androidx.pdf.models
 
+import android.graphics.Bitmap
+import android.graphics.PointF
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
- * This is the plain model for a signature, acting as the Single Source of Truth (SSOT) in the
- * ViewModel. It ensures signatures can scale perfectly across different devices, screen densities,
- * and zoom levels.
+ * Represents a Signature Model in PDF coordinates.
  *
  * @property id A unique id for the signature, used to track updates, selections, and deletions.
  * @property pageNum The 0-indexed PDF page number where this signature is currently placed.
- * @property normX The horizontal anchor point (0.0f to 1.0f). Represents a percentage across the
- *   unscaled page width from the top-left of the page.
- * @property normY The vertical anchor point (0.0f to 1.0f). Represents a percentage down the
- *   unscaled page height from the top-left of the page.
- * @property widthDp The physical base width of the signature's bounding box in density-independent
- *   pixels (dp).
- * @property heightDp The physical base height of the signature's bounding box in
- *   density-independent pixels (dp).
+ * @property xCoord represents the x-coordinate of the signature from the top left of the signature
+ *   bounding box points in PDF points from the left of the page.
+ * @property yCoord represents the y-coordinate of the signature from the top left of the signature
+ *   bounding box points in PDF points from the top of the page.
+ * @property width represents the width of the signature's bounding box in PDF points.
+ * @property height represents the height of the signature's bounding box in PDF points.
+ * @property isSelected represents whether the signature is selected or not.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Signature internal constructor() {
     public abstract val id: String
     public abstract val pageNum: Int
-    public abstract val normX: Float
-    public abstract val normY: Float
-    public abstract val widthDp: Int
-    public abstract val heightDp: Int
+    public abstract val xCoord: Float
+    public abstract val yCoord: Float
+    public abstract val width: Float
+    public abstract val height: Float
+    public abstract val isSelected: Boolean
 
     /**
      * A signature drawn by the user using vector paths.
      *
-     * @property pathsString Serialized vector math and coordinates representing the user's pen
+     * @property drawnPath Serialized vector math and coordinates representing the user's pen
      *   strokes, used to perfectly redraw the signature at any scale.
      */
-    public class Drawn(
+    public class DrawnSignature(
         override val id: String,
         override val pageNum: Int,
-        override val normX: Float,
-        override val normY: Float,
-        override val widthDp: Int,
-        override val heightDp: Int,
-        public val pathsString: String,
+        override val xCoord: Float,
+        override val yCoord: Float,
+        override val width: Float,
+        override val height: Float,
+        override val isSelected: Boolean,
+        public val drawnPath: List<List<PointF>>,
     ) : Signature() {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is Drawn) return false
+            if (other !is DrawnSignature) return false
             return id == other.id &&
                 pageNum == other.pageNum &&
-                normX == other.normX &&
-                normY == other.normY &&
-                widthDp == other.widthDp &&
-                heightDp == other.heightDp
+                xCoord == other.xCoord &&
+                yCoord == other.yCoord &&
+                width == other.width &&
+                height == other.height &&
+                isSelected == other.isSelected &&
+                drawnPath == other.drawnPath
         }
 
         override fun hashCode(): Int {
-            return Objects.hash(id, pageNum, normX, normY, widthDp, heightDp)
-        }
-
-        override fun toString(): String {
-            return "Drawn(id='$id', pageNum=$pageNum, normX=$normX, normY=$normY, widthDp=$widthDp, heightDp=$heightDp, pathsString='$pathsString')"
+            return Objects.hash(id, pageNum, xCoord, yCoord, width, height, isSelected, drawnPath)
         }
     }
 
@@ -83,72 +83,92 @@ public abstract class Signature internal constructor() {
      * A signature generated from text typed by the user.
      *
      * @property typedText The exact text string entered by the user.
-     * @property typedFont The specific font asset identifier or typeface name used to render the
-     *   text.
+     * @property typedFont The specific font asset identifier used to render the text.
      */
-    public class Typed(
+    public class TypedSignature(
         override val id: String,
         override val pageNum: Int,
-        override val normX: Float,
-        override val normY: Float,
-        override val widthDp: Int,
-        override val heightDp: Int,
+        override val xCoord: Float,
+        override val yCoord: Float,
+        override val width: Float,
+        override val height: Float,
+        override val isSelected: Boolean,
         public val typedText: String,
-        public val typedFont: String,
+        @property:TypedFont public val typedFont: Int,
     ) : Signature() {
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(FONT_SERIF, FONT_SANS_SERIF, FONT_CURSIVE, FONT_MONOSPACE)
+        public annotation class TypedFont
+
+        public companion object {
+            public const val FONT_SERIF: Int = 0
+            public const val FONT_SANS_SERIF: Int = 1
+            public const val FONT_CURSIVE: Int = 2
+            public const val FONT_MONOSPACE: Int = 3
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is Typed) return false
+            if (other !is TypedSignature) return false
             return id == other.id &&
                 pageNum == other.pageNum &&
-                normX == other.normX &&
-                normY == other.normY &&
-                widthDp == other.widthDp &&
-                heightDp == other.heightDp
+                xCoord == other.xCoord &&
+                yCoord == other.yCoord &&
+                width == other.width &&
+                height == other.height &&
+                isSelected == other.isSelected &&
+                typedText == other.typedText &&
+                typedFont == other.typedFont
         }
 
         override fun hashCode(): Int {
-            return Objects.hash(id, pageNum, normX, normY, widthDp, heightDp)
-        }
-
-        override fun toString(): String {
-            return "Typed(id='$id', pageNum=$pageNum, normX=$normX, normY=$normY, widthDp=$widthDp, heightDp=$heightDp, typedText='$typedText', typedFont='$typedFont')"
+            return Objects.hash(
+                id,
+                pageNum,
+                xCoord,
+                yCoord,
+                width,
+                height,
+                isSelected,
+                typedText,
+                typedFont,
+            )
         }
     }
 
     /**
      * A signature imported from an image file on the user's device.
      *
-     * @property imageUriString The `content://` URI address pointing to the source image file.
+     * @property imageBitmap The Bitmap representation of the signature image.
      */
-    public class Uploaded(
+    public class UploadedSignature(
         override val id: String,
         override val pageNum: Int,
-        override val normX: Float,
-        override val normY: Float,
-        override val widthDp: Int,
-        override val heightDp: Int,
-        public val imageUriString: String,
+        override val xCoord: Float,
+        override val yCoord: Float,
+        override val width: Float,
+        override val height: Float,
+        override val isSelected: Boolean,
+        public val imageBitmap: Bitmap,
     ) : Signature() {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is Uploaded) return false
+            if (other !is UploadedSignature) return false
             return id == other.id &&
                 pageNum == other.pageNum &&
-                normX == other.normX &&
-                normY == other.normY &&
-                widthDp == other.widthDp &&
-                heightDp == other.heightDp
+                xCoord == other.xCoord &&
+                yCoord == other.yCoord &&
+                width == other.width &&
+                height == other.height &&
+                isSelected == other.isSelected &&
+                imageBitmap.sameAs(other.imageBitmap)
         }
 
         override fun hashCode(): Int {
-            return Objects.hash(id, pageNum, normX, normY, widthDp, heightDp)
-        }
-
-        override fun toString(): String {
-            return "Uploaded(id='$id', pageNum=$pageNum, normX=$normX, normY=$normY, widthDp=$widthDp, heightDp=$heightDp, imageUriString='$imageUriString')"
+            return Objects.hash(id, pageNum, xCoord, yCoord, width, height, isSelected, imageBitmap)
         }
     }
 }
