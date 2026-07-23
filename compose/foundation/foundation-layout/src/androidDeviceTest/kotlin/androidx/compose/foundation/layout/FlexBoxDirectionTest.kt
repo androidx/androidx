@@ -75,8 +75,8 @@ class FlexBoxDirectionTest(private val directionName: String) {
         if (direction == FlexDirection.Row) height else width
 
     /** fillMaxSize on the main axis only. */
-    private fun Modifier.fillMaxMainAxis(): Modifier =
-        if (direction == FlexDirection.Row) fillMaxWidth() else fillMaxHeight()
+    private fun Modifier.fillMaxMainAxis(fraction: Float = 1f): Modifier =
+        if (direction == FlexDirection.Row) fillMaxWidth(fraction) else fillMaxHeight(fraction)
 
     /** Creates a Box with [mainAxisSize] on the main axis and [crossAxisSize] on the cross axis. */
     private fun Modifier.directionSize(mainAxisSize: Dp, crossAxisSize: Dp): Modifier =
@@ -1991,5 +1991,160 @@ class FlexBoxDirectionTest(private val directionName: String) {
         rule.waitForIdle()
         Truth.assertThat(mainPositions).containsExactly(180.0f, 90.0f, 0.0f).inOrder()
         Truth.assertThat(crossPositions).containsExactly(180f, 180f, 180f)
+    }
+
+    @Test
+    fun fillMaxMainAxis_occupiesRemainingSpace() {
+        val mainPositions = mutableListOf<Float>()
+        val mainSizes = mutableListOf<Int>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(modifier = Modifier.fillMaxSize(), config = { direction(direction) }) {
+                        Box(
+                            Modifier.directionSize(50.dp, 50.dp)
+                                .onPlaced { mainPositions.add(0, mainAxis(it.positionInParent())) }
+                                .onSizeChanged { mainSizes.add(0, mainSize(it.width, it.height)) }
+                        )
+                        Box(
+                            Modifier.fillMaxMainAxis()
+                                .crossAxisSize(50.dp)
+                                .onPlaced { mainPositions.add(1, mainAxis(it.positionInParent())) }
+                                .onSizeChanged { mainSizes.add(1, mainSize(it.width, it.height)) }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Container size is 200dp
+        // Item 1: 50dp
+        // Item 2 (fillMaxMainAxis): should occupy the remaining 150dp
+        Truth.assertThat(mainPositions).containsExactly(0f, 50f).inOrder()
+        Truth.assertThat(mainSizes).containsExactly(50, 150).inOrder()
+    }
+
+    @Test
+    fun fillMaxMainAxisFraction_occupiesFractionOfRemainingSpace() {
+        val mainSizes = mutableListOf<Int>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(modifier = Modifier.fillMaxSize(), config = { direction(direction) }) {
+                        Box(
+                            Modifier.directionSize(50.dp, 50.dp).onSizeChanged {
+                                mainSizes.add(0, mainSize(it.width, it.height))
+                            }
+                        )
+                        Box(
+                            Modifier.fillMaxMainAxis(0.5f).crossAxisSize(50.dp).onSizeChanged {
+                                mainSizes.add(1, mainSize(it.width, it.height))
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Container size is 200dp
+        // Item 1: 50dp
+        // Item 2 (fillMaxMainAxis(0.5f)): should occupy exactly 50% of the remaining 150dp = 75dp
+        Truth.assertThat(mainSizes).containsExactly(50, 75).inOrder()
+    }
+
+    @Test
+    fun fillMaxMainAxis_withExplicitGrowZero_doesNotGrow() {
+        val mainSizes = mutableListOf<Int>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(modifier = Modifier.fillMaxSize(), config = { direction(direction) }) {
+                        Box(
+                            Modifier.directionSize(50.dp, 50.dp).onSizeChanged {
+                                mainSizes.add(0, mainSize(it.width, it.height))
+                            }
+                        )
+                        Box(
+                            Modifier.onSizeChanged {
+                                    mainSizes.add(1, mainSize(it.width, it.height))
+                                }
+                                .flex { grow(0f) }
+                                .fillMaxMainAxis()
+                                .directionSize(50.dp, 50.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Item 2 has fillMaxMainAxis, but the explicit grow(0f) opts it out of growing, so it
+        // keeps its 50dp base size instead of taking the remaining 150dp.
+        Truth.assertThat(mainSizes).containsExactly(50, 50).inOrder()
+    }
+
+    @Test
+    fun fillMaxMainAxisFraction_withExplicitGrow_explicitGrowWins() {
+        val mainSizes = mutableListOf<Int>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(modifier = Modifier.fillMaxSize(), config = { direction(direction) }) {
+                        Box(
+                            Modifier.directionSize(50.dp, 50.dp).onSizeChanged {
+                                mainSizes.add(0, mainSize(it.width, it.height))
+                            }
+                        )
+                        Box(
+                            Modifier.onSizeChanged {
+                                    mainSizes.add(1, mainSize(it.width, it.height))
+                                }
+                                .flex { grow(1f) }
+                                .fillMaxMainAxis(0.5f)
+                                .crossAxisSize(50.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // The explicit grow(1f) overrides the 0.5f fill fraction, so item 2 takes all the
+        // remaining 150dp instead of half of it.
+        Truth.assertThat(mainSizes).containsExactly(50, 150).inOrder()
+    }
+
+    @Test
+    fun fillMaxCrossAxis_occupiesContainerCrossAxisSize() {
+        val crossSizes = mutableListOf<Int>()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(modifier = Modifier.fillMaxSize(), config = { direction(direction) }) {
+                        Box(
+                            Modifier.mainAxisSize(50.dp)
+                                .crossAxisSize(Dp.Unspecified)
+                                .onSizeChanged { crossSizes.add(crossSize(it.width, it.height)) }
+                                .run {
+                                    if (direction == FlexDirection.Row) fillMaxHeight()
+                                    else fillMaxWidth()
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Container cross size is 200dp
+        // Item has fillMax cross-axis size, so it should occupy exactly 200dp cross size
+        Truth.assertThat(crossSizes).containsExactly(200)
     }
 }

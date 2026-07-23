@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -687,7 +688,21 @@ private class FillElement(
 }
 
 private class FillNode(var direction: Direction, var fraction: Float) :
-    LayoutModifierNode, Modifier.Node() {
+    LayoutModifierNode, ParentDataModifierNode, Modifier.Node() {
+
+    override fun Density.modifyParentData(parentData: Any?): Any {
+        val data =
+            parentData as? FillModifierParentData
+                ?: if (parentData == null) FillParentData() else return parentData
+        if (direction == Direction.Horizontal || direction == Direction.Both) {
+            data.fillHorizontalFraction = fraction
+        }
+        if (direction == Direction.Vertical || direction == Direction.Both) {
+            data.fillVerticalFraction = fraction
+        }
+        return data
+    }
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -1131,3 +1146,13 @@ internal enum class Direction {
     Horizontal,
     Both,
 }
+
+internal interface FillModifierParentData {
+    var fillHorizontalFraction: Float
+    var fillVerticalFraction: Float
+}
+
+internal class FillParentData(
+    override var fillHorizontalFraction: Float = 0f,
+    override var fillVerticalFraction: Float = 0f,
+) : FillModifierParentData
