@@ -302,6 +302,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_ACCOUNT_PROPERTY_INCOMPATIBILITY_CHECK =
             FLAG_PREFIX + "enable_account_property_incompatibility_check";
 
+    /** Controls whether to release schema store cached proto after initialization. */
+    public static final String FLAG_RELEASE_SCHEMA_CACHE_AFTER_INITIALIZATION =
+            FLAG_PREFIX + "release_schema_cache_after_initialization";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -659,6 +663,14 @@ public final class Flags {
      */
     public static boolean enableAccountPropertyIncompatibilityCheck() {
         // TODO(b/506060010): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Controls whether to release schema store cached proto after initialization.
+     */
+    public static boolean releaseSchemaCacheAfterInitialization() {
+        // TODO(b/490448633): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }

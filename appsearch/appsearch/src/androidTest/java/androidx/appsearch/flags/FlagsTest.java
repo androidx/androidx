@@ -277,4 +277,12 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_account_property_incompatibility_check");
     }
+
+    @Test
+    public void testFlagValue_releaseSchemaCacheAfterInitialization() {
+        assertThat(Flags.FLAG_RELEASE_SCHEMA_CACHE_AFTER_INITIALIZATION)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".release_schema_cache_after_initialization");
+    }
 }

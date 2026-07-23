@@ -351,6 +351,8 @@ public interface IcingOptionsConfig {
                 .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())
                 .setEnableAccountPropertyIncompatibilityCheck(
                         Flags.enableAccountPropertyIncompatibilityCheck())
+                .setSchemaStoreReleaseCachedProtoAfterUse(
+                        Flags.releaseSchemaCacheAfterInitialization())
                 .build();
     }
 }
