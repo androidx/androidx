@@ -138,6 +138,26 @@ package androidx.compose.remote.creation.compose.capture {
 
 package androidx.compose.remote.creation.compose.layout {
 
+  public final class RemoteAbsoluteAlignment {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getBottomLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getBottomRight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getCenterLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getCenterRight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal getLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal getRight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getTopLeft();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment getTopRight();
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment BottomLeft;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment BottomRight;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment CenterLeft;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment CenterRight;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal Left;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal Right;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment TopLeft;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment TopRight;
+    field public static final androidx.compose.remote.creation.compose.layout.RemoteAbsoluteAlignment INSTANCE;
+  }
+
   public interface RemoteAlignment {
     field public static final androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion Companion;
   }
