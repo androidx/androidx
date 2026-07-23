@@ -130,7 +130,7 @@ develocity {
 
     // TODO(https://github.com/gradle/gradle/issues/34584): Avoid setting buildFinished via Gradle magic:
     //  buildScan {  buildFinished {  buildScan.value("X", "Y") } }
-    //  as it fails on uploading scans if the config cache is resued and only the BUILD_NUMBER changes
+    //  as it fails on uploading scans if the config cache is reused and only the BUILD_NUMBER changes
     //  Use alternative below:
     def buildScanConfig = buildScan
     buildScanConfig.buildFinished {
@@ -140,30 +140,36 @@ develocity {
 }
 
 def cacheSetting = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE")
-def pushSetting = providers.environmentVariable("IS_POSTSUBMIT")
-switch (cacheSetting) {
-    case ["true", "gcp"]:
-        settings.buildCache {
-            remote(androidx.build.gradle.gcpbuildcache.GcpBuildCache) {
-                projectId = "androidx-ge"
-                bucketName = "androidx-gradle-remote-cache"
-                messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
-                        "Please regenerate credentials following the steps below and try again:\n" +
-                        "gcloud auth application-default login --project androidx-ge"
-                //TODO(https://github.com/gradle/gradle/issues/34578): Move to lazy API when supported
-                push = pushSetting.map { it.toBoolean() }.getOrElse(false)
-            }
+
+void enableBuildCache() {
+    def pushSetting = providers.environmentVariable("IS_POSTSUBMIT")
+    settings.buildCache {
+        remote(androidx.build.gradle.gcpbuildcache.GcpBuildCache) {
+            projectId = "androidx-ge"
+            bucketName = "androidx-gradle-remote-cache"
+            messageOnAuthenticationFailure = "Your GCP Credentials have expired.\n" +
+                    "Please regenerate credentials following the steps below and try again:\n" +
+                    "gcloud auth application-default login --project androidx-ge"
+            //TODO(https://github.com/gradle/gradle/issues/34578): Move to lazy API when supported
+            push = pushSetting.map { it.toBoolean() }.getOrElse(false)
         }
-        break
+    }
+}
+switch (cacheSetting) {
     case "false":
+        break
+    case ["true", "gcp"]:
+        enableBuildCache()
         break
     default:
         def uplinkLinux = new File("/usr/bin/uplink-helper")
         def uplinkMac = new File("/usr/local/bin/uplink-helper")
         if (uplinkLinux.exists() || uplinkMac.exists()) {
-            logger.warn("\u001B[31m\nIt looks like you are a Googler running without remote build "
-                    + "cache. Enable it for faster builds, see " +
-                    "http://go/androidx-onboarding#remote-build-cache\u001B[0m\n")
+            logger.warn("\u001B[31m\nIt looks like you are a Googler. Trying to enable remote build "
+                    + "cache for faster builds, see " +
+                    "http://go/androidx-onboarding#remote-build-cache\u001B[0m\n" +
+                    "It can be disabled with USE_ANDROIDX_REMOTE_BUILD_CACHE=false\n")
+            enableBuildCache()
         }
 }
 
