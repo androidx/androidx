@@ -59,10 +59,10 @@ internal class SavedStateHandleController(
     }
 
     /**
-     * Attach a [SavedStateHandle] from a [ViewModel] to the current [SavedStateRegistry].
+     * Attaches a [SavedStateHandle] from a [ViewModel] to the current [SavedStateRegistry].
      *
-     * This is necessary because ViewModels outlive Activities/Fragments during configuration
-     * changes. When the Activity is recreated, the [ViewModel] is still alive, but its
+     * This is necessary because [ViewModel]s outlive `Activity`s/`Fragment`s during configuration
+     * changes. When the `Activity` is recreated, the [ViewModel] is still alive, but its
      * [SavedStateHandle] is holding onto a dead registry.
      *
      * This function:

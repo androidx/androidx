@@ -35,10 +35,11 @@ import androidx.savedstate.savedState
 import kotlin.jvm.JvmOverloads
 
 /**
- * Manages a set of [ViewModelStore] instances scoped to a parent [ViewModelStore].
+ * Manages a set of child [ViewModelStore] instances scoped to a parent [ViewModelStore].
  *
- * This class allows the creation of "child" scopes that survive configuration changes (via the
- * parent) but can be independently cleared when no longer needed.
+ * This class allows the creation of child [ViewModelStore] instances that survive configuration
+ * changes (retained via the parent [ViewModelStore]) but can be independently cleared when no
+ * longer needed.
  *
  * **Important:** This class prevents a child [ViewModel] from being cleared while they are still in
  * use (e.g., during exit animations). Consumers must call [acquireToken] to mark a child
@@ -50,8 +51,8 @@ import kotlin.jvm.JvmOverloads
  * that runs independently. It manages its own state and will not be automatically cleared by
  * configuration changes; you must manually call [clearAllKeys] to clean it up.
  *
- * @param parentStore The parent [ViewModelStore] to bind to, or `null` for an independent root
- *   provider.
+ * @param parentStore The parent [ViewModelStore] used to retain child [ViewModelStore] instances
+ *   across configuration changes, or `null` for an independent root provider.
  * @param parentKey A unique identifier used to scope this provider and its underlying state within
  *   the [parentStore]. Providers sharing the same key will share the same internal state. A `null`
  *   key is valid and acts as its own distinct shared scope. Defaults to `null`.
@@ -74,7 +75,8 @@ public constructor(
     /**
      * Constructs a [ViewModelStoreProvider] bound to a parent [ViewModelStoreOwner].
      *
-     * @param parentOwner The parent [ViewModelStoreOwner] to bind to, or `null` for an independent
+     * @param parentOwner The parent [ViewModelStoreOwner] whose [ViewModelStore] is used to retain
+     *   child [ViewModelStore] instances across configuration changes, or `null` for an independent
      *   root provider.
      * @param parentKey A unique identifier used to scope this provider and its underlying state
      *   within the [parentOwner]. Providers sharing the same key will share the same internal
