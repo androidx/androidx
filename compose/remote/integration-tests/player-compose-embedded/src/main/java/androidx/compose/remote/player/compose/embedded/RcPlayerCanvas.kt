@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.rememberTextMeasurer
 
 @Composable
 internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
@@ -42,6 +43,7 @@ internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
 
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
+    val textMeasurer = rememberTextMeasurer()
     Box(modifier = modifier) {
         // WIDTH/HEIGHT ComponentValue feedback is published from the component dispatch's
         // onSizeChanged (RcPlayerComponent), which fires at layout time — before anything draws —
@@ -50,7 +52,7 @@ internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
         // earlier in the pass would see the previous frame's value, and writing snapshot state
         // during draw re-invalidates the frame.
         Canvas(modifier = Modifier.fillMaxSize()) {
-            executeOperations(operations, remoteContext, graph = graph)
+            executeOperations(operations, remoteContext, textMeasurer, graph = graph)
         }
     }
 }

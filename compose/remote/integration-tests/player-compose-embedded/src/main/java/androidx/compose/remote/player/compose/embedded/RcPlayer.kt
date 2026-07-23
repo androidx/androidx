@@ -101,6 +101,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
@@ -108,6 +109,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import java.io.ByteArrayInputStream
@@ -526,12 +528,18 @@ internal fun RcPlayerRawDocument(size: IntSize) {
     val document = LocalCoreDocument.current
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
+    val textMeasurer = rememberTextMeasurer()
     Canvas(modifier = Modifier.fillMaxSize()) {
         // Publish the on-screen size as the document dimensions before painting, mirroring
         // CoreDocument.paint, so draws positioned by the document size resolve.
         document.setWidth(size.width)
         document.setHeight(size.height)
-        executeOperations(document.getOperationsReflection(), remoteContext, graph = graph)
+        executeOperations(
+            document.getOperationsReflection(),
+            remoteContext,
+            graph = graph,
+            textMeasurer = textMeasurer,
+        )
     }
 }
 
@@ -595,6 +603,26 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                     .then(modifier)
         }
 
+        val drawOpsList = component.getDrawContentOperationsListReflection()
+        if (drawOpsList != null) {
+            val remoteContext = LocalRemoteContext.current
+            val graph = LocalGraphContext.current
+            val document = LocalCoreDocument.current
+            val textMeasurer = rememberTextMeasurer()
+            modifier =
+                modifier.drawWithContent {
+                    // Size feedback is published by onSizeChanged above; the draw pass only draws.
+                    // graph makes time/variable-driven reads reactive, so the draw self-invalidates
+                    // when they change — no per-frame applyOperations refreshing the store.
+                    executeOperations(
+                        drawOpsList,
+                        remoteContext,
+                        onDrawContent = { drawContent() },
+                        graph = graph,
+                        textMeasurer = textMeasurer,
+                    )
+                }
+        }
         when (component) {
             is CanvasLayout -> RcPlayerCanvas(component, modifier)
             is ColumnLayout -> RcPlayerColumn(component, modifier)

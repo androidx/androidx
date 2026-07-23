@@ -77,11 +77,13 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.util.fastForEach
 
 @Composable
 @Suppress("ModifierFactoryExtensionFunction")
 internal fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): Modifier {
+    val textMeasurer = rememberTextMeasurer()
     var modifier: Modifier = Modifier
     var drawContentProcessed = false
     list.fastForEach { op ->
@@ -115,6 +117,7 @@ internal fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null)
                             executeOperations(
                                 operations = drawOpsList,
                                 remoteContext = remoteContext,
+                                textMeasurer = textMeasurer,
                                 onDrawContent = { drawContent() },
                                 graph = graph,
                             )
@@ -146,6 +149,7 @@ internal fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null)
                 executeOperations(
                     operations = drawOpsList,
                     remoteContext = remoteContext,
+                    textMeasurer = textMeasurer,
                     onDrawContent = { drawContent() },
                     graph = graph,
                 )
