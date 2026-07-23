@@ -64,6 +64,7 @@ public interface EditablePdfDocument : PdfDocument {
      * @throws IllegalArgumentException if the underlying native engine rejects the object's data
      *   (e.g., invalid bitmap configurations).
      */
+    @OptIn(ExperimentalPdfApi::class)
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String
