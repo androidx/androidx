@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
-class FitBoxTest {
+class RemoteFitBoxTest {
     @get:Rule
     val composeTestRule =
         RemoteScreenshotTestRule(
@@ -118,7 +118,7 @@ class FitBoxTest {
                         yield(
                             "${arrangement.propertyName()} ${alignment.propertyName()}" to
                                 @RemoteComposable @Composable {
-                                    FitBox(
+                                    RemoteFitBox(
                                         modifier = RemoteModifier.fillMaxSize(),
                                         horizontalAlignment = alignment,
                                         verticalArrangement = arrangement,

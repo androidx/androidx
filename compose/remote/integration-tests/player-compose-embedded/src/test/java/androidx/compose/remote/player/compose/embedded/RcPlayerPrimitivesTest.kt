@@ -1336,7 +1336,7 @@ class RcPlayerPrimitivesTest {
     }
 
     @Test
-    fun testLayoutFitBox() {
+    fun testLayoutRemoteFitBox() {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -1345,7 +1345,7 @@ class RcPlayerPrimitivesTest {
                     .captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.FitBox {
+                            androidx.compose.remote.creation.compose.layout.RemoteFitBox {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
                                     "Fit Content".rs
                                 )
