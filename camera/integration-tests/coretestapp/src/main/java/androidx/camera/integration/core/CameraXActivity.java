@@ -1728,45 +1728,34 @@ public class CameraXActivity extends AppCompatActivity {
             updateAppUIForE2ETest();
         }
 
-        Futures.addCallback(folderFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                initCameraAndPermissions();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                Log.e(TAG, "Failed to create default folders", t);
-                initCameraAndPermissions();
-            }
-        }, ContextCompat.getMainExecutor(this));
-    }
-
-    private void initCameraAndPermissions() {
         CameraXViewModel viewModel = new ViewModelProvider(this).get(CameraXViewModel.class);
         viewModel.getCameraProvider().observe(this, cameraProviderResult -> {
             mCameraProviderResult = cameraProviderResult;
-            mInitializationIdlingLatch.countDown();
-            if (cameraProviderResult.hasProvider()) {
+            folderFuture.addListener(() -> {
+                mInitializationIdlingLatch.countDown();
+                if (cameraProviderResult.hasProvider()) {
 
-                mCameraProvider = cameraProviderResult.getProvider();
-                requireNonNull(mCameraProvider).addCameraPresenceListener(
-                        ContextCompat.getMainExecutor(this),
-                        new CameraPresenceChangeListener(CameraXActivity.this,
-                                mCameraIterateButton));
+                    mCameraProvider = cameraProviderResult.getProvider();
+                    requireNonNull(mCameraProvider).addCameraPresenceListener(
+                            ContextCompat.getMainExecutor(CameraXActivity.this),
+                            new CameraPresenceChangeListener(CameraXActivity.this,
+                                    mCameraIterateButton));
 
-                // Initialize CameraSelectorList
-                mCameraSwitcher.updateCameraInfos(mCameraProvider.getAvailableCameraInfos());
-                mCurrentCameraSelector = mCameraSwitcher.getCurrentSelector();
+                    // Initialize CameraSelectorList
+                    mCameraSwitcher.updateCameraInfos(
+                            mCameraProvider.getAvailableCameraInfos());
+                    mCurrentCameraSelector = mCameraSwitcher.getCurrentSelector();
 
-                updateVideoQualityByIntent(getIntent());
-                tryBindUseCases();
-            } else {
-                Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
-                        cameraProviderResult.getError());
-                Toast.makeText(getApplicationContext(), "Unable to initialize CameraX. See logs "
-                        + "for details.", Toast.LENGTH_LONG).show();
-            }
+                    updateVideoQualityByIntent(getIntent());
+                    tryBindUseCases();
+                } else {
+                    Log.e(TAG, "Failed to retrieve ProcessCameraProvider",
+                            cameraProviderResult.getError());
+                    Toast.makeText(getApplicationContext(),
+                            "Unable to initialize CameraX. See logs "
+                                    + "for details.", Toast.LENGTH_LONG).show();
+                }
+            }, ContextCompat.getMainExecutor(this));
         });
 
         setupPermissions();
@@ -2097,7 +2086,7 @@ public class CameraXActivity extends AppCompatActivity {
                     .setTargetFrameRate(mFpsRange);
             setCaptureCallback(builder);
             Preview preview = builder.build();
-            resetViewIdlingLatch();
+            mPreviewFrameCount.set(0);
             // Use the listener of the future to make sure the Preview set up the new surface.
             mPreviewRenderer.attachInputPreview(preview).addListener(() -> {
                 Log.d(TAG, "OpenGLRenderer get the new surface for the Preview");
@@ -2141,8 +2130,7 @@ public class CameraXActivity extends AppCompatActivity {
             setCaptureCallback(builder);
             ImageAnalysis imageAnalysis = builder.build();
             useCases.add(imageAnalysis);
-            // Make the analysis idling resource non-idle, until the required frames received.
-            resetAnalysisIdlingLatch();
+            mImageAnalysisFrameCount.set(0);
             imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), mAnalyzer);
         }
 
