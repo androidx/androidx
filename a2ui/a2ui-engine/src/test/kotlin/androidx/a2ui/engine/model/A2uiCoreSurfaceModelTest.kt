@@ -615,7 +615,7 @@ class A2uiCoreSurfaceModelTest {
     private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :
         A2uiCoreCatalog {
         override val id: String = "test_catalog"
-        override val components =
+        override val componentDefinitions =
             listOf(
                 object : A2uiCoreComponentDefinition {
                     override val name = "button"
@@ -626,8 +626,8 @@ class A2uiCoreSurfaceModelTest {
             )
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String): A2uiCoreComponentDefinition? =
-            components.find { it.name == name }
+        override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? =
+            componentDefinitions.find { it.name == name }
 
         override fun getFunction(name: String): A2uiFunction? =
             functions.find { it.definition.name == name }

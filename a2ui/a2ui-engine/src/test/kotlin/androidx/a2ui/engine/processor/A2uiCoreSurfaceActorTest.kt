@@ -540,7 +540,7 @@ class A2uiCoreSurfaceActorTest {
     }
 
     private class TestCatalog(override val id: String) : A2uiCoreCatalog {
-        override val components =
+        override val componentDefinitions =
             listOf(
                 object : A2uiCoreComponentDefinition {
                     override val name = "button"
@@ -570,7 +570,8 @@ class A2uiCoreSurfaceActorTest {
             )
         override val themeSchema: A2uiSchema? = null
 
-        override fun getComponent(name: String) = components.find { it.name == name }
+        override fun getComponentDefinition(name: String) =
+            componentDefinitions.find { it.name == name }
 
         override fun getFunction(name: String) = functions.find { it.definition.name == name }
     }

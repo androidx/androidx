@@ -1,0 +1,46 @@
+// Signature format: 4.0
+package androidx.a2ui.compose.ui {
+
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiCatalog {
+    method public androidx.a2ui.compose.ui.A2uiComponent? getComponent(String name);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
+    method public androidx.a2ui.model.catalog.A2uiFunction? getFunction(String name);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public String getId();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
+    property public abstract java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
+    property public abstract java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public abstract String id;
+    property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
+  }
+
+  public final class A2uiCatalogKt {
+    method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(String catalogId, java.util.List<? extends androidx.a2ui.compose.ui.A2uiComponent> components, optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions, optional androidx.a2ui.model.schema.A2uiSchema? themeSchema);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! A2uiCatalog$default(String!, java.util.List!, java.util.List!, androidx.a2ui.model.schema.A2uiSchema!, int, Object!);
+  }
+
+  @androidx.compose.runtime.Stable public interface A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    method @KotlinOnly @androidx.compose.runtime.Composable public default boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public default boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.runtime.Composer?, int);
+    property public abstract String description;
+    property public abstract String name;
+    property public abstract java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+  }
+
+  public final class A2uiComponentKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void A2uiComponent(androidx.a2ui.compose.runtime.A2uiComponentModel component, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void A2uiComponent(androidx.a2ui.compose.runtime.A2uiComponentModel, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class A2uiMessageProcessorKt {
+    method public static androidx.a2ui.model.processor.A2uiMessageProcessor A2uiMessageProcessor(java.util.List<? extends androidx.a2ui.compose.ui.A2uiCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
+    method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! A2uiMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
+  }
+
+}
+
