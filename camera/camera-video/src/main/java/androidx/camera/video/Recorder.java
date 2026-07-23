@@ -104,6 +104,7 @@ import androidx.camera.core.internal.utils.RingBuffer;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.internal.OutputStorage;
 import androidx.camera.video.internal.OutputStorageImpl;
+import androidx.camera.video.internal.PauseResumeDataProcessor;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.camera.video.internal.audio.AudioSource;
@@ -122,6 +123,8 @@ import androidx.camera.video.internal.encoder.EncoderFactory;
 import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
+import androidx.camera.video.internal.encoder.SystemTimeProvider;
+import androidx.camera.video.internal.encoder.TimeProvider;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
@@ -470,6 +473,7 @@ public final class Recorder implements VideoOutput {
     private final long mRequiredFreeStorageBytes;
     private final MutableStateObservable<Range<Integer>> mVideoEncoderBitrateRange =
             MutableStateObservable.withInitialState(null);
+    private final TimeProvider mTimeProvider = new SystemTimeProvider();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                          Members only accessed when holding mLock                          //
@@ -1231,7 +1235,7 @@ public final class Recorder implements VideoOutput {
                     // Fall-through
                 case RECORDING:
                     setState(State.STOPPING);
-                    long explicitlyStopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime());
+                    long explicitlyStopTimeUs = mTimeProvider.uptimeUs();
                     RecordingRecord finalActiveRecordingRecord = mActiveRecordingRecord;
                     mSequentialExecutor.execute(() -> stopInternal(finalActiveRecordingRecord,
                             explicitlyStopTimeUs, error, errorCause));
@@ -1668,7 +1672,8 @@ public final class Recorder implements VideoOutput {
 
         if (continueRecording) {
             updateEncoderCallbacks(mInProgressRecording, true);
-            mVideoEncoder.start();
+            long continueTimeUs = mTimeProvider.uptimeUs();
+            mVideoEncoder.start(continueTimeUs);
             if (mShouldSendResumeEvent) {
                 mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.resume(
                         mInProgressRecording.getOutputOptions(),
@@ -1676,7 +1681,7 @@ public final class Recorder implements VideoOutput {
                 mShouldSendResumeEvent = false;
             }
             if (recordingPaused) {
-                mVideoEncoder.pause();
+                mVideoEncoder.pause(continueTimeUs);
             }
         } else if (recordingToStart != null) {
             // Start new active recording inline on sequential executor (but unlocked).
@@ -2032,11 +2037,12 @@ public final class Recorder implements VideoOutput {
         }
 
         updateEncoderCallbacks(recordingToStart, false);
+        long startTimeUs = mTimeProvider.uptimeUs();
         if (isAudioEnabled()) {
             mAudioSource.start(recordingToStart.isMuted());
-            mAudioEncoder.start();
+            mAudioEncoder.start(startTimeUs);
         }
-        mVideoEncoder.start();
+        mVideoEncoder.start(startTimeUs);
 
         mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.start(
                 mInProgressRecording.getOutputOptions(),
@@ -2079,6 +2085,12 @@ public final class Recorder implements VideoOutput {
                         @ExecutedBy("mSequentialExecutor")
                         @Override
                         public void onEncodedData(@NonNull EncodedData encodedData) {
+                            if (!recordingToStart.getPauseResumeDataProcessor()
+                                    .processEncodedData(encodedData, true)) {
+                                encodedData.close();
+                                return;
+                            }
+
                             // If the muxer doesn't yet exist, we may need to create and
                             // start it. Otherwise we can write the data.
                             if (mMuxer == null) {
@@ -2223,6 +2235,12 @@ public final class Recorder implements VideoOutput {
                                     encodedData.close();
                                     throw new AssertionError("Audio is not enabled but audio "
                                             + "encoded data is being produced.");
+                                }
+
+                                if (!recordingToStart.getPauseResumeDataProcessor()
+                                        .processEncodedData(encodedData, false)) {
+                                    encodedData.close();
+                                    return;
                                 }
 
                                 // If the muxer doesn't yet exist, we may need to create and
@@ -2467,10 +2485,12 @@ public final class Recorder implements VideoOutput {
     private void pauseInternal(@NonNull RecordingRecord recordingToPause) {
         // Only pause recording if recording is in-progress and it is not stopping.
         if (mInProgressRecording == recordingToPause && !mInProgressRecordingStopping) {
+            long pauseUptimeUs = mTimeProvider.uptimeUs();
+            recordingToPause.getPauseResumeDataProcessor().pause(pauseUptimeUs);
             if (isAudioEnabled()) {
-                mAudioEncoder.pause();
+                mAudioEncoder.pause(pauseUptimeUs);
             }
-            mVideoEncoder.pause();
+            mVideoEncoder.pause(pauseUptimeUs);
 
             mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.pause(
                     mInProgressRecording.getOutputOptions(),
@@ -2482,14 +2502,16 @@ public final class Recorder implements VideoOutput {
     private void resumeInternal(@NonNull RecordingRecord recordingToResume) {
         // Only resume recording if recording is in-progress and it is not stopping.
         if (mInProgressRecording == recordingToResume && !mInProgressRecordingStopping) {
+            long resumeUptimeUs = mTimeProvider.uptimeUs();
+            recordingToResume.getPauseResumeDataProcessor().resume(resumeUptimeUs);
             if (isAudioEnabled()) {
-                mAudioEncoder.start();
+                mAudioEncoder.start(resumeUptimeUs);
             }
             // If the recording is resumed while the video encoder is being reconfigured,
             // it's possible that the encoder hasn't been created yet. Then the encoder will
             // be started once it's initialized. So only start the encoder when it's not null.
             if (mVideoEncoder != null) {
-                mVideoEncoder.start();
+                mVideoEncoder.start(resumeUptimeUs);
                 mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.resume(
                         mInProgressRecording.getOutputOptions(),
                         getInProgressRecordingStats()));
@@ -3435,6 +3457,9 @@ public final class Recorder implements VideoOutput {
 
         private final AtomicBoolean mInitialized = new AtomicBoolean(false);
 
+        private final PauseResumeDataProcessor mPauseResumeDataProcessor =
+                new PauseResumeDataProcessor();
+
         private final AtomicReference<MuxerSupplier> mMuxerSupplier = new AtomicReference<>(null);
 
         private final AtomicReference<AudioSourceSupplier> mAudioSourceSupplier =
@@ -3679,6 +3704,10 @@ public final class Recorder implements VideoOutput {
             };
 
             return audioSourceSupplier;
+        }
+
+        @NonNull PauseResumeDataProcessor getPauseResumeDataProcessor() {
+            return mPauseResumeDataProcessor;
         }
 
         /** Updates the recording status and callback to users. */
