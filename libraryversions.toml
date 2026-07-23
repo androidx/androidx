@@ -31,7 +31,6 @@ COMPOSE_MATERIAL3_ADAPTIVE = "1.4.0-alpha01"
 COMPOSE_MATERIAL3_XR = "1.0.0-alpha17"
 COMPOSE_MATERIAL3_XR_ADAPTIVE = "1.0.0-alpha01"
 COMPOSE_RUNTIME = "1.13.0-alpha01"
-COMPOSE_RUNTIME_A2UI_QUARANTINE = "1.0.0-alpha01"
 CONCURRENT = "1.0.0-alpha01"
 CONSTRAINTLAYOUT = "2.3.0-alpha01"
 CONSTRAINTLAYOUT_COMPOSE = "1.2.0-alpha01"
@@ -192,6 +191,7 @@ XR_SCENECORE = "1.0.0-beta02"
 
 [groups]
 A2UI = { group = "androidx.a2ui", atomicGroupVersion = "versions.A2UI" }
+A2UI_COMPOSE = { group = "androidx.a2ui.compose", atomicGroupVersion = "versions.A2UI" }
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
 ANNOTATION = { group = "androidx.annotation" }
 APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }

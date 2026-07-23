@@ -9,6 +9,7 @@ plugins {
 dependencies {
     docs(project(":a2ui:a2ui-engine"))
     docs(project(":a2ui:a2ui-model"))
+    docs(project(":a2ui:compose:compose-runtime"))
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
     kmpDocs(project(":annotation:annotation"))
@@ -99,7 +100,6 @@ dependencies {
     docs(project(":core:core-pip"))
     kmpDocs(project(":datastore:datastore-tink"))
     docs(project(":wear:compose:remote:remote-material3"))
-    docs(project(":compose:runtime:runtime-a2ui"))
     kmpDocs(project(":compose:runtime:runtime"))
     kmpDocs(project(":compose:runtime:runtime-annotation"))
     docs(project(":compose:runtime:runtime-livedata"))
