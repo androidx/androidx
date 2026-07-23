@@ -94,7 +94,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ExposedDropdownMenuTest {
@@ -818,7 +817,6 @@ class ExposedDropdownMenuTest {
         // Should not have crashed.
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun edm_withScrolledContent() {
         lateinit var scrollState: ScrollState

@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.ExposedDropdownMenu as ExposedDropdownMenuExtension
 import androidx.compose.material3.internal.BackHandler
 import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.MenuPosition
@@ -113,15 +114,15 @@ import kotlin.math.roundToInt
  * [ExposedDropdownMenu][ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as content. The
  * [menuAnchor][ExposedDropdownMenuBoxScope.menuAnchor] modifier should be passed to the text field.
  *
- * An example of a read-only Exposed Dropdown Menu:
+ * An example of a read-only exposed dropdown menu:
  *
  * @sample androidx.compose.material3.samples.ExposedDropdownMenuSample
  *
- * An example of an editable Exposed Dropdown Menu:
+ * An example of an editable exposed dropdown menu:
  *
  * @sample androidx.compose.material3.samples.EditableExposedDropdownMenuSample
  *
- * An example of an editable Exposed Dropdown Menu used like a MultiAutoCompleteTextView:
+ * An example of an editable exposed dropdown menu used like a MultiAutoCompleteTextView:
  *
  * @sample androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
  * @param expanded whether the menu is expanded or not
@@ -131,7 +132,6 @@ import kotlin.math.roundToInt
  * @param content the content of this ExposedDropdownMenuBox, typically a [TextField] and an
  *   [ExposedDropdownMenu][ExposedDropdownMenuBoxScope.ExposedDropdownMenu].
  */
-@ExperimentalMaterial3Api
 @Composable
 fun ExposedDropdownMenuBox(
     expanded: Boolean,
@@ -248,7 +248,6 @@ fun ExposedDropdownMenuBox(
 }
 
 /** Scope for [ExposedDropdownMenuBox]. */
-@ExperimentalMaterial3Api
 sealed class ExposedDropdownMenuBoxScope {
     /**
      * Modifier which should be applied to an element inside the [ExposedDropdownMenuBoxScope],
@@ -285,27 +284,11 @@ sealed class ExposedDropdownMenuBoxScope {
 
     internal abstract val alwaysFocusable: Boolean
 
-    /**
-     * Popup which contains content for Exposed Dropdown Menu. Should be used inside the content of
-     * [ExposedDropdownMenuBox].
-     *
-     * @param expanded whether the menu is expanded
-     * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
-     *   outside the menu's bounds
-     * @param modifier the [Modifier] to be applied to this menu
-     * @param scrollState a [ScrollState] used by the menu's content for items vertical scrolling
-     * @param matchAnchorWidth whether the menu's width should be forcefully constrained to match
-     *   the width of the text field to which it's attached.
-     * @param shape the shape of the menu
-     * @param containerColor the container color of the menu
-     * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary
-     *   color overlay is applied on top of the container. A higher tonal elevation value will
-     *   result in a darker color in light theme and lighter color in dark theme. See also:
-     *   [Surface].
-     * @param shadowElevation the elevation for the shadow below the menu
-     * @param border the border to draw around the container of the menu. Pass `null` for no border.
-     * @param content the content of the menu
-     */
+    @ExperimentalMaterial3Api
+    @Deprecated(
+        message = "Use the version of ExposedDropdownMenu defined as an extension method",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     fun ExposedDropdownMenu(
         expanded: Boolean,
@@ -320,87 +303,12 @@ sealed class ExposedDropdownMenuBoxScope {
         border: BorderStroke? = null,
         content: @Composable ColumnScope.() -> Unit,
     ) {
-        // Workaround for b/326394521. We create a state that's read in `calculatePosition`.
-        // Then trigger a state change in `OnPlatformWindowBoundsChange` to force recalculation.
-        val keyboardSignalState = remember { mutableStateOf(Unit, neverEqualPolicy()) }
-        val density = LocalDensity.current
-        val topWindowInsets = WindowInsets.statusBars.getTop(density)
-
-        if (expanded) {
-            OnPlatformWindowBoundsChange { keyboardSignalState.value = Unit }
-        }
-
-        // TODO(b/326064777): use DropdownMenu when it supports custom PositionProvider
-        val expandedState = remember { MutableTransitionState(false) }
-        expandedState.targetState = expanded
-
-        if (expandedState.currentState || expandedState.targetState) {
-            val popupPositionProvider =
-                remember(density, topWindowInsets) {
-                    ExposedDropdownMenuPositionProvider(
-                        density = density,
-                        topWindowInsets = topWindowInsets,
-                        keyboardSignalState = keyboardSignalState,
-                    )
-                }
-
-            Popup(
-                onDismissRequest = onDismissRequest,
-                popupPositionProvider = popupPositionProvider,
-                properties = popupPropertiesForAnchorType(anchorType, alwaysFocusable),
-            ) {
-                DropdownMenuContent(
-                    expandedState = expandedState,
-                    transformOrigin = { popupPositionProvider.transformOrigin },
-                    scrollState = scrollState,
-                    shape = shape,
-                    containerColor = containerColor,
-                    tonalElevation = tonalElevation,
-                    shadowElevation = shadowElevation,
-                    border = border,
-                    modifier = modifier.exposedDropdownSize(matchAnchorWidth),
-                    content = content,
-                )
-            }
-        }
-    }
-
-    @Deprecated(
-        level = DeprecationLevel.WARNING,
-        message = "Use overload that takes ExposedDropdownMenuAnchorType and enabled parameters",
-        replaceWith = ReplaceWith("menuAnchor(type, enabled)"),
-    )
-    fun Modifier.menuAnchor(): Modifier =
-        menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-
-    @Deprecated(
-        level = DeprecationLevel.WARNING,
-        message =
-            "The `focusable` parameter is unused. Pass the proper ExposedDropdownMenuAnchorType " +
-                "to Modifier.menuAnchor instead, which will handle focusability automatically.",
-    )
-    @Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
-    @Composable
-    fun ExposedDropdownMenu(
-        expanded: Boolean,
-        onDismissRequest: () -> Unit,
-        modifier: Modifier = Modifier,
-        scrollState: ScrollState = rememberScrollState(),
-        focusable: Boolean = true,
-        matchTextFieldWidth: Boolean = true,
-        shape: Shape = MenuDefaults.shape,
-        containerColor: Color = MenuDefaults.containerColor,
-        tonalElevation: Dp = MenuDefaults.TonalElevation,
-        shadowElevation: Dp = MenuDefaults.ShadowElevation,
-        border: BorderStroke? = null,
-        content: @Composable ColumnScope.() -> Unit,
-    ) =
-        ExposedDropdownMenu(
+        ExposedDropdownMenuExtension(
             expanded = expanded,
             onDismissRequest = onDismissRequest,
             modifier = modifier,
             scrollState = scrollState,
-            matchAnchorWidth = matchTextFieldWidth,
+            matchAnchorWidth = matchAnchorWidth,
             shape = shape,
             containerColor = containerColor,
             tonalElevation = tonalElevation,
@@ -408,49 +316,99 @@ sealed class ExposedDropdownMenuBoxScope {
             border = border,
             content = content,
         )
+    }
+}
 
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message =
-            "Maintained for binary compatibility. " +
-                "Use overload with customization options parameters.",
-    )
-    @Composable
-    fun ExposedDropdownMenu(
-        expanded: Boolean,
-        onDismissRequest: () -> Unit,
-        modifier: Modifier = Modifier,
-        scrollState: ScrollState = rememberScrollState(),
-        content: @Composable ColumnScope.() -> Unit,
-    ) =
-        ExposedDropdownMenu(
-            expanded = expanded,
+/**
+ * The composable defining the exposed dropdown menu popup. It should be used inside the content of
+ * [ExposedDropdownMenuBox].
+ *
+ * @param expanded whether the menu is expanded
+ * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
+ *   outside the menu's bounds
+ * @param modifier the [Modifier] to be applied to this menu
+ * @param scrollState a [ScrollState] used by the menu's content for items vertical scrolling
+ * @param matchAnchorWidth whether the menu's width should be forcefully constrained to match the
+ *   width of the text field to which it's attached.
+ * @param shape the shape of the menu
+ * @param containerColor the container color of the menu
+ * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
+ *   overlay is applied on top of the container. A higher tonal elevation value will result in a
+ *   darker color in light theme and lighter color in dark theme. See also: [Surface].
+ * @param shadowElevation the elevation for the shadow below the menu
+ * @param border the border to draw around the container of the menu. Pass `null` for no border.
+ * @param content the content of the menu
+ */
+@Composable
+fun ExposedDropdownMenuBoxScope.ExposedDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    matchAnchorWidth: Boolean = true,
+    shape: Shape = MenuDefaults.shape,
+    containerColor: Color = MenuDefaults.containerColor,
+    tonalElevation: Dp = MenuDefaults.TonalElevation,
+    shadowElevation: Dp = MenuDefaults.ShadowElevation,
+    border: BorderStroke? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    // Workaround for b/326394521. We create a state that's read in `calculatePosition`.
+    // Then trigger a state change in `OnPlatformWindowBoundsChange` to force recalculation.
+    val keyboardSignalState = remember { mutableStateOf(Unit, neverEqualPolicy()) }
+    val density = LocalDensity.current
+    val topWindowInsets = WindowInsets.statusBars.getTop(density)
+
+    if (expanded) {
+        OnPlatformWindowBoundsChange { keyboardSignalState.value = Unit }
+    }
+
+    // TODO(b/326064777): use DropdownMenu when it supports custom PositionProvider
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
+
+    if (expandedState.currentState || expandedState.targetState) {
+        val popupPositionProvider =
+            remember(density, topWindowInsets) {
+                ExposedDropdownMenuPositionProvider(
+                    density = density,
+                    topWindowInsets = topWindowInsets,
+                    keyboardSignalState = keyboardSignalState,
+                )
+            }
+
+        Popup(
             onDismissRequest = onDismissRequest,
-            modifier = modifier,
-            matchTextFieldWidth = true,
-            scrollState = scrollState,
-            shape = MenuDefaults.shape,
-            containerColor = MenuDefaults.containerColor,
-            tonalElevation = MenuDefaults.TonalElevation,
-            shadowElevation = MenuDefaults.ShadowElevation,
-            border = null,
-            content = content,
-        )
+            popupPositionProvider = popupPositionProvider,
+            properties = popupPropertiesForAnchorType(anchorType, alwaysFocusable),
+        ) {
+            DropdownMenuContent(
+                expandedState = expandedState,
+                transformOrigin = { popupPositionProvider.transformOrigin },
+                scrollState = scrollState,
+                shape = shape,
+                containerColor = containerColor,
+                tonalElevation = tonalElevation,
+                shadowElevation = shadowElevation,
+                border = border,
+                modifier = modifier.exposedDropdownSize(matchAnchorWidth),
+                content = content,
+            )
+        }
+    }
 }
 
 // Sealed classes don't allow dynamic anonymous subclasses.
-@OptIn(ExperimentalMaterial3Api::class)
 private abstract class ExposedDropdownMenuBoxScopeImpl : ExposedDropdownMenuBoxScope()
 
-/** The type of element that can serve as a dropdown menu anchor. */
+/** The type of anchor for an exposed dropdown menu. */
 @JvmInline
 value class ExposedDropdownMenuAnchorType private constructor(private val name: String) {
     companion object {
         /**
          * A non-editable primary anchor of the dropdown menu, such as a read-only text field.
          *
-         * An anchor of this type will open the menu with focus.
+         * When this anchor opens the menu, focus will move to the menu.
          */
         val PrimaryNotEditable
             get() = ExposedDropdownMenuAnchorType("PrimaryNotEditable")
@@ -459,8 +417,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * An editable primary anchor of the dropdown menu, such as a text field that allows user
          * input.
          *
-         * An anchor of this type will open the menu without focus in order to preserve focus on the
-         * soft keyboard (IME).
+         * When this anchor opens the menu, focus will remain on the text field in order to allow
+         * typing.
          */
         val PrimaryEditable
             get() = ExposedDropdownMenuAnchorType("PrimaryEditable")
@@ -469,9 +427,8 @@ value class ExposedDropdownMenuAnchorType private constructor(private val name: 
          * A secondary anchor of the dropdown menu that lives alongside an editable primary anchor,
          * such as an icon within an editable text field.
          *
-         * If accessibility services are enabled, an anchor of this type will open the menu with
-         * focus. Otherwise, the menu is opened without focus in order to preserve focus on the soft
-         * keyboard (IME).
+         * When this anchor opens the menu, if accessibility services are enabled, focus will move
+         * to the menu. Otherwise, focus will remain on the text field in order to allow typing.
          */
         val SecondaryEditable
             get() = ExposedDropdownMenuAnchorType("SecondaryEditable")
@@ -491,14 +448,7 @@ private fun ExposedDropdownMenuAnchorType.hasGreaterOrEqualPriorityThan(
         else -> false
     }
 
-@Deprecated(
-    message = "Renamed to ExposedDropdownMenuAnchorType",
-    replaceWith = ReplaceWith("ExposedDropdownMenuAnchorType"),
-)
-typealias MenuAnchorType = ExposedDropdownMenuAnchorType
-
 /** Contains default values used by Exposed Dropdown Menu. */
-@ExperimentalMaterial3Api
 object ExposedDropdownMenuDefaults {
     /**
      * Default trailing icon for Exposed Dropdown Menu.
@@ -506,7 +456,6 @@ object ExposedDropdownMenuDefaults {
      * @param expanded whether the menu is expanded or not. Affects the appearance of the icon.
      * @param modifier the [Modifier] to be applied to this icon
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun TrailingIcon(expanded: Boolean, modifier: Modifier = Modifier) {
         Icon(Icons.Filled.ArrowDropDown, null, modifier.rotate(if (expanded) 180f else 0f))
@@ -842,431 +791,6 @@ object ExposedDropdownMenuDefaults {
      */
     val ItemContentPadding: PaddingValues =
         PaddingValues(horizontal = ExposedDropdownMenuItemHorizontalPadding, vertical = 0.dp)
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun textFieldColors(
-        focusedTextColor: Color = FilledAutocompleteTokens.FieldFocusInputTextColor.value,
-        unfocusedTextColor: Color = FilledAutocompleteTokens.FieldInputTextColor.value,
-        disabledTextColor: Color =
-            FilledAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-        errorTextColor: Color = FilledAutocompleteTokens.FieldErrorInputTextColor.value,
-        containerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        errorContainerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        cursorColor: Color = FilledAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = FilledAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
-        selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusActiveIndicatorColor.value,
-        unfocusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldActiveIndicatorColor.value,
-        disabledIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorOpacity
-            ),
-        errorIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorActiveIndicatorColor.value,
-        focusedLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color = FilledAutocompleteTokens.TextFieldLeadingIconColor.value,
-        disabledLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
-            ),
-        errorLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldTrailingIconColor.value,
-        disabledTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
-            ),
-        errorTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = FilledAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = FilledAutocompleteTokens.FieldLabelTextColor.value,
-        disabledLabelColor: Color = FilledAutocompleteTokens.FieldDisabledLabelTextColor.value,
-        errorLabelColor: Color = FilledAutocompleteTokens.FieldErrorLabelTextColor.value,
-        focusedPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPlaceholderColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorPlaceholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPrefixColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorPrefixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledSuffixColor: Color =
-            FilledAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorSuffixColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-    ): TextFieldColors =
-        textFieldColors(
-            focusedTextColor = focusedTextColor,
-            unfocusedTextColor = unfocusedTextColor,
-            disabledTextColor = disabledTextColor,
-            errorTextColor = errorTextColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-            disabledContainerColor = containerColor,
-            errorContainerColor = errorContainerColor,
-            cursorColor = cursorColor,
-            errorCursorColor = errorCursorColor,
-            selectionColors = selectionColors,
-            focusedIndicatorColor = focusedIndicatorColor,
-            unfocusedIndicatorColor = unfocusedIndicatorColor,
-            disabledIndicatorColor = disabledIndicatorColor,
-            errorIndicatorColor = errorIndicatorColor,
-            focusedLeadingIconColor = focusedLeadingIconColor,
-            unfocusedLeadingIconColor = unfocusedLeadingIconColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            errorLeadingIconColor = errorLeadingIconColor,
-            focusedTrailingIconColor = focusedTrailingIconColor,
-            unfocusedTrailingIconColor = unfocusedTrailingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            errorTrailingIconColor = errorTrailingIconColor,
-            focusedLabelColor = focusedLabelColor,
-            unfocusedLabelColor = unfocusedLabelColor,
-            disabledLabelColor = disabledLabelColor,
-            errorLabelColor = errorLabelColor,
-            focusedPlaceholderColor = focusedPlaceholderColor,
-            unfocusedPlaceholderColor = unfocusedPlaceholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor,
-            errorPlaceholderColor = errorPlaceholderColor,
-            focusedPrefixColor = focusedPrefixColor,
-            unfocusedPrefixColor = unfocusedPrefixColor,
-            disabledPrefixColor = disabledPrefixColor,
-            errorPrefixColor = errorPrefixColor,
-            focusedSuffixColor = focusedSuffixColor,
-            unfocusedSuffixColor = unfocusedSuffixColor,
-            disabledSuffixColor = disabledSuffixColor,
-            errorSuffixColor = errorSuffixColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun outlinedTextFieldColors(
-        focusedTextColor: Color = OutlinedAutocompleteTokens.FieldFocusInputTextColor.value,
-        unfocusedTextColor: Color = OutlinedAutocompleteTokens.FieldInputTextColor.value,
-        disabledTextColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-        errorTextColor: Color = OutlinedAutocompleteTokens.FieldErrorInputTextColor.value,
-        containerColor: Color = Color.Transparent,
-        errorContainerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = OutlinedAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
-        selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldFocusOutlineColor.value,
-        unfocusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldOutlineColor.value,
-        disabledBorderColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledOutlineColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledOutlineOpacity
-            ),
-        errorBorderColor: Color = OutlinedAutocompleteTokens.TextFieldErrorOutlineColor.value,
-        focusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldLeadingIconColor.value,
-        disabledLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
-            ),
-        errorLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldTrailingIconColor.value,
-        disabledTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
-            ),
-        errorTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = OutlinedAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = OutlinedAutocompleteTokens.FieldLabelTextColor.value,
-        disabledLabelColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledLabelTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledLabelTextOpacity
-            ),
-        errorLabelColor: Color = OutlinedAutocompleteTokens.FieldErrorLabelTextColor.value,
-        focusedPlaceholderColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPlaceholderColor: Color =
-            OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPlaceholderColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorPlaceholderColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPrefixColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorPrefixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        focusedSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        unfocusedSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledSuffixColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-            ),
-        errorSuffixColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-    ): TextFieldColors =
-        outlinedTextFieldColors(
-            focusedTextColor = focusedTextColor,
-            unfocusedTextColor = unfocusedTextColor,
-            disabledTextColor = disabledTextColor,
-            errorTextColor = errorTextColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-            disabledContainerColor = containerColor,
-            errorContainerColor = errorContainerColor,
-            cursorColor = cursorColor,
-            errorCursorColor = errorCursorColor,
-            selectionColors = selectionColors,
-            focusedBorderColor = focusedBorderColor,
-            unfocusedBorderColor = unfocusedBorderColor,
-            disabledBorderColor = disabledBorderColor,
-            errorBorderColor = errorBorderColor,
-            focusedLeadingIconColor = focusedLeadingIconColor,
-            unfocusedLeadingIconColor = unfocusedLeadingIconColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            errorLeadingIconColor = errorLeadingIconColor,
-            focusedTrailingIconColor = focusedTrailingIconColor,
-            unfocusedTrailingIconColor = unfocusedTrailingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            errorTrailingIconColor = errorTrailingIconColor,
-            focusedLabelColor = focusedLabelColor,
-            unfocusedLabelColor = unfocusedLabelColor,
-            disabledLabelColor = disabledLabelColor,
-            errorLabelColor = errorLabelColor,
-            focusedPlaceholderColor = focusedPlaceholderColor,
-            unfocusedPlaceholderColor = unfocusedPlaceholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor,
-            errorPlaceholderColor = errorPlaceholderColor,
-            focusedPrefixColor = focusedPrefixColor,
-            unfocusedPrefixColor = unfocusedPrefixColor,
-            disabledPrefixColor = disabledPrefixColor,
-            errorPrefixColor = errorPrefixColor,
-            focusedSuffixColor = focusedSuffixColor,
-            unfocusedSuffixColor = unfocusedSuffixColor,
-            disabledSuffixColor = disabledSuffixColor,
-            errorSuffixColor = errorSuffixColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun textFieldColors(
-        textColor: Color = FilledAutocompleteTokens.FieldInputTextColor.value,
-        disabledTextColor: Color =
-            FilledAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-        containerColor: Color = FilledAutocompleteTokens.TextFieldContainerColor.value,
-        cursorColor: Color = FilledAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = FilledAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
-        selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusActiveIndicatorColor.value,
-        unfocusedIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldActiveIndicatorColor.value,
-        disabledIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledActiveIndicatorOpacity
-            ),
-        errorIndicatorColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorActiveIndicatorColor.value,
-        focusedLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color = FilledAutocompleteTokens.TextFieldLeadingIconColor.value,
-        disabledLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
-            ),
-        errorLeadingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldTrailingIconColor.value,
-        disabledTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = FilledAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
-            ),
-        errorTrailingIconColor: Color =
-            FilledAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = FilledAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = FilledAutocompleteTokens.FieldLabelTextColor.value,
-        disabledLabelColor: Color = FilledAutocompleteTokens.FieldDisabledLabelTextColor.value,
-        errorLabelColor: Color = FilledAutocompleteTokens.FieldErrorLabelTextColor.value,
-        placeholderColor: Color = FilledAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPlaceholderColor: Color =
-            FilledAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = FilledAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-    ): TextFieldColors =
-        textFieldColors(
-            focusedTextColor = textColor,
-            unfocusedTextColor = textColor,
-            disabledTextColor = disabledTextColor,
-            errorTextColor = textColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-            disabledContainerColor = containerColor,
-            errorContainerColor = containerColor,
-            cursorColor = cursorColor,
-            errorCursorColor = errorCursorColor,
-            selectionColors = selectionColors,
-            focusedIndicatorColor = focusedIndicatorColor,
-            unfocusedIndicatorColor = unfocusedIndicatorColor,
-            disabledIndicatorColor = disabledIndicatorColor,
-            errorIndicatorColor = errorIndicatorColor,
-            focusedLeadingIconColor = focusedLeadingIconColor,
-            unfocusedLeadingIconColor = unfocusedLeadingIconColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            errorLeadingIconColor = errorLeadingIconColor,
-            focusedTrailingIconColor = focusedTrailingIconColor,
-            unfocusedTrailingIconColor = unfocusedTrailingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            errorTrailingIconColor = errorTrailingIconColor,
-            focusedLabelColor = focusedLabelColor,
-            unfocusedLabelColor = unfocusedLabelColor,
-            disabledLabelColor = disabledLabelColor,
-            errorLabelColor = errorLabelColor,
-            focusedPlaceholderColor = placeholderColor,
-            unfocusedPlaceholderColor = placeholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor,
-            errorPlaceholderColor = placeholderColor,
-            focusedPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            unfocusedPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            disabledPrefixColor =
-                OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                    alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-                ),
-            errorPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            focusedSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            unfocusedSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            disabledSuffixColor =
-                OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                    alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-                ),
-            errorSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        )
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @Composable
-    fun outlinedTextFieldColors(
-        textColor: Color = OutlinedAutocompleteTokens.FieldInputTextColor.value,
-        disabledTextColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-        containerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedAutocompleteTokens.TextFieldCaretColor.value,
-        errorCursorColor: Color = OutlinedAutocompleteTokens.TextFieldErrorFocusCaretColor.value,
-        selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldFocusOutlineColor.value,
-        unfocusedBorderColor: Color = OutlinedAutocompleteTokens.TextFieldOutlineColor.value,
-        disabledBorderColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledOutlineColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledOutlineOpacity
-            ),
-        errorBorderColor: Color = OutlinedAutocompleteTokens.TextFieldErrorOutlineColor.value,
-        focusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusLeadingIconColor.value,
-        unfocusedLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldLeadingIconColor.value,
-        disabledLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledLeadingIconOpacity
-            ),
-        errorLeadingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorLeadingIconColor.value,
-        focusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldFocusTrailingIconColor.value,
-        unfocusedTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldTrailingIconColor.value,
-        disabledTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.TextFieldDisabledTrailingIconOpacity
-            ),
-        errorTrailingIconColor: Color =
-            OutlinedAutocompleteTokens.TextFieldErrorTrailingIconColor.value,
-        focusedLabelColor: Color = OutlinedAutocompleteTokens.FieldFocusLabelTextColor.value,
-        unfocusedLabelColor: Color = OutlinedAutocompleteTokens.FieldLabelTextColor.value,
-        disabledLabelColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledLabelTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledLabelTextOpacity
-            ),
-        errorLabelColor: Color = OutlinedAutocompleteTokens.FieldErrorLabelTextColor.value,
-        placeholderColor: Color = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        disabledPlaceholderColor: Color =
-            OutlinedAutocompleteTokens.FieldDisabledInputTextColor.value.copy(
-                alpha = OutlinedAutocompleteTokens.FieldDisabledInputTextOpacity
-            ),
-    ): TextFieldColors =
-        outlinedTextFieldColors(
-            focusedTextColor = textColor,
-            unfocusedTextColor = textColor,
-            disabledTextColor = disabledTextColor,
-            errorTextColor = textColor,
-            focusedContainerColor = containerColor,
-            unfocusedContainerColor = containerColor,
-            disabledContainerColor = containerColor,
-            errorContainerColor = containerColor,
-            cursorColor = cursorColor,
-            errorCursorColor = errorCursorColor,
-            selectionColors = selectionColors,
-            focusedBorderColor = focusedBorderColor,
-            unfocusedBorderColor = unfocusedBorderColor,
-            disabledBorderColor = disabledBorderColor,
-            errorBorderColor = errorBorderColor,
-            focusedLeadingIconColor = focusedLeadingIconColor,
-            unfocusedLeadingIconColor = unfocusedLeadingIconColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            errorLeadingIconColor = errorLeadingIconColor,
-            focusedTrailingIconColor = focusedTrailingIconColor,
-            unfocusedTrailingIconColor = unfocusedTrailingIconColor,
-            disabledTrailingIconColor = disabledTrailingIconColor,
-            errorTrailingIconColor = errorTrailingIconColor,
-            focusedLabelColor = focusedLabelColor,
-            unfocusedLabelColor = unfocusedLabelColor,
-            disabledLabelColor = disabledLabelColor,
-            errorLabelColor = errorLabelColor,
-            focusedPlaceholderColor = placeholderColor,
-            unfocusedPlaceholderColor = placeholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor,
-            errorPlaceholderColor = placeholderColor,
-            focusedPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            unfocusedPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            disabledPrefixColor =
-                OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                    alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-                ),
-            errorPrefixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            focusedSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            unfocusedSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-            disabledSuffixColor =
-                OutlinedAutocompleteTokens.FieldDisabledSupportingTextColor.value.copy(
-                    alpha = OutlinedAutocompleteTokens.FieldDisabledSupportingTextOpacity
-                ),
-            errorSuffixColor = OutlinedAutocompleteTokens.FieldSupportingTextColor.value,
-        )
 }
 
 @Stable
