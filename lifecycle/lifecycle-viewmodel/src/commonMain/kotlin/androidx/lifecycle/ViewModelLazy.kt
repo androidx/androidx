@@ -20,17 +20,16 @@ import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 /**
- * An implementation of [Lazy] used by `androidx.fragment.app.viewModels` and
- * `androidx.activity.viewModels`.
+ * An implementation of [Lazy] to facilitate lazy retrieval of [ViewModel] instances.
  *
- * [storeProducer] is a lambda that will be called during initialization, [VM] will be created in
- * the scope of returned [ViewModelStore].
+ * [storeProducer] is a lambda called during initialization; the [ViewModel] is created within the
+ * returned [ViewModelStore].
  *
- * [factoryProducer] is a lambda that will be called during initialization, returned
- * [ViewModelProvider.Factory] will be used for creation of [VM]
+ * [factoryProducer] is a lambda called during initialization; the returned
+ * [ViewModelProvider.Factory] is used to create the [ViewModel].
  *
- * [extrasProducer] is a lambda that will be called during initialization, returned
- * [HasDefaultViewModelProviderFactory] will get [CreationExtras] used for creation of [VM]
+ * [extrasProducer] is a lambda called during initialization; the returned [CreationExtras] are used
+ * during the creation of the [ViewModel].
  */
 public class ViewModelLazy<VM : ViewModel>
 @JvmOverloads

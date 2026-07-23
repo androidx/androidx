@@ -23,9 +23,9 @@ import androidx.collection.emptyScatterMap
 /**
  * Stores [ViewModel] instances by key.
  *
- * A [ViewModelStore] instance must be retained across configuration changes. If an owner (typically
- * a [ViewModelStoreOwner]) is destroyed and recreated due to a configuration change, the new owner
- * must reuse the previous [ViewModelStore] instance.
+ * A [ViewModelStore] instance **must** be retained across configuration changes. If an owner
+ * (typically a [ViewModelStoreOwner]) is destroyed and recreated due to a configuration change, the
+ * new owner must reuse the previous [ViewModelStore] instance.
  *
  * When the owner is being destroyed permanently (i.e., it will not be recreated), it should call
  * [clear] to notify all stored [ViewModel] instances that they are no longer needed (see
@@ -38,6 +38,10 @@ import androidx.collection.emptyScatterMap
  *
  * **This class is not intended for inheritance.** It is technically `open` for binary compatibility
  * with previous versions, but extending this class is unsupported.
+ *
+ * @see ViewModel
+ * @see ViewModelProvider
+ * @see ViewModelStoreOwner
  */
 public open class ViewModelStore {
 

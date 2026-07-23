@@ -31,71 +31,52 @@ import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
 
 /**
- * ViewModel is a class that is responsible for preparing and managing the data for an
- * `androidx.activity.ComponentActivity` or a `androidx.fragment.app.Fragment`. It also handles the
- * communication of the Activity / Fragment with the rest of the application (e.g. calling the
- * business logic classes).
+ * Prepares and manages data for the UI.
  *
- * A ViewModel is always created in association with a scope (a fragment or an activity) and will be
- * retained as long as the scope is alive. E.g. if it is an Activity, until it is finished.
+ * ViewModels are scoped to a [ViewModelStoreOwner] and are retained as long as their owner is
+ * alive. This retention allows ViewModels to persist across configuration changes (e.g., Android
+ * screen rotations), making the managed data immediately available to the new owner instance.
  *
- * In other words, this means that a ViewModel will not be destroyed if its owner is destroyed for a
- * configuration change (e.g. rotation). The new owner instance just re-connects to the existing
- * model.
+ * Examples of [ViewModelStoreOwner]s include a `ComponentActivity` or a `Fragment`.
  *
- * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
- * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
- * ViewModel. ViewModels usually expose this information via `androidx.lifecycle.LiveData` or
- * Android Data Binding. You can also use any observability construct from your favorite framework.
- *
- * ViewModel's only responsibility is to manage the data for the UI. It **should never** access your
- * view hierarchy or hold a reference back to the Activity or the Fragment.
- *
- * Typical usage from an Activity standpoint would be:
+ * The diagram below visualizes the relationship between the owner, store, and ViewModels:
  * ```
- * class UserActivity : ComponentActivity {
- *     private val viewModel by viewModels<UserViewModel>()
+ *   ViewModelStoreOwner
+ *            |
+ *            v (owns)
+ *     ViewModelStore <================= Retained across configuration changes
+ *      |          |
+ *      v          v
+ *   ViewModelA  ViewModelB
+ *                 |
+ *                 v (destroys)
+ *            onCleared() (called when owner is permanently destroyed)
+ * ```
  *
- *     override fun onCreate(savedInstanceState: Bundle) {
- *         super.onCreate(savedInstanceState)
- *         setContentView(R.layout.user_activity_layout)
- *         viewModel.user.observe(this) { user: User ->
- *             // update ui.
- *         }
- *         requireViewById(R.id.button).setOnClickListener {
- *             viewModel.doAction()
- *         }
- *     }
+ * Multiple UI components can share a single [ViewModel] to exchange data or coordinate state. To do
+ * this, resolve the [ViewModel] using a shared, wider-scoped [ViewModelStoreOwner] (such as the
+ * parent destination in a navigation graph, a parent fragment, or the containing activity).
+ *
+ * A ViewModel's sole responsibility is managing UI state and data. It must never hold references to
+ * a `View` or any `Context` that could cause memory leaks.
+ *
+ * An example in Compose:
+ * ```kotlin
+ * class UserViewModel : ViewModel() {
+ *     private val _user = MutableStateFlow<User?>(null)
+ *     val user: StateFlow<User?> = _user.asStateFlow()
+ * }
+ *
+ * @Composable
+ * fun UserScreen(viewModel: UserViewModel = viewModel()) {
+ *     val user by viewModel.user.collectAsStateWithLifecycle()
+ *     UserContent(user)
  * }
  * ```
  *
- * ViewModel would be:
- * ```
- * class UserViewModel : ViewModel {
- *     private val userLiveData = MutableLiveData<User>()
- *     val user: LiveData<User> get() = userLiveData
- *
- *     init {
- *         // trigger user load.
- *     }
- *
- *     fun doAction() {
- *         // depending on the action, do necessary business logic calls and update the
- *         // userLiveData.
- *     }
- * }
- * ```
- *
- * ViewModels can also be used as a communication layer between different Fragments of an Activity.
- * Each Fragment can acquire the ViewModel using the same key via their Activity. This allows
- * communication between Fragments in a de-coupled fashion such that they never need to talk to the
- * other Fragment directly.
- *
- * ```
- * class MyFragment : Fragment {
- *   val viewModel by activityViewModels<UserViewModel>()
- * }
- * ```
+ * @see ViewModelProvider
+ * @see ViewModelStore
+ * @see ViewModelStoreOwner
  */
 public expect abstract class ViewModel {
 
@@ -111,8 +92,8 @@ public expect abstract class ViewModel {
      *
      * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be canceled when the [ViewModel] is cleared,
-     *   right **before** the [onCleared] method is called.
+     * @param viewModelScope [CoroutineScope] to be canceled when the [ViewModel] is cleared, right
+     *   **before** the [onCleared] method is called
      */
     public constructor(viewModelScope: CoroutineScope)
 
@@ -121,8 +102,8 @@ public expect abstract class ViewModel {
      *
      * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param closeables the resources to be closed when the [ViewModel] is cleared, right
-     *   **before** the [onCleared] method is called.
+     * @param closeables resources to be closed when the [ViewModel] is cleared, right **before**
+     *   the [onCleared] method is called
      */
     public constructor(vararg closeables: AutoCloseable)
 
@@ -131,10 +112,10 @@ public expect abstract class ViewModel {
      *
      * You should **never** manually create a [ViewModel] outside of a [ViewModelProvider.Factory].
      *
-     * @param viewModelScope a [CoroutineScope] to be canceled when the [ViewModel] is cleared,
-     *   right **before** the [onCleared] method is called.
-     * @param closeables the resources to be closed when the [ViewModel] is cleared, right
-     *   **before** the [onCleared] method is called.
+     * @param viewModelScope [CoroutineScope] to be canceled when the [ViewModel] is cleared, right
+     *   **before** the [onCleared] method is called
+     * @param closeables resources to be closed when the [ViewModel] is cleared, right **before**
+     *   the [onCleared] method is called
      */
     public constructor(viewModelScope: CoroutineScope, vararg closeables: AutoCloseable)
 
@@ -177,9 +158,9 @@ public expect abstract class ViewModel {
      * If [onCleared] has already been called, the provided resource will not be added and will be
      * closed immediately.
      *
-     * @param key the key to associate with the resource, for retrieval with [getCloseable].
-     * @param closeable the resource to be closed when the [ViewModel] is cleared, right **before**
-     *   the [onCleared] method is called.
+     * @param key key to associate with the resource, for retrieval with [getCloseable]
+     * @param closeable resource to be closed when the [ViewModel] is cleared, right **before** the
+     *   [onCleared] method is called
      */
     public fun addCloseable(key: String, closeable: AutoCloseable)
 
@@ -190,8 +171,8 @@ public expect abstract class ViewModel {
      * If [onCleared] has already been called, the provided resource will not be added and will be
      * closed immediately.
      *
-     * @param closeable the resource to be closed when the [ViewModel] is cleared, right **before**
-     *   the [onCleared] method is called.
+     * @param closeable resource to be closed when the [ViewModel] is cleared, right **before** the
+     *   [onCleared] method is called
      */
     public open fun addCloseable(closeable: AutoCloseable)
 
@@ -199,7 +180,7 @@ public expect abstract class ViewModel {
      * Returns the [AutoCloseable] resource associated to the given [key], or `null` if such a [key]
      * is not present in this [ViewModel].
      *
-     * @param key the key associated with a resource via [addCloseable].
+     * @param key key associated with a resource via [addCloseable]
      */
     public fun <T : AutoCloseable> getCloseable(key: String): T?
 }
