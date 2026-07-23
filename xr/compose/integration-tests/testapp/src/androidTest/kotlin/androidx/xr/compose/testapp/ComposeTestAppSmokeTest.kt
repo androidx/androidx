@@ -18,22 +18,33 @@ package androidx.xr.compose.testapp
 import android.app.Activity
 import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
+import androidx.xr.compose.testapp.accessibility.AccessibilityActivity
 import androidx.xr.compose.testapp.animation.Animation
 import androidx.xr.compose.testapp.animation.SampleAnimations
+import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.curvedlayout.CurvedLayout
 import androidx.xr.compose.testapp.depthstacking.DepthStacking
+import androidx.xr.compose.testapp.focuschange.FSMFocusChangeActivity
+import androidx.xr.compose.testapp.focuschange.FocusStealerActivity
+import androidx.xr.compose.testapp.focuschange.HSMFocusChangeActivity
+import androidx.xr.compose.testapp.followingsubspace.AnchorFollowingSubspaceActivity
+import androidx.xr.compose.testapp.followingsubspace.FollowingSubspaceActivity
 import androidx.xr.compose.testapp.fragments.FragmentCompatibilityActivity
 import androidx.xr.compose.testapp.gravityaligned.GravityAlignedActivity
 import androidx.xr.compose.testapp.lifecycle.OpenCloseActivity
 import androidx.xr.compose.testapp.lifecycle.OpenCloseChildActivity
 import androidx.xr.compose.testapp.lifecycle.ResizeActivity
+import androidx.xr.compose.testapp.lifecycle.RuntimeSessionActivity
 import androidx.xr.compose.testapp.mediaplayer.MediaPlayerActivity
 import androidx.xr.compose.testapp.modechange.ModeChange
+import androidx.xr.compose.testapp.movable.MovableActivity
 import androidx.xr.compose.testapp.movablescalable.MovableScalable
 import androidx.xr.compose.testapp.panelembeddedsubspace.PanelEmbeddedSubspace
 import androidx.xr.compose.testapp.panelvolume.PanelVolume
 import androidx.xr.compose.testapp.performance.LayoutPerformance
 import androidx.xr.compose.testapp.pose.Pose
+import androidx.xr.compose.testapp.resizablepanel.ResizablePanel
+import androidx.xr.compose.testapp.rotatetolookatuser.RotateToLookAtUserActivity
 import androidx.xr.compose.testapp.rotation.Rotation
 import androidx.xr.compose.testapp.rtlawareness.RtlAwareSubspaceModifierActivity
 import androidx.xr.compose.testapp.spacemodechange.SpaceModeActivity
@@ -41,10 +52,13 @@ import androidx.xr.compose.testapp.spatialalignmentusage.SpatialAlignmentUsageAc
 import androidx.xr.compose.testapp.spatialarrangementusage.SpatialArrangementUsageActivity
 import androidx.xr.compose.testapp.spatialcompose.SpatialCompose
 import androidx.xr.compose.testapp.spatialcompose.SpatialComposeStateTest
+import androidx.xr.compose.testapp.spatialcompose.SpatialComposeVideoPlayer
 import androidx.xr.compose.testapp.spatialcompose.SpatialComposeWindowManager
 import androidx.xr.compose.testapp.spatialelevation.SpatialElevation
 import androidx.xr.compose.testapp.spatialgltfmodel.SpatialGltfModelActivity
 import androidx.xr.compose.testapp.spatialpanel.SpatialPanelActivity
+import androidx.xr.compose.testapp.splitengine.SplitEngine
+import androidx.xr.compose.testapp.videoplayer.VideoPlayerActivity
 import androidx.xr.testutils.TestAppSmokeTest
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
@@ -77,21 +91,20 @@ class ComposeTestAppSmokeTest(activityClass: Class<out Activity>) :
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                // TODO: b/513351407 - Fix and enable these tests.
-                // arrayOf(AccessibilityActivity::class.java),
-                // arrayOf(AnchorFollowingSubspaceActivity::class.java),
-                // arrayOf(AnotherActivity::class.java),
-                // arrayOf(FocusStealerActivity::class.java),
-                // arrayOf(FollowingSubspaceActivity::class.java),
-                // arrayOf(FSMFocusChangeActivity::class.java),
-                // arrayOf(HSMFocusChangeActivity::class.java),
-                // arrayOf(MovableActivity::class.java),
-                // arrayOf(RotateToLookAtUserActivity::class.java),
-                // arrayOf(RuntimeSessionActivity::class.java),
-                // arrayOf(ResizablePanel::class.java),
-                // arrayOf(SpatialComposeVideoPlayer::class.java),
-                // arrayOf(SplitEngine::class.java),
-                // arrayOf(VideoPlayerActivity::class.java),
+                arrayOf(AccessibilityActivity::class.java),
+                arrayOf(AnchorFollowingSubspaceActivity::class.java),
+                arrayOf(AnotherActivity::class.java),
+                arrayOf(FocusStealerActivity::class.java),
+                arrayOf(FollowingSubspaceActivity::class.java),
+                arrayOf(FSMFocusChangeActivity::class.java),
+                arrayOf(HSMFocusChangeActivity::class.java),
+                arrayOf(MovableActivity::class.java),
+                arrayOf(RotateToLookAtUserActivity::class.java),
+                arrayOf(RuntimeSessionActivity::class.java),
+                arrayOf(ResizablePanel::class.java),
+                arrayOf(SpatialComposeVideoPlayer::class.java),
+                arrayOf(SplitEngine::class.java),
+                arrayOf(VideoPlayerActivity::class.java),
                 arrayOf(Animation::class.java),
                 arrayOf(CurvedLayout::class.java),
                 arrayOf(DepthStacking::class.java),

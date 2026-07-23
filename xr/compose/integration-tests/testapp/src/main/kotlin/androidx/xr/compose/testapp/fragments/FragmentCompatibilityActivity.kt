@@ -58,15 +58,4 @@ class FragmentCompatibilityActivity : FragmentActivity() {
             .addToBackStack(null)
             .commit()
     }
-
-    override fun finish() {
-        // Workaround for session - fragment lifecycle issue. Need further investigation b/463762377
-        val fragment = supportFragmentManager.findFragmentById(android.R.id.content)
-        if (fragment != null) {
-            supportFragmentManager.beginTransaction().remove(fragment).commit()
-            supportFragmentManager.executePendingTransactions()
-        }
-
-        super.finish()
-    }
 }

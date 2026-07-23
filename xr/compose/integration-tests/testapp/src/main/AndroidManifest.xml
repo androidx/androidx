@@ -18,7 +18,7 @@
 
         <activity
             android:name=".common.AnotherActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_rotation"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
@@ -159,16 +159,19 @@
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
             android:name=".focuschange.FocusStealerActivity"
+            android:exported="true"
             android:label="FocusStealer Activity"
             android:launchMode="singleInstance" />
         <activity
             android:name=".focuschange.HSMFocusChangeActivity"
             android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:label="@string/hsm_focus_change_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
             android:name=".focuschange.FSMFocusChangeActivity"
             android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:label="@string/fsm_focus_change_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
