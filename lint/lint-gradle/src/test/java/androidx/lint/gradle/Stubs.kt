@@ -67,8 +67,8 @@ internal val STUBS =
                 fun remove(task: Task) = Unit
             }
 
-            interface TaskCollection<T : Task> {
-                fun getAt(name: String) = Unit
+            interface TaskCollection<T : Task> : NamedDomainObjectCollection<T> {
+                override fun getAt(name: String): T
                 fun matching(closure: Closure) = Unit
             }
             interface TaskProvider<T : Task> : Provider<T>
@@ -135,9 +135,14 @@ internal val STUBS =
             }
 
             interface NamedDomainObjectCollection<T> : Collection<T>, DomainObjectCollection<T>, Iterable<T> {
-                fun findByName(name: String) = Unit
+                fun findByName(name: String): T? = null
                 fun findAll(closure: Closure) = Unit
+                fun getAt(name: String): T
+                fun getByName(name: String): T
+                fun named(name: String): Any = Unit
             }
+
+            interface NamedDomainObjectSet<T> : NamedDomainObjectCollection<T>
 
             interface DomainObjectCollection<T> {
                 fun all(action: Action<in T>)
@@ -167,6 +172,38 @@ internal val STUBS =
             package groovy.lang
 
             class Closure
+            """
+                .trimIndent()
+        ),
+        kotlin(
+            """
+            package org.gradle.api.services
+
+            import org.gradle.api.NamedDomainObjectSet
+            import org.gradle.api.provider.Provider
+
+            interface BuildService<P>
+
+            interface BuildServiceRegistration<T, P> {
+                fun getService(): Provider<T>
+            }
+
+            interface BuildServiceRegistry {
+                val registrations: NamedDomainObjectSet<BuildServiceRegistration<*, *>>
+                fun registerIfAbsent(name: String, implementationType: Class<*>): Provider<*>
+            }
+            """
+                .trimIndent()
+        ),
+        kotlin(
+            """
+            package org.gradle.api.invocation
+
+            import org.gradle.api.services.BuildServiceRegistry
+
+            interface Gradle {
+                val sharedServices: BuildServiceRegistry
+            }
             """
                 .trimIndent()
         ),
