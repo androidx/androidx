@@ -56,6 +56,8 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
 
     private @Nullable IconCompat mCommuteIcon;
 
+    private static final int IPC_LIST_SIZE_LIMIT = 100;
+
     public PaneTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
         getLifecycle().addObserver(this);
@@ -103,6 +105,10 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
     private PaneTemplate buildPaneTemplate() {
         int listLimit = getCarContext().getCarService(ConstraintManager.class).getContentLimit(
                 ConstraintManager.CONTENT_LIMIT_TYPE_PANE);
+
+        if (listLimit > IPC_LIST_SIZE_LIMIT) {
+            listLimit = IPC_LIST_SIZE_LIMIT;
+        }
 
         Pane.Builder paneBuilder = new Pane.Builder();
         for (int i = 0; i < listLimit; i++) {
