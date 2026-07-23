@@ -93,9 +93,9 @@ import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixedVibrant
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedAround
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
-import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar
-import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar
+import androidx.compose.material3.samples.ExitUntilCollapsedLargeFlexibleTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
+import androidx.compose.material3.samples.ExitUntilCollapsedMediumFlexibleTopAppBar
 import androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
 import androidx.compose.material3.samples.ExpandableHorizontalFloatingToolbarSample
 import androidx.compose.material3.samples.ExpandableVerticalFloatingToolbarSample
@@ -158,6 +158,7 @@ import androidx.compose.material3.samples.LargeButtonWithIconSample
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.LargeFilledSplitButtonSample
+import androidx.compose.material3.samples.LargeFlexibleTopAppBarWithSubtitleAndCenterAligned
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LargeRoundUniformOutlinedIconButtonSample
 import androidx.compose.material3.samples.LargeToggleButtonWithIconSample
@@ -176,6 +177,7 @@ import androidx.compose.material3.samples.MediumButtonWithIconSample
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.MediumFilledSplitButtonSample
+import androidx.compose.material3.samples.MediumFlexibleTopAppBarWithSubtitleAndCenterAligned
 import androidx.compose.material3.samples.MediumFloatingActionButtonSample
 import androidx.compose.material3.samples.MediumRoundWideIconButtonSample
 import androidx.compose.material3.samples.MediumToggleButtonWithIconSample
@@ -261,13 +263,13 @@ import androidx.compose.material3.samples.ShortNavigationBarWithHorizontalItemsS
 import androidx.compose.material3.samples.SimpleBottomAppBar
 import androidx.compose.material3.samples.SimpleBottomSheetScaffoldSample
 import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
-import androidx.compose.material3.samples.SimpleCenterAlignedTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
 import androidx.compose.material3.samples.SimpleSearchBarSample
 import androidx.compose.material3.samples.SimpleTextFieldSample
 import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SimpleTopAppBarWithAdaptiveActions
 import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
+import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitleAndCenterAligned
 import androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.SingleSelectionListItemSample
 import androidx.compose.material3.samples.SingleSelectionSegmentedListItemSample
@@ -1115,12 +1117,12 @@ val TopAppBarExamples =
             SimpleCenterAlignedTopAppBar()
         },
         Example(
-            name = "SimpleCenterAlignedTopAppBarWithSubtitle",
+            name = "SimpleTopAppBarWithSubtitleAndCenterAligned",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
             isExpressive = true,
         ) {
-            SimpleCenterAlignedTopAppBarWithSubtitle()
+            SimpleTopAppBarWithSubtitleAndCenterAligned()
         },
         Example(
             name = "PinnedTopAppBar",
@@ -1171,12 +1173,20 @@ val TopAppBarExamples =
             ExitUntilCollapsedMediumTopAppBar()
         },
         Example(
-            name = "ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar with subtitle",
+            name = "ExitUntilCollapsedMediumFlexibleTopAppBar",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
             isExpressive = false,
         ) {
-            ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar()
+            ExitUntilCollapsedMediumFlexibleTopAppBar()
+        },
+        Example(
+            name = "MediumFlexibleTopAppBarWithSubtitleAndCenterAligned",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            MediumFlexibleTopAppBarWithSubtitleAndCenterAligned()
         },
         Example(
             name = "ExitUntilCollapsedLargeTopAppBar",
@@ -1187,12 +1197,20 @@ val TopAppBarExamples =
             ExitUntilCollapsedLargeTopAppBar()
         },
         Example(
-            name = "ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar with subtitle",
+            name = "ExitUntilCollapsedLargeFlexibleTopAppBar",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
             isExpressive = true,
         ) {
-            ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar()
+            ExitUntilCollapsedLargeFlexibleTopAppBar()
+        },
+        Example(
+            name = "LargeFlexibleTopAppBarWithSubtitleAndCenterAligned",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            LargeFlexibleTopAppBarWithSubtitleAndCenterAligned()
         },
         Example(
             name = "CustomTwoRowsTopAppBar",
