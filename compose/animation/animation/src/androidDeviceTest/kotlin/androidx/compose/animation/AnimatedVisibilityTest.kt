@@ -458,6 +458,19 @@ class AnimatedVisibilityTest {
     }
 
     @Test
+    fun testScaleInAndScaleOutDefaultVisibilityThreshold() {
+        val enterSpring =
+            scaleIn().config.scale?.animationSpec
+                as? androidx.compose.animation.core.SpringSpec<Float>
+        assertEquals(0.002f, enterSpring?.visibilityThreshold)
+
+        val exitSpring =
+            scaleOut().config.scale?.animationSpec
+                as? androidx.compose.animation.core.SpringSpec<Float>
+        assertEquals(0.002f, exitSpring?.visibilityThreshold)
+    }
+
+    @Test
     fun testEnterTransitionNoneAndExitTransitionNone() {
         val testModifier by mutableStateOf(TestModifier())
         val visible = MutableTransitionState(false)
