@@ -19,12 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.PathMeasure
 import android.graphics.Rect
-import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
@@ -81,12 +76,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ClipOp
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -153,6 +156,7 @@ internal fun resolveFloat(value: Float, fallback: Float, context: RemoteContext)
 internal fun DrawScope.executeOperations(
     operations: List<Operation>,
     remoteContext: RemoteContext,
+    textMeasurer: TextMeasurer,
     paintState: ComposeLocalPaint = ComposeLocalPaint(),
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
@@ -220,6 +224,7 @@ internal fun DrawScope.executeOperations(
                 executeOperations(
                     (op as Container).list,
                     remoteContext,
+                    textMeasurer,
                     paintState,
                     onDrawContent,
                     graph,
@@ -241,7 +246,15 @@ internal fun DrawScope.executeOperations(
                         ConditionalOperations.TYPE_GT -> a > b
                         else -> a >= b // TYPE_GTE
                     }
-                if (run) executeOperations(op.list, remoteContext, paintState, onDrawContent, graph)
+                if (run)
+                    executeOperations(
+                        op.list,
+                        remoteContext,
+                        textMeasurer,
+                        paintState,
+                        onDrawContent,
+                        graph,
+                    )
             }
             is LoopOperation -> {
                 // Loop: resolve from/until/step (NaN-id bounds → variables), then run the child
@@ -259,7 +272,14 @@ internal fun DrawScope.executeOperations(
                     var guard = 0
                     while (i < until && guard < MAX_LOOP_ITERATIONS) {
                         if (indexId != 0) remoteContext.loadFloat(indexId, i)
-                        executeOperations(op.list, remoteContext, paintState, onDrawContent, graph)
+                        executeOperations(
+                            op.list,
+                            remoteContext,
+                            textMeasurer,
+                            paintState,
+                            onDrawContent,
+                            graph,
+                        )
                         i += step
                         guard++
                     }
@@ -630,7 +650,12 @@ internal fun DrawScope.executeOperations(
                 val data = op.readDataReflection()
                 val sx = resolveFloat(data.value1, data.v1, read)
                 val sy = resolveFloat(data.value2, data.v2, read)
-                drawContext.canvas.nativeCanvas.skew(sx, sy)
+                val skewMatrix =
+                    Matrix().apply {
+                        this[1, 0] = sx // SkewX
+                        this[0, 1] = sy // SkewY
+                    }
+                drawContext.transform.transform(skewMatrix)
             }
             is ClipRect -> {
                 // Imperative clip on the underlying canvas (bounded by the surrounding
@@ -656,11 +681,9 @@ internal fun DrawScope.executeOperations(
             }
             is DrawText -> {
                 // Canvas text run. Mirrors DrawText.paint / the View player's drawTextRun: resolve
-                // the
                 // text by id, substring by [start, end), build a framework Paint from the current
                 // paint state, and draw via the native canvas. (Layout text uses Compose `Text`;
-                // this
-                // is the canvas/DrawScope path.)
+                // this is the canvas/DrawScope path.)
                 val full = read.getText(op.mTextID)
                 if (full != null && !paintState.textSize.isNaN()) {
                     val len = full.length
@@ -670,12 +693,56 @@ internal fun DrawScope.executeOperations(
                     val text = full.substring(start, end)
                     val x = resolveFloat(op.mX, op.mOutX, read)
                     val y = resolveFloat(op.mY, op.mOutY, read)
-                    drawContext.canvas.nativeCanvas.drawText(
-                        text,
-                        x,
-                        y,
-                        paintState.toNativeTextPaint(read),
-                    )
+                    // textMeasurer is non-null
+                    val fontStyle = paintState.fontStyle
+                    val fontWeight = FontWeight(paintState.fontWeight)
+                    // TODO: Support proper font family resolution (see aosp/4187117)
+                    val fontFamily =
+                        when (paintState.fontFamily) {
+                            1 -> FontFamily.SansSerif
+                            2 -> FontFamily.Serif
+                            3 -> FontFamily.Monospace
+                            else -> FontFamily.Default
+                        }
+
+                    val style =
+                        if (paintState.isStroke)
+                            Stroke(
+                                width = paintState.strokeWidth,
+                                cap = mapStrokeCap(paintState.strokeCap),
+                                join = mapStrokeJoin(paintState.strokeJoin),
+                            )
+                        else Fill
+
+                    val textStyle =
+                        if (paintState.brush != null) {
+                            TextStyle(
+                                brush = paintState.brush,
+                                alpha = paintState.alpha,
+                                fontSize = paintState.textSize.toSp(),
+                                fontWeight = fontWeight,
+                                fontStyle = fontStyle,
+                                fontFamily = fontFamily,
+                                drawStyle = style,
+                            )
+                        } else {
+                            TextStyle(
+                                color = paintState.effectiveColor(),
+                                fontSize = paintState.textSize.toSp(),
+                                fontWeight = fontWeight,
+                                fontStyle = fontStyle,
+                                fontFamily = fontFamily,
+                                drawStyle = style,
+                            )
+                        }
+
+                    val textLayoutResult = textMeasurer.measure(text = text, style = textStyle)
+
+                    // Assuming y is baseline
+                    val baseline = textLayoutResult.getLineBaseline(0)
+                    val topLeft = Offset(x, y - baseline)
+
+                    drawText(textLayoutResult = textLayoutResult, topLeft = topLeft)
                 }
             }
             is DrawTextOnPath -> {
@@ -955,7 +1022,7 @@ internal fun DrawScope.executeOperations(
                         }
                     }
                     val textPath =
-                        Path().apply {
+                        android.graphics.Path().apply {
                             addArc(
                                 centerX - finalRadius,
                                 centerY - finalRadius,
@@ -1187,19 +1254,11 @@ internal fun DrawScope.executeOperations(
                         }
                     }
                     val pathId = derefId(data.pathId, read)
-                    val androidPath =
-                        remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f).asAndroidPath()
-                    val pathMeasure = PathMeasure(androidPath, false)
+                    val composePath = remoteContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
+                    val pathMeasure = PathMeasure()
+                    pathMeasure.setPath(composePath, false)
                     val pathLength = pathMeasure.length
                     if (width > 0f && pathLength > 0f) {
-                        val matrix = Matrix()
-                        val canvas = drawContext.canvas.nativeCanvas
-                        val nativePaint =
-                            Paint().apply {
-                                isAntiAlias = true
-                                isFilterBitmap = true
-                                alpha = (paintState.alpha * 255f).toInt().coerceIn(0, 255)
-                            }
                         var progress = 0f
                         var pos = 0
                         var prevGlyph = ""
@@ -1226,28 +1285,32 @@ internal fun DrawScope.executeOperations(
                                     glyph.mBitmapWidth > 0 &&
                                     glyph.mBitmapHeight > 0
                             ) {
-                                pathMeasure.getMatrix(
-                                    fraction * pathLength,
-                                    matrix,
-                                    PathMeasure.POSITION_MATRIX_FLAG or
-                                        PathMeasure.TANGENT_MATRIX_FLAG,
-                                )
-                                canvas.save()
-                                canvas.concat(matrix)
-                                val dst =
-                                    RectF(
-                                        -halfGlyphWidth,
-                                        yAdj + glyph.mMarginTop,
-                                        halfGlyphWidth,
-                                        yAdj + glyph.mBitmapHeight + glyph.mMarginTop,
+                                val position = pathMeasure.getPosition(fraction * pathLength)
+                                val tangent = pathMeasure.getTangent(fraction * pathLength)
+                                val angle =
+                                    Math.toDegrees(
+                                            Math.atan2(tangent.y.toDouble(), tangent.x.toDouble())
+                                        )
+                                        .toFloat()
+
+                                val composeMatrix =
+                                    Matrix().apply {
+                                        translate(position.x, position.y)
+                                        rotateZ(angle)
+                                    }
+
+                                withTransform({
+                                    transform(composeMatrix)
+                                    translate(-halfGlyphWidth, yAdj + glyph.mMarginTop)
+                                    val scaleX = glyph.mBitmapWidth / glyphBitmap.width.toFloat()
+                                    val scaleY = glyph.mBitmapHeight / glyphBitmap.height.toFloat()
+                                    scale(scaleX, scaleY, pivot = Offset.Zero)
+                                }) {
+                                    drawImage(
+                                        image = glyphBitmap.asImageBitmap(),
+                                        alpha = paintState.alpha,
                                     )
-                                canvas.drawBitmap(
-                                    glyphBitmap,
-                                    Rect(0, 0, glyphBitmap.width, glyphBitmap.height),
-                                    dst,
-                                    nativePaint,
-                                )
-                                canvas.restore()
+                                }
                             }
                             progress += glyph.mBitmapWidth + glyph.mMarginRight + glyphSpacing
                             prevGlyph = glyph.mChars!!
