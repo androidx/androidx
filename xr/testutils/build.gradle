@@ -26,7 +26,7 @@ dependencies {
     api(libs.testRunner)
     api(libs.testRules)
     api(libs.testCore)
-    api(libs.truth)
+    api(libs.kotlinTest)
     api(project(":lifecycle:lifecycle-common"))
     api(project(":xr:runtime:runtime-manifest"))
 }
