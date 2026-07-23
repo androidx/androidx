@@ -154,15 +154,15 @@ fun RcSimpleClock1(
             val faceTop = centerY - rad
             val gmtAngle = ((hr - utcOff / 3600f) + ((min % 60f) / 60f)) * 15f
             val handWidth = 20f
-            drawCircle(bezel1.paint(), RemoteOffset(centerX, centerY), rad)
+            drawCircle(bezel1.paint(), rad, RemoteOffset(centerX, centerY))
 
-            drawCircle(bezel1.paint(), RemoteOffset(centerX, centerY), rad)
+            drawCircle(bezel1.paint(), rad, RemoteOffset(centerX, centerY))
 
             clipRect(0f.rf, centerY, w, h) {
-                drawCircle(bezel2.paint(), RemoteOffset(centerX, centerY), rad)
+                drawCircle(bezel2.paint(), rad, RemoteOffset(centerX, centerY))
             }
-            drawCircle(Color.Black.paint(), RemoteOffset(centerX, centerY), rad)
-            drawCircle(Color.DarkGray.paint(), RemoteOffset(centerX, centerY), rad - bezel_thick)
+            drawCircle(Color.Black.paint(), rad, RemoteOffset(centerX, centerY))
+            drawCircle(Color.DarkGray.paint(), rad - bezel_thick, RemoteOffset(centerX, centerY))
 
             for (i in 0 until 60) {
                 rotate((i * 6f).rf, RemoteOffset(centerX, centerY)) {
@@ -188,8 +188,8 @@ fun RcSimpleClock1(
                 rotate(15f.rf + 30f * i, RemoteOffset(centerX, centerY)) {
                     drawCircle(
                         minHandColor.paint(),
-                        RemoteOffset(centerX, top + bezel_thick / 2),
                         8f.rf,
+                        RemoteOffset(centerX, top + bezel_thick / 2),
                     )
                 }
             }
@@ -217,8 +217,8 @@ fun RcSimpleClock1(
                     rotate(30f.rf * i.rf + 30.rf, RemoteOffset(centerX, centerY)) {
                         drawCircle(
                             minHandColor.paint(),
-                            RemoteOffset(centerX, top + (bezel_thick + 20f) + 20f),
                             20f.rf,
+                            RemoteOffset(centerX, top + (bezel_thick + 20f) + 20f),
                         )
                     }
                 } else {
@@ -269,14 +269,7 @@ fun RcSimpleClock1(
                 RemoteOffset(dateLeft, dateTop),
                 RemoteSize(80f.rf, 60f.rf),
             )
-            drawAnchoredText(
-                "32".rs,
-                cx,
-                centerY,
-                0f.rf,
-                0f.rf,
-                paint = Color.Black.paint(textSize = 40f),
-            )
+            drawAnchoredText("32".rs, cx, centerY, paint = Color.Black.paint(textSize = 40f))
             // =============== DAY Complication ===============
             val dayCenterX = centerX + rad - 280f
             val dayLeft = dayCenterX - 46f
@@ -285,8 +278,8 @@ fun RcSimpleClock1(
             clipRect(dayLeft, dateTop, dayRight, dateBottom) {
                 drawCircle(
                     Color.LightGray.paint(),
-                    RemoteOffset(centerX, centerY),
                     dateLeft - centerX,
+                    RemoteOffset(centerX, centerY),
                 )
                 for (i in 0 until 7) {
                     val anim = remote.animateFloat((timeSeconds + i.toFloat()) * 360f / 7f, 0.2f)
@@ -295,8 +288,6 @@ fun RcSimpleClock1(
                             days[6 - i].rs,
                             dayCenterX,
                             centerY,
-                            0f.rf,
-                            0f.rf,
                             paint = Color.Black.paint(textSize = 40f),
                         )
                     }
@@ -353,13 +344,13 @@ fun RcSimpleClock1(
                 )
                 drawCircle(
                     minHandColor.paint(),
-                    RemoteOffset(centerX, centerY - minHandLength * 0.7f),
                     handWidth.rf,
+                    RemoteOffset(centerX, centerY - minHandLength * 0.7f),
                 )
             }
 
-            drawCircle(minHandColor.paint(), RemoteOffset(centerX, centerY), handWidth.rf)
-            drawCircle(Color.Black.paint(), RemoteOffset(centerX, centerY), 10f.rf)
+            drawCircle(minHandColor.paint(), handWidth.rf, RemoteOffset(centerX, centerY))
+            drawCircle(Color.Black.paint(), 10f.rf, RemoteOffset(centerX, centerY))
         }
     }
 }
