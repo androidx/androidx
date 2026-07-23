@@ -17,8 +17,6 @@ package androidx.compose.remote.integration.view.demos;
 
 import static android.widget.LinearLayout.VERTICAL;
 
-import static androidx.compose.remote.integration.view.demos.DemosComposeKt.getRemoteComposable;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -134,7 +132,7 @@ public class ExperimentRecyclerActivity extends Activity {
         sPersonImage3 = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.mostly_cloudy);
         ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos(this, 4 + 2));
-        list.addAll(getRemoteComposable(context));
+     //   list.addAll(getRemoteComposable(context));
 
         return list;
     }

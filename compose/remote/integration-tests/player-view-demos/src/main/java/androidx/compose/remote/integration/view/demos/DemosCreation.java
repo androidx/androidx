@@ -67,6 +67,12 @@ import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslEnumsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGameAstroDodgerKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGameCannonShootKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGameFlappyDroidKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGameMarbleTiltKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGamePaddleBattleKt;
+import androidx.compose.remote.integration.view.demos.dsl.games.DslGameSideScrollerKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dAnnotationDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dBarDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.demos.Graph2dDistributionDemosKt;
@@ -210,16 +216,24 @@ public abstract class DemosCreation {
         boolean dsl = true;
         boolean graph2d = true;
         boolean customCompose = (types & 1) != 0;
-        boolean customViews = (types & 2) != 0;
+        boolean customViews; // = (types & 2) != 0;
         boolean dsl1 = (types & 4) != 0;
         boolean dsl2 = (types & 8) != 0;
+        customViews = false;
+//        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
         if (dsl) {
             demos.addAll(Arrays.asList(
-                    get("-0/001/ModernShowcaseDemo",
+                    get("-0/031/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
-                    get("-0/004/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
-                    get("-0/005/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
-                    get("-0/003/Demo3", RcDslDemoKt::dslDemo)));
+                    get("-0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
+                    get("-0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
+                    get("-0/033/Demo3", RcDslDemoKt::dslDemo),
+                    get("-0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
+                    get("-0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
+                    get("-0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
+                    get("-0/023/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
+                    get("-0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
+                    get("-0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller)));
 
 
         }
