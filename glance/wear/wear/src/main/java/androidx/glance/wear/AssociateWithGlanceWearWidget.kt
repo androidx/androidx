@@ -19,15 +19,16 @@ package androidx.glance.wear
 import kotlin.reflect.KClass
 
 /**
- * Annotation used to associate a [GlanceWearWidget] class with its corresponding
- * [GlanceWearWidgetService].
+ * Annotation used to associate a [androidx.glance.wear.GlanceWearWidget] class with its
+ * corresponding [androidx.glance.wear.GlanceWearWidgetService].
  *
- * This association must be used in [GlanceWearWidgetService] to specify which associated widget
- * class it has in its `widget` property. It must match the exact class name of the widget class
- * used in the property.
+ * This association must be used in [androidx.glance.wear.GlanceWearWidgetService] to specify which
+ * associated widget class it has in its `widget` property. It must match the exact class name of
+ * the widget class used in the property.
  *
- * If this is not specified, correct results of some methods in [GlanceWearWidgetManager] are not
- * guaranteed.
+ * This annotation is required so that the [androidx.glance.wear.GlanceWearWidget] class can be
+ * resolved statically from the associated service's metadata without instantiating the service,
+ * avoiding initialization issues in services that use dependency injection (e.g., Hilt/Dagger).
  *
  * For example:
  * ```
