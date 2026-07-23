@@ -28,10 +28,10 @@ actual constructor(
 ) {
 
     /**
-     * Construct a new [ViewModelInitializer] instance.
+     * Constructs a new [ViewModelInitializer] instance.
      *
-     * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
-     * @param initializer factory lambda to be associated with the specified [ViewModel] class.
+     * @param clazz [ViewModel] class with which the specified [initializer] is to be associated
+     * @param initializer factory lambda to be associated with the specified [ViewModel] class
      */
     public constructor(
         clazz: Class<T>,

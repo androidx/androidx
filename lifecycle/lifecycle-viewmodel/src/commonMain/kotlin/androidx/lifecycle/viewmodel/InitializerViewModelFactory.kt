@@ -40,8 +40,8 @@ public class InitializerViewModelFactoryBuilder public constructor() {
     /**
      * Associates the specified [initializer] with the given [ViewModel] class.
      *
-     * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
-     * @param initializer factory lambda to be associated with the specified [ViewModel] class.
+     * @param clazz The [ViewModel] class to associate with the [initializer].
+     * @param initializer The factory lambda associated with the [ViewModel] class.
      */
     @Suppress("SetterReturnsThis", "MissingGetterMatchingBuilder")
     public fun <T : ViewModel> addInitializer(
@@ -72,10 +72,10 @@ public inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.in
 /** Holds a [ViewModel] class and initializer for that class */
 public expect class ViewModelInitializer<T : ViewModel>
 /**
- * Construct a new [ViewModelInitializer] instance.
+ * Constructs a new [ViewModelInitializer] instance.
  *
- * @param clazz [ViewModel] class with which the specified [initializer] is to be associated.
- * @param initializer factory lambda to be associated with the specified [ViewModel] class.
+ * @param clazz The [ViewModel] class to associate with the [initializer].
+ * @param initializer The factory lambda associated with the [ViewModel] class.
  */
 public constructor(clazz: KClass<T>, initializer: CreationExtras.() -> T) {
     internal val clazz: KClass<T>
@@ -83,14 +83,14 @@ public constructor(clazz: KClass<T>, initializer: CreationExtras.() -> T) {
 }
 
 /**
- * A [ViewModelProvider.Factory] that allows you to add lambda initializers for handling particular
- * ViewModel classes using [CreationExtras], while using the default behavior for any other classes.
+ * A [ViewModelProvider.Factory] allowing custom lambda initializers for specific [ViewModel]
+ * classes via [CreationExtras].
  *
  * ```
  * val factory = viewModelFactory {
- *   initializer { TestViewModel(this[key]) }
+ *     initializer { TestViewModel(this[key]) }
  * }
- * val viewModel: TestViewModel = factory.create(TestViewModel::class.java, extras)
+ * val viewModel: TestViewModel = factory.create(TestViewModel::class, extras)
  * ```
  */
 internal expect class InitializerViewModelFactory(vararg initializers: ViewModelInitializer<*>) :

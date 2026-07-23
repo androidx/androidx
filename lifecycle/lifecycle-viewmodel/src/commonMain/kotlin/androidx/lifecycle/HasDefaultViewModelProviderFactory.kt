@@ -20,21 +20,20 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.internal.DefaultViewModelProviderFactory
 
 /**
- * Interface that marks a [ViewModelStoreOwner] as having a default [ViewModelProvider.Factory] for
+ * An interface marking a [ViewModelStoreOwner] as having a default [ViewModelProvider.Factory] for
  * use with [ViewModelProvider].
  */
 public interface HasDefaultViewModelProviderFactory {
     /**
-     * Returns the default [ViewModelProvider.Factory] that should be used when no custom `Factory`
-     * is provided to the [ViewModelProvider] constructors.
+     * The default [ViewModelProvider.Factory] to use when no custom [ViewModelProvider.Factory] is
+     * provided to the [ViewModelProvider].
      */
     public val defaultViewModelProviderFactory: ViewModelProvider.Factory
         get() = DefaultViewModelProviderFactory
 
     /**
-     * Returns the default [CreationExtras] that should be passed into
-     * [ViewModelProvider.Factory.create] when no overriding [CreationExtras] were passed to the
-     * [ViewModelProvider] constructors.
+     * The default [CreationExtras] to pass into [ViewModelProvider.Factory.create] when no
+     * overriding [CreationExtras] are provided.
      */
     public val defaultViewModelCreationExtras: CreationExtras
         get() = CreationExtras.Empty
