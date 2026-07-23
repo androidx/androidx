@@ -22,19 +22,18 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import kotlin.reflect.KClass
 
 /**
- * [androidx.lifecycle.ViewModelProvider.Factory] that can create ViewModels accessing and
- * contributing to a saved state via [SavedStateHandle] received in a constructor. If `defaultArgs`
- * bundle was passed into the constructor, it will provide default values in `SavedStateHandle`.
+ * A [ViewModelProvider.Factory] that creates [ViewModel]s with access to a [SavedStateHandle] in
+ * their constructor.
  */
 public expect class SavedStateViewModelFactory : ViewModelProvider.Factory {
 
     /**
      * Constructs this factory.
      *
-     * When a factory is constructed this way, a component for which [SavedStateHandle] is scoped
-     * must have called [enableSavedStateHandles].
+     * When using this factory, the component scoping the [SavedStateHandle] must first invoke
+     * [enableSavedStateHandles].
      *
-     * @see [createSavedStateHandle] docs for more details.
+     * @see createSavedStateHandle
      */
     public constructor()
 
