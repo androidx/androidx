@@ -59,4 +59,5 @@ interface PdfDocumentRemote {
   int getLinearizationStatus();
   androidx.pdf.models.PaginatedObjects getPageObjects(int pageNum, long types);
   androidx.pdf.models.PaginatedObjects getBatchedPageObjects(int pageNum, in int batchIndex, long types);
+  String addPageObject(int pageNum, in androidx.pdf.annotation.models.PdfObject newObject);
 }

@@ -18,8 +18,11 @@ package androidx.pdf.service
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.pdf.component.PdfPageImageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
 import android.graphics.pdf.content.PdfPageLinkContent
@@ -42,6 +45,7 @@ import androidx.pdf.adapter.PdfDocumentRenderer
 import androidx.pdf.adapter.PdfDocumentRendererFactory
 import androidx.pdf.adapter.PdfDocumentRendererFactoryImpl
 import androidx.pdf.annotation.PageAnnotationsProviderImpl
+import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.annotation.models.PaginatedAnnotations
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.annotation.processor.PageAnnotationsPaginator
@@ -246,6 +250,33 @@ internal class PdfDocumentRemoteImpl(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override fun applyDraftEdits(operations: List<DraftEditOperation>): DraftEditResult {
         return rendererAnnotationsProcessor.process(operations)
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+    override fun addPageObject(pageNum: Int, newObject: PdfObject): String {
+        return rendererAdapter.withPage(pageNum) { page ->
+            when (newObject) {
+                is ImagePdfObject -> {
+                    val nativeImageObject = PdfPageImageObject(newObject.bitmap)
+
+                    // TODO(b/537744884): Create matrix in EditableDocumentViewModel
+                    val matrix =
+                        Matrix().apply {
+                            val pdfUnitSquare = RectF(0f, 0f, 1f, 1f)
+                            setRectToRect(pdfUnitSquare, newObject.bounds, Matrix.ScaleToFit.FILL)
+                        }
+
+                    nativeImageObject.setMatrix(matrix)
+
+                    page.addPageObject(nativeImageObject).toString()
+                }
+
+                else ->
+                    throw UnsupportedOperationException(
+                        "PdfObject of type ${newObject::class.java.simpleName} is not currently supported"
+                    )
+            }
+        } ?: throw IllegalStateException("Failed to load page $pageNum to embed the PdfObject")
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)

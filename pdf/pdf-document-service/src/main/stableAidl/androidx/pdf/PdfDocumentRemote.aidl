@@ -262,4 +262,14 @@ interface PdfDocumentRemote {
     * @return Continuation token
     */
     PaginatedObjects getBatchedPageObjects(int pageNum, in int batchIndex, long types);
+
+    /**
+         * Adds a PDF object (such as an image or text) directly to the specified page.
+         *
+         * @param pageNum The 0-based index of the page where the object should be added.
+         * @param newObject The {@link PdfObject} to embed into the page.
+         * @return A String representing the unique ID of the newly added object,
+         *         or null/empty if the operation failed.
+         */
+        String addPageObject(int pageNum, in PdfObject newObject);
 }

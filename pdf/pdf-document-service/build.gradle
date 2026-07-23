@@ -68,7 +68,7 @@ android {
 
     buildTypes.configureEach {
         stableAidl {
-            version = 2
+            version = 3
         }
     }
 }

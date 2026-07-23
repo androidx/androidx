@@ -34,3 +34,5 @@ internal fun isGetTopObjectAvailable(): Boolean = isRequiredSdkExtensionAvailabl
 internal fun areCorePdfApisAvailableInSdk(): Boolean = isRequiredSdkExtensionAvailable(13)
 
 internal fun isLinearizationStatusAvailable(): Boolean = isRequiredSdkExtensionAvailable(13)
+
+internal fun isSignatureFeatureAvailable(): Boolean = isRequiredSdkExtensionAvailable(18)
