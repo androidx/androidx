@@ -26,7 +26,6 @@ import kotlinx.serialization.builtins.IntArraySerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.LongArraySerializer
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.serializer
 
 internal val intListDescriptor = ListSerializer(Int.serializer()).descriptor
 internal val stringListDescriptor = ListSerializer(String.serializer()).descriptor

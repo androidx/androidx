@@ -20,28 +20,44 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 /**
- * A scope that owns [SavedStateRegistry]
+ * A scope that owns a [SavedStateRegistry].
  *
- * This owner should be passed in to create a [SavedStateRegistryController] object through which
- * this owner can access and perform operations via the controller's [SavedStateRegistry]
+ * Pass this owner to create a [SavedStateRegistryController] through which the owner accesses and
+ * performs operations on its [SavedStateRegistry].
+ *
+ * The typical lifecycle flow and method call sequence of these components is:
+ * ```
+ * Lifecycle.State                 SavedStateRegistryController
+ * ---------------                 ----------------------------
+ * INITIALIZED ------------------> performAttach
+ *                                 |
+ *                                 performRestore
+ *                                 |
+ * CREATED ------------------------+
+ *                                 |
+ * STARTED ----------------------> (register providers, consume state)
+ *                                 |
+ * CREATED ----------------------> performSave
+ *                                 |
+ * DESTROYED <---------------------+
+ * ```
  *
  * [SavedStateRegistryController.performAttach] must be called once (and only once) on the main
- * thread during the owner's [Lifecycle.State.INITIALIZED] state. It should be called before you
- * call [SavedStateRegistryController.performRestore]
+ * thread during the owner's [Lifecycle.State.INITIALIZED] state. Call it before calling
+ * [SavedStateRegistryController.performRestore].
  *
  * [SavedStateRegistryController.performRestore] can be called with a nullable if nothing needs to
- * be restored, or with the SavedState to be restored. performRestore can be called in one of two
- * places:
- * 1. Directly before the Lifecycle moves to [Lifecycle.State.CREATED]
- * 2. Before [Lifecycle.State.STARTED] is reached, as part of the [LifecycleObserver] that is added
- *    during owner initialization
+ * be restored, or with the saved state to be restored. Call it in one of two places:
+ * 1. Directly before the [Lifecycle] moves to [Lifecycle.State.CREATED].
+ * 2. Before [Lifecycle.State.STARTED] is reached, as part of the [LifecycleObserver] added during
+ *    owner initialization.
  *
- * [SavedStateRegistryController.performSave] should be called after owner has been stopped but
- * before it reaches [Lifecycle.State.DESTROYED] state. Hence it should only be called once the
- * owner has received the [Lifecycle.Event.ON_STOP] event. The SavedState passed to performSave will
- * be the SavedState restored by performRestore.
+ * [SavedStateRegistryController.performSave] should be called after the owner has been stopped but
+ * before it reaches [Lifecycle.State.DESTROYED] state. Call it only once the owner has received the
+ * [Lifecycle.Event.ON_STOP] event. The saved state passed to performSave will be the saved state
+ * restored by performRestore.
  */
 public interface SavedStateRegistryOwner : LifecycleOwner {
-    /** The [SavedStateRegistry] owned by this SavedStateRegistryOwner */
+    /** The [SavedStateRegistry] owned by this [SavedStateRegistryOwner]. */
     public val savedStateRegistry: SavedStateRegistry
 }

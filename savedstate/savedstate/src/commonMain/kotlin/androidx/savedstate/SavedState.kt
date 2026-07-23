@@ -36,7 +36,7 @@ import kotlinx.serialization.serializer
  * (normally using a serialization mechanism), and allow the app to restore its state later. That is
  * commonly referred to as "state restoration".
  *
- * required to act as a source input for a [SavedStateReader] or [SavedStateWriter].
+ * A [SavedState] is required as the source input for a [SavedStateReader] or [SavedStateWriter].
  *
  * This class represents a container for persistable state data. It is designed to be
  * platform-agnostic, allowing seamless state saving and restoration across different environments.
@@ -80,32 +80,30 @@ public expect inline fun savedState(
 ): SavedState
 
 /**
- * Calls the specified function [block] with a [SavedStateReader] value as its receiver and returns
- * the [block] value.
+ * Performs read operations on this [SavedState] using a [SavedStateReader].
  *
  * **IMPORTANT:** The [SavedStateReader] passed as a receiver to the [block] is valid only inside
- * that function. Using it outside of the function may produce an unspecified behavior.
+ * that function. Using it outside of the function may produce unspecified behavior.
  *
  * @param block A lambda function that performs read operations using the [SavedStateReader].
- * @return The result of the lambda function's execution.
- * @see [SavedStateReader]
- * @see [SavedStateWriter]
+ * @return The result of the [block] execution.
+ * @see SavedStateReader
+ * @see SavedStateWriter
  */
 public inline fun <T> SavedState.read(block: SavedStateReader.() -> T): T {
     return block(SavedStateReader(source = this))
 }
 
 /**
- * Calls the specified function [block] with a [SavedStateWriter] value as its receiver and returns
- * the [block] value.
+ * Performs write operations on this [SavedState] using a [SavedStateWriter].
  *
  * **IMPORTANT:** The [SavedStateWriter] passed as a receiver to the [block] is valid only inside
- * that function. Using it outside of the function may produce an unspecified behavior.
+ * that function. Using it outside of the function may produce unspecified behavior.
  *
  * @param block A lambda function that performs write operations using the [SavedStateWriter].
- * @return The result of the lambda function's execution.
- * @see [SavedStateReader]
- * @see [SavedStateWriter]
+ * @return The result of the [block] execution.
+ * @see SavedStateReader
+ * @see SavedStateWriter
  */
 public inline fun <T> SavedState.write(block: SavedStateWriter.() -> T): T {
     return block(SavedStateWriter(source = this))
