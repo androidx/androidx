@@ -27,6 +27,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.os.HandlerCompat
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener
 import androidx.pdf.annotation.AnnotationsView.OnGestureClaimListener
@@ -47,6 +48,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /** A [View] that renders in-progress "wet" text highlights over PDF content. */
+@OptIn(ExperimentalPdfApi::class)
 internal class InProgressHighlightsView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :

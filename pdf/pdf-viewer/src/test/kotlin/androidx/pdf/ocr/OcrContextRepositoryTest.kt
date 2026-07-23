@@ -18,6 +18,7 @@ package androidx.pdf.ocr
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.FakePdfDocument
 import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.annotation.content.KeyedPdfObject
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@OptIn(ExperimentalPdfApi::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class OcrContextRepositoryTest {
 

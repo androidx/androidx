@@ -369,6 +369,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchLargeImage() = runTest {
@@ -392,6 +393,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchMediumImage() = runTest {
@@ -414,6 +416,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_fetchSmallImage() = runTest {
@@ -436,6 +439,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
     @Test
     fun getPageTopObject_validImageObject_notPresent() = runTest {
@@ -574,6 +578,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun applyEdits_emptyAnnotations_returnsEmptyResult() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -587,6 +592,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun applyEdits_addAnnotations_singleBatch_returnsSuccess() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -609,6 +615,7 @@ class SandboxedPdfDocumentTest {
 
     // This is a long running test the payload is approx 1MB and it takes time to propagate all the
     // the annotations over IPC.
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun applyEdits_addAnnotations_multipleBatches_returnsSuccess() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -627,6 +634,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun applyEdits_addAnnotations_singleInvalidAnnotation_throwsException() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -657,6 +665,7 @@ class SandboxedPdfDocumentTest {
 
     // This is a long running test the payload is approx 1MB and it takes time to propagate all the
     // the annotations over IPC.
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun applyEdits_addAnnotations_multipleBatches_singleInvalidAnnotation_throwsException() =
         runTest {
@@ -685,6 +694,7 @@ class SandboxedPdfDocumentTest {
             }
         }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun addOnEditAppliedListener_singleListener_isNotified() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -716,6 +726,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun addOnEditAppliedListener_multipleListeners_sameNotification() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -757,6 +768,7 @@ class SandboxedPdfDocumentTest {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun removeOnEditAppliedListener_singleListener_isEmpty() = runTest {
         if (!isAnnotationsFeatureAvailable()) return@runTest
@@ -917,6 +929,7 @@ class SandboxedPdfDocumentTest {
             return true
         }
 
+        @OptIn(ExperimentalPdfApi::class)
         private fun createDraftWithLargeAnnotations(count: Int): MutableEditsDraft {
             val draft = MutableEditsDraft()
             repeat(count) { draft.insert(createContentStampAnnotationWithPath(0, it * 100)) }

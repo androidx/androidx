@@ -30,6 +30,7 @@ import androidx.annotation.RequiresExtension
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.R as PdfR
 import androidx.pdf.ink.R
@@ -204,6 +205,7 @@ class EditablePdfViewerFragmentTests {
         onView(withId(R.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_END)))
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_toolbarMovement_updatesWetStrokesMaskPath() {
         if (!isAnnotationsFeatureAvailable()) return
@@ -338,6 +340,7 @@ class EditablePdfViewerFragmentTests {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_annotationToolbarHidden_onSearchActive() {
         if (!isAnnotationsFeatureAvailable()) return

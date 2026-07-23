@@ -17,6 +17,7 @@
 package androidx.pdf.annotation.draftstate
 
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.AnnotationHandleIdGenerator
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
@@ -63,6 +64,7 @@ class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
             ?: emptyList()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun getModificationsSnapshot(): EditsDraft {
         val builder = androidx.pdf.MutableEditsDraft()
         drafts.values.forEach { pageMap ->

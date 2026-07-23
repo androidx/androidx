@@ -18,6 +18,7 @@ package androidx.pdf.annotation.draftstate
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
 
@@ -47,7 +48,7 @@ public interface AnnotationEditsDraftState {
      * @return An [EditsDraft] object containing the ordered collection of operations (Inserts,
      *   Updates, Removes).
      */
-    public fun getModificationsSnapshot(): EditsDraft
+    @OptIn(ExperimentalPdfApi::class) public fun getModificationsSnapshot(): EditsDraft
 
     /**
      * Adds a keyed annotation to the draft.

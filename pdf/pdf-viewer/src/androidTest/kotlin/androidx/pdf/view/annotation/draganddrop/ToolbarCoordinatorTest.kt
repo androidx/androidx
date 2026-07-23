@@ -19,6 +19,7 @@ package androidx.pdf.view.annotation.draganddrop
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.util.ToolbarViewActions
 import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
@@ -38,6 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalPdfApi::class)
 class ToolbarCoordinatorTest {
 
     @get:Rule val activityRule = ActivityScenarioRule(PdfTestActivity::class.java)

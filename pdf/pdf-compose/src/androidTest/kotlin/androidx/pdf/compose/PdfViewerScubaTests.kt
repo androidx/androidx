@@ -33,6 +33,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -52,6 +53,7 @@ class PdfViewerScubaTests {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testPdfViewer_withContentPadding_rendersCorrectly_onOpen() {
         val pages = List(3) { Point(400, 500) }
@@ -80,6 +82,7 @@ class PdfViewerScubaTests {
             .assertAgainstGolden(screenshotRule, PDF_VIEW_CONTENT_PADDING_NO_SCROLL)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testPdfViewer_withContentPadding_rendersCorrectly_onScrollToBottom() {
         val pages = List(3) { Point(400, 500) }

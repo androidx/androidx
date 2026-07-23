@@ -62,6 +62,7 @@ import androidx.core.util.Pools
 import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
 import androidx.core.view.ViewCompat
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.Highlight
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
@@ -302,7 +303,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             selectionStateManager?.isImageSelectionEnabled = value
         }
 
-    private var ocrProvider: OcrProvider? = null
+    @OptIn(ExperimentalPdfApi::class) private var ocrProvider: OcrProvider? = null
 
     /**
      * Sets the [OcrProvider] used for recognizing text in image-based PDF content.
@@ -315,6 +316,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      *
      * @param ocrProvider the [OcrProvider] to use for text recognition
      */
+    @ExperimentalPdfApi
     public fun setOcrProvider(ocrProvider: OcrProvider?) {
         checkMainThread()
         if (this@PdfView.ocrProvider == ocrProvider) return
@@ -1745,6 +1747,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * We are not be able to restore our previous state if it pertains to a different document, or
      * if it is missing critical data like page layout information.
      */
+    @OptIn(ExperimentalPdfApi::class)
     private fun maybeRestoreState(): Boolean {
         val localStateToRestore = stateToRestore ?: return false
         val localPdfDocument = pdfDocument ?: return false
@@ -2033,6 +2036,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     /** Start using the [PdfDocument] to present PDF content */
     // Display.width and height are deprecated in favor of WindowMetrics, but in this case we
     // actually want to use the size of the display and not the size of the window.
+    @OptIn(ExperimentalPdfApi::class)
     private fun onDocumentSet() {
         val localPdfDocument = pdfDocument ?: return
 

@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.pdf.ink {
 
-  @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=18) public class EditablePdfViewerFragment extends androidx.pdf.viewer.fragment.PdfViewerFragment {
+  @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=18) @androidx.pdf.ExperimentalPdfApi public class EditablePdfViewerFragment extends androidx.pdf.viewer.fragment.PdfViewerFragment {
     ctor public EditablePdfViewerFragment();
     ctor protected EditablePdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
     method public final void applyDraftEdits();
@@ -20,9 +20,9 @@ package androidx.pdf.ink {
 
 }
 
-package androidx.pdf.ink.model {
+package @SuppressCompatibility androidx.pdf.ink.model {
 
-  public final class ApplyInProgressException extends java.lang.IllegalStateException {
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class ApplyInProgressException extends java.lang.IllegalStateException {
   }
 
 }

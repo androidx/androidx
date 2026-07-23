@@ -412,6 +412,7 @@ class EditablePdfViewerFragmentTestSuite {
         onView(withId(PdfInkR.id.color_palette)).check(matches(not(isDisplayed())))
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun testEditablePdfViewerFragment_annotationToolbar_isConfigPopupVisible() {
         if (!isRequiredSdkExtensionAvailable()) return

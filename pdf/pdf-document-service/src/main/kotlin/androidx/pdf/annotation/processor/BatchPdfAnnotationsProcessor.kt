@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.pdf.DraftEditOperation
 import androidx.pdf.DraftEditResult
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.PdfEditApplyException
 
@@ -54,6 +55,7 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
         onBatchedEditsApplied: (List<AppliedEdit>) -> Unit,
     ): List<String> = processInBatches(parcelableOperations, onBatchedEditsApplied)
 
+    @OptIn(ExperimentalPdfApi::class)
     private fun processInBatches(
         operations: List<DraftEditOperation>,
         onBatchedEditsApplied: (List<AppliedEdit>) -> Unit,

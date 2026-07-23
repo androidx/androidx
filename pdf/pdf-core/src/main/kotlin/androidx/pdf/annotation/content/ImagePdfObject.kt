@@ -18,6 +18,7 @@ package androidx.pdf.annotation.content
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import androidx.pdf.ExperimentalPdfApi
 
 /**
  * Represents an image object within a PDF document.
@@ -25,6 +26,7 @@ import android.graphics.RectF
  * @property bitmap The [Bitmap] data of the image.
  * @property bounds The rectangular boundaries of its position and size on the PDF page.
  */
+@ExperimentalPdfApi
 public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF) : PdfObject {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

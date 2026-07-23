@@ -18,6 +18,7 @@ package androidx.pdf.ocr
 
 import android.os.RemoteException
 import androidx.annotation.RestrictTo
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.content.ImagePdfObject
 import androidx.pdf.util.ExceptionUtils.isHandledRemoteException
@@ -32,6 +33,7 @@ import kotlinx.coroutines.sync.withLock
  * [OcrProvider] and caching them for subsequent use.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(ExperimentalPdfApi::class)
 public class OcrContextRepository(
     private val pdfDocument: PdfDocument,
     private val ocrProvider: OcrProvider,

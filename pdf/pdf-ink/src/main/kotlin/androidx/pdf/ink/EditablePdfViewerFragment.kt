@@ -41,6 +41,7 @@ import androidx.ink.authoring.InProgressStrokesView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfSandboxHandle
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.SandboxedPdfLoader
@@ -95,6 +96,7 @@ import kotlinx.coroutines.launch
  * @see applyDraftEdits
  */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
+@ExperimentalPdfApi
 public open class EditablePdfViewerFragment : PdfViewerFragment {
 
     public constructor() : super()

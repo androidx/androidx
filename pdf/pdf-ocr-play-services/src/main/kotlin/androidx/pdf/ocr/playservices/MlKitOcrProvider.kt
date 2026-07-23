@@ -19,6 +19,7 @@ package androidx.pdf.ocr.playservices
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.ocr.OcrResult
 import androidx.pdf.ocr.OcrText
@@ -30,6 +31,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
 
 /** Implementation of [OcrProvider] using ML Kit's Text Recognition. */
+@ExperimentalPdfApi
 public class MlKitOcrProvider : OcrProvider {
     private val recognizerDelegate = lazy {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -70,6 +72,7 @@ public class MlKitOcrProvider : OcrProvider {
     }
 }
 
+@OptIn(ExperimentalPdfApi::class)
 internal class MlKitOcrResult(private val text: Text) : OcrResult {
 
     private sealed class OcrItem {

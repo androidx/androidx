@@ -240,6 +240,7 @@ public interface PdfDocument : Closeable {
      * @return The topmost [PdfObject] at the specified point or returns null if no page object is
      *   present.
      */
+    @OptIn(ExperimentalPdfApi::class)
     @Suppress("HiddenAbstractMethodInInterface")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject?
@@ -289,6 +290,7 @@ public interface PdfDocument : Closeable {
      * @param executor The executor on which the listener's methods will be called.
      * @param listener the listener to add.
      */
+    @ExperimentalPdfApi
     public fun addOnEditAppliedListener(executor: Executor, listener: OnEditAppliedListener) {}
 
     /**
@@ -296,7 +298,7 @@ public interface PdfDocument : Closeable {
      *
      * @param listener the listener for notification of applied edit.
      */
-    public fun removeOnEditAppliedListener(listener: OnEditAppliedListener) {}
+    @ExperimentalPdfApi public fun removeOnEditAppliedListener(listener: OnEditAppliedListener) {}
 
     /**
      * Represents information about a single page in the PDF document.
@@ -443,6 +445,7 @@ public interface PdfDocument : Closeable {
      * Interface definition for a callback that notifies when an edit is applied using the
      * [EditablePdfDocument.applyEdits] method.
      */
+    @ExperimentalPdfApi
     public interface OnEditAppliedListener {
         /**
          * Called when an edit is applied on the document. The order of the callback is preserved

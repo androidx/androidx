@@ -25,6 +25,7 @@ import android.os.Build
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewGroup
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfPoint
 import androidx.pdf.TestUtils.assertNotNullObjectByText
 import androidx.pdf.TestUtils.assertNullObjectByText
@@ -54,6 +55,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @LargeTest
+@OptIn(ExperimentalPdfApi::class)
 class OcrProviderTest {
 
     private val imageBounds = RectF(0f, 0f, 500f, 500f)

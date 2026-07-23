@@ -18,6 +18,7 @@ package androidx.pdf.annotation.processor
 
 import androidx.pdf.DraftEditOperation
 import androidx.pdf.DraftEditResult
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfEditApplyException
 import androidx.pdf.TestDraftEditOperation
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.MAX_BATCH_SIZE_IN_BYTES
@@ -30,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalPdfApi::class)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class BatchPdfAnnotationsProcessorTest {

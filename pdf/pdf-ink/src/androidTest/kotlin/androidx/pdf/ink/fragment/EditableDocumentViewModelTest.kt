@@ -22,6 +22,7 @@ import android.net.Uri
 import android.util.SparseArray
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.FakeEditablePdfDocument
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.PdfViewportState
@@ -654,6 +655,7 @@ class EditableDocumentViewModelTest {
 
     // --- Helpers ---
 
+    @OptIn(ExperimentalPdfApi::class)
     fun createAnnotation(
         pageNum: Int = 0,
         bounds: RectF = RectF(0f, 0f, 100f, 100f),

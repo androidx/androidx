@@ -18,6 +18,7 @@ package androidx.pdf.annotation.manager
 
 import androidx.annotation.RestrictTo
 import androidx.pdf.EditsDraft
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.content.KeyedPdfAnnotation
 import androidx.pdf.annotation.content.PdfAnnotation
@@ -42,7 +43,7 @@ public interface PdfAnnotationsManager {
      *
      * @return A [EditsDraft] representing the current state of all modified items.
      */
-    public suspend fun getAnnotationModifications(): EditsDraft
+    @OptIn(ExperimentalPdfApi::class) public suspend fun getAnnotationModifications(): EditsDraft
 
     /**
      * Clears successfully applied operations from the session state.
