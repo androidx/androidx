@@ -49,7 +49,6 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.CUBIC_DECELERATE
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.clamp
@@ -73,8 +72,6 @@ class AgslRemoteShader(val remoteComposeShader: RemoteComposeShader) : RemoteSha
         val shaderId = remoteComposeShader.commit()
         paintBundle.setShader(shaderId)
     }
-
-    override var remoteMatrix3x3: RemoteMatrix3x3? = null
 }
 
 data class ChatMessage(val text: String, val isAi: Boolean, val timestamp: Float)

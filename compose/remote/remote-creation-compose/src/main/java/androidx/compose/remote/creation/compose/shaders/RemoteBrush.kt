@@ -47,54 +47,13 @@ public abstract class RemoteBrush internal constructor() {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val intrinsicSize: Size = Size.Unspecified
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader
-
     /**
      * Applies this [RemoteBrush] to a paint.
-     *
-     * Depending on whether the brush is a shader or a solid color, this method updates
-     * [RemotePaint.shader] and [RemotePaint.color] accordingly.
      *
      * @param paint The paint to apply to.
      * @param size The size of the area being drawn, used for shader calculation.
      */
-    public open fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
-        if (hasShader) {
-            paint.shader = createShader(size)
-            paint.color = Color.Black.rc
-        } else {
-            TODO("Unimplemented RemoteBrush.applyTo for ${this@RemoteBrush}")
-        }
-    }
-
-    /**
-     * Applies this [RemoteBrush] to a paint.
-     *
-     * Depending on whether the brush is a shader or a solid color, this method updates
-     * [RemotePaint.shader] and [RemotePaint.color] accordingly.
-     *
-     * @param paint The paint to apply to.
-     * @param size The size of the area being drawn, used for shader calculation.
-     * @param matrix3x3 An optional matrix to apply to the shader.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open fun RemoteStateScope.applyTo(
-        paint: RemotePaint,
-        size: RemoteSize,
-        matrix3x3: RemoteMatrix3x3? = null,
-    ) {
-        if (hasShader) {
-            paint.shader = createShader(size).apply { this.remoteMatrix3x3 = matrix3x3 }
-            paint.color = Color.Black.rc
-        } else {
-            applyTo(paint, size)
-        }
-    }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public open val hasShader: Boolean
-        get() = true
+    public abstract fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize)
 
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -118,14 +77,50 @@ public abstract class RemoteBrush internal constructor() {
     }
 }
 
+/**
+ * Brush that applies a shader to the drawn area.
+ *
+ * Base class for shader-based brushes such as gradients and image textures.
+ */
+public abstract class RemoteShaderBrush internal constructor() : RemoteBrush() {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader
+
+    override fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
+        val shader = createShader(size)
+        paint.shader = shader
+        paint.color = Color.Black.rc
+    }
+
+    /**
+     * Applies this [RemoteShaderBrush] to a [paint] with a given [size] and [matrix3x3]
+     * transformation.
+     *
+     * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasShaderMatrixSample
+     * @param paint The paint to apply the shader to.
+     * @param size The size of the area being drawn.
+     * @param matrix3x3 The 3x3 matrix to apply to the shader.
+     */
+    public open fun RemoteStateScope.applyTo(
+        paint: RemotePaint,
+        size: RemoteSize,
+        matrix3x3: RemoteMatrix3x3,
+    ) {
+        val shader = createShader(size)
+        shader.remoteMatrix3x3 = matrix3x3
+        paint.shader = shader
+        paint.color = Color.Black.rc
+    }
+}
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("DEPRECATION")
 public abstract class RemoteShader : android.graphics.Shader() {
     public abstract fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle)
 
     /**
-     * The [RemoteMatrix3x3] if any to apply to the shader. Note not all profiles will support
-     * shader rotation.
+     * The [RemoteMatrix3x3] to apply to the shader. Note not all profiles will support shader
+     * rotation.
      */
-    public abstract var remoteMatrix3x3: RemoteMatrix3x3?
+    public open var remoteMatrix3x3: RemoteMatrix3x3 = RemoteMatrix3x3.createIdentity()
 }

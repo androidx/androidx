@@ -46,8 +46,6 @@ internal class RemoteImageShader(
             0,
         )
     }
-
-    override var remoteMatrix3x3: RemoteMatrix3x3? = null
 }
 
 @Immutable
@@ -56,7 +54,7 @@ internal data class RemoteImageBrush(
     public val tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
     public val tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
     public val contentScale: ContentScale = ContentScale.None,
-) : RemoteBrush() {
+) : RemoteShaderBrush() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
@@ -65,7 +63,7 @@ internal data class RemoteImageBrush(
         }
     }
 
-    private fun createScaleMatrix(size: RemoteSize): RemoteMatrix3x3? {
+    private fun createScaleMatrix(size: RemoteSize): RemoteMatrix3x3 {
         val intrinsicWidth = bitmap.width
         val intrinsicHeight = bitmap.height
         val scaleX = size.width / intrinsicWidth
@@ -106,7 +104,7 @@ internal data class RemoteImageBrush(
                 finalScaleX = 1.rf
                 finalScaleY = 1.rf
             }
-            else -> return null
+            else -> return RemoteMatrix3x3.createIdentity()
         }
 
         val dx = (size.width - (intrinsicWidth * finalScaleX)) / 2f
@@ -134,4 +132,4 @@ public fun RemoteBrush.Companion.image(
     tileModeX: ComposeTileMode = ComposeTileMode.Clamp,
     tileModeY: ComposeTileMode = ComposeTileMode.Clamp,
     contentScale: ContentScale = ContentScale.None,
-): RemoteBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)
+): RemoteShaderBrush = RemoteImageBrush(image, tileModeX, tileModeY, contentScale)
