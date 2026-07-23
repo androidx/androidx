@@ -173,7 +173,8 @@ public class EdgeContentLayout implements androidx.wear.tiles.LayoutElementBuild
         }
 
         /**
-         * Sets the content to be around the edges. This can be {@link CircularProgressIndicator}.
+         * Sets the content to be around the edges. This can be
+         * {@link androidx.wear.tiles.material.CircularProgressIndicator}.
          */
         public @NonNull Builder setEdgeContent(
                 androidx.wear.tiles.LayoutElementBuilders.@NonNull LayoutElement edgeContent) {

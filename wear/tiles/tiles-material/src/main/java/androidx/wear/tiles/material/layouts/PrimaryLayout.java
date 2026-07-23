@@ -204,8 +204,8 @@ public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.
         /**
          * Sets the element which is in the slot at the bottom of the layout. Note that it is
          * accepted to pass in any {@link androidx.wear.tiles.LayoutElementBuilders.LayoutElement},
-         * but it is strongly recommended to add a {@link CompactChip} as the layout is optimized
-         * for it.
+         * but it is strongly recommended to add a {@link androidx.wear.tiles.material.CompactChip}
+         * as the layout is optimized for it.
          */
         public @NonNull Builder setPrimaryChipContent(
                 androidx.wear.tiles.LayoutElementBuilders.@NonNull LayoutElement compactChip) {

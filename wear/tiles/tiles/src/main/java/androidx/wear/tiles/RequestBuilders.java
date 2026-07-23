@@ -233,7 +233,7 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the tile update.
              *
-             * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
+             * @deprecated Use {@link #setDeviceConfiguration(DeviceParameters)} instead.
              */
             @Deprecated
             public @NonNull Builder setDeviceParameters(
@@ -247,7 +247,7 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.StateBuilders.State} that should be used when
              * building the tile.
              *
-             * @deprecated Use {@link setCurrentState(State)} instead.
+             * @deprecated Use {@link #setCurrentState(State)} instead.
              */
             @Deprecated
             public @NonNull Builder setState(
@@ -430,7 +430,7 @@ public final class RequestBuilders {
              * Sets the {@link androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters}
              * describing the device requesting the resources.
              *
-             * @deprecated Use {@link setDeviceConfiguration(DeviceParameters)} instead.
+             * @deprecated Use {@link #setDeviceConfiguration(DeviceParameters)} instead.
              */
             @Deprecated
             public @NonNull Builder setDeviceParameters(

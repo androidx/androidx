@@ -29,8 +29,8 @@ import java.util.Collection;
 /**
  * Helper class used for Tiles Material.
  *
- * @deprecated Use the new class {@link androidx.wear.protolayout.material.Helper} which provides
- *     the same API and functionality.
+ * @deprecated Use the new class {@link androidx.wear.protolayout.materialcore.Helper} which
+ *     provides the same API and functionality.
  */
 @Deprecated
 @SuppressWarnings("deprecation")

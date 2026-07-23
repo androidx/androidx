@@ -106,8 +106,9 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
         /**
          * Add one new button to the layout. Note that it is accepted to pass in any {@link
          * androidx.wear.tiles.LayoutElementBuilders.LayoutElement}, but it is strongly recommended
-         * to add a {@link Button} as the layout is optimized for it. Any button added after {@link
-         * LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} is reached will be discarded.
+         * to add a {@link androidx.wear.tiles.material.Button} as the layout is optimized for it.
+         * Any button added after {@link LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} is reached will be
+         * discarded.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter, but there is a getter that gets all
