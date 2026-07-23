@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
@@ -56,8 +54,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,12 +69,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun WideNavigationRailResponsiveSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -95,6 +92,7 @@ fun WideNavigationRailResponsiveSample() {
             state = state,
             header = {
                 // Header icon button should have a tooltip.
+                @OptIn(ExperimentalMaterial3Api::class)
                 TooltipBox(
                     positionProvider =
                         TooltipDefaults.rememberTooltipPositionProvider(
@@ -182,12 +180,11 @@ fun WideNavigationRailResponsiveSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun ModalWideNavigationRailSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -209,6 +206,7 @@ fun ModalWideNavigationRailSample() {
             expandedHeaderTopPadding = 64.dp,
             header = {
                 // Header icon button should have a tooltip.
+                @OptIn(ExperimentalMaterial3Api::class)
                 TooltipBox(
                     positionProvider =
                         TooltipDefaults.rememberTooltipPositionProvider(
@@ -297,7 +295,7 @@ fun ModalWideNavigationRailSample() {
 @Sampled
 @Composable
 fun DismissibleModalWideNavigationRailSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -340,7 +338,7 @@ fun DismissibleModalWideNavigationRailSample() {
 @Sampled
 @Composable
 fun WideNavigationRailCollapsedSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -367,7 +365,7 @@ fun WideNavigationRailCollapsedSample() {
 @Sampled
 @Composable
 fun WideNavigationRailExpandedSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -395,14 +393,14 @@ fun WideNavigationRailExpandedSample() {
 @Preview
 @Composable
 fun WideNavigationRailArrangementsSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
         listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.StarBorder)
     val state = rememberWideNavigationRailState()
     val scope = rememberCoroutineScope()
-    var arrangement: Arrangement.Vertical by remember { mutableStateOf(Arrangement.Center) }
+    var isArrangementCenter by rememberSaveable { mutableStateOf(true) }
     val headerDescription =
         if (state.targetValue == WideNavigationRailValue.Expanded) {
             "Collapse rail"
@@ -413,9 +411,10 @@ fun WideNavigationRailArrangementsSample() {
     Row(Modifier.fillMaxWidth()) {
         WideNavigationRail(
             state = state,
-            arrangement = arrangement,
+            arrangement = if (isArrangementCenter) Arrangement.Center else Arrangement.Bottom,
             header = {
                 // Header icon button should have a tooltip.
+                @OptIn(ExperimentalMaterial3Api::class)
                 TooltipBox(
                     positionProvider =
                         TooltipDefaults.rememberTooltipPositionProvider(
@@ -483,19 +482,12 @@ fun WideNavigationRailArrangementsSample() {
             }
         }
 
-        val isArrangementCenter = arrangement == Arrangement.Center
         val changeToString = if (isArrangementCenter) "Bottom" else "Center"
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(modifier = Modifier.padding(16.dp), text = "Change arrangement to:")
             Button(
                 modifier = Modifier.padding(4.dp),
-                onClick = {
-                    if (isArrangementCenter) {
-                        arrangement = Arrangement.Bottom
-                    } else {
-                        arrangement = Arrangement.Center
-                    }
-                },
+                onClick = { isArrangementCenter = !isArrangementCenter },
             ) {
                 Text(changeToString)
             }
@@ -514,7 +506,7 @@ fun WideNavigationRailArrangementsSample() {
 @Sampled
 @Composable
 fun NavigationRailSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
@@ -538,7 +530,7 @@ fun NavigationRailSample() {
 
 @Composable
 fun NavigationRailBottomAlignSample() {
-    var selectedItem by remember { mutableIntStateOf(0) }
+    var selectedItem by rememberSaveable { mutableIntStateOf(0) }
     val items = listOf("Home", "Search", "Settings")
     val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
     val unselectedIcons =
