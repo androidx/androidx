@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX") // Referring to RemoteText, drawCircle, remote-core
+@file:Suppress(
+    "RestrictedApiAndroidX"
+) // Referring to RemoteText, drawCircle, remote-core, valueChange, width
 
 package androidx.compose.remote.integration.view.demos.examples
 
