@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.launch
@@ -68,7 +69,7 @@ private class HoverableElement(private val interactionSource: MutableInteraction
 }
 
 private class HoverableNode(private var interactionSource: MutableInteractionSource) :
-    PointerInputModifierNode, Modifier.Node() {
+    PointerInputModifierNode, Modifier.Node(), UnplacedAwareModifierNode {
     private var hoverInteraction: HoverInteraction.Enter? = null
 
     fun updateInteractionSource(interactionSource: MutableInteractionSource) {
@@ -97,6 +98,10 @@ private class HoverableNode(private var interactionSource: MutableInteractionSou
     }
 
     override fun onDetach() {
+        tryEmitExit()
+    }
+
+    override fun onUnplaced() {
         tryEmitExit()
     }
 
