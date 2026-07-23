@@ -104,6 +104,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     isLookingAhead: Boolean,
     approachLayoutInfo: LazyStaggeredGridLayoutInfo?,
     graphicsContext: GraphicsContext,
+    cacheWindowLogic: LazyStaggeredGridCacheWindowLogic?,
 ): LazyStaggeredGridMeasureResult {
     val context =
         LazyStaggeredGridMeasureContext(
@@ -125,6 +126,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
             isLookingAhead = isLookingAhead,
             approachVisibleItems = approachLayoutInfo?.visibleItemsInfo,
             graphicsContext = graphicsContext,
+            cacheWindowLogic = cacheWindowLogic,
         )
 
     val initialItemIndices: IntArray
@@ -211,6 +213,7 @@ internal class LazyStaggeredGridMeasureContext(
     val isLookingAhead: Boolean,
     val approachVisibleItems: List<LazyStaggeredGridItemInfo>?,
     val graphicsContext: GraphicsContext,
+    val cacheWindowLogic: LazyStaggeredGridCacheWindowLogic?,
 ) {
     val measuredItemProvider =
         object :
@@ -325,6 +328,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 scrollBackAmount = 0f,
                 coroutineScope = coroutineScope,
                 reverseLayout = reverseLayout,
+                cacheWindowLogic = cacheWindowLogic,
             )
         }
 
@@ -1010,6 +1014,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             density = this,
             coroutineScope = coroutineScope,
             reverseLayout = reverseLayout,
+            cacheWindowLogic = cacheWindowLogic,
         )
     }
 }

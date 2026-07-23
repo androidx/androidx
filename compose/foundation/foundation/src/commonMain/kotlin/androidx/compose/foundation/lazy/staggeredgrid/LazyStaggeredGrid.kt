@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -23,12 +24,15 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.unit.Dp
@@ -59,12 +63,31 @@ internal fun LazyStaggeredGrid(
     mainAxisSpacing: Dp = 0.dp,
     /** The horizontal spacing for items/lines. */
     crossAxisSpacing: Dp = 0.dp,
+    /**
+     * cacheWindow specifies the size of the ahead and behind window to be used as per
+     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     */
+    cacheWindow: LazyLayoutCacheWindow,
     /** The content of the grid */
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
     val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
     val coroutineScope = rememberCoroutineScope()
     val graphicsContext = LocalGraphicsContext.current
+    val cacheWindowLogic =
+        remember(state, cacheWindow) {
+            if (ComposeFoundationFlags.isUsingCacheWindowInStaggeredGrids)
+                LazyStaggeredGridCacheWindowLogic(
+                    cacheWindow = cacheWindow,
+                    laneCount = { Snapshot.withoutReadObservation { state.laneCount } },
+                    laneInfo = Snapshot.withoutReadObservation { state.laneInfo },
+                    prefetchState = Snapshot.withoutReadObservation { state.prefetchState },
+                    isRequestHighPriority = {
+                        Snapshot.withoutReadObservation { state.executeRequestsInHighPriorityMode }
+                    },
+                )
+            else null
+        }
     val measurePolicy =
         rememberStaggeredGridMeasurePolicy(
             state,
@@ -77,6 +100,7 @@ internal fun LazyStaggeredGrid(
             coroutineScope,
             slots,
             graphicsContext,
+            cacheWindowLogic,
         )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 

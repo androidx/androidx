@@ -477,6 +477,8 @@ internal constructor(
                 latestPageSizeWithSpacing
 
             override fun Density.calculateBehindWindow(viewport: Int): Int = 0
+
+            override val isNonScrollCachingEnabled = false
         }
 
     private val _scrollIndicatorState =
