@@ -399,6 +399,7 @@ package androidx.mediarouter.media {
     method @MainThread public androidx.mediarouter.media.MediaRouterParams? getRouterParams();
     method @MainThread public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getRoutes();
     method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
+    method public static boolean isMediaTransferEnabled();
     method @MainThread public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
     method @MainThread public void registerDeviceSuggestionsUpdatesCallback(androidx.mediarouter.media.MediaRouter.DeviceSuggestionsUpdatesCallback, java.util.concurrent.Executor?);
     method @MainThread public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
