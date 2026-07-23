@@ -86,7 +86,7 @@ class VideoPlayerFragment : Fragment() {
 
             // This strategy handles disposing the Composition when the Fragment's
             // View lifecycle is destroyed, preventing memory leaks.
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
             // Set the Compose content for this Fragment.
             setContent {

@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.currentStateAsState
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -61,7 +60,6 @@ import androidx.xr.scenecore.GltfModelEntity
 import java.nio.file.Paths
 import kotlin.random.Random
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /*
  * Testing if the session lifecycle fires with the activity lifecycle by creating
@@ -76,24 +74,31 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContent {
+            var isReady by remember { mutableStateOf(false) }
 
-        lifecycleScope.launch {
-            val result: SessionCreateResult = Session.create(context = this@RuntimeSessionActivity)
-            currentSession =
-                if (result is SessionCreateSuccess) {
-                    result.session
-                } else {
-                    Log.e(
-                        TAG,
-                        "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
-                    )
-                    null
-                }
+            if (isReady) {
+                RuntimeSessionContent()
+            }
 
-            // Load 3D models once the session is created
-            currentSession?.let { session -> load3DModels(session) }
+            LaunchedEffect(Unit) {
+                val result: SessionCreateResult =
+                    Session.create(context = this@RuntimeSessionActivity)
+                currentSession =
+                    if (result is SessionCreateSuccess) {
+                        result.session
+                    } else {
+                        Log.e(
+                            TAG,
+                            "[$activityName] Failed to create Session: ${result.javaClass.simpleName}",
+                        )
+                        null
+                    }
 
-            setContent { RuntimeSessionContent() }
+                // Load 3D models once the session is created
+                currentSession?.let { session -> load3DModels(session) }
+                isReady = true
+            }
         }
     }
 

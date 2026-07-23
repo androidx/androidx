@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -73,7 +72,6 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorSpace
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /** Represents the different states of the AnchorFollowingSubspaceActivity. */
 sealed interface AppState {
@@ -108,18 +106,26 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            val sessionResult = Session.create(context = this@AnchorFollowingSubspaceActivity)
-            if (sessionResult is SessionCreateSuccess) {
-                session = sessionResult.session
-                session.configure(
-                    Config.Builder()
-                        .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-                        .build()
-                )
-                setContent { MainApp() }
-            } else {
-                finish()
+        setContent {
+            var sessionCreated by remember { mutableStateOf(false) }
+
+            if (sessionCreated) {
+                MainApp()
+            }
+
+            LaunchedEffect(Unit) {
+                val sessionResult = Session.create(context = this@AnchorFollowingSubspaceActivity)
+                if (sessionResult is SessionCreateSuccess) {
+                    session = sessionResult.session
+                    session.configure(
+                        Config.Builder()
+                            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                            .build()
+                    )
+                    sessionCreated = true
+                } else {
+                    finish()
+                }
             }
         }
     }
