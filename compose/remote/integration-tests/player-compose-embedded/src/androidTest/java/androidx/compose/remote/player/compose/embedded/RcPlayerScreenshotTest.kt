@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,14 +71,14 @@ class RcPlayerScreenshotTest {
                         RemoteColumn(
                             modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color.Blue.rc)
                         ) {
-                            RemoteText("Column 1", color = Color.Green.rc)
-                            RemoteText("Column 2")
+                            RemoteText("Column 1".rs, color = Color.Green.rc)
+                            RemoteText("Column 2".rs)
                         }
                         RemoteColumn(
                             modifier = RemoteModifier.fillMaxSize().border(1.rdp, Color.Blue.rc)
                         ) {
-                            RemoteText("Row 1")
-                            RemoteText("Row 2")
+                            RemoteText("Row 1".rs)
+                            RemoteText("Row 2".rs)
                         }
                     }
                 }
@@ -102,15 +103,15 @@ class RcPlayerScreenshotTest {
                             modifier = RemoteModifier.padding(8.rdp).border(2.rdp, Color.Black.rc)
                         ) {
                             RemoteText(
-                                "Flow 1",
+                                "Flow 1".rs,
                                 modifier = RemoteModifier.background(Color.Red.rc).padding(4.rdp),
                             )
                             RemoteText(
-                                "Flow 2",
+                                "Flow 2".rs,
                                 modifier = RemoteModifier.background(Color.Green.rc).padding(4.rdp),
                             )
                             RemoteText(
-                                "Flow 3",
+                                "Flow 3".rs,
                                 modifier = RemoteModifier.background(Color.Blue.rc).padding(4.rdp),
                             )
                         }

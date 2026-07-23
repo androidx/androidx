@@ -28,8 +28,10 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.rotate
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
@@ -49,19 +51,19 @@ fun RotateDemo() {
 @RemoteComposable
 private fun RotateDemoContent() {
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-        RemoteText("Rotate: 0f")
+        RemoteText("Rotate: 0f".rs)
         Content(RemoteModifier.rotate(0f.rf))
 
-        RemoteText("Rotate: 45f")
+        RemoteText("Rotate: 45f".rs)
         Content(RemoteModifier.rotate(45f.rf))
 
-        RemoteText("Rotate: 60f")
+        RemoteText("Rotate: 60f".rs)
         Content(RemoteModifier.rotate(60f.rf))
 
-        RemoteText("Rotate: 90f")
+        RemoteText("Rotate: 90f".rs)
         Content(RemoteModifier.rotate(90f.rf))
 
-        RemoteText("Rotate: -45f")
+        RemoteText("Rotate: -45f".rs)
         Content(RemoteModifier.rotate((-45f).rf))
     }
 }
@@ -71,9 +73,9 @@ private fun RotateDemoContent() {
 @RemoteComposable
 private fun Content(testModifier: RemoteModifier) {
     RemoteBox(
-        modifier = RemoteModifier.size(100.rdp).background(Color.Red),
+        modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc),
         contentAlignment = RemoteAlignment.Center,
     ) {
-        RemoteBox(modifier = testModifier.size(50.rdp).background(Color.Blue))
+        RemoteBox(modifier = testModifier.size(50.rdp).background(Color.Blue.rc))
     }
 }

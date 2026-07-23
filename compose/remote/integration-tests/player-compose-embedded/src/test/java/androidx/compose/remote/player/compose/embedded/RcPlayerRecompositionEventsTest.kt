@@ -114,7 +114,7 @@ class RcPlayerRecompositionEventsTest {
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
                 writerEvents = WriterEvents(),
                 coroutineContext = Dispatchers.Main,
-                content = { RemoteText(state.value) },
+                content = { RemoteText(state.value.rs) },
             )
 
         var document by mutableStateOf<CoreDocument?>(null)
@@ -164,7 +164,7 @@ class RcPlayerRecompositionEventsTest {
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
                 writerEvents = WriterEvents(),
                 coroutineContext = Dispatchers.Main,
-                content = { RemoteText(derivedText.value) },
+                content = { RemoteText(derivedText.value.rs) },
             )
 
         var document by mutableStateOf<CoreDocument?>(null)
@@ -226,7 +226,7 @@ class RcPlayerRecompositionEventsTest {
                             text = "Updated: ${triggerState.value}"
                         }
                     }
-                    RemoteText(text)
+                    RemoteText(text.rs)
                 },
             )
 
@@ -285,7 +285,7 @@ class RcPlayerRecompositionEventsTest {
                 content = {
                     CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                         val text by stateFlow.collectAsStateWithLifecycle()
-                        RemoteText(text)
+                        RemoteText(text.rs)
                     }
                 },
             )
@@ -401,9 +401,9 @@ class RcPlayerRecompositionEventsTest {
                 coroutineContext = Dispatchers.Main,
                 content = {
                     if (displayState.value) {
-                        RemoteText("True Branch")
+                        RemoteText("True Branch".rs)
                     } else {
-                        RemoteText("False Branch")
+                        RemoteText("False Branch".rs)
                     }
                 },
             )
@@ -473,9 +473,9 @@ class RcPlayerRecompositionEventsTest {
                 coroutineContext = Dispatchers.Main,
                 content = {
                     if (displayState.value) {
-                        RemoteText("True Branch")
+                        RemoteText("True Branch".rs)
                     } else {
-                        RemoteText("False Branch")
+                        RemoteText("False Branch".rs)
                     }
                 },
             )
@@ -552,7 +552,7 @@ class RcPlayerRecompositionEventsTest {
                 writerEvents = WriterEvents(),
                 content = {
                     state.value
-                    RemoteText("Same Content")
+                    RemoteText("Same Content".rs)
                 },
             )
 
@@ -590,7 +590,7 @@ class RcPlayerRecompositionEventsTest {
                 content = {
                     CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                         val text by stateFlow.collectAsStateWithLifecycle()
-                        RemoteText(text)
+                        RemoteText(text.rs)
                     }
                 },
             )

@@ -63,7 +63,7 @@ class RemoteColorCompositeOverScreenshotTest {
             remoteCreationDisplayInfo = getScaledDisplayInfo(300, 510, 240)
         ) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.White).padding(8.rdp)
+                modifier = RemoteModifier.fillMaxSize().background(Color.White.rc).padding(8.rdp)
             ) {
                 // Case 1: Constant Blue + 50% Red
                 ComparisonRow(
@@ -159,17 +159,17 @@ class RemoteColorCompositeOverScreenshotTest {
         composeResult: RemoteColor,
     ) {
         RemoteColumn {
-            RemoteText(text = title, fontSize = 9.rsp, color = Color.Black.rc)
+            RemoteText(text = title.rs, fontSize = 9.rsp, color = Color.Black.rc)
             RemoteSpacer(modifier = RemoteModifier.height(2.rdp))
 
             // Row 1: Remote Blend
             RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(bg))
-                RemoteText(text = " + ", fontSize = 8.rsp, color = Color.Gray.rc)
+                RemoteText(text = " + ".rs, fontSize = 8.rsp, color = Color.Gray.rc)
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(fg))
-                RemoteText(text = " = ", fontSize = 8.rsp, color = Color.Gray.rc)
+                RemoteText(text = " = ".rs, fontSize = 8.rsp, color = Color.Gray.rc)
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(remoteResult))
-                RemoteText(text = " (Rem)", fontSize = 7.rsp, color = Color.Gray.rc)
+                RemoteText(text = " (Rem)".rs, fontSize = 7.rsp, color = Color.Gray.rc)
             }
 
             RemoteSpacer(modifier = RemoteModifier.height(2.rdp))
@@ -177,11 +177,11 @@ class RemoteColorCompositeOverScreenshotTest {
             // Row 2: Compose Blend
             RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(bg))
-                RemoteText(text = " + ", fontSize = 8.rsp, color = Color.Gray.rc)
+                RemoteText(text = " + ".rs, fontSize = 8.rsp, color = Color.Gray.rc)
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(fg))
-                RemoteText(text = " = ", fontSize = 8.rsp, color = Color.Gray.rc)
+                RemoteText(text = " = ".rs, fontSize = 8.rsp, color = Color.Gray.rc)
                 RemoteBox(modifier = RemoteModifier.size(20.rdp).background(composeResult))
-                RemoteText(text = " (Comp)", fontSize = 7.rsp, color = Color.Gray.rc)
+                RemoteText(text = " (Comp)".rs, fontSize = 7.rsp, color = Color.Gray.rc)
             }
         }
     }

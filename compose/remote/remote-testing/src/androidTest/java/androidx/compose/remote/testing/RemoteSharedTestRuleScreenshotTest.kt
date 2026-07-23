@@ -71,7 +71,7 @@ class RemoteSharedTestRuleScreenshotTest {
         remoteContentTestRule.setContent(createCreationDisplayInfo(context)) {
             val text = rememberMutableRemoteString("Initial")
             RemoteBox(
-                modifier = RemoteModifier.fillMaxSize().background(Color.White),
+                modifier = RemoteModifier.fillMaxSize().background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(text, color = Color.Black.rc)

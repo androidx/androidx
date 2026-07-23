@@ -73,7 +73,7 @@ class BackgroundModifierTest {
 
     @Test
     fun testConstantColorBackground() {
-        val color = Color.Red
+        val color = Color.Red.rc
         val modifier = RemoteModifier.background(color)
         val recordingModifier = creationState.toRecordingModifier(modifier)
 

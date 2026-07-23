@@ -75,7 +75,7 @@ private fun HorizontalScrollDemoContent() {
                     modifier = RemoteModifier.fillMaxHeight().width(200.rdp).background(color),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Item #$index", color = Color.White.rc)
+                    RemoteText("Item #$index".rs, color = Color.White.rc)
                 }
             }
         }

@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -92,7 +93,7 @@ class WearWidgetCaptureTest {
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteBox(modifier = RemoteModifier.size(100.rdp))
                 RemoteText(
-                    text = "text-0",
+                    text = "text-0".rs,
                     modifier =
                         RemoteModifier.clickable(
                             pendingIntentAction { localContext ->
@@ -101,7 +102,7 @@ class WearWidgetCaptureTest {
                         ),
                 )
                 RemoteText(
-                    text = "text-1",
+                    text = "text-1".rs,
                     modifier =
                         RemoteModifier.clickable(
                             pendingIntentAction { localContext ->

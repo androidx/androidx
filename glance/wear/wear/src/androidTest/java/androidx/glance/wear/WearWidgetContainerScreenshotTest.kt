@@ -96,6 +96,6 @@ private fun TestWearWidget() {
         cornerRadius = 26.rdp,
         background = WearWidgetBrush.color(Color.Blue.rc),
     ) {
-        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow))
+        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc))
     }
 }

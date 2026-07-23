@@ -101,7 +101,7 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                                 .border(2.rdp, Color.Blue.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs)
+                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -135,7 +135,7 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                                 .border(2.rdp, Color.Blue.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs)
+                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -169,7 +169,7 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                                 .border(2.rdp, Color.Blue.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs)
+                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -198,7 +198,7 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                                 .border(2.rdp, Color.Blue.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs)
+                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -232,7 +232,7 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                                 .border(2.rdp, Color.Blue.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs)
+                        RemoteText(color = Color.White.rc, text = "Hello world!".rs)
                     }
                 }
                 .bytes
@@ -268,7 +268,11 @@ class CaptureRemoteDocumentV2Test {
                                 .border(2.rdp, Color.Blue.rc)
                                 .background(Color.DarkGray.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs, fontSize = 12.rsp)
+                        RemoteText(
+                            color = Color.White.rc,
+                            text = "Hello world!".rs,
+                            fontSize = 12.rsp,
+                        )
                     }
                 }
                 .bytes
@@ -301,7 +305,11 @@ class CaptureRemoteDocumentV2Test {
                                 .border(2.rdp, Color.Blue.rc)
                                 .background(Color.DarkGray.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs, fontSize = 30.rsp)
+                        RemoteText(
+                            color = Color.White.rc,
+                            text = "Hello world!".rs,
+                            fontSize = 30.rsp,
+                        )
                     }
                 }
                 .bytes
@@ -334,7 +342,11 @@ class CaptureRemoteDocumentV2Test {
                                 .border(2.rdp, Color.Blue.rc)
                                 .background(Color.DarkGray.rc)
                     ) {
-                        RemoteText(text = "Hello world!".rs, fontSize = 18.rsp)
+                        RemoteText(
+                            color = Color.White.rc,
+                            text = "Hello world!".rs,
+                            fontSize = 18.rsp,
+                        )
                     }
                 }
                 .bytes
@@ -366,7 +378,11 @@ class CaptureRemoteDocumentV2Test {
                                 .background(Color.DarkGray.rc)
                     ) {
                         RemoteColumn {
-                            RemoteText(text = "No font scale override".rs, fontSize = 12.rsp)
+                            RemoteText(
+                                color = Color.White.rc,
+                                text = "No font scale override".rs,
+                                fontSize = 12.rsp,
+                            )
                             DeviceConfigurationOverride(
                                 DeviceConfigurationOverride.FontScale(2.0f) then
                                     DeviceConfigurationOverride.FontWeightAdjustment(200)
@@ -375,7 +391,11 @@ class CaptureRemoteDocumentV2Test {
                                     LocalRemoteDensity provides
                                         RemoteDensity(LocalRemoteDensity.current.density, 2.0f.rf)
                                 ) {
-                                    RemoteText(text = "Font scale override".rs, fontSize = 12.rsp)
+                                    RemoteText(
+                                        color = Color.White.rc,
+                                        text = "Font scale override".rs,
+                                        fontSize = 12.rsp,
+                                    )
                                 }
                             }
                         }

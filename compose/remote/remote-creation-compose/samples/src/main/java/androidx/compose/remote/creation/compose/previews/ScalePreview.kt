@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.scale
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -34,6 +35,6 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @Composable
 private fun ScaleModifierPreview() {
     RemoteBox(
-        RemoteModifier.size(100.rdp).scale(scaleX = 2f.rf, scaleY = 3f.rf).background(Color.Red)
+        RemoteModifier.size(100.rdp).scale(scaleX = 2f.rf, scaleY = 3f.rf).background(Color.Red.rc)
     )
 }

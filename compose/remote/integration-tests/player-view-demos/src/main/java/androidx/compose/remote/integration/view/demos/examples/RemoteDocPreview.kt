@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -75,7 +76,7 @@ internal fun RemoteDocumentPreview(@RawRes resId: Int) {
                 .onFailure {
                     RemoteContentPreview {
                         RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
-                            RemoteText("Failed to load file with id: $resId")
+                            RemoteText("Failed to load file with id: $resId".rs)
                         }
                     }
                 }

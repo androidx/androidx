@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
@@ -48,37 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-public fun RemoteText(
-    text: String,
-    modifier: RemoteModifier = RemoteModifier,
-    color: RemoteColor = RemoteColor(Color.Black),
-    fontSize: RemoteTextUnit? = null,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: RemoteFontFamily? = null,
-    textAlign: TextAlign = TextAlign.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    style: RemoteTextStyle = RemoteTextStyle.Default,
-) {
-    RemoteText(
-        text = text.rs,
-        modifier = modifier,
-        color = color,
-        fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        textAlign = textAlign,
-        overflow = overflow,
-        maxLines = maxLines,
-        style = style,
-    )
-}
 
 /**
  * Remote composable that displays text.
@@ -141,7 +109,7 @@ public fun RemoteText(
 
     RemoteText(
         text = text,
-        color = color ?: Color.White.rc,
+        color = color ?: style.color ?: Color.Black.rc,
         fontSize = fontSizeUnit,
         modifier = modifier,
         fontStyle = style.fontStyle ?: FontStyle.Normal,

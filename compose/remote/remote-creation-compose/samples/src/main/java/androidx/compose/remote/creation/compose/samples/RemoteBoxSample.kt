@@ -36,10 +36,10 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @Composable
 fun RemoteBoxSample() {
     RemoteBox(
-        modifier = RemoteModifier.size(200.rdp).background(Color.LightGray),
+        modifier = RemoteModifier.size(200.rdp).background(Color.LightGray.rc),
         contentAlignment = RemoteAlignment.Center,
     ) {
-        RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue))
+        RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Blue.rc))
         RemoteText(text = "Centered".rs, color = Color.White.rc)
     }
 }

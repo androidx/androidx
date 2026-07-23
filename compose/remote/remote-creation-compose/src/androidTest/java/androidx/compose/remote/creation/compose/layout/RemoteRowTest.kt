@@ -27,8 +27,10 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
@@ -305,12 +307,12 @@ class RemoteRowTest {
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE))
+                                                    .background(Color(0xFF6200EE).rc)
                                         )
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6))
+                                                    .background(Color(0xFF03DAC6).rc)
                                         )
                                     }
                                 }
@@ -326,24 +328,24 @@ class RemoteRowTest {
             RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
                 RemoteRow(modifier = RemoteModifier.fillMaxWidth()) {
                     RemoteText(
-                        text = "Large String",
+                        text = "Large String".rs,
                         fontSize = 40.rsp,
                         modifier = RemoteModifier.alignByBaseline(),
                     )
                     RemoteText(
-                        text = "Small String",
+                        text = "Small String".rs,
                         fontSize = 14.rsp,
                         modifier = RemoteModifier.alignByBaseline(),
                     )
                 }
                 RemoteRow(modifier = RemoteModifier.fillMaxWidth()) {
                     RemoteText(
-                        text = "Small String",
+                        text = "Small String".rs,
                         fontSize = 14.rsp,
                         modifier = RemoteModifier.alignByBaseline(),
                     )
                     RemoteText(
-                        text = "Large String",
+                        text = "Large String".rs,
                         fontSize = 40.rsp,
                         modifier = RemoteModifier.alignByBaseline(),
                     )
@@ -362,15 +364,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -385,15 +387,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -408,15 +410,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -431,15 +433,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -456,15 +458,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -479,15 +481,15 @@ class RemoteRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }

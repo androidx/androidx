@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.role
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.text
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -102,7 +103,7 @@ class RcPlayerSemanticsModifierTest {
                             role = Role.Switch
                         }
                         .size(40.rdp)
-                        .background(Color(0xFF3F51B5))
+                        .background(Color(0xFF3F51B5).rc)
             )
         }
 
@@ -118,7 +119,7 @@ class RcPlayerSemanticsModifierTest {
                 modifier =
                     RemoteModifier.semantics { text = "labelled box".rs }
                         .size(40.rdp)
-                        .background(Color(0xFF3F51B5))
+                        .background(Color(0xFF3F51B5).rc)
             )
         }
 
@@ -137,7 +138,7 @@ class RcPlayerSemanticsModifierTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "inner".rs }
                             .size(40.rdp)
-                            .background(Color(0xFFAA0000))
+                            .background(Color(0xFFAA0000).rc)
                 )
             }
         }
@@ -157,7 +158,7 @@ class RcPlayerSemanticsModifierTest {
                         }
                         .size(100.rdp)
             ) {
-                RemoteText(text = "inner label")
+                RemoteText(text = "inner label".rs)
             }
         }
 

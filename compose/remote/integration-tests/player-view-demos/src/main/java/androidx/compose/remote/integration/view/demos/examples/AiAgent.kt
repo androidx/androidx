@@ -57,6 +57,7 @@ import androidx.compose.remote.creation.compose.state.interpolateRemoteFloat
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -116,7 +117,7 @@ fun AiAgent(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
     val time = (rawTime + (loopDuration * 1000f).rf) % loopDuration.rf
 
     RemoteBox(
-        modifier = RemoteModifier.fillMaxSize().background(Color.Black),
+        modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
         contentAlignment = RemoteAlignment.TopCenter,
     ) {
         RemoteColumn(
@@ -156,7 +157,7 @@ fun AiAgent(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
                 FitBox(modifier = RemoteModifier.fillMaxWidth(0.95f)) {
                     arrayOf(16.rsp, 14.rsp, 12.rsp, 10.rsp, 8.rsp).forEach { size ->
                         RemoteText(
-                            text = "edsger-saga-6-7, v0.42.0-nightly.git.487fb21",
+                            text = "edsger-saga-6-7, v0.42.0-nightly.git.487fb21".rs,
                             fontSize = size,
                             color = Color.Gray.rc,
                             fontWeight = FontWeight.Bold,
@@ -181,7 +182,7 @@ private fun ChatBubble(message: ChatMessage, alpha: RemoteFloat, animate: Boolea
             modifier =
                 RemoteModifier.size(bubbleWidth, 90.rdp)
                     .clip(RemoteRoundedCornerShape(24.rdp))
-                    .background(Color.Black),
+                    .background(Color.Black.rc),
             contentAlignment = RemoteAlignment.Center,
         ) {
             // Glow layers (No blur, no layers, just pure shader drawing)
@@ -192,7 +193,7 @@ private fun ChatBubble(message: ChatMessage, alpha: RemoteFloat, animate: Boolea
             FitBox(modifier = RemoteModifier.fillMaxSize().padding(horizontal = 16.rdp)) {
                 arrayOf(16.rsp, 14.rsp, 12.rsp, 10.rsp, 8.rsp).forEach { size ->
                     RemoteText(
-                        text = message.text,
+                        text = message.text.rs,
                         fontSize = size,
                         color = Color.White.rc,
                         fontWeight = FontWeight.Medium,

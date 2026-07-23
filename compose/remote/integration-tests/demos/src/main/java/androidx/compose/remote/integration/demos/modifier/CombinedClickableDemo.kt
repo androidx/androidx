@@ -95,7 +95,7 @@ private fun CombinedClickableDemoContent() {
                     .padding(RemoteDp(16.dp)),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteText("Tap me!")
+            RemoteText("Tap me!".rs)
         }
     }
 }

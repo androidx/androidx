@@ -21,6 +21,7 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,7 +71,7 @@ class CaptureRemoteDocumentRecompositionTest {
                 writerEvents = WriterEvents(),
                 context = context,
                 coroutineContext = coroutineContext,
-                content = { RemoteText(state.value) },
+                content = { RemoteText(state.value.rs) },
             )
 
         val documents = mutableListOf<ByteArray>()
@@ -116,7 +117,7 @@ class CaptureRemoteDocumentRecompositionTest {
                             text = "Updated ${keyState.value}"
                         }
                     }
-                    RemoteText(text)
+                    RemoteText(text.rs)
                 },
             )
 
@@ -163,7 +164,7 @@ class CaptureRemoteDocumentRecompositionTest {
                 coroutineContext = coroutineContext,
                 content = {
                     val text by stateFlow.collectAsState()
-                    RemoteText(text)
+                    RemoteText(text.rs)
                 },
             )
 

@@ -29,7 +29,9 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -61,7 +63,7 @@ class GridScreenshotUI(
                     for ((label, content) in row) {
                         RemoteColumn(modifier = RemoteModifier.width(ContainerSize)) {
                             RemoteText(
-                                label,
+                                label.rs,
                                 modifier = RemoteModifier.width(ContainerSize).height(20.rdp),
                                 color = RemoteColor(Color.White),
                                 fontSize = 8.rsp,
@@ -110,7 +112,7 @@ private fun Container(
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     RemoteBox(
-        modifier = modifier.size(size).background(Color(0xFFCFD8DC)),
+        modifier = modifier.size(size).background(Color(0xFFCFD8DC).rc),
         contentAlignment = RemoteAlignment.CenterStart,
         content = content,
     )

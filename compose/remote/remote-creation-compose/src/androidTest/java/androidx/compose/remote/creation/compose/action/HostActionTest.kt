@@ -124,7 +124,7 @@ class HostActionTest {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText("Hello World")
+                RemoteText("Hello World".rs)
                 RemoteText("Value: ".rs + valueString)
             }
         }
