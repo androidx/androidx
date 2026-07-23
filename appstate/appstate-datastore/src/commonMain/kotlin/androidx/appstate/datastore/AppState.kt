@@ -25,9 +25,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.okio.OkioStorage
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.allSupertypes
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -35,6 +38,30 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
+import okio.FileSystem
+import okio.Path.Companion.toPath
+
+/**
+ * Listens to [AppState] changes and persists annotated keys to a [DataStore] backed by a file.
+ *
+ * Keys must be annotated with [PersistToDataStore] to be saved.
+ *
+ * @sample androidx.appstate.datastore.samples.AppStateDataStoreListenerPathSample
+ * @param path the file path to save and restore state from
+ * @param coroutineScope the [CoroutineScope] used for the [DataStore]
+ */
+@Suppress("PairedRegistration")
+public suspend fun AppState.addAppStateToDataStoreListener(
+    path: String,
+    coroutineScope: CoroutineScope,
+) {
+    val dataStore =
+        DataStoreFactory.create(
+            storage = OkioStorage(FileSystem.SYSTEM, AppStateSerializer) { path.toPath() },
+            scope = coroutineScope,
+        )
+    addAppStateToDataStoreListener(dataStore)
+}
 
 /**
  * Listens to [AppState] changes and persists annotated keys to [DataStore].
