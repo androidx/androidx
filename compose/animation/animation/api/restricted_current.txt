@@ -23,6 +23,7 @@ package androidx.compose.animation {
     method public static androidx.compose.animation.SizeTransform SizeTransform(optional boolean clip, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize>> sizeAnimationSpec);
     method @BytecodeOnly public static androidx.compose.animation.SizeTransform! SizeTransform$default(boolean, kotlin.jvm.functions.Function2!, int, Object!);
     method public static infix androidx.compose.animation.ContentTransform togetherWith(androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition exit);
+    method @BytecodeOnly @Deprecated public static androidx.compose.animation.ContentTransform! with(androidx.compose.animation.EnterTransition!, androidx.compose.animation.ExitTransition!);
   }
 
   public sealed nonexhaustive interface AnimatedContentScope extends androidx.compose.animation.AnimatedVisibilityScope {

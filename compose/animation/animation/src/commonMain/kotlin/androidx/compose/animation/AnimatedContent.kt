@@ -293,6 +293,14 @@ private class SizeTransformImpl(
 public infix fun EnterTransition.togetherWith(exit: ExitTransition): ContentTransform =
     ContentTransform(this, exit)
 
+@Deprecated(
+    "Infix fun EnterTransition.with(ExitTransition) has been renamed to togetherWith",
+    ReplaceWith("togetherWith(exit)"),
+    level = DeprecationLevel.HIDDEN,
+)
+public infix fun EnterTransition.with(exit: ExitTransition): ContentTransform =
+    ContentTransform(this, exit)
+
 /**
  * [AnimatedContentTransitionScope] provides functions that are convenient and only applicable in
  * the context of [AnimatedContent], such as [slideIntoContainer] and [slideOutOfContainer].
