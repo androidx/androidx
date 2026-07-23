@@ -29,7 +29,7 @@ import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
 internal class PagerCacheWindowLogic(
-    val cacheWindow: LazyLayoutCacheWindow,
+    override val cacheWindow: LazyLayoutCacheWindow,
     val state: LazyLayoutPrefetchState,
     val itemCount: () -> Int,
 ) : CacheWindowLogic by CacheWindowLogic(cacheWindow, enableInitialPrefetch = false) {

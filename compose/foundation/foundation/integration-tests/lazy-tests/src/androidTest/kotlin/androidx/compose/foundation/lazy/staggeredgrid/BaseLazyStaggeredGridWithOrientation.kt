@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -57,6 +58,8 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
         mainAxisSpacing: Dp = 0.dp,
         crossAxisArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(0.dp),
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+        cacheWindow: LazyLayoutCacheWindow =
+            LazyLayoutCacheWindow(aheadFraction = 0.5f, isNonScrollCachingEnabled = false),
         content: LazyStaggeredGridScope.() -> Unit,
     ) {
         LazyStaggeredGrid(
@@ -68,6 +71,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
             crossAxisArrangement,
             reverseLayout,
             overscrollEffect,
+            cacheWindow,
             content,
         )
     }
@@ -94,6 +98,8 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
         crossAxisArrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(0.dp),
         reverseLayout: Boolean = false,
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+        cacheWindow: LazyLayoutCacheWindow =
+            LazyLayoutCacheWindow(aheadFraction = 0.5f, isNonScrollCachingEnabled = false),
         content: LazyStaggeredGridScope.() -> Unit,
     ) {
         if (orientation == Orientation.Vertical) {
@@ -106,6 +112,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
                 state = state,
                 reverseLayout = reverseLayout,
                 overscrollEffect = overscrollEffect,
+                cacheWindow = cacheWindow,
                 content = content,
             )
         } else {
@@ -118,6 +125,7 @@ open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orienta
                 state = state,
                 reverseLayout = reverseLayout,
                 overscrollEffect = overscrollEffect,
+                cacheWindow = cacheWindow,
                 content = content,
             )
         }

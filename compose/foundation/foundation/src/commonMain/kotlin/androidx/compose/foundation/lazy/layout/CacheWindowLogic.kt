@@ -32,6 +32,8 @@ import kotlin.math.sign
 /** Implements the logic for [LazyLayoutCacheWindow] prefetching and item preservation. */
 @OptIn(ExperimentalFoundationApi::class)
 internal interface CacheWindowLogic {
+    val cacheWindow: LazyLayoutCacheWindow
+
     fun CacheWindowScope.onScroll(delta: Float)
 
     fun CacheWindowScope.onVisibleItemsUpdated()
@@ -51,16 +53,15 @@ internal fun CacheWindowLogic(
     laneCount: () -> Int = { 1 },
 ): CacheWindowLogic =
     if (isMultiLaneCacheWindowEnabled) {
-        MultiLaneCacheWindow(cacheWindow, enableInitialPrefetch, laneCount)
+        MultiLaneCacheWindow(cacheWindow, laneCount)
     } else {
         LegacyCacheWindowLogic(cacheWindow, enableInitialPrefetch)
     }
 
 /** Implements the logic for [LazyLayoutCacheWindow] prefetching and item preservation. */
 @OptIn(ExperimentalFoundationApi::class)
-private class MultiLaneCacheWindow(
-    private val cacheWindow: LazyLayoutCacheWindow,
-    private val enableInitialPrefetch: Boolean = true,
+internal class MultiLaneCacheWindow(
+    override val cacheWindow: LazyLayoutCacheWindow,
     private val laneCount: () -> Int = { 1 },
 ) : CacheWindowLogic {
     /** Handles for prefetched items in the current forward window. */
@@ -188,7 +189,7 @@ private class MultiLaneCacheWindow(
                 hasUpdatedVisibleItemsOnce = true
             }
         } else {
-            if (!hasUpdatedVisibleItemsOnce && enableInitialPrefetch) {
+            if (!hasUpdatedVisibleItemsOnce && cacheWindow.isNonScrollCachingEnabled) {
                 val prefetchForwardWindow =
                     with(cacheWindow) { density?.calculateAheadWindow(mainAxisViewportSize) ?: 0 }
                 // we won't fill the window if we don't have a prefetch window
@@ -233,7 +234,7 @@ private class MultiLaneCacheWindow(
                 if (
                     visibleItemsCount != previousPassVisibleItemCount &&
                         !hasScrolledInCurrentFrame &&
-                        enableInitialPrefetch
+                        cacheWindow.isNonScrollCachingEnabled
                 ) {
                     shouldRefillWindow = true
                 }
@@ -257,7 +258,7 @@ private class MultiLaneCacheWindow(
                      * [androidx.compose.foundation.lazy.staggeredgrid.keepAroundItems]
                      */
                     val prefetchForwardWindow =
-                        if (enableInitialPrefetch) {
+                        if (cacheWindow.isNonScrollCachingEnabled) {
                             with(cacheWindow) { density?.calculateAheadWindow(viewport) ?: 0 }
                         } else {
                             0
@@ -816,7 +817,7 @@ private class MultiLaneCacheWindow(
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class LegacyCacheWindowLogic(
-    private val cacheWindow: LazyLayoutCacheWindow,
+    override val cacheWindow: LazyLayoutCacheWindow,
     private val enableInitialPrefetch: Boolean = true,
 ) : CacheWindowLogic {
     /** Temporary buffer to avoid array allocations. */
