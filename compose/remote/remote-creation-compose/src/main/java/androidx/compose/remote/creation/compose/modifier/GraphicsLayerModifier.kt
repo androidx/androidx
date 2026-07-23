@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -156,7 +155,31 @@ public class GraphicsLayerModifier(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Applies a graphics layer modifier to the [RemoteModifier].
+ *
+ * A graphics layer modifier can be used to apply effects such as scaling, rotation, translation,
+ * shadow, clipping, alpha, and render effects (like blur) to the drawing content.
+ *
+ * This overload accepts [RemoteFloat] values, which allow binding properties to dynamic expressions
+ * or state.
+ *
+ * @param scaleX The horizontal scale factor.
+ * @param scaleY The vertical scale factor.
+ * @param rotationX The rotation of the layer around the X axis, in degrees.
+ * @param rotationY The rotation of the layer around the Y axis, in degrees.
+ * @param rotationZ The rotation of the layer around the Z axis, in degrees.
+ * @param shadowElevation The shadow elevation of the layer.
+ * @param transformOriginX The horizontal center of the transform, as a fraction of the layer width.
+ * @param transformOriginY The vertical center of the transform, as a fraction of the layer height.
+ * @param translationX The horizontal translation of the layer.
+ * @param translationY The vertical translation of the layer.
+ * @param alpha The alpha (opacity) of the layer.
+ * @param shape The shape of the layer.
+ * @param compositingStrategy The compositing strategy to use for the layer.
+ * @param cameraDistance The camera distance for 3D transforms.
+ * @param renderEffect The [RenderEffect] to apply, or null.
+ */
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,
     scaleY: RemoteFloat = 1f.rf,
@@ -199,6 +222,118 @@ public fun RemoteModifier.graphicsLayer(
             alpha,
             cameraDistance,
             renderEffect,
+        )
+    )
+}
+
+/** Scope for configuring graphics layer properties in a type-safe builder lambda. */
+public interface GraphicsLayerScope {
+    /** The horizontal scale factor. */
+    public var scaleX: RemoteFloat
+
+    /** The vertical scale factor. */
+    public var scaleY: RemoteFloat
+
+    /** The rotation of the layer around the X axis, in degrees. */
+    public var rotationX: RemoteFloat
+
+    /** The rotation of the layer around the Y axis, in degrees. */
+    public var rotationY: RemoteFloat
+
+    /** The rotation of the layer around the Z axis, in degrees. */
+    public var rotationZ: RemoteFloat
+
+    /** The shadow elevation of the layer. */
+    public var shadowElevation: RemoteFloat
+
+    /** The horizontal center of the transform, as a fraction of the layer width. */
+    public var transformOriginX: RemoteFloat
+
+    /** The vertical center of the transform, as a fraction of the layer height. */
+    public var transformOriginY: RemoteFloat
+
+    /** The horizontal translation of the layer. */
+    public var translationX: RemoteFloat
+
+    /** The vertical translation of the layer. */
+    public var translationY: RemoteFloat
+
+    /** The alpha (opacity) of the layer, from 0f (transparent) to 1f (opaque). */
+    public var alpha: RemoteFloat
+
+    /** The camera distance for 3D transforms. */
+    public var cameraDistance: RemoteFloat
+
+    /** The shape of the layer. Used for clipping and outline shadows. */
+    public var shape: Shape
+
+    /** The compositing strategy to use for the layer. */
+    public var compositingStrategy: CompositingStrategy
+
+    /** The [RenderEffect] to apply to this layer, or null. */
+    public var renderEffect: RenderEffect?
+}
+
+internal class GraphicsLayerScopeImpl : GraphicsLayerScope {
+    override var scaleX: RemoteFloat = 1f.rf
+    override var scaleY: RemoteFloat = 1f.rf
+    override var rotationX: RemoteFloat = 0f.rf
+    override var rotationY: RemoteFloat = 0f.rf
+    override var rotationZ: RemoteFloat = 0f.rf
+    override var shadowElevation: RemoteFloat = 0f.rf
+    override var transformOriginX: RemoteFloat = 0.5f.rf
+    override var transformOriginY: RemoteFloat = 0.5f.rf
+    override var translationX: RemoteFloat = 0f.rf
+    override var translationY: RemoteFloat = 0f.rf
+    override var alpha: RemoteFloat = 1f.rf
+    override var cameraDistance: RemoteFloat = 8f.rf
+    override var shape: Shape = RectangleShape
+    override var compositingStrategy: CompositingStrategy = Auto
+    override var renderEffect: RenderEffect? = null
+}
+
+/**
+ * Applies a graphics layer modifier to the [RemoteModifier] using a type-safe builder lambda.
+ *
+ * This overload allows configuring layer properties within a [GraphicsLayerScope] block, which is
+ * similar to standard Compose's `graphicsLayer { ... }`.
+ *
+ * Example usage:
+ * ```
+ * modifier.graphicsLayer {
+ *     alpha = 0.5f.rf
+ *     rotationZ = 45f.rf
+ * }
+ * ```
+ *
+ * @param block The lambda block to configure the [GraphicsLayerScope].
+ */
+public fun RemoteModifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): RemoteModifier {
+    val scope = GraphicsLayerScopeImpl().apply(block)
+    val cS =
+        when (scope.compositingStrategy) {
+            Auto -> 0
+            Offscreen -> 1
+            ModulateAlpha -> 2
+            else -> 0
+        }
+    return then(
+        GraphicsLayerModifier(
+            scaleX = scope.scaleX,
+            scaleY = scope.scaleY,
+            rotationX = scope.rotationX,
+            rotationY = scope.rotationY,
+            rotationZ = scope.rotationZ,
+            shadowElevation = scope.shadowElevation,
+            transformOriginX = scope.transformOriginX,
+            transformOriginY = scope.transformOriginY,
+            translationX = scope.translationX,
+            translationY = scope.translationY,
+            shape = scope.shape,
+            compositingStrategy = cS,
+            alpha = scope.alpha,
+            cameraDistance = scope.cameraDistance,
+            renderEffect = scope.renderEffect,
         )
     )
 }
