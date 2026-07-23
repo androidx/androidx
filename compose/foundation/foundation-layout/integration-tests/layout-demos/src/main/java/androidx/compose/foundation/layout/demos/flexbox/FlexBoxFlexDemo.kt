@@ -20,7 +20,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalFlexBoxApi
 import androidx.compose.foundation.layout.FlexBasis
 import androidx.compose.foundation.layout.FlexBox
 import androidx.compose.foundation.layout.FlexDirection
@@ -72,7 +71,6 @@ fun FlexBoxFlexDemo() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowFlexGrowSample() {
     FlexBox(modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black)) {
         Box(
@@ -110,7 +108,6 @@ private fun FlexBoxRowFlexGrowSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowFlexShrinkSample() {
     FlexBox(modifier = Modifier.width(300.dp).border(1.dp, Color.Black)) {
         Box(
@@ -145,7 +142,6 @@ private fun FlexBoxRowFlexShrinkSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowFlexBasisSample() {
     FlexBox(modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black)) {
         Box(
@@ -173,7 +169,6 @@ private fun FlexBoxRowFlexBasisSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnFlexGrowSample() {
     FlexBox(
         config = { direction(FlexDirection.Column) },
@@ -211,7 +206,6 @@ private fun FlexBoxColumnFlexGrowSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnFlexShrinkSample() {
     FlexBox(
         config = {
@@ -252,7 +246,6 @@ private fun FlexBoxColumnFlexShrinkSample() {
 }
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnFlexBasisSample() {
     FlexBox(
         config = { direction(FlexDirection.Column) },
