@@ -39,10 +39,16 @@ internal constructor(
     /** The [List] of worker class names being queried. */
     public val workerClassNames: List<String> = emptyList(),
 
-    /** The start of the enqueue time range filter (inclusive). */
+    /**
+     * The start of the enqueue time range filter (inclusive), in milliseconds since epoch (e.g.
+     * [System.currentTimeMillis]).
+     */
     public val beginTimeMillis: Long = 0L,
 
-    /** The end of the enqueue time range filter (inclusive). */
+    /**
+     * The end of the enqueue time range filter (inclusive), in milliseconds since epoch (e.g.
+     * [System.currentTimeMillis]).
+     */
     public val endTimeMillis: Long = Long.MAX_VALUE,
 ) {
     /** A builder for [WorkMetricsQuery]. */
@@ -145,7 +151,8 @@ internal constructor(
         /**
          * Sets the start of the enqueue time range to filter the [WorkMetricsQuery].
          *
-         * @param beginTimeMillis The start of the time range (inclusive)
+         * @param beginTimeMillis The start of the time range (inclusive), in milliseconds since
+         *   epoch (e.g. [System.currentTimeMillis]).
          * @return the instance of the [Builder]
          */
         public fun setBeginTimeMillis(beginTimeMillis: Long): Builder {
@@ -156,7 +163,8 @@ internal constructor(
         /**
          * Sets the end of the enqueue time range to filter the [WorkMetricsQuery].
          *
-         * @param endTimeMillis The end of the time range (inclusive)
+         * @param endTimeMillis The end of the time range (inclusive), in milliseconds since epoch
+         *   (e.g. [System.currentTimeMillis]).
          * @return the instance of the [Builder]
          */
         public fun setEndTimeMillis(endTimeMillis: Long): Builder {
