@@ -88,39 +88,37 @@ internal sealed class KspTypeElement(
     }
 
     override val superClass: XType? by lazy {
-        val anyTypeElement = env.requireTypeElement(Any::class)
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
-            null
-        } else if (this == anyTypeElement) {
+            return@lazy null
+        }
+
+        val anyTypeElement = env.requireTypeElement(Any::class)
+        if (this == anyTypeElement) {
             null
         } else {
-            declaration.superTypes
-                .firstOrNull {
-                    val type = it.resolve()
-                    val declaration = type.declaration.replaceTypeAliases()
-                    declaration is KSClassDeclaration &&
-                        (declaration.classKind == ClassKind.CLASS &&
-                            // Filter out error class declarations, for consistency with KAPT these
-                            // are exposed as super interfaces.
-                            (isFromJava() || !type.isError))
-                }
-                ?.let { env.wrap(it).makeNonNullable() } ?: anyTypeElement.type
+            val (errorSuperTypes, validSuperTypes) = superTypes.partition { it.isError() }
+            val validSuperClasses = validSuperTypes.filter { it.typeElement?.isClass() == true }
+            when (validSuperClasses.size) {
+                0 -> errorSuperTypes.firstOrNull() ?: anyTypeElement.type
+                1 -> validSuperClasses.single()
+                else ->
+                    error(
+                        "There are multiple valid super classes defined in ${qualifiedName}: " +
+                            "${validSuperClasses.map { it.typeElement?.qualifiedName }}"
+                    )
+            }
         }
     }
 
     override val superInterfaces by lazy {
-        declaration.superTypes
-            .filter {
-                val type = it.resolve()
-                val declaration = type.declaration.replaceTypeAliases()
-                declaration is KSClassDeclaration &&
-                    (declaration.classKind == ClassKind.INTERFACE ||
-                        // Workaround https://github.com/google/ksp/issues/1443 by exposing
-                        // error class declarations as super interfaces.
-                        (isFromKotlin() && type.isError))
-            }
-            .mapTo(mutableListOf()) { env.wrap(it).makeNonNullable() }
+        superTypes
+            .filter { it.typeElement?.isInterface() == true || it.isError() && it != superClass }
+            .toList()
+    }
+
+    private val superTypes by lazy {
+        declaration.superTypes.map { env.wrap(it).makeNonNullable() }.toList()
     }
 
     @Deprecated(

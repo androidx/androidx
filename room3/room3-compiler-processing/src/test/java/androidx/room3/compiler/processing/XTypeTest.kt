@@ -17,6 +17,7 @@
 package androidx.room3.compiler.processing
 
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.kruth.assertWithMessage
 import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.codegen.XTypeName
@@ -1062,27 +1063,50 @@ class XTypeTest {
                 listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"),
         ) { invocation ->
             invocation.assertCompilationResult { compilationDidFail() }
+            val validSuperClass =
+                invocation.processingEnv.requireTypeElement("test.ValidSuperClass")
+            val validSuperInterface =
+                invocation.processingEnv.requireTypeElement("test.ValidSuperInterface")
+            val missingTypeName = XClassName.get("", "MissingType")
+
             invocation.processingEnv.requireTypeElement("test.SubjectInterface").let {
-                assertThat(it.superInterfaces).isNotEmpty()
-                assertThat(it.superInterfaces.first().isError()).isTrue()
+                assertThat(it.superInterfaces.map { it.asTypeName() })
+                    .containsExactly(missingTypeName)
+                    .inOrder()
+                assertThat(it.superInterfaces.single().isError()).isTrue()
                 assertThat(it.superClass).isNull() // interfaces has no super class
             }
             invocation.processingEnv.requireTypeElement("test.SubjectClassOne").let {
-                assertThat(it.superInterfaces).isNotEmpty()
-                assertThat(it.superInterfaces.first().isError()).isTrue()
-                assertThat(it.superClass).isNotNull()
-                assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+                if (invocation.isKsp) {
+                    // In KSP regardless of the parenthesis in the super type, they are always
+                    // classified as class declarations.
+                    assertThat(it.superInterfaces).isEmpty()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.isError()).isTrue()
+                    assertThat(it.superClass!!.asTypeName()).isEqualTo(missingTypeName)
+                } else {
+                    // In KAPT depending on if the super type has a parenthesis or not, indicating
+                    // it is a super class not a super interface, then the stub will correctly
+                    // put the reference in 'extends' vs 'implements'.
+                    assertThat(it.superInterfaces.map { it.asTypeName() })
+                        .containsExactly(missingTypeName)
+                        .inOrder()
+                    assertThat(it.superInterfaces.single().isError()).isTrue()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+                }
             }
             invocation.processingEnv.requireTypeElement("test.SubjectClassTwo").let {
                 if (invocation.isKsp) {
                     // In KSP regardless of the parenthesis in the super type, they are always
                     // classified as class declarations.
-                    assertThat(it.superInterfaces).isNotEmpty()
-                    assertThat(it.superInterfaces.first().isError()).isTrue()
+                    assertThat(it.superInterfaces).isEmpty()
                     assertThat(it.superClass).isNotNull()
-                    assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+                    assertThat(it.superClass!!.isError()).isTrue()
+                    assertThat(it.superClass!!.asTypeName())
+                        .isEqualTo(XClassName.get("", "MissingType"))
                 } else {
-                    // In KAPT depending if the super type has a parenthesis or not, indicating
+                    // In KAPT depending on if the super type has a parenthesis or not, indicating
                     // it is a super class not a super interface, then the stub will correctly
                     // put the reference in 'extends' vs 'implements'.
                     assertThat(it.superInterfaces).isEmpty()
@@ -1091,18 +1115,30 @@ class XTypeTest {
                 }
             }
             invocation.processingEnv.requireTypeElement("test.SubjectClassThree").let {
-                assertThat(it.superInterfaces).isNotEmpty()
-                assertThat(it.superInterfaces.first().isError()).isTrue()
+                assertThat(it.superInterfaces.map { it.asTypeName() })
+                    .containsExactly(missingTypeName)
+                    .inOrder()
+                assertThat(it.superInterfaces.single().isError()).isTrue()
                 assertThat(it.superClass).isNotNull()
-                assertThat(it.superClass!!.asTypeName())
-                    .isEqualTo(XClassName.get("test", "ValidSuperClass"))
+                assertThat(it.superClass!!.asTypeName()).isEqualTo(validSuperClass.asClassName())
             }
             invocation.processingEnv.requireTypeElement("test.SubjectClassFour").let {
-                assertThat(it.superInterfaces).isNotEmpty()
-                assertThat(it.superInterfaces[0].isError()).isFalse()
-                assertThat(it.superInterfaces[1].isError()).isTrue()
-                assertThat(it.superClass).isNotNull()
-                assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+                if (invocation.isKsp) {
+                    assertThat(it.superInterfaces.map { it.asTypeName() })
+                        .containsExactly(validSuperInterface.asClassName())
+                        .inOrder()
+                    assertThat(it.superInterfaces.single().isError()).isFalse()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.asTypeName()).isEqualTo(missingTypeName)
+                } else {
+                    assertThat(it.superInterfaces.map { it.asTypeName() })
+                        .containsExactly(validSuperInterface.asClassName(), missingTypeName)
+                        .inOrder()
+                    assertThat(it.superInterfaces[0].isError()).isFalse()
+                    assertThat(it.superInterfaces[1].isError()).isTrue()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.asTypeName()).isEqualTo(ANY_OBJECT)
+                }
             }
         }
     }
@@ -1125,8 +1161,7 @@ class XTypeTest {
         runProcessorTest {
             val intBoxed = it.processingEnv.requireType("int").boxed()
             val stringBoxed = it.processingEnv.requireType("java.lang.String").boxed()
-            assertThat(intBoxed.asTypeName().java)
-                .isEqualTo(java.lang.Integer::class.asJClassName())
+            assertThat(intBoxed.asTypeName().java).isEqualTo(Integer::class.asJClassName())
             assertThat(stringBoxed.asTypeName().java).isEqualTo(String::class.asJClassName())
             if (it.isKsp) {
                 assertThat(intBoxed.asTypeName().kotlin).isEqualTo(Integer::class.asKClassName())
@@ -1292,7 +1327,7 @@ class XTypeTest {
                 .isEqualTo(XClassName.get("test", "Foo").copy(nullable = true))
             assertThat(rawFoo.type.superTypes.map { it.asTypeName() })
                 .containsExactly(
-                    XTypeName.ANY_OBJECT,
+                    ANY_OBJECT,
                     // In KSP there's no API for creating java raw KSTypes, so the FooSuper we
                     // create for XType#superTypes is forced to contain type arguments.
                     if (invocation.isKsp) {
@@ -3712,7 +3747,7 @@ class XTypeTest {
                 val boxType = subject.getDeclaredMethods().single().returnType
 
                 // XType.typeArguments should still return the Kotlin argument (String)
-                val anyNullable = XTypeName.ANY_OBJECT.copy(nullable = true)
+                val anyNullable = ANY_OBJECT.copy(nullable = true)
                 val boxString = XClassName.get("test", "Box").parametrizedBy(XTypeName.STRING)
                 assertThat(boxType.asTypeName())
                     .isEqualTo(XTypeName(java = anyNullable.java, kotlin = boxString.kotlin))
@@ -3760,5 +3795,349 @@ class XTypeTest {
             assertThat(boxedBooleanArrayType.asTypeName())
                 .isEqualTo(XTypeName.getArrayName(XTypeName.BOXED_BOOLEAN))
         }
+    }
+
+    @Test
+    fun supertypes_interfaceBeforeSuperClass() {
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                open class BaseClass
+                interface MyInterface
+                class Subject : MyInterface, BaseClass()
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(
+            sources = listOf(kotlinSource),
+            kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val baseClass = invocation.processingEnv.requireTypeElement("test.BaseClass")
+            val myInterface = invocation.processingEnv.requireTypeElement("test.MyInterface")
+
+            assertThat(subject.type.superTypes.map { it.asTypeName() })
+                .containsExactly(baseClass.asClassName(), myInterface.asClassName())
+                .inOrder()
+            assertThat(subject.superClass?.asTypeName()).isEqualTo(baseClass.asClassName())
+            assertThat(subject.superInterfaces.map { it.asTypeName() })
+                .containsExactly(myInterface.asClassName())
+                .inOrder()
+        }
+    }
+
+    @Test
+    fun supertypes_unresolvedInterfaceBeforeSuperclass() {
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                open class BaseClass
+                class Subject : UnresolvedInterface, BaseClass()
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(
+            sources = listOf(kotlinSource),
+            kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+        ) { invocation ->
+            // We expect the compilation to fail due to the unresolved type.
+            invocation.assertCompilationResult { compilationDidFail() }
+
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val baseClass = invocation.processingEnv.requireTypeElement("test.BaseClass")
+            val unresolvedInterface = XClassName.get("", "UnresolvedInterface")
+
+            assertThat(subject.type.superTypes.map { it.asTypeName() })
+                .containsExactly(baseClass.asClassName())
+                .inOrder()
+            assertThat(subject.superClass?.asTypeName()).isEqualTo(baseClass.asClassName())
+            assertThat(subject.superInterfaces.map { it.asTypeName() })
+                .containsExactly(unresolvedInterface)
+                .inOrder()
+        }
+    }
+
+    @Test
+    fun supertypes_unresolvedInterfaceWithBaseClass() {
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                open class BaseClass
+                class Subject : BaseClass(), UnresolvedInterface
+                """
+                    .trimIndent(),
+            )
+        val javaSource =
+            Source.java(
+                "test.Subject",
+                """
+                package test;
+                class BaseClass {}
+                class Subject extends BaseClass implements UnresolvedInterface {}
+                """
+                    .trimIndent(),
+            )
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runProcessorTest(
+                sources = listOf(source),
+                kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+            ) { invocation ->
+                // We expect the compilation to fail due to the unresolved type.
+                invocation.assertCompilationResult { compilationDidFail() }
+
+                val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+                val baseClass = invocation.processingEnv.requireTypeElement("test.BaseClass")
+                val unresolvedTypeName = XClassName.get("", "UnresolvedInterface")
+
+                assertThat(subject.type.superTypes.map { it.asTypeName() })
+                    .containsExactly(baseClass.asClassName())
+                    .inOrder()
+                assertThat(subject.superClass?.asTypeName()).isEqualTo(baseClass.asClassName())
+                assertThat(subject.superInterfaces.map { it.asTypeName() })
+                    .containsExactly(unresolvedTypeName)
+                    .inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun supertypes_unresolvedBaseClassWithInterface() {
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                interface MyInterface
+                class Subject : UnresolvedBaseClass(), MyInterface
+                """
+                    .trimIndent(),
+            )
+        val javaSource =
+            Source.java(
+                "test.Subject",
+                """
+                package test;
+                interface MyInterface {}
+                class Subject extends UnresolvedBaseClass implements MyInterface {}
+                """
+                    .trimIndent(),
+            )
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runProcessorTest(
+                sources = listOf(source),
+                kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+            ) { invocation ->
+                // We expect the compilation to fail due to the unresolved type.
+                invocation.assertCompilationResult { compilationDidFail() }
+
+                val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+                val myInterface = invocation.processingEnv.requireTypeElement("test.MyInterface")
+                val unresolvedBaseClassName = XClassName.get("", "UnresolvedBaseClass")
+
+                assertThat(subject.type.superTypes.map { it.asTypeName() })
+                    .containsExactly(unresolvedBaseClassName, myInterface.asClassName())
+                    .inOrder()
+                assertThat(subject.superClass?.asTypeName()).isEqualTo(unresolvedBaseClassName)
+                assertThat(subject.superInterfaces.map { it.asTypeName() })
+                    .containsExactly(myInterface.asClassName())
+                    .inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun superTypes_classWithUnresolvedInterfaceAndNoSuperclass() {
+        val javaSource =
+            Source.java(
+                "test.Subject",
+                """
+                package test;
+                interface Interface1 {}
+                interface Interface2 {}
+                class Subject implements UnresolvedInterface, Interface1, Interface2 {}
+                """
+                    .trimIndent(),
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                interface Interface1
+                interface Interface2
+                class Subject : UnresolvedInterface, Interface1, Interface2
+                """
+                    .trimIndent(),
+            )
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runProcessorTest(
+                sources = listOf(source),
+                kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+            ) { invocation ->
+                // We expect the compilation to fail due to the unresolved type.
+                invocation.assertCompilationResult { compilationDidFail() }
+
+                val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+                val interface1 = invocation.processingEnv.requireTypeElement("test.Interface1")
+                val interface2 = invocation.processingEnv.requireTypeElement("test.Interface2")
+                val unresolvedInterface = XClassName.get("", "UnresolvedInterface")
+                val isKapt = source is Source.KotlinSource && !invocation.isKsp
+
+                // Note: KSP doesn't distinguish between 'UnresolvedType()' (i.e. superclass) and
+                // 'UnresolvedType' (i.e. superinterface) usages, but KAPT does. Thus, in KSP we
+                // always treat the first error type as a super class.
+                assertThat(subject.type.superTypes.map { it.asTypeName() })
+                    .containsExactly(
+                        if (invocation.isKsp) unresolvedInterface else ANY_OBJECT,
+                        interface1.asClassName(),
+                        interface2.asClassName(),
+                    )
+                    .inOrder()
+                assertThat(subject.superClass?.asTypeName())
+                    .isEqualTo(if (invocation.isKsp) unresolvedInterface else ANY_OBJECT)
+                assertThat(subject.superInterfaces.map { it.asTypeName() })
+                    .containsExactlyElementsIn(
+                        buildList {
+                            if (!invocation.isKsp && !isKapt) {
+                                add(unresolvedInterface)
+                            }
+                            add(interface1.asClassName())
+                            add(interface2.asClassName())
+                            if (isKapt) {
+                                add(unresolvedInterface)
+                            }
+                        }
+                    )
+                    .inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun superTypes_interfaceWithUnresolvedInterface() {
+        val javaSource =
+            Source.java(
+                "test.Subject",
+                """
+                package test;
+                interface Interface1 {}
+                interface Interface2 {}
+                interface Subject extends UnresolvedInterface, Interface1, Interface2 {}
+                """
+                    .trimIndent(),
+            )
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                interface Interface1
+                interface Interface2
+                interface Subject : UnresolvedInterface, Interface1, Interface2
+                """
+                    .trimIndent(),
+            )
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runProcessorTest(
+                sources = listOf(source),
+                kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+            ) { invocation ->
+                // We expect the compilation to fail due to the unresolved type.
+                invocation.assertCompilationResult { compilationDidFail() }
+
+                val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+                val interface1 = invocation.processingEnv.requireTypeElement("test.Interface1")
+                val interface2 = invocation.processingEnv.requireTypeElement("test.Interface2")
+                val unresolvedTypeName = XClassName.get("", "UnresolvedInterface")
+                val isKapt = source is Source.KotlinSource && !invocation.isKsp
+
+                assertThat(subject.type.superTypes.map { it.asTypeName() })
+                    .containsExactly(ANY_OBJECT, interface1.asClassName(), interface2.asClassName())
+                    .inOrder()
+                assertThat(subject.superClass?.asTypeName()).isNull()
+                assertThat(subject.superInterfaces.map { it.asTypeName() })
+                    .containsExactlyElementsIn(
+                        buildList {
+                            if (isKapt) {
+                                add(interface1.asClassName())
+                                add(interface2.asClassName())
+                                add(unresolvedTypeName)
+                            } else {
+                                add(unresolvedTypeName)
+                                add(interface1.asClassName())
+                                add(interface2.asClassName())
+                            }
+                        }
+                    )
+                    .inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun supertypes_multipleSuperclasses() {
+        val kotlinSource =
+            Source.kotlin(
+                "test/Subject.kt",
+                """
+                package test
+                open class BaseClass1
+                open class BaseClass2
+                interface Interface1
+                interface Interface2
+                class Subject : BaseClass1(), BaseClass2(), Interface1, Interface2
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(
+            sources = listOf(kotlinSource),
+            kotlincArguments = ENABLE_CORRECT_ERROR_TYPES,
+        ) { invocation ->
+            // We expect the compilation to fail due to the unresolved type.
+            invocation.assertCompilationResult { compilationDidFail() }
+
+            val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            val baseClass1 = invocation.processingEnv.requireTypeElement("test.BaseClass1")
+            val interface1 = invocation.processingEnv.requireTypeElement("test.Interface1")
+            val interface2 = invocation.processingEnv.requireTypeElement("test.Interface2")
+
+            if (invocation.isKsp) {
+                val expectedErrorMessage =
+                    "There are multiple valid super classes defined in test.Subject: " +
+                        "[test.BaseClass1, test.BaseClass2]"
+                assertThrows<IllegalStateException> { subject.type.superTypes }
+                    .hasMessageThat()
+                    .contains(expectedErrorMessage)
+                assertThrows<IllegalStateException> { subject.superClass }
+                    .hasMessageThat()
+                    .contains(expectedErrorMessage)
+            } else {
+                // KAPT can't detect multiple super classes, it just elides the additional ones.
+                assertThat(subject.type.superTypes.map { it.asTypeName() })
+                    .containsExactlyElementsIn(
+                        buildList {
+                            add(baseClass1.asClassName())
+                            add(interface1.asClassName())
+                            add(interface2.asClassName())
+                        }
+                    )
+                    .inOrder()
+                assertThat(subject.superClass?.asTypeName()).isEqualTo(baseClass1.asClassName())
+            }
+            assertThat(subject.superInterfaces.map { it.asTypeName() })
+                .containsExactly(interface1.asClassName(), interface2.asClassName())
+                .inOrder()
+        }
+    }
+
+    companion object {
+        val ENABLE_CORRECT_ERROR_TYPES =
+            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
     }
 }

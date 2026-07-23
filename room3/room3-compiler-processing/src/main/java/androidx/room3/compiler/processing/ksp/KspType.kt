@@ -91,11 +91,6 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        val anyType = env.requireType(Any::class)
-        if (this == anyType) {
-            // The object class doesn't have any supertypes.
-            return@lazy emptyList<XType>()
-        }
         val resolvedTypeArguments: Map<String, KSTypeArgument> =
             ksType.declaration.typeParameters
                 .mapIndexed { i, parameter ->
@@ -117,27 +112,53 @@ internal abstract class KspType(
                 }
                 .toMap()
         val superTypes =
-            (ksType.declaration as? KSClassDeclaration)?.superTypes?.toList()?.map {
-                env.wrap(
-                        ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
-                        allowPrimitives = false,
+            (ksType.declaration as? KSClassDeclaration)
+                ?.superTypes
+                ?.map {
+                    env.wrap(
+                            ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
+                            allowPrimitives = false,
+                        )
+                        .makeNonNullable()
+                }
+                ?.toList() ?: emptyList()
+        val (errorSuperTypes, validSuperTypes) = superTypes.partition { it.isError() }
+        val (validSuperClasses, validSuperInterfaces) =
+            validSuperTypes.partition { it.typeElement?.isClass() == true }
+        val superClass =
+            when (validSuperClasses.size) {
+                0 -> {
+                    val anyTypeElement = env.requireTypeElement(Any::class)
+                    if (typeElement == anyTypeElement) {
+                        // The only case where we don't have a superclass is if the current type is
+                        // Any / Object.
+                        null
+                    } else if (typeElement?.isClass() == true && errorSuperTypes.isNotEmpty()) {
+                        // If this is a class with no valid superclass, use the first error type as
+                        // the super class to match javac's Types#directSupertypes() implementation.
+                        // (Technically, we can't guarantee that the first error type is actually a
+                        // super class, but it's as good as we can get until
+                        // https://github.com/google/ksp/issues/1443 is fixed).
+                        errorSuperTypes.first()
+                    } else {
+                        // Return Any / Object when there's no explicit super class specified on the
+                        // class/interface and no error types. This matches javac's
+                        // Types#directSupertypes().
+                        anyTypeElement.type
+                    }
+                }
+                1 -> validSuperClasses.single()
+                else ->
+                    error(
+                        "There are multiple valid super classes defined in " +
+                            "${typeElement?.qualifiedName}: " +
+                            "${validSuperClasses.map { it.typeElement?.qualifiedName }}"
                     )
-                    .makeNonNullable()
-            } ?: emptyList()
-        val (superClasses, superInterfaces) =
-            superTypes.partition { it.typeElement?.isClass() == true }
-        // Per documentation, always return the class before the interfaces.
-        if (superClasses.isEmpty()) {
-            // Return Any / Object when there's no explicit super class specified on the\
-            // class/interface. This matches javac's Types#directSupertypes().
-            listOf(anyType) + superInterfaces
-        } else {
-            check(superClasses.size == 1) {
-                "Class ${this.typeName} should have only one super class. Found" +
-                    " ${superClasses.size}" +
-                    " (${superClasses.joinToString { it.typeName.toString() }})."
             }
-            superClasses + superInterfaces
+        buildList {
+            // Per documentation, always return the class before the interfaces.
+            superClass?.let { add(it) }
+            addAll(validSuperInterfaces)
         }
     }
 
