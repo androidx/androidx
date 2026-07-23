@@ -47,7 +47,8 @@ import kotlinx.serialization.modules.plus
 public class SavedStateConfiguration
 private constructor(
     public val serializersModule: SerializersModule = DEFAULT_SERIALIZERS_MODULE,
-    @ClassDiscriminatorMode.Definition
+    @get:ClassDiscriminatorMode.Definition
+    @param:ClassDiscriminatorMode.Definition
     public val classDiscriminatorMode: Int = ClassDiscriminatorMode.POLYMORPHIC,
     @get:Suppress("GetterSetterNames") // More idiomatic, matches KTX Serialization naming.
     public val encodeDefaults: Boolean = false,

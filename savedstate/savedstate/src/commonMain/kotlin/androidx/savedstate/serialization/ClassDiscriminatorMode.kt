@@ -23,17 +23,15 @@ import androidx.savedstate.SavedState
 internal const val CLASS_DISCRIMINATOR_KEY = "type"
 
 /**
- * Defines which classes and objects should have their serial name included in the json as so-called
+ * Defines which classes and objects should have their serial name included in the [SavedState] as a
  * class discriminator.
  *
- * Class discriminator is a [androidx.savedstate.SavedState] field added by `kotlinx.serialization`
- * with a key (`type` by default), and class' serial name as a value (fully qualified name by
- * default).
+ * The class discriminator is a [SavedState] field added by `kotlinx.serialization` with a key
+ * (`type` by default), and the class's serial name as a value (fully qualified name by default).
  *
  * Class discriminator is important for serializing and deserializing
  * [polymorphic class hierarchies](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#sealed-classes).
  * Default [ClassDiscriminatorMode.POLYMORPHIC] mode adds discriminator only to polymorphic classes.
- * This behavior can be changed to match various JSON schemas.
  *
  * @see SavedStateConfiguration.classDiscriminatorMode
  */
@@ -44,7 +42,7 @@ public object ClassDiscriminatorMode {
     internal annotation class Definition
 
     /**
-     * Include class discriminators whenever possible.
+     * Includes class discriminators whenever possible.
      *
      * Given that class discriminator is added as a [SavedState] field, adding class discriminator
      * is possible when the resulting [SavedState] is an object — i.e., for Kotlin classes,
@@ -56,7 +54,7 @@ public object ClassDiscriminatorMode {
     public const val ALL_OBJECTS: Int = 1
 
     /**
-     * Include class discriminators for polymorphic classes.
+     * Includes class discriminators for polymorphic classes.
      *
      * Sealed classes, abstract classes, and interfaces are polymorphic classes by definition. Open
      * classes can be polymorphic if they are serializable with
