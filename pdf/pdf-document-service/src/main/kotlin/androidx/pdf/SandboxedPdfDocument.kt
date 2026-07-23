@@ -280,6 +280,7 @@ public class SandboxedPdfDocument(
         return parcelablePdfObject?.toContent()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
     override suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String {
         val parcelableObject = newObject.toParcelable()

@@ -321,6 +321,7 @@ internal open class FakeEditablePdfDocument(
         TODO("Not yet implemented")
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override suspend fun addPageObject(pageNum: Int, newObject: PdfObject): String {
         return "fake_embedded_object_${System.currentTimeMillis()}"
     }
