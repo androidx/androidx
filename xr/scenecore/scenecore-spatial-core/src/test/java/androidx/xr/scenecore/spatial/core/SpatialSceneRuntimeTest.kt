@@ -18,7 +18,6 @@
 
 package androidx.xr.scenecore.spatial.core
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.hardware.display.DisplayManager
 import android.net.Uri
@@ -100,7 +99,6 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 /** Tests for [SpatialSceneRuntimeFactory]. */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class SpatialSceneRuntimeTest {

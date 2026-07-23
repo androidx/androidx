@@ -18,7 +18,6 @@
 
 package androidx.xr.scenecore
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.test.filters.SdkSuppress
@@ -50,7 +49,6 @@ import org.robolectric.shadows.ShadowLooper
  * TODO(b/329902726): Add a TestRuntime and verify CPM Integration.
  */
 @RunWith(RobolectricTestRunner::class)
-@SuppressLint("NewApi")
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SpatialEnvironmentTest {

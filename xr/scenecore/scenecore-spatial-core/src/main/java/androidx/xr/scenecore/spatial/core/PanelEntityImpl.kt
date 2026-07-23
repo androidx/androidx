@@ -15,7 +15,6 @@
  */
 package androidx.xr.scenecore.spatial.core
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -33,6 +32,7 @@ import androidx.xr.scenecore.runtime.CleanupAction
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.requiresApiLevel
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import java.util.Objects
@@ -45,7 +45,6 @@ import java.util.concurrent.ScheduledExecutorService
  *
  * This entity shows 2D view on spatial panel.
  */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
     private val surfaceControlViewHost: SurfaceControlViewHost
     private val panelCleanupAction: PanelEntityCleanupAction
@@ -62,11 +61,13 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
     ) : super(context, node, extensions, sceneNodeRegistry, executor) {
         val reparentedView = maybeReparentView(view, context)
         surfaceControlViewHost =
-            SurfaceControlViewHost(
-                context,
-                Objects.requireNonNull<Display>(context.display),
-                Binder(),
-            )
+            requiresApiLevel(30) {
+                SurfaceControlViewHost(
+                    context,
+                    Objects.requireNonNull<Display>(context.display),
+                    Binder(),
+                )
+            }
         panelCleanupAction = PanelEntityCleanupAction(surfaceControlViewHost)
         registerCleanup(executor, panelCleanupAction)
         setupSurfaceControlViewHostAndCornerRadius(reparentedView, surfaceDimensionsPx, name)
@@ -90,11 +91,13 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
             )
         val reparentedView = maybeReparentView(view, context)
         surfaceControlViewHost =
-            SurfaceControlViewHost(
-                context,
-                Objects.requireNonNull<Display>(context.display),
-                Binder(),
-            )
+            requiresApiLevel(30) {
+                SurfaceControlViewHost(
+                    context,
+                    Objects.requireNonNull<Display>(context.display),
+                    Binder(),
+                )
+            }
         panelCleanupAction = PanelEntityCleanupAction(surfaceControlViewHost)
         registerCleanup(executor, panelCleanupAction)
         setupSurfaceControlViewHostAndCornerRadius(reparentedView, surfaceDimensionsPx, name)
@@ -102,19 +105,24 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
     }
 
     private class PanelEntityCleanupAction(surfaceControlViewHost: SurfaceControlViewHost) :
-        CleanupAction({ surfaceControlViewHost.release() })
+        CleanupAction({ requiresApiLevel(30) { surfaceControlViewHost.release() } })
 
-    // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
     private fun setupSurfaceControlViewHostAndCornerRadius(
         view: View,
         surfaceDimensionsPx: PixelDimensions,
         name: String,
     ) {
-        surfaceControlViewHost.setView(view, surfaceDimensionsPx.width, surfaceDimensionsPx.height)
+        requiresApiLevel(30) {
+            surfaceControlViewHost.setView(
+                view,
+                surfaceDimensionsPx.width,
+                surfaceDimensionsPx.height,
+            )
+        }
 
         val surfacePackage =
             Objects.requireNonNull<SurfaceControlViewHost.SurfacePackage>(
-                surfaceControlViewHost.surfacePackage
+                requiresApiLevel(30) { surfaceControlViewHost.surfacePackage }
             )
 
         // We need to manually inform our base class of the pixelDimensions, even though the
@@ -135,7 +143,7 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
                     .apply()
             }
         } finally {
-            surfacePackage.release()
+            requiresApiLevel(30) { surfacePackage.release() }
         }
         super.cornerRadiusValue = defaultCornerRadiusInMeters
     }
@@ -154,24 +162,28 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
                 context = context.baseContext
             }
         }
-        val backDispatcher = view.findOnBackInvokedDispatcher()
-        backDispatcher?.registerOnBackInvokedCallback(
-            OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-            onBackInvokedCallback,
-        )
+        requiresApiLevel(33) {
+            val backDispatcher = view.findOnBackInvokedDispatcher()
+            backDispatcher?.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                onBackInvokedCallback,
+            )
+        }
     }
 
     override var sizeInPixels: PixelDimensions
         get() = super.sizeInPixels
         set(value) {
-            if (super.sizeInPixels == value) return
-            surfaceControlViewHost.relayout(value.width, value.height)
-            val surfacePackage = surfaceControlViewHost.surfacePackage!!
-            extensions.createNodeTransaction().use { transaction ->
-                transaction.setWindowBounds(surfacePackage, value.width, value.height).apply()
+            requiresApiLevel(30) {
+                if (super.sizeInPixels == value) return
+                surfaceControlViewHost.relayout(value.width, value.height)
+                val surfacePackage = surfaceControlViewHost.surfacePackage!!
+                extensions.createNodeTransaction().use { transaction ->
+                    transaction.setWindowBounds(surfacePackage, value.width, value.height).apply()
+                }
+                surfacePackage.release()
+                super.sizeInPixels = value
             }
-            surfacePackage.release()
-            super.sizeInPixels = value
         }
 
     override fun dispose() {
@@ -181,12 +193,14 @@ internal class PanelEntityImpl : BasePanelEntity, PanelEntity {
     override var contentDescription: CharSequence = ""
         set(text) {
             field = text
-            val view: View? = surfaceControlViewHost.view
-            if (view != null) {
-                if (text.isNotEmpty()) {
-                    view.isFocusable = true
+            requiresApiLevel(30) {
+                val view: View? = surfaceControlViewHost.view
+                if (view != null) {
+                    if (text.isNotEmpty()) {
+                        view.isFocusable = true
+                    }
+                    view.contentDescription = text
                 }
-                view.contentDescription = text
             }
         }
 
