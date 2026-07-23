@@ -358,9 +358,22 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
     ): ResolvedFlexItemInfo {
         val node = measurable.parentData as? FlexBoxChildDataNode
         val resolvedItemInfo = ResolvedFlexItemInfo()
+        resolvedItemInfo.prepare(this, constraints)
         if (node != null) {
-            resolvedItemInfo.prepare(this, constraints)
             with(node.config) { resolvedItemInfo.configure() }
+        }
+        // A main-axis fill modifier (e.g. Modifier.fillMaxWidth() in a Row) implies growth, but
+        // only when no explicit grow factor was configured.
+        if (resolvedItemInfo.isGrowUnset) {
+            val fillParentData = measurable.parentData as? FillModifierParentData
+            val mainAxisFillFraction =
+                if (isHorizontal) {
+                    fillParentData?.fillHorizontalFraction ?: 0f
+                } else {
+                    fillParentData?.fillVerticalFraction ?: 0f
+                }
+
+            resolvedItemInfo.grow = if (mainAxisFillFraction > 0f) mainAxisFillFraction else 0f
         }
 
         resolvedItemInfo.measurable = measurable
@@ -1272,9 +1285,20 @@ internal class FlexBoxChildElement(val config: FlexConfig) :
 
 @OptIn(ExperimentalFlexBoxApi::class)
 internal class FlexBoxChildDataNode(var config: FlexConfig) :
-    ParentDataModifierNode, Modifier.Node() {
+    ParentDataModifierNode, FillModifierParentData, Modifier.Node() {
 
-    override fun Density.modifyParentData(parentData: Any?): Any = this@FlexBoxChildDataNode
+    override var fillHorizontalFraction: Float = 0f
+    override var fillVerticalFraction: Float = 0f
+
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        this@FlexBoxChildDataNode.also {
+            it.fillHorizontalFraction = 0f
+            it.fillVerticalFraction = 0f
+            if (parentData is FillModifierParentData) {
+                it.fillHorizontalFraction = parentData.fillHorizontalFraction
+                it.fillVerticalFraction = parentData.fillVerticalFraction
+            }
+        }
 }
 
 /**
@@ -2259,6 +2283,12 @@ sealed interface FlexConfigScope : Density {
      * space is distributed among items proportional to their growth factors. An item with a grow
      * factor of 0f (the default) will not grow beyond its base size.
      *
+     * If no grow factor is configured, an item with a main-axis fill modifier (for example,
+     * [Modifier.fillMaxWidth][fillMaxWidth] in a [FlexDirection.Row]) uses its fill fraction as the
+     * grow factor. Calling this function always takes precedence over fill modifiers; in
+     * particular, an explicit `grow(0f)` keeps the item from growing even when a fill modifier is
+     * present.
+     *
      * @sample androidx.compose.foundation.layout.samples.FlexGrowSample
      * @param value The growth factor. Must be non-negative. Default is 0f.
      * @throws IllegalArgumentException if [value] is negative.
@@ -2393,7 +2423,10 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
 
     internal var order: Int = 0
 
-    internal var grow: Float = 0f
+    internal var grow: Float = Float.NaN
+
+    internal val isGrowUnset: Boolean
+        get() = grow.isNaN()
 
     internal var shrink: Float = 1f
 
