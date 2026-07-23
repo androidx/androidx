@@ -339,7 +339,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      * @param ifFalse The [RemoteDp] to be selected if this boolean is `false`.
      * @return A new [RemoteDp] representing the conditionally selected Dp value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun select(ifTrue: RemoteDp, ifFalse: RemoteDp): RemoteDp {
         return select(ifTrue.value, ifFalse.value).asRemoteDp()
     }

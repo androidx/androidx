@@ -352,12 +352,12 @@ class RemoteDpTest {
     }
 
     @Test
-    fun compare_isLessThanOrEqual() {
+    fun compare_isLessThanOrEqualTo() {
         val resultId =
             remoteComposeTestRule.initialise {
                 val dp1 = RemoteDp.createNamedRemoteDp("dp1", 5.dp)
                 val dp2 = RemoteDp.createNamedRemoteDp("dp2", 5.dp)
-                val result = dp1.isLessThanOrEqual(dp2)
+                val result = dp1.isLessThanOrEqualTo(dp2)
                 result.getIdForCreationState(it)
             }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
@@ -376,12 +376,12 @@ class RemoteDpTest {
     }
 
     @Test
-    fun compare_isGreaterThanOrEqual() {
+    fun compare_isGreaterThanOrEqualTo() {
         val resultId =
             remoteComposeTestRule.initialise {
                 val dp1 = RemoteDp.createNamedRemoteDp("dp1", 10.dp)
                 val dp2 = RemoteDp.createNamedRemoteDp("dp2", 10.dp)
-                val result = dp1.isGreaterThanOrEqual(dp2)
+                val result = dp1.isGreaterThanOrEqualTo(dp2)
                 result.getIdForCreationState(it)
             }
         assertThat(context.getInteger(resultId)).isEqualTo(1)
