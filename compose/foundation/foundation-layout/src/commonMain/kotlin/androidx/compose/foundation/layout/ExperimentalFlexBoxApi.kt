@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.layout
 
+@Deprecated(
+    message = "FlexBox and its related APIs are now stable.",
+    level = DeprecationLevel.WARNING,
+)
 @RequiresOptIn(
     "This FlexBox API is experimental and is likely to change or be removed in the future.\n" +
         "This API is experimental because it introduces a new category of layout concepts to the Compose Foundation library. \n" +
