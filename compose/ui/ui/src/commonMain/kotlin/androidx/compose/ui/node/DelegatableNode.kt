@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.annotation.EmptySuper
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterSetOf
@@ -61,7 +62,7 @@ interface DelegatableNode {
      * state that depends on density, outside of these phases. Density can be retrieved inside a
      * node by using [androidx.compose.ui.node.requireDensity].
      */
-    fun onDensityChange() {}
+    @EmptySuper fun onDensityChange() {}
 
     /**
      * Invoked when the layout direction changes for this node. This can affect the layout and
@@ -72,7 +73,7 @@ interface DelegatableNode {
      * other node state that depends on layout direction, outside of these phases. Layout direction
      * can be retrieved inside a node by using [androidx.compose.ui.node.requireLayoutDirection].
      */
-    fun onLayoutDirectionChange() {}
+    @EmptySuper fun onLayoutDirectionChange() {}
 
     fun interface RegistrationHandle {
         fun unregister()

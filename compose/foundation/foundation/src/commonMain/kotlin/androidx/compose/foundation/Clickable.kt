@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.annotation.CallSuper
+import androidx.annotation.EmptySuper
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.gestures.changedToDownIgnoreConsumed
 import androidx.compose.foundation.gestures.isChangedToDown
@@ -1990,7 +1991,7 @@ internal abstract class AbstractClickableNode(
      * Called when focus is lost, to allow cleaning up and resetting the state for ongoing key
      * presses
      */
-    protected open fun onCancelKeyInput() {}
+    @EmptySuper protected open fun onCancelKeyInput() {}
 
     final override fun onPreKeyEvent(event: KeyEvent) = false
 

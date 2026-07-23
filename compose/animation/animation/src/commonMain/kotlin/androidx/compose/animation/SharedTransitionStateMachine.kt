@@ -16,6 +16,7 @@
 
 package androidx.compose.animation
 
+import androidx.annotation.EmptySuper
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -77,7 +78,7 @@ internal class SharedTransitionStateMachine(val sharedElement: SharedElement) {
         open val matchIsOrHasBeenConfigured
             get() = false
 
-        open fun updateBounds(bounds: Rect) {}
+        @EmptySuper open fun updateBounds(bounds: Rect) {}
 
         abstract fun onMatchFound(previousTargetBoundsProvider: BoundsProvider?): State
 

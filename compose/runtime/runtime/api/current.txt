@@ -29,8 +29,8 @@ package androidx.compose.runtime {
     method public void insertBottomUp(int index, N instance);
     method public void insertTopDown(int index, N instance);
     method public void move(int from, int to, int count);
-    method public default void onBeginChanges();
-    method public default void onEndChanges();
+    method @EmptySuper public default void onBeginChanges();
+    method @EmptySuper public default void onEndChanges();
     method public void remove(int index, int count);
     method public default void reuse();
     method public void up();
@@ -1313,10 +1313,10 @@ package @SuppressCompatibility androidx.compose.runtime.snapshots.tooling {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface SnapshotObserver {
-    method public default void onApplied(androidx.compose.runtime.snapshots.Snapshot snapshot, java.util.Set<?> changed);
-    method public default void onCreated(androidx.compose.runtime.snapshots.Snapshot snapshot, androidx.compose.runtime.snapshots.Snapshot? parent, androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers? observers);
+    method @EmptySuper public default void onApplied(androidx.compose.runtime.snapshots.Snapshot snapshot, java.util.Set<?> changed);
+    method @EmptySuper public default void onCreated(androidx.compose.runtime.snapshots.Snapshot snapshot, androidx.compose.runtime.snapshots.Snapshot? parent, androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers? observers);
     method public default androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers? onPreCreate(androidx.compose.runtime.snapshots.Snapshot? parent, boolean readonly);
-    method public default void onPreDispose(androidx.compose.runtime.snapshots.Snapshot snapshot);
+    method @EmptySuper public default void onPreDispose(androidx.compose.runtime.snapshots.Snapshot snapshot);
   }
 
   @SuppressCompatibility public final class SnapshotObserverKt {
