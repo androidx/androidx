@@ -21,7 +21,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalFlexBoxApi
 import androidx.compose.foundation.layout.FlexBox
 import androidx.compose.foundation.layout.FlexDirection
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
 @Composable
-@OptIn(ExperimentalFlexBoxApi::class)
 fun FlexBoxAnimatedDirectionDemo() {
     Column(
         modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),

@@ -35,7 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFlexBoxApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class FlexBoxDirectionTest(private val directionName: String) {
@@ -2118,6 +2117,70 @@ class FlexBoxDirectionTest(private val directionName: String) {
         // The explicit grow(1f) overrides the 0.5f fill fraction, so item 2 takes all the
         // remaining 150dp instead of half of it.
         Truth.assertThat(mainSizes).containsExactly(50, 150).inOrder()
+    }
+
+    @Test
+    fun maxItemsInEachLine_wrap_startsNewLineAtCap() {
+        val mainPositions = MutableList(4) { -1f }
+        val crossPositions = MutableList(4) { -1f }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(
+                        config = {
+                            direction(direction)
+                            wrap(FlexWrap.Wrap)
+                            maxItemsInEachLine(2)
+                        }
+                    ) {
+                        repeat(4) { index ->
+                            Box(
+                                Modifier.size(20.dp).onPlaced {
+                                    mainPositions[index] = mainAxis(it.positionInParent())
+                                    crossPositions[index] = crossAxis(it.positionInParent())
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // All 4 items would fit on one 200dp line, but the cap forces a break after every 2.
+        Truth.assertThat(mainPositions).containsExactly(0f, 20f, 0f, 20f).inOrder()
+        Truth.assertThat(crossPositions).containsExactly(0f, 0f, 20f, 20f).inOrder()
+    }
+
+    @Test
+    fun maxItemsInEachLine_noWrap_hasNoEffect() {
+        val crossPositions = MutableList(4) { -1f }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                Box(Modifier.size(200.dp)) {
+                    FlexBox(
+                        config = {
+                            direction(direction)
+                            maxItemsInEachLine(2)
+                        }
+                    ) {
+                        repeat(4) { index ->
+                            Box(
+                                Modifier.size(20.dp).onPlaced {
+                                    crossPositions[index] = crossAxis(it.positionInParent())
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Without wrapping enabled the cap does not apply; everything stays on a single line.
+        Truth.assertThat(crossPositions).containsExactly(0f, 0f, 0f, 0f)
     }
 
     @Test
