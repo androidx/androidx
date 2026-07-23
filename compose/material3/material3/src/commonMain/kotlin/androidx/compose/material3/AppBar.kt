@@ -134,10 +134,16 @@ import kotlin.math.roundToInt
  *
  * A simple top app bar looks like:
  *
- * @sample androidx.compose.material3.samples.SimpleTopAppBar A top app bar that uses a
- *   [scrollBehavior] to customize its nested scrolling behavior when working in conjunction with a
- *   scrolling content looks like:
+ * @sample androidx.compose.material3.samples.SimpleTopAppBar
+ *
+ * A top app bar that uses a [PinnedScrollBehavior] to change its container color when content is
+ * scrolled under it looks like:
+ *
  * @sample androidx.compose.material3.samples.PinnedTopAppBar
+ *
+ * A top app bar that uses an [EnterAlwaysScrollBehavior] to collapse and expand as content is
+ * scrolled looks like:
+ *
  * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBar
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
@@ -195,12 +201,18 @@ fun TopAppBar(
  * ![Small top app bar
  * image](https://developer.android.com/images/reference/androidx/compose/material3/small-top-app-bar.png)
  *
- * A simple top app bar looks like:
+ * A top app bar looks like:
  *
- * @sample androidx.compose.material3.samples.SimpleTopAppBar A top app bar that uses a
- *   [scrollBehavior] to customize its nested scrolling behavior when working in conjunction with a
- *   scrolling content looks like:
+ * @sample androidx.compose.material3.samples.SimpleTopAppBar
+ *
+ * A top app bar that uses a [PinnedScrollBehavior] to change its container color when content is
+ * scrolled under it looks like:
+ *
  * @sample androidx.compose.material3.samples.PinnedTopAppBar
+ *
+ * A top app bar that uses an [EnterAlwaysScrollBehavior] to collapse and expand as content is
+ * scrolled looks like:
+ *
  * @sample androidx.compose.material3.samples.EnterAlwaysTopAppBar
  * @param title the title to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
@@ -221,7 +233,6 @@ fun TopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -268,8 +279,8 @@ fun TopAppBar(
  *
  * This CenterAlignedTopAppBar has slots for a title, navigation icon, and actions.
  *
- * A center aligned top app bar that uses a [scrollBehavior] to customize its nested scrolling
- * behavior when working in conjunction with a scrolling content looks like:
+ * A center aligned top app bar that uses a [TopAppBarScrollBehavior] to customize its nested
+ * scrolling behavior when working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
  * @param title the title to be displayed in the top app bar
@@ -331,8 +342,8 @@ fun CenterAlignedTopAppBar(
  *
  * This CenterAlignedTopAppBar has slots for a title, navigation icon, and actions.
  *
- * A center aligned top app bar that uses a [scrollBehavior] to customize its nested scrolling
- * behavior when working in conjunction with a scrolling content looks like:
+ * A center aligned top app bar that uses a [TopAppBarScrollBehavior] to customize its nested
+ * scrolling behavior when working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBar
  * @param title the title to be displayed in the top app bar
@@ -354,7 +365,6 @@ fun CenterAlignedTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
@@ -398,11 +408,14 @@ fun CenterAlignedTopAppBar(
  * ![Small top app bar
  * image](https://developer.android.com/images/reference/androidx/compose/material3/small-top-app-bar.png)
  *
- * A top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with a scrolling content looks like:
+ * A top app bar that uses a [PinnedScrollBehavior] to change its container color when content is
+ * scrolled under it looks like:
  *
  * @sample androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
- * @sample androidx.compose.material3.samples.SimpleCenterAlignedTopAppBarWithSubtitle
+ *
+ * A top app bar with a centered title and subtitle looks like:
+ *
+ * @sample androidx.compose.material3.samples.SimpleTopAppBarWithSubtitleAndCenterAligned
  * @param title the title to be displayed in the top app bar
  * @param subtitle the subtitle to be displayed in the top app bar
  * @param modifier the [Modifier] to be applied to this top app bar
@@ -424,7 +437,6 @@ fun CenterAlignedTopAppBar(
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -471,8 +483,8 @@ fun TopAppBar(
  * This MediumTopAppBar has slots for a title, navigation icon, and actions. In its default expanded
  * state, the title is displayed in a second row under the navigation and actions.
  *
- * A medium top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with scrolling content looks like:
+ * A medium top app bar that uses an [ExitUntilCollapsedScrollBehavior] to collapse and expand as
+ * content is scrolled looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumTopAppBar
  * @param title the title to be displayed in the top app bar. This title will be used in the app
@@ -502,7 +514,6 @@ fun TopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller than the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediumTopAppBar(
     title: @Composable () -> Unit,
@@ -555,14 +566,21 @@ fun MediumTopAppBar(
  * ![Medium top app bar
  * image](https://developer.android.com/images/reference/androidx/compose/material3/medium-top-app-bar.png)
  *
+ * (Note: The image above shows the standard MediumTopAppBar layout, which is visually identical to
+ * this bar when no subtitle is provided.)
+ *
  * This `MediumFlexibleTopAppBar` has slots for a title, subtitle, navigation icon, and actions. In
  * its default expanded state, the title and subtitle are displayed in a second row under the
  * navigation and actions.
  *
- * A medium flexible top app bar that uses a [scrollBehavior] to customize its nested scrolling
- * behavior when working in conjunction with scrolling content looks like:
+ * A medium flexible top app bar that uses an [ExitUntilCollapsedScrollBehavior] to collapse and
+ * expand as content is scrolled looks like:
  *
- * @sample androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar
+ * @sample androidx.compose.material3.samples.ExitUntilCollapsedMediumFlexibleTopAppBar
+ *
+ * A medium flexible top app bar with a centered title and subtitle looks like:
+ *
+ * @sample androidx.compose.material3.samples.MediumFlexibleTopAppBarWithSubtitleAndCenterAligned
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]
@@ -594,7 +612,6 @@ fun MediumTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller than the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediumFlexibleTopAppBar(
     title: @Composable () -> Unit,
@@ -660,8 +677,8 @@ fun MediumFlexibleTopAppBar(
  * This LargeTopAppBar has slots for a title, navigation icon, and actions. In its default expanded
  * state, the title is displayed in a second row under the navigation and actions.
  *
- * A large top app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with scrolling content looks like:
+ * A large top app bar that uses an [ExitUntilCollapsedScrollBehavior] to collapse and expand as
+ * content is scrolled looks like:
  *
  * @sample androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
  * @param title the title to be displayed in the top app bar. This title will be used in the app
@@ -691,7 +708,6 @@ fun MediumFlexibleTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LargeTopAppBar(
     title: @Composable () -> Unit,
@@ -744,14 +760,21 @@ fun LargeTopAppBar(
  * ![Large top app bar
  * image](https://developer.android.com/images/reference/androidx/compose/material3/large-top-app-bar.png)
  *
+ * (Note: The image above shows the standard LargeTopAppBar layout, which is visually identical to
+ * this bar when no subtitle is provided.)
+ *
  * This `LargeFlexibleTopAppBar` has slots for a title, subtitle, navigation icon, and actions. In
  * its default expanded state, the title and subtitle are displayed in a second row under the
  * navigation and actions.
  *
- * A large flexible top app bar that uses a [scrollBehavior] to customize its nested scrolling
- * behavior when working in conjunction with scrolling content looks like:
+ * A large flexible top app bar that uses an [ExitUntilCollapsedScrollBehavior] to collapse and
+ * expand as content is scrolled looks like:
  *
- * @sample androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar
+ * @sample androidx.compose.material3.samples.ExitUntilCollapsedLargeFlexibleTopAppBar
+ *
+ * A large flexible top app bar with a centered title and subtitle looks like:
+ *
+ * @sample androidx.compose.material3.samples.LargeFlexibleTopAppBarWithSubtitleAndCenterAligned
  * @param title the title to be displayed in the top app bar. This title will be used in the app
  *   bar's expanded and collapsed states, although in its collapsed state it will be composed with a
  *   smaller sized [TextStyle]
@@ -783,7 +806,6 @@ fun LargeTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LargeFlexibleTopAppBar(
     title: @Composable () -> Unit,
@@ -846,6 +868,9 @@ fun LargeFlexibleTopAppBar(
  * ![Two rows top app bar
  * image](https://developer.android.com/images/reference/androidx/compose/material3/medium-top-app-bar.png)
  *
+ * (Note: The image above shows the standard MediumTopAppBar layout, which is visually identical to
+ * this bar when no subtitle is provided.)
+ *
  * This two-rows top app bar has slots for titles and subtitles, navigation icon, and actions. In
  * its default expanded state, the expanded title and subtitle are displayed in a second row under
  * the navigation and actions.
@@ -894,7 +919,6 @@ fun LargeFlexibleTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TwoRowsTopAppBar(
     title: @Composable (expanded: Boolean) -> Unit,
@@ -978,7 +1002,7 @@ fun TwoRowsTopAppBar(
  * @param contentPadding the padding applied to the content of this BottomAppBar
  * @param windowInsets a window insets that app bar will respect.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun BottomAppBar(
     actions: @Composable RowScope.() -> Unit,
@@ -1016,8 +1040,8 @@ fun BottomAppBar(
  *
  * @sample androidx.compose.material3.samples.BottomAppBarWithFAB
  *
- * A bottom app bar that uses a [scrollBehavior] to customize its nested scrolling behavior when
- * working in conjunction with a scrolling content looks like:
+ * A bottom app bar that uses a [BottomAppBarScrollBehavior] to customize its nested scrolling
+ * behavior when working in conjunction with scrolling content looks like:
  *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBar
  *
@@ -1043,7 +1067,6 @@ fun BottomAppBar(
  *   scrolls. Note that the bottom app bar will not react to scrolling in case a touch exploration
  *   service (e.g., TalkBack) is active. See [BottomAppBarScrollBehavior.nestedScrollConnection].
  */
-@ExperimentalMaterial3Api
 @Composable
 fun BottomAppBar(
     actions: @Composable RowScope.() -> Unit,
@@ -1108,7 +1131,7 @@ fun BottomAppBar(
  * @param content the content of this BottomAppBar. The default layout here is a [Row], so content
  *   inside will be placed horizontally.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier,
@@ -1161,7 +1184,6 @@ fun BottomAppBar(
  * @param content the content of this BottomAppBar. The default layout here is a [Row], so content
  *   inside will be placed horizontally.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier,
@@ -1203,15 +1225,31 @@ fun BottomAppBar(
  *
  * Also see [NavigationBar].
  *
- * A bottom app bar that specifies an [horizontalArrangement] and uses a [scrollBehavior] to
- * customize its nested scrolling behavior when working in conjunction with a scrolling content
- * looks like:
+ * A flexible bottom app bar can be configured with a [horizontalArrangement], and can optionally
+ * use a [BottomAppBarScrollBehavior] to collapse or expand on scroll:
+ *
+ * A bottom app bar with an actions row that automatically handles overflow when items do not fit:
  *
  * @sample androidx.compose.material3.samples.BottomAppBarWithOverflow
+ *
+ * A bottom app bar collapsing on scroll, with items spaced around:
+ *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedAround
+ *
+ * A bottom app bar collapsing on scroll, with items spaced between:
+ *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
+ *
+ * A bottom app bar collapsing on scroll, with items spaced evenly:
+ *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
+ *
+ * A bottom app bar collapsing on scroll, with items in a fixed arrangement:
+ *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
+ *
+ * A bottom app bar collapsing on scroll, with items in a fixed arrangement and a custom color:
+ *
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixedVibrant
  * @param modifier the [Modifier] to be applied to this BottomAppBar
  * @param containerColor the color used for the background of this BottomAppBar. Use
@@ -1236,7 +1274,6 @@ fun BottomAppBar(
  * @param content the content of this BottomAppBar. The default layout here is a [Row], so content
  *   inside will be placed horizontally.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlexibleBottomAppBar(
     modifier: Modifier = Modifier,
@@ -1269,7 +1306,6 @@ fun FlexibleBottomAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomAppBarLayout(
     containerHeight: Dp,
@@ -2454,7 +2490,6 @@ class TopAppBarColors(
  *
  * @see [BottomAppBarDefaults.exitAlwaysScrollBehavior]
  */
-@ExperimentalMaterial3Api
 @Stable
 interface BottomAppBarScrollBehavior {
 
@@ -2563,13 +2598,12 @@ object BottomAppBarDefaults {
     val flingAnimationSpec: DecayAnimationSpec<Float>
         @Composable get() = rememberSplineBasedDecay()
 
-    // TODO: note that this scroll behavior may impact assistive technologies making the component
-    //  inaccessible. See @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBar on how
-    //  to disable scrolling when touch exploration is enabled.
     /**
      * Returns a [BottomAppBarScrollBehavior]. A bottom app bar that is set up with this
      * [BottomAppBarScrollBehavior] will immediately collapse when the content is pulled up, and
-     * will immediately appear when the content is pulled down.
+     * will immediately appear when the content is pulled down. Note: Scroll behavior is
+     * automatically disabled when a touch exploration service (e.g. TalkBack) is active to preserve
+     * accessibility.
      *
      * The returned [BottomAppBarScrollBehavior] is remembered across compositions.
      *
@@ -2586,7 +2620,6 @@ object BottomAppBarDefaults {
      *   `null` is provided, the app bar will not continue to animate its height based on the scroll
      *   velocity.
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun exitAlwaysScrollBehavior(
         state: BottomAppBarState = rememberBottomAppBarState(),
@@ -2614,7 +2647,6 @@ object BottomAppBarDefaults {
  *   offset height offset should be between zero and [initialHeightOffsetLimit].
  * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberBottomAppBarState(
     initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
@@ -2632,7 +2664,7 @@ fun rememberBottomAppBarState(
  *
  * In most cases, this state will be created via [rememberBottomAppBarState].
  */
-@ExperimentalMaterial3Api
+@Stable
 interface BottomAppBarState {
 
     /**
@@ -2694,15 +2726,13 @@ interface BottomAppBarState {
  *   offset height offset should be between zero and [initialHeightOffsetLimit].
  * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
 fun BottomAppBarState(
-    initialHeightOffsetLimit: Float,
-    initialHeightOffset: Float,
-    initialContentOffset: Float,
+    initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
+    initialHeightOffset: Float = 0f,
+    initialContentOffset: Float = 0f,
 ): BottomAppBarState =
     BottomAppBarStateImpl(initialHeightOffsetLimit, initialHeightOffset, initialContentOffset)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private class BottomAppBarStateImpl(
     initialHeightOffsetLimit: Float,
@@ -2751,7 +2781,6 @@ private class BottomAppBarStateImpl(
  * @param canScroll a callback used to determine whether scroll events are to be handled by this
  *   [ExitAlwaysScrollBehavior]
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private class ExitAlwaysScrollBehavior(
     override val state: BottomAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>?,
@@ -2792,7 +2821,6 @@ private class ExitAlwaysScrollBehavior(
  * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
  * after the fling settles.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private suspend fun settleAppBarBottom(
     state: BottomAppBarState,
     velocity: Float,
@@ -2857,7 +2885,6 @@ private val FABVerticalPadding = 12.dp - BottomAppBarVerticalPadding
  *
  * This SingleRowTopAppBar has slots for a title, subtitle, navigation icon, and actions.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SingleRowTopAppBar(
     modifier: Modifier = Modifier,
@@ -2975,7 +3002,6 @@ private fun SingleRowTopAppBar(
  * A two-rows top app bar that is designed to be called by the Large and Medium top app bar
  * composables.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TwoRowsTopAppBar(
     modifier: Modifier = Modifier,
@@ -3117,7 +3143,6 @@ private fun TwoRowsTopAppBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.adjustHeightOffsetLimit(scrollBehavior: TopAppBarScrollBehavior?) =
     scrollBehavior?.state?.let {
         onSizeChanged { size ->
@@ -3738,7 +3763,6 @@ private class ExitUntilCollapsedScrollBehavior(
  * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
  * after the fling settles.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private suspend fun settleAppBar(
     state: TopAppBarState,
     velocity: Float,
