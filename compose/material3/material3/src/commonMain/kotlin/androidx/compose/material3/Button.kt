@@ -1594,32 +1594,6 @@ public object ButtonDefaults {
     }
 
     /**
-     * Recommended [PaddingValues] for a provided button height.
-     *
-     * @param buttonHeight The height of the button
-     *
-     * @material3expressive
-     */
-    @Deprecated(
-        message = "Deprecated in favor of function with hasLeadingIcon and hasTrailingIcon params",
-        level = DeprecationLevel.HIDDEN,
-    )
-    @ExperimentalMaterial3ExpressiveApi
-    public fun contentPaddingFor(buttonHeight: Dp): PaddingValues {
-        val smallHeight = MinHeight
-        val mediumHeight = MediumContainerHeight
-        val largeHeight = LargeContainerHeight
-        val xLargeHeight = ExtraLargeContainerHeight
-        return when {
-            buttonHeight < smallHeight -> ExtraSmallContentPadding
-            buttonHeight < mediumHeight -> SmallContentPadding
-            buttonHeight < largeHeight -> MediumContentPadding
-            buttonHeight < xLargeHeight -> LargeContentPadding
-            else -> ExtraLargeContentPadding
-        }
-    }
-
-    /**
      * Recommended Icon size for a provided button height.
      *
      * @param buttonHeight The height of the button
