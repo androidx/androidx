@@ -272,6 +272,7 @@ class LazyStaggeredGridTest(
     fun moreItemsDisplayedOnScroll() {
         rule.setContentWithConfigurableLookahead {
             state = rememberLazyStaggeredGridState()
+            state.prefetchingEnabled = false
             LazyStaggeredGrid(
                 lanes = 3,
                 state = state,

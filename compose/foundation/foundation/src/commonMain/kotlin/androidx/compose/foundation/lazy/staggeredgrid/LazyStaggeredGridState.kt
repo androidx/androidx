@@ -22,6 +22,7 @@ import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.collection.IntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
+import androidx.compose.foundation.ComposeFoundationFlags.isUsingCacheWindowInStaggeredGrids
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollIndicatorState
@@ -33,7 +34,6 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
-import androidx.compose.foundation.lazy.grid.singleAxisViewportSize
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
@@ -47,6 +47,7 @@ import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.animateScrollToItem
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneFullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.LaneUnset
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState.Companion.Saver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -61,7 +62,6 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlin.ranges.IntRange
 import kotlinx.coroutines.launch
 
 /**
@@ -82,7 +82,7 @@ fun rememberLazyStaggeredGridState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyStaggeredGridState =
-    rememberSaveable(saver = LazyStaggeredGridState.Saver) {
+    rememberSaveable(saver = Saver) {
         LazyStaggeredGridState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset)
     }
 
@@ -96,6 +96,7 @@ class LazyStaggeredGridState
 internal constructor(
     initialFirstVisibleItems: IntArray,
     initialFirstVisibleOffsets: IntArray,
+    // Only used for testing purposes.
     prefetchScheduler: PrefetchScheduler?,
 ) : ScrollableState {
     /**
@@ -106,9 +107,9 @@ internal constructor(
         initialFirstVisibleItemIndex: Int = 0,
         initialFirstVisibleItemOffset: Int = 0,
     ) : this(
-        intArrayOf(initialFirstVisibleItemIndex),
-        intArrayOf(initialFirstVisibleItemOffset),
-        null,
+        initialFirstVisibleItems = intArrayOf(initialFirstVisibleItemIndex),
+        initialFirstVisibleOffsets = intArrayOf(initialFirstVisibleItemOffset),
+        prefetchScheduler = null,
     )
 
     internal var hasLookaheadOccurred: Boolean = false
@@ -156,8 +157,11 @@ internal constructor(
         get() = layoutInfoState.value
 
     /** backing state for [layoutInfo] */
-    private val layoutInfoState =
+    internal val layoutInfoState =
         mutableStateOf(EmptyLazyStaggeredGridLayoutInfo, neverEqualPolicy())
+
+    internal val cacheWindowLogic: LazyStaggeredGridCacheWindowLogic?
+        get() = Snapshot.withoutReadObservation { layoutInfoState.value.cacheWindowLogic }
 
     private val _scrollIndicatorState =
         object : ScrollIndicatorState {
@@ -177,16 +181,6 @@ internal constructor(
             override val viewportSize: Int
                 get() = layoutInfo.singleAxisViewportSize
         }
-
-    private fun calculateScrollOffset(): Int {
-        val info = layoutInfo
-        if (info.totalItemsCount == 0) return 0
-        return ((info.visibleItemsAverageSize() * firstVisibleItemIndex) / laneCount) +
-            firstVisibleItemScrollOffset
-    }
-
-    /** storage for lane assignments for each item for consistent scrolling in both directions */
-    internal val laneInfo = LazyStaggeredGridLaneInfo()
 
     override var canScrollForward: Boolean by mutableStateOf(false)
         private set
@@ -223,15 +217,16 @@ internal constructor(
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
+    internal var executeRequestsInHighPriorityMode = false
+
+    /** state controlling the scroll */
+    private val scrollableState = ScrollableState { -onScroll(-it) }
+
     /** Only used for testing to disable prefetching when needed to test the main logic. */
-    /*@VisibleForTesting*/
     internal var prefetchingEnabled: Boolean = true
 
     /** prefetch state used for precomputing items in the direction of scroll */
     internal val prefetchState: LazyLayoutPrefetchState = LazyLayoutPrefetchState(prefetchScheduler)
-
-    /** state controlling the scroll */
-    private val scrollableState = ScrollableState { -onScroll(-it) }
 
     /** scroll to be consumed during next/current layout pass */
     private var scrollToBeConsumed = 0f
@@ -251,7 +246,7 @@ internal constructor(
     private val currentItemPrefetchHandles = mutableIntObjectMapOf<PrefetchHandle>()
 
     internal val laneCount
-        get() = layoutInfoState.value.slots.sizes.size
+        get() = layoutInfoState.value.laneCount
 
     /**
      * [InteractionSource] that will be used to dispatch drag events when this list is being
@@ -272,6 +267,16 @@ internal constructor(
     internal val nearestRange: IntRange by scrollPosition.nearestRangeState
 
     internal val placementScopeInvalidator = ObservableScopeInvalidator()
+
+    /** storage for lane assignments for each item for consistent scrolling in both directions */
+    internal val laneInfo = LazyStaggeredGridLaneInfo()
+
+    private fun calculateScrollOffset(): Int {
+        val info = layoutInfo
+        if (info.totalItemsCount == 0) return 0
+        return ((info.visibleItemsAverageSize() * firstVisibleItemIndex) / laneCount) +
+            firstVisibleItemScrollOffset
+    }
 
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
@@ -306,6 +311,7 @@ internal constructor(
         checkPrecondition(abs(scrollToBeConsumed) <= 0.5f) {
             "entered drag with non-zero pending scroll"
         }
+        executeRequestsInHighPriorityMode = true
         scrollToBeConsumed += distance
 
         // scrollToBeConsumed will be consumed synchronously during the forceRemeasure invocation
@@ -344,11 +350,32 @@ internal constructor(
                 // we don't need to remeasure, so we only trigger re-placement:
                 placementScopeInvalidator.invalidateScope()
 
-                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed, scrolledLayoutInfo)
+                if (prefetchingEnabled) {
+                    if (isUsingCacheWindowInStaggeredGrids) {
+                        cacheWindowLogic?.onScroll(
+                            preScrollToBeConsumed - scrollToBeConsumed,
+                            scrolledLayoutInfo,
+                        )
+                    } else {
+                        notifyPrefetch(
+                            preScrollToBeConsumed - scrollToBeConsumed,
+                            scrolledLayoutInfo,
+                        )
+                    }
+                }
             } else {
                 remeasurement?.forceRemeasure()
 
-                notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed)
+                if (prefetchingEnabled) {
+                    if (isUsingCacheWindowInStaggeredGrids) {
+                        cacheWindowLogic?.onScroll(
+                            preScrollToBeConsumed - scrollToBeConsumed,
+                            layoutInfoState.value,
+                        )
+                    } else {
+                        notifyPrefetch(preScrollToBeConsumed - scrollToBeConsumed)
+                    }
+                }
             }
         }
 
@@ -443,6 +470,9 @@ internal constructor(
         // this offset should be considered as a scroll, not the placement change.
         if (positionChanged) {
             itemAnimator.reset()
+            if (isUsingCacheWindowInStaggeredGrids) {
+                cacheWindowLogic?.resetStrategy()
+            }
         }
         val layoutInfo = layoutInfoState.value
         val visibleItem = layoutInfo.findVisibleItem(index)
@@ -483,7 +513,7 @@ internal constructor(
         delta: Float,
         info: LazyStaggeredGridMeasureResult = layoutInfoState.value,
     ) {
-        if (prefetchingEnabled && info.visibleItemsInfo.isNotEmpty()) {
+        if (info.visibleItemsInfo.isNotEmpty()) {
             val scrollingForward = delta < 0
 
             val prefetchIndex =
@@ -613,7 +643,13 @@ internal constructor(
                 scrollPosition.updateScrollOffset(result.firstVisibleItemScrollOffsets)
             } else {
                 scrollPosition.updateFromMeasureResult(result)
-                cancelPrefetchIfVisibleItemsChanged(result)
+                if (prefetchingEnabled) {
+                    if (isUsingCacheWindowInStaggeredGrids) {
+                        result.cacheWindowLogic?.onVisibleItemsUpdated(result)
+                    } else {
+                        cancelPrefetchIfVisibleItemsChanged(result)
+                    }
+                }
             }
             canScrollBackward = result.canScrollBackward
             canScrollForward = result.canScrollForward
@@ -683,7 +719,7 @@ internal constructor(
     companion object {
         /** The default implementation of [Saver] for [LazyStaggeredGridState] */
         val Saver =
-            listSaver<LazyStaggeredGridState, IntArray>(
+            listSaver(
                 save = { state ->
                     listOf(state.scrollPosition.indices, state.scrollPosition.scrollOffsets)
                 },

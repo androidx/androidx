@@ -22,7 +22,9 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.lazy.layout.InvalidIndex
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,6 +34,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.fastLastOrNull
+import androidx.compose.ui.util.trace
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,8 +51,9 @@ internal fun rememberStaggeredGridMeasurePolicy(
     coroutineScope: CoroutineScope,
     slots: LazyGridStaggeredGridSlotsProvider,
     graphicsContext: GraphicsContext,
-): LazyLayoutMeasurePolicy =
-    remember(
+    cacheWindowLogic: LazyStaggeredGridCacheWindowLogic?,
+): LazyLayoutMeasurePolicy {
+    return remember(
         state,
         itemProviderLambda,
         contentPadding,
@@ -58,6 +63,7 @@ internal fun rememberStaggeredGridMeasurePolicy(
         crossAxisSpacing,
         slots,
         graphicsContext,
+        cacheWindowLogic,
     ) {
         LazyLayoutMeasurePolicy { constraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -127,11 +133,14 @@ internal fun rememberStaggeredGridMeasurePolicy(
                     isLookingAhead = isLookingAhead,
                     approachLayoutInfo = state.approachLayoutInfo,
                     graphicsContext = graphicsContext,
+                    cacheWindowLogic = cacheWindowLogic,
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
+            measureResult.cacheWindowLogic?.keepAroundItems(this)
             measureResult
         }
     }
+}
 
 private fun PaddingValues.startPadding(
     orientation: Orientation,
@@ -173,3 +182,45 @@ private fun PaddingValues.afterPadding(
                 calculateEndPadding(layoutDirection)
             }
     }
+
+private fun LazyStaggeredGridCacheWindowLogic.keepAroundItems(scope: LazyLayoutMeasureScope) {
+    trace("compose:lazy:cache_window:keepAroundItems") {
+        if (hasValidBounds()) {
+            val layoutInfo = cacheWindowScope.layoutInfo
+            val laneCount = perLaneCacheWindowStartIndex.size
+
+            for (lane in 0 until laneCount) {
+                val startIndex = perLaneCacheWindowStartIndex[lane]
+                val endIndex = perLaneCacheWindowEndItemIndex[lane]
+                if (startIndex == Int.MAX_VALUE || endIndex == Int.MIN_VALUE) continue
+
+                val firstVisible = layoutInfo.firstVisibleItemIndices[lane]
+                val lastVisible =
+                    layoutInfo.visibleItemsInfo.fastLastOrNull { it.lane == lane }?.index
+                        ?: InvalidIndex
+
+                // 1. Compose items in the cache window BEFORE the first visible item
+                var current = startIndex
+                while (current != InvalidIndex && current < firstVisible) {
+                    if (current >= 0) {
+                        scope.compose(current)
+                    }
+                    current = cacheWindowScope.getNextEndItemIndexInLane(lane, current)
+                }
+
+                // 2. Compose items in the cache window AFTER the last visible item
+                if (lastVisible != InvalidIndex) {
+                    val nextAfterLastVisible =
+                        cacheWindowScope.getNextEndItemIndexInLane(lane, lastVisible)
+                    current = nextAfterLastVisible
+                    while (current != InvalidIndex && current <= endIndex) {
+                        if (current >= 0) {
+                            scope.compose(current)
+                        }
+                        current = cacheWindowScope.getNextEndItemIndexInLane(lane, current)
+                    }
+                }
+            }
+        }
+    }
+}

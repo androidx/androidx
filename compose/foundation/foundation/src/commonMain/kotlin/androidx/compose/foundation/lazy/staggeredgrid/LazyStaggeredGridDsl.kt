@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -34,6 +35,80 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+
+/**
+ * Vertical staggered grid layout that composes and lays out only items currently visible on screen.
+ *
+ * Sample:
+ *
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ *
+ * @sample androidx.compose.foundation.samples.LazyVerticalStaggeredGridSpanSample
+ *
+ * Sample with custom cache window:
+ *
+ * @sample androidx.compose.foundation.samples.LazyStaggeredGridCacheWindowSample
+ * @param columns description of the size and number of staggered grid columns.
+ * @param modifier modifier to apply to the layout.
+ * @param state state object that can be used to control and observe staggered grid state.
+ * @param contentPadding padding around the content.
+ * @param reverseLayout reverse the direction of scrolling and layout. When `true`, items are laid
+ *   out in the reverse order and [LazyStaggeredGridState.firstVisibleItemIndex] == 0 means that
+ *   grid is scrolled to the bottom.
+ * @param verticalItemSpacing vertical spacing between items.
+ * @param horizontalArrangement arrangement specifying horizontal spacing between items. The item
+ *   arrangement specifics are ignored for now.
+ * @param flingBehavior logic responsible for handling fling.
+ * @param userScrollEnabled whether scroll with gestures or accessibility actions are allowed. It is
+ *   still possible to scroll programmatically through state when [userScrollEnabled] is set to
+ *   false
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
+ *   need to use `Modifier.overscroll` separately.
+ * @param cacheWindow specifies the size of the ahead and behind window to be used as per
+ *   [LazyLayoutCacheWindow].
+ * @param content a lambda describing the staggered grid content. Inside this block you can use
+ *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
+ *   single one.
+ */
+@Composable
+fun LazyVerticalStaggeredGrid(
+    columns: StaggeredGridCells,
+    modifier: Modifier = Modifier,
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalItemSpacing: Dp = 0.dp,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    cacheWindow: LazyLayoutCacheWindow =
+        LazyLayoutCacheWindow(
+            behindFraction = 0f,
+            aheadFraction = 0.5f,
+            isNonScrollCachingEnabled = false,
+        ),
+    content: LazyStaggeredGridScope.() -> Unit,
+) {
+    LazyStaggeredGrid(
+        modifier = modifier,
+        orientation = Orientation.Vertical,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        mainAxisSpacing = verticalItemSpacing,
+        crossAxisSpacing = horizontalArrangement.spacing,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        overscrollEffect = overscrollEffect,
+        slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
+        cacheWindow = cacheWindow,
+        content = content,
+    )
+}
 
 /**
  * Vertical staggered grid layout that composes and lays out only items currently visible on screen.
@@ -80,18 +155,23 @@ fun LazyVerticalStaggeredGrid(
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
-    LazyStaggeredGrid(
+    LazyVerticalStaggeredGrid(
+        columns = columns,
         modifier = modifier,
-        orientation = Orientation.Vertical,
         state = state,
         contentPadding = contentPadding,
         reverseLayout = reverseLayout,
-        mainAxisSpacing = verticalItemSpacing,
-        crossAxisSpacing = horizontalArrangement.spacing,
+        verticalItemSpacing = verticalItemSpacing,
+        horizontalArrangement = horizontalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
+        cacheWindow =
+            LazyLayoutCacheWindow(
+                behindFraction = 0f,
+                aheadFraction = 0.5f,
+                isNonScrollCachingEnabled = false,
+            ),
         content = content,
     )
 }
@@ -166,6 +246,81 @@ private fun rememberColumnSlots(
  * Sample with custom item spans:
  *
  * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSpanSample
+ *
+ * Sample with custom cache window:
+ *
+ * @sample androidx.compose.foundation.samples.LazyStaggeredGridCacheWindowSample
+ * @param rows description of the size and number of staggered grid columns.
+ * @param modifier modifier to apply to the layout.
+ * @param state state object that can be used to control and observe staggered grid state.
+ * @param contentPadding padding around the content.
+ * @param reverseLayout reverse the direction of scrolling and layout. When `true`, items are laid
+ *   out in the reverse order and [LazyStaggeredGridState.firstVisibleItemIndex] == 0 means that
+ *   grid is scrolled to the end.
+ * @param verticalArrangement arrangement specifying vertical spacing between items. The item
+ *   arrangement specifics are ignored for now.
+ * @param horizontalItemSpacing horizontal spacing between items.
+ * @param flingBehavior logic responsible for handling fling.
+ * @param userScrollEnabled whether scroll with gestures or accessibility actions are allowed. It is
+ *   still possible to scroll programmatically through state when [userScrollEnabled] is set to
+ *   false
+ * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
+ *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
+ *   need to use Modifier.overscroll separately.
+ * @param cacheWindow specifies the size of the ahead and behind window to be used as per
+ *   [LazyLayoutCacheWindow].
+ * @param content a lambda describing the staggered grid content. Inside this block you can use
+ *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
+ *   single one.
+ */
+@Composable
+fun LazyHorizontalStaggeredGrid(
+    rows: StaggeredGridCells,
+    modifier: Modifier = Modifier,
+    state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    reverseLayout: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(0.dp),
+    horizontalItemSpacing: Dp = 0.dp,
+    flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    userScrollEnabled: Boolean = true,
+    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    cacheWindow: LazyLayoutCacheWindow =
+        LazyLayoutCacheWindow(
+            behindFraction = 0f,
+            aheadFraction = 0.5f,
+            isNonScrollCachingEnabled = false,
+        ),
+    content: LazyStaggeredGridScope.() -> Unit,
+) {
+    LazyStaggeredGrid(
+        modifier = modifier,
+        orientation = Orientation.Horizontal,
+        state = state,
+        contentPadding = contentPadding,
+        reverseLayout = reverseLayout,
+        mainAxisSpacing = horizontalItemSpacing,
+        crossAxisSpacing = verticalArrangement.spacing,
+        flingBehavior = flingBehavior,
+        userScrollEnabled = userScrollEnabled,
+        overscrollEffect = overscrollEffect,
+        slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
+        cacheWindow = cacheWindow,
+        content = content,
+    )
+}
+
+/**
+ * Horizontal staggered grid layout that composes and lays out only items currently visible on
+ * screen.
+ *
+ * Sample:
+ *
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSample
+ *
+ * Sample with custom item spans:
+ *
+ * @sample androidx.compose.foundation.samples.LazyHorizontalStaggeredGridSpanSample
  * @param rows description of the size and number of staggered grid columns.
  * @param modifier modifier to apply to the layout.
  * @param state state object that can be used to control and observe staggered grid state.
@@ -201,18 +356,23 @@ fun LazyHorizontalStaggeredGrid(
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
-    LazyStaggeredGrid(
+    LazyHorizontalStaggeredGrid(
+        rows = rows,
         modifier = modifier,
-        orientation = Orientation.Horizontal,
         state = state,
         contentPadding = contentPadding,
         reverseLayout = reverseLayout,
-        mainAxisSpacing = horizontalItemSpacing,
-        crossAxisSpacing = verticalArrangement.spacing,
+        horizontalItemSpacing = horizontalItemSpacing,
+        verticalArrangement = verticalArrangement,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
+        cacheWindow =
+            LazyLayoutCacheWindow(
+                behindFraction = 0f,
+                aheadFraction = 0.5f,
+                isNonScrollCachingEnabled = false,
+            ),
         content = content,
     )
 }
