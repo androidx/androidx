@@ -329,7 +329,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_start_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -344,7 +344,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -359,7 +359,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_end_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -374,7 +374,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -389,7 +389,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_center_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -404,7 +404,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -419,7 +419,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_spaceBetween_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -434,7 +434,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -449,7 +449,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_spaceAround_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -464,7 +464,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -479,7 +479,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun justifyContent_spaceEvenly_reverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -494,7 +494,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -723,7 +723,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
     // AlignItems — reverse direction
     @Test
     fun alignItems_end_reverse() {
-        val crossPositions = mutableListOf<Float>()
+        val crossPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -738,7 +738,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    crossPositions.add(index, crossAxis(it.positionInParent()))
+                                    crossPositions[index] = crossAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -754,7 +754,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun alignItems_center_reverse() {
-        val crossPositions = mutableListOf<Float>()
+        val crossPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -769,7 +769,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    crossPositions.add(index, crossAxis(it.positionInParent()))
+                                    crossPositions[index] = crossAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -844,7 +844,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun gap_withReverse() {
-        val mainPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -859,7 +859,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -1090,7 +1090,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun wrapReverse() {
-        val crossPositions = mutableListOf<Float>()
+        val crossPositions = MutableList(6) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -1104,7 +1104,7 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(6) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    crossPositions.add(index, crossAxis(it.positionInParent()))
+                                    crossPositions[index] = crossAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -1927,8 +1927,8 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun combined_reverse_center_alignCenter() {
-        val mainPositions = mutableListOf<Float>()
-        val crossPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
+        val crossPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -1944,8 +1944,8 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
-                                    crossPositions.add(index, crossAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
+                                    crossPositions[index] = crossAxis(it.positionInParent())
                                 }
                             )
                         }
@@ -1961,8 +1961,8 @@ class FlexBoxDirectionTest(private val directionName: String) {
 
     @Test
     fun combined_reverse_spaceBetween_alignEnd() {
-        val mainPositions = mutableListOf<Float>()
-        val crossPositions = mutableListOf<Float>()
+        val mainPositions = MutableList(3) { -1f }
+        val crossPositions = MutableList(3) { -1f }
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides NoOpDensity) {
@@ -1978,8 +1978,8 @@ class FlexBoxDirectionTest(private val directionName: String) {
                         repeat(3) { index ->
                             Box(
                                 Modifier.size(20.dp).onPlaced {
-                                    mainPositions.add(index, mainAxis(it.positionInParent()))
-                                    crossPositions.add(index, crossAxis(it.positionInParent()))
+                                    mainPositions[index] = mainAxis(it.positionInParent())
+                                    crossPositions[index] = crossAxis(it.positionInParent())
                                 }
                             )
                         }
