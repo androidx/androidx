@@ -768,6 +768,7 @@ public class WebSettingsCompat {
      * happen depending on the installed version of WebView, but any response is discarded and
      * nothing will be stored on the device.
      */
+    @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_DISABLED =
             WebSettingsBoundaryInterface.AttributionBehavior.DISABLED;
     /**
@@ -777,6 +778,7 @@ public class WebSettingsCompat {
      * <p>
      * This is the default behavior.
      */
+    @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_WEB_TRIGGER;
     /**
@@ -787,12 +789,14 @@ public class WebSettingsCompat {
      * <a href="https://developer.android.com/design-for-safety/privacy-sandbox/attribution-app-to-web#register-attribution">
      * use web sources</a>.
      */
+    @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_WEB_SOURCE_AND_WEB_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.WEB_SOURCE_AND_WEB_TRIGGER;
     /**
      * AttributionRegistrationBehavior that allows apps to register app sources and app triggers
      * from WebView.
      */
+    @SuppressWarnings("deprecation")
     public static final int ATTRIBUTION_BEHAVIOR_APP_SOURCE_AND_APP_TRIGGER =
             WebSettingsBoundaryInterface.AttributionBehavior.APP_SOURCE_AND_APP_TRIGGER;
 
