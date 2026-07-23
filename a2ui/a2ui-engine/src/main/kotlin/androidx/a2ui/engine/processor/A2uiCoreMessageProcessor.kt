@@ -36,6 +36,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
@@ -98,7 +99,7 @@ public class A2uiCoreMessageProcessor(
     override val outboundEvents: Flow<A2uiClientToServerMessage> = _outboundEvents.asSharedFlow()
 
     /** A flow of the list of active surface ids currently managed by the processor. */
-    override val activeSurfaces: Flow<List<A2uiSurfaceModel>> = surfaceGroup.activeSurfaces
+    override val activeSurfaces: StateFlow<List<A2uiSurfaceModel>> = surfaceGroup.activeSurfaces
 
     /**
      * Enqueues a parsed protocol message to be processed by the core engine.

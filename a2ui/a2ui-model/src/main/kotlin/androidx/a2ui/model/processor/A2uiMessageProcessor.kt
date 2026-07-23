@@ -19,6 +19,7 @@ package androidx.a2ui.model.processor
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The A2UI message processor.
@@ -30,7 +31,7 @@ import kotlinx.coroutines.flow.Flow
 public interface A2uiMessageProcessor {
 
     /** A flow of the active surface models currently managed by the processor. */
-    public val activeSurfaces: Flow<List<A2uiSurfaceModel>>
+    public val activeSurfaces: StateFlow<List<A2uiSurfaceModel>>
 
     /** A flow of user actions and error payloads to be transmitted to the server. */
     public val outboundEvents: Flow<A2uiClientToServerMessage>
