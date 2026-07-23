@@ -16,11 +16,14 @@
 package androidx.lifecycle
 
 /**
- * A scope that owns [ViewModelStore].
+ * A scope that owns a [ViewModelStore].
  *
- * A responsibility of an implementation of this interface is to retain owned ViewModelStore during
- * the configuration changes and call [ViewModelStore.clear], when this scope is going to be
- * destroyed.
+ * Implementations of this interface must retain the owned [ViewModelStore] during configuration
+ * changes and call [ViewModelStore.clear] when this scope is destroyed.
+ *
+ * @see ViewModel
+ * @see ViewModelProvider
+ * @see ViewModelStore
  */
 public interface ViewModelStoreOwner {
 

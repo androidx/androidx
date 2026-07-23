@@ -18,68 +18,102 @@ package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.internal.DefaultViewModelProviderFactory
 import kotlin.reflect.KClass
 
 /**
- * A utility class that provides `ViewModels` for a scope.
+ * A utility class that manages the lifecycle, caching, and instantiation of [ViewModel] instances.
  *
- * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained by passing it to
- * the constructor: `ViewModelProvider(myFragment)`
+ * A [ViewModelProvider] acts as the central orchestrator that coordinates:
+ * 1. **Caching / Retrieval**: It checks a [ViewModelStore] to see if an instance of the requested
+ *    [ViewModel] class already exists under a given key. If found, it returns the cached instance.
+ * 2. **Extras Injection**: It automatically populates a [MutableCreationExtras] with the unique
+ *    registration key under [VIEW_MODEL_KEY], combining it with default [CreationExtras] provided
+ *    by the owner.
+ * 3. **Instantiation**: If no cached instance exists, it invokes a [ViewModelProvider.Factory] to
+ *    create a new instance using the prepared extras, caches it in the [ViewModelStore], and
+ *    returns it.
+ *
+ * To ensure that [ViewModel] instances survive configuration changes, the underlying
+ * [ViewModelStore] must be retained (for example, by using a [ViewModelStoreOwner] such as
+ * `ComponentActivity` or `Fragment` which automatically handles this retention).
+ *
+ * The following diagram illustrates the retrieval and creation flow of a [ViewModel] instance:
+ * ```
+ *                  ViewModelProvider.get(key)
+ *                              |
+ *                              v
+ *                     Is ViewModel cached
+ *                     in ViewModelStore?
+ *                           /   \
+ *                         Yes    No
+ *                         /       \
+ *                        v         v
+ *              Return cached      Create via Factory & CreationExtras,
+ *              ViewModel          cache in ViewModelStore, and return
+ * ```
+ *
+ * @see CreationExtras
+ * @see ViewModel
+ * @see ViewModelProvider.Factory
+ * @see ViewModelStore
+ * @see ViewModelStoreOwner
  */
 public expect class ViewModelProvider {
 
     /**
-     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
-     * activity), associated with this `ViewModelProvider`.
+     * Returns an existing [ViewModel] or creates a new one in the scope (usually, a `Fragment` or
+     * an `Activity`) associated with this [ViewModelProvider].
      *
-     * The created ViewModel is associated with the given scope and will be retained as long as the
-     * scope is alive (e.g. if it is an activity, until it is finished or process is killed).
+     * The created [ViewModel] is associated with the given scope and is retained as long as the
+     * scope is alive (e.g., until the `Activity` is finished or the process is killed).
      *
-     * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     *   present.
-     * @return A ViewModel that is an instance of the given type `T`.
-     * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
+     * @param modelClass [KClass] of the [ViewModel] to retrieve or create
+     * @return [ViewModel] instance of type [T]
+     * @throws IllegalArgumentException if the given [modelClass] is a local or anonymous class
      */
     @MainThread public operator fun <T : ViewModel> get(modelClass: KClass<T>): T
 
     /**
-     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
-     * activity), associated with this `ViewModelProvider`.
+     * Returns an existing [ViewModel] or creates a new one in the scope (usually, a `Fragment` or
+     * an `Activity`) associated with this [ViewModelProvider].
      *
-     * The created ViewModel is associated with the given scope and will be retained as long as the
-     * scope is alive (e.g. if it is an activity, until it is finished or process is killed).
+     * The created [ViewModel] is associated with the given scope and is retained as long as the
+     * scope is alive (e.g., until the `Activity` is finished or the process is killed).
      *
-     * @param key The key to use to identify the ViewModel.
-     * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     *   present.
-     * @return A ViewModel that is an instance of the given type `T`.
+     * @param key identifier of the [ViewModel]
+     * @param modelClass [KClass] of the [ViewModel] to retrieve or create
+     * @return [ViewModel] instance of type [T]
      */
     @MainThread public operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T
 
-    /** Implementations of `Factory` interface are responsible to instantiate ViewModels. */
+    /**
+     * Implementations of the [Factory] interface are responsible for instantiating [ViewModel]s.
+     */
     public interface Factory {
 
         /**
-         * Creates a new instance of the given `Class`.
+         * Creates a new instance of the given [modelClass].
          *
-         * @param modelClass a [KClass] whose instance is requested
-         * @param extras an additional information for this creation request
-         * @return a newly created [ViewModel]
+         * @param modelClass [KClass] of the [ViewModel] to create
+         * @param extras [CreationExtras] passed to the [Factory] to create the [ViewModel]
+         * @return new [ViewModel] instance of type [T]
          */
         public open fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T
     }
 
     public companion object {
         /**
-         * Creates a [ViewModelProvider]. This provider generates [ViewModel] instances using the
-         * specified [Factory] and stores them within the [ViewModelStore] of the provided
-         * [ViewModelStoreOwner].
+         * Creates a [ViewModelProvider] bound to the given [ViewModelStoreOwner].
          *
-         * @param owner The [ViewModelStoreOwner] that will manage the lifecycle of the created
-         *   [ViewModel] instances.
-         * @param factory The [Factory] responsible for creating new [ViewModel] instances.
-         * @param extras Additional data to be passed to the [Factory] during [ViewModel] creation.
+         * The provider generates [ViewModel] instances using the specified [Factory] and stores
+         * them within the [ViewModelStore] of the [ViewModelStoreOwner].
+         *
+         * @param owner [ViewModelStoreOwner] that manages the lifecycle of the created [ViewModel]
+         *   instances
+         * @param factory [Factory] responsible for creating new [ViewModel] instances
+         * @param extras [CreationExtras] passed to the [Factory] to create the [ViewModel]
          */
         public fun create(
             owner: ViewModelStoreOwner,
@@ -88,13 +122,14 @@ public expect class ViewModelProvider {
         ): ViewModelProvider
 
         /**
-         * Creates a [ViewModelProvider]. This provider generates [ViewModel] instances using the
-         * specified [Factory] and stores them within the [ViewModelStore] of the provided
-         * [ViewModelStoreOwner].
+         * Creates a [ViewModelProvider] backed by the given [ViewModelStore].
          *
-         * @param store `ViewModelStore` where ViewModels will be stored.
-         * @param factory factory a `Factory` which will be used to instantiate new `ViewModels`
-         * @param extras Additional data to be passed to the [Factory] during [ViewModel] creation.
+         * The provider generates [ViewModel] instances using the specified [Factory] and stores
+         * them within the provided [ViewModelStore].
+         *
+         * @param store [ViewModelStore] where the [ViewModel] instances are stored
+         * @param factory [Factory] used to instantiate new [ViewModel] instances
+         * @param extras [CreationExtras] passed to the [Factory] to create the [ViewModel]
          */
         public fun create(
             store: ViewModelStore,

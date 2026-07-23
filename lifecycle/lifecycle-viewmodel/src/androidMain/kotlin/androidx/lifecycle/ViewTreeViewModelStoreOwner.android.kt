@@ -22,15 +22,17 @@ import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.viewmodel.R
 
 /**
- * Set the [ViewModelStoreOwner] associated with the given [View]. Calls to [get] from this view or
- * descendants will return `viewModelStoreOwner`.
+ * Sets the [ViewModelStoreOwner] associated with the given [View].
  *
- * This should only be called by constructs such as activities or fragments that manage a view tree
- * and retain state through a [ViewModelStoreOwner]. Callers should only set a [ViewModelStoreOwner]
- * that will be *stable.* The associated [ViewModelStore] should be cleared if the view tree is
- * removed and is not guaranteed to later become reattached to a window.
+ * Calls to [findViewTreeViewModelStoreOwner] from this view or its descendants will return
+ * [viewModelStoreOwner].
  *
- * @param viewModelStoreOwner ViewModelStoreOwner associated with the given view
+ * This should only be called by constructs such as `Activity`s or `Fragment`s that manage a view
+ * tree and retain state through a [ViewModelStoreOwner]. Callers should only set a
+ * [ViewModelStoreOwner] that is stable. The associated [ViewModelStore] should be cleared if the
+ * view tree is removed and is not guaranteed to later become reattached to a window.
+ *
+ * @param viewModelStoreOwner [ViewModelStoreOwner] to associate with this [View]
  */
 @JvmName("set")
 public fun View.setViewTreeViewModelStoreOwner(viewModelStoreOwner: ViewModelStoreOwner?) {
@@ -38,10 +40,11 @@ public fun View.setViewTreeViewModelStoreOwner(viewModelStoreOwner: ViewModelSto
 }
 
 /**
- * Retrieve the [ViewModelStoreOwner] associated with the given [View]. This may be used to retain
- * state associated with this view across configuration changes.
+ * Retrieves the [ViewModelStoreOwner] associated with the given [View].
  *
- * @return The [ViewModelStoreOwner] associated with this view and/or some subset of its ancestors
+ * Used to retain state associated with this view across configuration changes.
+ *
+ * @return [ViewModelStoreOwner] associated with this view or its ancestors
  */
 @JvmName("get")
 public fun View.findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? {

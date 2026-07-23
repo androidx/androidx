@@ -21,13 +21,15 @@ package androidx.lifecycle
 import android.app.Application
 
 /**
- * Application context aware [ViewModel].
+ * [ViewModel] that has access to the [Application] context.
  *
- * Subclasses must have a constructor which accepts [Application] as the only parameter.
+ * Subclasses must have a constructor that accepts [Application] as the only parameter.
+ *
+ * @see ViewModel
  */
 public open class AndroidViewModel(private val application: Application) : ViewModel() {
 
-    /** Return the application. */
+    /** Returns the [Application] instance. */
     @Suppress("UNCHECKED_CAST")
     public open fun <T : Application> getApplication(): T {
         return application as T
@@ -35,12 +37,11 @@ public open class AndroidViewModel(private val application: Application) : ViewM
 }
 
 /**
- * The underlying [Application] inside [AndroidViewModel]
+ * Returns the underlying [Application] of the [AndroidViewModel].
  *
- * One common hierarchy, such as KotlinViewModel <: JavaViewModel <: [AndroidViewModel], exposes
- * private property `application` incorrectly. It is now fixed in K2 (Kotlin language version 2.0),
- * but not backward compatible. This `inline` extension will make compilations of both pre- and
- * post- 2.0 go well.
+ * Works around a Kotlin compilation issue where class hierarchies extending [AndroidViewModel]
+ * (e.g., `KotlinViewModel` extending `JavaViewModel` extending [AndroidViewModel]) incorrectly
+ * expose the private `application` property.
  */
 public inline val AndroidViewModel.application: Application
     get() = getApplication()
