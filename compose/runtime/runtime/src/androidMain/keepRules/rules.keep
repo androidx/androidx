@@ -37,7 +37,7 @@
      private static boolean isMinified return true;
 }
 
-# Assume the experimental link-buffer composer is not enabled
+# Prohibit runtime writes to the isLinkBufferComposerEnabled field in release builds
 -assumevalues public class androidx.compose.runtime.ComposeRuntimeFlags {
-    static boolean isLinkBufferComposerEnabled return false;
+    private static boolean isMinified return true;
 }
