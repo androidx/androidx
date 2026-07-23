@@ -22,4 +22,5 @@ internal actual class PointerInputEvent(
     actual val uptime: Long,
     actual val pointers: List<PointerInputEventData>,
     var motionEvent: MotionEvent?,
+    val activeGesture: PointerClassification = PointerClassification.None,
 )

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.os.Build
 import android.util.SparseLongArray
 import android.view.InputDevice
 import android.view.MotionEvent
@@ -23,6 +24,7 @@ import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
@@ -32,10 +34,15 @@ import android.view.MotionEvent.AXIS_HSCROLL
 import android.view.MotionEvent.AXIS_VSCROLL
 import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1409,6 +1416,337 @@ class MotionEventAdapterTest {
         assertThat(pointerInputEvent.motionEvent).isSameInstanceAs(motionEvent)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_resetOnHoverExit() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // Start with normal hover
+        val hoverEnter =
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_ENTER,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        val event1 = motionEventAdapter.convertToPointerInputEvent(hoverEnter)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+        assertThat(event1?.activeGesture).isEqualTo(PointerClassification.None)
+
+        // Swipe starts
+        val downSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        val event2 = motionEventAdapter.convertToPointerInputEvent(downSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+        assertThat(event2?.activeGesture).isEqualTo(PointerClassification.Pan)
+
+        // Move event during swipe drops classification to NONE
+        val moveSwipe =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        val event3 = motionEventAdapter.convertToPointerInputEvent(moveSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+        assertThat(event3?.activeGesture).isEqualTo(PointerClassification.Pan)
+
+        // Hover exit with TWO_FINGER_SWIPE classification should not reset
+        val hoverExitSwipe =
+            MotionEvent(
+                eventTime = 3,
+                action = ACTION_HOVER_EXIT,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        val event4 = motionEventAdapter.convertToPointerInputEvent(hoverExitSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+        assertThat(event4?.activeGesture).isEqualTo(PointerClassification.Pan)
+
+        // Normal hover exit (classification NONE) should reset
+        val hoverExitNormal =
+            MotionEvent(
+                eventTime = 4,
+                action = ACTION_HOVER_EXIT,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        val event5 = motionEventAdapter.convertToPointerInputEvent(hoverExitNormal)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+        assertThat(event5?.activeGesture).isEqualTo(PointerClassification.None)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPan_coordinatesStationaryAtSwipeStart() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // 1. Hover move to (50f, 60f)
+        val hoverMove =
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(50f, 60f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverMove)
+
+        // 2. Swipe starts at finger position (100f, 200f)
+        val downSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(100f, 200f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        val event2 = motionEventAdapter.convertToPointerInputEvent(downSwipe)
+
+        // The processed position should be stationary at swipe start (100f, 200f), not hover (50f,
+        // 60f)
+        assertThat(event2).isNotNull()
+        assertPointerInputEventData(
+            event2!!.pointers[0],
+            PointerId(0),
+            isDown = false,
+            x = 100f,
+            y = 200f,
+            type = PointerType.Mouse,
+            originalX = 100f,
+            originalY = 200f,
+        )
+
+        // 3. Swipe move to finger position (120f, 220f)
+        val moveSwipe =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(120f, 220f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        val event3 = motionEventAdapter.convertToPointerInputEvent(moveSwipe)
+
+        // The processed position should still be stationary at swipe start (100f, 200f)
+        assertThat(event3).isNotNull()
+        assertPointerInputEventData(
+            event3!!.pointers[0],
+            PointerId(0),
+            isDown = false,
+            x = 100f,
+            y = 200f,
+            type = PointerType.Mouse,
+            originalX = 120f,
+            originalY = 220f,
+        )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun trackpadGestureClassifications() {
+        // Test Pinch classification
+        val pinchEvent =
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_DOWN,
+                numPointers = 2,
+                actionIndex = 0,
+                pointerProperties =
+                    arrayOf(
+                        PointerProperties(1, TOOL_TYPE_FINGER),
+                        PointerProperties(2, TOOL_TYPE_FINGER),
+                    ),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f), PointerCoords(20f, 20f)),
+                classification = MotionEvent.CLASSIFICATION_PINCH,
+            )
+        val pinchResult = motionEventAdapter.convertToPointerInputEvent(pinchEvent)
+        assertThat(pinchResult?.activeGesture).isEqualTo(PointerClassification.Pinch)
+
+        // Test Ambiguous classification
+        val ambiguousEvent =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_AMBIGUOUS_GESTURE,
+            )
+        val ambiguousResult = motionEventAdapter.convertToPointerInputEvent(ambiguousEvent)
+        assertThat(ambiguousResult?.activeGesture).isEqualTo(PointerClassification.Ambiguous)
+
+        // Test Deep Press classification
+        val deepPressEvent =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_DEEP_PRESS,
+            )
+        val deepPressResult = motionEventAdapter.convertToPointerInputEvent(deepPressEvent)
+        assertThat(deepPressResult?.activeGesture).isEqualTo(PointerClassification.DeepPress)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_resetOnHoverEnter() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // Start with normal hover
+        val hoverEnter =
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_ENTER,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverEnter)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+
+        // Swipe starts
+        val downSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(downSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // Normal hover enter (classification NONE) should reset
+        val hoverEnterNormal =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_HOVER_ENTER,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverEnterNormal)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+
+        // Start another swipe
+        motionEventAdapter.convertToPointerInputEvent(downSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // End swipe stream with ACTION_UP
+        val upSwipe =
+            MotionEvent(
+                eventTime = 3,
+                action = ACTION_UP,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(upSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+
+        // Normal hover move (classification NONE) should reset
+        val hoverMoveNormal =
+            MotionEvent(
+                eventTime = 4,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverMoveNormal)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_noResetOnHoverMoveDuringSwipe() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // Start with normal hover
+        val hoverEnter =
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_ENTER,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverEnter)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+
+        // Swipe starts
+        val downSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_DOWN,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(downSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // Interleaved hover move (classification NONE) during active touch stream should NOT reset!
+        val hoverMoveInterleaved =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_MOUSE)),
+                pointerCoords = arrayOf(PointerCoords(15f, 15f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(hoverMoveInterleaved)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+    }
+
     private fun MotionEventAdapter.convertToPointerInputEvent(motionEvent: MotionEvent) =
         convertToPointerInputEvent(motionEvent, positionCalculator)
 
@@ -1469,3 +1807,33 @@ private fun assertPointerInputEventData(
     assertThat(actual.originalEventPosition.y).isEqualTo(originalY)
     assertThat(actual.type).isEqualTo(type)
 }
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private fun MotionEvent(
+    eventTime: Int,
+    action: Int,
+    numPointers: Int,
+    actionIndex: Int,
+    pointerProperties: Array<MotionEvent.PointerProperties>,
+    pointerCoords: Array<MotionEvent.PointerCoords>,
+    classification: Int,
+    downTime: Long = 0,
+): MotionEvent =
+    MotionEvent.obtain(
+        downTime,
+        eventTime.toLong(),
+        action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+        numPointers,
+        pointerProperties,
+        pointerCoords,
+        0,
+        0,
+        0f,
+        0f,
+        0,
+        0,
+        InputDevice.SOURCE_MOUSE,
+        0,
+        0,
+        classification,
+    )!!

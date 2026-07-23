@@ -161,6 +161,7 @@ import androidx.compose.ui.input.pointer.AndroidPointerIcon
 import androidx.compose.ui.input.pointer.AndroidPointerIconType
 import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.input.pointer.MotionEventAdapter
+import androidx.compose.ui.input.pointer.PointerClassification
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.input.pointer.PointerInputEventProcessor
@@ -1083,6 +1084,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                                     // scroll if no buttons are pressed.
                                     ACTION_HOVER_ENTER
                                 }
+                                // A trackpad pan move event is sent as ACTION_MOVE with two-finger
+                                // swipe classification. Since we suppress hover updates during
+                                // active pan, we resend the last event as ACTION_HOVER_MOVE after
+                                // layout to update the hover state under the stationary cursor.
+                                ACTION_MOVE -> {
+                                    ACTION_HOVER_MOVE
+                                }
                                 else -> {
                                     ACTION_MOVE
                                 }
@@ -1168,9 +1176,17 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         if (lastEvent != null) {
             // We currently only care about hover states being updated when layout changes (and
             // this includes when the mouse, stylus, etc. scrolls and needs to update hover).
+            // Trackpad pan (two-finger swipe) is another system-recognized gesture that triggers
+            // scrolling, which requires us to update the hover state as layout changes.
+            val isTrackpadPan =
+                ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
+                    lastEvent.actionMasked == ACTION_MOVE &&
+                    SDK_INT >= 34 &&
+                    lastEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+
             val isHoverOrScroll =
                 lastEvent.actionMasked in
-                    listOf(ACTION_HOVER_ENTER, ACTION_HOVER_MOVE, ACTION_SCROLL)
+                    listOf(ACTION_HOVER_ENTER, ACTION_HOVER_MOVE, ACTION_SCROLL) || isTrackpadPan
 
             val isAnyButtonDown = previousMotionEvent?.buttonState != 0
 
@@ -3068,7 +3084,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 ?.let { lastDownPointerPosition = it }
 
             val result =
-                pointerInputEventProcessor.process(pointerInputEvent, this, isInBounds(motionEvent))
+                pointerInputEventProcessor.process(
+                    pointerInputEvent,
+                    this,
+                    isInBounds(motionEvent, pointerInputEvent.activeGesture),
+                )
             // Clear the MotionEvent reference after dispatching it.
             pointerInputEvent.motionEvent = null
 
@@ -3131,23 +3151,58 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             } else {
                 motionEvent.downTime
             }
+        // Simulated hover events (sent to update hover states under a stationary cursor after
+        // layout changes) should not inherit gesture classifications like trackpad pan. Doing so
+        // would incorrectly trigger pan gestures or suppress normal hover state updates.
+        val classification =
+            if (
+                action == ACTION_HOVER_ENTER ||
+                    action == ACTION_HOVER_MOVE ||
+                    action == ACTION_HOVER_EXIT
+            ) {
+                MotionEvent.CLASSIFICATION_NONE
+            } else if (SDK_INT >= 29) {
+                motionEvent.classification
+            } else {
+                MotionEvent.CLASSIFICATION_NONE
+            }
         val event =
-            MotionEvent.obtain(
-                /* downTime */ downTime,
-                /* eventTime */ eventTime,
-                /* action */ action,
-                /* pointerCount */ pointerCount,
-                /* pointerProperties */ pointerProperties,
-                /* pointerCoords */ pointerCoords,
-                /* metaState */ motionEvent.metaState,
-                /* buttonState */ buttonState,
-                /* xPrecision */ motionEvent.xPrecision,
-                /* yPrecision */ motionEvent.yPrecision,
-                /* deviceId */ motionEvent.deviceId,
-                /* edgeFlags */ motionEvent.edgeFlags,
-                /* source */ motionEvent.source,
-                /* flags */ motionEvent.flags,
-            )
+            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled && SDK_INT >= 34) {
+                Api34Impl.obtainMotionEventWithClassification(
+                    /* downTime */ downTime,
+                    /* eventTime */ eventTime,
+                    /* action */ action,
+                    /* pointerCount */ pointerCount,
+                    /* pointerProperties */ pointerProperties,
+                    /* pointerCoords */ pointerCoords,
+                    /* metaState */ motionEvent.metaState,
+                    /* buttonState */ buttonState,
+                    /* xPrecision */ motionEvent.xPrecision,
+                    /* yPrecision */ motionEvent.yPrecision,
+                    /* deviceId */ motionEvent.deviceId,
+                    /* edgeFlags */ motionEvent.edgeFlags,
+                    /* source */ motionEvent.source,
+                    /* flags */ motionEvent.flags,
+                    /* classification */ classification,
+                )
+            } else {
+                MotionEvent.obtain(
+                    /* downTime */ downTime,
+                    /* eventTime */ eventTime,
+                    /* action */ action,
+                    /* pointerCount */ pointerCount,
+                    /* pointerProperties */ pointerProperties,
+                    /* pointerCoords */ pointerCoords,
+                    /* metaState */ motionEvent.metaState,
+                    /* buttonState */ buttonState,
+                    /* xPrecision */ motionEvent.xPrecision,
+                    /* yPrecision */ motionEvent.yPrecision,
+                    /* deviceId */ motionEvent.deviceId,
+                    /* edgeFlags */ motionEvent.edgeFlags,
+                    /* source */ motionEvent.source,
+                    /* flags */ motionEvent.flags,
+                )
+            }
         val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(event, this)!!
         pointerInputEventProcessor.process(pointerInputEvent, this, true)
         event.recycle()
@@ -3169,7 +3224,23 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override fun canScrollVertically(direction: Int): Boolean =
         composeAccessibilityDelegate.canScroll(vertical = true, direction, lastDownPointerPosition)
 
-    private fun isInBounds(motionEvent: MotionEvent): Boolean {
+    private fun isInBounds(
+        motionEvent: MotionEvent,
+        activeGesture: PointerClassification = PointerClassification.None,
+    ): Boolean {
+        // Trackpad pan events (two-finger swipe) have MotionEvent coordinates that represent
+        // the moving "fake fingers" of the pan gesture. These coordinates quickly scroll
+        // off-screen, but the actual cursor remains stationary inside the view. We consider
+        // these events in-bounds so that Compose continues to evaluate the hover state of
+        // items relative to the stationary cursor position.
+        // The correct thing to do here would probably be to read off the cursor position,
+        // assuming we could access it in the future.
+        if (
+            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
+                activeGesture == PointerClassification.Pan
+        ) {
+            return true
+        }
         val x = motionEvent.x
         val y = motionEvent.y
         return (x in 0f..width.toFloat() && y in 0f..height.toFloat())
@@ -4246,6 +4317,55 @@ private object Api31Impl {
             androidComposeView.contentCaptureManager.onClearTranslation()
             return true
         }
+    }
+}
+
+@RequiresApi(34)
+private object Api34Impl {
+    /**
+     * Obtains a MotionEvent with the specified classification. This is necessary on API 34+ to
+     * ensure simulated trackpad pan events (two-finger swipes) are created with their
+     * classification when resent after layout. Otherwise, they are re-interpreted as normal hover
+     * move events, causing the hit path tracker to incorrectly abort the active pan gesture when
+     * the moving fake fingers go out of bounds.
+     */
+    @JvmStatic
+    @DoNotInline
+    fun obtainMotionEventWithClassification(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        pointerCount: Int,
+        pointerProperties: Array<MotionEvent.PointerProperties>,
+        pointerCoords: Array<MotionEvent.PointerCoords>,
+        metaState: Int,
+        buttonState: Int,
+        xPrecision: Float,
+        yPrecision: Float,
+        deviceId: Int,
+        edgeFlags: Int,
+        source: Int,
+        flags: Int,
+        classification: Int,
+    ): MotionEvent {
+        return MotionEvent.obtain(
+            downTime,
+            eventTime,
+            action,
+            pointerCount,
+            pointerProperties,
+            pointerCoords,
+            metaState,
+            buttonState,
+            xPrecision,
+            yPrecision,
+            deviceId,
+            edgeFlags,
+            source,
+            0,
+            flags,
+            classification,
+        )!!
     }
 }
 

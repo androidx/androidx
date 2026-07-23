@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -53,6 +54,7 @@ import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -966,5 +968,180 @@ class TapGestureDetectorTest {
         assertFalse(released)
         assertFalse(canceled)
         assertFalse(doubleTapped)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+    fun trackpadTapAfterScrollCancelled() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            util()
+        }
+
+        rule.waitForIdle()
+
+        val pointerProperties =
+            arrayOf(
+                MotionEvent.PointerProperties().also {
+                    it.id = 0
+                    it.toolType = MotionEvent.TOOL_TYPE_FINGER
+                }
+            )
+
+        fun dispatchHover(action: Int, x: Float, y: Float, classification: Int, eventTime: Long) {
+            val event =
+                MotionEvent.obtain(
+                    /* downTime = */ 0,
+                    /* eventTime = */ eventTime,
+                    /* action = */ action,
+                    /* pointerCount = */ 1,
+                    /* pointerProperties = */ pointerProperties,
+                    /* pointerCoords = */ arrayOf(
+                        MotionEvent.PointerCoords().apply {
+                            this.x = x
+                            this.y = y
+                        }
+                    ),
+                    /* metaState = */ 0,
+                    /* buttonState = */ 0,
+                    /* xPrecision = */ 0f,
+                    /* yPrecision = */ 0f,
+                    /* deviceId = */ 0,
+                    /* edgeFlags = */ 0,
+                    /* source = */ InputDevice.SOURCE_TOUCHPAD,
+                    /* displayId = */ 0,
+                    /* flags = */ 0,
+                    /* classification = */ classification,
+                )
+            if (event != null) {
+                view.dispatchGenericMotionEvent(event)
+                event.recycle()
+            }
+        }
+
+        fun dispatchTouch(
+            action: Int,
+            x: Float,
+            y: Float,
+            classification: Int,
+            buttonState: Int,
+            eventTime: Long,
+            downTime: Long,
+        ) {
+            val event =
+                MotionEvent.obtain(
+                    /* downTime = */ downTime,
+                    /* eventTime = */ eventTime,
+                    /* action = */ action,
+                    /* pointerCount = */ 1,
+                    /* pointerProperties = */ pointerProperties,
+                    /* pointerCoords = */ arrayOf(
+                        MotionEvent.PointerCoords().apply {
+                            this.x = x
+                            this.y = y
+                        }
+                    ),
+                    /* metaState = */ 0,
+                    /* buttonState = */ buttonState,
+                    /* xPrecision = */ 0f,
+                    /* yPrecision = */ 0f,
+                    /* deviceId = */ 0,
+                    /* edgeFlags = */ 0,
+                    /* source = */ InputDevice.SOURCE_TOUCHPAD,
+                    /* displayId = */ 0,
+                    /* flags = */ 0,
+                    /* classification = */ classification,
+                )
+            if (event != null) {
+                view.dispatchTouchEvent(event)
+                event.recycle()
+            }
+        }
+
+        var time = 100L
+
+        // 1. Hover Enter (NONE)
+        dispatchHover(MotionEvent.ACTION_HOVER_ENTER, 5f, 5f, MotionEvent.CLASSIFICATION_NONE, time)
+
+        // 2. Hover Exit (TWO_FINGER_SWIPE)
+        dispatchHover(
+            MotionEvent.ACTION_HOVER_EXIT,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            time,
+        )
+
+        // 3. Down (TWO_FINGER_SWIPE)
+        val downTime1 = time
+        dispatchTouch(
+            MotionEvent.ACTION_DOWN,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            0,
+            time,
+            downTime1,
+        )
+        time += 3
+
+        // 4. Cancel (TWO_FINGER_SWIPE)
+        dispatchTouch(
+            MotionEvent.ACTION_CANCEL,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            0,
+            time,
+            downTime1,
+        )
+        time += 2
+
+        // 5. Hover Enter (TWO_FINGER_SWIPE)
+        dispatchHover(
+            MotionEvent.ACTION_HOVER_ENTER,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            time,
+        )
+        time += 42
+
+        // 6. Hover Exit (NONE)
+        dispatchHover(MotionEvent.ACTION_HOVER_EXIT, 5f, 5f, MotionEvent.CLASSIFICATION_NONE, time)
+
+        // 7. Down (NONE, BUTTON_PRIMARY)
+        val downTime2 = time
+        dispatchTouch(
+            MotionEvent.ACTION_DOWN,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_NONE,
+            MotionEvent.BUTTON_PRIMARY,
+            time,
+            downTime2,
+        )
+        time += 9
+
+        // 8. Up (NONE)
+        dispatchTouch(
+            MotionEvent.ACTION_UP,
+            5f,
+            5f,
+            MotionEvent.CLASSIFICATION_NONE,
+            0,
+            time,
+            downTime2,
+        )
+
+        rule.waitForIdle()
+
+        assertTrue("Pressed should be true", pressed)
+        assertTrue("Released should be true", released)
+        assertTrue("Tapped should be true", tapped)
+        assertFalse("Canceled should be false", canceled)
     }
 }

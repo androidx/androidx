@@ -90,6 +90,10 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 }
             }
 
+            if (internalPointerEvent.activeGesture == PointerClassification.Pan) {
+                isHover = true
+            }
+
             // Add new hit paths to the tracker due to down events.
             for (i in 0 until internalPointerEvent.changes.size()) {
                 val pointerInputChange = internalPointerEvent.changes.valueAt(i)
