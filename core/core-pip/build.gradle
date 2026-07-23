@@ -29,6 +29,8 @@ plugins {
 
 dependencies {
     implementation("androidx.core:core:1.18.0")
+    implementation("androidx.activity:activity:1.13.0")
+    implementation("androidx.lifecycle:lifecycle-common:2.8.4")
     androidTestImplementation("androidx.activity:activity:1.13.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
