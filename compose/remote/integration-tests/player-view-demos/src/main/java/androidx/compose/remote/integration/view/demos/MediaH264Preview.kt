@@ -85,7 +85,7 @@ data class DumperOutputData(val filePath: String)
 /** A manually driven clock to ensure perfectly timed frame-by-frame recording. */
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, remote-core, remote-player-compose, remote-player-core
+) // Referring to remote-core, remote-player-compose, remote-player-core
 private class ManualRemoteClock(val baseTimeMillis: Long = 10 * 3600000L + 10 * 60000L) :
     RemoteClock {
     var offsetMillis: Long = 0

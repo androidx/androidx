@@ -57,8 +57,7 @@ fun ControlledScrollableRowDemo() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, horizontalScroll,
-// rememberRemoteScrollState, scrollBy
+) // Referring to RemoteText, horizontalScroll, rememberRemoteScrollState, scrollBy
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
@@ -90,10 +89,7 @@ private fun ControlledScrollableRowDemoContent() {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, horizontalScroll,
-// rememberRemoteScrollState, scrollBy
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
 @Composable
 @RemoteComposable
 private fun Square(index: Int) {

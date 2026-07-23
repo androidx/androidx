@@ -52,7 +52,7 @@ fun TouchActionDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { TouchActionDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
