@@ -38,6 +38,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,10 +47,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
@@ -107,15 +106,22 @@ class AccessibilityActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            val sessionResult = Session.create(context = this@AccessibilityActivity)
-            if (sessionResult is SessionCreateSuccess) {
-                session = sessionResult.session
-                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        setContent {
+            var sessionCreated by remember { mutableStateOf(false) }
 
-                setContent { MainContent() }
-            } else {
-                finish()
+            if (sessionCreated) {
+                MainContent()
+            }
+
+            LaunchedEffect(Unit) {
+                val sessionResult = Session.create(context = this@AccessibilityActivity)
+                if (sessionResult is SessionCreateSuccess) {
+                    session = sessionResult.session
+                    session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+                    sessionCreated = true
+                } else {
+                    finish()
+                }
             }
         }
     }

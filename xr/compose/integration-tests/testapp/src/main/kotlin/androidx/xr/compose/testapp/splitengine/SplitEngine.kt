@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
@@ -86,19 +85,24 @@ class SplitEngine : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch {
-            val sessionResult = Session.create(context = this@SplitEngine)
-            if (sessionResult is SessionCreateSuccess) {
-                session = sessionResult.session
-                session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+        setContent {
+            var sessionCreated by remember { mutableStateOf(false) }
 
-                setContent {
-                    var title = intent.getStringExtra("TITLE")
-                    if (title == null) title = "Split Engine Test"
-                    ComposeEntry(activity, title)
+            if (sessionCreated) {
+                var title = intent.getStringExtra("TITLE")
+                if (title == null) title = "Split Engine Test"
+                ComposeEntry(activity, title)
+            }
+
+            LaunchedEffect(Unit) {
+                val sessionResult = Session.create(context = this@SplitEngine)
+                if (sessionResult is SessionCreateSuccess) {
+                    session = sessionResult.session
+                    session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+                    sessionCreated = true
+                } else {
+                    finish()
                 }
-            } else {
-                finish()
             }
         }
     }
