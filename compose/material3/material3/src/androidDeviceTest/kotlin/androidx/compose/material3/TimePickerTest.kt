@@ -676,10 +676,12 @@ class TimePickerTest {
     @Test
     fun state_restoresTimePickerState() {
         val restorationTester = StateRestorationTester(rule)
-        var state: TimePickerState?
+        var state: TimePickerState? = null
         restorationTester.setContent {
             state = rememberTimePickerState(initialHour = 14, initialMinute = 54, is24Hour = true)
         }
+
+        rule.runOnIdle { state?.selection = TimePickerSelectionMode.Minute }
 
         state = null
 
@@ -689,6 +691,7 @@ class TimePickerTest {
             assertThat(state?.hour).isEqualTo(14)
             assertThat(state?.minute).isEqualTo(54)
             assertThat(state?.is24hour).isTrue()
+            assertThat(state?.selection).isEqualTo(TimePickerSelectionMode.Minute)
         }
     }
 
