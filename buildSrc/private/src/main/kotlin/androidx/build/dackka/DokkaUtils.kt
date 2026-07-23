@@ -81,6 +81,20 @@ enum class DokkaAnalysisPlatform(val jsonName: String) {
     fun androidOrJvm() = this == JVM || this == ANDROID
 
     /**
+     * Returns the [DokkaAnalysisPlatform] that should be used for a source set involved in
+     * compilations with both `this` and [other] [DokkaAnalysisPlatform]s.
+     */
+    fun merge(other: DokkaAnalysisPlatform?): DokkaAnalysisPlatform {
+        return if (other == null || other == this) {
+            this
+        } else if (androidOrJvm() && other.androidOrJvm()) {
+            JVM
+        } else {
+            COMMON
+        }
+    }
+
+    /**
      * Handles JSON serialization and deserialization using [jsonName].
      *
      * [JVM] and [ANDROID] have the same [jsonName], so they are both serialized to `jvm`, which is

@@ -43,4 +43,21 @@ class DokkaAnalysisPlatformTest {
         assertThat(gson.fromJson("common", DokkaAnalysisPlatform::class.java))
             .isEqualTo(DokkaAnalysisPlatform.COMMON)
     }
+
+    @Test
+    fun `Test merging platforms`() {
+        assertThat(DokkaAnalysisPlatform.JVM.merge(DokkaAnalysisPlatform.JVM))
+            .isEqualTo(DokkaAnalysisPlatform.JVM)
+        assertThat(DokkaAnalysisPlatform.JVM.merge(DokkaAnalysisPlatform.ANDROID))
+            .isEqualTo(DokkaAnalysisPlatform.JVM)
+        assertThat(DokkaAnalysisPlatform.JVM.merge(DokkaAnalysisPlatform.NATIVE))
+            .isEqualTo(DokkaAnalysisPlatform.COMMON)
+        assertThat(DokkaAnalysisPlatform.COMMON.merge(DokkaAnalysisPlatform.NATIVE))
+            .isEqualTo(DokkaAnalysisPlatform.COMMON)
+        assertThat(DokkaAnalysisPlatform.JS.merge(DokkaAnalysisPlatform.NATIVE))
+            .isEqualTo(DokkaAnalysisPlatform.COMMON)
+        assertThat(DokkaAnalysisPlatform.NATIVE.merge(DokkaAnalysisPlatform.NATIVE))
+            .isEqualTo(DokkaAnalysisPlatform.NATIVE)
+        assertThat(DokkaAnalysisPlatform.NATIVE.merge(null)).isEqualTo(DokkaAnalysisPlatform.NATIVE)
+    }
 }

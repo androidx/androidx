@@ -985,7 +985,7 @@ data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>) {
 
 data class SourceSetMetadata(
     val name: String,
-    val analysisPlatform: DokkaAnalysisPlatform,
+    var analysisPlatform: DokkaAnalysisPlatform,
     var dependencies: List<String>,
 )
 
@@ -1106,6 +1106,8 @@ abstract class MergeMultiplatformMetadataTask : DefaultTask() {
         metadata.sourceSets.forEach { newSourceSet ->
             val existingSourceSet = originalSourceSets.find { it.name == newSourceSet.name }
             if (existingSourceSet != null) {
+                existingSourceSet.analysisPlatform =
+                    existingSourceSet.analysisPlatform.merge(newSourceSet.analysisPlatform)
                 existingSourceSet.dependencies =
                     (newSourceSet.dependencies + existingSourceSet.dependencies).toSet().toList()
             } else {

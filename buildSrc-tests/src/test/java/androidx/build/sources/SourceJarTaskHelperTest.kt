@@ -20,13 +20,11 @@ import androidx.build.multiplatformExtension
 import com.google.common.truth.Truth
 import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.junit.Ignore
 import org.junit.Test
 
 class SourceJarTaskHelperTest {
-    @Ignore // https://github.com/gradle/gradle/issues/34713
     @Test
-    fun generateMetadata() {
+    fun `Generate metadata for jvm only project`() {
         val project = ProjectBuilder.builder().build()
         project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
         val extension = project.multiplatformExtension!!
@@ -47,7 +45,7 @@ class SourceJarTaskHelperTest {
                             mapOf(
                                 "name" to "commonMain",
                                 "dependencies" to emptyList<String>(),
-                                "analysisPlatform" to "common",
+                                "analysisPlatform" to "jvm",
                             ),
                             mapOf(
                                 "name" to "extraMain",
@@ -58,6 +56,95 @@ class SourceJarTaskHelperTest {
                                 "name" to "jvmMain",
                                 "dependencies" to listOf("commonMain", "extraMain"),
                                 "analysisPlatform" to "jvm",
+                            ),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun `Generate metadata for jvm and js project`() {
+        val project = ProjectBuilder.builder().build()
+        project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+        val extension = project.multiplatformExtension!!
+        extension.jvm()
+        extension.js()
+
+        val commonMain = extension.sourceSets.getByName("commonMain")
+        val jvmMain = extension.sourceSets.getByName("jvmMain")
+        jvmMain.dependsOn(commonMain)
+        val jsMain = extension.sourceSets.getByName("jsMain")
+        jsMain.dependsOn(commonMain)
+
+        val result = createSourceSetMetadata(extension)
+        Truth.assertThat(result)
+            .isEqualTo(
+                mapOf(
+                    "sourceSets" to
+                        listOf(
+                            mapOf(
+                                "name" to "commonMain",
+                                "dependencies" to emptyList<String>(),
+                                "analysisPlatform" to "common",
+                            ),
+                            mapOf(
+                                "name" to "jsMain",
+                                "dependencies" to listOf("commonMain"),
+                                "analysisPlatform" to "js",
+                            ),
+                            mapOf(
+                                "name" to "jvmMain",
+                                "dependencies" to listOf("commonMain"),
+                                "analysisPlatform" to "jvm",
+                            ),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun `Generate metadata for jvm and js project with additional common source set`() {
+        val project = ProjectBuilder.builder().build()
+        project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
+        val extension = project.multiplatformExtension!!
+        extension.jvm()
+        extension.js()
+
+        val commonMain = extension.sourceSets.getByName("commonMain")
+        val jvmMain = extension.sourceSets.getByName("jvmMain")
+        jvmMain.dependsOn(commonMain)
+        val jsMain = extension.sourceSets.getByName("jsMain")
+        jsMain.dependsOn(commonMain)
+        val webJvmMain = extension.sourceSets.create("webJvmMain")
+        webJvmMain.dependsOn(commonMain)
+        jvmMain.dependsOn(webJvmMain)
+        jsMain.dependsOn(webJvmMain)
+
+        val result = createSourceSetMetadata(extension)
+        Truth.assertThat(result)
+            .isEqualTo(
+                mapOf(
+                    "sourceSets" to
+                        listOf(
+                            mapOf(
+                                "name" to "commonMain",
+                                "dependencies" to emptyList<String>(),
+                                "analysisPlatform" to "common",
+                            ),
+                            mapOf(
+                                "name" to "jsMain",
+                                "dependencies" to listOf("commonMain", "webJvmMain"),
+                                "analysisPlatform" to "js",
+                            ),
+                            mapOf(
+                                "name" to "jvmMain",
+                                "dependencies" to listOf("commonMain", "webJvmMain"),
+                                "analysisPlatform" to "jvm",
+                            ),
+                            mapOf(
+                                "name" to "webJvmMain",
+                                "dependencies" to listOf("commonMain"),
+                                "analysisPlatform" to "common",
                             ),
                         )
                 )

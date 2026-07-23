@@ -230,9 +230,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                 // TODO(b/181224204): KMP samples aren't supported, dackka assumes
                                 // all samples are in common
                                 samples =
-                                    if (
-                                        sourceSet.analysisPlatform == DokkaAnalysisPlatform.COMMON
-                                    ) {
+                                    if (sourceSet.name == "commonMain") {
                                         getSampleSourceFileCollection()
                                     } else {
                                         objects.fileCollection()
