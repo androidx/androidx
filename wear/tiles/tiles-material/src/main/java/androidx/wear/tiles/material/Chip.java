@@ -151,8 +151,8 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
          * content later with setters.
          *
          * @param context The application's context.
-         * @param clickable Associated {@link Clickable} for click events. When the Chip is clicked
-         *     it will fire the associated action.
+         * @param clickable Associated {@link androidx.wear.tiles.ModifiersBuilders.Clickable} for
+         *     click events. When the Chip is clicked it will fire the associated action.
          * @param deviceParameters The device parameters used to derive defaults for this Chip.
          */
         public Builder(
