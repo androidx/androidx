@@ -1054,7 +1054,31 @@ val TimePickerState.isInputValid
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
 fun TimePickerState(initialHour: Int, initialMinute: Int, is24Hour: Boolean): TimePickerState =
-    TimePickerStateImpl(initialHour, initialMinute, is24Hour)
+    TimePickerState(
+        initialHour = initialHour,
+        initialMinute = initialMinute,
+        is24Hour = is24Hour,
+        initialSelection = TimePickerSelectionMode.Hour,
+    )
+
+/**
+ * Factory function for the default implementation of [TimePickerState] [rememberTimePickerState]
+ * should be used in most cases.
+ *
+ * @param initialHour starting hour for this state, will be displayed in the time picker when
+ *   launched Ranges from 0 to 23
+ * @param initialMinute starting minute for this state, will be displayed in the time picker when
+ *   launched. Ranges from 0 to 59
+ * @param is24Hour The format for this time picker. `false` for 12 hour format with an AM/PM toggle
+ *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
+ * @param initialSelection starting selection mode for this state.
+ */
+fun TimePickerState(
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean,
+    initialSelection: TimePickerSelectionMode,
+): TimePickerState = TimePickerStateImpl(initialHour, initialMinute, is24Hour, initialSelection)
 
 /** The selection mode for the time picker */
 @JvmInline
@@ -1075,8 +1099,12 @@ value class TimePickerSelectionMode private constructor(val value: Int) {
         }
 }
 
-private class TimePickerStateImpl(initialHour: Int, initialMinute: Int, is24Hour: Boolean) :
-    TimePickerState {
+private class TimePickerStateImpl(
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean,
+    initialSelection: TimePickerSelectionMode = TimePickerSelectionMode.Hour,
+) : TimePickerState {
     init {
         require(initialHour in 0..MaxHourValue) { "initialHour should in [0..23] range" }
         require(initialMinute in 0..MaxMinuteValue) { "initialMinute should be in [0..59] range" }
@@ -1084,7 +1112,7 @@ private class TimePickerStateImpl(initialHour: Int, initialMinute: Int, is24Hour
 
     override var is24hour: Boolean = is24Hour
 
-    override var selection by mutableStateOf(TimePickerSelectionMode.Hour)
+    override var selection by mutableStateOf(initialSelection)
 
     val hourState = mutableIntStateOf(initialHour)
 
@@ -1126,12 +1154,19 @@ private class TimePickerStateImpl(initialHour: Int, initialMinute: Int, is24Hour
         /** The default [Saver] implementation for [TimePickerState]. */
         fun Saver(): Saver<TimePickerStateImpl, *> =
             Saver(
-                save = { listOf(it.hour, it.minute, it.is24hour) },
+                save = { listOf(it.hour, it.minute, it.is24hour, it.selection.value) },
                 restore = { value ->
+                    val initialSelection =
+                        if (value.size > 3 && value[3] == TimePickerSelectionMode.Minute.value) {
+                            TimePickerSelectionMode.Minute
+                        } else {
+                            TimePickerSelectionMode.Hour
+                        }
                     TimePickerStateImpl(
                         initialHour = value[0] as Int,
                         initialMinute = value[1] as Int,
                         is24Hour = value[2] as Boolean,
+                        initialSelection = initialSelection,
                     )
                 },
             )
