@@ -18,7 +18,9 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -36,6 +38,7 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(6)
 @KeepFields
+@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Tab implements Content {
     /** Content ID for an empty Tab object. */
     private static final String EMPTY_TAB_CONTENT_ID = "EMPTY_TAB_CONTENT_ID";
@@ -43,6 +46,7 @@ public final class Tab implements Content {
     private final @Nullable CarText mTitle;
     private final @Nullable CarIcon mIcon;
     private final @NonNull String mContentId;
+    private final @Nullable TabStyle mStyle;
 
     /**
      * Returns the title of the tab.
@@ -64,7 +68,7 @@ public final class Tab implements Content {
     }
 
     /**
-     * Returns the image to display in the tab
+     * Returns the image to display in the tab.
      *
      * @see Tab.Builder#setIcon(CarIcon)
      */
@@ -72,15 +76,28 @@ public final class Tab implements Content {
         return requireNonNull(mIcon);
     }
 
+    /**
+     * Returns the {@link TabStyle} of the container or {@code null} if not set.
+     *
+     * @see Tab.Builder#setStyle(TabStyle)
+     **/
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable TabStyle getStyle() {
+        return mStyle;
+    }
+
     @Override
     public @NonNull String toString() {
-        return "[title: "
+        return "Tab { title: "
                 + CarText.toShortString(mTitle)
                 + ", contentId: "
                 + mContentId
                 + ", icon: "
                 + mIcon
-                + "]";
+                + ", style: "
+                + mStyle
+                + " }";
     }
 
     @Override
@@ -88,7 +105,8 @@ public final class Tab implements Content {
         return Objects.hash(
                 mTitle,
                 mContentId,
-                mIcon);
+                mIcon,
+                mStyle);
     }
 
     @Override
@@ -103,12 +121,14 @@ public final class Tab implements Content {
 
         return Objects.equals(mTitle, otherTab.mTitle)
                 && Objects.equals(mContentId, otherTab.mContentId)
-                && Objects.equals(mIcon, otherTab.mIcon);
+                && Objects.equals(mIcon, otherTab.mIcon)
+                && Objects.equals(mStyle, otherTab.mStyle);
     }
 
     Tab(Tab.Builder builder) {
         mTitle = builder.mTitle;
         mIcon = builder.mIcon;
+        mStyle = builder.mStyle;
 
         if (builder.mContentId != null) {
             mContentId = builder.mContentId;
@@ -122,15 +142,19 @@ public final class Tab implements Content {
         mTitle = null;
         mContentId = EMPTY_TAB_CONTENT_ID;
         mIcon = null;
+        mStyle = null;
     }
 
     /** A builder of {@link Tab}. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         @Nullable CarText mTitle;
 
         @Nullable CarIcon mIcon;
 
         @Nullable String mContentId;
+
+        @Nullable TabStyle mStyle = null;
 
         /**
          * Sets the title of the tab.
@@ -139,7 +163,7 @@ public final class Tab implements Content {
          * string.
          *
          * @throws NullPointerException     if {@code title} is {@code null}
-         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         * @throws IllegalArgumentException if {@code title} is empty, or if it contains
          *                                  unsupported spans
          */
         public Tab.@NonNull Builder setTitle(@NonNull CharSequence title) {
@@ -188,6 +212,18 @@ public final class Tab implements Content {
         }
 
         /**
+         * Sets the style of the tab.
+         *
+         * @throws NullPointerException if {@code style} is {@code null}
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public Tab.@NonNull Builder setStyle(@NonNull TabStyle style) {
+            mStyle = requireNonNull(style);
+            return this;
+        }
+
+        /**
          * Constructs the {@link Tab} defined by this builder.
          *
          * @throws IllegalStateException if the tab's title, icon or content ID is not set.
@@ -198,7 +234,7 @@ public final class Tab implements Content {
             }
 
             if (mIcon == null) {
-                throw new IllegalStateException("A icon must be set for the tab");
+                throw new IllegalStateException("An icon must be set for the tab");
             }
 
             if (mContentId == null) {
@@ -213,12 +249,13 @@ public final class Tab implements Content {
         public Builder() {
         }
 
-        /** Creates a new {@link Builder}, populated from the input {@link Tab} */
+        /** Creates a new {@link Builder}, populated from the input {@link Tab}.*/
         public Builder(@NonNull Tab tab) {
             requireNonNull(tab);
             mContentId = tab.getContentId();
             mIcon = tab.getIcon();
             mTitle = tab.getTitle();
+            mStyle = tab.getStyle();
         }
     }
 }
