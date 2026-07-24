@@ -68,12 +68,12 @@ import androidx.compose.ui.state.ToggleableState
         "Replaced with new overload that only supports IndicationNodeFactory instances inside LocalIndication, and does not use composed",
     level = DeprecationLevel.HIDDEN,
 )
-fun Modifier.toggleable(
+public fun Modifier.toggleable(
     value: Boolean,
     enabled: Boolean = true,
     role: Role? = null,
     onValueChange: (Boolean) -> Unit,
-) =
+): Modifier =
     composed(
         inspectorInfo =
             debugInspectorInfo {
@@ -135,7 +135,7 @@ fun Modifier.toggleable(
  *   the state in requested.
  * @see [Modifier.triStateToggleable] if you require support for an indeterminate state.
  */
-fun Modifier.toggleable(
+public fun Modifier.toggleable(
     value: Boolean,
     enabled: Boolean = true,
     role: Role? = null,
@@ -187,14 +187,14 @@ fun Modifier.toggleable(
  *   the state in requested.
  * @see [Modifier.triStateToggleable] if you require support for an indeterminate state.
  */
-fun Modifier.toggleable(
+public fun Modifier.toggleable(
     value: Boolean,
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
     onValueChange: (Boolean) -> Unit,
-) =
+): Modifier =
     clickableWithIndicationIfNeeded(
         interactionSource = interactionSource,
         indication = indication,
@@ -375,12 +375,12 @@ private class ToggleableNode(
         "Replaced with new overload that only supports IndicationNodeFactory instances inside LocalIndication, and does not use composed",
     level = DeprecationLevel.HIDDEN,
 )
-fun Modifier.triStateToggleable(
+public fun Modifier.triStateToggleable(
     state: ToggleableState,
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit,
-) =
+): Modifier =
     composed(
         inspectorInfo =
             debugInspectorInfo {
@@ -445,7 +445,7 @@ fun Modifier.triStateToggleable(
  * @param onClick will be called when user clicks the toggleable.
  * @see [Modifier.toggleable] if you want to support only two states: on and off
  */
-fun Modifier.triStateToggleable(
+public fun Modifier.triStateToggleable(
     state: ToggleableState,
     enabled: Boolean = true,
     role: Role? = null,
@@ -501,14 +501,14 @@ fun Modifier.triStateToggleable(
  * @param onClick will be called when user clicks the toggleable.
  * @see [Modifier.toggleable] if you want to support only two states: on and off
  */
-fun Modifier.triStateToggleable(
+public fun Modifier.triStateToggleable(
     state: ToggleableState,
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit,
-) =
+): Modifier =
     clickableWithIndicationIfNeeded(
         interactionSource = interactionSource,
         indication = indication,

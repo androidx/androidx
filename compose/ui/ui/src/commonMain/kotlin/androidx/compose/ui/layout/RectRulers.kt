@@ -20,24 +20,24 @@ package androidx.compose.ui.layout
  *
  * @sample androidx.compose.ui.samples.WindowInsetsRulersSample
  */
-interface RectRulers {
+public interface RectRulers {
     /** The left position of the rectangle. */
-    val left: VerticalRuler
+    public val left: VerticalRuler
 
     /** The top position of the rectangle. */
-    val top: HorizontalRuler
+    public val top: HorizontalRuler
 
     /** The right position of the rectangle */
-    val right: VerticalRuler
+    public val right: VerticalRuler
 
     /** The bottom position of the rectangle */
-    val bottom: HorizontalRuler
+    public val bottom: HorizontalRuler
 
-    companion object
+    public companion object
 }
 
 /** Creates a [RectRulers]. */
-fun RectRulers(): RectRulers = RectRulersImpl(null)
+public fun RectRulers(): RectRulers = RectRulersImpl(null)
 
 internal fun RectRulers(name: String): RectRulers = RectRulersImpl(name)
 
@@ -64,7 +64,7 @@ private class RectRulersImpl(private val name: String?) : RectRulers {
  *
  * If one of the [rulers] does not provide a value, it will not be considered in the calculation.
  */
-fun RectRulers.Companion.innermostOf(vararg rulers: RectRulers): RectRulers =
+public fun RectRulers.Companion.innermostOf(vararg rulers: RectRulers): RectRulers =
     InnerRectRulers(rulers)
 
 private class InnerRectRulers(private val rulers: Array<out RectRulers>) : RectRulers {
@@ -89,7 +89,7 @@ private class InnerRectRulers(private val rulers: Array<out RectRulers>) : RectR
  *
  * If one of the [rulers] does not provide a value, it will not be considered in the calculation.
  */
-fun RectRulers.Companion.outermostOf(vararg rulers: RectRulers): RectRulers =
+public fun RectRulers.Companion.outermostOf(vararg rulers: RectRulers): RectRulers =
     OuterRectRulers(rulers)
 
 private class OuterRectRulers(private val rulers: Array<out RectRulers>) : RectRulers {

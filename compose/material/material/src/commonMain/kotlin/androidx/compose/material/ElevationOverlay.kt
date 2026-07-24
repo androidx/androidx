@@ -33,7 +33,7 @@ import kotlin.math.ln
  *
  * @see ElevationOverlay
  */
-val LocalElevationOverlay: ProvidableCompositionLocal<ElevationOverlay?> =
+public val LocalElevationOverlay: ProvidableCompositionLocal<ElevationOverlay?> =
     staticCompositionLocalOf {
         DefaultElevationOverlay
     }
@@ -52,13 +52,13 @@ val LocalElevationOverlay: ProvidableCompositionLocal<ElevationOverlay?> =
  * See [LocalElevationOverlay] to provide your own [ElevationOverlay]. You can provide `null` to
  * have no ElevationOverlay applied.
  */
-interface ElevationOverlay {
+public interface ElevationOverlay {
     /**
      * Returns the new background [Color] to use, representing the original background [color] with
      * an overlay corresponding to [elevation] applied. Typically this should only be applied to
      * [Colors.surface].
      */
-    @Composable fun apply(color: Color, elevation: Dp): Color
+    @Composable public fun apply(color: Color, elevation: Dp): Color
 }
 
 /** The default [ElevationOverlay] implementation. */
@@ -97,4 +97,4 @@ private fun calculateForegroundColor(backgroundColor: Color, elevation: Dp): Col
  *
  * @sample androidx.compose.material.samples.AbsoluteElevationSample
  */
-val LocalAbsoluteElevation = compositionLocalOf { 0.dp }
+public val LocalAbsoluteElevation: ProvidableCompositionLocal<Dp> = compositionLocalOf { 0.dp }

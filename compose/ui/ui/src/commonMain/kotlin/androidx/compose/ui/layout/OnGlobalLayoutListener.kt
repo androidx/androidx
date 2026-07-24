@@ -53,7 +53,7 @@ import androidx.compose.ui.spatial.RelativeLayoutBounds
  *   is detached
  */
 @Suppress("PairedRegistration") // User expected to handle disposing
-fun DelegatableNode.registerOnGlobalLayoutListener(
+public fun DelegatableNode.registerOnGlobalLayoutListener(
     throttleMillis: Long,
     debounceMillis: Long,
     callback: (RelativeLayoutBounds) -> Unit,

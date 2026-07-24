@@ -36,5 +36,5 @@ import androidx.compose.ui.semantics.semantics
  * @param contentType The [ContentType] to apply to the component's semantics.
  * @return The [Modifier] with the specified [ContentType] semantics set.
  */
-fun Modifier.contentType(contentType: ContentType): Modifier =
+public fun Modifier.contentType(contentType: ContentType): Modifier =
     this.semantics { this.contentType = contentType }

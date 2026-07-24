@@ -33,7 +33,7 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  * more than one element is found.
  */
 @CheckResult
-fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
@@ -50,7 +50,7 @@ fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
  * those currently composed items, not all the items in the backing data set.
  */
 @CheckResult
-fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
+public fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
@@ -68,7 +68,7 @@ fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
  * more than one element is found.
  */
 @CheckResult
-fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
@@ -82,7 +82,8 @@ fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
  * This is just a shortcut for "children[index]".
  */
 @CheckResult
-fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = onChildren()[index]
+public fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction =
+    onChildren()[index]
 
 /**
  * Returns all siblings of this node.
@@ -99,7 +100,7 @@ fun SemanticsNodeInteraction.onChildAt(index: Int): SemanticsNodeInteraction = o
  * Returns B1, B3
  */
 @CheckResult
-fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
+public fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
@@ -117,7 +118,7 @@ fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
  * more than one element is found.
  */
 @CheckResult
-fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
@@ -139,7 +140,7 @@ fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
  * Returns B, A
  */
 @CheckResult
-fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
+public fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
@@ -163,7 +164,7 @@ fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
  * Returns B, C, D, E
  */
 @CheckResult
-fun SemanticsNodeInteraction.onDescendants(): SemanticsNodeInteractionCollection {
+public fun SemanticsNodeInteraction.onDescendants(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
@@ -179,7 +180,7 @@ fun SemanticsNodeInteraction.onDescendants(): SemanticsNodeInteractionCollection
  * element is found.
  */
 @CheckResult
-fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
     return get(0)
 }
 
@@ -191,7 +192,7 @@ fun SemanticsNodeInteractionCollection.onFirst(): SemanticsNodeInteraction {
  * element is found.
  */
 @CheckResult
-fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(testContext, useUnmergedTree, selector.addLastNodeSelector())
 }
 
@@ -201,7 +202,7 @@ fun SemanticsNodeInteractionCollection.onLast(): SemanticsNodeInteraction {
  * @param matcher Matcher to use for the filtering.
  */
 @CheckResult
-fun SemanticsNodeInteractionCollection.filter(
+public fun SemanticsNodeInteractionCollection.filter(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
@@ -221,7 +222,7 @@ fun SemanticsNodeInteractionCollection.filter(
  * @param matcher Matcher to use for the filtering.
  */
 @CheckResult
-fun SemanticsNodeInteractionCollection.filterToOne(
+public fun SemanticsNodeInteractionCollection.filterToOne(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(

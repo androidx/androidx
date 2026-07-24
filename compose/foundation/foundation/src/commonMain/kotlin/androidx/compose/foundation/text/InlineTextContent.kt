@@ -45,7 +45,7 @@ private const val REPLACEMENT_CHAR = "\uFFFD"
  * @see InlineTextContent
  * @see BasicText
  */
-fun AnnotatedString.Builder.appendInlineContent(
+public fun AnnotatedString.Builder.appendInlineContent(
     id: String,
     alternateText: String = REPLACEMENT_CHAR,
 ) {
@@ -69,17 +69,17 @@ fun AnnotatedString.Builder.appendInlineContent(
  * @see Placeholder
  */
 @Immutable
-class InlineTextContent(
+public class InlineTextContent(
     /**
      * The setting object that defines the size and vertical alignment of this composable in the
      * text line. This is different from the measure of Layout
      *
      * @see Placeholder
      */
-    val placeholder: Placeholder,
+    public val placeholder: Placeholder,
     /**
      * The composable to be inserted into the text layout. The string parameter passed to it will
      * the alternateText given to [appendInlineContent].
      */
-    val children: @Composable (String) -> Unit,
+    public val children: @Composable (String) -> Unit,
 )

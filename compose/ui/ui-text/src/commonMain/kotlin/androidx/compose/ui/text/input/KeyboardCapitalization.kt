@@ -25,9 +25,9 @@ import androidx.compose.runtime.Stable
  * [KeyboardType.Ascii]. IMEs may ignore this option.
  */
 @kotlin.jvm.JvmInline
-value class KeyboardCapitalization private constructor(private val value: Int) {
+public value class KeyboardCapitalization private constructor(private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Unspecified -> "Unspecified"
             None -> "None"
@@ -38,10 +38,10 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /** The capitalization behavior is not specified. */
         @Stable
-        val Unspecified
+        public val Unspecified: KeyboardCapitalization
             get() = KeyboardCapitalization(-1)
 
         /**
@@ -50,7 +50,7 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
          * **When to use it**: Ideal for passwords, email addresses, URLs, or search filters.
          */
         @Stable
-        val None
+        public val None: KeyboardCapitalization
             get() = KeyboardCapitalization(0)
 
         /**
@@ -59,7 +59,7 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
          * **When to use it**: Ideal for coupon codes, state abbreviations, or license plates.
          */
         @Stable
-        val Characters
+        public val Characters: KeyboardCapitalization
             get() = KeyboardCapitalization(1)
 
         /**
@@ -68,7 +68,7 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
          * **When to use it**: Ideal for mailing addresses or contact names.
          */
         @Stable
-        val Words
+        public val Words: KeyboardCapitalization
             get() = KeyboardCapitalization(2)
 
         /**
@@ -77,7 +77,7 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
          * **When to use it**: Ideal for chat messages, email bodies, or other free-form text.
          */
         @Stable
-        val Sentences
+        public val Sentences: KeyboardCapitalization
             get() = KeyboardCapitalization(3)
     }
 }

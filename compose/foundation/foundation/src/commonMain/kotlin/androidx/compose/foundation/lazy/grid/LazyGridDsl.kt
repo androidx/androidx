@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.dp
  * @param content the [LazyGridScope] which describes the content
  */
 @Composable
-fun LazyVerticalGrid(
+public fun LazyVerticalGrid(
     columns: GridCells,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
@@ -96,7 +96,7 @@ fun LazyVerticalGrid(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LazyVerticalGrid(
+public fun LazyVerticalGrid(
     columns: GridCells,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
@@ -153,7 +153,7 @@ fun LazyVerticalGrid(
  * @param content the [LazyGridScope] which describes the content
  */
 @Composable
-fun LazyHorizontalGrid(
+public fun LazyHorizontalGrid(
     rows: GridCells,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
@@ -185,7 +185,7 @@ fun LazyHorizontalGrid(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LazyHorizontalGrid(
+public fun LazyHorizontalGrid(
     rows: GridCells,
     modifier: Modifier = Modifier,
     state: LazyGridState = rememberLazyGridState(),
@@ -297,7 +297,7 @@ private class GridSlotCache(private val calculation: Density.(Constraints) -> La
  * grids.
  */
 @Stable
-interface GridCells {
+public interface GridCells {
     /**
      * Calculates the number of cells and their cross axis size based on [availableSize] and
      * [spacing].
@@ -314,7 +314,7 @@ interface GridCells {
      * @param spacing cross axis spacing, e.g. horizontal spacing for [LazyVerticalGrid]. The
      *   spacing is passed from the corresponding [Arrangement] param of the lazy grid.
      */
-    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int>
+    public fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): List<Int>
 
     /**
      * Defines a grid with fixed number of rows or columns.
@@ -322,7 +322,7 @@ interface GridCells {
      * For example, for the vertical [LazyVerticalGrid] Fixed(3) would mean that there are 3 columns
      * 1/3 of the parent width.
      */
-    class Fixed(private val count: Int) : GridCells {
+    public class Fixed(private val count: Int) : GridCells {
         init {
             requirePrecondition(count > 0) { "Provided count should be larger than zero" }
         }
@@ -351,7 +351,7 @@ interface GridCells {
      * be as many columns as possible and every column will be at least 20.dp and all the columns
      * will have equal width. If the screen is 88.dp wide then there will be 4 columns 22.dp each.
      */
-    class Adaptive(private val minSize: Dp) : GridCells {
+    public class Adaptive(private val minSize: Dp) : GridCells {
         init {
             requirePrecondition(minSize > 0.dp) { "Provided min size should be larger than zero." }
         }
@@ -384,7 +384,7 @@ interface GridCells {
      * tne there will be 4 columns 20.dp each with remaining 8.dp distributed through
      * [Arrangement.Horizontal].
      */
-    class FixedSize(private val size: Dp) : GridCells {
+    public class FixedSize(private val size: Dp) : GridCells {
         init {
             requirePrecondition(size > 0.dp) { "Provided size should be larger than zero." }
         }
@@ -425,7 +425,7 @@ private fun calculateCellsCrossAxisSizeImpl(
 
 /** Receiver scope which is used by [LazyVerticalGrid]. */
 @LazyGridScopeMarker
-sealed interface LazyGridScope {
+public sealed interface LazyGridScope {
     /**
      * Adds a single item to the scope.
      *
@@ -443,7 +443,7 @@ sealed interface LazyGridScope {
      *   type will be considered compatible.
      * @param content the content of the item
      */
-    fun item(
+    public fun item(
         key: Any? = null,
         span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null,
         contentType: Any? = null,
@@ -469,7 +469,7 @@ sealed interface LazyGridScope {
      *   such type will be considered compatible.
      * @param itemContent the content displayed by a single item
      */
-    fun items(
+    public fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
         span: (LazyGridItemSpanScope.(index: Int) -> GridItemSpan)? = null,
@@ -496,7 +496,7 @@ sealed interface LazyGridScope {
      * @param content the content of the header. The header index is provided, this is the item
      *   position within the total set of items in this lazy list (the global index).
      */
-    fun stickyHeader(
+    public fun stickyHeader(
         key: Any? = null,
         contentType: Any? = null,
         content: @Composable LazyGridItemScope.(Int) -> Unit,
@@ -521,13 +521,13 @@ sealed interface LazyGridScope {
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyGridScope.items(
+public inline fun <T> LazyGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyGridItemScope.(item: T) -> Unit,
-) =
+): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(items[index]) } else null,
@@ -558,13 +558,13 @@ inline fun <T> LazyGridScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyGridScope.itemsIndexed(
+public inline fun <T> LazyGridScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyGridItemScope.(index: Int, item: T) -> Unit,
-) =
+): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(index, items[index]) } else null,
@@ -595,13 +595,13 @@ inline fun <T> LazyGridScope.itemsIndexed(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyGridScope.items(
+public inline fun <T> LazyGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
     noinline span: (LazyGridItemSpanScope.(item: T) -> GridItemSpan)? = null,
     noinline contentType: (item: T) -> Any? = { null },
     crossinline itemContent: @Composable LazyGridItemScope.(item: T) -> Unit,
-) =
+): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(items[index]) } else null,
@@ -632,13 +632,13 @@ inline fun <T> LazyGridScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyGridScope.itemsIndexed(
+public inline fun <T> LazyGridScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     noinline span: (LazyGridItemSpanScope.(index: Int, item: T) -> GridItemSpan)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     crossinline itemContent: @Composable LazyGridItemScope.(index: Int, item: T) -> Unit,
-) =
+): Unit =
     items(
         count = items.size,
         key = if (key != null) { index: Int -> key(index, items[index]) } else null,

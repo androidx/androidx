@@ -24,7 +24,7 @@ import kotlin.math.ceil
 
 /** A utility object to invoke composable function by its name and containing class. */
 @Deprecated("Use androidx.compose.runtime.reflect.ComposableMethod instead")
-object ComposableInvoker {
+public object ComposableInvoker {
 
     /**
      * Compares the parameter types taken from the composable method and checks if they are all
@@ -204,7 +204,7 @@ object ComposableInvoker {
      * function.
      */
     @ExperimentalComposeUiApi
-    fun invokeComposable(
+    public fun invokeComposable(
         className: String,
         methodName: String,
         composer: Composer,

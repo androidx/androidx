@@ -22,7 +22,7 @@ import androidx.compose.ui.node.checkMeasuredSize
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-@DslMarker annotation class MeasureScopeMarker
+@DslMarker public annotation class MeasureScopeMarker
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the measure lambda is
@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 @MeasureScopeMarker
 @JvmDefaultWithCompatibility
-interface MeasureScope : IntrinsicMeasureScope {
+public interface MeasureScope : IntrinsicMeasureScope {
     /**
      * Sets the size and alignment lines of the measured layout, as well as the positioning block
      * that defines the children positioning logic. The [placementBlock] is a lambda used for
@@ -44,12 +44,12 @@ interface MeasureScope : IntrinsicMeasureScope {
      * @param alignmentLines the alignment lines defined by the layout
      * @param placementBlock block defining the children positioning of the current layout
      */
-    fun layout(
+    public fun layout(
         width: Int,
         height: Int,
         alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
         placementBlock: Placeable.PlacementScope.() -> Unit,
-    ) = layout(width, height, alignmentLines, null, placementBlock)
+    ): MeasureResult = layout(width, height, alignmentLines, null, placementBlock)
 
     /**
      * Sets the size and alignment lines of the measured layout, as well as the positioning block
@@ -66,7 +66,7 @@ interface MeasureScope : IntrinsicMeasureScope {
      * @param placementBlock block defining the children positioning of the current layout
      */
     @Suppress("PrimitiveInCollection")
-    fun layout(
+    public fun layout(
         width: Int,
         height: Int,
         alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
@@ -120,7 +120,7 @@ interface MeasureScope : IntrinsicMeasureScope {
      * @param placementBlock block defining the children positioning of the current layout
      */
     @Suppress("PrimitiveInCollection")
-    fun layout(
+    public fun layout(
         width: Int,
         height: Int,
         isRulerProvided: (Ruler) -> Boolean,
@@ -168,19 +168,19 @@ private class SimplePlacementScope(
  * @sample androidx.compose.ui.samples.RulerProducerUsage
  */
 @MeasureScopeMarker
-interface RulerScope : Density {
+public interface RulerScope : Density {
     /**
      * [LayoutCoordinates] of the position in the hierarchy that the [Ruler] will be
      * [provided][Ruler.provides].
      */
-    val coordinates: LayoutCoordinates
+    public val coordinates: LayoutCoordinates
 
     /** Provides a constant value for a [Ruler]. */
-    infix fun Ruler.provides(value: Float)
+    public infix fun Ruler.provides(value: Float)
 
     /**
      * Provides a [VerticalRuler] value that is relative to the left side in an LTR layout or right
      * side on an RTL layout.
      */
-    infix fun VerticalRuler.providesRelative(value: Float)
+    public infix fun VerticalRuler.providesRelative(value: Float)
 }

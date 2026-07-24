@@ -42,13 +42,13 @@ package androidx.compose.ui.graphics.colorspace
  * @see Connector
  * @see ColorSpace.connect
  */
-abstract class Adaptation private constructor(internal val transform: FloatArray) {
-    companion object {
+public abstract class Adaptation private constructor(internal val transform: FloatArray) {
+    public companion object {
         /**
          * Bradford chromatic adaptation transform, as defined in the CIECAM97s color appearance
          * model.
          */
-        val Bradford =
+        public val Bradford: Adaptation =
             object :
                 Adaptation(
                     floatArrayOf(
@@ -63,11 +63,11 @@ abstract class Adaptation private constructor(internal val transform: FloatArray
                         1.0296f,
                     )
                 ) {
-                override fun toString() = "Bradford"
+                override fun toString(): String = "Bradford"
             }
 
         /** von Kries chromatic adaptation transform. */
-        val VonKries =
+        public val VonKries: Adaptation =
             object :
                 Adaptation(
                     floatArrayOf(
@@ -82,13 +82,13 @@ abstract class Adaptation private constructor(internal val transform: FloatArray
                         0.91822f,
                     )
                 ) {
-                override fun toString() = "VonKries"
+                override fun toString(): String = "VonKries"
             }
 
         /**
          * CIECAT02 chromatic adaption transform, as defined in the CIECAM02 color appearance model.
          */
-        val Ciecat02 =
+        public val Ciecat02: Adaptation =
             object :
                 Adaptation(
                     floatArrayOf(
@@ -103,7 +103,7 @@ abstract class Adaptation private constructor(internal val transform: FloatArray
                         0.9834f,
                     )
                 ) {
-                override fun toString() = "Ciecat02"
+                override fun toString(): String = "Ciecat02"
             }
     }
 }

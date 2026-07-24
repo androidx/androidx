@@ -21,18 +21,18 @@ package androidx.compose.foundation.content
  *
  * @param representation MimeType string that conforms to RFC 2045.
  */
-actual class MediaType actual constructor(actual val representation: String) {
+public actual class MediaType public actual constructor(public actual val representation: String) {
 
-    actual companion object {
-        actual val Text: MediaType = MediaType("text/*")
+    public actual companion object {
+        public actual val Text: MediaType = MediaType("text/*")
 
-        actual val PlainText: MediaType = MediaType("text/plain")
+        public actual val PlainText: MediaType = MediaType("text/plain")
 
-        actual val HtmlText: MediaType = MediaType("text/html")
+        public actual val HtmlText: MediaType = MediaType("text/html")
 
-        actual val Image: MediaType = MediaType("image/*")
+        public actual val Image: MediaType = MediaType("image/*")
 
-        actual val All: MediaType = MediaType("*/*")
+        public actual val All: MediaType = MediaType("*/*")
     }
 
     override fun equals(other: Any?): Boolean {

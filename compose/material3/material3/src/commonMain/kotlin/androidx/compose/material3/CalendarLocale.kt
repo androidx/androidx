@@ -25,7 +25,7 @@ import androidx.compose.runtime.ReadOnlyComposable
  *
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
  */
-expect class CalendarLocale
+public expect class CalendarLocale
 
 /**
  * Returns the default [CalendarLocale].

@@ -19,12 +19,12 @@ package androidx.compose.ui.text
 internal const val DefaultIncludeFontPadding = false
 
 /** Provides Android specific [TextStyle] configuration options for styling and compatibility. */
-actual class PlatformTextStyle {
+public actual class PlatformTextStyle {
     /** Android specific text span styling and compatibility configuration. */
-    actual val spanStyle: PlatformSpanStyle?
+    public actual val spanStyle: PlatformSpanStyle?
 
     /** Android specific paragraph styling and compatibility configuration. */
-    actual val paragraphStyle: PlatformParagraphStyle?
+    public actual val paragraphStyle: PlatformParagraphStyle?
 
     /**
      * Convenience constructor for when you already have a [spanStyle] and [paragraphStyle].
@@ -32,7 +32,7 @@ actual class PlatformTextStyle {
      * @param spanStyle platform specific span styling
      * @param paragraphStyle platform specific paragraph styling
      */
-    constructor(spanStyle: PlatformSpanStyle?, paragraphStyle: PlatformParagraphStyle?) {
+    public constructor(spanStyle: PlatformSpanStyle?, paragraphStyle: PlatformParagraphStyle?) {
         this.spanStyle = spanStyle
         this.paragraphStyle = paragraphStyle
     }
@@ -51,7 +51,7 @@ actual class PlatformTextStyle {
      *
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    constructor(
+    public constructor(
         includeFontPadding: Boolean = DefaultIncludeFontPadding
     ) : this(
         paragraphStyle = PlatformParagraphStyle(includeFontPadding = includeFontPadding),
@@ -65,17 +65,17 @@ actual class PlatformTextStyle {
      *
      * @param emojiSupportMatch configuration for emoji support match and replacement
      */
-    constructor(
+    public constructor(
         emojiSupportMatch: EmojiSupportMatch
     ) : this(paragraphStyle = PlatformParagraphStyle(emojiSupportMatch), spanStyle = null)
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = spanStyle?.hashCode() ?: 0
         result = 31 * result + (paragraphStyle?.hashCode() ?: 0)
         return result
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformTextStyle) return false
         if (paragraphStyle != other.paragraphStyle) return false
@@ -83,7 +83,7 @@ actual class PlatformTextStyle {
         return true
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "PlatformTextStyle(" +
             "spanStyle=$spanStyle, " +
             "paragraphSyle=$paragraphStyle" +
@@ -101,9 +101,9 @@ internal actual fun createPlatformTextStyle(
 /**
  * Provides Android specific [ParagraphStyle] configuration options for styling and compatibility.
  */
-actual class PlatformParagraphStyle {
-    actual companion object {
-        actual val Default: PlatformParagraphStyle = PlatformParagraphStyle()
+public actual class PlatformParagraphStyle {
+    public actual companion object {
+        public actual val Default: PlatformParagraphStyle = PlatformParagraphStyle()
     }
 
     /**
@@ -122,21 +122,21 @@ actual class PlatformParagraphStyle {
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    val includeFontPadding: Boolean
+    public val includeFontPadding: Boolean
 
     /**
      * When to replace emoji with support emoji using androidx.emoji2.
      *
      * This is only available on Android.
      */
-    val emojiSupportMatch: EmojiSupportMatch
+    public val emojiSupportMatch: EmojiSupportMatch
 
     /**
      * Represents platform specific text flags
      *
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    constructor(includeFontPadding: Boolean = DefaultIncludeFontPadding) {
+    public constructor(includeFontPadding: Boolean = DefaultIncludeFontPadding) {
         this.includeFontPadding = includeFontPadding
         this.emojiSupportMatch = EmojiSupportMatch.Default
     }
@@ -147,7 +147,7 @@ actual class PlatformParagraphStyle {
      * @param emojiSupportMatch control emoji support matches on Android
      * @param includeFontPadding Set whether to include extra space beyond font ascent and descent.
      */
-    constructor(
+    public constructor(
         emojiSupportMatch: EmojiSupportMatch = EmojiSupportMatch.Default,
         includeFontPadding: Boolean = DefaultIncludeFontPadding,
     ) {
@@ -160,19 +160,19 @@ actual class PlatformParagraphStyle {
      *
      * @param emojiSupportMatch control emoji support matches on Android
      */
-    constructor(emojiSupportMatch: EmojiSupportMatch = EmojiSupportMatch.Default) {
+    public constructor(emojiSupportMatch: EmojiSupportMatch = EmojiSupportMatch.Default) {
         this.includeFontPadding = DefaultIncludeFontPadding
         this.emojiSupportMatch = emojiSupportMatch
     }
 
     /** Default platform paragraph style */
-    constructor() :
+    public constructor() :
         this(
             includeFontPadding = DefaultIncludeFontPadding,
             emojiSupportMatch = EmojiSupportMatch.Default,
         )
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformParagraphStyle) return false
         if (includeFontPadding != other.includeFontPadding) return false
@@ -180,20 +180,20 @@ actual class PlatformParagraphStyle {
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = includeFontPadding.hashCode()
         result = 31 * result + emojiSupportMatch.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "PlatformParagraphStyle(" +
             "includeFontPadding=$includeFontPadding, " +
             "emojiSupportMatch=$emojiSupportMatch" +
             ")"
     }
 
-    actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle {
+    public actual fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle {
         if (other == null) return this
         // merge strategy is simple overwrite for current params, update if a optional param happens
         return other
@@ -201,27 +201,27 @@ actual class PlatformParagraphStyle {
 }
 
 /** Provides Android specific [SpanStyle] configuration options for styling and compatibility. */
-actual class PlatformSpanStyle {
-    actual companion object {
-        actual val Default: PlatformSpanStyle = PlatformSpanStyle()
+public actual class PlatformSpanStyle {
+    public actual companion object {
+        public actual val Default: PlatformSpanStyle = PlatformSpanStyle()
     }
 
-    actual fun merge(other: PlatformSpanStyle?): PlatformSpanStyle {
+    public actual fun merge(other: PlatformSpanStyle?): PlatformSpanStyle {
         return this
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformSpanStyle) return false
         return true
     }
 
     @Suppress("RedundantOverride")
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return super.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "PlatformSpanStyle()"
     }
 }
@@ -238,7 +238,7 @@ actual class PlatformSpanStyle {
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-actual fun lerp(
+public actual fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
     fraction: Float,
@@ -264,7 +264,7 @@ actual fun lerp(
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-actual fun lerp(
+public actual fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
     fraction: Float,

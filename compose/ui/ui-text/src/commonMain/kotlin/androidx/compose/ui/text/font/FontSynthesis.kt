@@ -41,9 +41,9 @@ private const val StyleFlag = 0x2
  * @sample androidx.compose.ui.text.samples.FontFamilySynthesisSample
  */
 @kotlin.jvm.JvmInline
-value class FontSynthesis internal constructor(val value: Int) {
+public value class FontSynthesis internal constructor(public val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             None -> "None"
             Weight -> "Weight"
@@ -54,33 +54,33 @@ value class FontSynthesis internal constructor(val value: Int) {
     }
 
     // NOTE: The values below are selected to be used as flags. See isWeightOn for instance.
-    companion object {
+    public companion object {
         /**
          * Turns off font synthesis. Neither bold nor slanted faces are synthesized if they don't
          * exist in the [FontFamily]
          */
-        val None
+        public val None: FontSynthesis
             get() = FontSynthesis(0)
 
         /**
          * Only a bold font is synthesized, if it is not available in the [FontFamily]. Slanted
          * fonts will not be synthesized.
          */
-        val Weight
+        public val Weight: FontSynthesis
             get() = FontSynthesis(WeightFlag)
 
         /**
          * Only an slanted font is synthesized, if it is not available in the [FontFamily]. Bold
          * fonts will not be synthesized.
          */
-        val Style
+        public val Style: FontSynthesis
             get() = FontSynthesis(StyleFlag)
 
         /**
          * The system synthesizes both bold and slanted fonts if either of them are not available in
          * the [FontFamily]
          */
-        val All
+        public val All: FontSynthesis
             get() = FontSynthesis(AllFlags)
 
         /**
@@ -91,7 +91,7 @@ value class FontSynthesis internal constructor(val value: Int) {
          * @throws IllegalArgumentException if the given [value] is not recognized.
          * @see androidx.compose.ui.text.font.FontSynthesis.value
          */
-        fun valueOf(value: Int): FontSynthesis {
+        public fun valueOf(value: Int): FontSynthesis {
             requirePrecondition(
                 value == 0 || value == WeightFlag || value == StyleFlag || value == AllFlags
             ) {

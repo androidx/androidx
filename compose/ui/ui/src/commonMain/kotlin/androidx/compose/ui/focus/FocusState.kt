@@ -22,14 +22,14 @@ package androidx.compose.ui.focus
  *
  * @sample androidx.compose.ui.samples.FocusableSample
  */
-interface FocusState {
+public interface FocusState {
     /**
      * Whether the component is focused or not.
      *
      * @sample androidx.compose.ui.samples.FocusableSample
      * @return true if the component is focused, false otherwise.
      */
-    val isFocused: Boolean
+    public val isFocused: Boolean
 
     /**
      * Whether the focus modifier associated with this [FocusState] has a child that is focused, or
@@ -37,7 +37,7 @@ interface FocusState {
      *
      * @return true if the component or any of its children are focused, false otherwise.
      */
-    val hasFocus: Boolean
+    public val hasFocus: Boolean
 
     /**
      * Whether focus is captured or not. A focusable component is in a captured state when it wants
@@ -51,7 +51,7 @@ interface FocusState {
      * @return true if focus is captured, false otherwise.
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
-    val isCaptured: Boolean
+    public val isCaptured: Boolean
 }
 
 /** Different states of the focus system. These are the states used by the Focus Nodes. */

@@ -25,8 +25,8 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class PathFillType internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class PathFillType internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * The interior is defined by a non-zero sum of signed edge crossings.
          *
@@ -37,7 +37,7 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
          *
          * See: <https://en.wikipedia.org/wiki/Nonzero-rule>
          */
-        val NonZero
+        public val NonZero: PathFillType
             get() = PathFillType(0)
 
         /**
@@ -48,11 +48,11 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
          *
          * See: <https://en.wikipedia.org/wiki/Even-odd_rule>
          */
-        val EvenOdd
+        public val EvenOdd: PathFillType
             get() = PathFillType(1)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             NonZero -> "NonZero"
             EvenOdd -> "EvenOdd"

@@ -21,4 +21,4 @@ package androidx.compose.material3
         " future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalMaterial3ExpressiveApi
+public annotation class ExperimentalMaterial3ExpressiveApi

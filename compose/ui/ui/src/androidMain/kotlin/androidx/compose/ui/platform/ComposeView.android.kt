@@ -59,7 +59,7 @@ import java.lang.ref.WeakReference
  * it set up correctly as [androidx.activity.ComponentActivity], [androidx.fragment.app.Fragment]
  * and [androidx.navigation.NavController] will provide the correct values.
  */
-abstract class AbstractComposeView
+public abstract class AbstractComposeView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     ViewGroup(context, attrs, defStyleAttr) {
@@ -153,7 +153,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * [parent] is `null` it will be determined automatically from the window the view is attached
      * to.
      */
-    fun setParentCompositionContext(parent: CompositionContext?) {
+    public fun setParentCompositionContext(parent: CompositionContext?) {
         parentContext = parent
     }
 
@@ -172,7 +172,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * See [ViewCompositionStrategy] for more information.
      */
-    fun setViewCompositionStrategy(strategy: ViewCompositionStrategy) {
+    public fun setViewCompositionStrategy(strategy: ViewCompositionStrategy) {
         disposeViewCompositionStrategy?.invoke()
         disposeViewCompositionStrategy = strategy.installFor(this)
     }
@@ -195,7 +195,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     @InternalComposeUiApi
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    var showLayoutBounds: Boolean = false
+    public var showLayoutBounds: Boolean = false
         set(value) {
             field = value
             getChildAt(0)?.let { (it as Owner).showLayoutBounds = value }
@@ -207,7 +207,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      *
      * This property should be set prior to first composition.
      */
-    var autoClearFocusBehavior: AutoClearFocusBehavior
+    public var autoClearFocusBehavior: AutoClearFocusBehavior
         get() =
             getTag(R.id.auto_clear_focus_behavior_tag) as? AutoClearFocusBehavior
                 ?: AutoClearFocusBehavior.Default
@@ -220,7 +220,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * provide content. Initial composition will occur when the view becomes attached to a window or
      * when [createComposition] is called, whichever comes first.
      */
-    @Composable @UiComposable abstract fun Content()
+    @Composable @UiComposable public abstract fun Content()
 
     /**
      * Perform initial composition for this view. Once this method is called or the view becomes
@@ -236,7 +236,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * For best results in composing while the [ComposeView] isn't attached, use the version of this
      * with [ComposeViewContext] as an argument.
      */
-    fun createComposition() {
+    public fun createComposition() {
         check(
             parentContext != null ||
                 isAttachedToWindow ||
@@ -268,7 +268,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * @param composeViewContext The [ComposeViewContext] to use for the composition. The
      *   [ComposeViewContext.view] must be attached to the hierarchy.
      */
-    fun createComposition(composeViewContext: ComposeViewContext) {
+    public fun createComposition(composeViewContext: ComposeViewContext) {
         check(composeViewContext.view.isAttachedToWindow) {
             "createComposition requires the ComposeViewContext's view to be attached to a window."
         }
@@ -412,7 +412,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * Dispose of the underlying composition and [requestLayout]. A new composition will be created
      * if [createComposition] is called or when needed to lay out this view.
      */
-    fun disposeComposition() {
+    public fun disposeComposition() {
         val child = getChildAt(0) as? AndroidComposeView
         child?.removeConnectionToComposeViewContext()
         composition?.dispose()
@@ -424,7 +424,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * `true` if this View is host to an active Compose UI composition. An active composition may
      * consume resources.
      */
-    val hasComposition: Boolean
+    public val hasComposition: Boolean
         get() = composition != null
 
     override fun onAttachedToWindow() {
@@ -490,8 +490,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         )
     }
 
-    final override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) =
-        internalOnLayout(changed, left, top, right, bottom)
+    final override fun onLayout(
+        changed: Boolean,
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+    ): Unit = internalOnLayout(changed, left, top, right, bottom)
 
     internal open fun internalOnLayout(
         changed: Boolean,
@@ -599,7 +604,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
  * set up correctly as [androidx.activity.ComponentActivity], [androidx.fragment.app.Fragment] and
  * [androidx.navigation.NavController] will provide the correct values.
  */
-class ComposeView
+public class ComposeView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     AbstractComposeView(context, attrs, defStyleAttr) {
@@ -624,7 +629,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * view becomes attached to a window or when [createComposition] is called, whichever comes
      * first.
      */
-    fun setContent(content: @Composable () -> Unit) {
+    public fun setContent(content: @Composable () -> Unit) {
         shouldCreateCompositionOnAttachedToWindow = true
         this.content.value = content
         if (isAttachedToWindow || composeViewContext != null) {
@@ -633,7 +638,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     }
 
     /** Here to allow extension functions */
-    companion object
+    public companion object
 }
 
 /**
@@ -650,7 +655,7 @@ internal var areWindowInsetsRulersEnabled = true
  * updates. Only call this when no ComposeViews will ever need to handle insets over the lifetime of
  * the application. This should be called before the first [ComposeView] is created.
  */
-fun ComposeView.Companion.disableWindowInsetsRulers() {
+public fun ComposeView.Companion.disableWindowInsetsRulers() {
     areWindowInsetsRulersEnabled = false
 }
 
@@ -735,7 +740,7 @@ private fun View.findDepthToTag(tag: Int): Int {
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  * @see View.composeViewContext
  */
-fun View.findViewTreeComposeViewContext(): ComposeViewContext? {
+public fun View.findViewTreeComposeViewContext(): ComposeViewContext? {
     return findViewTreeComposeViewRoot().composeViewContext
 }
 

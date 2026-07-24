@@ -29,12 +29,12 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * @constructor create an instance of [ThreePaneScaffoldAdaptStrategies]
  */
 @ExperimentalMaterial3AdaptiveApi
-class ThreePaneScaffoldAdaptStrategies(
+public class ThreePaneScaffoldAdaptStrategies(
     private val primaryPaneAdaptStrategy: AdaptStrategy,
     private val secondaryPaneAdaptStrategy: AdaptStrategy,
     private val tertiaryPaneAdaptStrategy: AdaptStrategy,
 ) {
-    operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy {
+    public operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy {
         return when (role) {
             ThreePaneScaffoldRole.Primary -> primaryPaneAdaptStrategy
             ThreePaneScaffoldRole.Secondary -> secondaryPaneAdaptStrategy
@@ -42,7 +42,7 @@ class ThreePaneScaffoldAdaptStrategies(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldAdaptStrategies) return false
         if (primaryPaneAdaptStrategy != other.primaryPaneAdaptStrategy) return false
@@ -51,7 +51,7 @@ class ThreePaneScaffoldAdaptStrategies(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = primaryPaneAdaptStrategy.hashCode()
         result = 31 * result + secondaryPaneAdaptStrategy.hashCode()
         result = 31 * result + tertiaryPaneAdaptStrategy.hashCode()

@@ -55,7 +55,7 @@ import androidx.compose.ui.util.fastRoundToInt
 import org.jetbrains.annotations.TestOnly
 
 @Suppress("NotCloseable")
-actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayerImpl) {
+public actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayerImpl) {
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
     private var drawBlock: DrawScope.() -> Unit = {}
@@ -100,7 +100,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * Determines if this [GraphicsLayer] has been released. Any attempts to use a [GraphicsLayer]
      * after it has been released is an error.
      */
-    actual var isReleased: Boolean = false
+    public actual var isReleased: Boolean = false
         private set
 
     /**
@@ -112,7 +112,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * situations where creating an offscreen buffer is preferred usually in conjunction with
      * [BlendMode] usage.
      */
-    actual var compositingStrategy: CompositingStrategy
+    public actual var compositingStrategy: CompositingStrategy
         get() = impl.compositingStrategy
         set(value) {
             if (impl.compositingStrategy != value) {
@@ -126,7 +126,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
      */
-    actual var topLeft: IntOffset = IntOffset.Zero
+    public actual var topLeft: IntOffset = IntOffset.Zero
         set(value) {
             if (field != value) {
                 field = value
@@ -142,7 +142,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
-    actual var size: IntSize = IntSize.Zero
+    public actual var size: IntSize = IntSize.Zero
         private set(value) {
             if (field != value) {
                 field = value
@@ -181,7 +181,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @param bottom The outset on the bottom side.
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutsetsSample
      */
-    actual fun setOutsets(
+    public actual fun setOutsets(
         @IntRange(from = 0) left: Int,
         @IntRange(from = 0) top: Int,
         @IntRange(from = 0) right: Int,
@@ -201,7 +201,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerAlphaSample
      */
-    actual var alpha: Float
+    public actual var alpha: Float
         get() = impl.alpha
         set(value) {
             if (impl.alpha != value) {
@@ -217,7 +217,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      */
-    actual var blendMode: BlendMode
+    public actual var blendMode: BlendMode
         get() = impl.blendMode
         set(value) {
             if (impl.blendMode != value) {
@@ -232,7 +232,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerColorFilterSample
      */
-    actual var colorFilter: ColorFilter?
+    public actual var colorFilter: ColorFilter?
         get() = impl.colorFilter
         set(value) {
             if (impl.colorFilter != value) {
@@ -247,7 +247,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    actual var pivotOffset: Offset = Offset.Unspecified
+    public actual var pivotOffset: Offset = Offset.Unspecified
         set(value) {
             if (field != value) {
                 field = value
@@ -260,7 +260,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    actual var scaleX: Float
+    public actual var scaleX: Float
         get() = impl.scaleX
         set(value) {
             if (impl.scaleX != value) {
@@ -273,7 +273,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    actual var scaleY: Float
+    public actual var scaleY: Float
         get() = impl.scaleY
         set(value) {
             if (impl.scaleY != value) {
@@ -286,7 +286,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    actual var translationX: Float
+    public actual var translationX: Float
         get() = impl.translationX
         set(value) {
             if (impl.translationX != value) {
@@ -299,7 +299,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    actual var translationY: Float
+    public actual var translationY: Float
         get() = impl.translationY
         set(value) {
             if (impl.translationY != value) {
@@ -317,7 +317,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerShadowSample
      */
-    actual var shadowElevation: Float
+    public actual var shadowElevation: Float
         get() = impl.shadowElevation
         set(value) {
             if (impl.shadowElevation != value) {
@@ -333,7 +333,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationX
      */
-    actual var rotationX: Float
+    public actual var rotationX: Float
         get() = impl.rotationX
         set(value) {
             if (impl.rotationX != value) {
@@ -347,7 +347,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
      */
-    actual var rotationY: Float
+    public actual var rotationY: Float
         get() = impl.rotationY
         set(value) {
             if (impl.rotationY != value) {
@@ -358,7 +358,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
     /**
      * The rotation, in degrees, of the contents around the Z axis in degrees. Default value is `0`.
      */
-    actual var rotationZ: Float
+    public actual var rotationZ: Float
         get() = impl.rotationZ
         set(value) {
             if (impl.rotationZ != value) {
@@ -387,7 +387,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
      */
-    actual var cameraDistance: Float
+    public actual var cameraDistance: Float
         get() = impl.cameraDistance
         set(value) {
             if (impl.cameraDistance != value) {
@@ -402,7 +402,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    actual var clip: Boolean = false
+    public actual var clip: Boolean = false
         set(value) {
             if (field != value) {
                 field = value
@@ -422,7 +422,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRenderEffectSample
      */
-    actual var renderEffect: RenderEffect?
+    public actual var renderEffect: RenderEffect?
         get() = impl.renderEffect
         set(value) {
             if (impl.renderEffect != value) {
@@ -455,7 +455,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    actual fun record(
+    public actual fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
@@ -765,17 +765,17 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
     /**
      * The ID of the layer. This is used by tooling to match a layer to the associated LayoutNode.
      */
-    val layerId: Long
+    public val layerId: Long
         get() = impl.layerId
 
     /**
      * The uniqueDrawingId of the owner view of this graphics layer. This is used by tooling to
      * match a layer to the associated owner View.
      */
-    val ownerViewId: Long
+    public val ownerViewId: Long
         get() = impl.ownerId
 
-    actual val outline: Outline
+    public actual val outline: Outline
         get() {
             val tmpOutline = internalOutline
             val tmpPath = outlinePath
@@ -819,7 +819,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @param path Path to be used as the Outline for the [GraphicsLayer]
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutlineSample
      */
-    actual fun setPathOutline(path: Path) {
+    public actual fun setPathOutline(path: Path) {
         resetOutlineParams()
         this.outlinePath = path
         configureOutlineAndClip()
@@ -837,7 +837,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @param cornerRadius The corner radius of the rounded rect outline
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
-    actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
+    public actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
         val topLeftWithOutsets = topLeft + Offset(outsetLeft.toFloat(), outsetTop.toFloat())
         if (
             this.roundRectOutlineTopLeft != topLeftWithOutsets ||
@@ -864,7 +864,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * @param size The size of the rounded rect outline
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
-    actual fun setRectOutline(topLeft: Offset, size: Size) {
+    public actual fun setRectOutline(topLeft: Offset, size: Size) {
         setRoundRectOutline(topLeft, size, 0f)
     }
 
@@ -881,7 +881,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var ambientShadowColor: Color
+    public actual var ambientShadowColor: Color
         get() = impl.ambientShadowColor
         set(value) {
             if (value != impl.ambientShadowColor) {
@@ -902,7 +902,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var spotShadowColor: Color
+    public actual var spotShadowColor: Color
         get() = impl.spotShadowColor
         set(value) {
             if (value != impl.spotShadowColor) {
@@ -917,9 +917,10 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
      */
-    actual suspend fun toImageBitmap(): ImageBitmap = SnapshotImpl.toBitmap(this).asImageBitmap()
+    public actual suspend fun toImageBitmap(): ImageBitmap =
+        SnapshotImpl.toBitmap(this).asImageBitmap()
 
-    companion object {
+    public companion object {
         private val isRobolectric
             get() = Build.FINGERPRINT == "robolectric"
 

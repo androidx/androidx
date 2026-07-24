@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
  * canvas operations. If [drawContent] is not called, the contents of the layout will not be drawn.
  */
 @JvmDefaultWithCompatibility
-interface ContentDrawScope : DrawScope {
+public interface ContentDrawScope : DrawScope {
     /** Causes child drawing operations to run during the `onPaint` lambda. */
-    fun drawContent()
+    public fun drawContent()
 }

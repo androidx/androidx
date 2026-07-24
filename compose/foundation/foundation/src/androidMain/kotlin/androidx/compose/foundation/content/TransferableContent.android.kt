@@ -32,8 +32,8 @@ import androidx.compose.ui.platform.toClipMetadata
  * @property extras Extras bundle that's passed by InputConnection#commitContent.
  */
 @ExperimentalFoundationApi
-actual class PlatformTransferableContent
-internal constructor(val linkUri: Uri?, val extras: Bundle) {
+public actual class PlatformTransferableContent
+internal constructor(public val linkUri: Uri?, public val extras: Bundle) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformTransferableContent) return false
@@ -67,7 +67,9 @@ internal constructor(val linkUri: Uri?, val extras: Bundle) {
  * @return Remaining parts of this [TransferableContent].
  */
 @ExperimentalFoundationApi
-fun TransferableContent.consume(predicate: (ClipData.Item) -> Boolean): TransferableContent? {
+public fun TransferableContent.consume(
+    predicate: (ClipData.Item) -> Boolean
+): TransferableContent? {
     val clipData = clipEntry.clipData
     return if (clipData.itemCount == 1) {
         // return this if the single item inside ClipData is not consumed, or null if it's consumed
@@ -104,7 +106,7 @@ fun TransferableContent.consume(predicate: (ClipData.Item) -> Boolean): Transfer
 }
 
 @ExperimentalFoundationApi
-actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean {
+public actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean {
     return clipMetadata.clipDescription.hasMimeType(mediaType.representation)
 }
 

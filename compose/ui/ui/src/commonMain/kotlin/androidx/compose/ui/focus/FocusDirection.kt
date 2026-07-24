@@ -24,9 +24,9 @@ import kotlin.jvm.JvmInline
  * @sample androidx.compose.ui.samples.MoveFocusSample
  */
 @JvmInline
-value class FocusDirection internal constructor(private val value: Int) {
+public value class FocusDirection internal constructor(private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Next -> "Next"
             Previous -> "Previous"
@@ -40,14 +40,14 @@ value class FocusDirection internal constructor(private val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Direction used in [FocusManager.moveFocus] to indicate that you are searching for the
          * next focusable item.
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Next: FocusDirection
+        public val Next: FocusDirection
             get() = FocusDirection(1)
 
         /**
@@ -56,7 +56,7 @@ value class FocusDirection internal constructor(private val value: Int) {
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Previous: FocusDirection
+        public val Previous: FocusDirection
             get() = FocusDirection(2)
 
         /**
@@ -65,7 +65,7 @@ value class FocusDirection internal constructor(private val value: Int) {
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Left: FocusDirection
+        public val Left: FocusDirection
             get() = FocusDirection(3)
 
         /**
@@ -74,7 +74,7 @@ value class FocusDirection internal constructor(private val value: Int) {
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Right: FocusDirection
+        public val Right: FocusDirection
             get() = FocusDirection(4)
 
         /**
@@ -83,7 +83,7 @@ value class FocusDirection internal constructor(private val value: Int) {
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Up: FocusDirection
+        public val Up: FocusDirection
             get() = FocusDirection(5)
 
         /**
@@ -92,21 +92,21 @@ value class FocusDirection internal constructor(private val value: Int) {
          *
          * @sample androidx.compose.ui.samples.MoveFocusSample
          */
-        val Down: FocusDirection
+        public val Down: FocusDirection
             get() = FocusDirection(6)
 
         /**
          * Direction used in [FocusManager.moveFocus] to indicate that you are searching for the
          * next focusable item that is a child of the currently focused item.
          */
-        val Enter: FocusDirection
+        public val Enter: FocusDirection
             get() = FocusDirection(7)
 
         /**
          * Direction used in [FocusManager.moveFocus] to indicate that you want to move focus to the
          * parent of the currently focused item.
          */
-        val Exit: FocusDirection
+        public val Exit: FocusDirection
             get() = FocusDirection(8)
     }
 }

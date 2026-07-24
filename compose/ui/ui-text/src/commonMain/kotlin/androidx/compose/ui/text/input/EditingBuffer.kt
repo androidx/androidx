@@ -27,7 +27,7 @@ import androidx.compose.ui.text.internal.requirePrecondition
  * This class manages the all editing relate states, editing buffers, selection, styles, etc.
  */
 @OptIn(InternalTextApi::class)
-class EditingBuffer(
+public class EditingBuffer(
     /** The initial text of this editing buffer */
     text: AnnotatedString,
     /**
@@ -290,7 +290,7 @@ class EditingBuffer(
         compositionEnd = NOWHERE
     }
 
-    override fun toString(): String = gapBuffer.toString()
+    public override fun toString(): String = gapBuffer.toString()
 
     internal fun toAnnotatedString(): AnnotatedString = AnnotatedString(toString())
 }

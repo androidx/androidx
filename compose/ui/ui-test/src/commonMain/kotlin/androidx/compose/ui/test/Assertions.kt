@@ -30,7 +30,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
  *
  * Throws [AssertionError] if the node is not displayed.
  */
-fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
     if (!isDisplayed()) {
         throw AssertionError(
             "Assert failed: The component with ${selector.description} is not displayed!"
@@ -44,7 +44,7 @@ fun SemanticsNodeInteraction.assertIsDisplayed(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the node is displayed.
  */
-fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     if (!isNotDisplayed()) {
         throw AssertionError(
             "Assert failed: The component with ${selector.description} is displayed!"
@@ -58,42 +58,45 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
  *
  * Throws [AssertionError] if the node is not enabled or does not define the property at all.
  */
-fun SemanticsNodeInteraction.assertIsEnabled(): SemanticsNodeInteraction = assert(isEnabled())
+public fun SemanticsNodeInteraction.assertIsEnabled(): SemanticsNodeInteraction =
+    assert(isEnabled())
 
 /**
  * Asserts that the current semantics node is not enabled.
  *
  * Throws [AssertionError] if the node is enabled or does not defined the property at all.
  */
-fun SemanticsNodeInteraction.assertIsNotEnabled(): SemanticsNodeInteraction = assert(isNotEnabled())
+public fun SemanticsNodeInteraction.assertIsNotEnabled(): SemanticsNodeInteraction =
+    assert(isNotEnabled())
 
 /**
  * Asserts that the current semantics node is checked.
  *
  * Throws [AssertionError] if the node is not unchecked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = assert(isOn())
+public fun SemanticsNodeInteraction.assertIsOn(): SemanticsNodeInteraction = assert(isOn())
 
 /**
  * Asserts that the current semantics node is unchecked.
  *
  * Throws [AssertionError] if the node is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = assert(isOff())
+public fun SemanticsNodeInteraction.assertIsOff(): SemanticsNodeInteraction = assert(isOff())
 
 /**
  * Asserts that the current semantics node is selected.
  *
  * Throws [AssertionError] if the node is unselected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction = assert(isSelected())
+public fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction =
+    assert(isSelected())
 
 /**
  * Asserts that the current semantics node is not selected.
  *
  * Throws [AssertionError] if the node is selected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction =
+public fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction =
     assert(isNotSelected())
 
 /**
@@ -101,28 +104,32 @@ fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction =
  *
  * Throws [AssertionError] if the node is not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction = assert(isToggleable())
+public fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction =
+    assert(isToggleable())
 
 /**
  * Asserts that the current semantics node is selectable.
  *
  * Throws [AssertionError] if the node is not selectable.
  */
-fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction = assert(isSelectable())
+public fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction =
+    assert(isSelectable())
 
 /**
  * Asserts that the current semantics node has a focus.
  *
  * Throws [AssertionError] if the node is not in the focus or does not defined the property at all.
  */
-fun SemanticsNodeInteraction.assertIsFocused(): SemanticsNodeInteraction = assert(isFocused())
+public fun SemanticsNodeInteraction.assertIsFocused(): SemanticsNodeInteraction =
+    assert(isFocused())
 
 /**
  * Asserts that the current semantics node does not have a focus.
  *
  * Throws [AssertionError] if the node is in the focus or does not defined the property at all.
  */
-fun SemanticsNodeInteraction.assertIsNotFocused(): SemanticsNodeInteraction = assert(isNotFocused())
+public fun SemanticsNodeInteraction.assertIsNotFocused(): SemanticsNodeInteraction =
+    assert(isNotFocused())
 
 /**
  * Asserts that the node's list of content descriptions contains exactly the given [values] and
@@ -145,7 +152,7 @@ fun SemanticsNodeInteraction.assertIsNotFocused(): SemanticsNodeInteraction = as
  * @param values List of values to match (the order does not matter).
  * @see SemanticsProperties.ContentDescription
  */
-fun SemanticsNodeInteraction.assertContentDescriptionEquals(
+public fun SemanticsNodeInteraction.assertContentDescriptionEquals(
     vararg values: String
 ): SemanticsNodeInteraction = assert(hasContentDescriptionExactly(*values))
 
@@ -172,7 +179,7 @@ fun SemanticsNodeInteraction.assertContentDescriptionEquals(
  * @param ignoreCase Whether case should be ignored. Defaults to false.
  * @see SemanticsProperties.ContentDescription
  */
-fun SemanticsNodeInteraction.assertContentDescriptionContains(
+public fun SemanticsNodeInteraction.assertContentDescriptionContains(
     value: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -205,7 +212,7 @@ fun SemanticsNodeInteraction.assertContentDescriptionContains(
     message = "Replaced by hasTextExactly that includes the includeInputText parameter",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertTextEquals(
+public fun SemanticsNodeInteraction.assertTextEquals(
     vararg values: String,
     includeEditableText: Boolean = true,
 ): SemanticsNodeInteraction =
@@ -239,7 +246,7 @@ fun SemanticsNodeInteraction.assertTextEquals(
  * @see SemanticsProperties.EditableText
  * @see SemanticsProperties.InputText
  */
-fun SemanticsNodeInteraction.assertTextEquals(
+public fun SemanticsNodeInteraction.assertTextEquals(
     vararg values: String,
     includeEditableText: Boolean = true,
     includeInputText: Boolean = false,
@@ -276,7 +283,7 @@ fun SemanticsNodeInteraction.assertTextEquals(
  * @param ignoreCase Whether case should be ignored. Defaults to false.
  * @see SemanticsProperties.Text
  */
-fun SemanticsNodeInteraction.assertTextContains(
+public fun SemanticsNodeInteraction.assertTextContains(
     value: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -288,7 +295,7 @@ fun SemanticsNodeInteraction.assertTextContains(
  * For further details please check [SemanticsProperties.StateDescription]. Throws [AssertionError]
  * if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
+public fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
     assert(hasStateDescription(value))
 
 /**
@@ -297,7 +304,7 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
  * For further details please check [SemanticsProperties.ProgressBarRangeInfo]. Throws
  * [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
-fun SemanticsNodeInteraction.assertRangeInfoEquals(
+public fun SemanticsNodeInteraction.assertRangeInfoEquals(
     value: ProgressBarRangeInfo
 ): SemanticsNodeInteraction = assert(hasProgressBarRangeInfo(value))
 
@@ -306,7 +313,7 @@ fun SemanticsNodeInteraction.assertRangeInfoEquals(
  *
  * Throws [AssertionError] if the node is doesn't have a click action.
  */
-fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
+public fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
     assert(hasClickAction())
 
 /**
@@ -314,7 +321,7 @@ fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction =
  *
  * Throws [AssertionError] if the node has a click action.
  */
-fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
+public fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction =
     assert(hasNoClickAction())
 
 /**
@@ -326,7 +333,7 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
  *   operation that used this assert as a precondition check.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun SemanticsNodeInteraction.assert(
+public fun SemanticsNodeInteraction.assert(
     matcher: SemanticsMatcher,
     messagePrefixOnError: (() -> String)? = null,
 ): SemanticsNodeInteraction {
@@ -348,7 +355,7 @@ fun SemanticsNodeInteraction.assert(
  *
  * @throws AssertionError if the size is not equal to [expectedSize]
  */
-fun SemanticsNodeInteractionCollection.assertCountEquals(
+public fun SemanticsNodeInteractionCollection.assertCountEquals(
     expectedSize: Int
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assert count of nodes."
@@ -372,7 +379,7 @@ fun SemanticsNodeInteractionCollection.assertCountEquals(
  * @param matcher Matcher that has to be satisfied by at least one of the nodes in the collection.
  * @throws AssertionError if not at least one matching node was node.
  */
-fun SemanticsNodeInteractionCollection.assertAny(
+public fun SemanticsNodeInteractionCollection.assertAny(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assertAny(${matcher.description})"
@@ -395,7 +402,7 @@ fun SemanticsNodeInteractionCollection.assertAny(
  * @throws AssertionError if the collection contains at least one element that does not satisfy the
  *   given matcher.
  */
-fun SemanticsNodeInteractionCollection.assertAll(
+public fun SemanticsNodeInteractionCollection.assertAll(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteractionCollection {
     val errorOnFail = "Failed to assertAll(${matcher.description})"
@@ -425,7 +432,8 @@ fun SemanticsNodeInteractionCollection.assertAll(
  * @see assertIsDisplayed
  */
 @CheckResult(suggest = "assertIsDisplayed()")
-fun SemanticsNodeInteraction.isDisplayed(): Boolean = checkIsDisplayed(assertIsFullyVisible = false)
+public fun SemanticsNodeInteraction.isDisplayed(): Boolean =
+    checkIsDisplayed(assertIsFullyVisible = false)
 
 /**
  * Returns true if no matching node is displayed on screen.
@@ -438,7 +446,7 @@ fun SemanticsNodeInteraction.isDisplayed(): Boolean = checkIsDisplayed(assertIsF
  * @see assertIsNotDisplayed
  */
 @CheckResult(suggest = "assertIsNotDisplayed()")
-fun SemanticsNodeInteraction.isNotDisplayed(): Boolean =
+public fun SemanticsNodeInteraction.isNotDisplayed(): Boolean =
     !checkIsDisplayed(assertIsFullyVisible = true)
 
 @Suppress("DocumentExceptions")

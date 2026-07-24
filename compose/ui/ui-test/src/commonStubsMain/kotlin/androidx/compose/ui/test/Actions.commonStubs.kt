@@ -19,5 +19,5 @@ package androidx.compose.ui.test
 internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction =
     implementedInJetBrainsFork()
 
-actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction =
-    implementedInJetBrainsFork()
+public actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks():
+    SemanticsNodeInteraction = implementedInJetBrainsFork()

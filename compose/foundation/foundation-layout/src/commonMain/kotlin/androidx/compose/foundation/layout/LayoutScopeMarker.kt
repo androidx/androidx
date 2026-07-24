@@ -16,4 +16,4 @@
 
 package androidx.compose.foundation.layout
 
-@DslMarker annotation class LayoutScopeMarker
+@DslMarker public annotation class LayoutScopeMarker

@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.Density
  * positioned.
  */
 @JvmDefaultWithCompatibility
-interface ParentDataModifier : Modifier.Element {
+public interface ParentDataModifier : Modifier.Element {
     /**
      * Provides a parentData, given the [parentData] already provided through the modifier's chain.
      */
-    fun Density.modifyParentData(parentData: Any?): Any?
+    public fun Density.modifyParentData(parentData: Any?): Any?
 }

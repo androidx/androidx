@@ -18,26 +18,26 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.ui.Modifier
 
-actual fun Modifier.safeDrawingPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.safeDrawingPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.safeGesturesPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.safeGesturesPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.safeContentPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.safeContentPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.systemBarsPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.systemBarsPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.displayCutoutPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.displayCutoutPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.statusBarsPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.statusBarsPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.imePadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.imePadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.navigationBarsPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.navigationBarsPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.captionBarPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.captionBarPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.waterfallPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.waterfallPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.systemGesturesPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.systemGesturesPadding(): Modifier = implementedInJetBrainsFork()
 
-actual fun Modifier.mandatorySystemGesturesPadding(): Modifier = implementedInJetBrainsFork()
+actual public fun Modifier.mandatorySystemGesturesPadding(): Modifier = implementedInJetBrainsFork()

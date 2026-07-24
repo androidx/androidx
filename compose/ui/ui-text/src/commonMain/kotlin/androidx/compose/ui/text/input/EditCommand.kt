@@ -27,9 +27,9 @@ import androidx.compose.ui.text.internal.requirePrecondition
  * [TextInputService.startInput]. For example, as a result of commit text function call by IME
  * [CommitTextCommand] is created.
  */
-interface EditCommand {
+public interface EditCommand {
     /** Apply the command on the editing buffer. */
-    fun applyTo(buffer: EditingBuffer)
+    public fun applyTo(buffer: EditingBuffer)
 }
 
 /**
@@ -41,20 +41,22 @@ interface EditCommand {
  * @param annotatedString The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
  */
-class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosition: Int) :
-    EditCommand {
+public class CommitTextCommand(
+    public val annotatedString: AnnotatedString,
+    public val newCursorPosition: Int,
+) : EditCommand {
 
-    constructor(
+    public constructor(
         /** The text to commit. We ignore any styles in the original API. */
         text: String,
         /** The cursor position after setting composing text. */
         newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
-    val text: String
+    public val text: String
         get() = annotatedString.text
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         // API description says replace ongoing composition text if there. Then, if there is no
         // composition text, insert text into cursor position or replace selection.
         if (buffer.hasComposition()) {
@@ -79,7 +81,7 @@ class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosit
         buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CommitTextCommand) return false
 
@@ -89,13 +91,13 @@ class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosit
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + newCursorPosition
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "CommitTextCommand(text='$text', newCursorPosition=$newCursorPosition)"
     }
 }
@@ -109,9 +111,9 @@ class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosit
  * @param start The inclusive start offset of the composing region.
  * @param end The exclusive end offset of the composing region
  */
-class SetComposingRegionCommand(val start: Int, val end: Int) : EditCommand {
+public class SetComposingRegionCommand(public val start: Int, public val end: Int) : EditCommand {
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         // The API description says, different from SetComposingText, SetComposingRegion must
         // preserve the ongoing composition text and set new composition.
         if (buffer.hasComposition()) {
@@ -130,7 +132,7 @@ class SetComposingRegionCommand(val start: Int, val end: Int) : EditCommand {
         }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SetComposingRegionCommand) return false
 
@@ -140,13 +142,13 @@ class SetComposingRegionCommand(val start: Int, val end: Int) : EditCommand {
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = start
         result = 31 * result + end
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "SetComposingRegionCommand(start=$start, end=$end)"
     }
 }
@@ -161,20 +163,22 @@ class SetComposingRegionCommand(val start: Int, val end: Int) : EditCommand {
  * @param annotatedString The composing text.
  * @param newCursorPosition The cursor position after setting composing text.
  */
-class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCursorPosition: Int) :
-    EditCommand {
+public class SetComposingTextCommand(
+    public val annotatedString: AnnotatedString,
+    public val newCursorPosition: Int,
+) : EditCommand {
 
-    constructor(
+    public constructor(
         /** The composing text. */
         text: String,
         /** The cursor position after setting composing text. */
         newCursorPosition: Int,
     ) : this(AnnotatedString(text), newCursorPosition)
 
-    val text: String
+    public val text: String
         get() = annotatedString.text
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         if (buffer.hasComposition()) {
             // API doc says, if there is ongoing composing text, replace it with new text.
             val compositionStart = buffer.compositionStart
@@ -207,7 +211,7 @@ class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCurso
         buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SetComposingTextCommand) return false
 
@@ -217,13 +221,13 @@ class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCurso
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = text.hashCode()
         result = 31 * result + newCursorPosition
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "SetComposingTextCommand(text='$text', newCursorPosition=$newCursorPosition)"
     }
 }
@@ -244,8 +248,10 @@ class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCurso
  * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted. Must
  *   be non-negative.
  */
-class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterCursor: Int) :
-    EditCommand {
+public class DeleteSurroundingTextCommand(
+    public val lengthBeforeCursor: Int,
+    public val lengthAfterCursor: Int,
+) : EditCommand {
     init {
         requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
             "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
@@ -253,7 +259,7 @@ class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterC
         }
     }
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
         // by the input
         val end = buffer.selectionEnd.addExactOrElse(lengthAfterCursor) { buffer.length }
@@ -265,7 +271,7 @@ class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterC
         buffer.delete(maxOf(0, start), buffer.selectionStart)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DeleteSurroundingTextCommand) return false
 
@@ -275,13 +281,13 @@ class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterC
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = lengthBeforeCursor
         result = 31 * result + lengthAfterCursor
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "DeleteSurroundingTextCommand(lengthBeforeCursor=$lengthBeforeCursor, " +
             "lengthAfterCursor=$lengthAfterCursor)"
     }
@@ -301,9 +307,9 @@ class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterC
  * @param lengthAfterCursor The number of characters in Unicode code points after the cursor to be
  *   deleted. Must be non-negative.
  */
-class DeleteSurroundingTextInCodePointsCommand(
-    val lengthBeforeCursor: Int,
-    val lengthAfterCursor: Int,
+public class DeleteSurroundingTextInCodePointsCommand(
+    public val lengthBeforeCursor: Int,
+    public val lengthAfterCursor: Int,
 ) : EditCommand {
     init {
         requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
@@ -312,7 +318,7 @@ class DeleteSurroundingTextInCodePointsCommand(
         }
     }
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         // Convert code point length into character length. Then call the common logic of the
         // DeleteSurroundingTextEditOp
         var beforeLenInChars = 0
@@ -353,7 +359,7 @@ class DeleteSurroundingTextInCodePointsCommand(
         buffer.delete(buffer.selectionStart - beforeLenInChars, buffer.selectionStart)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DeleteSurroundingTextInCodePointsCommand) return false
 
@@ -363,13 +369,13 @@ class DeleteSurroundingTextInCodePointsCommand(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = lengthBeforeCursor
         result = 31 * result + lengthAfterCursor
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "DeleteSurroundingTextInCodePointsCommand(lengthBeforeCursor=$lengthBeforeCursor, " +
             "lengthAfterCursor=$lengthAfterCursor)"
     }
@@ -385,9 +391,9 @@ class DeleteSurroundingTextInCodePointsCommand(
  * @param start The inclusive start offset of the selection region.
  * @param end The exclusive end offset of the selection region.
  */
-class SetSelectionCommand(val start: Int, val end: Int) : EditCommand {
+public class SetSelectionCommand(public val start: Int, public val end: Int) : EditCommand {
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         // Sanitize the input: reverse if reversed, clamped into valid range.
         val clampedStart = start.coerceIn(0, buffer.length)
         val clampedEnd = end.coerceIn(0, buffer.length)
@@ -398,7 +404,7 @@ class SetSelectionCommand(val start: Int, val end: Int) : EditCommand {
         }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SetSelectionCommand) return false
 
@@ -408,13 +414,13 @@ class SetSelectionCommand(val start: Int, val end: Int) : EditCommand {
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = start
         result = 31 * result + end
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "SetSelectionCommand(start=$start, end=$end)"
     }
 }
@@ -427,17 +433,17 @@ class SetSelectionCommand(val start: Int, val end: Int) : EditCommand {
  * See
  * [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
  */
-class FinishComposingTextCommand : EditCommand {
+public class FinishComposingTextCommand : EditCommand {
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         buffer.commitComposition()
     }
 
-    override fun equals(other: Any?): Boolean = other is FinishComposingTextCommand
+    public override fun equals(other: Any?): Boolean = other is FinishComposingTextCommand
 
-    override fun hashCode(): Int = this::class.hashCode()
+    public override fun hashCode(): Int = this::class.hashCode()
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "FinishComposingTextCommand()"
     }
 }
@@ -449,9 +455,9 @@ class FinishComposingTextCommand : EditCommand {
  * there is selection, delete whole selected range. If there is no composition and selection,
  * perform backspace key event at the cursor position.
  */
-class BackspaceCommand : EditCommand {
+public class BackspaceCommand : EditCommand {
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         if (buffer.hasComposition()) {
             buffer.delete(buffer.compositionStart, buffer.compositionEnd)
             return
@@ -473,11 +479,11 @@ class BackspaceCommand : EditCommand {
         buffer.delete(prevCursorPos, buffer.cursor)
     }
 
-    override fun equals(other: Any?): Boolean = other is BackspaceCommand
+    public override fun equals(other: Any?): Boolean = other is BackspaceCommand
 
-    override fun hashCode(): Int = this::class.hashCode()
+    public override fun hashCode(): Int = this::class.hashCode()
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "BackspaceCommand()"
     }
 }
@@ -490,9 +496,9 @@ class BackspaceCommand : EditCommand {
  *
  * @param amount The amount of cursor movement. If you want to move backward, pass negative value.
  */
-class MoveCursorCommand(val amount: Int) : EditCommand {
+public class MoveCursorCommand(public val amount: Int) : EditCommand {
 
-    override fun applyTo(buffer: EditingBuffer) {
+    public override fun applyTo(buffer: EditingBuffer) {
         if (buffer.cursor == -1) {
             buffer.cursor = buffer.selectionStart
         }
@@ -516,7 +522,7 @@ class MoveCursorCommand(val amount: Int) : EditCommand {
         buffer.cursor = newCursor
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MoveCursorCommand) return false
 
@@ -525,26 +531,26 @@ class MoveCursorCommand(val amount: Int) : EditCommand {
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return amount
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "MoveCursorCommand(amount=$amount)"
     }
 }
 
 /** Deletes all the text in the buffer. */
-class DeleteAllCommand : EditCommand {
-    override fun applyTo(buffer: EditingBuffer) {
+public class DeleteAllCommand : EditCommand {
+    public override fun applyTo(buffer: EditingBuffer) {
         buffer.replace(0, buffer.length, "")
     }
 
-    override fun equals(other: Any?): Boolean = other is DeleteAllCommand
+    public override fun equals(other: Any?): Boolean = other is DeleteAllCommand
 
-    override fun hashCode(): Int = this::class.hashCode()
+    public override fun hashCode(): Int = this::class.hashCode()
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "DeleteAllCommand()"
     }
 }

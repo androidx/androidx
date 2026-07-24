@@ -169,7 +169,7 @@ import kotlin.math.roundToInt
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -178,7 +178,7 @@ fun TopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     TopAppBar(
         title = title,
         modifier = modifier,
@@ -234,7 +234,7 @@ fun TopAppBar(
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -244,7 +244,7 @@ fun TopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
     contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) =
+): Unit =
     SingleRowTopAppBar(
         modifier = modifier,
         title = title,
@@ -307,7 +307,7 @@ fun TopAppBar(
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CenterAlignedTopAppBar(
+public fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -316,7 +316,7 @@ fun CenterAlignedTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     CenterAlignedTopAppBar(
         title = title,
         modifier = modifier,
@@ -366,7 +366,7 @@ fun CenterAlignedTopAppBar(
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
 @Composable
-fun CenterAlignedTopAppBar(
+public fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -376,7 +376,7 @@ fun CenterAlignedTopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
     contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) =
+): Unit =
     SingleRowTopAppBar(
         modifier = modifier,
         title = title,
@@ -438,7 +438,7 @@ fun CenterAlignedTopAppBar(
  * @param contentPadding the padding applied to the content of this TopAppBar.
  */
 @Composable
-fun TopAppBar(
+public fun TopAppBar(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -450,7 +450,7 @@ fun TopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
     contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
-) =
+): Unit =
     SingleRowTopAppBar(
         modifier = modifier,
         title = title,
@@ -515,7 +515,7 @@ fun TopAppBar(
  *   [collapsedHeight]
  */
 @Composable
-fun MediumTopAppBar(
+public fun MediumTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -525,7 +525,7 @@ fun MediumTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     TwoRowsTopAppBar(
         modifier = modifier,
         title = title,
@@ -613,7 +613,7 @@ fun MediumTopAppBar(
  *   [collapsedHeight]
  */
 @Composable
-fun MediumFlexibleTopAppBar(
+public fun MediumFlexibleTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: (@Composable () -> Unit)? = null,
@@ -630,7 +630,7 @@ fun MediumFlexibleTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     TwoRowsTopAppBar(
         modifier = modifier,
         title = title,
@@ -709,7 +709,7 @@ fun MediumFlexibleTopAppBar(
  *   [collapsedHeight]
  */
 @Composable
-fun LargeTopAppBar(
+public fun LargeTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -719,7 +719,7 @@ fun LargeTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     TwoRowsTopAppBar(
         title = title,
         titleTextStyle = AppBarLargeTokens.TitleFont.value,
@@ -807,7 +807,7 @@ fun LargeTopAppBar(
  *   [collapsedHeight]
  */
 @Composable
-fun LargeFlexibleTopAppBar(
+public fun LargeFlexibleTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: (@Composable () -> Unit)? = null,
@@ -824,7 +824,7 @@ fun LargeFlexibleTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
-) =
+): Unit =
     TwoRowsTopAppBar(
         title = title,
         titleTextStyle = AppBarLargeFlexibleTokens.TitleFont.value,
@@ -920,7 +920,7 @@ fun LargeFlexibleTopAppBar(
  *   [collapsedHeight]
  */
 @Composable
-fun TwoRowsTopAppBar(
+public fun TwoRowsTopAppBar(
     title: @Composable (expanded: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     subtitle: (@Composable (expanded: Boolean) -> Unit)? = null,
@@ -1004,7 +1004,7 @@ fun TwoRowsTopAppBar(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     actions: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     floatingActionButton: @Composable (() -> Unit)? = null,
@@ -1013,7 +1013,7 @@ fun BottomAppBar(
     tonalElevation: Dp = BottomAppBarDefaults.ContainerElevation,
     contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
     windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
-) =
+): Unit =
     BottomAppBar(
         actions = actions,
         modifier = modifier,
@@ -1068,7 +1068,7 @@ fun BottomAppBar(
  *   service (e.g., TalkBack) is active. See [BottomAppBarScrollBehavior.nestedScrollConnection].
  */
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     actions: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     floatingActionButton: @Composable (() -> Unit)? = null,
@@ -1078,7 +1078,7 @@ fun BottomAppBar(
     contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
     windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
     scrollBehavior: BottomAppBarScrollBehavior? = null,
-) =
+): Unit =
     BottomAppBar(
         modifier = modifier,
         containerColor = containerColor,
@@ -1133,7 +1133,7 @@ fun BottomAppBar(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     modifier: Modifier = Modifier,
     containerColor: Color = BottomAppBarDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -1141,7 +1141,7 @@ fun BottomAppBar(
     contentPadding: PaddingValues = BottomAppBarDefaults.ContentPadding,
     windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
     content: @Composable RowScope.() -> Unit,
-) =
+): Unit =
     BottomAppBar(
         modifier = modifier,
         containerColor = containerColor,
@@ -1185,7 +1185,7 @@ fun BottomAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun BottomAppBar(
+public fun BottomAppBar(
     modifier: Modifier = Modifier,
     containerColor: Color = BottomAppBarDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -1275,7 +1275,7 @@ fun BottomAppBar(
  *   inside will be placed horizontally.
  */
 @Composable
-fun FlexibleBottomAppBar(
+public fun FlexibleBottomAppBar(
     modifier: Modifier = Modifier,
     containerColor: Color = BottomAppBarDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -1389,13 +1389,13 @@ private fun BottomAppBarLayout(
  * @see [TopAppBarDefaults.exitUntilCollapsedScrollBehavior]
  */
 @Stable
-interface TopAppBarScrollBehavior {
+public interface TopAppBarScrollBehavior {
 
     /**
      * A [TopAppBarState] that is attached to this behavior and is read and updated when scrolling
      * happens.
      */
-    val state: TopAppBarState
+    public val state: TopAppBarState
 
     /**
      * Indicates whether the top app bar is pinned.
@@ -1403,38 +1403,39 @@ interface TopAppBarScrollBehavior {
      * A pinned app bar will stay fixed in place when content is scrolled and will not react to any
      * drag gestures.
      */
-    val isPinned: Boolean
+    public val isPinned: Boolean
 
     /**
      * An optional [AnimationSpec] that defines how the top app bar snaps to either fully collapsed
      * or fully extended state when a fling or a drag scrolled it into an intermediate position. If
      * `null` is provided, the app bar will not snap and will remain in its current state.
      */
-    val snapAnimationSpec: AnimationSpec<Float>?
+    public val snapAnimationSpec: AnimationSpec<Float>?
 
     /**
      * An optional [DecayAnimationSpec] that defines how to fling the top app bar when the user
      * flings the app bar itself, or the scrollable content. If `null` is provided, the app bar will
      * not continue to animate its height based on the scroll velocity.
      */
-    val flingAnimationSpec: DecayAnimationSpec<Float>?
+    public val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
      * A [NestedScrollConnection] that should be attached to a
      * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
      * events.
      */
-    val nestedScrollConnection: NestedScrollConnection
+    public val nestedScrollConnection: NestedScrollConnection
 }
 
 /** Contains default values used for the top app bar implementations. */
-object TopAppBarDefaults {
+public object TopAppBarDefaults {
 
     /**
      * Creates a [TopAppBarColors] for small [TopAppBar]. The default implementation animates
      * between the provided colors according to the Material Design specification.
      */
-    @Composable fun topAppBarColors() = MaterialTheme.colorScheme.defaultTopAppBarColors
+    @Composable
+    public fun topAppBarColors(): TopAppBarColors = MaterialTheme.colorScheme.defaultTopAppBarColors
 
     /**
      * Creates a [TopAppBarColors] for small [TopAppBar]. The default implementation animates
@@ -1449,7 +1450,7 @@ object TopAppBarDefaults {
      * @return the resulting [TopAppBarColors] used for the top app bar
      */
     @Composable
-    fun topAppBarColors(
+    public fun topAppBarColors(
         containerColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
         navigationIconContentColor: Color = Color.Unspecified,
@@ -1482,7 +1483,7 @@ object TopAppBarDefaults {
         level = DeprecationLevel.HIDDEN,
     )
     @Composable
-    fun topAppBarColors(
+    public fun topAppBarColors(
         containerColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
         navigationIconContentColor: Color = Color.Unspecified,
@@ -1513,10 +1514,10 @@ object TopAppBarDefaults {
         }
 
     /** Default padding used for [TopAppBar] content */
-    val ContentPadding = PaddingValues(all = 0.dp)
+    public val ContentPadding: PaddingValues = PaddingValues(all = 0.dp)
 
     /** Default insets to be used and consumed by the top app bars */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -1527,14 +1528,14 @@ object TopAppBarDefaults {
      * Default [AnimationSpec] that defines how the top app bar snaps to either fully collapsed or
      * fully extended state when a fling or a drag scrolled it into an intermediate position.
      */
-    val snapAnimationSpec: AnimationSpec<Float>
+    public val snapAnimationSpec: AnimationSpec<Float>
         @Composable get() = MotionSchemeKeyTokens.DefaultEffects.value()
 
     /**
      * Default [DecayAnimationSpec] that defines how to fling the top app bar when the user flings
      * the app bar itself, or the scrollable content.
      */
-    val flingAnimationSpec: DecayAnimationSpec<Float>
+    public val flingAnimationSpec: DecayAnimationSpec<Float>
         @Composable get() = rememberSplineBasedDecay()
 
     /**
@@ -1547,7 +1548,8 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun centerAlignedTopAppBarColors() = MaterialTheme.colorScheme.defaultTopAppBarColors
+    public fun centerAlignedTopAppBarColors(): TopAppBarColors =
+        MaterialTheme.colorScheme.defaultTopAppBarColors
 
     /**
      * Creates a [TopAppBarColors] for [CenterAlignedTopAppBar]s. The default implementation
@@ -1570,7 +1572,7 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun centerAlignedTopAppBarColors(
+    public fun centerAlignedTopAppBarColors(
         containerColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
         navigationIconContentColor: Color = Color.Unspecified,
@@ -1596,7 +1598,8 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun mediumTopAppBarColors() = MaterialTheme.colorScheme.defaultTopAppBarColors
+    public fun mediumTopAppBarColors(): TopAppBarColors =
+        MaterialTheme.colorScheme.defaultTopAppBarColors
 
     /**
      * Creates a [TopAppBarColors] for [MediumTopAppBar]s. The default implementation interpolates
@@ -1620,7 +1623,7 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun mediumTopAppBarColors(
+    public fun mediumTopAppBarColors(
         containerColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
         navigationIconContentColor: Color = Color.Unspecified,
@@ -1646,7 +1649,8 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun largeTopAppBarColors() = MaterialTheme.colorScheme.defaultTopAppBarColors
+    public fun largeTopAppBarColors(): TopAppBarColors =
+        MaterialTheme.colorScheme.defaultTopAppBarColors
 
     /**
      * Creates a [TopAppBarColors] for [LargeTopAppBar]s. The default implementation interpolates
@@ -1670,7 +1674,7 @@ object TopAppBarDefaults {
         DeprecationLevel.WARNING,
     )
     @Composable
-    fun largeTopAppBarColors(
+    public fun largeTopAppBarColors(
         containerColor: Color = Color.Unspecified,
         scrolledContainerColor: Color = Color.Unspecified,
         navigationIconContentColor: Color = Color.Unspecified,
@@ -1698,7 +1702,7 @@ object TopAppBarDefaults {
      *   pinned [TopAppBarScrollBehavior]
      */
     @Composable
-    fun pinnedScrollBehavior(
+    public fun pinnedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
     ): TopAppBarScrollBehavior =
@@ -1735,7 +1739,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun pinnedScrollBehavior(
+    public fun pinnedScrollBehavior(
         lazyListState: LazyListState,
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
@@ -1777,7 +1781,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun pinnedScrollBehavior(
+    public fun pinnedScrollBehavior(
         scrollState: ScrollState,
         reverseScrolling: Boolean = false,
         state: TopAppBarState = rememberTopAppBarState(),
@@ -1818,7 +1822,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun pinnedScrollBehavior(
+    public fun pinnedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         isScrollingContentAtStart: () -> Boolean = { true },
@@ -1853,7 +1857,7 @@ object TopAppBarDefaults {
      *   pinned [TopAppBarScrollBehavior]
      */
     @Composable
-    fun pinnedScrollBehavior(
+    public fun pinnedScrollBehavior(
         scrollableState: ScrollableState,
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
@@ -1891,7 +1895,7 @@ object TopAppBarDefaults {
      *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      */
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
@@ -1938,7 +1942,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
@@ -1991,7 +1995,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         lazyListState: LazyListState,
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
@@ -2049,7 +2053,7 @@ object TopAppBarDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         scrollState: ScrollState,
         reverseScrolling: Boolean = false,
         state: TopAppBarState = rememberTopAppBarState(),
@@ -2098,7 +2102,7 @@ object TopAppBarDefaults {
         level = DeprecationLevel.WARNING,
     )
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
@@ -2146,7 +2150,7 @@ object TopAppBarDefaults {
      *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      */
     @Composable
-    fun enterAlwaysScrollBehavior(
+    public fun enterAlwaysScrollBehavior(
         scrollableState: ScrollableState,
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
@@ -2192,7 +2196,7 @@ object TopAppBarDefaults {
      *   provided, the app bar will not continue to animate its height based on the scroll velocity.
      */
     @Composable
-    fun exitUntilCollapsedScrollBehavior(
+    public fun exitUntilCollapsedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = TopAppBarDefaults.snapAnimationSpec,
@@ -2208,34 +2212,34 @@ object TopAppBarDefaults {
         }
 
     /** The default expanded height of a [TopAppBar] and the [CenterAlignedTopAppBar]. */
-    val TopAppBarExpandedHeight: Dp = AppBarSmallTokens.ContainerHeight
+    public val TopAppBarExpandedHeight: Dp = AppBarSmallTokens.ContainerHeight
 
     /** The default height of a [MediumTopAppBar] when collapsed by a [TopAppBarScrollBehavior]. */
-    val MediumAppBarCollapsedHeight: Dp = AppBarSmallTokens.ContainerHeight
+    public val MediumAppBarCollapsedHeight: Dp = AppBarSmallTokens.ContainerHeight
 
     /** The default expanded height of a [MediumTopAppBar]. */
-    val MediumAppBarExpandedHeight: Dp = AppBarMediumTokens.ContainerHeight
+    public val MediumAppBarExpandedHeight: Dp = AppBarMediumTokens.ContainerHeight
 
     /** The default expanded height of a [MediumFlexibleTopAppBar] without subtitle. */
-    val MediumFlexibleAppBarWithoutSubtitleExpandedHeight: Dp =
+    public val MediumFlexibleAppBarWithoutSubtitleExpandedHeight: Dp =
         AppBarMediumFlexibleTokens.ContainerHeight
 
     /** The default expanded height of a [MediumFlexibleTopAppBar] with subtitle. */
-    val MediumFlexibleAppBarWithSubtitleExpandedHeight: Dp =
+    public val MediumFlexibleAppBarWithSubtitleExpandedHeight: Dp =
         AppBarMediumFlexibleTokens.LargeContainerHeight
 
     /** The default height of a [LargeTopAppBar] when collapsed by a [TopAppBarScrollBehavior]. */
-    val LargeAppBarCollapsedHeight: Dp = AppBarSmallTokens.ContainerHeight
+    public val LargeAppBarCollapsedHeight: Dp = AppBarSmallTokens.ContainerHeight
 
     /** The default expanded height of a [LargeTopAppBar]. */
-    val LargeAppBarExpandedHeight: Dp = AppBarLargeTokens.ContainerHeight
+    public val LargeAppBarExpandedHeight: Dp = AppBarLargeTokens.ContainerHeight
 
     /** The default expanded height of a [LargeFlexibleTopAppBar] without subtitle. */
-    val LargeFlexibleAppBarWithoutSubtitleExpandedHeight: Dp =
+    public val LargeFlexibleAppBarWithoutSubtitleExpandedHeight: Dp =
         AppBarLargeFlexibleTokens.ContainerHeight
 
     /** The default expanded height of a [LargeFlexibleTopAppBar] with subtitle. */
-    val LargeFlexibleAppBarWithSubtitleExpandedHeight: Dp =
+    public val LargeFlexibleAppBarWithSubtitleExpandedHeight: Dp =
         AppBarLargeFlexibleTokens.LargeContainerHeight
 }
 
@@ -2250,7 +2254,7 @@ object TopAppBarDefaults {
  * @param initialContentOffset the initial value for [TopAppBarState.contentOffset]
  */
 @Composable
-fun rememberTopAppBarState(
+public fun rememberTopAppBarState(
     initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
     initialHeightOffset: Float = 0f,
     initialContentOffset: Float = 0f,
@@ -2271,7 +2275,7 @@ fun rememberTopAppBarState(
  * @param initialContentOffset the initial value for [TopAppBarState.contentOffset]
  */
 @Stable
-class TopAppBarState(
+public class TopAppBarState(
     initialHeightOffsetLimit: Float,
     initialHeightOffset: Float,
     initialContentOffset: Float,
@@ -2283,7 +2287,7 @@ class TopAppBarState(
      *
      * Use this limit to coerce the [heightOffset] value when it's updated.
      */
-    var heightOffsetLimit = initialHeightOffsetLimit
+    public var heightOffsetLimit: Float = initialHeightOffsetLimit
 
     /**
      * The top app bar's current height offset in pixels. This height offset is applied to the fixed
@@ -2291,7 +2295,7 @@ class TopAppBarState(
      *
      * Updates to the [heightOffset] value are coerced between zero and [heightOffsetLimit].
      */
-    var heightOffset: Float
+    public var heightOffset: Float
         get() = _heightOffset.floatValue
         set(newOffset) {
             _heightOffset.floatValue =
@@ -2308,7 +2312,7 @@ class TopAppBarState(
      * consumes scroll events. A common implementation would update the value to be the sum of all
      * [NestedScrollConnection.onPostScroll] `consumed.y` values.
      */
-    var contentOffset by mutableFloatStateOf(initialContentOffset)
+    public var contentOffset: Float by mutableFloatStateOf(initialContentOffset)
 
     /**
      * Determines if the content is currently at the starting scroll position. This is used to
@@ -2322,7 +2326,7 @@ class TopAppBarState(
      * A `0.0` represents a fully expanded bar, and `1.0` represents a fully collapsed bar (computed
      * as [heightOffset] / [heightOffsetLimit]).
      */
-    val collapsedFraction: Float
+    public val collapsedFraction: Float
         get() =
             if (heightOffsetLimit != 0f) {
                 heightOffset / heightOffsetLimit
@@ -2337,7 +2341,7 @@ class TopAppBarState(
      * A `0.0` indicates that the app bar does not overlap any content, while `1.0` indicates that
      * the entire visible app bar area overlaps the scrolled content.
      */
-    val overlappedFraction: Float
+    public val overlappedFraction: Float
         get() =
             if (!isScrollingContentAtStart() && contentOffset == 0f) {
                 1f
@@ -2351,9 +2355,9 @@ class TopAppBarState(
                 0f
             }
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [TopAppBarState]. */
-        val Saver: Saver<TopAppBarState, *> =
+        public val Saver: Saver<TopAppBarState, *> =
             listSaver(
                 save = { listOf(it.heightOffsetLimit, it.heightOffset, it.contentOffset) },
                 restore = {
@@ -2385,13 +2389,13 @@ class TopAppBarState(
  *   using the default material3 spec
  */
 @Stable
-class TopAppBarColors(
-    val containerColor: Color,
-    val scrolledContainerColor: Color,
-    val navigationIconContentColor: Color,
-    val titleContentColor: Color,
-    val actionIconContentColor: Color,
-    val subtitleContentColor: Color,
+public class TopAppBarColors(
+    public val containerColor: Color,
+    public val scrolledContainerColor: Color,
+    public val navigationIconContentColor: Color,
+    public val titleContentColor: Color,
+    public val actionIconContentColor: Color,
+    public val subtitleContentColor: Color,
 ) {
     @Deprecated(
         "Use the TopAppBarColors constructor with subtitleContentColor",
@@ -2403,7 +2407,7 @@ class TopAppBarColors(
             ),
         DeprecationLevel.WARNING,
     )
-    constructor(
+    public constructor(
         containerColor: Color,
         scrolledContainerColor: Color,
         navigationIconContentColor: Color,
@@ -2422,14 +2426,14 @@ class TopAppBarColors(
      * Returns a copy of this TopAppBarColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         scrolledContainerColor: Color = this.scrolledContainerColor,
         navigationIconContentColor: Color = this.navigationIconContentColor,
         titleContentColor: Color = this.titleContentColor,
         actionIconContentColor: Color = this.actionIconContentColor,
         subtitleContentColor: Color = this.subtitleContentColor,
-    ) =
+    ): TopAppBarColors =
         TopAppBarColors(
             containerColor.takeOrElse { this.containerColor },
             scrolledContainerColor.takeOrElse { this.scrolledContainerColor },
@@ -2491,13 +2495,13 @@ class TopAppBarColors(
  * @see [BottomAppBarDefaults.exitAlwaysScrollBehavior]
  */
 @Stable
-interface BottomAppBarScrollBehavior {
+public interface BottomAppBarScrollBehavior {
 
     /**
      * A [BottomAppBarState] that is attached to this behavior and is read and updated when
      * scrolling happens.
      */
-    val state: BottomAppBarState
+    public val state: BottomAppBarState
 
     /**
      * Indicates whether the bottom app bar is pinned.
@@ -2505,44 +2509,44 @@ interface BottomAppBarScrollBehavior {
      * A pinned app bar will stay fixed in place when content is scrolled and will not react to any
      * drag gestures.
      */
-    val isPinned: Boolean
+    public val isPinned: Boolean
 
     /**
      * An optional [AnimationSpec] that defines how the bottom app bar snaps to either fully
      * collapsed or fully extended state when a fling or a drag scrolled it into an intermediate
      * position.
      */
-    val snapAnimationSpec: AnimationSpec<Float>?
+    public val snapAnimationSpec: AnimationSpec<Float>?
 
     /**
      * An optional [DecayAnimationSpec] that defines how to fling the bottom app bar when the user
      * flings the app bar itself, or the scrollable content.
      */
-    val flingAnimationSpec: DecayAnimationSpec<Float>?
+    public val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
      * A [NestedScrollConnection] that should be attached to a
      * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
      * events.
      */
-    val nestedScrollConnection: NestedScrollConnection
+    public val nestedScrollConnection: NestedScrollConnection
 }
 
 /** Contains default values used for the bottom app bar implementations. */
-object BottomAppBarDefaults {
+public object BottomAppBarDefaults {
 
     /** Default color used for [BottomAppBar] container */
-    val containerColor: Color
+    public val containerColor: Color
         @Composable get() = BottomAppBarTokens.ContainerColor.value
 
     /** Default elevation used for [BottomAppBar] */
-    val ContainerElevation: Dp = 0.dp
+    public val ContainerElevation: Dp = 0.dp
 
     /**
      * Default padding used for [BottomAppBar] when content are default size (24dp) icons in
      * [IconButton] that meet the minimum touch target (48.dp).
      */
-    val ContentPadding =
+    public val ContentPadding: PaddingValues =
         PaddingValues(
             start = BottomAppBarHorizontalPadding,
             top = BottomAppBarVerticalPadding,
@@ -2550,7 +2554,7 @@ object BottomAppBarDefaults {
         )
 
     /** Default insets that will be used and consumed by [BottomAppBar]. */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() {
             return WindowInsets.systemBarsForVisualComponents.only(
@@ -2559,11 +2563,11 @@ object BottomAppBarDefaults {
         }
 
     /** The color of a [BottomAppBar]'s [FloatingActionButton] */
-    val bottomAppBarFabColor: Color
+    public val bottomAppBarFabColor: Color
         @Composable get() = FabSecondaryContainerTokens.ContainerColor.value
 
     /** Default padding used for [FlexibleBottomAppBar]. */
-    val FlexibleContentPadding =
+    public val FlexibleContentPadding: PaddingValues =
         PaddingValues(
             start = DockedToolbarTokens.ContainerLeadingSpace,
             end = DockedToolbarTokens.ContainerTrailingSpace,
@@ -2573,29 +2577,29 @@ object BottomAppBarDefaults {
      * Default height of a flexible [FlexibleBottomAppBar]. The height here represents the height of
      * the bottom app bar in its expanded state.
      */
-    val FlexibleBottomAppBarHeight = DockedToolbarTokens.ContainerHeight
+    public val FlexibleBottomAppBarHeight: Dp = DockedToolbarTokens.ContainerHeight
 
     /** A default [Arrangement] that will be used to space a [FlexibleBottomAppBar]'s content. */
-    val FlexibleHorizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween
+    public val FlexibleHorizontalArrangement: Arrangement.Horizontal = Arrangement.SpaceBetween
 
     /**
      * An [Arrangement] that will be used to space [FlexibleBottomAppBar]'s with a fixed spacing.
      */
-    val FlexibleFixedHorizontalArrangement: Arrangement.Horizontal =
+    public val FlexibleFixedHorizontalArrangement: Arrangement.Horizontal =
         Arrangement.spacedBy(DockedToolbarTokens.ContainerMaxSpacing, Alignment.CenterHorizontally)
 
     /**
      * Default [AnimationSpec] that defines how the bottom app bar snaps to either fully collapsed
      * or fully extended state when a fling or a drag scrolled it into an intermediate position.
      */
-    val snapAnimationSpec: AnimationSpec<Float>
+    public val snapAnimationSpec: AnimationSpec<Float>
         @Composable get() = MotionSchemeKeyTokens.FastSpatial.value()
 
     /**
      * Default [DecayAnimationSpec] that defines how to fling the bottom app bar when the user
      * flings the app bar itself, or the scrollable content.
      */
-    val flingAnimationSpec: DecayAnimationSpec<Float>
+    public val flingAnimationSpec: DecayAnimationSpec<Float>
         @Composable get() = rememberSplineBasedDecay()
 
     /**
@@ -2621,7 +2625,7 @@ object BottomAppBarDefaults {
      *   velocity.
      */
     @Composable
-    fun exitAlwaysScrollBehavior(
+    public fun exitAlwaysScrollBehavior(
         state: BottomAppBarState = rememberBottomAppBarState(),
         canScroll: () -> Boolean = { true },
         snapAnimationSpec: AnimationSpec<Float>? = BottomAppBarDefaults.snapAnimationSpec,
@@ -2648,7 +2652,7 @@ object BottomAppBarDefaults {
  * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
  */
 @Composable
-fun rememberBottomAppBarState(
+public fun rememberBottomAppBarState(
     initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
     initialHeightOffset: Float = 0f,
     initialContentOffset: Float = 0f,
@@ -2665,7 +2669,7 @@ fun rememberBottomAppBarState(
  * In most cases, this state will be created via [rememberBottomAppBarState].
  */
 @Stable
-interface BottomAppBarState {
+public interface BottomAppBarState {
 
     /**
      * The bottom app bar's height offset limit in pixels, which represents the limit that a bottom
@@ -2673,7 +2677,7 @@ interface BottomAppBarState {
      *
      * Use this limit to coerce the [heightOffset] value when it's updated.
      */
-    var heightOffsetLimit: Float
+    public var heightOffsetLimit: Float
 
     /**
      * The bottom app bar's current height offset in pixels. This height offset is applied to the
@@ -2681,7 +2685,7 @@ interface BottomAppBarState {
      *
      * Updates to the [heightOffset] value are coerced between zero and [heightOffsetLimit].
      */
-    var heightOffset: Float
+    public var heightOffset: Float
 
     /**
      * The total offset of the content scrolled under the bottom app bar.
@@ -2690,7 +2694,7 @@ interface BottomAppBarState {
      * consumes scroll events. A common implementation would update the value to be the sum of all
      * [NestedScrollConnection.onPostScroll] `consumed.y` values.
      */
-    var contentOffset: Float
+    public var contentOffset: Float
 
     /**
      * A value that represents the collapsed height percentage of the app bar.
@@ -2698,11 +2702,11 @@ interface BottomAppBarState {
      * A `0.0` represents a fully expanded bar, and `1.0` represents a fully collapsed bar (computed
      * as [heightOffset] / [heightOffsetLimit]).
      */
-    val collapsedFraction: Float
+    public val collapsedFraction: Float
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [BottomAppBarState]. */
-        val Saver: Saver<BottomAppBarState, *> =
+        public val Saver: Saver<BottomAppBarState, *> =
             listSaver(
                 save = { listOf(it.heightOffsetLimit, it.heightOffset, it.contentOffset) },
                 restore = {
@@ -2726,7 +2730,7 @@ interface BottomAppBarState {
  *   offset height offset should be between zero and [initialHeightOffsetLimit].
  * @param initialContentOffset the initial value for [BottomAppBarState.contentOffset]
  */
-fun BottomAppBarState(
+public fun BottomAppBarState(
     initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
     initialHeightOffset: Float = 0f,
     initialContentOffset: Float = 0f,

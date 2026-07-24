@@ -82,7 +82,7 @@ import kotlinx.coroutines.launch
  * @param crossAxisTrackInset the inset to apply to the scrollbar track along the cross axis.
  */
 @Composable
-fun Modifier.nonInteractiveScrollbar(
+public fun Modifier.nonInteractiveScrollbar(
     state: ScrollIndicatorState,
     orientation: Orientation,
     thumbColor: Color = NonInteractiveScrollbarDefaults.thumbColor,
@@ -117,34 +117,34 @@ fun Modifier.nonInteractiveScrollbar(
 }
 
 /** Contains the default values used by [Modifier.nonInteractiveScrollbar]. */
-object NonInteractiveScrollbarDefaults {
+public object NonInteractiveScrollbarDefaults {
     /** Default opacity for the scrollbar thumb. */
-    val ThumbOpacity = 0.7f
+    public val ThumbOpacity: Float = 0.7f
 
     /** Default duration in milliseconds for the fade animation. */
-    val ThumbFadeDurationMillis: Int = 250
+    public val ThumbFadeDurationMillis: Int = 250
 
     /** Default delay in milliseconds before the scrollbar fades out. */
-    val ThumbFadeDelayMillis: Int = 400
+    public val ThumbFadeDelayMillis: Int = 400
 
     /** Default color for the scrollbar thumb. */
-    val thumbColor: Color
+    public val thumbColor: Color
         @Composable get() = MaterialTheme.colorScheme.outline.copy(alpha = ThumbOpacity)
 
     /** Default thickness for a scrollbar. */
-    val Thickness: Dp = 4.dp
+    public val Thickness: Dp = 4.dp
 
     /** Default minimum height for the scrollbar thumb. */
-    val ThumbMinLength: Dp = 24.dp
+    public val ThumbMinLength: Dp = 24.dp
 
     /** Default maximum length for the scrollbar thumb as a fraction of the viewport length. */
-    val ThumbMaxLengthFraction: Float = 0.9f
+    public val ThumbMaxLengthFraction: Float = 0.9f
 
     /** Default main axis inset for the scrollbar track. */
-    val MainAxisTrackInset: Dp = 2.dp
+    public val MainAxisTrackInset: Dp = 2.dp
 
     /** Default cross axis inset for the scrollbar track. */
-    val CrossAxisTrackInset: Dp = 0.dp
+    public val CrossAxisTrackInset: Dp = 0.dp
 }
 
 private class NonInteractiveScrollbarElement(

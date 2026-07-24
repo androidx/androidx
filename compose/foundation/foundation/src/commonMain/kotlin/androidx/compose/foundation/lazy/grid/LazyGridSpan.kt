@@ -23,12 +23,12 @@ import androidx.compose.runtime.Immutable
 /** Represents the span of an item in a [LazyVerticalGrid] or a [LazyHorizontalGrid]. */
 @Immutable
 @kotlin.jvm.JvmInline
-value class GridItemSpan internal constructor(private val packedValue: Long) {
+public value class GridItemSpan internal constructor(private val packedValue: Long) {
     /**
      * The span of the item on the current line. This will be the horizontal span for items of
      * [LazyVerticalGrid] and the vertical span for a [LazyHorizontalGrid].
      */
-    val currentLineSpan: Int
+    public val currentLineSpan: Int
         get() = packedValue.toInt()
 }
 
@@ -36,14 +36,14 @@ value class GridItemSpan internal constructor(private val packedValue: Long) {
  * Creates a [GridItemSpan] with a specified [currentLineSpan]. This will be the horizontal span for
  * an item of a [LazyVerticalGrid] and the vertical span for a [LazyHorizontalGrid].
  */
-fun GridItemSpan(@IntRange(from = 1) currentLineSpan: Int): GridItemSpan {
+public fun GridItemSpan(@IntRange(from = 1) currentLineSpan: Int): GridItemSpan {
     requirePrecondition(currentLineSpan > 0) { "The span value should be higher than 0" }
     return GridItemSpan(currentLineSpan.toLong())
 }
 
 /** Scope of lambdas used to calculate the spans of items in lazy grids. */
 @LazyGridScopeMarker
-sealed interface LazyGridItemSpanScope {
+public sealed interface LazyGridItemSpanScope {
     /**
      * The max current line (horizontal for vertical grids) the item can occupy, such that it will
      * be positioned on the current line.
@@ -53,7 +53,7 @@ sealed interface LazyGridItemSpanScope {
      * than [maxCurrentLineSpan] this means we can't fit this cell into the current line, so the
      * cell will be positioned on the next line.
      */
-    val maxCurrentLineSpan: Int
+    public val maxCurrentLineSpan: Int
 
     /**
      * The max line span (horizontal for vertical grids) an item can occupy. This will be the number
@@ -61,5 +61,5 @@ sealed interface LazyGridItemSpanScope {
      *
      * For example if [LazyVerticalGrid] has 3 columns this value will be 3 for each cell.
      */
-    val maxLineSpan: Int
+    public val maxLineSpan: Int
 }

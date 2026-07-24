@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.packFloats
 
 /** Default identifier for the root group if a Vector graphic */
-const val RootGroupName = "VectorRootGroup"
+public const val RootGroupName: String = "VectorRootGroup"
 
 /**
  * Create a [VectorPainter] with the Vector defined by the provided sub-composition
@@ -73,7 +73,7 @@ const val RootGroupName = "VectorRootGroup"
 )
 @Composable
 @ComposableOpenTarget(-1)
-fun rememberVectorPainter(
+public fun rememberVectorPainter(
     defaultWidth: Dp,
     defaultHeight: Dp,
     viewportWidth: Float = Float.NaN,
@@ -117,7 +117,7 @@ fun rememberVectorPainter(
  */
 @Composable
 @ComposableOpenTarget(-1)
-fun rememberVectorPainter(
+public fun rememberVectorPainter(
     defaultWidth: Dp,
     defaultHeight: Dp,
     viewportWidth: Float = Float.NaN,
@@ -167,7 +167,7 @@ fun rememberVectorPainter(
  * @param [image] ImageVector used to create a vector graphic sub-composition
  */
 @Composable
-fun rememberVectorPainter(image: ImageVector): VectorPainter {
+public fun rememberVectorPainter(image: ImageVector): VectorPainter {
     val density = LocalDensity.current
     val key = packFloats(image.genId.toFloat(), density.density)
     return remember(key) {
@@ -183,7 +183,8 @@ fun rememberVectorPainter(image: ImageVector): VectorPainter {
  * [Painter] implementation that abstracts the drawing of a Vector graphic. This can be represented
  * by either a [ImageVector] or a programmatic composition of a vector
  */
-class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) : Painter() {
+public class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) :
+    Painter() {
 
     internal var size by mutableStateOf(Size.Zero)
 
@@ -226,10 +227,10 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
 
-    override val intrinsicSize: Size
+    public override val intrinsicSize: Size
         get() = size
 
-    override fun DrawScope.onDraw() {
+    protected override fun DrawScope.onDraw() {
         with(vector) {
             val filter = currentColorFilter ?: intrinsicColorFilter
             if (autoMirror && layoutDirection == LayoutDirection.Rtl) {
@@ -242,12 +243,12 @@ class VectorPainter internal constructor(root: GroupComponent = GroupComponent()
         drawInvalidation
     }
 
-    override fun applyAlpha(alpha: Float): Boolean {
+    protected override fun applyAlpha(alpha: Float): Boolean {
         currentAlpha = alpha
         return true
     }
 
-    override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
+    protected override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
         currentColorFilter = colorFilter
         return true
     }
@@ -261,38 +262,38 @@ private inline fun DrawScope.mirror(block: DrawScope.() -> Unit) {
  * Represents one of the properties for PathComponent or GroupComponent that can be overwritten when
  * it is composed and drawn with [RenderVectorGroup].
  */
-sealed class VectorProperty<T> {
-    object Rotation : VectorProperty<Float>()
+public sealed class VectorProperty<T> {
+    public object Rotation : VectorProperty<Float>()
 
-    object PivotX : VectorProperty<Float>()
+    public object PivotX : VectorProperty<Float>()
 
-    object PivotY : VectorProperty<Float>()
+    public object PivotY : VectorProperty<Float>()
 
-    object ScaleX : VectorProperty<Float>()
+    public object ScaleX : VectorProperty<Float>()
 
-    object ScaleY : VectorProperty<Float>()
+    public object ScaleY : VectorProperty<Float>()
 
-    object TranslateX : VectorProperty<Float>()
+    public object TranslateX : VectorProperty<Float>()
 
-    object TranslateY : VectorProperty<Float>()
+    public object TranslateY : VectorProperty<Float>()
 
-    object PathData : VectorProperty<List<PathNode>>()
+    public object PathData : VectorProperty<List<PathNode>>()
 
-    object Fill : VectorProperty<Brush?>()
+    public object Fill : VectorProperty<Brush?>()
 
-    object FillAlpha : VectorProperty<Float>()
+    public object FillAlpha : VectorProperty<Float>()
 
-    object Stroke : VectorProperty<Brush?>()
+    public object Stroke : VectorProperty<Brush?>()
 
-    object StrokeLineWidth : VectorProperty<Float>()
+    public object StrokeLineWidth : VectorProperty<Float>()
 
-    object StrokeAlpha : VectorProperty<Float>()
+    public object StrokeAlpha : VectorProperty<Float>()
 
-    object TrimPathStart : VectorProperty<Float>()
+    public object TrimPathStart : VectorProperty<Float>()
 
-    object TrimPathEnd : VectorProperty<Float>()
+    public object TrimPathEnd : VectorProperty<Float>()
 
-    object TrimPathOffset : VectorProperty<Float>()
+    public object TrimPathOffset : VectorProperty<Float>()
 }
 
 /**
@@ -302,8 +303,8 @@ sealed class VectorProperty<T> {
  * rendered.
  */
 @JvmDefaultWithCompatibility
-interface VectorConfig {
-    fun <T> getOrDefault(property: VectorProperty<T>, defaultValue: T): T {
+public interface VectorConfig {
+    public fun <T> getOrDefault(property: VectorProperty<T>, defaultValue: T): T {
         return defaultValue
     }
 }
@@ -421,7 +422,10 @@ internal fun GroupComponent.createGroupComponent(currentGroup: VectorGroup): Gro
  *   node names. The values are [VectorConfig] for that node.
  */
 @Composable
-fun RenderVectorGroup(group: VectorGroup, configs: Map<String, VectorConfig> = emptyMap()) {
+public fun RenderVectorGroup(
+    group: VectorGroup,
+    configs: Map<String, VectorConfig> = emptyMap(),
+): Unit {
     for (vectorNode in group) {
         if (vectorNode is VectorPath) {
             val config = configs[vectorNode.name] ?: object : VectorConfig {}

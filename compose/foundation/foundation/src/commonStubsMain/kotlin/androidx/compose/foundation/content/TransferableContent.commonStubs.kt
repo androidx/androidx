@@ -21,14 +21,14 @@ import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.platform.ClipEntry
 
 @ExperimentalFoundationApi
-actual class PlatformTransferableContent internal constructor() {
+public actual class PlatformTransferableContent internal constructor() {
     init {
         implementedInJetBrainsFork()
     }
 }
 
 @ExperimentalFoundationApi
-actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean =
+public actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean =
     implementedInJetBrainsFork()
 
 internal actual fun ClipEntry.readPlainText(): String? = implementedInJetBrainsFork()

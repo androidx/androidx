@@ -29,7 +29,7 @@ import androidx.compose.ui.util.fastForEach
  * * When [TextInputService] provides [EditCommand]s, they should be applied to the internal buffer
  *   using [apply].
  */
-class EditProcessor {
+public class EditProcessor {
 
     /** The current state of the internal editing buffer as a [TextFieldValue]. */
     /*@VisibleForTesting*/
@@ -50,7 +50,7 @@ class EditProcessor {
      * tell the IME about the selection offset changes or extracted text changes.
      */
     @Suppress("ReferencesDeprecated")
-    fun reset(value: TextFieldValue, textInputSession: TextInputSession?) {
+    public fun reset(value: TextFieldValue, textInputSession: TextInputSession?) {
         var textChanged = false
         var selectionChanged = false
         val compositionChanged = value.composition != mBuffer.composition
@@ -95,7 +95,7 @@ class EditProcessor {
      * @param editCommands [EditCommand]s to be applied to the editing buffer.
      * @return the [TextFieldValue] representation of the final buffer state.
      */
-    fun apply(editCommands: List<EditCommand>): TextFieldValue {
+    public fun apply(editCommands: List<EditCommand>): TextFieldValue {
         var lastCommand: EditCommand? = null
         try {
             editCommands.fastForEach {
@@ -124,7 +124,7 @@ class EditProcessor {
     }
 
     /** Returns the current state of the internal editing buffer as a [TextFieldValue]. */
-    fun toTextFieldValue(): TextFieldValue = mBufferState
+    public fun toTextFieldValue(): TextFieldValue = mBufferState
 
     private fun generateBatchErrorMessage(
         editCommands: List<EditCommand>,

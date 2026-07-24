@@ -28,7 +28,7 @@ import kotlinx.coroutines.test.TestResult
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi
-actual fun runComposeUiTest(
+public actual fun runComposeUiTest(
     effectContext: CoroutineContext,
     runTestContext: CoroutineContext,
     testTimeout: Duration,

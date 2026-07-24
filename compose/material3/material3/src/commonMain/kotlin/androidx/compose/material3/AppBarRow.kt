@@ -49,7 +49,7 @@ import androidx.compose.ui.util.fastForEach
  */
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
-fun AppBarRow(
+public fun AppBarRow(
     modifier: Modifier = Modifier,
     overflowIndicator: @Composable (AppBarMenuState) -> Unit = { menuState ->
         AppBarOverflowIndicator(menuState)
@@ -97,15 +97,15 @@ fun AppBarRow(
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Maintained for binary compatibility.")
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
-fun AppBarRow(
+public fun AppBarRow(
     overflowIndicator: @Composable (AppBarMenuState) -> Unit,
     modifier: Modifier = Modifier,
     maxItemCount: Int = Int.MAX_VALUE,
     content: AppBarRowScope.() -> Unit,
-) = AppBarRow(modifier, overflowIndicator, maxItemCount, content)
+): Unit = AppBarRow(modifier, overflowIndicator, maxItemCount, content)
 
 /** DSL scope for building the content of an [AppBarRow]. */
-interface AppBarRowScope : AppBarScope
+public interface AppBarRowScope : AppBarScope
 
 private class AppBarRowScopeImpl(val impl: AppBarScopeImpl) :
     AppBarRowScope, AppBarScope by impl, AppBarItemProvider by impl

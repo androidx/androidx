@@ -54,6 +54,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.lerp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -70,7 +71,7 @@ private const val InfinitePageCount = 100_000
  * @param itemCount the total number of unique items available in the scroll field.
  */
 @Stable
-class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) {
+public class ScrollFieldState(internal val pagerState: PagerState, public val itemCount: Int) {
     init {
         require(itemCount > 0) { "itemCount must be greater than 0" }
     }
@@ -83,7 +84,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      *
      * Setting this value will instantly scroll to the specified option.
      */
-    var selectedOption: Int
+    public var selectedOption: Int
         get() = if (itemCount > 0) pagerState.currentPage % itemCount else 0
         set(value) {
             if (itemCount > 0) {
@@ -99,7 +100,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      * @param option the index of the item to scroll to.
      * @see animateScrollToOption for a smooth transition.
      */
-    suspend fun scrollToOption(option: Int) {
+    public suspend fun scrollToOption(option: Int) {
         val targetPage = calculateTargetPage(option.coerceIn(0, itemCount - 1))
         pagerState.scrollToPage(targetPage)
     }
@@ -110,7 +111,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      * @param option the index of the item to animate to.
      * @see scrollToOption for an instant scroll.
      */
-    suspend fun animateScrollToOption(option: Int) {
+    public suspend fun animateScrollToOption(option: Int) {
         val targetPage = calculateTargetPage(option.coerceIn(0, itemCount - 1))
         pagerState.animateScrollToPage(targetPage)
     }
@@ -126,13 +127,13 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
      * The option the pager will settle on once any in-progress scroll finishes. Equal to
      * [selectedOption] when the pager is at rest.
      */
-    val targetOption: Int
+    public val targetOption: Int
         get() = if (itemCount > 0) pagerState.targetPage % itemCount else 0
 
     /**
      * Whether this [ScrollField] is currently scrolling, either by user gesture or by animation.
      */
-    val isScrollInProgress: Boolean
+    public val isScrollInProgress: Boolean
         get() = pagerState.isScrollInProgress
 }
 
@@ -144,7 +145,7 @@ class ScrollFieldState(internal val pagerState: PagerState, val itemCount: Int) 
  * @return a [ScrollFieldState] that can be used to control or observe the scroll field.
  */
 @Composable
-fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
+public fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
     val initialPage =
         remember(itemCount, index) {
             val coercedIndex = if (itemCount > 0) index.coerceIn(0, itemCount - 1) else 0
@@ -184,7 +185,7 @@ fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollFieldState {
  * @param field the composable used to render each item in the wheel.
  */
 @Composable
-fun ScrollField(
+public fun ScrollField(
     state: ScrollFieldState,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -237,7 +238,7 @@ fun ScrollField(
                         }
                     }
                 },
-        pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3),
+        pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3f),
         horizontalAlignment = Alignment.CenterHorizontally,
         snapPosition = SnapPosition.Center,
     ) { page ->
@@ -258,20 +259,20 @@ fun ScrollField(
 
 /** Represents the colors used by a [ScrollField] in different states. */
 @Immutable
-class ScrollFieldColors(
-    val containerColor: Color,
-    val unselectedContentColor: Color,
-    val selectedContentColor: Color,
+public class ScrollFieldColors(
+    public val containerColor: Color,
+    public val unselectedContentColor: Color,
+    public val selectedContentColor: Color,
 ) {
     /**
      * Returns a copy of this ScrollFieldColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source".
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         unselectedContentColor: Color = this.unselectedContentColor,
         selectedContentColor: Color = this.selectedContentColor,
-    ) =
+    ): ScrollFieldColors =
         ScrollFieldColors(
             containerColor.takeOrElse { this.containerColor },
             unselectedContentColor.takeOrElse { this.unselectedContentColor },
@@ -297,19 +298,20 @@ class ScrollFieldColors(
 
 /** Object to hold defaults used by [ScrollField]. */
 @Stable
-object ScrollFieldDefaults {
+public object ScrollFieldDefaults {
     /**
      * The default height for a [ScrollField]. This can be used as a reference when providing a
      * Modifier.height to the ScrollField to ensure enough vertical space is available to display
      * the typical three-item layout.
      */
-    val ScrollFieldHeight = 200.dp
+    public val ScrollFieldHeight: Dp = 200.dp
     /** The default shape for the [ScrollField] container background. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = ShapeDefaults.Large
 
     /** Default colors used by a [ScrollField]. */
-    @Composable fun colors(): ScrollFieldColors = MaterialTheme.colorScheme.defaultScrollFieldColors
+    @Composable
+    public fun colors(): ScrollFieldColors = MaterialTheme.colorScheme.defaultScrollFieldColors
 
     /**
      * Creates a [ScrollFieldColors] that represents the default container, unselected, and selected
@@ -322,11 +324,11 @@ object ScrollFieldDefaults {
      *   into place.
      */
     @Composable
-    fun colors(
+    public fun colors(
         containerColor: Color = Color.Unspecified,
         unselectedContentColor: Color = Color.Unspecified,
         selectedContentColor: Color = Color.Unspecified,
-    ) =
+    ): ScrollFieldColors =
         MaterialTheme.colorScheme.defaultScrollFieldColors.copy(
             containerColor = containerColor,
             unselectedContentColor = unselectedContentColor,
@@ -353,7 +355,7 @@ object ScrollFieldDefaults {
      * @param colors the colors to use for the text content.
      */
     @Composable
-    fun Item(index: Int, selected: Boolean, colors: ScrollFieldColors = colors()) {
+    public fun Item(index: Int, selected: Boolean, colors: ScrollFieldColors = colors()) {
         val targetColor =
             if (selected) colors.selectedContentColor else colors.unselectedContentColor
 

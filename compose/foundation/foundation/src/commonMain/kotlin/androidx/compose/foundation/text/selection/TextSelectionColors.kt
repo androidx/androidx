@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -34,8 +35,8 @@ import androidx.compose.ui.graphics.Color
  *   used for text, selection background, and the background behind the selection background.
  */
 @Immutable
-class TextSelectionColors(val handleColor: Color, val backgroundColor: Color) {
-    override fun equals(other: Any?): Boolean {
+public class TextSelectionColors(public val handleColor: Color, public val backgroundColor: Color) {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TextSelectionColors) return false
 
@@ -45,13 +46,13 @@ class TextSelectionColors(val handleColor: Color, val backgroundColor: Color) {
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = handleColor.hashCode()
         result = 31 * result + backgroundColor.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "SelectionColors(selectionHandleColor=$handleColor, " +
             "selectionBackgroundColor=$backgroundColor)"
     }
@@ -61,6 +62,9 @@ class TextSelectionColors(val handleColor: Color, val backgroundColor: Color) {
  * CompositionLocal used to change the [TextSelectionColors] used by text and text field components
  * in the hierarchy.
  */
-val LocalTextSelectionColors = compositionLocalOf { DefaultTextSelectionColors }
+public val LocalTextSelectionColors: ProvidableCompositionLocal<TextSelectionColors> =
+    compositionLocalOf {
+        DefaultTextSelectionColors
+    }
 
 @Stable internal expect val DefaultTextSelectionColors: TextSelectionColors

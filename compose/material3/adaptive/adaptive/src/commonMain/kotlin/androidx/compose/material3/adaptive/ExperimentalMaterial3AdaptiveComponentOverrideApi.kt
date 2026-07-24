@@ -21,4 +21,4 @@ package androidx.compose.material3.adaptive
         "removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalMaterial3AdaptiveComponentOverrideApi
+public annotation class ExperimentalMaterial3AdaptiveComponentOverrideApi

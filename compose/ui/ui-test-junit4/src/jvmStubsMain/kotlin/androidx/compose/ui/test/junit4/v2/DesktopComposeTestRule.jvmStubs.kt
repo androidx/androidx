@@ -33,10 +33,10 @@ import kotlin.coroutines.CoroutineContext
             "createComposeRule(ComposeUiTestConfig(effectContext))",
     replaceWith = ReplaceWith("createComposeRule(ComposeUiTestConfig(effectContext))"),
 )
-actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
+public actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     implementedInJetBrainsFork()
 
-actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule =
+public actual fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule =
     implementedInJetBrainsFork()
 
-actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()
+public actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()

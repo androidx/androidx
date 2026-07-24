@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @sample androidx.compose.foundation.layout.samples.insetsStartWidthSample
  */
 @Stable
-fun Modifier.windowInsetsStartWidth(insets: WindowInsets) =
+public fun Modifier.windowInsetsStartWidth(insets: WindowInsets): Modifier =
     this then
         DerivedWidthModifierElement(
             insets,
@@ -79,7 +79,7 @@ private val startCalc = WindowInsetsWidthCalculator { insets, layoutDirection, d
  * @sample androidx.compose.foundation.layout.samples.insetsEndWidthSample
  */
 @Stable
-fun Modifier.windowInsetsEndWidth(insets: WindowInsets) =
+public fun Modifier.windowInsetsEndWidth(insets: WindowInsets): Modifier =
     this then
         DerivedWidthModifierElement(
             insets,
@@ -107,7 +107,7 @@ private val endCalc = WindowInsetsWidthCalculator { insets, layoutDirection, den
  * @sample androidx.compose.foundation.layout.samples.insetsTopHeightSample
  */
 @Stable
-fun Modifier.windowInsetsTopHeight(insets: WindowInsets) =
+public fun Modifier.windowInsetsTopHeight(insets: WindowInsets): Modifier =
     this then
         DerivedHeightModifierElement(
             insets,
@@ -133,7 +133,7 @@ private val topCalc = WindowInsetsHeightCalculator { insets, density -> insets.g
  * @sample androidx.compose.foundation.layout.samples.insetsBottomHeightSample
  */
 @Stable
-fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
+public fun Modifier.windowInsetsBottomHeight(insets: WindowInsets): Modifier =
     this then
         DerivedHeightModifierElement(
             insets,

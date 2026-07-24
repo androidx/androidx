@@ -84,7 +84,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Compose layout implementations"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
     deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

@@ -28,10 +28,10 @@ package androidx.compose.ui.platform
 // The value of Default can change without deprecation, but should still be done mindfully as it is
 // also a behavior change.
 @JvmInline
-value class AutoClearFocusBehavior private constructor(private val value: Int) {
-    companion object {
+public value class AutoClearFocusBehavior private constructor(private val value: Int) {
+    public companion object {
         /** Interacting with this [ComposeView] won't automatically clear focus. */
-        val None
+        public val None: AutoClearFocusBehavior
             get() = AutoClearFocusBehavior(0)
 
         /**
@@ -42,14 +42,14 @@ value class AutoClearFocusBehavior private constructor(private val value: Int) {
          * currently focused item will clear focus, even if that item is focusable in touch mode.
          * This does _not_ apply to stylus input.
          */
-        val CursorBased
+        public val CursorBased: AutoClearFocusBehavior
             get() = AutoClearFocusBehavior(1)
 
         /**
          * The default [AutoClearFocusBehavior]. This value is currently [CursorBased], but this is
          * subject to change.
          */
-        val Default
+        public val Default: AutoClearFocusBehavior
             get() = CursorBased
     }
 }

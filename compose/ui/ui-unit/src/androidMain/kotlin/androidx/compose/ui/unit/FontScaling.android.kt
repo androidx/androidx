@@ -30,13 +30,13 @@ import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
  */
 @Immutable
 @JvmDefaultWithCompatibility
-actual interface FontScaling {
+public actual interface FontScaling {
     /** Current user preference for the scaling factor for fonts. */
-    @Stable actual val fontScale: Float
+    @Stable public actual val fontScale: Float
 
     /** Convert [Dp] to Sp. Sp is used for font size, etc. */
     @Stable
-    actual fun Dp.toSp(): TextUnit {
+    public actual fun Dp.toSp(): TextUnit {
         if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale)) {
             return (value / fontScale).sp
         }
@@ -51,7 +51,7 @@ actual interface FontScaling {
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     @Stable
-    actual fun TextUnit.toDp(): Dp {
+    public actual fun TextUnit.toDp(): Dp {
         checkPrecondition(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
         if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale)) {
             return Dp(value * fontScale)

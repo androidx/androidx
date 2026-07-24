@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @param isContentSensitive whether the content is sensitive or not. Defaults to true.
  */
-fun Modifier.sensitiveContent(isContentSensitive: Boolean = true): Modifier =
+public fun Modifier.sensitiveContent(isContentSensitive: Boolean = true): Modifier =
     this then SensitiveNodeElement(isContentSensitive)
 
 private data class SensitiveNodeElement(val isContentSensitive: Boolean) :

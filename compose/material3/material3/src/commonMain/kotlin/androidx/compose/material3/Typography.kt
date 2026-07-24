@@ -107,22 +107,22 @@ import androidx.compose.ui.text.font.FontFamily
  * @property labelSmallEmphasized an emphasized version of [labelSmall].
  */
 @Immutable
-class Typography(
-    val displayLarge: TextStyle = typographyTokens.DisplayLarge,
-    val displayMedium: TextStyle = typographyTokens.DisplayMedium,
-    val displaySmall: TextStyle = typographyTokens.DisplaySmall,
-    val headlineLarge: TextStyle = typographyTokens.HeadlineLarge,
-    val headlineMedium: TextStyle = typographyTokens.HeadlineMedium,
-    val headlineSmall: TextStyle = typographyTokens.HeadlineSmall,
-    val titleLarge: TextStyle = typographyTokens.TitleLarge,
-    val titleMedium: TextStyle = typographyTokens.TitleMedium,
-    val titleSmall: TextStyle = typographyTokens.TitleSmall,
-    val bodyLarge: TextStyle = typographyTokens.BodyLarge,
-    val bodyMedium: TextStyle = typographyTokens.BodyMedium,
-    val bodySmall: TextStyle = typographyTokens.BodySmall,
-    val labelLarge: TextStyle = typographyTokens.LabelLarge,
-    val labelMedium: TextStyle = typographyTokens.LabelMedium,
-    val labelSmall: TextStyle = typographyTokens.LabelSmall,
+public class Typography(
+    public val displayLarge: TextStyle = typographyTokens.DisplayLarge,
+    public val displayMedium: TextStyle = typographyTokens.DisplayMedium,
+    public val displaySmall: TextStyle = typographyTokens.DisplaySmall,
+    public val headlineLarge: TextStyle = typographyTokens.HeadlineLarge,
+    public val headlineMedium: TextStyle = typographyTokens.HeadlineMedium,
+    public val headlineSmall: TextStyle = typographyTokens.HeadlineSmall,
+    public val titleLarge: TextStyle = typographyTokens.TitleLarge,
+    public val titleMedium: TextStyle = typographyTokens.TitleMedium,
+    public val titleSmall: TextStyle = typographyTokens.TitleSmall,
+    public val bodyLarge: TextStyle = typographyTokens.BodyLarge,
+    public val bodyMedium: TextStyle = typographyTokens.BodyMedium,
+    public val bodySmall: TextStyle = typographyTokens.BodySmall,
+    public val labelLarge: TextStyle = typographyTokens.LabelLarge,
+    public val labelMedium: TextStyle = typographyTokens.LabelMedium,
+    public val labelSmall: TextStyle = typographyTokens.LabelSmall,
     displayLargeEmphasized: TextStyle = typographyTokens.DisplayLargeEmphasized,
     displayMediumEmphasized: TextStyle = typographyTokens.DisplayMediumEmphasized,
     displaySmallEmphasized: TextStyle = typographyTokens.DisplaySmallEmphasized,
@@ -217,7 +217,7 @@ class Typography(
      * @param labelMediumEmphasized an emphasized version of [labelMedium].
      * @param labelSmallEmphasized an emphasized version of [labelSmall].
      */
-    constructor(
+    public constructor(
         fontFamily: FontFamily,
         displayLarge: TextStyle? = null,
         displayMedium: TextStyle? = null,
@@ -383,49 +383,49 @@ class Typography(
     )
 
     /** an emphasized version of [displayLarge]. */
-    val displayLargeEmphasized = displayLargeEmphasized
+    public val displayLargeEmphasized: TextStyle = displayLargeEmphasized
 
     /** an emphasized version of [displayMedium]. */
-    val displayMediumEmphasized = displayMediumEmphasized
+    public val displayMediumEmphasized: TextStyle = displayMediumEmphasized
 
     /** an emphasized version of [displaySmall]. */
-    val displaySmallEmphasized = displaySmallEmphasized
+    public val displaySmallEmphasized: TextStyle = displaySmallEmphasized
 
     /** an emphasized version of [headlineLarge]. */
-    val headlineLargeEmphasized = headlineLargeEmphasized
+    public val headlineLargeEmphasized: TextStyle = headlineLargeEmphasized
 
     /** an emphasized version of [headlineMedium]. */
-    val headlineMediumEmphasized = headlineMediumEmphasized
+    public val headlineMediumEmphasized: TextStyle = headlineMediumEmphasized
 
     /** an emphasized version of [headlineSmall]. */
-    val headlineSmallEmphasized = headlineSmallEmphasized
+    public val headlineSmallEmphasized: TextStyle = headlineSmallEmphasized
 
     /** an emphasized version of [titleLarge]. */
-    val titleLargeEmphasized = titleLargeEmphasized
+    public val titleLargeEmphasized: TextStyle = titleLargeEmphasized
 
     /** an emphasized version of [titleMedium]. */
-    val titleMediumEmphasized = titleMediumEmphasized
+    public val titleMediumEmphasized: TextStyle = titleMediumEmphasized
 
     /** an emphasized version of [titleSmall]. */
-    val titleSmallEmphasized = titleSmallEmphasized
+    public val titleSmallEmphasized: TextStyle = titleSmallEmphasized
 
     /** an emphasized version of [bodyLarge]. */
-    val bodyLargeEmphasized = bodyLargeEmphasized
+    public val bodyLargeEmphasized: TextStyle = bodyLargeEmphasized
 
     /** an emphasized version of [bodyMedium]. */
-    val bodyMediumEmphasized = bodyMediumEmphasized
+    public val bodyMediumEmphasized: TextStyle = bodyMediumEmphasized
 
     /** an emphasized version of [bodySmall]. */
-    val bodySmallEmphasized = bodySmallEmphasized
+    public val bodySmallEmphasized: TextStyle = bodySmallEmphasized
 
     /** an emphasized version of [labelLarge]. */
-    val labelLargeEmphasized = labelLargeEmphasized
+    public val labelLargeEmphasized: TextStyle = labelLargeEmphasized
 
     /** an emphasized version of [labelMedium]. */
-    val labelMediumEmphasized = labelMediumEmphasized
+    public val labelMediumEmphasized: TextStyle = labelMediumEmphasized
 
     /** an emphasized version of [labelSmall]. */
-    val labelSmallEmphasized = labelSmallEmphasized
+    public val labelSmallEmphasized: TextStyle = labelSmallEmphasized
 
     /**
      * The Material Design type scale includes a range of contrasting styles that support the needs
@@ -481,7 +481,7 @@ class Typography(
      * @param labelSmall labelSmall is one of the smallest font sizes. It is used sparingly to
      *   annotate imagery or to introduce a headline.
      */
-    constructor(
+    public constructor(
         displayLarge: TextStyle = typographyTokens.DisplayLarge,
         displayMedium: TextStyle = typographyTokens.DisplayMedium,
         displaySmall: TextStyle = typographyTokens.DisplaySmall,
@@ -531,7 +531,7 @@ class Typography(
     )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,
@@ -597,7 +597,7 @@ class Typography(
         )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,

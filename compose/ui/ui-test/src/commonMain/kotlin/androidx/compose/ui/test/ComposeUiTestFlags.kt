@@ -51,7 +51,7 @@ import kotlin.jvm.JvmField
  *      }
  */
 @ExperimentalTestApi
-object ComposeUiTestFlags {
+public object ComposeUiTestFlags {
     /**
      * Flag to allow device tests to execute synchronization methods directly from the main thread.
      *
@@ -71,5 +71,5 @@ object ComposeUiTestFlags {
     // the permanent default.
     @JvmField
     @field:Suppress("MutableBareField")
-    var isMainThreadTestSynchronizationEnabledForDeviceTests: Boolean = true
+    public var isMainThreadTestSynchronizationEnabledForDeviceTests: Boolean = true
 }

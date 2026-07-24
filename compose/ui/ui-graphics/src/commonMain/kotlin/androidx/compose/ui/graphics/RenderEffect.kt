@@ -25,7 +25,7 @@ import androidx.compose.ui.geometry.Offset
  * [RenderEffect] can be configured on a [GraphicsLayerScope] and will be applied when drawn.
  */
 @Immutable
-expect sealed class RenderEffect() {
+public expect sealed class RenderEffect() {
 
     /**
      * Capability query to determine if the particular platform supports the [RenderEffect]. Not all
@@ -34,7 +34,7 @@ expect sealed class RenderEffect() {
      * Note RenderEffect is only supported on Android 12 and above. Attempts to use RenderEffect on
      * older Android versions will be ignored.
      */
-    open fun isSupported(): Boolean
+    public open fun isSupported(): Boolean
 }
 
 /**
@@ -42,8 +42,11 @@ expect sealed class RenderEffect() {
  * configured on
  */
 @Stable
-fun BlurEffect(radiusX: Float, radiusY: Float, edgeTreatment: TileMode = TileMode.Clamp) =
-    BlurEffect(null, radiusX, radiusY, edgeTreatment)
+public fun BlurEffect(
+    radiusX: Float,
+    radiusY: Float,
+    edgeTreatment: TileMode = TileMode.Clamp,
+): BlurEffect = BlurEffect(null, radiusX, radiusY, edgeTreatment)
 
 /**
  * [RenderEffect] that will blur the contents of an optional input [RenderEffect]. If no input
@@ -56,7 +59,7 @@ fun BlurEffect(radiusX: Float, radiusY: Float, edgeTreatment: TileMode = TileMod
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input
  */
 @Immutable
-expect class BlurEffect(
+public expect class BlurEffect(
     renderEffect: RenderEffect?,
     radiusX: Float,
     radiusY: Float = radiusX,
@@ -68,10 +71,12 @@ expect class BlurEffect(
  * configured on
  */
 @Stable
-fun OffsetEffect(offsetX: Float, offsetY: Float) = OffsetEffect(null, Offset(offsetX, offsetY))
+public fun OffsetEffect(offsetX: Float, offsetY: Float): OffsetEffect =
+    OffsetEffect(null, Offset(offsetX, offsetY))
 
 /**
  * [RenderEffect] used to translate either the given [RenderEffect] or the content of the
  * [GraphicsLayerScope] it is configured on.
  */
-@Immutable expect class OffsetEffect(renderEffect: RenderEffect?, offset: Offset) : RenderEffect
+@Immutable
+public expect class OffsetEffect(renderEffect: RenderEffect?, offset: Offset) : RenderEffect

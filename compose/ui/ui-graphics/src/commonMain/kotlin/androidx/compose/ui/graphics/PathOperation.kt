@@ -27,8 +27,8 @@ import androidx.compose.runtime.Immutable
 // Must be kept in sync with SkPathOp
 @Immutable
 @kotlin.jvm.JvmInline
-value class PathOperation internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class PathOperation internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * Subtract the second path from the first path.
          *
@@ -39,7 +39,7 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [ReverseDifference], which is the same but subtracting the first path from the second.
          */
-        val Difference
+        public val Difference: PathOperation
             get() = PathOperation(0)
 
         /**
@@ -52,7 +52,7 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Xor], which is the inverse of this operation
          */
-        val Intersect
+        public val Intersect: PathOperation
             get() = PathOperation(1)
 
         /**
@@ -62,7 +62,7 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * centers, the result would be a figure-eight like shape matching the outer boundaries of
          * both circles.
          */
-        val Union
+        public val Union: PathOperation
             get() = PathOperation(2)
 
         /**
@@ -75,7 +75,7 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Intersect], which is the inverse of this operation
          */
-        val Xor
+        public val Xor: PathOperation
             get() = PathOperation(3)
 
         /**
@@ -88,11 +88,11 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
          * See also:
          * * [Difference], which is the same but subtracting the second path from the first.
          */
-        val ReverseDifference
+        public val ReverseDifference: PathOperation
             get() = PathOperation(4)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Difference -> "Difference"
             Intersect -> "Intersect"
@@ -107,21 +107,21 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
     message = "Use PathOperation.Difference instead",
     ReplaceWith("PathOperation.Difference", "androidx.compose.ui.graphics.PathOperation.Difference"),
 )
-val PathOperation.Companion.difference: PathOperation
+public val PathOperation.Companion.difference: PathOperation
     get() = Difference
 
 @Deprecated(
     message = "Use PathOperation.Intersect instead",
     ReplaceWith("PathOperation.Intersect", "androidx.compose.ui.graphics.PathOperation.Intersect"),
 )
-val PathOperation.Companion.intersect: PathOperation
+public val PathOperation.Companion.intersect: PathOperation
     get() = Intersect
 
 @Deprecated(
     message = "Use PathOperation.Union instead",
     ReplaceWith("PathOperation.Union", "androidx.compose.ui.graphics.PathOperation.Union"),
 )
-val PathOperation.Companion.union: PathOperation
+public val PathOperation.Companion.union: PathOperation
     get() = Union
 
 @Deprecated(
@@ -131,12 +131,12 @@ val PathOperation.Companion.union: PathOperation
         "androidx.compose.ui.graphics.PathOperation.ReverseDifference",
     ),
 )
-val PathOperation.Companion.reverseDifference: PathOperation
+public val PathOperation.Companion.reverseDifference: PathOperation
     get() = ReverseDifference
 
 @Deprecated(
     message = "Use PathOperation.Xor instead",
     ReplaceWith("PathOperation.Xor", "androidx.compose.ui.graphics.PathOperation.Xor"),
 )
-val PathOperation.Companion.xor: PathOperation
+public val PathOperation.Companion.xor: PathOperation
     get() = Xor

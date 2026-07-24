@@ -26,13 +26,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Comp
  * - item all lanes in line ([FullLine]). By default, staggered grid uses [SingleLane] for all
  *   items.
  */
-class StaggeredGridItemSpan private constructor(internal val value: Int) {
-    companion object {
+public class StaggeredGridItemSpan private constructor(internal val value: Int) {
+    public companion object {
         /** Force item to occupy whole line in cross axis. */
-        val FullLine = StaggeredGridItemSpan(0)
+        public val FullLine: StaggeredGridItemSpan = StaggeredGridItemSpan(0)
 
         /** Force item to use a single lane. */
-        val SingleLane = StaggeredGridItemSpan(1)
+        public val SingleLane: StaggeredGridItemSpan = StaggeredGridItemSpan(1)
     }
 }
 

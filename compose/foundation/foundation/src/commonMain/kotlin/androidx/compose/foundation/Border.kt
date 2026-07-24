@@ -68,7 +68,7 @@ import kotlin.math.min
  * @param shape shape of the border
  */
 @Stable
-fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape) =
+public fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape): Modifier =
     border(width = border.width, brush = border.brush, shape = shape)
 
 /**
@@ -81,7 +81,7 @@ fun Modifier.border(border: BorderStroke, shape: Shape = RectangleShape) =
  * @param shape shape of the border
  */
 @Stable
-fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
+public fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape): Modifier =
     border(width, SolidColor(color), shape)
 
 /**
@@ -95,7 +95,7 @@ fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
  * @param shape shape of the border
  */
 @Stable
-fun Modifier.border(width: Dp, brush: Brush, shape: Shape) =
+public fun Modifier.border(width: Dp, brush: Brush, shape: Shape): Modifier =
     this then BorderModifierNodeElement(width, brush, shape)
 
 internal data class BorderModifierNodeElement(val width: Dp, val brush: Brush, val shape: Shape) :

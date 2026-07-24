@@ -64,7 +64,7 @@ internal actual inline fun formatHeadlineDescription(
  */
 @RequiresApi(26)
 @Composable
-fun rememberDatePickerState(
+public fun rememberDatePickerState(
     initialSelectedDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedDate?.let { YearMonth.from(it) },
     yearRange: IntRange = DatePickerDefaults.YearRange,
@@ -118,7 +118,7 @@ fun rememberDatePickerState(
  * @see rememberDatePickerState
  */
 @RequiresApi(26)
-fun DatePickerState(
+public fun DatePickerState(
     locale: CalendarLocale,
     initialSelectedDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedDate?.let { YearMonth.from(it) },
@@ -166,7 +166,7 @@ fun DatePickerState(
  */
 @RequiresApi(26)
 @Composable
-fun rememberDateRangePickerState(
+public fun rememberDateRangePickerState(
     initialSelectedStartDate: LocalDate?,
     initialSelectedEndDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedStartDate?.let { YearMonth.from(it) },
@@ -227,7 +227,7 @@ fun rememberDateRangePickerState(
  * @see rememberDateRangePickerState
  */
 @RequiresApi(26)
-fun DateRangePickerState(
+public fun DateRangePickerState(
     locale: CalendarLocale,
     initialSelectedStartDate: LocalDate?,
     initialSelectedEndDate: LocalDate?,
@@ -255,7 +255,7 @@ fun DateRangePickerState(
  * @param date The [LocalDate] to select, or `null` to clear the selection.
  */
 @RequiresApi(26)
-fun DatePickerState.setSelectedDate(date: LocalDate?) {
+public fun DatePickerState.setSelectedDate(date: LocalDate?) {
     // The selectedDateMillis setter handles the yearRange validation.
     this.selectedDateMillis = getLocalDateMillisUtc(date)
 }
@@ -267,7 +267,7 @@ fun DatePickerState.setSelectedDate(date: LocalDate?) {
  * @return The selected [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-fun DatePickerState.getSelectedDate(): LocalDate? {
+public fun DatePickerState.getSelectedDate(): LocalDate? {
     return getLocalDate(this.selectedDateMillis)
 }
 
@@ -280,7 +280,7 @@ fun DatePickerState.getSelectedDate(): LocalDate? {
  * @param yearMonth The [YearMonth] to display.
  */
 @RequiresApi(26)
-fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
+public fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
 }
@@ -293,7 +293,7 @@ fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  * @return The displayed [YearMonth].
  */
 @RequiresApi(26)
-fun DatePickerState.getDisplayedMonth(): YearMonth =
+public fun DatePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
 /**
@@ -315,7 +315,7 @@ fun DatePickerState.getDisplayedMonth(): YearMonth =
  *   values specified above.
  */
 @RequiresApi(26)
-fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?) {
+public fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?) {
     this.setSelection(getLocalDateMillisUtc(startDate), getLocalDateMillisUtc(endDate))
 }
 
@@ -326,7 +326,7 @@ fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?
  * @return The selected start [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
+public fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
     return getLocalDate(this.selectedStartDateMillis)
 }
 
@@ -337,7 +337,7 @@ fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
  * @return The selected end [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
+public fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
     return getLocalDate(this.selectedEndDateMillis)
 }
 
@@ -350,7 +350,7 @@ fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
  * @param yearMonth The [YearMonth] to display.
  */
 @RequiresApi(26)
-fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
+public fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
 }
@@ -363,7 +363,7 @@ fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  * @return The displayed [YearMonth].
  */
 @RequiresApi(26)
-fun DateRangePickerState.getDisplayedMonth(): YearMonth =
+public fun DateRangePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
 /** Returns a [YearMonth] representation of the given [millisUtcFirstOfMonth] UTC milliseconds. */

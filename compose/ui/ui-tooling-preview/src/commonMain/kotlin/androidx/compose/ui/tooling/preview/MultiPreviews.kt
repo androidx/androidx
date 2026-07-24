@@ -48,7 +48,7 @@ import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 )
 @Preview(name = "Tablet - Landscape", device = TABLET, showSystemUi = true)
 @Preview(name = "Desktop", device = DESKTOP, showSystemUi = true)
-annotation class PreviewScreenSizes
+public annotation class PreviewScreenSizes
 
 /**
  * A MultiPreview annotation for desplaying a @[Composable] method using seven standard font sizes.
@@ -62,7 +62,7 @@ annotation class PreviewScreenSizes
 @Preview(name = "150%", fontScale = 1.5f)
 @Preview(name = "180%", fontScale = 1.8f)
 @Preview(name = "200%", fontScale = 2f)
-annotation class PreviewFontScale
+public annotation class PreviewFontScale
 
 /**
  * A MultiPreview annotation for desplaying a @[Composable] method using light and dark themes.
@@ -73,7 +73,7 @@ annotation class PreviewFontScale
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Preview(name = "Light")
 @Preview(name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
-annotation class PreviewLightDark
+public annotation class PreviewLightDark
 
 /**
  * A MultiPreview annotation for desplaying a @[Composable] method using four different wallpaper
@@ -87,4 +87,4 @@ annotation class PreviewLightDark
 @Preview(name = "Blue", wallpaper = BLUE_DOMINATED_EXAMPLE)
 @Preview(name = "Green", wallpaper = GREEN_DOMINATED_EXAMPLE)
 @Preview(name = "Yellow", wallpaper = YELLOW_DOMINATED_EXAMPLE)
-annotation class PreviewDynamicColors
+public annotation class PreviewDynamicColors

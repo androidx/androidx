@@ -33,12 +33,12 @@ package androidx.compose.ui.autofill
         androidx.compose.ui.autofill.ContentDataType instead.
         """
 )
-class AutofillTree {
+public class AutofillTree {
     /** A map which contains [AutofillNode]s, where every node represents an autofill-able field. */
-    val children: MutableMap<Int, @Suppress("Deprecation") AutofillNode> = mutableMapOf()
+    public val children: MutableMap<Int, @Suppress("Deprecation") AutofillNode> = mutableMapOf()
 
     /** Add the specified [AutofillNode] to the [AutofillTree]. */
-    operator fun plusAssign(autofillNode: @Suppress("Deprecation") AutofillNode) {
+    public operator fun plusAssign(autofillNode: @Suppress("Deprecation") AutofillNode) {
         children[autofillNode.id] = autofillNode
     }
 
@@ -46,5 +46,5 @@ class AutofillTree {
      * The autofill framework uses this function to 'fill' the [AutofillNode] represented by [id]
      * with the specified [value].
      */
-    fun performAutofill(id: Int, value: String) = children[id]?.onFill?.invoke(value)
+    public fun performAutofill(id: Int, value: String): Unit? = children[id]?.onFill?.invoke(value)
 }

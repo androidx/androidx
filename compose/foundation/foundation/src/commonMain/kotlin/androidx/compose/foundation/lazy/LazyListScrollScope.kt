@@ -30,7 +30,10 @@ import androidx.compose.ui.util.fastFirstOrNull
  * @return An implementation of [LazyLayoutScrollScope] that works with [LazyRow] and [LazyColumn].
  * @sample androidx.compose.foundation.samples.LazyListCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutScrollScope(state: LazyListState, scrollScope: ScrollScope): LazyLayoutScrollScope {
+public fun LazyLayoutScrollScope(
+    state: LazyListState,
+    scrollScope: ScrollScope,
+): LazyLayoutScrollScope {
 
     return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
         override val firstVisibleItemIndex: Int

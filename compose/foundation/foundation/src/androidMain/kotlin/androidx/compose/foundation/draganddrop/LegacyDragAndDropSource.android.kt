@@ -44,12 +44,12 @@ import androidx.compose.ui.unit.toSize
             "start detection is performed by Compose itself"
 )
 @ExperimentalFoundationApi
-interface DragAndDropSourceScope : PointerInputScope {
+public interface DragAndDropSourceScope : PointerInputScope {
     /**
      * Starts a drag and drop session with [transferData] as the data to be transferred on gesture
      * completion
      */
-    fun startTransfer(transferData: DragAndDropTransferData)
+    public fun startTransfer(transferData: DragAndDropTransferData)
 }
 
 /**
@@ -72,7 +72,7 @@ interface DragAndDropSourceScope : PointerInputScope {
     replaceWith = ReplaceWith("Modifier.dragAndDropSource(transferData)"),
 )
 @ExperimentalFoundationApi
-fun Modifier.dragAndDropSource(
+public fun Modifier.dragAndDropSource(
     drawDragDecoration: DrawScope.() -> Unit,
     block: suspend DragAndDropSourceScope.() -> Unit,
 ): Modifier =

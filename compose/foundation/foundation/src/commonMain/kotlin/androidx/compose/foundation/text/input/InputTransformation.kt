@@ -43,20 +43,20 @@ import androidx.compose.ui.text.toUpperCase
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
  */
 @Stable
-fun interface InputTransformation {
+public fun interface InputTransformation {
 
     /**
      * Optional [KeyboardOptions] that will be used as the default keyboard options for configuring
      * the IME. The options passed directly to the text field composable will always override this.
      */
-    val keyboardOptions: KeyboardOptions?
+    public val keyboardOptions: KeyboardOptions?
         get() = null
 
     /**
      * Optional semantics configuration that can update certain characteristics of the applied
      * TextField, e.g. [SemanticsPropertyReceiver.maxTextLength].
      */
-    fun SemanticsPropertyReceiver.applySemantics() = Unit
+    public fun SemanticsPropertyReceiver.applySemantics(): Unit = Unit
 
     /**
      * The transform operation. For more information see the documentation on [InputTransformation].
@@ -74,9 +74,9 @@ fun interface InputTransformation {
      * [TextFieldBuffer.originalValue] never changes while the buffer is passed along the chain.
      * This sequence persists until the chain reaches its conclusion.
      */
-    fun TextFieldBuffer.transformInput()
+    public fun TextFieldBuffer.transformInput()
 
-    companion object : InputTransformation {
+    public companion object : InputTransformation {
         override fun TextFieldBuffer.transformInput() {
             // Noop.
         }
@@ -96,7 +96,7 @@ fun interface InputTransformation {
  * @param next The [InputTransformation] that will be ran after this one.
  */
 @Stable
-fun InputTransformation.then(next: InputTransformation): InputTransformation =
+public fun InputTransformation.then(next: InputTransformation): InputTransformation =
     FilterChain(this, next)
 
 /**
@@ -112,7 +112,7 @@ fun InputTransformation.then(next: InputTransformation): InputTransformation =
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationByValueReplaceSample
  */
 @Stable
-fun InputTransformation.byValue(
+public fun InputTransformation.byValue(
     transformation: (current: CharSequence, proposed: CharSequence) -> CharSequence
 ): InputTransformation = this.then(InputTransformationByValue(transformation))
 
@@ -124,7 +124,7 @@ fun InputTransformation.byValue(
  * @param locale The [Locale] in which to perform the case conversion.
  */
 @Stable
-fun InputTransformation.allCaps(locale: Locale): InputTransformation =
+public fun InputTransformation.allCaps(locale: Locale): InputTransformation =
     this.then(AllCapsTransformation(locale))
 
 /**
@@ -139,7 +139,7 @@ fun InputTransformation.allCaps(locale: Locale): InputTransformation =
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationMaxLengthCustom
  */
 @Stable
-fun InputTransformation.maxLength(maxLength: Int): InputTransformation =
+public fun InputTransformation.maxLength(maxLength: Int): InputTransformation =
     this.then(MaxLengthFilter(maxLength))
 
 // endregion

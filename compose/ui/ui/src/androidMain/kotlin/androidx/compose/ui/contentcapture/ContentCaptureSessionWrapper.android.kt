@@ -32,34 +32,34 @@ import androidx.compose.ui.platform.coreshims.ViewStructureCompat
  * [android.view.contentcapture.ContentCaptureSession].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface ContentCaptureSessionWrapper {
+public interface ContentCaptureSessionWrapper {
     /**
      * Creates a new [AutofillId] for a virtual child.
      *
      * @see android.view.contentcapture.ContentCaptureSession.newAutofillId
      */
-    fun newAutofillId(virtualChildId: Long): AutofillId?
+    public fun newAutofillId(virtualChildId: Long): AutofillId?
 
     /**
      * Creates a [ViewStructure] for a "virtual" view.
      *
      * @see android.view.contentcapture.ContentCaptureSession.newVirtualViewStructure
      */
-    fun newVirtualViewStructure(parentId: AutofillId, virtualId: Long): ViewStructureCompat?
+    public fun newVirtualViewStructure(parentId: AutofillId, virtualId: Long): ViewStructureCompat?
 
     /**
      * Notifies the Content Capture Service that a node has been added to the view structure.
      *
      * @see android.view.contentcapture.ContentCaptureSession.notifyViewAppeared
      */
-    fun notifyViewAppeared(node: ViewStructure)
+    public fun notifyViewAppeared(node: ViewStructure)
 
     /**
      * Flushes an internal buffer of UI events.
      *
      * @see android.view.contentcapture.ContentCaptureSession.flush
      */
-    fun flush()
+    public fun flush()
 
     /**
      * Notifies the Content Capture Service that a list of nodes has appeared in the view structure.
@@ -68,7 +68,7 @@ interface ContentCaptureSessionWrapper {
      *
      * @see android.view.contentcapture.ContentCaptureSession.notifyViewsAppeared
      */
-    fun notifyViewsAppeared(appearedNodes: @JvmSuppressWildcards List<ViewStructure>)
+    public fun notifyViewsAppeared(appearedNodes: @JvmSuppressWildcards List<ViewStructure>)
 
     /**
      * Notifies the Content Capture Service that many nodes has been removed from a virtual view
@@ -78,19 +78,19 @@ interface ContentCaptureSessionWrapper {
      *
      * @see android.view.contentcapture.ContentCaptureSession.notifyViewsDisappeared
      */
-    fun notifyViewsDisappeared(virtualIds: LongArray)
+    public fun notifyViewsDisappeared(virtualIds: LongArray)
 
     /**
      * Notifies the Content Capture Service that a node has been removed from the view structure.
      *
      * @see android.view.contentcapture.ContentCaptureSession.notifyViewDisappeared
      */
-    fun notifyViewDisappeared(id: AutofillId)
+    public fun notifyViewDisappeared(id: AutofillId)
 
     /**
      * Notifies the Content Capture Service that the value of a text node has been changed.
      *
      * @see android.view.contentcapture.ContentCaptureSession.notifyViewTextChanged
      */
-    fun notifyViewTextChanged(id: AutofillId, text: CharSequence?)
+    public fun notifyViewTextChanged(id: AutofillId, text: CharSequence?)
 }

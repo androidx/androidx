@@ -21,7 +21,7 @@ package androidx.compose.ui.unit
  *
  * A layout direction can be left-to-right (LTR) or right-to-left (RTL).
  */
-enum class LayoutDirection {
+public enum class LayoutDirection {
     /** Horizontal layout direction is from Left to Right. */
     Ltr,
 

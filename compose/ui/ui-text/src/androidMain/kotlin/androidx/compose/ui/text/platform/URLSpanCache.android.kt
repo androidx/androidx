@@ -45,24 +45,24 @@ import java.util.WeakHashMap
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class URLSpanCache {
+public class URLSpanCache {
     private val spansByAnnotation = WeakHashMap<UrlAnnotation, URLSpan>()
     private val urlSpansByAnnotation =
         WeakHashMap<AnnotatedString.Range<LinkAnnotation.Url>, URLSpan>()
     private val linkSpansWithListenerByAnnotation =
         WeakHashMap<AnnotatedString.Range<LinkAnnotation>, ComposeClickableSpan>()
 
-    fun toURLSpan(urlAnnotation: UrlAnnotation): URLSpan =
+    public fun toURLSpan(urlAnnotation: UrlAnnotation): URLSpan =
         spansByAnnotation.getOrPut(urlAnnotation) { URLSpan(urlAnnotation.url) }
 
-    fun toURLSpan(urlRange: AnnotatedString.Range<LinkAnnotation.Url>): URLSpan =
+    public fun toURLSpan(urlRange: AnnotatedString.Range<LinkAnnotation.Url>): URLSpan =
         urlSpansByAnnotation.getOrPut(urlRange) { URLSpan(urlRange.item.url) }
 
     /**
      * This method takes a [linkRange] which is an annotation that occupies range in Compose text
      * and converts it into a ClickableSpan
      */
-    fun toClickableSpan(linkRange: AnnotatedString.Range<LinkAnnotation>): ClickableSpan? =
+    public fun toClickableSpan(linkRange: AnnotatedString.Range<LinkAnnotation>): ClickableSpan? =
         linkSpansWithListenerByAnnotation.getOrPut(linkRange) {
             ComposeClickableSpan(linkRange.item)
         }

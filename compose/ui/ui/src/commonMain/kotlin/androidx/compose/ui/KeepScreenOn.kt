@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.InspectorInfo
  * This is useful for scenarios where the user might not be interacting with the screen frequently
  * but the content needs to remain visible, such as during video playback.
  */
-fun Modifier.keepScreenOn(): Modifier = this then KeepScreenOnElement
+public fun Modifier.keepScreenOn(): Modifier = this then KeepScreenOnElement
 
 private data object KeepScreenOnElement : ModifierNodeElement<KeepScreenOnNode>() {
     override fun create(): KeepScreenOnNode = KeepScreenOnNode()

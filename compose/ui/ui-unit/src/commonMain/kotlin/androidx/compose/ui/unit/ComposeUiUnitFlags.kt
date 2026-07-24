@@ -48,4 +48,4 @@ package androidx.compose.ui.unit
  *          public static int isRectTrackingEnabled return false
  *      }
  */
-@ExperimentalUnitApi object ComposeUiUnitFlags {}
+@ExperimentalUnitApi public object ComposeUiUnitFlags {}

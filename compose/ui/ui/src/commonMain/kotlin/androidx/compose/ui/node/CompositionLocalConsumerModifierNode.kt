@@ -32,7 +32,7 @@ import androidx.compose.ui.internal.checkPrecondition
  * @see Modifier.Node
  * @see CompositionLocal
  */
-interface CompositionLocalConsumerModifierNode : DelegatableNode
+public interface CompositionLocalConsumerModifierNode : DelegatableNode
 
 /**
  * Returns the current value of [local] at the position in the composition hierarchy of this
@@ -68,7 +68,7 @@ interface CompositionLocalConsumerModifierNode : DelegatableNode
  *   directly or indirectly, the composable function that this modifier is attached to. If [local]
  *   was never provided, its default value will be returned instead.
  */
-fun <T> CompositionLocalConsumerModifierNode.currentValueOf(local: CompositionLocal<T>): T {
+public fun <T> CompositionLocalConsumerModifierNode.currentValueOf(local: CompositionLocal<T>): T {
     checkPrecondition(node.isAttached) {
         "Cannot read CompositionLocal because the Modifier node is not currently attached."
     }

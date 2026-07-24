@@ -51,18 +51,18 @@ import androidx.compose.ui.unit.em
  * @param drawStyle defines the draw style of the bullet, e.g. a fill or a stroke
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithBulletListCustomBulletSample
  */
-class Bullet(
-    val shape: Shape,
+public class Bullet(
+    public val shape: Shape,
     // width and height is used to avoid introducing TextUnitSize
-    val width: TextUnit,
-    val height: TextUnit,
-    val padding: TextUnit,
-    val brush: Brush? = null,
-    val alpha: Float = Float.NaN,
-    val drawStyle: DrawStyle = Fill,
+    public val width: TextUnit,
+    public val height: TextUnit,
+    public val padding: TextUnit,
+    public val brush: Brush? = null,
+    public val alpha: Float = Float.NaN,
+    public val drawStyle: DrawStyle = Fill,
 ) : AnnotatedString.Annotation {
     /** Copies the existing [Bullet] replacing some of the fields as desired. */
-    fun copy(
+    public fun copy(
         shape: Shape = this.shape,
         width: TextUnit = this.width,
         height: TextUnit = this.height,
@@ -70,9 +70,9 @@ class Bullet(
         brush: Brush? = this.brush,
         alpha: Float = this.alpha,
         drawStyle: DrawStyle = this.drawStyle,
-    ) = Bullet(shape, width, height, padding, brush, alpha, drawStyle)
+    ): Bullet = Bullet(shape, width, height, padding, brush, alpha, drawStyle)
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is Bullet) return false
 
@@ -87,7 +87,7 @@ class Bullet(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = shape.hashCode()
         result = 31 * result + width.hashCode()
         result = 31 * result + height.hashCode()
@@ -98,23 +98,23 @@ class Bullet(
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "Bullet(shape=$shape, size=($width, $height), padding=$padding, brush=$brush, " +
             "alpha=$alpha, drawStyle=$drawStyle)"
     }
 
-    companion object {
+    public companion object {
         /** Indentation required to fit [Default] bullet. */
-        val DefaultIndentation = 1.em
+        public val DefaultIndentation: TextUnit = 1.em
 
         /** Height and width for [Default] bullet. */
-        val DefaultSize = 0.25.em
+        public val DefaultSize: TextUnit = 0.25.em
 
         /** Padding between bullet and start of paragraph for [Default] bullet */
-        val DefaultPadding = 0.25.em
+        public val DefaultPadding: TextUnit = 0.25.em
 
         /** Default bullet used in AnnotatedString's bullet list */
-        val Default = Bullet(CircleShape, DefaultSize, DefaultSize, DefaultPadding)
+        public val Default: Bullet = Bullet(CircleShape, DefaultSize, DefaultSize, DefaultPadding)
     }
 }
 

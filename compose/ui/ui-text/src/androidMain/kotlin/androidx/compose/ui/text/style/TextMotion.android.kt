@@ -28,14 +28,14 @@ import androidx.compose.runtime.Immutable
  * @sample androidx.compose.ui.text.samples.TextMotionSample
  */
 @Immutable
-actual class TextMotion
+public actual class TextMotion
 internal constructor(
     internal val linearity: Linearity,
     internal val subpixelTextPositioning: Boolean,
 ) {
-    actual companion object {
-        actual val Static: TextMotion = TextMotion(Linearity.FontHinting, false)
-        actual val Animated: TextMotion = TextMotion(Linearity.Linear, true)
+    public actual companion object {
+        public actual val Static: TextMotion = TextMotion(Linearity.FontHinting, false)
+        public actual val Animated: TextMotion = TextMotion(Linearity.Linear, true)
     }
 
     internal fun copy(

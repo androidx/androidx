@@ -35,7 +35,7 @@ import kotlinx.coroutines.isActive
  * [Modifier.nestedScroll] since that implementation also uses this. Use this factory to create
  * nodes that can be delegated to.
  */
-fun nestedScrollModifierNode(
+public fun nestedScrollModifierNode(
     connection: NestedScrollConnection,
     dispatcher: NestedScrollDispatcher?,
 ): DelegatableNode {

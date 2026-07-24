@@ -41,28 +41,28 @@ import androidx.compose.ui.util.lerp
  * @property blendMode Blending algorithm used by the shadow
  */
 @Immutable
-class Shadow
+public class Shadow
 internal constructor(
-    val radius: Dp,
-    val spread: Dp,
-    val offset: DpOffset,
+    public val radius: Dp,
+    public val spread: Dp,
+    public val offset: DpOffset,
     color: Color,
     brush: Brush?,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float,
-    val blendMode: BlendMode,
+    public val blendMode: BlendMode,
 ) {
 
     /**
      * Color of the shadow. If [Color.Unspecified] is provided, [Color.Black] will be used as a
      * default. This color is only used if [brush] is null.
      */
-    val color: Color
+    public val color: Color
 
     /** Optional brush to render the shadow with. */
-    val brush: Brush?
+    public val brush: Brush?
 
     /** Opacity of the shadow */
-    val alpha: Float
+    public val alpha: Float
 
     init {
         // If the brush we are given can be represented by a Color, just consume that directly
@@ -90,7 +90,7 @@ internal constructor(
      * @param alpha Optional opacity of the shadow
      * @param blendMode Optional blending algorithm used by the shadow
      */
-    constructor(
+    public constructor(
         radius: Dp,
         brush: Brush,
         spread: Dp = 0.dp,
@@ -119,7 +119,7 @@ internal constructor(
      * @param alpha Optional opacity of the shadow
      * @param blendMode Optional blending algorithm used by the shadow
      */
-    constructor(
+    public constructor(
         radius: Dp,
         color: Color = Color.Black,
         spread: Dp = 0.dp,
@@ -206,7 +206,7 @@ internal fun lerpNonNull(a: Shadow, b: Shadow, t: Float): Shadow {
  * @param t Position on the timeline
  * @return Interpolated [Shadow]
  */
-fun lerp(a: Shadow?, b: Shadow?, t: Float): Shadow? {
+public fun lerp(a: Shadow?, b: Shadow?, t: Float): Shadow? {
     if (a == null && b == null) return null
     return if (a == null) lerpNonNull(b!!.transparentCopy(), b, t)
     else if (b == null) lerpNonNull(a, a.transparentCopy(), t) else lerpNonNull(a, b, t)

@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FloatingActionButton(
+public fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,
@@ -147,7 +147,7 @@ fun FloatingActionButton(
  *   different states. This controls the size of the shadow below the FAB.
  */
 @Composable
-fun ExtendedFloatingActionButton(
+public fun ExtendedFloatingActionButton(
     text: @Composable () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -188,17 +188,17 @@ fun ExtendedFloatingActionButton(
  * [FloatingActionButton] and [ExtendedFloatingActionButton].
  */
 @Stable
-interface FloatingActionButtonElevation {
+public interface FloatingActionButtonElevation {
     /**
      * Represents the elevation used in a floating action button, depending on [interactionSource].
      *
      * @param interactionSource the [InteractionSource] for this floating action button
      */
-    @Composable fun elevation(interactionSource: InteractionSource): State<Dp>
+    @Composable public fun elevation(interactionSource: InteractionSource): State<Dp>
 }
 
 /** Contains the default values used by [FloatingActionButton] */
-object FloatingActionButtonDefaults {
+public object FloatingActionButtonDefaults {
     /**
      * Creates a [FloatingActionButtonElevation] that will animate between the provided values
      * according to the Material specification.
@@ -209,7 +209,7 @@ object FloatingActionButtonDefaults {
      */
     @Deprecated("Use another overload of elevation", level = DeprecationLevel.HIDDEN)
     @Composable
-    fun elevation(
+    public fun elevation(
         defaultElevation: Dp = 6.dp,
         pressedElevation: Dp = 12.dp,
     ): FloatingActionButtonElevation =
@@ -231,7 +231,7 @@ object FloatingActionButtonDefaults {
      * @param focusedElevation the elevation to use when the [FloatingActionButton] is focused.
      */
     @Composable
-    fun elevation(
+    public fun elevation(
         defaultElevation: Dp = 6.dp,
         pressedElevation: Dp = 12.dp,
         hoveredElevation: Dp = 8.dp,

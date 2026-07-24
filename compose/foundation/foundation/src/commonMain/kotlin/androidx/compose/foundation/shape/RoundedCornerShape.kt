@@ -42,7 +42,7 @@ import androidx.compose.ui.util.lerp
  * @param bottomEnd a size of the bottom end corner
  * @param bottomStart a size of the bottom start corner
  */
-class RoundedCornerShape(
+public class RoundedCornerShape(
     topStart: CornerSize,
     topEnd: CornerSize,
     bottomEnd: CornerSize,
@@ -55,7 +55,7 @@ class RoundedCornerShape(
         bottomStart = bottomStart,
     ) {
 
-    override fun createOutline(
+    public override fun createOutline(
         size: Size,
         topStart: Float,
         topEnd: Float,
@@ -80,12 +80,12 @@ class RoundedCornerShape(
         }
     }
 
-    override fun copy(
+    public override fun copy(
         topStart: CornerSize,
         topEnd: CornerSize,
         bottomEnd: CornerSize,
         bottomStart: CornerSize,
-    ) =
+    ): RoundedCornerShape =
         RoundedCornerShape(
             topStart = topStart,
             topEnd = topEnd,
@@ -93,12 +93,12 @@ class RoundedCornerShape(
             bottomStart = bottomStart,
         )
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "RoundedCornerShape(topStart = $topStart, topEnd = $topEnd, bottomEnd = " +
             "$bottomEnd, bottomStart = $bottomStart)"
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RoundedCornerShape) return false
 
@@ -110,7 +110,7 @@ class RoundedCornerShape(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = topStart.hashCode()
         result = 31 * result + topEnd.hashCode()
         result = 31 * result + bottomEnd.hashCode()
@@ -118,7 +118,7 @@ class RoundedCornerShape(
         return result
     }
 
-    override fun lerp(other: Any?, t: Float): Any? {
+    public override fun lerp(other: Any?, t: Float): Any? {
         var other: Any? = other
         if (other == RectangleShape || other == null) {
             other = RoundedCornerShape(0f)
@@ -148,43 +148,46 @@ internal fun lerp(a: CornerSize, b: CornerSize, t: Float): CornerSize {
 }
 
 /** Circular [Shape] with all the corners sized as the 50 percent of the shape size. */
-val CircleShape = RoundedCornerShape(50)
+public val CircleShape: RoundedCornerShape = RoundedCornerShape(50)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  *
  * @param corner [CornerSize] to apply.
  */
-fun RoundedCornerShape(corner: CornerSize) = RoundedCornerShape(corner, corner, corner, corner)
+public fun RoundedCornerShape(corner: CornerSize): RoundedCornerShape =
+    RoundedCornerShape(corner, corner, corner, corner)
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  *
  * @param size Size in [Dp] to apply.
  */
-fun RoundedCornerShape(size: Dp) = RoundedCornerShape(CornerSize(size))
+public fun RoundedCornerShape(size: Dp): RoundedCornerShape = RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  *
  * @param size Size in pixels to apply.
  */
-fun RoundedCornerShape(size: Float) = RoundedCornerShape(CornerSize(size))
+public fun RoundedCornerShape(size: Float): RoundedCornerShape =
+    RoundedCornerShape(CornerSize(size))
 
 /**
  * Creates [RoundedCornerShape] with the same size applied for all four corners.
  *
  * @param percent Size in percents to apply.
  */
-fun RoundedCornerShape(percent: Int) = RoundedCornerShape(CornerSize(percent))
+public fun RoundedCornerShape(percent: Int): RoundedCornerShape =
+    RoundedCornerShape(CornerSize(percent))
 
 /** Creates [RoundedCornerShape] with sizes defined in [Dp]. */
-fun RoundedCornerShape(
+public fun RoundedCornerShape(
     topStart: Dp = 0.dp,
     topEnd: Dp = 0.dp,
     bottomEnd: Dp = 0.dp,
     bottomStart: Dp = 0.dp,
-) =
+): RoundedCornerShape =
     RoundedCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
@@ -193,12 +196,12 @@ fun RoundedCornerShape(
     )
 
 /** Creates [RoundedCornerShape] with sizes defined in pixels. */
-fun RoundedCornerShape(
+public fun RoundedCornerShape(
     topStart: Float = 0.0f,
     topEnd: Float = 0.0f,
     bottomEnd: Float = 0.0f,
     bottomStart: Float = 0.0f,
-) =
+): RoundedCornerShape =
     RoundedCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
@@ -218,12 +221,12 @@ fun RoundedCornerShape(
  * @param bottomStartPercent The bottom start corner radius as a percentage of the smaller side,
  *   with a range of 0 - 100.
  */
-fun RoundedCornerShape(
+public fun RoundedCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0,
-) =
+): RoundedCornerShape =
     RoundedCornerShape(
         topStart = CornerSize(topStartPercent),
         topEnd = CornerSize(topEndPercent),

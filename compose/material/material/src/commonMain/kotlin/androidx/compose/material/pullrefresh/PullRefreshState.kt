@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @ExperimentalMaterialApi
-fun rememberPullRefreshState(
+public fun rememberPullRefreshState(
     refreshing: Boolean,
     onRefresh: () -> Unit,
     refreshThreshold: Dp = PullRefreshDefaults.RefreshThreshold,
@@ -98,7 +98,7 @@ fun rememberPullRefreshState(
  * Should be created using [rememberPullRefreshState].
  */
 @ExperimentalMaterialApi
-class PullRefreshState
+public class PullRefreshState
 internal constructor(
     private val animationScope: CoroutineScope,
     private val onRefreshState: State<() -> Unit>,
@@ -113,7 +113,7 @@ internal constructor(
      * gone beyond the refreshThreshold - e.g. a value of 2f indicates that the user has pulled to
      * two times the refreshThreshold.
      */
-    val progress
+    public val progress: Float
         get() = adjustedDistancePulled / threshold
 
     internal val refreshing
@@ -220,15 +220,15 @@ internal constructor(
 
 /** Default parameter values for [rememberPullRefreshState]. */
 @ExperimentalMaterialApi
-object PullRefreshDefaults {
+public object PullRefreshDefaults {
     /**
      * If the indicator is below this threshold offset when it is released, a refresh will be
      * triggered.
      */
-    val RefreshThreshold = 80.dp
+    public val RefreshThreshold: Dp = 80.dp
 
     /** The offset at which the indicator should be rendered whilst a refresh is occurring. */
-    val RefreshingOffset = 56.dp
+    public val RefreshingOffset: Dp = 56.dp
 }
 
 /**

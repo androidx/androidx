@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
  */
 @Composable
-fun DeviceConfigurationOverride(
+public fun DeviceConfigurationOverride(
     override: DeviceConfigurationOverride,
     content: @Composable () -> Unit,
 ): Unit = override.Override(content)
@@ -50,7 +50,7 @@ fun DeviceConfigurationOverride(
  * wrapped in order to test that content in isolation, without needing to configure the entire
  * device.
  */
-fun interface DeviceConfigurationOverride {
+public fun interface DeviceConfigurationOverride {
 
     /**
      * A wrapper around [contentUnderTest] that applies some override.
@@ -62,9 +62,9 @@ fun interface DeviceConfigurationOverride {
     // with the naming.
     @Suppress("ComposableLambdaParameterNaming")
     @Composable
-    fun Override(contentUnderTest: @Composable () -> Unit)
+    public fun Override(contentUnderTest: @Composable () -> Unit)
 
-    companion object
+    public companion object
 }
 
 /**
@@ -77,7 +77,7 @@ fun interface DeviceConfigurationOverride {
  *   and then the [other].
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideThenSample
  */
-infix fun DeviceConfigurationOverride.then(
+public infix fun DeviceConfigurationOverride.then(
     other: DeviceConfigurationOverride
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     this.Override { other.Override(contentUnderTest) }
@@ -94,7 +94,7 @@ infix fun DeviceConfigurationOverride.then(
  * @return a [DeviceConfigurationOverride] that forces the content size.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideForcedSizeSample
  */
-expect fun DeviceConfigurationOverride.Companion.ForcedSize(
+public expect fun DeviceConfigurationOverride.Companion.ForcedSize(
     size: DpSize
 ): DeviceConfigurationOverride
 
@@ -105,7 +105,7 @@ expect fun DeviceConfigurationOverride.Companion.ForcedSize(
  * @return a [DeviceConfigurationOverride] that specifies the font scale for the content under test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideFontScaleSample
  */
-expect fun DeviceConfigurationOverride.Companion.FontScale(
+public expect fun DeviceConfigurationOverride.Companion.FontScale(
     fontScale: Float
 ): DeviceConfigurationOverride
 
@@ -117,7 +117,7 @@ expect fun DeviceConfigurationOverride.Companion.FontScale(
  *   test.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideLayoutDirectionSample
  */
-expect fun DeviceConfigurationOverride.Companion.LayoutDirection(
+public expect fun DeviceConfigurationOverride.Companion.LayoutDirection(
     layoutDirection: LayoutDirection
 ): DeviceConfigurationOverride
 
@@ -135,6 +135,6 @@ expect fun DeviceConfigurationOverride.Companion.LayoutDirection(
  * @return a [DeviceConfigurationOverride] that forces the window size.
  * @sample androidx.compose.ui.test.samples.DeviceConfigurationOverrideWindowSizeSample
  */
-expect fun DeviceConfigurationOverride.Companion.WindowSize(
+public expect fun DeviceConfigurationOverride.Companion.WindowSize(
     size: DpSize
 ): DeviceConfigurationOverride

@@ -33,8 +33,8 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class TileMode internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class TileMode internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * Edge is clamped to the final color.
          *
@@ -42,7 +42,7 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * point closest to that region.
          * ![TileMode.Clamp](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_clamp.png)
          */
-        val Clamp
+        public val Clamp: TileMode
             get() = TileMode(0)
 
         /**
@@ -53,7 +53,7 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * etc).
          * ![TileMode.Repeated](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_repeated.png)
          */
-        val Repeated
+        public val Repeated: TileMode
             get() = TileMode(1)
 
         /**
@@ -63,7 +63,7 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * in the negative direction).
          * ![TileMode.Mirror](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_mirror.png)
          */
-        val Mirror
+        public val Mirror: TileMode
             get() = TileMode(2)
 
         /**
@@ -71,11 +71,11 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
          * outside of its original bounds, transparent black is drawn instead.
          * ![TileMode.Decal](https://developer.android.com/static/images/jetpack/compose/graphics/brush/tile_mode_decal.png)
          */
-        val Decal
+        public val Decal: TileMode
             get() = TileMode(3)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Clamp -> "Clamp"
             Repeated -> "Repeated"
@@ -91,4 +91,4 @@ value class TileMode internal constructor(@Suppress("unused") private val value:
  * [TileMode.Mirror] are guaranteed to be supported. If a [TileMode] that is not supported is used,
  * the default of [TileMode.Clamp] is consumed instead.
  */
-expect fun TileMode.isSupported(): Boolean
+public expect fun TileMode.isSupported(): Boolean

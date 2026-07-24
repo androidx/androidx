@@ -31,64 +31,64 @@ import androidx.compose.ui.unit.IntSize
  * which the injection method was called.
  */
 @JvmDefaultWithCompatibility
-interface InjectionScope : Density {
+public interface InjectionScope : Density {
     /** The default time between two successive events. */
-    val eventPeriodMillis
+    public val eventPeriodMillis: Long
         get() = InputDispatcher.eventPeriodMillis
 
     /**
      * Adds the given [durationMillis] to the current event time, delaying the next event by that
      * time.
      */
-    fun advanceEventTime(durationMillis: Long = eventPeriodMillis)
+    public fun advanceEventTime(durationMillis: Long = eventPeriodMillis)
 
     /**
      * The size of the visible part of the node we're interacting with in px, i.e. its clipped
      * bounds.
      */
-    val visibleSize: IntSize
+    public val visibleSize: IntSize
 
     /**
      * The [ViewConfiguration] in use by the
      * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] from the
      * [SemanticsNodeInteraction] on which the input injection method is called.
      */
-    val viewConfiguration: ViewConfiguration
+    public val viewConfiguration: ViewConfiguration
 
     /** The width of the node in px. Shorthand for [visibleSize.width][visibleSize]. */
-    val width: Int
+    public val width: Int
         get() = visibleSize.width
 
     /** The height of the node in px. Shorthand for [visibleSize.height][visibleSize]. */
-    val height: Int
+    public val height: Int
         get() = visibleSize.height
 
     /**
      * The x-coordinate for the left edge of the node we're interacting with in px, in the node's
      * local coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val left: Float
+    public val left: Float
         get() = 0f
 
     /**
      * The y-coordinate for the top of the node we're interacting with in px, in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val top: Float
+    public val top: Float
         get() = 0f
 
     /**
      * The x-coordinate for the center of the node we're interacting with in px, in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val centerX: Float
+    public val centerX: Float
         get() = width / 2f
 
     /**
      * The y-coordinate for the center of the node we're interacting with in px, in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val centerY: Float
+    public val centerY: Float
         get() = height / 2f
 
     /**
@@ -98,7 +98,7 @@ interface InjectionScope : Density {
      * Note that, unless `width == 0`, `right != width`. In particular, `right == width - 1f`,
      * because pixels are 0-based. If `width == 0`, `right == 0` too.
      */
-    val right: Float
+    public val right: Float
         get() = width.let { if (it == 0) 0f else it - 1f }
 
     /**
@@ -108,21 +108,21 @@ interface InjectionScope : Density {
      * Note that, unless `height == 0`, `bottom != height`. In particular, `bottom == height - 1f`,
      * because pixels are 0-based. If `height == 0`, `bottom == 0` too.
      */
-    val bottom: Float
+    public val bottom: Float
         get() = height.let { if (it == 0) 0f else it - 1f }
 
     /**
      * The top left corner of the node we're interacting with, in the node's local coordinate
      * system, where (0, 0) is the top left corner of the node.
      */
-    val topLeft: Offset
+    public val topLeft: Offset
         get() = Offset(left, top)
 
     /**
      * The center of the top edge of the node we're interacting with, in the node's local coordinate
      * system, where (0, 0) is the top left corner of the node.
      */
-    val topCenter: Offset
+    public val topCenter: Offset
         get() = Offset(centerX, top)
 
     /**
@@ -131,21 +131,21 @@ interface InjectionScope : Density {
      *
      * Note that `topRight.x != width`, see [right].
      */
-    val topRight: Offset
+    public val topRight: Offset
         get() = Offset(right, top)
 
     /**
      * The center of the left edge of the node we're interacting with, in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val centerLeft: Offset
+    public val centerLeft: Offset
         get() = Offset(left, centerY)
 
     /**
      * The center of the node we're interacting with, in the node's local coordinate system, where
      * (0, 0) is the top left corner of the node.
      */
-    val center: Offset
+    public val center: Offset
         get() = Offset(centerX, centerY)
 
     /**
@@ -154,7 +154,7 @@ interface InjectionScope : Density {
      *
      * Note that `centerRight.x != width`, see [right].
      */
-    val centerRight: Offset
+    public val centerRight: Offset
         get() = Offset(right, centerY)
 
     /**
@@ -163,7 +163,7 @@ interface InjectionScope : Density {
      *
      * Note that `bottomLeft.y != height`, see [bottom].
      */
-    val bottomLeft: Offset
+    public val bottomLeft: Offset
         get() = Offset(left, bottom)
 
     /**
@@ -172,7 +172,7 @@ interface InjectionScope : Density {
      *
      * Note that `bottomCenter.y != height`, see [bottom].
      */
-    val bottomCenter: Offset
+    public val bottomCenter: Offset
         get() = Offset(centerX, bottom)
 
     /**
@@ -181,7 +181,7 @@ interface InjectionScope : Density {
      *
      * Note that `bottomRight.x != width` and `bottomRight.y != height`, see [right] and [bottom].
      */
-    val bottomRight: Offset
+    public val bottomRight: Offset
         get() = Offset(right, bottom)
 
     /**
@@ -195,7 +195,7 @@ interface InjectionScope : Density {
      * `bottomRight - percentOffset(.2f, .1f)` is a point 20% to the left and 10% to the top of the
      * bottom right corner.
      */
-    fun percentOffset(
+    public fun percentOffset(
         /*@FloatRange(from = -1.0, to = 1.0)*/
         x: Float = 0f,
         /*@FloatRange(from = -1.0, to = 1.0)*/

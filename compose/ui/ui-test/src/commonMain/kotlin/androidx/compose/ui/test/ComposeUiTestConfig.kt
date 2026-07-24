@@ -48,14 +48,14 @@ import kotlinx.coroutines.test.TestDispatcher
  *   [InputMode.Touch].
  */
 @Immutable
-expect class ComposeUiTestConfig(
+public expect class ComposeUiTestConfig(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = 60.seconds,
     inputMode: InputMode = InputMode.Touch,
 ) {
-    val effectContext: CoroutineContext
-    val runTestContext: CoroutineContext
-    val testTimeout: Duration
-    val inputMode: InputMode
+    public val effectContext: CoroutineContext
+    public val runTestContext: CoroutineContext
+    public val testTimeout: Duration
+    public val inputMode: InputMode
 }

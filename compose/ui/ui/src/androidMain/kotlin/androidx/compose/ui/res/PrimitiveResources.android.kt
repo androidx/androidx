@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Dp
  */
 @Composable
 @ReadOnlyComposable
-fun integerResource(@IntegerRes id: Int): Int {
+public fun integerResource(@IntegerRes id: Int): Int {
     return LocalResources.current.getInteger(id)
 }
 
@@ -46,7 +46,7 @@ fun integerResource(@IntegerRes id: Int): Int {
  */
 @Composable
 @ReadOnlyComposable
-fun integerArrayResource(@ArrayRes id: Int): IntArray {
+public fun integerArrayResource(@ArrayRes id: Int): IntArray {
     return LocalResources.current.getIntArray(id)
 }
 
@@ -58,7 +58,7 @@ fun integerArrayResource(@ArrayRes id: Int): IntArray {
  */
 @Composable
 @ReadOnlyComposable
-fun booleanResource(@BoolRes id: Int): Boolean {
+public fun booleanResource(@BoolRes id: Int): Boolean {
     return LocalResources.current.getBoolean(id)
 }
 
@@ -70,7 +70,7 @@ fun booleanResource(@BoolRes id: Int): Boolean {
  */
 @Composable
 @ReadOnlyComposable
-fun dimensionResource(@DimenRes id: Int): Dp {
+public fun dimensionResource(@DimenRes id: Int): Dp {
     val density = LocalDensity.current
     val pxValue = LocalResources.current.getDimension(id)
     return Dp(pxValue / density.density)

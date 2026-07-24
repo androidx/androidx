@@ -23,16 +23,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 
-actual fun Path(): Path = AndroidPath()
+public actual fun Path(): Path = AndroidPath()
 
 /** Convert the [android.graphics.Path] instance into a Compose-compatible Path */
-fun PlatformPath.asComposePath(): Path = AndroidPath(this)
+public fun PlatformPath.asComposePath(): Path = AndroidPath(this)
 
 /**
  * @Throws UnsupportedOperationException if this Path is not backed by an [android.graphics.Path].
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun Path.asAndroidPath(): PlatformPath =
+public inline fun Path.asAndroidPath(): PlatformPath =
     if (this is AndroidPath) {
         internalPath
     } else {
@@ -40,7 +40,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
 @Suppress("OVERRIDE_DEPRECATION") // b/407491706
-/* actual */ class AndroidPath(val internalPath: PlatformPath = PlatformPath()) : Path {
+public class AndroidPath(public val internalPath: PlatformPath = PlatformPath()) : Path {
 
     // Temporary value holders to reuse an object (not part of a state):
     private var rectF: PlatformRectF? = null

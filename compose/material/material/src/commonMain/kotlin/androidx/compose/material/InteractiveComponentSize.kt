@@ -52,7 +52,8 @@ import kotlin.math.roundToInt
  * Because layout constraints are affected by modifier order, for this modifier to take effect, it
  * must come before any size modifiers on the element that might limit its constraints.
  */
-fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
+public fun Modifier.minimumInteractiveComponentSize(): Modifier =
+    this then MinimumInteractiveModifier
 
 internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteractiveModifierNode>() {
 
@@ -117,7 +118,7 @@ internal class MinimumInteractiveModifierNode :
  * touch target.
  */
 @ExperimentalMaterialApi
-val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
+public val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
     staticCompositionLocalOf {
         true
     }
@@ -136,7 +137,7 @@ val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Bool
     replaceWith = ReplaceWith("LocalMinimumInteractiveComponentEnforcement"),
     level = DeprecationLevel.WARNING,
 )
-val LocalMinimumTouchTargetEnforcement: ProvidableCompositionLocal<Boolean> =
+public val LocalMinimumTouchTargetEnforcement: ProvidableCompositionLocal<Boolean> =
     LocalMinimumInteractiveComponentEnforcement
 
 private class MinimumInteractiveComponentSizeModifier(val size: DpSize) : LayoutModifier {

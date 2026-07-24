@@ -69,7 +69,7 @@ import androidx.compose.ui.Modifier
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun SupportingPaneScaffold(
+public fun SupportingPaneScaffold(
     directive: PaneScaffoldDirective,
     value: ThreePaneScaffoldValue,
     mainPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
@@ -147,7 +147,7 @@ fun SupportingPaneScaffold(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun SupportingPaneScaffold(
+public fun SupportingPaneScaffold(
     directive: PaneScaffoldDirective,
     scaffoldState: ThreePaneScaffoldState,
     mainPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
@@ -179,7 +179,7 @@ fun SupportingPaneScaffold(
 
 /** Provides default values of [SupportingPaneScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
-object SupportingPaneScaffoldDefaults {
+public object SupportingPaneScaffoldDefaults {
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies] for [SupportingPaneScaffold].
      *
@@ -187,7 +187,7 @@ object SupportingPaneScaffoldDefaults {
      * @param supportingPaneAdaptStrategy the adapt strategy of the supporting pane
      * @param extraPaneAdaptStrategy the adapt strategy of the extra pane
      */
-    fun adaptStrategies(
+    public fun adaptStrategies(
         mainPaneAdaptStrategy: AdaptStrategy = AdaptStrategy.Hide,
         supportingPaneAdaptStrategy: AdaptStrategy =
             AdaptStrategy.Reflow(SupportingPaneScaffoldRole.Main),
@@ -219,25 +219,25 @@ object SupportingPaneScaffoldDefaults {
  * [ThreePaneScaffoldRole] under the context of [SupportingPaneScaffold] for better code clarity.
  */
 @ExperimentalMaterial3AdaptiveApi
-object SupportingPaneScaffoldRole {
+public object SupportingPaneScaffoldRole {
     /**
      * The main pane of [SupportingPaneScaffold], which is supposed to hold the major content of an
      * app, for example, the editing screen of a doc app. It maps to
      * [ThreePaneScaffoldRole.Primary].
      */
-    val Main = ThreePaneScaffoldRole.Primary
+    public val Main: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Primary
 
     /**
      * The supporting pane of [SupportingPaneScaffold], which is supposed to hold the support
      * content of an app, for example, the comment list of a doc app. It maps to
      * [ThreePaneScaffoldRole.Secondary].
      */
-    val Supporting = ThreePaneScaffoldRole.Secondary
+    public val Supporting: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Secondary
 
     /**
      * The extra pane of [SupportingPaneScaffold], which is supposed to hold any additional content
      * besides the main and the supporting panes, for example, a styling panel in a doc app. It maps
      * to [ThreePaneScaffoldRole.Tertiary].
      */
-    val Extra = ThreePaneScaffoldRole.Tertiary
+    public val Extra: ThreePaneScaffoldRole = ThreePaneScaffoldRole.Tertiary
 }

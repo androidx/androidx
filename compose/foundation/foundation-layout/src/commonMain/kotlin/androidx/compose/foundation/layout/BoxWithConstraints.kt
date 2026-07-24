@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 @Composable
 @UiComposable
-fun BoxWithConstraints(
+public fun BoxWithConstraints(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
@@ -71,37 +71,37 @@ fun BoxWithConstraints(
 
 /** Receiver scope being used by the children parameter of [BoxWithConstraints] */
 @Stable
-interface BoxWithConstraintsScope : BoxScope {
+public interface BoxWithConstraintsScope : BoxScope {
     /**
      * The constraints given by the parent layout in pixels.
      *
      * Use [minWidth], [maxWidth], [minHeight] or [maxHeight] if you need value in [Dp].
      */
-    val constraints: Constraints
+    public val constraints: Constraints
     /**
      * The minimum width in [Dp].
      *
      * @see constraints for the values in pixels.
      */
-    val minWidth: Dp
+    public val minWidth: Dp
     /**
      * The maximum width in [Dp].
      *
      * @see constraints for the values in pixels.
      */
-    val maxWidth: Dp
+    public val maxWidth: Dp
     /**
      * The minimum height in [Dp].
      *
      * @see constraints for the values in pixels.
      */
-    val minHeight: Dp
+    public val minHeight: Dp
     /**
      * The maximum height in [Dp].
      *
      * @see constraints for the values in pixels.
      */
-    val maxHeight: Dp
+    public val maxHeight: Dp
 }
 
 private data class BoxWithConstraintsScopeImpl(

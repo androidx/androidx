@@ -44,7 +44,7 @@ import kotlin.jvm.JvmName
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-fun Modifier.composed(
+public fun Modifier.composed(
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
     factory: @Composable Modifier.() -> Modifier,
 ): Modifier = this.then(ComposedModifier(inspectorInfo, factory))
@@ -71,7 +71,7 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-fun Modifier.composed(
+public fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
@@ -100,7 +100,7 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-fun Modifier.composed(
+public fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
     key2: Any?,
@@ -131,7 +131,7 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-fun Modifier.composed(
+public fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
     key2: Any?,
@@ -163,7 +163,7 @@ fun Modifier.composed(
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-fun Modifier.composed(
+public fun Modifier.composed(
     fullyQualifiedName: String,
     vararg keys: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
@@ -256,7 +256,7 @@ private class KeyedComposedModifierN(
 @Suppress("ModifierFactoryExtensionFunction")
 // "materialize" JVM name is taken below to solve a backwards-incompatibility
 @JvmName("materializeModifier")
-fun Composer.materialize(modifier: Modifier): Modifier {
+public fun Composer.materialize(modifier: Modifier): Modifier {
     // A group is required here so the number of slot added to the caller's group
     // is unconditionally the same (in this case, none) as is now required by the runtime.
     startReplaceGroup(0x1a365f2c) // Random number for fake group key. Chosen by fair die roll.
@@ -350,7 +350,7 @@ internal class CompositionLocalMapInjectionElement(val map: CompositionLocalMap)
     ReplaceWith("materialize"),
     DeprecationLevel.HIDDEN,
 )
-fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modifier =
+public fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modifier =
     materializeWithCompositionLocalInjectionInternal(modifier)
 
 // This method is here to be called from tests since the deprecated hidden API cannot be.

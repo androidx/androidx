@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Constraints
 /*
  * Defines the measure and layout behavior of a [LazyLayout].
  */
-fun interface LazyLayoutMeasurePolicy {
+public fun interface LazyLayoutMeasurePolicy {
     /**
      * The function that defines the measurement and layout. For each item in this [LazyLayout] we
      * should call [LazyLayoutMeasureScope.compose] and then call [Measurable.measure] with the
@@ -31,5 +31,5 @@ fun interface LazyLayoutMeasurePolicy {
      *
      * @param constraints The constraints used to measure this Lazy Layout.
      */
-    fun LazyLayoutMeasureScope.measure(constraints: Constraints): MeasureResult
+    public fun LazyLayoutMeasureScope.measure(constraints: Constraints): MeasureResult
 }

@@ -26,19 +26,19 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
  * values
  */
 @JvmDefaultWithCompatibility
-interface ImageBitmap {
+public interface ImageBitmap {
 
     /** The number of image pixels along the ImageBitmap's horizontal axis. */
-    val width: Int
+    public val width: Int
 
     /** The number of image pixels along the ImageBitmap's vertical axis. */
-    val height: Int
+    public val height: Int
 
     /** ColorSpace the Image renders in */
-    val colorSpace: ColorSpace
+    public val colorSpace: ColorSpace
 
     /** Determines whether or not the ImageBitmap contains an alpha channel */
-    val hasAlpha: Boolean
+    public val hasAlpha: Boolean
 
     /**
      * Returns the current configuration of this Image, either:
@@ -48,7 +48,7 @@ interface ImageBitmap {
      * @see ImageBitmapConfig.Alpha8
      * @see ImageBitmapConfig.Gpu
      */
-    val config: ImageBitmapConfig
+    public val config: ImageBitmapConfig
 
     /**
      * Copies the pixel data within the ImageBitmap into the given array. Each value is represented
@@ -72,7 +72,7 @@ interface ImageBitmap {
      * @param bufferOffset The first index to write into the buffer array, this defaults to 0
      * @param stride The number of entries in [buffer] to skip between rows (must be >= [width]
      */
-    fun readPixels(
+    public fun readPixels(
         buffer: IntArray,
         startX: Int = 0,
         startY: Int = 0,
@@ -86,10 +86,10 @@ interface ImageBitmap {
      * Builds caches associated with the ImageBitmap that are used for drawing it. This method can
      * be used as a signal to upload textures to the GPU to eventually be rendered
      */
-    fun prepareToDraw()
+    public fun prepareToDraw()
 
     /** Provide an empty companion object to hang platform-specific companion extensions onto. */
-    companion object {}
+    public companion object {}
 }
 
 /**
@@ -111,7 +111,7 @@ interface ImageBitmap {
  * @param stride The number of entries in [buffer] to skip between rows (must be >= [width]
  * @see ImageBitmap.readPixels
  */
-fun ImageBitmap.toPixelMap(
+public fun ImageBitmap.toPixelMap(
     startX: Int = 0,
     startY: Int = 0,
     width: Int = this.width,
@@ -131,8 +131,8 @@ fun ImageBitmap.toPixelMap(
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class ImageBitmapConfig internal constructor(val value: Int) {
-    companion object {
+public value class ImageBitmapConfig internal constructor(public val value: Int) {
+    public companion object {
         /**
          * Each pixel is stored on 4 bytes. Each channel (RGB and alpha for translucency) is stored
          * with 8 bits of precision (256 possible values.)
@@ -149,7 +149,7 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *    (R and 0xff)
          * ```
          */
-        val Argb8888
+        public val Argb8888: ImageBitmapConfig
             get() = ImageBitmapConfig(0)
 
         /**
@@ -157,7 +157,7 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          * efficiently store masks for instance. No color information is stored. With this
          * configuration, each pixel requires 1 byte of memory.
          */
-        val Alpha8
+        public val Alpha8: ImageBitmapConfig
             get() = ImageBitmapConfig(1)
 
         /**
@@ -180,7 +180,7 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *      (B and 0x1f)
          * ```
          */
-        val Rgb565
+        public val Rgb565: ImageBitmapConfig
             get() = ImageBitmapConfig(2)
 
         /**
@@ -198,7 +198,7 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          *      (R and 0xffff)
          * ```
          */
-        val F16
+        public val F16: ImageBitmapConfig
             get() = ImageBitmapConfig(3)
 
         /**
@@ -208,11 +208,11 @@ value class ImageBitmapConfig internal constructor(val value: Int) {
          * It is optimal for cases, when the only operation with the ImageBitmap is to draw it on a
          * screen.
          */
-        val Gpu
+        public val Gpu: ImageBitmapConfig
             get() = ImageBitmapConfig(4)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Argb8888 -> "Argb8888"
             Alpha8 -> "Alpha8"
@@ -231,7 +231,7 @@ internal expect fun ActualImageBitmap(
     colorSpace: ColorSpace,
 ): ImageBitmap
 
-fun ImageBitmap(
+public fun ImageBitmap(
     width: Int,
     height: Int,
     config: ImageBitmapConfig = ImageBitmapConfig.Argb8888,
@@ -244,6 +244,6 @@ fun ImageBitmap(
  *
  * @return The converted ImageBitmap.
  */
-fun ByteArray.decodeToImageBitmap(): ImageBitmap = createImageBitmap(this)
+public fun ByteArray.decodeToImageBitmap(): ImageBitmap = createImageBitmap(this)
 
 internal expect fun createImageBitmap(bytes: ByteArray): ImageBitmap

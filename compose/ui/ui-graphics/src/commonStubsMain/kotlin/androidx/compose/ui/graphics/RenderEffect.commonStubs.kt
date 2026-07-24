@@ -20,13 +20,13 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 
 @Immutable
-actual sealed class RenderEffect actual constructor() {
-    actual open fun isSupported(): Boolean = implementedInJetBrainsFork()
+public actual sealed class RenderEffect protected actual constructor() {
+    public actual open fun isSupported(): Boolean = implementedInJetBrainsFork()
 }
 
 @Immutable
-actual class BlurEffect
-actual constructor(
+public actual class BlurEffect
+public actual constructor(
     private val renderEffect: RenderEffect?,
     private val radiusX: Float,
     private val radiusY: Float,
@@ -34,6 +34,6 @@ actual constructor(
 ) : RenderEffect()
 
 @Immutable
-actual class OffsetEffect
-actual constructor(private val renderEffect: RenderEffect?, private val offset: Offset) :
+public actual class OffsetEffect
+public actual constructor(private val renderEffect: RenderEffect?, private val offset: Offset) :
     RenderEffect()

@@ -15,6 +15,7 @@
  */
 package androidx.compose.material3
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
@@ -30,4 +31,4 @@ import androidx.compose.ui.graphics.Color
  *
  * Defaults to [Color.Black] if no color has been explicitly set.
  */
-val LocalContentColor = compositionLocalOf { Color.Black }
+public val LocalContentColor: ProvidableCompositionLocal<Color> = compositionLocalOf { Color.Black }

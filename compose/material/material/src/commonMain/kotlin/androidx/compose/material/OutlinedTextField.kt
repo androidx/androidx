@@ -156,7 +156,7 @@ import kotlin.math.roundToInt
  *   interactions will still happen internally.
  */
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -316,7 +316,7 @@ fun OutlinedTextField(
  *   different states. See [TextFieldDefaults.outlinedTextFieldColors]
  */
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -413,7 +413,7 @@ fun OutlinedTextField(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -523,7 +523,7 @@ fun OutlinedTextField(
  *   different states. See [TextFieldDefaults.outlinedTextFieldColors]
  */
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
@@ -620,7 +620,7 @@ fun OutlinedTextField(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun OutlinedTextField(
+public fun OutlinedTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,

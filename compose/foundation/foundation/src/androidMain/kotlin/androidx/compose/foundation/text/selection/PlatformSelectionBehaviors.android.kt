@@ -35,6 +35,7 @@ import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.cr
 import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.hasLegacyAssistItem
 import androidx.compose.foundation.text.selection.TextClassifierHelperMethods.toAndroidLocaleList
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,7 +64,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * a [CoroutineContext] not backed by a worker thread may lead to performance issues or unexpected
  * behavior with [TextClassifier].
  */
-val LocalTextClassifierCoroutineContext =
+public val LocalTextClassifierCoroutineContext: ProvidableCompositionLocal<CoroutineContext> =
     staticCompositionLocalOf<CoroutineContext> { Dispatchers.IO }
 
 /**

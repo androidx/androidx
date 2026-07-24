@@ -27,10 +27,10 @@ package androidx.compose.ui.test
  * Usage of these APIs should generally be guarded by a check to
  * [ComposeUiTest.isIdlingResourceSupported].
  */
-interface IdlingResourceOwner {
+public interface IdlingResourceOwner {
     /** Registers an [IdlingResource] in this test. */
-    fun registerIdlingResource(idlingResource: IdlingResource)
+    public fun registerIdlingResource(idlingResource: IdlingResource)
 
     /** Unregisters an [IdlingResource] from this test. */
-    fun unregisterIdlingResource(idlingResource: IdlingResource)
+    public fun unregisterIdlingResource(idlingResource: IdlingResource)
 }

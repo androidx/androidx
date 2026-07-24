@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.Dp
 
 /** Scope for the panes of [ThreePaneScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
-sealed interface ThreePaneScaffoldScope :
+public sealed interface ThreePaneScaffoldScope :
     ExtendedPaneScaffoldScope<ThreePaneScaffoldRole, ThreePaneScaffoldValue>
 
 /** Scope for the panes of [ThreePaneScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
-sealed interface ThreePaneScaffoldPaneScope :
+public sealed interface ThreePaneScaffoldPaneScope :
     ThreePaneScaffoldScope,
     ExtendedPaneScaffoldPaneScope<ThreePaneScaffoldRole, ThreePaneScaffoldValue>
 

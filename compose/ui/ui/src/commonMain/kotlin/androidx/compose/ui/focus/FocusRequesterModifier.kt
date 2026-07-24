@@ -31,13 +31,13 @@ import androidx.compose.ui.platform.InspectorInfo
  */
 @Deprecated("Use FocusRequesterModifierNode instead")
 @JvmDefaultWithCompatibility
-interface FocusRequesterModifier : Modifier.Element {
+public interface FocusRequesterModifier : Modifier.Element {
     /**
      * An instance of [FocusRequester], that can be used to request focus state changes.
      *
      * @sample androidx.compose.ui.samples.RequestFocusSample
      */
-    val focusRequester: FocusRequester
+    public val focusRequester: FocusRequester
 }
 
 /**
@@ -45,7 +45,7 @@ interface FocusRequesterModifier : Modifier.Element {
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
-fun Modifier.focusRequester(focusRequester: FocusRequester): Modifier =
+public fun Modifier.focusRequester(focusRequester: FocusRequester): Modifier =
     this then FocusRequesterElement(focusRequester)
 
 private data class FocusRequesterElement(val focusRequester: FocusRequester) :

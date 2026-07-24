@@ -22,27 +22,27 @@ import androidx.compose.ui.unit.dp
 
 /** Contains methods to standard constants used in the UI for timeouts, sizes, and distances. */
 @JvmDefaultWithCompatibility
-interface ViewConfiguration {
+public interface ViewConfiguration {
     /** The duration before a press turns into a long press. */
-    val longPressTimeoutMillis: Long
+    public val longPressTimeoutMillis: Long
 
     /**
      * The duration between the first tap's up event and the second tap's down event for an
      * interaction to be considered a double-tap.
      */
-    val doubleTapTimeoutMillis: Long
+    public val doubleTapTimeoutMillis: Long
 
     /**
      * The minimum duration between the first tap's up event and the second tap's down event for an
      * interaction to be considered a double-tap.
      */
-    val doubleTapMinTimeMillis: Long
+    public val doubleTapMinTimeMillis: Long
 
     /** Distance in pixels a touch can wander before we think the user is scrolling. */
-    val touchSlop: Float
+    public val touchSlop: Float
 
     /** Distance in pixels a stylus touch can wander before we think the user is handwriting. */
-    val handwritingSlop: Float
+    public val handwritingSlop: Float
         get() = 2f
 
     /**
@@ -50,23 +50,23 @@ interface ViewConfiguration {
      * touch target will be expanded evenly around the layout to ensure that it is at least this
      * big.
      */
-    val minimumTouchTargetSize: DpSize
+    public val minimumTouchTargetSize: DpSize
         get() = DpSize(48.dp, 48.dp)
 
     /**
      * The maximum velocity a fling have at any given time. This value should be in pixels/second.
      */
-    val maximumFlingVelocity: Float
+    public val maximumFlingVelocity: Float
         get() = Float.MAX_VALUE
 
     /** Minimum velocity to initiate a fling, as measured in pixels per second */
-    val minimumFlingVelocity: Float
+    public val minimumFlingVelocity: Float
         get() = 0f
 
     /**
      * Margin in pixels around text line bounds where stylus handwriting gestures should be
      * supported.
      */
-    val handwritingGestureLineMargin: Float
+    public val handwritingGestureLineMargin: Float
         get() = 16f
 }

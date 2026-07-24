@@ -31,7 +31,10 @@ import androidx.compose.ui.util.fastFirstOrNull
  *   [LazyVerticalGrid].
  * @sample androidx.compose.foundation.samples.LazyGridCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutScrollScope(state: LazyGridState, scrollScope: ScrollScope): LazyLayoutScrollScope {
+public fun LazyLayoutScrollScope(
+    state: LazyGridState,
+    scrollScope: ScrollScope,
+): LazyLayoutScrollScope {
     return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
         override val firstVisibleItemIndex: Int
             get() = state.firstVisibleItemIndex

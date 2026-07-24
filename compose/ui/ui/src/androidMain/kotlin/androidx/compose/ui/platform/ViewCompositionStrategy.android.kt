@@ -43,21 +43,21 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
  *
  * By default, Compose UI views are configured to [Default].
  */
-interface ViewCompositionStrategy {
+public interface ViewCompositionStrategy {
 
     /**
      * Install this strategy for [view] and return a function that will uninstall it later. This
      * function should not be called directly; it is called by
      * [AbstractComposeView.setViewCompositionStrategy] after uninstalling the previous strategy.
      */
-    fun installFor(view: AbstractComposeView): () -> Unit
+    public fun installFor(view: AbstractComposeView): () -> Unit
 
     /**
      * This companion object may be used to define extension factory functions for other strategies
      * to aid in discovery via autocomplete. e.g.: `fun
      * ViewCompositionStrategy.Companion.MyStrategy(): MyStrategy`
      */
-    companion object {
+    public companion object {
         /**
          * The default strategy for [AbstractComposeView] and [ComposeView].
          *
@@ -67,7 +67,7 @@ interface ViewCompositionStrategy {
         // WARNING: the implementation of the default strategy is installed with a reference to
         // `this` on a not-fully-constructed object in AbstractComposeView.
         // Be careful not to do anything that would break that.
-        val Default: ViewCompositionStrategy
+        public val Default: ViewCompositionStrategy
             get() = DisposeOnDetachedFromWindowOrReleasedFromPool
     }
 
@@ -81,7 +81,7 @@ interface ViewCompositionStrategy {
     // WARNING: the implementation of the default strategy is installed with a reference to
     // `this` on a not-fully-constructed object in AbstractComposeView.
     // Be careful not to do anything that would break that.
-    object DisposeOnDetachedFromWindowOrReleasedFromPool : ViewCompositionStrategy {
+    public object DisposeOnDetachedFromWindowOrReleasedFromPool : ViewCompositionStrategy {
         override fun installFor(view: AbstractComposeView): () -> Unit {
             val listener =
                 object : View.OnAttachStateChangeListener {
@@ -114,7 +114,7 @@ interface ViewCompositionStrategy {
      * called while the view is detached from a window, [AbstractComposeView.disposeComposition]
      * must be called manually if the view is not later attached to a window.)
      */
-    object DisposeOnDetachedFromWindow : ViewCompositionStrategy {
+    public object DisposeOnDetachedFromWindow : ViewCompositionStrategy {
         override fun installFor(view: AbstractComposeView): () -> Unit {
             val listener =
                 object : View.OnAttachStateChangeListener {
@@ -134,8 +134,9 @@ interface ViewCompositionStrategy {
      * [destroyed][Lifecycle.Event.ON_DESTROY]. This strategy is appropriate for Compose UI views
      * that share a 1-1 relationship with a known [LifecycleOwner].
      */
-    class DisposeOnLifecycleDestroyed(private val lifecycle: Lifecycle) : ViewCompositionStrategy {
-        constructor(lifecycleOwner: LifecycleOwner) : this(lifecycleOwner.lifecycle)
+    public class DisposeOnLifecycleDestroyed(private val lifecycle: Lifecycle) :
+        ViewCompositionStrategy {
+        public constructor(lifecycleOwner: LifecycleOwner) : this(lifecycleOwner.lifecycle)
 
         override fun installFor(view: AbstractComposeView): () -> Unit =
             installForLifecycle(view, lifecycle)
@@ -147,7 +148,7 @@ interface ViewCompositionStrategy {
      * [destroyed][Lifecycle.Event.ON_DESTROY]. This strategy is appropriate for Compose UI views
      * that share a 1-1 relationship with their closest [LifecycleOwner], such as a Fragment view.
      */
-    object DisposeOnViewTreeLifecycleDestroyed : ViewCompositionStrategy {
+    public object DisposeOnViewTreeLifecycleDestroyed : ViewCompositionStrategy {
         override fun installFor(view: AbstractComposeView): () -> Unit {
             if (view.isAttachedToWindow) {
                 val lco =

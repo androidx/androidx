@@ -25,17 +25,17 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 
 /** The receiver scope of a layout's intrinsic approach measurements lambdas. */
-sealed interface ApproachIntrinsicMeasureScope : IntrinsicMeasureScope {
+public sealed interface ApproachIntrinsicMeasureScope : IntrinsicMeasureScope {
 
     /** Constraints used to measure the layout in the lookahead pass. */
-    val lookaheadConstraints: Constraints
+    public val lookaheadConstraints: Constraints
 
     /**
      * Size of the [ApproachLayoutModifierNode] measured during the lookahead pass using
      * [lookaheadConstraints]. This size can be used as the target size for the
      * [ApproachLayoutModifierNode] to approach the destination (i.e. lookahead) size.
      */
-    val lookaheadSize: IntSize
+    public val lookaheadSize: IntSize
 }
 
 /**
@@ -48,7 +48,7 @@ sealed interface ApproachIntrinsicMeasureScope : IntrinsicMeasureScope {
  * [ApproachLayoutModifierNode] to morph the layout gradually in both size and position to arrive at
  * its precalculated bounds.
  */
-sealed interface ApproachMeasureScope : ApproachIntrinsicMeasureScope, MeasureScope
+public sealed interface ApproachMeasureScope : ApproachIntrinsicMeasureScope, MeasureScope
 
 internal class ApproachMeasureScopeImpl(
     val coordinator: LayoutModifierNodeCoordinator,

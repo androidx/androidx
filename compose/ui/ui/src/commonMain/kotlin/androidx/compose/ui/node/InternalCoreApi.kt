@@ -29,4 +29,4 @@ package androidx.compose.ui.node
     AnnotationTarget.PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalCoreApi
+public annotation class InternalCoreApi

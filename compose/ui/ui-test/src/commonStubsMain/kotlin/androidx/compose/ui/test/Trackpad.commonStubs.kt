@@ -19,10 +19,10 @@ package androidx.compose.ui.test
 import kotlin.jvm.JvmInline
 
 @JvmInline
-actual value class TrackpadButton(val buttonId: Int) {
-    actual companion object {
-        actual val Primary: TrackpadButton = implementedInJetBrainsFork()
-        actual val Secondary: TrackpadButton = implementedInJetBrainsFork()
-        actual val Tertiary: TrackpadButton = implementedInJetBrainsFork()
+public actual value class TrackpadButton(public val buttonId: Int) {
+    public actual companion object {
+        public actual val Primary: TrackpadButton = implementedInJetBrainsFork()
+        public actual val Secondary: TrackpadButton = implementedInJetBrainsFork()
+        public actual val Tertiary: TrackpadButton = implementedInJetBrainsFork()
     }
 }

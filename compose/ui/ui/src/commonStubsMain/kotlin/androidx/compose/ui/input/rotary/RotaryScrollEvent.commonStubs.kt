@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.input.rotary
 
-actual class RotaryScrollEvent
+public actual class RotaryScrollEvent
 internal constructor(
-    actual val verticalScrollPixels: Float,
-    actual val horizontalScrollPixels: Float,
-    actual val uptimeMillis: Long,
+    public actual val verticalScrollPixels: Float,
+    public actual val horizontalScrollPixels: Float,
+    public actual val uptimeMillis: Long,
 )

@@ -24,7 +24,7 @@ import androidx.compose.ui.input.key.key
  *
  * @return true if the event was consumed. False otherwise.
  */
-fun SemanticsNodeInteraction.performKeyPress(keyEvent: KeyEvent): Boolean {
+public fun SemanticsNodeInteraction.performKeyPress(keyEvent: KeyEvent): Boolean {
     val semanticsNode = fetchSemanticsNode("Failed to send key Event (${keyEvent.key})")
     val root = semanticsNode.root
     requireNotNull(root) { "Failed to find owner" }

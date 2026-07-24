@@ -90,7 +90,7 @@ import kotlin.math.roundToInt
  * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
  */
 @Composable
-fun ShortNavigationBar(
+public fun ShortNavigationBar(
     modifier: Modifier = Modifier,
     containerColor: Color = ShortNavigationBarDefaults.containerColor,
     contentColor: Color = ShortNavigationBarDefaults.contentColor,
@@ -123,14 +123,14 @@ fun ShortNavigationBar(
 
 /** Class that describes the different supported item arrangements of the [ShortNavigationBar]. */
 @JvmInline
-value class ShortNavigationBarArrangement private constructor(private val value: Int) {
-    companion object {
+public value class ShortNavigationBarArrangement private constructor(private val value: Int) {
+    public companion object {
         /*
          * The items are equally distributed on the Short Navigation Bar.
          *
          * This configuration is recommended for small width screens.
          */
-        val EqualWeight
+        public val EqualWeight: ShortNavigationBarArrangement
             get() = ShortNavigationBarArrangement(0)
 
         /*
@@ -138,11 +138,11 @@ value class ShortNavigationBarArrangement private constructor(private val value:
          *
          * This configuration is recommended for medium width screens.
          */
-        val Centered
+        public val Centered: ShortNavigationBarArrangement
             get() = ShortNavigationBarArrangement(1)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             EqualWeight -> "EqualWeight"
             Centered -> "Centered"
@@ -185,7 +185,7 @@ value class ShortNavigationBarArrangement private constructor(private val value:
  *   happen internally.
  */
 @Composable
-fun ShortNavigationBarItem(
+public fun ShortNavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -235,21 +235,21 @@ fun ShortNavigationBarItem(
 }
 
 /** Defaults used in [ShortNavigationBar]. */
-object ShortNavigationBarDefaults {
+public object ShortNavigationBarDefaults {
     /** Default container color for a short navigation bar. */
-    val containerColor: Color
+    public val containerColor: Color
         @Composable get() = NavigationBarTokens.ContainerColor.value
 
     /** Default content color for a short navigation bar. */
-    val contentColor: Color
+    public val contentColor: Color
         @Composable get() = contentColorFor(containerColor)
 
     /** Default arrangement for a short navigation bar. */
-    val arrangement: ShortNavigationBarArrangement
+    public val arrangement: ShortNavigationBarArrangement
         get() = ShortNavigationBarArrangement.EqualWeight
 
     /** Default window insets to be used and consumed by the short navigation bar. */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -258,12 +258,14 @@ object ShortNavigationBarDefaults {
 }
 
 /** Defaults used in [ShortNavigationBarItem]. */
-object ShortNavigationBarItemDefaults {
+public object ShortNavigationBarItemDefaults {
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultShortNavigationBarItemColors
+    @Composable
+    public fun colors(): NavigationItemColors =
+        MaterialTheme.colorScheme.defaultShortNavigationBarItemColors
 
     /**
      * Creates a [NavigationItemColors] with the provided colors according to the Material
@@ -279,7 +281,7 @@ object ShortNavigationBarItemDefaults {
      * @return the resulting [NavigationItemColors] used for [ShortNavigationBarItem]
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
         selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
         selectedIndicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,

@@ -25,4 +25,4 @@ package androidx.compose.foundation
     AnnotationTarget.PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalFoundationApi
+public annotation class InternalFoundationApi

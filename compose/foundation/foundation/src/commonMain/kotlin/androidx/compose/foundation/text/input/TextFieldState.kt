@@ -53,7 +53,7 @@ import androidx.compose.ui.text.style.TextDecoration
  * @sample androidx.compose.foundation.samples.BasicTextFieldStateCompleteSample
  */
 @Stable
-class TextFieldState
+public class TextFieldState
 internal constructor(
     initialText: String,
     initialSelection: TextRange,
@@ -61,7 +61,7 @@ internal constructor(
 ) {
 
     @RememberInComposition
-    constructor(
+    public constructor(
         initialText: String = "",
         initialSelection: TextRange = TextRange(initialText.length),
     ) : this(initialText, initialSelection, TextUndoManager())
@@ -138,7 +138,7 @@ internal constructor(
      * @see edit
      * @see snapshotFlow
      */
-    val text: CharSequence
+    public val text: CharSequence
         get() = value.text
 
     /**
@@ -153,7 +153,7 @@ internal constructor(
      * @see snapshotFlow
      * @see TextFieldCharSequence.selection
      */
-    val selection: TextRange
+    public val selection: TextRange
         get() = value.selection
 
     /**
@@ -166,7 +166,7 @@ internal constructor(
      * @see snapshotFlow
      * @see TextFieldCharSequence.composition
      */
-    val composition: TextRange?
+    public val composition: TextRange?
         get() = value.composition
 
     /**
@@ -185,7 +185,7 @@ internal constructor(
      * @see snapshotFlow
      * @see TextFieldTextStyles
      */
-    val textStyles: TextFieldTextStyles
+    public val textStyles: TextFieldTextStyles
         get() = value.textFieldTextStyles ?: EmptyTextFieldTextStyles
 
     /**
@@ -198,7 +198,7 @@ internal constructor(
      * @see setTextAndPlaceCursorAtEnd
      * @see setTextAndSelectAll
      */
-    inline fun edit(block: TextFieldBuffer.() -> Unit) {
+    public inline fun edit(block: TextFieldBuffer.() -> Unit) {
         val mutableValue = startEdit()
         try {
             mutableValue.block()
@@ -218,7 +218,7 @@ internal constructor(
      */
     // TextField does not implement UndoState because Undo related APIs should be able to remain
     // separately experimental than TextFieldState
-    @ExperimentalFoundationApi val undoState: UndoState = UndoState(this)
+    @ExperimentalFoundationApi public val undoState: UndoState = UndoState(this)
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
@@ -660,7 +660,7 @@ internal constructor(
      */
     // Preserve nullability since this is public API.
     @Suppress("RedundantNullableReturnType")
-    object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
+    public object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
 
         override fun SaverScope.save(value: TextFieldState): Any? {
             return listOf(
@@ -699,7 +699,7 @@ internal constructor(
  *   after it's initialized, call methods on [TextFieldState].
  */
 @Composable
-fun rememberTextFieldState(
+public fun rememberTextFieldState(
     initialText: String = "",
     initialSelection: TextRange = TextRange(initialText.length),
 ): TextFieldState =
@@ -722,7 +722,7 @@ fun rememberTextFieldState(
  * @see clearText
  * @see TextFieldBuffer.placeCursorAtEnd
  */
-fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
+public fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
     edit {
         replace(0, length, text)
         placeCursorAtEnd()
@@ -746,7 +746,7 @@ fun TextFieldState.setTextAndPlaceCursorAtEnd(text: String) {
  * @see clearText
  * @see TextFieldBuffer.selectAll
  */
-fun TextFieldState.setTextAndSelectAll(text: String) {
+public fun TextFieldState.setTextAndSelectAll(text: String) {
     edit {
         replace(0, length, text)
         selectAll()
@@ -768,7 +768,7 @@ fun TextFieldState.setTextAndSelectAll(text: String) {
  * @see setTextAndPlaceCursorAtEnd
  * @see setTextAndSelectAll
  */
-fun TextFieldState.clearText() {
+public fun TextFieldState.clearText() {
     edit {
         delete(0, length)
         placeCursorAtEnd()
@@ -820,7 +820,7 @@ private fun finalizeComposingAnnotations(
  *
  * @sample androidx.compose.foundation.samples.TextFieldStateApplyOutputTransformation
  */
-fun TextFieldState.toTextFieldBuffer(): TextFieldBuffer {
+public fun TextFieldState.toTextFieldBuffer(): TextFieldBuffer {
     return TextFieldBuffer(value).apply { canCallAddStyle = true }
 }
 

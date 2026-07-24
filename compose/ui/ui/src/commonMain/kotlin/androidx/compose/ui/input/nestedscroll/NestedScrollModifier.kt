@@ -38,7 +38,7 @@ import kotlinx.coroutines.CoroutineScope
  * @see nestedScroll to attach this connection to the nested scroll system
  */
 @JvmDefaultWithCompatibility
-interface NestedScrollConnection {
+public interface NestedScrollConnection {
 
     /**
      * Pre scroll event chain. Called by children to allow parents to consume a portion of a drag
@@ -49,7 +49,7 @@ interface NestedScrollConnection {
      * @return the amount this connection consumed
      * @see NestedScrollSource
      */
-    fun onPreScroll(available: Offset, source: NestedScrollSource): Offset = Offset.Zero
+    public fun onPreScroll(available: Offset, source: NestedScrollSource): Offset = Offset.Zero
 
     /**
      * Post scroll event pass. This pass occurs when the dispatching (scrolling) descendant made
@@ -61,8 +61,11 @@ interface NestedScrollConnection {
      * @return the amount that was consumed by this connection
      * @see NestedScrollSource
      */
-    fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
-        Offset.Zero
+    public fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource,
+    ): Offset = Offset.Zero
 
     /**
      * Pre fling event chain. Called by children when they are about to perform fling to allow
@@ -72,7 +75,7 @@ interface NestedScrollConnection {
      *   about to fling
      * @return the amount this connection wants to consume and take from the child
      */
-    suspend fun onPreFling(available: Velocity): Velocity = Velocity.Zero
+    public suspend fun onPreFling(available: Velocity): Velocity = Velocity.Zero
 
     /**
      * Post fling event chain. Called by the child when it is finished flinging (and sending
@@ -83,7 +86,7 @@ interface NestedScrollConnection {
      *   desired)
      * @return the amount of velocity consumed by the fling operation in this connection
      */
-    suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+    public suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
         return Velocity.Zero
     }
 }
@@ -103,7 +106,7 @@ interface NestedScrollConnection {
  * @see nestedScroll for the reference of the nested scroll process and more details
  * @see NestedScrollConnection to connect to the nested scroll system
  */
-class NestedScrollDispatcher {
+public class NestedScrollDispatcher {
 
     internal var nestedScrollNode: NestedScrollNode? = null
 
@@ -127,7 +130,7 @@ class NestedScrollDispatcher {
      * knows its parent (which is usually after first composition commits), this will return a
      * cancelled [CoroutineScope].
      */
-    val coroutineScope: CoroutineScope
+    public val coroutineScope: CoroutineScope
         get() = calculateNestedScrollScope.invoke() ?: CancelledScope
 
     /**
@@ -148,7 +151,7 @@ class NestedScrollDispatcher {
      * @return total delta that is pre-consumed by all ancestors in the chain. This delta is
      *   unavailable for this node to consume, so it should adjust the consumption accordingly
      */
-    fun dispatchPreScroll(available: Offset, source: NestedScrollSource): Offset {
+    public fun dispatchPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return parent?.onPreScroll(available, source) ?: Offset.Zero
     }
 
@@ -163,7 +166,7 @@ class NestedScrollDispatcher {
      * @param source source of the scroll
      * @return the amount of scroll that was consumed by all ancestors
      */
-    fun dispatchPostScroll(
+    public fun dispatchPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource,
@@ -181,7 +184,7 @@ class NestedScrollDispatcher {
      * @return total velocity that is pre-consumed by all ancestors in the chain. This velocity is
      *   unavailable for this node to consume, so it should adjust the consumption accordingly
      */
-    suspend fun dispatchPreFling(available: Velocity): Velocity {
+    public suspend fun dispatchPreFling(available: Velocity): Velocity {
         return parent?.onPreFling(available) ?: Velocity.Zero
     }
 
@@ -196,7 +199,7 @@ class NestedScrollDispatcher {
      * @return velocity that has been consumed by all the ancestors
      */
     @OptIn(ExperimentalComposeUiApi::class)
-    suspend fun dispatchPostFling(consumed: Velocity, available: Velocity): Velocity {
+    public suspend fun dispatchPostFling(consumed: Velocity, available: Velocity): Velocity {
         // lastKnownParentNode can be used to send clean up signals.
         // If this dispatcher's regular parent is not present it means either it never attached or
         // it was detached. If it was detached we have information about its last known parent so
@@ -214,8 +217,9 @@ class NestedScrollDispatcher {
 
 /** Possible sources of scroll events in the [NestedScrollConnection] */
 @kotlin.jvm.JvmInline
-value class NestedScrollSource internal constructor(@Suppress("unused") private val value: Int) {
-    override fun toString(): String {
+public value class NestedScrollSource
+internal constructor(@Suppress("unused") private val value: Int) {
+    public override fun toString(): String {
         @Suppress("DEPRECATION")
         return when (this) {
             UserInput -> "UserInput"
@@ -225,20 +229,20 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
         }
     }
 
-    companion object {
+    public companion object {
 
         /**
          * Represents any source of scroll events originated from a user interaction: mouse, touch,
          * key events.
          */
-        val UserInput: NestedScrollSource
+        public val UserInput: NestedScrollSource
             get() = NestedScrollSource(1)
 
         /**
          * Represents any other source of scroll events that are not a direct user input. (e.g
          * animations, fling)
          */
-        val SideEffect: NestedScrollSource
+        public val SideEffect: NestedScrollSource
             get() = NestedScrollSource(2)
 
         /** Dragging via mouse/touch/etc events. */
@@ -251,7 +255,7 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.UserInput",
                 ),
         )
-        val Drag: NestedScrollSource
+        public val Drag: NestedScrollSource
             get() = UserInput
 
         /** Flinging after the drag has ended with velocity. */
@@ -264,12 +268,12 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.SideEffect",
                 ),
         )
-        val Fling: NestedScrollSource
+        public val Fling: NestedScrollSource
             get() = SideEffect
 
         /** Relocating when a component asks parents to scroll to bring it into view. */
         @Deprecated("Do not use. Will be removed in the future.")
-        val Relocate: NestedScrollSource
+        public val Relocate: NestedScrollSource
             get() = NestedScrollSource(3)
 
         /** Scrolling via mouse wheel. */
@@ -282,7 +286,7 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
                         "NestedScrollSource.Companion.UserInput",
                 ),
         )
-        val Wheel: NestedScrollSource
+        public val Wheel: NestedScrollSource
             get() = UserInput
     }
 }
@@ -352,7 +356,7 @@ value class NestedScrollSource internal constructor(@Suppress("unused") private 
  * @param dispatcher object to be attached to the nested scroll system on which `dispatch*` methods
  *   can be called to notify ancestors within nested scroll system about scrolling happening
  */
-fun Modifier.nestedScroll(
+public fun Modifier.nestedScroll(
     connection: NestedScrollConnection,
     dispatcher: NestedScrollDispatcher? = null,
 ): Modifier = this then NestedScrollElement(connection, dispatcher)

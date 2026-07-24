@@ -44,10 +44,10 @@ import androidx.compose.ui.util.fastMaxBy
  * @see MultiParagraph
  * @see Placeholder
  */
-class MultiParagraphIntrinsics(
-    val annotatedString: AnnotatedString,
+public class MultiParagraphIntrinsics(
+    public val annotatedString: AnnotatedString,
     style: TextStyle,
-    val placeholders: List<AnnotatedString.Range<Placeholder>>,
+    public val placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     softWrap: Boolean,
@@ -59,7 +59,7 @@ class MultiParagraphIntrinsics(
             "MultiParagraphIntrinsics(annotatedString, style, placeholders, density, fontFamilyResolver, true)"
         ),
     )
-    constructor(
+    public constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
         placeholders: List<AnnotatedString.Range<Placeholder>>,
@@ -77,7 +77,7 @@ class MultiParagraphIntrinsics(
                 "androidx.compose.ui.text.font.createFontFamilyResolver",
             ),
     )
-    constructor(
+    public constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
         placeholders: List<AnnotatedString.Range<Placeholder>>,
@@ -93,13 +93,13 @@ class MultiParagraphIntrinsics(
 
     // NOTE(text-perf-review): why are we using lazy here? Are there cases where these
     // calculations aren't executed?
-    override val minIntrinsicWidth: Float by
+    public override val minIntrinsicWidth: Float by
         lazy(LazyThreadSafetyMode.NONE) {
             infoList.fastMaxBy { it.intrinsics.minIntrinsicWidth }?.intrinsics?.minIntrinsicWidth
                 ?: 0f
         }
 
-    override val maxIntrinsicWidth: Float by
+    public override val maxIntrinsicWidth: Float by
         lazy(LazyThreadSafetyMode.NONE) {
             infoList.fastMaxBy { it.intrinsics.maxIntrinsicWidth }?.intrinsics?.maxIntrinsicWidth
                 ?: 0f
@@ -141,7 +141,7 @@ class MultiParagraphIntrinsics(
             }
     }
 
-    override val hasStaleResolvedFonts: Boolean
+    public override val hasStaleResolvedFonts: Boolean
         get() = infoList.fastAny { it.intrinsics.hasStaleResolvedFonts }
 
     /**

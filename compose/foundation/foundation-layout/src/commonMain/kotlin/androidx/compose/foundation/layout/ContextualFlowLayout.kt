@@ -67,7 +67,7 @@ import androidx.compose.ui.unit.dp
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @Composable
 @ExperimentalLayoutApi
-fun ContextualFlowRow(
+public fun ContextualFlowRow(
     itemCount: Int,
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -142,7 +142,7 @@ fun ContextualFlowRow(
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @Composable
 @ExperimentalLayoutApi
-fun ContextualFlowColumn(
+public fun ContextualFlowColumn(
     itemCount: Int,
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -189,7 +189,7 @@ fun ContextualFlowColumn(
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface ContextualFlowRowScope : RowScope {
+public interface ContextualFlowRowScope : RowScope {
     /**
      * Have the item fill (possibly only partially) the max height of the tallest item in the row it
      * was placed in, within the [FlowRow].
@@ -202,7 +202,9 @@ interface ContextualFlowRowScope : RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleFlowRow_EqualHeight
      */
     @ExperimentalLayoutApi
-    fun Modifier.fillMaxRowHeight(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier
+    public fun Modifier.fillMaxRowHeight(
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+    ): Modifier
 
     /**
      * Identifies the row or column index where the UI component(s) are to be placed, provided they
@@ -216,7 +218,7 @@ interface ContextualFlowRowScope : RowScope {
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
-    val lineIndex: Int
+    public val lineIndex: Int
 
     /**
      * Marks the index within the current row/column where the next component is to be inserted,
@@ -231,7 +233,7 @@ interface ContextualFlowRowScope : RowScope {
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
-    val indexInLine: Int
+    public val indexInLine: Int
 
     /**
      * Specifies the maximum permissible width (main-axis) for the upcoming UI component at the
@@ -239,7 +241,7 @@ interface ContextualFlowRowScope : RowScope {
      * reallocated to the following row within the [ContextualFlowRow] structure, subject to
      * existing constraints.
      */
-    val maxWidthInLine: Dp
+    public val maxWidthInLine: Dp
 
     /**
      * Determines the maximum allowable height (cross-axis) for the forthcoming UI component,
@@ -247,7 +249,7 @@ interface ContextualFlowRowScope : RowScope {
      * component's visibility will depend on the overflow settings, potentially leading to its
      * exclusion.
      */
-    val maxHeight: Dp
+    public val maxHeight: Dp
 }
 
 /** Scope for the overflow [ContextualFlowRow]. */
@@ -255,21 +257,21 @@ interface ContextualFlowRowScope : RowScope {
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface ContextualFlowRowOverflowScope : FlowRowOverflowScope
+public interface ContextualFlowRowOverflowScope : FlowRowOverflowScope
 
 /** Scope for the overflow [ContextualFlowColumn]. */
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface ContextualFlowColumnOverflowScope : FlowColumnOverflowScope
+public interface ContextualFlowColumnOverflowScope : FlowColumnOverflowScope
 
 /** Provides a scope for items within a [ContextualFlowColumn]. */
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface ContextualFlowColumnScope : ColumnScope {
+public interface ContextualFlowColumnScope : ColumnScope {
     /**
      * Have the item fill (possibly only partially) the max width of the widest item in the column
      * it was placed in, within the [FlowColumn].
@@ -282,7 +284,7 @@ interface ContextualFlowColumnScope : ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumn_EqualWidth
      */
     @ExperimentalLayoutApi
-    fun Modifier.fillMaxColumnWidth(
+    public fun Modifier.fillMaxColumnWidth(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
 
@@ -298,7 +300,7 @@ interface ContextualFlowColumnScope : ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
-    val lineIndex: Int
+    public val lineIndex: Int
 
     /**
      * Marks the index within the current row/column where the next component is to be inserted,
@@ -313,7 +315,7 @@ interface ContextualFlowColumnScope : ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowRow_ItemPosition
      * @sample androidx.compose.foundation.layout.samples.ContextualFlowColumn_ItemPosition
      */
-    val indexInLine: Int
+    public val indexInLine: Int
 
     /**
      * Sets the maximum width (cross-axis dimension) that the upcoming UI component can occupy,
@@ -321,7 +323,7 @@ interface ContextualFlowColumnScope : ColumnScope {
      * component not being displayed, depending on the [ContextualFlowColumnOverflow.Visible]
      * overflow configuration.
      */
-    val maxWidth: Dp
+    public val maxWidth: Dp
 
     /**
      * Establishes the maximum height (main-axis dimension) permissible for the next UI component,
@@ -329,7 +331,7 @@ interface ContextualFlowColumnScope : ColumnScope {
      * limit, it may be shifted to the subsequent column in [ContextualFlowColumn], subject to the
      * predefined constraints.
      */
-    val maxHeightInLine: Dp
+    public val maxHeightInLine: Dp
 }
 
 @OptIn(ExperimentalLayoutApi::class)

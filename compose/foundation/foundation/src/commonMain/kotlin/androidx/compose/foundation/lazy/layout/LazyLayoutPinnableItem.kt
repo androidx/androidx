@@ -43,7 +43,7 @@ import androidx.compose.ui.layout.PinnableContainer
  * change.
  */
 @Composable
-fun LazyLayoutPinnableItem(
+public fun LazyLayoutPinnableItem(
     key: Any?,
     index: Int,
     pinnedItemList: LazyLayoutPinnedItemList,
@@ -63,9 +63,10 @@ fun LazyLayoutPinnableItem(
  * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
-class LazyLayoutPinnedItemList private constructor(private val items: MutableList<PinnedItem>) :
+public class LazyLayoutPinnedItemList
+private constructor(private val items: MutableList<PinnedItem>) :
     List<LazyLayoutPinnedItemList.PinnedItem> by items {
-    constructor() : this(SnapshotStateList())
+    public constructor() : this(SnapshotStateList())
 
     internal fun pin(item: PinnedItem) {
         items.add(item)
@@ -86,15 +87,15 @@ class LazyLayoutPinnedItemList private constructor(private val items: MutableLis
      * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
      * change.
      */
-    sealed interface PinnedItem {
+    public sealed interface PinnedItem {
         /** Key of the pinned item. */
-        val key: Any?
+        public val key: Any?
 
         /**
          * Last known index of the pinned item. Note: it is possible for index to change during
          * lifetime of the object.
          */
-        val index: Int
+        public val index: Int
     }
 }
 

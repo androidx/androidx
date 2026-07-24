@@ -29,7 +29,7 @@ import androidx.compose.runtime.annotation.FrequentlyChangingValue
  * calculating the exact value might be computationally expensive or impossible.
  */
 @Stable
-interface ScrollIndicatorState {
+public interface ScrollIndicatorState {
     /**
      * The current scroll offset of the content from the visual start of the container, typically in
      * pixels.
@@ -42,7 +42,7 @@ interface ScrollIndicatorState {
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
-    @get:FrequentlyChangingValue @get:IntRange(from = 0) val scrollOffset: Int
+    @get:FrequentlyChangingValue @get:IntRange(from = 0) public val scrollOffset: Int
 
     /**
      * The total size of the scrollable content, typically in pixels.
@@ -58,7 +58,7 @@ interface ScrollIndicatorState {
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
-    @get:IntRange(from = 0) val contentSize: Int
+    @get:IntRange(from = 0) public val contentSize: Int
 
     /**
      * The size of the visible portion of the scrollable content, typically in pixels.
@@ -68,5 +68,5 @@ interface ScrollIndicatorState {
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
-    @get:IntRange(from = 0) val viewportSize: Int
+    @get:IntRange(from = 0) public val viewportSize: Int
 }

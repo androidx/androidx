@@ -23,9 +23,10 @@ internal expect class NativeColorFilter
 
 /** Effect used to modify the color of each pixel drawn on a [Paint] that it is installed on */
 @Immutable
-open class ColorFilter internal constructor(internal val nativeColorFilter: NativeColorFilter) {
+public open class ColorFilter
+internal constructor(internal val nativeColorFilter: NativeColorFilter) {
 
-    companion object {
+    public companion object {
         /**
          * Creates a color filter that applies the blend mode given as the second argument. The
          * source color is the one given as the first argument, and the destination color is the one
@@ -39,7 +40,7 @@ open class ColorFilter internal constructor(internal val nativeColorFilter: Nati
          * @param blendMode BlendMode used when compositing the tint color to the destination
          */
         @Stable
-        fun tint(color: Color, blendMode: BlendMode = BlendMode.SrcIn): ColorFilter =
+        public fun tint(color: Color, blendMode: BlendMode = BlendMode.SrcIn): ColorFilter =
             BlendModeColorFilter(color, blendMode)
 
         /**
@@ -49,7 +50,8 @@ open class ColorFilter internal constructor(internal val nativeColorFilter: Nati
          * @param colorMatrix ColorMatrix used to transform pixel values when drawn
          */
         @Stable
-        fun colorMatrix(colorMatrix: ColorMatrix): ColorFilter = ColorMatrixColorFilter(colorMatrix)
+        public fun colorMatrix(colorMatrix: ColorMatrix): ColorFilter =
+            ColorMatrixColorFilter(colorMatrix)
 
         /**
          * Create a [ColorFilter] that can be used to simulate simple lighting effects. A lighting
@@ -60,7 +62,8 @@ open class ColorFilter internal constructor(internal val nativeColorFilter: Nati
          * @param add Color that will be added to the source color when the color filter is applied.
          */
         @Stable
-        fun lighting(multiply: Color, add: Color): ColorFilter = LightingColorFilter(multiply, add)
+        public fun lighting(multiply: Color, add: Color): ColorFilter =
+            LightingColorFilter(multiply, add)
     }
 }
 
@@ -77,14 +80,14 @@ open class ColorFilter internal constructor(internal val nativeColorFilter: Nati
  * @param blendMode BlendMode used when compositing the tint color to the destination
  */
 @Immutable
-class BlendModeColorFilter
+public class BlendModeColorFilter
 internal constructor(
-    val color: Color,
-    val blendMode: BlendMode,
+    public val color: Color,
+    public val blendMode: BlendMode,
     nativeColorFilter: NativeColorFilter,
 ) : ColorFilter(nativeColorFilter) {
 
-    constructor(
+    public constructor(
         color: Color,
         blendMode: BlendMode,
     ) : this(color, blendMode, actualTintColorFilter(color, blendMode))
@@ -115,11 +118,11 @@ internal constructor(
  * to change the saturation of pixels, convert from YUV to RGB, etc.
  */
 @Immutable
-class ColorMatrixColorFilter
+public class ColorMatrixColorFilter
 internal constructor(private var colorMatrix: ColorMatrix?, nativeColorFilter: NativeColorFilter) :
     ColorFilter(nativeColorFilter) {
 
-    constructor(
+    public constructor(
         colorMatrix: ColorMatrix
     ) : this(colorMatrix, actualColorMatrixColorFilter(colorMatrix))
 
@@ -131,7 +134,7 @@ internal constructor(private var colorMatrix: ColorMatrix?, nativeColorFilter: N
      * @param targetColorMatrix Optional [ColorMatrix] to copy contents into
      * @return the copied [ColorMatrix] instance
      */
-    fun copyColorMatrix(targetColorMatrix: ColorMatrix = ColorMatrix()): ColorMatrix {
+    public fun copyColorMatrix(targetColorMatrix: ColorMatrix = ColorMatrix()): ColorMatrix {
         val curMatrix = obtainColorMatrix()
         curMatrix.values.copyInto(targetColorMatrix.values)
         return targetColorMatrix
@@ -172,11 +175,14 @@ internal constructor(private var colorMatrix: ColorMatrix?, nativeColorFilter: N
  * @param add Color that will be added to the source color when the color filter is applied.
  */
 @Immutable
-class LightingColorFilter
-internal constructor(val multiply: Color, val add: Color, nativeColorFilter: NativeColorFilter) :
-    ColorFilter(nativeColorFilter) {
+public class LightingColorFilter
+internal constructor(
+    public val multiply: Color,
+    public val add: Color,
+    nativeColorFilter: NativeColorFilter,
+) : ColorFilter(nativeColorFilter) {
 
-    constructor(
+    public constructor(
         multiply: Color,
         add: Color,
     ) : this(multiply, add, actualLightingColorFilter(multiply, add))

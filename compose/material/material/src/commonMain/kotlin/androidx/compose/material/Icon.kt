@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 @NonRestartableComposable
-fun Icon(
+public fun Icon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -93,7 +93,7 @@ fun Icon(
  */
 @Composable
 @NonRestartableComposable
-fun Icon(
+public fun Icon(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -127,7 +127,7 @@ fun Icon(
  *   applied
  */
 @Composable
-fun Icon(
+public fun Icon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,

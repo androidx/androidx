@@ -30,7 +30,7 @@ import androidx.test.espresso.ViewInteraction
  * @sample androidx.compose.ui.test.junit4.samples.onRootWithViewInteractionRecyclerViewSample
  * @sample androidx.compose.ui.test.junit4.samples.onRootWithViewInteractionFragmentSample
  */
-fun ComposeTestRule.onRootWithViewInteraction(
+public fun ComposeTestRule.onRootWithViewInteraction(
     interaction: ViewInteraction
 ): SemanticsNodeInteractionsProvider {
     val androidComposeTestRule =

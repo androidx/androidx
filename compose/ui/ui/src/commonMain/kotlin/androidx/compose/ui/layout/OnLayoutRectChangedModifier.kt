@@ -53,11 +53,11 @@ import androidx.compose.ui.spatial.RelativeLayoutBounds
  * @see registerOnLayoutRectChanged
  */
 @Stable
-fun Modifier.onLayoutRectChanged(
+public fun Modifier.onLayoutRectChanged(
     throttleMillis: Long = 0,
     debounceMillis: Long = 64,
     callback: (RelativeLayoutBounds) -> Unit,
-) = this then OnLayoutRectChangedElement(throttleMillis, debounceMillis, callback)
+): Modifier = this then OnLayoutRectChangedElement(throttleMillis, debounceMillis, callback)
 
 private class OnLayoutRectChangedElement(
     val throttleMillis: Long,
@@ -144,7 +144,7 @@ private class OnLayoutRectChangedNode(
  * @return an object which should be used to unregister/dispose this callback
  * @see onLayoutRectChanged
  */
-fun DelegatableNode.registerOnLayoutRectChanged(
+public fun DelegatableNode.registerOnLayoutRectChanged(
     throttleMillis: Long,
     debounceMillis: Long,
     callback: (RelativeLayoutBounds) -> Unit,

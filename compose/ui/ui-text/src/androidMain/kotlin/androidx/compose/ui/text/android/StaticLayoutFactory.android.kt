@@ -39,7 +39,7 @@ import java.lang.reflect.InvocationTargetException
 private const val TAG = "StaticLayoutFactory"
 
 @InternalPlatformTextApi
-object StaticLayoutFactory {
+public object StaticLayoutFactory {
 
     private val delegate: StaticLayoutFactoryImpl =
         if (Build.VERSION.SDK_INT >= 23) {
@@ -49,7 +49,7 @@ object StaticLayoutFactory {
         }
 
     /** Builder class for StaticLayout. */
-    fun create(
+    public fun create(
         text: CharSequence,
         paint: TextPaint,
         width: Int,
@@ -108,7 +108,7 @@ object StaticLayoutFactory {
      * @param useFallbackLineSpacing fallbackLineSpacing configuration passed while creating the
      *   StaticLayout.
      */
-    fun isFallbackLineSpacingEnabled(
+    public fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
         useFallbackLineSpacing: Boolean,
     ): Boolean {

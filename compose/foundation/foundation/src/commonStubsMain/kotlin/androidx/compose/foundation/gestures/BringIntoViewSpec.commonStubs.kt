@@ -19,5 +19,5 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.runtime.ProvidableCompositionLocal
 
-actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
+public actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     implementedInJetBrainsFork()

@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
  * current Android API level will safely fallback to the [ColorSpaces.Srgb] color space.
  */
 @ColorLong
-fun Color.toColorLong(): Long {
+public fun Color.toColorLong(): Long {
     val id = (this.value and 0x3FUL).toInt()
 
     if (id <= 15) return this.value.toLong()
@@ -55,7 +55,7 @@ fun Color.toColorLong(): Long {
  * Android's 64-bit [ColorLong] values as some color spaces differ, so this method handles the
  * conversion.
  */
-fun Color.Companion.fromColorLong(@ColorLong colorLong: Long): Color {
+public fun Color.Companion.fromColorLong(@ColorLong colorLong: Long): Color {
     val color =
         if (colorLong and 0x3F < 16) {
             colorLong

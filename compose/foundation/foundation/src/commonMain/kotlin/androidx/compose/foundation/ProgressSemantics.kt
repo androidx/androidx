@@ -38,7 +38,7 @@ import androidx.compose.ui.semantics.semantics
  *   not be negative.
  */
 @Stable
-fun Modifier.progressSemantics(
+public fun Modifier.progressSemantics(
     value: Float,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
@@ -60,7 +60,7 @@ fun Modifier.progressSemantics(
  * @sample androidx.compose.foundation.samples.IndeterminateProgressSemanticsSample
  */
 @Stable
-fun Modifier.progressSemantics(): Modifier {
+public fun Modifier.progressSemantics(): Modifier {
     // Older versions of Talkback will ignore nodes with range info which aren't focusable or
     // screen reader focusable. Setting this semantics as merging descendants will mark it as
     // screen reader focusable.

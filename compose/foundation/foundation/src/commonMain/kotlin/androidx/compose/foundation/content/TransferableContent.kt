@@ -36,43 +36,43 @@ import kotlin.jvm.JvmInline
  *   or additional platform-specific information, that can be used to access platform level APIs.
  */
 @ExperimentalFoundationApi
-class TransferableContent
+public class TransferableContent
 internal constructor(
-    val clipEntry: ClipEntry,
-    val clipMetadata: ClipMetadata,
-    val source: Source,
-    val platformTransferableContent: PlatformTransferableContent? = null,
+    public val clipEntry: ClipEntry,
+    public val clipMetadata: ClipMetadata,
+    public val source: Source,
+    public val platformTransferableContent: PlatformTransferableContent? = null,
 ) {
 
     /** Defines the type of operation that a [TransferableContent] originates from. */
     @ExperimentalFoundationApi
     @JvmInline
-    value class Source internal constructor(private val value: Int) {
+    public value class Source internal constructor(private val value: Int) {
 
-        companion object {
+        public companion object {
 
             /**
              * Indicates that the [TransferableContent] originates from the soft keyboard (also
              * known as input method editor or IME)
              */
-            val Keyboard
+            public val Keyboard: Source
                 get() = Source(0)
 
             /**
              * Indicates that the [TransferableContent] was passed on by the system drag and drop.
              */
-            val DragAndDrop
+            public val DragAndDrop: Source
                 get() = Source(1)
 
             /**
              * Indicates that the [TransferableContent] comes from the clipboard via paste. (e.g.
              * "Paste" action in the floating action menu or "Ctrl+V" key combination)
              */
-            val Clipboard
+            public val Clipboard: Source
                 get() = Source(2)
         }
 
-        override fun toString(): String =
+        public override fun toString(): String =
             when (this) {
                 Keyboard -> "Source.Keyboard"
                 DragAndDrop -> "Source.DragAndDrop"
@@ -86,11 +86,11 @@ internal constructor(
  * All the platform-specific information regarding a [TransferableContent] that cannot be abstracted
  * away in a platform agnostic way.
  */
-@ExperimentalFoundationApi expect class PlatformTransferableContent
+@ExperimentalFoundationApi public expect class PlatformTransferableContent
 
 /** Returns whether this [TransferableContent] can provide an item with the [mediaType]. */
 @ExperimentalFoundationApi
-expect fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean
+public expect fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean
 
 /**
  * Reads the text part of this [ClipEntry]. The returned result may not include the full text

@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
  * @param startIndent start offset of this line, no offset by default
  */
 @Composable
-fun Divider(
+public fun Divider(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.onSurface.copy(alpha = DividerAlpha),
     thickness: Dp = 1.dp,

@@ -37,10 +37,10 @@ import kotlin.math.sign
  *   within the viewport.
  * @return A [SnapLayoutInfoProvider] that can be used with [snapFlingBehavior]
  */
-fun SnapLayoutInfoProvider(
+public fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
     snapPosition: SnapPosition = SnapPosition.Center,
-) =
+): SnapLayoutInfoProvider =
     object : SnapLayoutInfoProvider {
         private val layoutInfo: LazyGridLayoutInfo
             get() = lazyGridState.layoutInfo
@@ -110,7 +110,7 @@ fun SnapLayoutInfoProvider(
  *   within the viewport.
  */
 @Composable
-fun rememberSnapFlingBehavior(
+public fun rememberSnapFlingBehavior(
     lazyGridState: LazyGridState,
     snapPosition: SnapPosition = SnapPosition.Center,
 ): FlingBehavior {

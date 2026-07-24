@@ -46,11 +46,11 @@ import androidx.compose.ui.unit.dp
  * @param color color of this divider line.
  */
 @Composable
-fun HorizontalDivider(
+public fun HorizontalDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color,
-) =
+): Unit =
     Canvas(modifier.fillMaxWidth().height(thickness)) {
         drawLine(
             color = color,
@@ -74,11 +74,11 @@ fun HorizontalDivider(
  * @param color color of this divider line.
  */
 @Composable
-fun VerticalDivider(
+public fun VerticalDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color,
-) =
+): Unit =
     Canvas(modifier.fillMaxHeight().width(thickness)) {
         drawLine(
             color = color,
@@ -93,7 +93,7 @@ fun VerticalDivider(
     replaceWith = ReplaceWith("HorizontalDivider(modifier, thickness, color)"),
 )
 @Composable
-fun Divider(
+public fun Divider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color,
@@ -108,11 +108,11 @@ fun Divider(
 }
 
 /** Default values for [Divider] */
-object DividerDefaults {
+public object DividerDefaults {
     /** Default thickness of a divider. */
-    val Thickness: Dp = DividerTokens.Thickness
+    public val Thickness: Dp = DividerTokens.Thickness
 
     /** Default color of a divider. */
-    val color: Color
+    public val color: Color
         @Composable get() = DividerTokens.Color.value
 }

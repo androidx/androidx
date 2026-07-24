@@ -34,11 +34,11 @@ import androidx.compose.foundation.text.contextmenu.modifier.filterTextContextMe
  *   [TextContextMenuSession.close] on the [TextContextMenuSession] receiver to close the context
  *   menu item as a result of the click.
  */
-class TextContextMenuItem(
+public class TextContextMenuItem(
     key: Any,
-    val label: String,
-    val leadingIcon: Int = Resources.ID_NULL,
-    val onClick: TextContextMenuSession.() -> Unit,
+    public val label: String,
+    public val leadingIcon: Int = Resources.ID_NULL,
+    public val onClick: TextContextMenuSession.() -> Unit,
 ) : TextContextMenuComponent(key) {
     override fun toString(): String =
         "TextContextMenuItem(key=$key, label=\"$label\", leadingIcon=$leadingIcon)"
@@ -61,13 +61,13 @@ internal class TextContextMenuTextClassificationItem(
  *
  * @sample androidx.compose.foundation.samples.FilterProcessTextItemsInTextContextMenu
  */
-class ProcessTextKey
+public class ProcessTextKey
 internal constructor(
     /**
      * There can be multiple PROCESS_TEXT items in the context menu and each of them has a different
      * id.
      */
-    val id: Int
+    public val id: Int
 ) {
     override fun equals(other: Any?): Boolean {
         if (other !is ProcessTextKey) return false

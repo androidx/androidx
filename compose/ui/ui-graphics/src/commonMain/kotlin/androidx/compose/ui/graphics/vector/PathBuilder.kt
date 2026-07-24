@@ -17,16 +17,16 @@
 package androidx.compose.ui.graphics.vector
 
 /** [PathBuilder] provides a fluent API to creates a list of [PathNode], used to describe a path. */
-class PathBuilder {
+public class PathBuilder {
     // 88% of Material icons use 32 or fewer path nodes
     private val _nodes = ArrayList<PathNode>(32)
 
     /** Returns the list of [PathNode] currently held in this builder. */
-    val nodes: List<PathNode>
+    public val nodes: List<PathNode>
         get() = _nodes
 
     /** Closes the current contour by adding a [PathNode.Close] to [nodes]. */
-    fun close(): PathBuilder {
+    public fun close(): PathBuilder {
         _nodes.add(PathNode.Close)
         return this
     }
@@ -37,7 +37,7 @@ class PathBuilder {
      * @param x The x coordinate of the start of the new contour
      * @param y The y coordinate of the start of the new contour
      */
-    fun moveTo(x: Float, y: Float): PathBuilder {
+    public fun moveTo(x: Float, y: Float): PathBuilder {
         _nodes.add(PathNode.MoveTo(x, y))
         return this
     }
@@ -49,7 +49,7 @@ class PathBuilder {
      * @param dx The x offset of the start of the new contour, relative to the last path position
      * @param dy The y offset of the start of the new contour, relative to the last path position
      */
-    fun moveToRelative(dx: Float, dy: Float): PathBuilder {
+    public fun moveToRelative(dx: Float, dy: Float): PathBuilder {
         _nodes.add(PathNode.RelativeMoveTo(dx, dy))
         return this
     }
@@ -62,7 +62,7 @@ class PathBuilder {
      * @param x The x coordinate of the end of the line
      * @param y The y coordinate of the end of the line
      */
-    fun lineTo(x: Float, y: Float): PathBuilder {
+    public fun lineTo(x: Float, y: Float): PathBuilder {
         _nodes.add(PathNode.LineTo(x, y))
         return this
     }
@@ -75,7 +75,7 @@ class PathBuilder {
      * @param dx The x offset of the end of the line, relative to the last path position
      * @param dy The y offset of the end of the line, relative to the last path position
      */
-    fun lineToRelative(dx: Float, dy: Float): PathBuilder {
+    public fun lineToRelative(dx: Float, dy: Float): PathBuilder {
         _nodes.add(PathNode.RelativeLineTo(dx, dy))
         return this
     }
@@ -87,7 +87,7 @@ class PathBuilder {
      *
      * @param x The x coordinate of the end of the line
      */
-    fun horizontalLineTo(x: Float): PathBuilder {
+    public fun horizontalLineTo(x: Float): PathBuilder {
         _nodes.add(PathNode.HorizontalTo(x))
         return this
     }
@@ -100,7 +100,7 @@ class PathBuilder {
      *
      * @param dx The x offset of the end of the line, relative to the last path position
      */
-    fun horizontalLineToRelative(dx: Float): PathBuilder {
+    public fun horizontalLineToRelative(dx: Float): PathBuilder {
         _nodes.add(PathNode.RelativeHorizontalTo(dx))
         return this
     }
@@ -112,7 +112,7 @@ class PathBuilder {
      *
      * @param y The y coordinate of the end of the line
      */
-    fun verticalLineTo(y: Float): PathBuilder {
+    public fun verticalLineTo(y: Float): PathBuilder {
         _nodes.add(PathNode.VerticalTo(y))
         return this
     }
@@ -125,7 +125,7 @@ class PathBuilder {
      *
      * @param dy The y offset of the end of the line, relative to the last path position
      */
-    fun verticalLineToRelative(dy: Float): PathBuilder {
+    public fun verticalLineToRelative(dy: Float): PathBuilder {
         _nodes.add(PathNode.RelativeVerticalTo(dy))
         return this
     }
@@ -142,7 +142,14 @@ class PathBuilder {
      * @param x3 The x coordinate of the end point of the cubic curve
      * @param y3 The y coordinate of the end point of the cubic curve
      */
-    fun curveTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): PathBuilder {
+    public fun curveTo(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
+    ): PathBuilder {
         _nodes.add(PathNode.CurveTo(x1, y1, x2, y2, x3, y3))
         return this
     }
@@ -165,7 +172,7 @@ class PathBuilder {
      * @param dy3 The y offset of the end point of the cubic curve, relative to the last path
      *   position
      */
-    fun curveToRelative(
+    public fun curveToRelative(
         dx1: Float,
         dy1: Float,
         dx2: Float,
@@ -190,7 +197,7 @@ class PathBuilder {
      * @param x2 The x coordinate of the end point of the cubic curve
      * @param y2 The y coordinate of the end point of the cubic curve
      */
-    fun reflectiveCurveTo(x1: Float, y1: Float, x2: Float, y2: Float): PathBuilder {
+    public fun reflectiveCurveTo(x1: Float, y1: Float, x2: Float, y2: Float): PathBuilder {
         _nodes.add(PathNode.ReflectiveCurveTo(x1, y1, x2, y2))
         return this
     }
@@ -210,7 +217,12 @@ class PathBuilder {
      * @param dy2 The y offset of the end point of the cubic curve, relative to the last path
      *   position
      */
-    fun reflectiveCurveToRelative(dx1: Float, dy1: Float, dx2: Float, dy2: Float): PathBuilder {
+    public fun reflectiveCurveToRelative(
+        dx1: Float,
+        dy1: Float,
+        dx2: Float,
+        dy2: Float,
+    ): PathBuilder {
         _nodes.add(PathNode.RelativeReflectiveCurveTo(dx1, dy1, dx2, dy2))
         return this
     }
@@ -225,7 +237,7 @@ class PathBuilder {
      * @param x2 The x coordinate of the end point of the quadratic curve
      * @param y2 The y coordinate of the end point of the quadratic curve
      */
-    fun quadTo(x1: Float, y1: Float, x2: Float, y2: Float): PathBuilder {
+    public fun quadTo(x1: Float, y1: Float, x2: Float, y2: Float): PathBuilder {
         _nodes.add(PathNode.QuadTo(x1, y1, x2, y2))
         return this
     }
@@ -244,7 +256,7 @@ class PathBuilder {
      * @param dy2 The y offset of the end point of the quadratic curve, relative to the last path
      *   position
      */
-    fun quadToRelative(dx1: Float, dy1: Float, dx2: Float, dy2: Float): PathBuilder {
+    public fun quadToRelative(dx1: Float, dy1: Float, dx2: Float, dy2: Float): PathBuilder {
         _nodes.add(PathNode.RelativeQuadTo(dx1, dy1, dx2, dy2))
         return this
     }
@@ -259,7 +271,7 @@ class PathBuilder {
      * @param x1 The x coordinate of the end point of the quadratic curve
      * @param y1 The y coordinate of the end point of the quadratic curve
      */
-    fun reflectiveQuadTo(x1: Float, y1: Float): PathBuilder {
+    public fun reflectiveQuadTo(x1: Float, y1: Float): PathBuilder {
         _nodes.add(PathNode.ReflectiveQuadTo(x1, y1))
         return this
     }
@@ -275,7 +287,7 @@ class PathBuilder {
      * @param dy1 The y offset of the end point of the quadratic curve, relative to the last path
      *   position
      */
-    fun reflectiveQuadToRelative(dx1: Float, dy1: Float): PathBuilder {
+    public fun reflectiveQuadToRelative(dx1: Float, dy1: Float): PathBuilder {
         _nodes.add(PathNode.RelativeReflectiveQuadTo(dx1, dy1))
         return this
     }
@@ -307,7 +319,7 @@ class PathBuilder {
      * @param x1 The x coordinate of the end point of the arc
      * @param y1 The y coordinate of the end point of the arc
      */
-    fun arcTo(
+    public fun arcTo(
         horizontalEllipseRadius: Float,
         verticalEllipseRadius: Float,
         theta: Float,
@@ -357,7 +369,7 @@ class PathBuilder {
      * @param dx1 The x offset of the end point of the arc, relative to the last path position
      * @param dy1 The y offset of the end point of the arc, relative to the last path position
      */
-    fun arcToRelative(
+    public fun arcToRelative(
         a: Float,
         b: Float,
         theta: Float,

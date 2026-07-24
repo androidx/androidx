@@ -100,7 +100,7 @@ internal fun Modifier.increaseSemanticsBounds(): Modifier {
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
-fun LinearProgressIndicator(
+public fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
@@ -137,7 +137,7 @@ fun LinearProgressIndicator(
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
-fun LinearProgressIndicator(
+public fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity),
@@ -218,20 +218,21 @@ fun LinearProgressIndicator(
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LinearProgressIndicator(
+public fun LinearProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity),
-) = LinearProgressIndicator(progress, modifier, color, backgroundColor, strokeCap = StrokeCap.Butt)
+): Unit =
+    LinearProgressIndicator(progress, modifier, color, backgroundColor, strokeCap = StrokeCap.Butt)
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LinearProgressIndicator(
+public fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity),
-) = LinearProgressIndicator(modifier, color, backgroundColor, strokeCap = StrokeCap.Butt)
+): Unit = LinearProgressIndicator(modifier, color, backgroundColor, strokeCap = StrokeCap.Butt)
 
 private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
@@ -304,7 +305,7 @@ private fun DrawScope.drawLinearIndicatorBackground(
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
-fun CircularProgressIndicator(
+public fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
@@ -345,7 +346,7 @@ fun CircularProgressIndicator(
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
-fun CircularProgressIndicator(
+public fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
@@ -422,12 +423,12 @@ fun CircularProgressIndicator(
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun CircularProgressIndicator(
+public fun CircularProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
-) =
+): Unit =
     CircularProgressIndicator(
         progress,
         modifier,
@@ -439,11 +440,11 @@ fun CircularProgressIndicator(
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun CircularProgressIndicator(
+public fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
-) =
+): Unit =
     CircularProgressIndicator(
         modifier,
         color,
@@ -479,7 +480,7 @@ private fun DrawScope.drawCircularIndicatorBackground(color: Color, stroke: Stro
 /**
  * Contains the default values used for [LinearProgressIndicator] and [CircularProgressIndicator].
  */
-object ProgressIndicatorDefaults {
+public object ProgressIndicatorDefaults {
     /**
      * Default stroke width for [CircularProgressIndicator], and default height for
      * [LinearProgressIndicator].
@@ -487,19 +488,19 @@ object ProgressIndicatorDefaults {
      * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator], and
      * by passing a layout modifier setting the height for [LinearProgressIndicator].
      */
-    val StrokeWidth = 4.dp
+    public val StrokeWidth: Dp = 4.dp
 
     /**
      * The default opacity applied to the indicator color to create the background color in a
      * [LinearProgressIndicator].
      */
-    const val IndicatorBackgroundOpacity = 0.24f
+    public const val IndicatorBackgroundOpacity: Float = 0.24f
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
      * determinate progress indicator.
      */
-    val ProgressAnimationSpec =
+    public val ProgressAnimationSpec: SpringSpec<Float> =
         SpringSpec(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessVeryLow,

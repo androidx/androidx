@@ -45,7 +45,7 @@ import androidx.compose.ui.util.fastForEachReversed
  *   partition.
  */
 @ExperimentalMaterial3AdaptiveApi
-fun calculateThreePaneScaffoldValue(
+public fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     currentDestination: ThreePaneScaffoldDestinationItem<*>?,
@@ -83,7 +83,7 @@ fun calculateThreePaneScaffoldValue(
  *   partition.
  */
 @ExperimentalMaterial3AdaptiveApi
-fun calculateThreePaneScaffoldValue(
+public fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     destinationHistory: List<ThreePaneScaffoldDestinationItem<*>>,
@@ -206,14 +206,14 @@ private inline fun forEachPaneByPriority(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-class ThreePaneScaffoldValue
+public class ThreePaneScaffoldValue
 internal constructor(
-    val primary: PaneAdaptedValue,
-    val secondary: PaneAdaptedValue,
-    val tertiary: PaneAdaptedValue,
+    public val primary: PaneAdaptedValue,
+    public val secondary: PaneAdaptedValue,
+    public val tertiary: PaneAdaptedValue,
     internal val currentDestination: ThreePaneScaffoldRole?,
 ) : PaneScaffoldValue<ThreePaneScaffoldRole>, PaneExpansionStateKeyProvider {
-    constructor(
+    public constructor(
         primary: PaneAdaptedValue,
         secondary: PaneAdaptedValue,
         tertiary: PaneAdaptedValue,
@@ -234,7 +234,7 @@ internal constructor(
         count
     }
 
-    override val paneExpansionStateKey by lazy {
+    public override val paneExpansionStateKey: PaneExpansionStateKey by lazy {
         if (expandedCount != 2) {
             PaneExpansionStateKey.Default
         } else {
@@ -255,7 +255,7 @@ internal constructor(
         action(ThreePaneScaffoldRole.Tertiary, tertiary)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldValue) return false
         if (primary != other.primary) return false
@@ -264,20 +264,20 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = primary.hashCode()
         result = 31 * result + secondary.hashCode()
         result = 31 * result + tertiary.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "ThreePaneScaffoldValue(primary=$primary, " +
             "secondary=$secondary, " +
             "tertiary=$tertiary)"
     }
 
-    override operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
+    public override operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
         when (role) {
             ThreePaneScaffoldRole.Primary -> primary
             ThreePaneScaffoldRole.Secondary -> secondary

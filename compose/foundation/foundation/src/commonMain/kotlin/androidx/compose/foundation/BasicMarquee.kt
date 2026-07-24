@@ -78,26 +78,26 @@ import kotlinx.coroutines.withContext
 /**
  * Namespace for constants representing the default values for various [basicMarquee] parameters.
  */
-object MarqueeDefaults {
+public object MarqueeDefaults {
     /** Default value for the `iterations` parameter to [basicMarquee]. */
     // From
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    @Suppress("MayBeConstant") val Iterations: Int = 3
+    @Suppress("MayBeConstant") public val Iterations: Int = 3
 
     /** Default value for the `repeatDelayMillis` parameter to [basicMarquee]. */
     // From
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    @Suppress("MayBeConstant") val RepeatDelayMillis: Int = 1_200
+    @Suppress("MayBeConstant") public val RepeatDelayMillis: Int = 1_200
 
     /** Default value for the `spacing` parameter to [basicMarquee]. */
     // From
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    val Spacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
+    public val Spacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
 
     /** Default value for the `velocity` parameter to [basicMarquee]. */
     // From
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    val Velocity: Dp = 30.dp
+    public val Velocity: Dp = 30.dp
 }
 
 /**
@@ -139,7 +139,7 @@ object MarqueeDefaults {
  *   marquee will animate in the direction of the current [LayoutDirection].
  */
 @Stable
-fun Modifier.basicMarquee(
+public fun Modifier.basicMarquee(
     iterations: Int = Iterations,
     animationMode: MarqueeAnimationMode = Immediately,
     // TODO(aosp/2339066) Consider taking an AnimationSpec instead of specific configuration params.
@@ -482,7 +482,7 @@ private fun velocityBasedTween(
 
 /** Specifies when the [basicMarquee] animation runs. */
 @JvmInline
-value class MarqueeAnimationMode private constructor(private val value: Int) {
+public value class MarqueeAnimationMode private constructor(private val value: Int) {
 
     override fun toString(): String =
         when (this) {
@@ -491,31 +491,33 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
             else -> error("invalid value: $value")
         }
 
-    companion object {
+    public companion object {
         /**
          * Starts animating immediately (accounting for any initial delay), irrespective of focus
          * state.
          */
-        val Immediately
+        public val Immediately: MarqueeAnimationMode
             get() = MarqueeAnimationMode(0)
 
         /**
          * Only animates while the marquee has focus or a node in the marquee's content has focus.
          */
-        val WhileFocused
+        public val WhileFocused: MarqueeAnimationMode
             get() = MarqueeAnimationMode(1)
     }
 }
 
 /** A [MarqueeSpacing] with a fixed size. */
-fun MarqueeSpacing(spacing: Dp): MarqueeSpacing = MarqueeSpacing { _, _ -> spacing.roundToPx() }
+public fun MarqueeSpacing(spacing: Dp): MarqueeSpacing = MarqueeSpacing { _, _ ->
+    spacing.roundToPx()
+}
 
 /**
  * Defines a [calculateSpacing] method that determines the space after the end of [basicMarquee]
  * content before drawing the content again.
  */
 @Stable
-fun interface MarqueeSpacing {
+public fun interface MarqueeSpacing {
     /**
      * Calculates the space after the end of [basicMarquee] content before drawing the content
      * again.
@@ -530,13 +532,14 @@ fun interface MarqueeSpacing {
      * @return The space in pixels between the end of the content and the beginning of the content
      *   when wrapping.
      */
-    fun Density.calculateSpacing(contentWidth: Int, containerWidth: Int): Int
+    public fun Density.calculateSpacing(contentWidth: Int, containerWidth: Int): Int
 
-    companion object {
+    public companion object {
         /** A [MarqueeSpacing] that is a fraction of the container's width. */
-        fun fractionOfContainer(fraction: Float): MarqueeSpacing = MarqueeSpacing { _, width ->
-            (fraction * width).roundToInt()
-        }
+        public fun fractionOfContainer(fraction: Float): MarqueeSpacing =
+            MarqueeSpacing { _, width ->
+                (fraction * width).roundToInt()
+            }
     }
 }
 

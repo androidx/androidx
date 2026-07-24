@@ -33,30 +33,30 @@ import kotlinx.coroutines.CoroutineScope
  *
  * @see [LazyStaggeredGridLayoutInfo]
  */
-sealed interface LazyStaggeredGridItemInfo {
+public sealed interface LazyStaggeredGridItemInfo {
     /** Relative offset from the start of the staggered grid. */
-    val offset: IntOffset
+    public val offset: IntOffset
 
     /** Index of the item. */
-    val index: Int
+    public val index: Int
 
     /**
      * Column (for vertical staggered grids) or row (for horizontal staggered grids) that the item
      * is in.
      */
-    val lane: Int
+    public val lane: Int
 
     /** Key of the item passed in [LazyStaggeredGridScope.items] */
-    val key: Any
+    public val key: Any
 
     /**
      * Item size in pixels. If item contains multiple layouts, the size is calculated as a sum of
      * their sizes.
      */
-    val size: IntSize
+    public val size: IntSize
 
     /** The content type of the item which was passed to the item() or items() function. */
-    val contentType: Any?
+    public val contentType: Any?
 }
 
 /**
@@ -64,18 +64,18 @@ sealed interface LazyStaggeredGridItemInfo {
  * [LazyStaggeredGridState.layoutInfo].
  */
 // todo(b/182882362): expose more information about layout state
-sealed interface LazyStaggeredGridLayoutInfo {
+public sealed interface LazyStaggeredGridLayoutInfo {
     /** Orientation of the staggered grid. */
-    val orientation: Orientation
+    public val orientation: Orientation
 
     /** The list of [LazyStaggeredGridItemInfo] per each visible item ordered by index. */
-    val visibleItemsInfo: List<LazyStaggeredGridItemInfo>
+    public val visibleItemsInfo: List<LazyStaggeredGridItemInfo>
 
     /** The total count of items passed to staggered grid. */
-    val totalItemsCount: Int
+    public val totalItemsCount: Int
 
     /** Layout viewport (content + content padding) size in pixels. */
-    val viewportSize: IntSize
+    public val viewportSize: IntSize
 
     /**
      * The start offset of the layout's viewport in pixels. You can think of it as a minimum offset
@@ -84,7 +84,7 @@ sealed interface LazyStaggeredGridLayoutInfo {
      *
      * You can use it to understand what items from [visibleItemsInfo] are fully visible.
      */
-    val viewportStartOffset: Int
+    public val viewportStartOffset: Int
 
     /**
      * The end offset of the layout's viewport in pixels. You can think of it as a maximum offset
@@ -92,19 +92,19 @@ sealed interface LazyStaggeredGridLayoutInfo {
      *
      * You can use it to understand what items from [visibleItemsInfo] are fully visible.
      */
-    val viewportEndOffset: Int
+    public val viewportEndOffset: Int
 
     /** Content padding in pixels applied before the items in scroll direction. */
-    val beforeContentPadding: Int
+    public val beforeContentPadding: Int
 
     /** Content padding in pixels applied after the items in scroll direction. */
-    val afterContentPadding: Int
+    public val afterContentPadding: Int
 
     /** The spacing between items in scroll direction. */
-    val mainAxisItemSpacing: Int
+    public val mainAxisItemSpacing: Int
 
     /** Whether the direction of scrolling and layout is reversed. */
-    @get:Suppress("GetterSetterNames") val reverseLayout: Boolean
+    @get:Suppress("GetterSetterNames") public val reverseLayout: Boolean
 }
 
 internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(

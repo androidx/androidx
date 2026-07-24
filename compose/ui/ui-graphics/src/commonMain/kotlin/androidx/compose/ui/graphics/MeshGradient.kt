@@ -29,13 +29,13 @@ import androidx.compose.ui.graphics.painter.Painter
  * Use this scope to set the properties (position, color, and control points) of each vertex in the
  * mesh grid.
  */
-sealed interface MeshGradientScope {
+public sealed interface MeshGradientScope {
 
     /** The number of patches along the vertical axis. */
-    val rows: Int
+    public val rows: Int
 
     /** The number of patches along the horizontal axis. */
-    val columns: Int
+    public val columns: Int
 
     /**
      * Sets the properties for a vertex at the specified [row] and [column].
@@ -53,7 +53,7 @@ sealed interface MeshGradientScope {
      * @param bottomControlPoint The vertical Bezier control point offset relative to [position] for
      *   the edge below.
      */
-    fun setVertex(
+    public fun setVertex(
         row: Int,
         column: Int,
         position: Offset,
@@ -92,9 +92,9 @@ sealed interface MeshGradientScope {
  *   reads to any mutable state. Any unconfigured vertex will have a default position of
  *   [Offset.Zero] and a default color of [Color.Transparent].
  */
-class MeshGradientPainter
+public class MeshGradientPainter
 @RememberInComposition
-constructor(
+public constructor(
     @param:IntRange(from = 1) private val rows: Int,
     @param:IntRange(from = 1) private val columns: Int,
     private val hasBicubicColor: Boolean = false,

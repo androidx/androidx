@@ -1128,9 +1128,9 @@ internal object ThreePaneScaffoldDefaults {
  * implementation to [LocalThreePaneScaffoldOverride] in the Compose hierarchy.
  */
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
-interface ThreePaneScaffoldOverride {
+public interface ThreePaneScaffoldOverride {
     /** Behavior function that is called by the [ThreePaneScaffold] composable. */
-    @Composable fun ThreePaneScaffoldOverrideScope.ThreePaneScaffold()
+    @Composable public fun ThreePaneScaffoldOverrideScope.ThreePaneScaffold()
 }
 
 /**
@@ -1152,23 +1152,23 @@ interface ThreePaneScaffoldOverride {
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
-class ThreePaneScaffoldOverrideScope
+public class ThreePaneScaffoldOverrideScope
 internal constructor(
-    val modifier: Modifier,
-    val scaffoldDirective: PaneScaffoldDirective,
-    val scaffoldState: ThreePaneScaffoldState,
-    val paneOrder: ThreePaneScaffoldHorizontalOrder,
-    val primaryPane: @Composable () -> Unit,
-    val secondaryPane: @Composable () -> Unit,
-    val tertiaryPane: (@Composable () -> Unit)?,
-    val paneExpansionState: PaneExpansionState,
-    val paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)?,
+    public val modifier: Modifier,
+    public val scaffoldDirective: PaneScaffoldDirective,
+    public val scaffoldState: ThreePaneScaffoldState,
+    public val paneOrder: ThreePaneScaffoldHorizontalOrder,
+    public val primaryPane: @Composable () -> Unit,
+    public val secondaryPane: @Composable () -> Unit,
+    public val tertiaryPane: (@Composable () -> Unit)?,
+    public val paneExpansionState: PaneExpansionState,
+    public val paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)?,
     internal val motionDataProvider: ThreePaneScaffoldMotionDataProvider,
 )
 
 /** CompositionLocal containing the currently-selected [ThreePaneScaffoldOverride]. */
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
-val LocalThreePaneScaffoldOverride: ProvidableCompositionLocal<ThreePaneScaffoldOverride> =
+public val LocalThreePaneScaffoldOverride: ProvidableCompositionLocal<ThreePaneScaffoldOverride> =
     compositionLocalOf {
         DefaultThreePaneScaffoldOverride
     }

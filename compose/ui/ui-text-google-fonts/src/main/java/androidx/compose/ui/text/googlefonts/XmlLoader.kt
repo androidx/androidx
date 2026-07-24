@@ -38,7 +38,7 @@ import java.lang.IllegalArgumentException
 // This is an API for accessing Google Fonts at fonts.google.com
 @Suppress("MentionsGoogle")
 @SuppressLint("ResourceType")
-fun GoogleFont(context: Context, @FontRes fontXml: Int): GoogleFont {
+public fun GoogleFont(context: Context, @FontRes fontXml: Int): GoogleFont {
     val resources = context.resources
     val xml = resources.getXml(fontXml)
     val loaded =

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * @sample androidx.compose.ui.samples.PointerInputModifierNodeSample
  */
-interface PointerInputModifierNode : DelegatableNode {
+public interface PointerInputModifierNode : DelegatableNode {
     /**
      * Invoked when pointers that previously hit this [PointerInputModifierNode] have changed. It is
      * expected that any [PointerInputChange]s that are used during this event and should not be
@@ -48,7 +48,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * @see PointerInputChange
      * @see PointerEventPass
      */
-    fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize)
+    public fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize)
 
     /**
      * Invoked to notify the handler that no more calls to [PointerInputModifierNode] will be made,
@@ -58,7 +58,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * 3. This [PointerInputModifierNode]'s associated LayoutNode is no longer in the composition
      *    tree.
      */
-    fun onCancelPointerInput()
+    public fun onCancelPointerInput()
 
     /**
      * Intercept pointer input that children receive even if the pointer is out of bounds.
@@ -67,7 +67,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * receive that event. If `false`, a child receiving pointer input outside of the bounds of this
      * layout will not trigger any events in this.
      */
-    fun interceptOutOfBoundsChildEvents(): Boolean = false
+    public fun interceptOutOfBoundsChildEvents(): Boolean = false
 
     /**
      * If `false`, then this [PointerInputModifierNode] will not allow siblings under it to respond
@@ -76,7 +76,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * [PointerInputModifierNode]s on a Layout has [sharePointerInputWithSiblings] set to `true`
      * then the Layout will share with siblings.
      */
-    fun sharePointerInputWithSiblings(): Boolean = false
+    public fun sharePointerInputWithSiblings(): Boolean = false
 
     /**
      * Invoked when the density (pixels per inch for the screen) changes. This can impact the
@@ -93,7 +93,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl] for a
      * concrete example.
      */
-    override fun onDensityChange() {
+    public override fun onDensityChange() {
         onCancelPointerInput()
     }
 
@@ -111,7 +111,7 @@ interface PointerInputModifierNode : DelegatableNode {
      * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl] for a
      * concrete example.
      */
-    fun onViewConfigurationChange() {
+    public fun onViewConfigurationChange() {
         onCancelPointerInput()
     }
 
@@ -124,7 +124,7 @@ interface PointerInputModifierNode : DelegatableNode {
      *
      * @see TouchBoundsExpansion
      */
-    val touchBoundsExpansion: TouchBoundsExpansion
+    public val touchBoundsExpansion: TouchBoundsExpansion
         get() = TouchBoundsExpansion.None
 }
 

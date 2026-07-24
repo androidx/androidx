@@ -28,17 +28,17 @@ import androidx.compose.ui.util.fastMap
  * @see SpanStyle
  */
 @Immutable
-class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
-    companion object {
+public class LocaleList(public val localeList: List<Locale>) : Collection<Locale> {
+    public companion object {
 
         /**
          * An empty instance of [LocaleList]. Usually used to reference a lack of explicit [Locale]
          * configuration.
          */
-        val Empty = LocaleList(listOf())
+        public val Empty: LocaleList = LocaleList(listOf())
 
         /** Returns Locale object which represents current locale */
-        val current: LocaleList
+        public val current: LocaleList
             get() = platformLocaleDelegate.current
     }
 
@@ -48,39 +48,39 @@ class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
      * @param languageTags A comma separated [IETF BCP47](https://tools.ietf.org/html/bcp47)
      *   compliant language tag.
      */
-    constructor(
+    public constructor(
         languageTags: String
     ) : this(languageTags.split(",").fastMap { it.trim() }.fastMap { Locale(it) })
 
     /** Creates a [LocaleList] object from a list of [Locale]s. */
-    constructor(vararg locales: Locale) : this(locales.toList())
+    public constructor(vararg locales: Locale) : this(locales.toList())
 
-    operator fun get(i: Int) = localeList[i]
+    public operator fun get(i: Int): Locale = localeList[i]
 
     // Collection overrides for easy iterations.
-    override val size: Int = localeList.size
+    public override val size: Int = localeList.size
 
-    override operator fun contains(element: Locale): Boolean = localeList.contains(element)
+    public override operator fun contains(element: Locale): Boolean = localeList.contains(element)
 
-    override fun containsAll(elements: Collection<Locale>): Boolean =
+    public override fun containsAll(elements: Collection<Locale>): Boolean =
         localeList.containsAll(elements)
 
-    override fun isEmpty(): Boolean = localeList.isEmpty()
+    public override fun isEmpty(): Boolean = localeList.isEmpty()
 
-    override fun iterator(): Iterator<Locale> = localeList.iterator()
+    public override fun iterator(): Iterator<Locale> = localeList.iterator()
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LocaleList) return false
         if (localeList != other.localeList) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return localeList.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "LocaleList(localeList=$localeList)"
     }
 }

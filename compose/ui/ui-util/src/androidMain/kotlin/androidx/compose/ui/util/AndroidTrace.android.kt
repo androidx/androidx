@@ -23,7 +23,7 @@ import android.os.Trace
  * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName]) and
  * [Trace.endSection].
  */
-actual inline fun <T> trace(sectionName: String, block: () -> T): T {
+public actual inline fun <T> trace(sectionName: String, block: () -> T): T {
     Trace.beginSection(sectionName)
     try {
         return block()
@@ -38,7 +38,7 @@ actual inline fun <T> trace(sectionName: String, block: () -> T): T {
  * @param tag The counter name that will be used to display the counter values in the trace.
  * @param value The counter value at a given point in time.
  */
-actual fun traceValue(tag: String, value: Long) {
+public actual fun traceValue(tag: String, value: Long) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Trace.setCounter(tag, value)
     }

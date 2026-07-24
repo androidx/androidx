@@ -84,7 +84,7 @@ internal fun Modifier.paneExpansionDraggable(
 )
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun PaneExpansionState.defaultDragHandleSemantics(): SemanticsPropertyReceiver.() -> Unit {
+public fun PaneExpansionState.defaultDragHandleSemantics(): SemanticsPropertyReceiver.() -> Unit {
     val coroutineScope = rememberCoroutineScope()
     val contentDesc = getString(Strings.defaultPaneExpansionDragHandleContentDescription)
     val currentAnchor = currentAnchor

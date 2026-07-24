@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual fun Path(): Path = implementedInJetBrainsFork()
+public actual fun Path(): Path = implementedInJetBrainsFork()

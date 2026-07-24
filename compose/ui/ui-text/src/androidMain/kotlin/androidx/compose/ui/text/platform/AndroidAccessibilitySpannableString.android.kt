@@ -50,7 +50,7 @@ import androidx.compose.ui.util.fastForEach
 @OptIn(ExperimentalTextApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @InternalTextApi // used in ui:ui
-fun AnnotatedString.toAccessibilitySpannableString(
+public fun AnnotatedString.toAccessibilitySpannableString(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     urlSpanCache: URLSpanCache,

@@ -32,18 +32,18 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 
 @Immutable
-sealed class Brush {
+public sealed class Brush {
 
     /**
      * Return the intrinsic size of the [Brush]. If the there is no intrinsic size (i.e. filling
      * bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic size in a
      * single dimension, return [Size] with [Float.NaN] in the desired dimension.
      */
-    open val intrinsicSize: Size = Size.Unspecified
+    public open val intrinsicSize: Size = Size.Unspecified
 
-    abstract fun applyTo(size: Size, p: Paint, alpha: Float)
+    public abstract fun applyTo(size: Size, p: Paint, alpha: Float)
 
-    companion object {
+    public companion object {
 
         /**
          * Creates a linear gradient with the provided colors along the given start and end
@@ -71,7 +71,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun linearGradient(
+        public fun linearGradient(
             vararg colorStops: Pair<Float, Color>,
             start: Offset = Offset.Zero,
             end: Offset = Offset.Infinite,
@@ -108,7 +108,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun linearGradient(
+        public fun linearGradient(
             colors: List<Color>,
             start: Offset = Offset.Zero,
             end: Offset = Offset.Infinite,
@@ -145,7 +145,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun horizontalGradient(
+        public fun horizontalGradient(
             colors: List<Color>,
             startX: Float = 0.0f,
             endX: Float = Float.POSITIVE_INFINITY,
@@ -179,7 +179,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun horizontalGradient(
+        public fun horizontalGradient(
             vararg colorStops: Pair<Float, Color>,
             startX: Float = 0.0f,
             endX: Float = Float.POSITIVE_INFINITY,
@@ -214,7 +214,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun verticalGradient(
+        public fun verticalGradient(
             colors: List<Color>,
             startY: Float = 0.0f,
             endY: Float = Float.POSITIVE_INFINITY,
@@ -248,7 +248,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun verticalGradient(
+        public fun verticalGradient(
             vararg colorStops: Pair<Float, Color>,
             startY: Float = 0f,
             endY: Float = Float.POSITIVE_INFINITY,
@@ -290,7 +290,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun radialGradient(
+        public fun radialGradient(
             vararg colorStops: Pair<Float, Color>,
             center: Offset = Offset.Unspecified,
             radius: Float = Float.POSITIVE_INFINITY,
@@ -329,7 +329,7 @@ sealed class Brush {
          *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
-        fun radialGradient(
+        public fun radialGradient(
             colors: List<Color>,
             center: Offset = Offset.Unspecified,
             radius: Float = Float.POSITIVE_INFINITY,
@@ -367,7 +367,7 @@ sealed class Brush {
          *   sweep gradient
          */
         @Stable
-        fun sweepGradient(
+        public fun sweepGradient(
             vararg colorStops: Pair<Float, Color>,
             center: Offset = Offset.Unspecified,
         ): Brush =
@@ -398,7 +398,7 @@ sealed class Brush {
          *   sweep gradient
          */
         @Stable
-        fun sweepGradient(colors: List<Color>, center: Offset = Offset.Unspecified): Brush =
+        public fun sweepGradient(colors: List<Color>, center: Offset = Offset.Unspecified): Brush =
             SweepGradient(colors = colors, stops = null, center = center)
 
         /**
@@ -413,7 +413,7 @@ sealed class Brush {
          * @see BlendMode
          */
         @Stable
-        fun composite(dstBrush: Brush, srcBrush: Brush, blendMode: BlendMode): Brush =
+        public fun composite(dstBrush: Brush, srcBrush: Brush, blendMode: BlendMode): Brush =
             CompositeShaderBrush(dstBrush.toShaderBrush(), srcBrush.toShaderBrush(), blendMode)
     }
 }
@@ -425,7 +425,7 @@ internal fun Brush.toShaderBrush(): ShaderBrush =
     }
 
 @Immutable
-class SolidColor(val value: Color) : Brush(), Interpolatable {
+public class SolidColor(public val value: Color) : Brush(), Interpolatable {
     override fun applyTo(size: Size, p: Paint, alpha: Float) {
         p.alpha = DefaultAlpha
         p.color =
@@ -467,7 +467,7 @@ class SolidColor(val value: Color) : Brush(), Interpolatable {
 
 /** Brush implementation used to apply a linear gradient on a given [Paint] */
 @Immutable
-class LinearGradient
+public class LinearGradient
 internal constructor(
     @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
     @Suppress("PrimitiveInCollection") internal val stops: List<Float>? = null,
@@ -562,7 +562,7 @@ internal constructor(
 
 /** Brush implementation used to apply a radial gradient on a given [Paint] */
 @Immutable
-class RadialGradient
+public class RadialGradient
 internal constructor(
     @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
     @Suppress("PrimitiveInCollection") internal val stops: List<Float>? = null,
@@ -742,7 +742,7 @@ internal class CompositeShaderBrush(
 
 /** Brush implementation used to apply a sweep gradient on a given [Paint] */
 @Immutable
-class SweepGradient
+public class SweepGradient
 internal constructor(
     internal val center: Offset,
     @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
@@ -814,7 +814,7 @@ internal constructor(
  * Convenience method to create a ShaderBrush that always returns the same shader instance
  * regardless of size
  */
-fun ShaderBrush(shader: Shader) =
+public fun ShaderBrush(shader: Shader): ShaderBrush =
     object : ShaderBrush() {
 
         /** Create a shader based on the given size that represents the current drawing area */
@@ -826,19 +826,19 @@ fun ShaderBrush(shader: Shader) =
  * lazily created based on a given size, or provided directly as a parameter
  */
 @Immutable
-abstract class ShaderBrush() : Brush() {
+public abstract class ShaderBrush() : Brush() {
 
     private var internalTransformShader: TransformShader? = null
     private var createdSize = Size.Unspecified
 
     /** A transformation matrix for the shader. */
-    var transform: Matrix? = null
+    public var transform: Matrix? = null
         set(value) {
             field = value
             internalTransformShader?.transform(value)
         }
 
-    abstract fun createShader(size: Size): Shader
+    public abstract fun createShader(size: Size): Shader
 
     private fun obtainTransformShader(): TransformShader =
         internalTransformShader ?: TransformShader().also { internalTransformShader = it }

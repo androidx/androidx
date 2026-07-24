@@ -39,17 +39,17 @@ import kotlinx.coroutines.test.TestResult
             "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
         ),
 )
-actual fun runComposeUiTest(
+public actual fun runComposeUiTest(
     effectContext: CoroutineContext,
     runTestContext: CoroutineContext,
     testTimeout: Duration,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = implementedInJetBrainsFork()
 
-actual fun runComposeUiTest(
+public actual fun runComposeUiTest(
     config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = implementedInJetBrainsFork()
 
-actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
+public actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
     implementedInJetBrainsFork()

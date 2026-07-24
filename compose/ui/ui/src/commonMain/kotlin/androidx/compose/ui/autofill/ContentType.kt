@@ -23,87 +23,87 @@ package androidx.compose.ui.autofill
  * associated with this type. If the [ContentType] is not specified, the autofill services have to
  * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
-expect sealed interface ContentType {
-    companion object {
+public expect sealed interface ContentType {
+    public companion object {
         /** Indicates that the associated component can be autofilled with an email address. */
-        val EmailAddress: ContentType
+        public val EmailAddress: ContentType
 
         /** Indicates that the associated component can be autofilled with a username. */
-        val Username: ContentType
+        public val Username: ContentType
 
         /** Indicates that the associated component can be autofilled with a password. */
-        val Password: ContentType
+        public val Password: ContentType
 
         /**
          * Indicates that the associated component can be interpreted as a newly created username
          * for save/update.
          */
-        val NewUsername: ContentType
+        public val NewUsername: ContentType
 
         /**
          * Indicates that the associated component can be interpreted as a newly created password
          * for save/update.
          */
-        val NewPassword: ContentType
+        public val NewPassword: ContentType
 
         /** Indicates that the associated component can be autofilled with a postal address. */
-        val PostalAddress: ContentType
+        public val PostalAddress: ContentType
 
         /** Indicates that the associated component can be autofilled with a postal code. */
-        val PostalCode: ContentType
+        public val PostalCode: ContentType
 
         /** Indicates that the associated component can be autofilled with a credit card number. */
-        val CreditCardNumber: ContentType
+        public val CreditCardNumber: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a credit card security
          * code.
          */
-        val CreditCardSecurityCode: ContentType
+        public val CreditCardSecurityCode: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a credit card expiration
          * date.
          */
-        val CreditCardExpirationDate: ContentType
+        public val CreditCardExpirationDate: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a credit card expiration
          * month.
          */
-        val CreditCardExpirationMonth: ContentType
+        public val CreditCardExpirationMonth: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a credit card expiration
          * year.
          */
-        val CreditCardExpirationYear: ContentType
+        public val CreditCardExpirationYear: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a credit card expiration
          * day.
          */
-        val CreditCardExpirationDay: ContentType
+        public val CreditCardExpirationDay: ContentType
 
         /** Indicates that the associated component can be autofilled with a country name/code. */
-        val AddressCountry: ContentType
+        public val AddressCountry: ContentType
 
         /** Indicates that the associated component can be autofilled with a region/state. */
-        val AddressRegion: ContentType
+        public val AddressRegion: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with an address locality
          * (city/town).
          */
-        val AddressLocality: ContentType
+        public val AddressLocality: ContentType
 
         /** Indicates that the associated component can be autofilled with a street address. */
-        val AddressStreet: ContentType
+        public val AddressStreet: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with auxiliary address details.
          */
-        val AddressAuxiliaryDetails: ContentType
+        public val AddressAuxiliaryDetails: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with an extended ZIP/POSTAL
@@ -112,42 +112,42 @@ expect sealed interface ContentType {
          * Example: In forms that split the U.S. ZIP+4 Code with nine digits 99999-9999 into two
          * fields annotate the delivery route code with this hint.
          */
-        val PostalCodeExtended: ContentType
+        public val PostalCodeExtended: ContentType
 
         /** Indicates that the associated component can be autofilled with a person's full name. */
-        val PersonFullName: ContentType
+        public val PersonFullName: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's first/given
          * name.
          */
-        val PersonFirstName: ContentType
+        public val PersonFirstName: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's last/family
          * name.
          */
-        val PersonLastName: ContentType
+        public val PersonLastName: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's middle name.
          */
-        val PersonMiddleName: ContentType
+        public val PersonMiddleName: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's middle initial.
          */
-        val PersonMiddleInitial: ContentType
+        public val PersonMiddleInitial: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's name prefix.
          */
-        val PersonNamePrefix: ContentType
+        public val PersonNamePrefix: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a person's name suffix.
          */
-        val PersonNameSuffix: ContentType
+        public val PersonNameSuffix: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a phone number with
@@ -155,49 +155,49 @@ expect sealed interface ContentType {
          *
          * Example: +1 123-456-7890
          */
-        val PhoneNumber: ContentType
+        public val PhoneNumber: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with the current device's phone
          * number usually for Sign Up / OTP flows.
          */
-        val PhoneNumberDevice: ContentType
+        public val PhoneNumberDevice: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a phone number's country
          * code.
          */
-        val PhoneCountryCode: ContentType
+        public val PhoneCountryCode: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a phone number without
          * country code.
          */
-        val PhoneNumberNational: ContentType
+        public val PhoneNumberNational: ContentType
 
         /** Indicates that the associated component can be autofilled with a gender. */
-        val Gender: ContentType
+        public val Gender: ContentType
 
         /** Indicates that the associated component can be autofilled with a full birth date. */
-        val BirthDateFull: ContentType
+        public val BirthDateFull: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a birth day(of the month).
          */
-        val BirthDateDay: ContentType
+        public val BirthDateDay: ContentType
 
         /** Indicates that the associated component can be autofilled with a birth month. */
-        val BirthDateMonth: ContentType
+        public val BirthDateMonth: ContentType
 
         /** Indicates that the associated component can be autofilled with a birth year. */
-        val BirthDateYear: ContentType
+        public val BirthDateYear: ContentType
 
         /**
          * Indicates that the associated component can be autofilled with a SMS One Time Password
          * (OTP).
          */
-        val SmsOtpCode: ContentType
+        public val SmsOtpCode: ContentType
     }
 
-    operator fun plus(other: ContentType): ContentType
+    public operator fun plus(other: ContentType): ContentType
 }

@@ -51,10 +51,11 @@ private val LOREM_IPSUM_SOURCE =
  *
  * @param words Number of words from "Lorem Ipsum" to use.
  */
-open class LoremIpsum(private val words: Int) : PreviewParameterProvider<String> {
+public open class LoremIpsum public constructor(private val words: Int) :
+    PreviewParameterProvider<String> {
     // Unfortunately using default parameters seem to fail to be instantiated via reflection.
     // We can workaround it by creating the default constructor manually.
-    constructor() : this(500)
+    public constructor() : this(500)
 
     override val values: Sequence<String>
         get() = sequenceOf(generateLoremIpsum(words))

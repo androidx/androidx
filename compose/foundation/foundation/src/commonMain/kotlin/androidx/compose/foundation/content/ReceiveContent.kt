@@ -55,7 +55,7 @@ import androidx.compose.ui.platform.InspectorInfo
  */
 @Suppress("ExecutorRegistration")
 @ExperimentalFoundationApi
-fun Modifier.contentReceiver(receiveContentListener: ReceiveContentListener): Modifier =
+public fun Modifier.contentReceiver(receiveContentListener: ReceiveContentListener): Modifier =
     then(ReceiveContentElement(receiveContentListener = receiveContentListener))
 
 @OptIn(ExperimentalFoundationApi::class)

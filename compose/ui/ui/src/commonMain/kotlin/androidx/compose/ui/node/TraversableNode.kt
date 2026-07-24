@@ -25,10 +25,10 @@ import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAct
  *
  * Note: The actual traversals are done in extension functions (see bottom of file).
  */
-interface TraversableNode : DelegatableNode {
-    val traverseKey: Any
+public interface TraversableNode : DelegatableNode {
+    public val traverseKey: Any
 
-    companion object {
+    public companion object {
         /**
          * Tree traversal actions for the traverseDescendantsIf related functions:
          * - Continue - continue the traversal
@@ -40,7 +40,7 @@ interface TraversableNode : DelegatableNode {
          * example specifically, see
          * traverseSubtreeWithSameKeyIf_cancelTraversalOfDifferentClassSameKey().
          */
-        enum class TraverseDescendantsAction {
+        public enum class TraverseDescendantsAction {
             ContinueTraversal,
             SkipSubtreeAndContinueTraversal,
             CancelTraversal,
@@ -50,7 +50,7 @@ interface TraversableNode : DelegatableNode {
 
 // *********** Nearest Traversable Ancestor methods ***********
 /** Finds the nearest traversable ancestor with a matching [key]. */
-fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
+public fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
     visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (key == it.traverseKey) {
             return it
@@ -60,7 +60,7 @@ fun DelegatableNode.findNearestAncestor(key: Any?): TraversableNode? {
 }
 
 /** Finds the nearest ancestor of the same class and key. */
-fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
+public fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
     visitAncestors(Nodes.Traversable, includeDelegates = true) {
         if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
             @Suppress("UNCHECKED_CAST")
@@ -79,7 +79,7 @@ fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
  *
  * @sample androidx.compose.ui.samples.traverseAncestorsWithKeyDemo
  */
-fun DelegatableNode.traverseAncestors(key: Any?, block: (TraversableNode) -> Boolean) {
+public fun DelegatableNode.traverseAncestors(key: Any?, block: (TraversableNode) -> Boolean) {
     visitAncestors(Nodes.Traversable) {
         val continueTraversal =
             if (key == it.traverseKey) {
@@ -99,7 +99,7 @@ fun DelegatableNode.traverseAncestors(key: Any?, block: (TraversableNode) -> Boo
  *
  * @sample androidx.compose.ui.samples.traverseAncestorsDemo
  */
-fun <T> T.traverseAncestors(block: (T) -> Boolean) where T : TraversableNode {
+public fun <T> T.traverseAncestors(block: (T) -> Boolean) where T : TraversableNode {
     visitAncestors(Nodes.Traversable) {
         val continueTraversal =
             if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
@@ -122,7 +122,7 @@ fun <T> T.traverseAncestors(block: (T) -> Boolean) where T : TraversableNode {
  *
  * @sample androidx.compose.ui.samples.traverseChildrenWithKeyDemo
  */
-fun DelegatableNode.traverseChildren(key: Any?, block: (TraversableNode) -> Boolean) {
+public fun DelegatableNode.traverseChildren(key: Any?, block: (TraversableNode) -> Boolean) {
     visitChildren(Nodes.Traversable) {
         val continueTraversal =
             if (key == it.traverseKey) {
@@ -144,7 +144,7 @@ fun DelegatableNode.traverseChildren(key: Any?, block: (TraversableNode) -> Bool
  *
  * @sample androidx.compose.ui.samples.traverseChildrenDemo
  */
-fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
+public fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
     visitChildren(Nodes.Traversable) {
         val continueTraversal =
             if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {
@@ -168,7 +168,7 @@ fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
  *
  * @sample androidx.compose.ui.samples.traverseDescendantsWithKeyDemo
  */
-fun DelegatableNode.traverseDescendants(
+public fun DelegatableNode.traverseDescendants(
     key: Any?,
     block: (TraversableNode) -> TraverseDescendantsAction,
 ) {
@@ -199,7 +199,8 @@ fun DelegatableNode.traverseDescendants(
  *
  * @sample androidx.compose.ui.samples.traverseDescendantsDemo
  */
-fun <T> T.traverseDescendants(block: (T) -> TraverseDescendantsAction) where T : TraversableNode {
+public fun <T> T.traverseDescendants(block: (T) -> TraverseDescendantsAction)
+    where T : TraversableNode {
     visitSubtreeIf(Nodes.Traversable) {
         val action =
             if (this.traverseKey == it.traverseKey && areObjectsOfSameType(this, it)) {

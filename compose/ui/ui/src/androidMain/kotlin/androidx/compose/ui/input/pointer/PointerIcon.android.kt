@@ -62,11 +62,11 @@ internal class AndroidPointerIcon(val pointerIcon: android.view.PointerIcon) : P
 }
 
 /** Creates [PointerIcon] from [android.view.PointerIcon] */
-fun PointerIcon(pointerIcon: android.view.PointerIcon): PointerIcon =
+public fun PointerIcon(pointerIcon: android.view.PointerIcon): PointerIcon =
     AndroidPointerIcon(pointerIcon)
 
 /** Creates [PointerIcon] from pointer icon type (see [android.view.PointerIcon.getSystemIcon] */
-fun PointerIcon(pointerIconType: Int): PointerIcon = AndroidPointerIconType(pointerIconType)
+public fun PointerIcon(pointerIconType: Int): PointerIcon = AndroidPointerIconType(pointerIconType)
 
 internal actual val pointerIconDefault: PointerIcon = AndroidPointerIconType(TYPE_ARROW)
 internal actual val pointerIconCrosshair: PointerIcon = AndroidPointerIconType(TYPE_CROSSHAIR)

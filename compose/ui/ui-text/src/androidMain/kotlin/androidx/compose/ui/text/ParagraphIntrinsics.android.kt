@@ -217,7 +217,7 @@ internal fun resolveTextDirectionHeuristics(
         "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
-actual fun ParagraphIntrinsics(
+public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
@@ -241,7 +241,7 @@ actual fun ParagraphIntrinsics(
         "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
-actual fun ParagraphIntrinsics(
+public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
@@ -265,7 +265,7 @@ actual fun ParagraphIntrinsics(
         "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
     ),
 )
-actual fun ParagraphIntrinsics(
+public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
@@ -283,7 +283,7 @@ actual fun ParagraphIntrinsics(
         softWrap = true,
     )
 
-actual fun ParagraphIntrinsics(
+public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,

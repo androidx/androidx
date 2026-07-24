@@ -39,8 +39,10 @@ import kotlinx.coroutines.launch
  * @param enabled Controls the enabled state. When `false`, hover events will be ignored.
  */
 @Stable
-fun Modifier.hoverable(interactionSource: MutableInteractionSource, enabled: Boolean = true) =
-    this then if (enabled) HoverableElement(interactionSource) else Modifier
+public fun Modifier.hoverable(
+    interactionSource: MutableInteractionSource,
+    enabled: Boolean = true,
+): Modifier = this then if (enabled) HoverableElement(interactionSource) else Modifier
 
 private class HoverableElement(private val interactionSource: MutableInteractionSource) :
     ModifierNodeElement<HoverableNode>() {

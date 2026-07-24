@@ -20,18 +20,18 @@ package androidx.compose.ui.text.input
 @Deprecated(
     "This function is not being used by any APIs. API is now deprecated and will be removed"
 )
-interface InputEventCallback {
+public interface InputEventCallback {
     /**
      * Called when IME sends some input events.
      *
      * @param editCommands The list of edit commands.
      */
-    @Suppress("CallbackMethodName") fun onEditCommands(editCommands: List<EditCommand>)
+    @Suppress("CallbackMethodName") public fun onEditCommands(editCommands: List<EditCommand>)
 
     /**
      * Called when IME triggered IME action.
      *
      * @param imeAction An IME action.
      */
-    @Suppress("CallbackMethodName") fun onImeAction(imeAction: ImeAction)
+    @Suppress("CallbackMethodName") public fun onImeAction(imeAction: ImeAction)
 }

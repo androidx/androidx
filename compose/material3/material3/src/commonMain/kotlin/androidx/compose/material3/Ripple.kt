@@ -96,7 +96,7 @@ import androidx.compose.ui.unit.dp
  *   Set this to `false` to disable drawing any visuals for drag interactions in this ripple.
  */
 @Stable
-fun ripple(
+public fun ripple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
     color: Color = Color.Unspecified,
@@ -163,7 +163,7 @@ fun ripple(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Stable
-fun ripple(
+public fun ripple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
     color: Color = Color.Unspecified,
@@ -233,7 +233,7 @@ fun ripple(
  *   Set this to `false` to disable drawing any visuals for drag interactions in this ripple.
  */
 @Stable
-fun ripple(
+public fun ripple(
     color: ColorProducer,
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
@@ -290,7 +290,7 @@ fun ripple(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Stable
-fun ripple(
+public fun ripple(
     color: ColorProducer,
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
@@ -307,7 +307,7 @@ fun ripple(
     )
 
 /** Default values used by [ripple]. */
-object RippleDefaults {
+public object RippleDefaults {
     /**
      * Represents the default [RippleAlpha] that will be used for a ripple to indicate different
      * states.
@@ -315,7 +315,7 @@ object RippleDefaults {
     @Deprecated(
         "Use other configuration options in RippleThemeConfiguration and RippleConfiguration"
     )
-    val RippleAlpha: RippleAlpha =
+    public val RippleAlpha: RippleAlpha =
         RippleAlpha(
             pressedAlpha = StateTokens.PressedStateLayerOpacity,
             focusedAlpha = StateTokens.FocusStateLayerOpacity,
@@ -326,14 +326,14 @@ object RippleDefaults {
     /**
      * The default [RippleThemeConfiguration] that corresponds to an opacity based indication style.
      */
-    val OpacityFocusRippleThemeConfiguration =
+    public val OpacityFocusRippleThemeConfiguration: RippleThemeConfiguration =
         RippleThemeConfiguration(RippleThemeConfiguration.Focus.Opacity())
 
     /**
      * The default [RippleThemeConfiguration] that corresponds to an inset focus ring based
      * indication style.
      */
-    val InsetFocusRingRippleThemeConfiguration =
+    public val InsetFocusRingRippleThemeConfiguration: RippleThemeConfiguration =
         RippleThemeConfiguration(
             RippleThemeConfiguration.Focus.InsetRing(
                 outerStrokeInset = 0.dp,
@@ -344,7 +344,7 @@ object RippleDefaults {
         )
 
     /** The default [RippleThemeConfiguration]. */
-    val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusRippleThemeConfiguration
+    public val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusRippleThemeConfiguration
 }
 
 /**
@@ -360,7 +360,7 @@ object RippleDefaults {
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
  */
-val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfiguration> =
+public val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfiguration> =
     compositionLocalOf {
         RippleDefaults.ThemeConfiguration
     }
@@ -380,11 +380,11 @@ val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfigu
  *
  * @param focus the themable configuration for the focus indication.
  */
-class RippleThemeConfiguration(val focus: Focus) {
+public class RippleThemeConfiguration(public val focus: Focus) {
     /** The configuration options for the focus indication for [RippleThemeConfiguration]. */
-    abstract class Focus private constructor() {
+    public abstract class Focus private constructor() {
         /** An opacity-based focus indication. */
-        class Opacity : Focus() {
+        public class Opacity : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is Opacity) return false
@@ -401,11 +401,11 @@ class RippleThemeConfiguration(val focus: Focus) {
          *
          * The inner stroke is drawn first, followed by the outer stroke.
          */
-        class InsetRing(
-            val outerStrokeInset: Dp,
-            val outerStrokeWidth: Dp,
-            val innerStrokeInset: Dp,
-            val innerStrokeWidth: Dp,
+        public class InsetRing(
+            public val outerStrokeInset: Dp,
+            public val outerStrokeWidth: Dp,
+            public val innerStrokeInset: Dp,
+            public val innerStrokeWidth: Dp,
         ) : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -450,7 +450,7 @@ class RippleThemeConfiguration(val focus: Focus) {
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
  */
-val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
+public val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
     compositionLocalWithComputedDefaultOf {
         RippleConfiguration()
     }
@@ -471,9 +471,9 @@ val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
  *   components.
  */
 @Immutable
-class RippleConfiguration
-internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlpha?) {
-    val rippleAlpha: RippleAlpha? = rippleAlpha
+public class RippleConfiguration
+internal constructor(public val color: Color, public val focus: Focus?, rippleAlpha: RippleAlpha?) {
+    public val rippleAlpha: RippleAlpha? = rippleAlpha
 
     /**
      * Local per-ripple configuration for [ripple] appearance, provided using
@@ -486,7 +486,7 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
      *   color from the theme will be used instead. Note that if the ripple has a color explicitly
      *   set with the parameter on [ripple], that will always be used instead of this value.
      */
-    constructor(color: Color = Color.Unspecified) : this(color, null, null)
+    public constructor(color: Color = Color.Unspecified) : this(color, null, null)
 
     /**
      * Local per-ripple configuration for [ripple] appearance, provided using
@@ -503,7 +503,7 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
      *   color from the theme will be used instead. Note that if the ripple has a color explicitly
      *   set with the parameter on [ripple], that will always be used instead of this value.
      */
-    constructor(
+    public constructor(
         focus: Focus?,
         color: Color = Color.Unspecified,
     ) : this(color = color, focus = focus, rippleAlpha = null)
@@ -523,15 +523,15 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
     @Deprecated(
         "Use other configuration options in RippleThemeConfiguration and RippleConfiguration"
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         rippleAlpha: RippleAlpha? = null,
     ) : this(color = color, focus = null, rippleAlpha = rippleAlpha)
 
     /** The configuration options for the focus indication for [RippleConfiguration]. */
-    abstract class Focus private constructor() {
+    public abstract class Focus private constructor() {
         /** An opacity-based focus indication. */
-        class Opacity : Focus() {
+        public class Opacity : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is Opacity) return false
@@ -551,7 +551,10 @@ internal constructor(val color: Color, val focus: Focus?, rippleAlpha: RippleAlp
          * @param outerStrokeColor the color of the outer stroke.
          * @param innerStrokeColor the color of the inner stroke.
          */
-        class InsetRing(val outerStrokeColor: Color, val innerStrokeColor: Color) : Focus() {
+        public class InsetRing(
+            public val outerStrokeColor: Color,
+            public val innerStrokeColor: Color,
+        ) : Focus() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other !is InsetRing) return false

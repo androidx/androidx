@@ -55,14 +55,14 @@ import kotlin.jvm.JvmName
  *      }
  */
 @ExperimentalComposeUiApi
-object ComposeUiFlags {
+public object ComposeUiFlags {
 
     /**
      * This enables fixes for View focus. The changes are large enough to require a flag to allow
      * disabling them.
      */
     // TODO: b/455588830
-    @field:Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
+    @field:Suppress("MutableBareField") @JvmField public var isViewFocusFixEnabled: Boolean = false
 
     /**
      * This flag enables an alternate approach to fixing the issues addressed by the
@@ -71,20 +71,22 @@ object ComposeUiFlags {
     // TODO: b/455592447
     @field:Suppress("MutableBareField")
     @JvmField
-    var isBypassUnfocusableComposeViewEnabled: Boolean = true
+    public var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
     // TODO: b/455601824
     @field:Suppress("MutableBareField")
     @JvmField
-    var isInitialFocusOnFocusableAvailable: Boolean = false
+    public var isInitialFocusOnFocusableAvailable: Boolean = false
 
     /**
      * Enable focus restoration, by always saving focus. This flag depends on
      * [isInitialFocusOnFocusableAvailable] also being true.
      */
     // TODO: b/485962036
-    @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isFocusRestorationEnabled: Boolean = false
 
     /**
      * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
@@ -96,7 +98,7 @@ object ComposeUiFlags {
     // TODO: b/484259656
     @field:Suppress("MutableBareField")
     @JvmField
-    var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
+    public var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
 
     /**
      * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various
@@ -107,7 +109,7 @@ object ComposeUiFlags {
     // TODO: b/485160699 - Remove once the API goes stable
     @field:Suppress("MutableBareField")
     @JvmField
-    var isMediaQueryIntegrationEnabled: Boolean = false
+    public var isMediaQueryIntegrationEnabled: Boolean = false
 
     /**
      * Enables hit test to continue searching for "semantic nodes" if the initial node that is hit
@@ -116,7 +118,7 @@ object ComposeUiFlags {
     // TODO: b/487663967
     @field:Suppress("MutableBareField")
     @JvmField
-    var isSkipNonImportantSemanticsNodesHitTestEnabled: Boolean = true
+    public var isSkipNonImportantSemanticsNodesHitTestEnabled: Boolean = true
 
     /**
      * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
@@ -125,7 +127,7 @@ object ComposeUiFlags {
     // TODO: b/506963276
     @field:Suppress("MutableBareField")
     @JvmField
-    var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
+    public var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
 
     /**
      * This flag controls whether the fix for velocity tracker usage in Draggable and related
@@ -136,11 +138,13 @@ object ComposeUiFlags {
     // TODO: Remove this flag once it has soaked (b/501080937)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = false
+    public var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = false
 
     /** Fixes trackpad pan gestures (CLASSIFICATION_TWO_FINGER_SWIPE). */
     // TODO: b/535296682 - Cleanup feature flag
-    @field:Suppress("MutableBareField") @JvmField var isTrackpadPanHoverFixEnabled: Boolean = false
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTrackpadPanHoverFixEnabled: Boolean = false
 
     /**
      * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
@@ -149,7 +153,7 @@ object ComposeUiFlags {
     // TODO: b/519714278 - Cleanup feature flag
     @field:Suppress("MutableBareField")
     @JvmField
-    var isTrackpadPinchReinterpretationEnabled: Boolean = true
+    public var isTrackpadPinchReinterpretationEnabled: Boolean = true
 
     /**
      * Reduce provided CompositionLocals by letting them pull from LocalOwner /
@@ -157,5 +161,7 @@ object ComposeUiFlags {
      * them.
      */
     // TODO: b/523295932 - Cleanup feature flag
-    @field:Suppress("MutableBareField") @JvmField var isMinimalistLocalsEnabled: Boolean = false
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isMinimalistLocalsEnabled: Boolean = false
 }

@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.Constraints
  */
 @Composable
 @NonRestartableComposable
-fun Spacer(modifier: Modifier) {
+public fun Spacer(modifier: Modifier) {
     Layout(measurePolicy = SpacerMeasurePolicy, modifier = modifier)
 }
 

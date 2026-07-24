@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.toSize
  * A node that can respond to [bringIntoView] requests from its children by moving or adjusting its
  * content.
  */
-interface BringIntoViewModifierNode : DelegatableNode {
+public interface BringIntoViewModifierNode : DelegatableNode {
     /**
      * Moves or adjusts this node's content so that [boundsProvider] will be in visible bounds. Must
      * ensure that the request is propagated up to the parent node.
@@ -45,7 +45,10 @@ interface BringIntoViewModifierNode : DelegatableNode {
      *   the request change while the request is being processed. If the rectangle cannot be
      *   calculated, e.g. because [childCoordinates] is not attached, return null.
      */
-    suspend fun bringIntoView(childCoordinates: LayoutCoordinates, boundsProvider: () -> Rect?)
+    public suspend fun bringIntoView(
+        childCoordinates: LayoutCoordinates,
+        boundsProvider: () -> Rect?,
+    )
 }
 
 /**
@@ -59,7 +62,7 @@ interface BringIntoViewModifierNode : DelegatableNode {
  *   function may return a different value over time, if the bounds of the request change while the
  *   request is being processed. If you don't provide bounds, the whole node bounds will be used.
  */
-suspend fun DelegatableNode.bringIntoView(bounds: (() -> Rect?)? = null) {
+public suspend fun DelegatableNode.bringIntoView(bounds: (() -> Rect?)? = null) {
     if (!node.isAttached) return
     val parent = nearestAncestor(Nodes.BringIntoView) ?: return
     val layoutCoordinates = requireLayoutCoordinates()

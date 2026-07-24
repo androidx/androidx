@@ -41,13 +41,13 @@ import androidx.compose.runtime.Immutable
  *   pressed
  */
 @Immutable
-class TextLinkStyles(
-    val style: SpanStyle? = null,
-    val focusedStyle: SpanStyle? = null,
-    val hoveredStyle: SpanStyle? = null,
-    val pressedStyle: SpanStyle? = null,
+public class TextLinkStyles(
+    public val style: SpanStyle? = null,
+    public val focusedStyle: SpanStyle? = null,
+    public val hoveredStyle: SpanStyle? = null,
+    public val pressedStyle: SpanStyle? = null,
 ) {
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is TextLinkStyles) return false
 
@@ -59,7 +59,7 @@ class TextLinkStyles(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = style?.hashCode() ?: 0
         result = 31 * result + (focusedStyle?.hashCode() ?: 0)
         result = 31 * result + (hoveredStyle?.hashCode() ?: 0)

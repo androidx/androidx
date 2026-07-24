@@ -109,7 +109,7 @@ import kotlin.math.min
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
  */
 @Composable
-expect fun DropdownMenu(
+public expect fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -137,7 +137,7 @@ expect fun DropdownMenu(
  * @param content the content of this menu item
  */
 @Composable
-expect fun DropdownMenuItem(
+public expect fun DropdownMenuItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -257,9 +257,9 @@ internal fun DropdownMenuItemContent(
 }
 
 /** Contains default values used for [DropdownMenuItem]. */
-object MenuDefaults {
+public object MenuDefaults {
     /** Default padding used for [DropdownMenuItem]. */
-    val DropdownMenuItemContentPadding =
+    public val DropdownMenuItemContentPadding: PaddingValues =
         PaddingValues(horizontal = DropdownMenuItemHorizontalPadding, vertical = 0.dp)
 }
 

@@ -24,25 +24,25 @@ import androidx.compose.ui.graphics.shadow.ShadowContext
  * Class responsible for providing graphics related dependencies. This includes the creation and
  * management of [GraphicsLayer] instances.
  */
-interface GraphicsContext {
+public interface GraphicsContext {
 
     /**
      * Create a [GraphicsLayer] instance. This may internally return a previously released
      * [GraphicsLayer] instance passed to [releaseGraphicsLayer]
      */
-    fun createGraphicsLayer(): GraphicsLayer
+    public fun createGraphicsLayer(): GraphicsLayer
 
     /**
      * Releases a [GraphicsLayer] instance so it can be re-used. After this method is invoked, it is
      * an error to use this [GraphicsLayer] instance again. The [GraphicsLayer] maybe reused
      * internally and obtained again through a subsequent call to [createGraphicsLayer]
      */
-    fun releaseGraphicsLayer(layer: GraphicsLayer)
+    public fun releaseGraphicsLayer(layer: GraphicsLayer)
 
     /**
      * Returns a [ShadowContext] instance used to obtain shared dependencies to render drop and
      * inner shadows
      */
-    val shadowContext: ShadowContext
+    public val shadowContext: ShadowContext
         get() = object : PlatformShadowContext {}
 }

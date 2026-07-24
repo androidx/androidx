@@ -22,27 +22,27 @@ package androidx.compose.ui.test
  * vertical scroll wheel.
  */
 @kotlin.jvm.JvmInline
-value class ScrollWheel private constructor(val value: Int) {
-    companion object {
-        val Horizontal
+public value class ScrollWheel private constructor(public val value: Int) {
+    public companion object {
+        public val Horizontal: ScrollWheel
             get() = ScrollWheel(0)
 
-        val Vertical
+        public val Vertical: ScrollWheel
             get() = ScrollWheel(1)
     }
 }
 
 /** Representation of a mouse button with its associated [ID][buttonId] for the current platform. */
 @kotlin.jvm.JvmInline
-expect value class MouseButton(val buttonId: Int) {
-    companion object {
+public expect value class MouseButton(public val buttonId: Int) {
+    public companion object {
         /** The primary mouse button. Typically the left mouse button. */
-        val Primary: MouseButton
+        public val Primary: MouseButton
 
         /** The secondary mouse button. Typically the right mouse button. */
-        val Secondary: MouseButton
+        public val Secondary: MouseButton
 
         /** The tertiary mouse button. Typically the middle mouse button. */
-        val Tertiary: MouseButton
+        public val Tertiary: MouseButton
     }
 }

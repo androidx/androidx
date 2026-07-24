@@ -34,7 +34,7 @@ import androidx.window.layout.WindowMetricsCalculator
  */
 @ExperimentalMaterial3WindowSizeClassApi
 @Composable
-fun calculateWindowSizeClass(activity: Activity): WindowSizeClass {
+public fun calculateWindowSizeClass(activity: Activity): WindowSizeClass {
     // Observe view configuration changes and recalculate the size class on each change. We can't
     // use Activity#onConfigurationChanged as this will sometimes fail to be called on different
     // API levels, hence why this function needs to be @Composable so we can observe the

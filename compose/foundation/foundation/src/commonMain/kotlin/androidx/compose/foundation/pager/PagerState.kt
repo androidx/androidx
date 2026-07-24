@@ -87,7 +87,7 @@ import kotlinx.coroutines.launch
  * @param pageCount The amount of pages this Pager will have.
  */
 @Composable
-fun rememberPagerState(
+public fun rememberPagerState(
     initialPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) initialPageOffsetFraction: Float = 0f,
     pageCount: () -> Int,
@@ -110,7 +110,7 @@ fun rememberPagerState(
  *   snapped position.
  * @param pageCount The amount of pages this Pager will have.
  */
-fun PagerState(
+public fun PagerState(
     currentPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
     pageCount: () -> Int,
@@ -151,7 +151,7 @@ private class DefaultPagerState(
 /** The state that can be used to control [VerticalPager] and [HorizontalPager] */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-abstract class PagerState
+public abstract class PagerState
 internal constructor(
     currentPage: Int = 0,
     @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
@@ -163,7 +163,7 @@ internal constructor(
      * @param currentPageOffsetFraction The offset of the initial page with respect to the start of
      *   the layout.
      */
-    constructor(
+    public constructor(
         currentPage: Int = 0,
         @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
     ) : this(currentPage, currentPageOffsetFraction, null)
@@ -178,7 +178,7 @@ internal constructor(
      * The total amount of pages present in this pager. The source of this data should be
      * observable.
      */
-    abstract val pageCount: Int
+    public abstract val pageCount: Int
 
     init {
         requirePrecondition(currentPageOffsetFraction in -0.5..0.5) {
@@ -341,7 +341,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.UsingPagerLayoutInfoForSideEffectSample
      */
-    val layoutInfo: PagerLayoutInfo
+    public val layoutInfo: PagerLayoutInfo
         get() = pagerLayoutInfoState.value
 
     internal val pageSpacing: Int
@@ -376,7 +376,7 @@ internal constructor(
      * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
      * [isScrollInProgress].
      */
-    val interactionSource: InteractionSource
+    public val interactionSource: InteractionSource
         get() = internalInteractionSource
 
     /**
@@ -387,7 +387,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    val currentPage: Int
+    public val currentPage: Int
         get() = scrollPosition.currentPage
 
     private var programmaticScrollTargetPage by mutableIntStateOf(-1)
@@ -403,7 +403,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    val settledPage by
+    public val settledPage: Int by
         derivedStateOf(structuralEqualityPolicy()) {
             if (isScrollInProgress) {
                 settledPageState
@@ -421,7 +421,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    val targetPage: Int by
+    public val targetPage: Int by
         derivedStateOf(structuralEqualityPolicy()) {
             val finalPage =
                 if (!isScrollInProgress) {
@@ -457,7 +457,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.ObservingStateChangesInPagerStateSample
      */
-    val currentPageOffsetFraction: Float
+    public val currentPageOffsetFraction: Float
         @FrequentlyChangingValue get() = scrollPosition.currentPageOffsetFraction
 
     internal val prefetchState =
@@ -552,10 +552,10 @@ internal constructor(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.
      */
-    suspend fun scrollToPage(
+    public suspend fun scrollToPage(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0f,
-    ) = scroll {
+    ): Unit = scroll {
         debugLog { "Scroll from page=$currentPage to page=$page" }
         awaitScrollDependencies()
         requirePrecondition(pageOffsetFraction in -0.5..0.5) {
@@ -578,7 +578,7 @@ internal constructor(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      *   destination page will be offset from its snapped position.
      */
-    fun ScrollScope.updateCurrentPage(
+    public fun ScrollScope.updateCurrentPage(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f,
     ) {
@@ -597,7 +597,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.PagerCustomAnimateScrollToPage
      */
-    fun ScrollScope.updateTargetPage(targetPage: Int) {
+    public fun ScrollScope.updateTargetPage(targetPage: Int) {
         programmaticScrollTargetPage = targetPage.coerceInPageRange()
     }
 
@@ -634,7 +634,7 @@ internal constructor(
      * @param page the index to which to scroll. Must be non-negative.
      * @param pageOffsetFraction the offset fraction that the page should end up after the scroll.
      */
-    fun requestScrollToPage(
+    public fun requestScrollToPage(
         @AndroidXIntRange(from = 0) page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f,
     ) {
@@ -660,7 +660,7 @@ internal constructor(
      * @param animationSpec An [AnimationSpec] to move between pages. We'll use a [spring] as the
      *   default animation.
      */
-    suspend fun animateScrollToPage(
+    public suspend fun animateScrollToPage(
         page: Int,
         @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0f,
         animationSpec: AnimationSpec<Float> = spring(),
@@ -693,7 +693,7 @@ internal constructor(
         }
     }
 
-    override suspend fun scroll(
+    public override suspend fun scroll(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit,
     ) {
@@ -706,11 +706,11 @@ internal constructor(
         programmaticScrollTargetPage = -1 // reset animated scroll target page indicator
     }
 
-    override fun dispatchRawDelta(delta: Float): Float {
+    public override fun dispatchRawDelta(delta: Float): Float {
         return scrollableState.dispatchRawDelta(delta)
     }
 
-    override val isScrollInProgress: Boolean
+    public override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
     final override var canScrollForward: Boolean by mutableStateOf(false)
@@ -907,7 +907,7 @@ internal constructor(
      * @param page The page to calculate the offset from. This should be between 0 and [pageCount].
      * @return The offset of [page] with respect to [currentPage].
      */
-    fun getOffsetDistanceInPages(page: Int): Float {
+    public fun getOffsetDistanceInPages(page: Int): Float {
         requirePrecondition(page in 0..pageCount) {
             "page $page is not within the range 0 to $pageCount"
         }

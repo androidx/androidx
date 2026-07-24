@@ -90,7 +90,7 @@ internal val MagnifierPositionInRoot = SemanticsPropertyKey<() -> Offset>("Magni
  * @param elevation See [Magnifier.Builder.setElevation]. Only supported on API 29+.
  * @param clip See [Magnifier.Builder.setClippingEnabled]. Only supported on API 29+.
  */
-fun Modifier.magnifier(
+public fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
     magnifierCenter: (Density.() -> Offset)? = null,
     onSizeChanged: ((DpSize) -> Unit)? = null,

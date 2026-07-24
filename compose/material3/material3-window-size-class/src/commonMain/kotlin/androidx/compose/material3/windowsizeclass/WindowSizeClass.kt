@@ -38,12 +38,12 @@ import androidx.compose.ui.util.fastForEach
  * @property heightSizeClass height-based window size class ([WindowHeightSizeClass])
  */
 @Immutable
-class WindowSizeClass
+public class WindowSizeClass
 private constructor(
-    val widthSizeClass: WindowWidthSizeClass,
-    val heightSizeClass: WindowHeightSizeClass,
+    public val widthSizeClass: WindowWidthSizeClass,
+    public val heightSizeClass: WindowHeightSizeClass,
 ) {
-    companion object {
+    public companion object {
         /**
          * Calculates the best matched [WindowSizeClass] for a given [size] according to the
          * provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
@@ -55,7 +55,7 @@ private constructor(
          */
         @ExperimentalMaterial3WindowSizeClassApi
         @Suppress("PrimitiveInCollection")
-        fun calculateFromSize(
+        public fun calculateFromSize(
             size: DpSize,
             supportedWidthSizeClasses: Set<WindowWidthSizeClass> =
                 WindowWidthSizeClass.DefaultSizeClasses,
@@ -88,7 +88,7 @@ private constructor(
         return result
     }
 
-    override fun toString() = "WindowSizeClass($widthSizeClass, $heightSizeClass)"
+    override fun toString(): String = "WindowSizeClass($widthSizeClass, $heightSizeClass)"
 }
 
 /**
@@ -104,10 +104,10 @@ private constructor(
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class WindowWidthSizeClass private constructor(private val value: Int) :
+public value class WindowWidthSizeClass private constructor(private val value: Int) :
     Comparable<WindowWidthSizeClass> {
 
-    override operator fun compareTo(other: WindowWidthSizeClass) =
+    override operator fun compareTo(other: WindowWidthSizeClass): Int =
         breakpoint().compareTo(other.breakpoint())
 
     override fun toString(): String {
@@ -120,27 +120,28 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
             }
     }
 
-    companion object {
+    public companion object {
         /** Represents the majority of phones in portrait. */
-        val Compact = WindowWidthSizeClass(0)
+        public val Compact: WindowWidthSizeClass = WindowWidthSizeClass(0)
 
         /**
          * Represents the majority of tablets in portrait and large unfolded inner displays in
          * portrait.
          */
-        val Medium = WindowWidthSizeClass(1)
+        public val Medium: WindowWidthSizeClass = WindowWidthSizeClass(1)
 
         /**
          * Represents the majority of tablets in landscape and large unfolded inner displays in
          * landscape.
          */
-        val Expanded = WindowWidthSizeClass(2)
+        public val Expanded: WindowWidthSizeClass = WindowWidthSizeClass(2)
 
         /**
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
-        @Suppress("PrimitiveInCollection") val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        @Suppress("PrimitiveInCollection")
+        public val DefaultSizeClasses: Set<WindowWidthSizeClass> = setOf(Compact, Medium, Expanded)
 
         @Suppress("PrimitiveInCollection")
         private val AllSizeClassList = listOf(Expanded, Medium, Compact)
@@ -160,7 +161,7 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * ```
          */
         @Suppress("ListIterator", "PrimitiveInCollection")
-        val AllSizeClasses = AllSizeClassList.toSet()
+        public val AllSizeClasses: Set<WindowWidthSizeClass> = AllSizeClassList.toSet()
 
         private fun WindowWidthSizeClass.breakpoint(): Dp {
             return when {
@@ -210,10 +211,10 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class WindowHeightSizeClass private constructor(private val value: Int) :
+public value class WindowHeightSizeClass private constructor(private val value: Int) :
     Comparable<WindowHeightSizeClass> {
 
-    override operator fun compareTo(other: WindowHeightSizeClass) =
+    override operator fun compareTo(other: WindowHeightSizeClass): Int =
         breakpoint().compareTo(other.breakpoint())
 
     override fun toString(): String {
@@ -226,21 +227,22 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
             }
     }
 
-    companion object {
+    public companion object {
         /** Represents the majority of phones in landscape */
-        val Compact = WindowHeightSizeClass(0)
+        public val Compact: WindowHeightSizeClass = WindowHeightSizeClass(0)
 
         /** Represents the majority of tablets in landscape and majority of phones in portrait */
-        val Medium = WindowHeightSizeClass(1)
+        public val Medium: WindowHeightSizeClass = WindowHeightSizeClass(1)
 
         /** Represents the majority of tablets in portrait */
-        val Expanded = WindowHeightSizeClass(2)
+        public val Expanded: WindowHeightSizeClass = WindowHeightSizeClass(2)
 
         /**
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
-        @Suppress("PrimitiveInCollection") val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        @Suppress("PrimitiveInCollection")
+        public val DefaultSizeClasses: Set<WindowHeightSizeClass> = setOf(Compact, Medium, Expanded)
 
         @Suppress("PrimitiveInCollection")
         private val AllSizeClassList = listOf(Expanded, Medium, Compact)
@@ -260,7 +262,7 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * ```
          */
         @Suppress("ListIterator", "PrimitiveInCollection")
-        val AllSizeClasses = AllSizeClassList.toSet()
+        public val AllSizeClasses: Set<WindowHeightSizeClass> = AllSizeClassList.toSet()
 
         private fun WindowHeightSizeClass.breakpoint(): Dp {
             return when {

@@ -24,14 +24,14 @@ import kotlin.jvm.JvmDefaultWithCompatibility
  * are: DialogWrapper, PopupLayout, ViewFactoryHolder. To be used by the inspector.
  */
 @JvmDefaultWithCompatibility
-interface ViewRootForInspector {
+public interface ViewRootForInspector {
 
     /**
      * Return the [AbstractComposeView] if this is creating for a sub composition.
      *
      * This allows the inspector to add the creating compose nodes to the sub composition.
      */
-    val subCompositionView: AbstractComposeView?
+    public val subCompositionView: AbstractComposeView?
         get() = null
 
     /**
@@ -39,6 +39,6 @@ interface ViewRootForInspector {
      *
      * This allows the inspector to place the view under the correct compose node.
      */
-    val viewRoot: View?
+    public val viewRoot: View?
         get() = null
 }

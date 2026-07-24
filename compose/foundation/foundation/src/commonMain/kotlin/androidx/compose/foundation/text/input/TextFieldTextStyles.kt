@@ -40,7 +40,7 @@ import androidx.compose.ui.text.TextRange
  * @see TextFieldBuffer
  * @see TextFieldState.textStyles
  */
-interface TextFieldTextStyles {
+public interface TextFieldTextStyles {
     /**
      * Returns a list of [AnnotatedString.Range]s representing the [SpanStyle]s that intersect with
      * the given [range].
@@ -80,7 +80,7 @@ interface TextFieldTextStyles {
      * @return A list of [AnnotatedString.Range]s representing the [SpanStyle]s overlapping with the
      *   queried range.
      */
-    fun getSpanStyles(range: TextRange): List<AnnotatedString.Range<SpanStyle>>
+    public fun getSpanStyles(range: TextRange): List<AnnotatedString.Range<SpanStyle>>
 
     /**
      * Returns a list of [AnnotatedString.Range]s representing the [ParagraphStyle]s that intersect
@@ -121,7 +121,7 @@ interface TextFieldTextStyles {
      * @return A list of [AnnotatedString.Range]s representing the [ParagraphStyle]s overlapping
      *   with the queried range.
      */
-    fun getParagraphStyles(range: TextRange): List<AnnotatedString.Range<ParagraphStyle>>
+    public fun getParagraphStyles(range: TextRange): List<AnnotatedString.Range<ParagraphStyle>>
 }
 
 internal class TextFieldTextStylesImpl(

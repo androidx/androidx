@@ -29,7 +29,7 @@ package androidx.compose.ui.autofill
  * [ContentType][androidx.compose.ui.semantics.SemanticsProperties.ContentType] instead.
  */
 @Deprecated("Use the new semantics-based API and androidx.compose.ui.autofill.ContentType instead.")
-enum class AutofillType {
+public enum class AutofillType {
     /** Indicates that the associated component can be auto-filled with an email address. */
     EmailAddress,
 

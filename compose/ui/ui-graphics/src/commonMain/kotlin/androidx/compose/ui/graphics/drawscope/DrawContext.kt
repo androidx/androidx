@@ -40,28 +40,28 @@ internal val DefaultDensity = Density(1.0f, 1.0f)
  * support inline scoped transformation calls without allowing consumers of [DrawScope] to modify
  * state directly thus maintaining the stateless API surface
  */
-interface DrawContext {
+public interface DrawContext {
 
     /** The current size of the drawing environment */
-    var size: Size
+    public var size: Size
 
     /** The target canvas to issue drawing commands */
-    var canvas: Canvas
+    public var canvas: Canvas
         get() = EmptyCanvas
         set(_) {}
 
     /** The controller for issuing transformations to the drawing environment */
-    val transform: DrawTransform
+    public val transform: DrawTransform
 
     /** [LayoutDirection] of the layout being drawn in. */
-    var layoutDirection: LayoutDirection
+    public var layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
         set(_) {}
 
     /**
      * [Density] used to assist in conversions of density independent pixels to raw pixels to draw
      */
-    var density: Density
+    public var density: Density
         get() = DefaultDensity
         set(_) {}
 
@@ -69,7 +69,7 @@ interface DrawContext {
      * Current [GraphicsLayer] we are drawing into. Might be null if the [canvas] is not provided by
      * a [GraphicsLayer], for example in the case of a software-accelerated drawing.
      */
-    var graphicsLayer: GraphicsLayer?
+    public var graphicsLayer: GraphicsLayer?
         get() = null
         set(_) {}
 }

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
  * @param bottomEnd a size of the bottom end corner
  * @param bottomStart a size of the bottom start corner
  */
-class CutCornerShape(
+public class CutCornerShape(
     topStart: CornerSize,
     topEnd: CornerSize,
     bottomEnd: CornerSize,
@@ -52,14 +52,14 @@ class CutCornerShape(
         bottomStart = bottomStart,
     ) {
 
-    override fun createOutline(
+    public override fun createOutline(
         size: Size,
         topStart: Float,
         topEnd: Float,
         bottomEnd: Float,
         bottomStart: Float,
         layoutDirection: LayoutDirection,
-    ) =
+    ): Outline =
         if (topStart + topEnd + bottomStart + bottomEnd == 0.0f) {
             Outline.Rectangle(size.toRect())
         } else
@@ -81,12 +81,12 @@ class CutCornerShape(
                 }
             )
 
-    override fun copy(
+    public override fun copy(
         topStart: CornerSize,
         topEnd: CornerSize,
         bottomEnd: CornerSize,
         bottomStart: CornerSize,
-    ) =
+    ): CutCornerShape =
         CutCornerShape(
             topStart = topStart,
             topEnd = topEnd,
@@ -94,12 +94,12 @@ class CutCornerShape(
             bottomStart = bottomStart,
         )
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "CutCornerShape(topStart = $topStart, topEnd = $topEnd, bottomEnd = " +
             "$bottomEnd, bottomStart = $bottomStart)"
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CutCornerShape) return false
 
@@ -111,7 +111,7 @@ class CutCornerShape(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = topStart.hashCode()
         result = 31 * result + topEnd.hashCode()
         result = 31 * result + bottomEnd.hashCode()
@@ -119,7 +119,7 @@ class CutCornerShape(
         return result
     }
 
-    override fun lerp(other: Any?, t: Float): Any? {
+    public override fun lerp(other: Any?, t: Float): Any? {
         var other: Any? = other
         if (other == RectangleShape || other == null) {
             other = CutCornerShape(0f)
@@ -145,36 +145,37 @@ internal fun lerp(a: CutCornerShape, b: CutCornerShape, t: Float): CutCornerShap
  *
  * @param corner [CornerSize] to apply.
  */
-fun CutCornerShape(corner: CornerSize) = CutCornerShape(corner, corner, corner, corner)
+public fun CutCornerShape(corner: CornerSize): CutCornerShape =
+    CutCornerShape(corner, corner, corner, corner)
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
  *
  * @param size Size in [Dp] to apply.
  */
-fun CutCornerShape(size: Dp) = CutCornerShape(CornerSize(size))
+public fun CutCornerShape(size: Dp): CutCornerShape = CutCornerShape(CornerSize(size))
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
  *
  * @param size Size in pixels to apply.
  */
-fun CutCornerShape(size: Float) = CutCornerShape(CornerSize(size))
+public fun CutCornerShape(size: Float): CutCornerShape = CutCornerShape(CornerSize(size))
 
 /**
  * Creates [CutCornerShape] with the same size applied for all four corners.
  *
  * @param percent Size in percents to apply.
  */
-fun CutCornerShape(percent: Int) = CutCornerShape(CornerSize(percent))
+public fun CutCornerShape(percent: Int): CutCornerShape = CutCornerShape(CornerSize(percent))
 
 /** Creates [CutCornerShape] with sizes defined in [Dp]. */
-fun CutCornerShape(
+public fun CutCornerShape(
     topStart: Dp = 0.dp,
     topEnd: Dp = 0.dp,
     bottomEnd: Dp = 0.dp,
     bottomStart: Dp = 0.dp,
-) =
+): CutCornerShape =
     CutCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
@@ -183,12 +184,12 @@ fun CutCornerShape(
     )
 
 /** Creates [CutCornerShape] with sizes defined in float. */
-fun CutCornerShape(
+public fun CutCornerShape(
     topStart: Float = 0.0f,
     topEnd: Float = 0.0f,
     bottomEnd: Float = 0.0f,
     bottomStart: Float = 0.0f,
-) =
+): CutCornerShape =
     CutCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
@@ -208,12 +209,12 @@ fun CutCornerShape(
  * @param bottomStartPercent The bottom start clip size radius as a percentage of the smaller side,
  *   with a range of 0 - 100.
  */
-fun CutCornerShape(
+public fun CutCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0,
-) =
+): CutCornerShape =
     CutCornerShape(
         topStart = CornerSize(topStartPercent),
         topEnd = CornerSize(topEndPercent),

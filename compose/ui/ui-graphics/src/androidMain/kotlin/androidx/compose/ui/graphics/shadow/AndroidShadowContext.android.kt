@@ -30,7 +30,7 @@ private typealias InnerShadowCache =
     MutableScatterMap<AndroidShadowContext.ShadowKey, InnerShadowRenderer>
 
 /** Create a new [ShadowContext] */
-fun ShadowContext(): ShadowContext = AndroidShadowContext()
+public fun ShadowContext(): ShadowContext = AndroidShadowContext()
 
 private class AndroidShadowContext :
     PlatformShadowContext, DropShadowRendererProvider, InnerShadowRendererProvider {

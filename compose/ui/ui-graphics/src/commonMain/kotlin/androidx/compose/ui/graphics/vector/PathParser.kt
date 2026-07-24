@@ -49,12 +49,12 @@ import kotlin.math.tan
 
 internal val EmptyArray = FloatArray(0)
 
-class PathParser {
+public class PathParser {
     private var nodes: ArrayList<PathNode>? = null
     private var nodeData = FloatArray(64)
 
     /** Clears the collection of [PathNode] stored in this parser and returned by [toNodes]. */
-    fun clear() {
+    public fun clear() {
         nodes?.clear()
     }
 
@@ -64,7 +64,7 @@ class PathParser {
      * which can be queried by calling [toNodes]. Calling this method replaces any existing content
      * in the current nodes list.
      */
-    fun parsePathString(pathData: String): PathParser {
+    public fun parsePathString(pathData: String): PathParser {
         var dstNodes = nodes
         if (dstNodes == null) {
             dstNodes = ArrayList()
@@ -81,7 +81,7 @@ class PathParser {
      * [nodes] collection. This method returns [nodes].
      */
     @Suppress("ConcreteCollection")
-    fun pathStringToNodes(
+    public fun pathStringToNodes(
         pathData: String,
         @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList(),
     ): ArrayList<PathNode> {
@@ -187,7 +187,7 @@ class PathParser {
      * Adds the list of [PathNode] [nodes] to this parser's internal list of [PathNode]. The
      * resulting list can be obtained by calling [toNodes].
      */
-    fun addPathNodes(nodes: List<PathNode>): PathParser {
+    public fun addPathNodes(nodes: List<PathNode>): PathParser {
         var dstNodes = this.nodes
         if (dstNodes == null) {
             dstNodes = ArrayList()
@@ -201,13 +201,13 @@ class PathParser {
      * Returns this parser's list of [PathNode]. Note: this function does not return a copy of the
      * list. The caller should make a copy when appropriate.
      */
-    fun toNodes(): List<PathNode> = nodes ?: emptyList()
+    public fun toNodes(): List<PathNode> = nodes ?: emptyList()
 
     /**
      * Converts this parser's list of [PathNode] instances into a [Path]. A new [Path] is returned
      * every time this method is invoked.
      */
-    fun toPath(target: Path = Path()) = nodes?.toPath(target) ?: Path()
+    public fun toPath(target: Path = Path()): Path = nodes?.toPath(target) ?: Path()
 }
 
 /**
@@ -215,7 +215,7 @@ class PathParser {
  * path. If [target] is not specified, a new [Path] instance is created. This method returns
  * [target] or the newly created [Path].
  */
-fun List<PathNode>.toPath(target: Path = Path()): Path {
+public fun List<PathNode>.toPath(target: Path = Path()): Path {
     // Rewind unsets the fill type so reset it here
     val fillType = target.fillType
     target.rewind()

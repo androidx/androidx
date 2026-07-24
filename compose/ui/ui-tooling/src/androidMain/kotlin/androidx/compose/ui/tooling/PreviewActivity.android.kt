@@ -45,7 +45,7 @@ import androidx.compose.ui.Modifier
  * specific provider value instead of all of them.
  */
 @Suppress("ForbiddenSuperClass")
-class PreviewActivity : ComponentActivity() {
+public class PreviewActivity : ComponentActivity() {
 
     private val TAG = "PreviewActivity"
 

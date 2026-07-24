@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
  * @sample androidx.compose.foundation.layout.samples.FitInsideOutsideExample
  * @see fitOutside
  */
-fun Modifier.fitInside(rulers: RectRulers): Modifier = layout { measurable, constraints ->
+public fun Modifier.fitInside(rulers: RectRulers): Modifier = layout { measurable, constraints ->
     if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
         val width = constraints.maxWidth
         val height = constraints.maxHeight
@@ -78,7 +78,7 @@ fun Modifier.fitInside(rulers: RectRulers): Modifier = layout { measurable, cons
  * @sample androidx.compose.foundation.layout.samples.FitInsideOutsideExample
  * @see fitInside
  */
-fun Modifier.fitOutside(rulers: RectRulers): Modifier = layout { measurable, constraints ->
+public fun Modifier.fitOutside(rulers: RectRulers): Modifier = layout { measurable, constraints ->
     if (constraints.hasBoundedWidth && constraints.hasBoundedHeight) {
         val width = constraints.maxWidth
         val height = constraints.maxHeight

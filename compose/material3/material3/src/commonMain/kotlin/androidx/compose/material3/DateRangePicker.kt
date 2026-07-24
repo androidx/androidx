@@ -102,7 +102,7 @@ import kotlinx.coroutines.launch
  *   behavior.
  */
 @Composable
-fun DateRangePicker(
+public fun DateRangePicker(
     state: DateRangePickerState,
     modifier: Modifier = Modifier,
     dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() },
@@ -197,7 +197,7 @@ fun DateRangePicker(
  * [rememberDateRangePickerState].
  */
 @Stable
-interface DateRangePickerState {
+public interface DateRangePickerState {
 
     /**
      * A timestamp that represents the selected start date _start_ of the day in _UTC_ milliseconds
@@ -205,7 +205,7 @@ interface DateRangePickerState {
      *
      * @see [setSelection] for setting this value along with the [selectedEndDateMillis].
      */
-    @get:Suppress("AutoBoxing") val selectedStartDateMillis: Long?
+    @get:Suppress("AutoBoxing") public val selectedStartDateMillis: Long?
 
     /**
      * A timestamp that represents the selected end date _start_ of the day in _UTC_ milliseconds
@@ -213,7 +213,7 @@ interface DateRangePickerState {
      *
      * @see [setSelection] for setting this value along with the [selectedStartDateMillis].
      */
-    @get:Suppress("AutoBoxing") val selectedEndDateMillis: Long?
+    @get:Suppress("AutoBoxing") public val selectedEndDateMillis: Long?
 
     /**
      * A timestamp that represents the currently displayed month _start_ date in _UTC_ milliseconds
@@ -222,26 +222,26 @@ interface DateRangePickerState {
      * @throws IllegalArgumentException in case the value is set with a timestamp that does not fall
      *   within the [yearRange].
      */
-    var displayedMonthMillis: Long
+    public var displayedMonthMillis: Long
 
     /** A [DisplayMode] that represents the current UI mode (i.e. picker or input). */
-    var displayMode: DisplayMode
+    public var displayMode: DisplayMode
 
     /** An [IntRange] that holds the year range that the date picker will be limited to. */
-    val yearRange: IntRange
+    public val yearRange: IntRange
 
     /**
      * A [SelectableDates] that is consulted to check if a date is allowed.
      *
      * In case a date is not allowed to be selected, it will appear disabled in the UI.
      */
-    val selectableDates: SelectableDates
+    public val selectableDates: SelectableDates
 
     /**
      * A locale that will be used when formatting dates, determining the input format, week-days,
      * and more.
      */
-    val locale: CalendarLocale
+    public val locale: CalendarLocale
 
     /**
      * Sets a start and end selection dates.
@@ -258,7 +258,7 @@ interface DateRangePickerState {
      * @throws IllegalArgumentException in case the given timestamps do not comply with the expected
      *   values specified above.
      */
-    fun setSelection(
+    public fun setSelection(
         @Suppress("AutoBoxing") startDateMillis: Long?,
         @Suppress("AutoBoxing") endDateMillis: Long?,
     )
@@ -285,7 +285,7 @@ interface DateRangePickerState {
  *   case a date is not allowed to be selected, it will appear disabled in the UI.
  */
 @Composable
-fun rememberDateRangePickerState(
+public fun rememberDateRangePickerState(
     @Suppress("AutoBoxing") initialSelectedStartDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialSelectedEndDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialDisplayedMonthMillis: Long? = initialSelectedStartDateMillis,
@@ -345,7 +345,7 @@ fun rememberDateRangePickerState(
  *   without a start date (e.g. the start date was null, while the end date was not).
  * @see rememberDateRangePickerState
  */
-fun DateRangePickerState(
+public fun DateRangePickerState(
     locale: CalendarLocale,
     @Suppress("AutoBoxing") initialSelectedStartDateMillis: Long? = null,
     @Suppress("AutoBoxing") initialSelectedEndDateMillis: Long? = null,
@@ -366,7 +366,7 @@ fun DateRangePickerState(
 
 /** Contains default values used by the [DateRangePicker]. */
 @Stable
-object DateRangePickerDefaults {
+public object DateRangePickerDefaults {
 
     /**
      * A default date range picker title composable.
@@ -376,7 +376,7 @@ object DateRangePickerDefaults {
      * @param contentColor the content color of this title
      */
     @Composable
-    fun DateRangePickerTitle(
+    public fun DateRangePickerTitle(
         displayMode: DisplayMode,
         modifier: Modifier = Modifier,
         contentColor: Color = DatePickerDefaults.colors().titleContentColor,
@@ -411,7 +411,7 @@ object DateRangePickerDefaults {
      * @param contentColor the content color of this headline
      */
     @Composable
-    fun DateRangePickerHeadline(
+    public fun DateRangePickerHeadline(
         @Suppress("AutoBoxing") selectedStartDateMillis: Long?,
         @Suppress("AutoBoxing") selectedEndDateMillis: Long?,
         displayMode: DisplayMode,

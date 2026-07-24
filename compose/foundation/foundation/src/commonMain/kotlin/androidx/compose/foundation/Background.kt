@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param shape desired shape of the background
  */
 @Stable
-fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
+public fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
     val alpha = 1.0f // for solid colors
     return this.then(
         BackgroundElement(
@@ -76,11 +76,11 @@ fun Modifier.background(color: Color, shape: Shape = RectangleShape): Modifier {
  *   being completely opaque. The value must be between `0` and `1`.
  */
 @Stable
-fun Modifier.background(
+public fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
-) =
+): Modifier =
     this.then(
         BackgroundElement(
             brush = brush,

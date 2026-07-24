@@ -58,22 +58,22 @@ private inline fun debugLog(generateMsg: () -> String) {
  * @see androidx.compose.foundation.lazy.LazyLayoutScrollScope
  * @see androidx.compose.foundation.pager.LazyLayoutScrollScope
  */
-interface LazyLayoutScrollScope : ScrollScope {
+public interface LazyLayoutScrollScope : ScrollScope {
 
     /** The index of the first visible item in the lazy layout. */
-    val firstVisibleItemIndex: Int
+    public val firstVisibleItemIndex: Int
 
     /** The offset of the first visible item. */
-    val firstVisibleItemScrollOffset: Int
+    public val firstVisibleItemScrollOffset: Int
 
     /**
      * The last visible item in the LazyLayout, lastVisibleItemIndex - firstVisibleItemOffset + 1 is
      * the number of visible items.
      */
-    val lastVisibleItemIndex: Int
+    public val lastVisibleItemIndex: Int
 
     /** The total item count. */
-    val itemCount: Int
+    public val itemCount: Int
 
     /**
      * Immediately scroll to [index] and settle in [offset].
@@ -81,7 +81,7 @@ interface LazyLayoutScrollScope : ScrollScope {
      * @param index The position index where we should immediately snap to.
      * @param offset The offset where we should immediately snap to.
      */
-    fun snapToItem(index: Int, offset: Int = 0)
+    public fun snapToItem(index: Int, offset: Int = 0)
 
     /**
      * The "expected" distance to [targetIndex]. This means the "expected" offset of [targetIndex]
@@ -94,7 +94,7 @@ interface LazyLayoutScrollScope : ScrollScope {
      * @return The expected distance to scroll so [targetIndex] is the firstVisibleItemIndex with
      *   [targetOffset] as the firstVisibleItemScrollOffset.
      */
-    fun calculateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int
+    public fun calculateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int
 }
 
 internal fun LazyLayoutScrollScope.isItemVisible(index: Int): Boolean {

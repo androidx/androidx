@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.graphicsLayer
  * @see graphicsLayer
  */
 @Stable
-fun Modifier.scale(scaleX: Float, scaleY: Float) =
+public fun Modifier.scale(scaleX: Float, scaleY: Float): Modifier =
     if (scaleX != 1.0f || scaleY != 1.0f) {
         graphicsLayer(scaleX = scaleX, scaleY = scaleY)
     } else {
@@ -54,4 +54,4 @@ fun Modifier.scale(scaleX: Float, scaleY: Float) =
  *
  * Example usage:
  */
-@Stable fun Modifier.scale(scale: Float) = scale(scale, scale)
+@Stable public fun Modifier.scale(scale: Float): Modifier = scale(scale, scale)

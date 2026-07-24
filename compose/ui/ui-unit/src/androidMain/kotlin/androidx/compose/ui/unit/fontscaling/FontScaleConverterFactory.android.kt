@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.checkPrecondition
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object FontScaleConverterFactory {
+public object FontScaleConverterFactory {
     private const val ScaleKeyMultiplier = 100f
 
     private val CommonFontSizes = floatArrayOf(8f, 10f, 12f, 14f, 18f, 20f, 24f, 30f, 100f)
@@ -40,7 +40,8 @@ object FontScaleConverterFactory {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     @Volatile
-    var sLookupTables = SparseArrayCompat<FontScaleConverter>()
+    public var sLookupTables: SparseArrayCompat<FontScaleConverter> =
+        SparseArrayCompat<FontScaleConverter>()
 
     /**
      * This is a write lock only! We don't care about synchronization on reads; they can be a bit
@@ -108,7 +109,7 @@ object FontScaleConverterFactory {
      * Example usage: `isNonLinearFontScalingActive(getResources().getConfiguration().fontScale)`
      */
     @AnyThread
-    fun isNonLinearFontScalingActive(fontScale: Float): Boolean {
+    public fun isNonLinearFontScalingActive(fontScale: Float): Boolean {
         return fontScale >= MinScaleForNonLinear
     }
 
@@ -119,7 +120,7 @@ object FontScaleConverterFactory {
      * @return a converter for the given scale, or null if non-linear scaling should not be used.
      */
     @AnyThread
-    fun forScale(fontScale: Float): FontScaleConverter? {
+    public fun forScale(fontScale: Float): FontScaleConverter? {
         if (!isNonLinearFontScalingActive(fontScale)) {
             return null
         }

@@ -84,7 +84,7 @@ import androidx.compose.ui.util.fastMaxBy
  *   of the scroll, and not on the scroll itself.
  */
 @Composable
-fun Scaffold(
+public fun Scaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
@@ -307,46 +307,46 @@ private fun ScaffoldLayout(
 }
 
 /** Object containing various default values for [Scaffold] component. */
-object ScaffoldDefaults {
+public object ScaffoldDefaults {
     /** Default insets to be used and consumed by the scaffold content slot */
-    val contentWindowInsets: WindowInsets
+    public val contentWindowInsets: WindowInsets
         @Composable get() = WindowInsets.systemBarsForVisualComponents
 }
 
 /** The possible positions for a [FloatingActionButton] attached to a [Scaffold]. */
 @kotlin.jvm.JvmInline
-value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class FabPosition internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * Position FAB at the bottom of the screen at the start, above the [NavigationBar] (if it
          * exists)
          */
-        val Start
+        public val Start: FabPosition
             get() = FabPosition(0)
 
         /**
          * Position FAB at the bottom of the screen in the center, above the [NavigationBar] (if it
          * exists)
          */
-        val Center
+        public val Center: FabPosition
             get() = FabPosition(1)
 
         /**
          * Position FAB at the bottom of the screen at the end, above the [NavigationBar] (if it
          * exists)
          */
-        val End
+        public val End: FabPosition
             get() = FabPosition(2)
 
         /**
          * Position FAB at the bottom of the screen at the end, overlaying the [NavigationBar] (if
          * it exists)
          */
-        val EndOverlay
+        public val EndOverlay: FabPosition
             get() = FabPosition(3)
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Start -> "FabPosition.Start"
             Center -> "FabPosition.Center"

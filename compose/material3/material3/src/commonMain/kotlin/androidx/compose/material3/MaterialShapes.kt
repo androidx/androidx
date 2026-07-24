@@ -53,7 +53,7 @@ import kotlin.math.sin
  * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
-fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Path {
+public fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Path {
     return this.toPath(path = path, progress = progress, startAngle = startAngle)
 }
 
@@ -69,7 +69,7 @@ fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Pat
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
+public fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
     val path = remember { Path() }
     return remember(this, startAngle) {
         this.toPath(path = path, startAngle = startAngle, repeatPath = false, closePath = true)
@@ -88,7 +88,7 @@ fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
+public fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
     return remember(this, startAngle) {
         object : Shape {
             // Store the Path we convert from the RoundedPolygon here. The path we will be
@@ -137,9 +137,9 @@ fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
  * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
-sealed class MaterialShapes {
+public sealed class MaterialShapes {
 
-    companion object {
+    public companion object {
 
         // Cache various roundings for use below
         private val cornerRound15 = CornerRounding(radius = .15f)
@@ -189,143 +189,143 @@ sealed class MaterialShapes {
         private var _heart: RoundedPolygon? = null
 
         /** A circle shape. */
-        val Circle
+        public val Circle: RoundedPolygon
             get() = _circle ?: circle().normalized().also { _circle = it }
 
         /** A rounded square shape. */
-        val Square
+        public val Square: RoundedPolygon
             get() = _square ?: square().normalized().also { _square = it }
 
         /** A slanted square shape. */
-        val Slanted
+        public val Slanted: RoundedPolygon
             get() = _slanted ?: slanted().normalized().also { _slanted = it }
 
         /** An arch shape. */
-        val Arch
+        public val Arch: RoundedPolygon
             get() = _arch ?: arch().normalized().also { _arch = it }
 
         /** A fan shape. */
-        val Fan
+        public val Fan: RoundedPolygon
             get() = _fan ?: fan().normalized().also { _fan = it }
 
         /** An arrow shape. */
-        val Arrow
+        public val Arrow: RoundedPolygon
             get() = _arrow ?: arrow().normalized().also { _arrow = it }
 
         /** A semi-circle shape. */
-        val SemiCircle
+        public val SemiCircle: RoundedPolygon
             get() = _semiCircle ?: semiCircle().normalized().also { _semiCircle = it }
 
         /** An oval shape. */
-        val Oval
+        public val Oval: RoundedPolygon
             get() = _oval ?: oval().normalized().also { _oval = it }
 
         /** A pill shape. */
-        val Pill
+        public val Pill: RoundedPolygon
             get() = _pill ?: pill().normalized().also { _pill = it }
 
         /** A rounded triangle shape. */
-        val Triangle
+        public val Triangle: RoundedPolygon
             get() = _triangle ?: triangle().normalized().also { _triangle = it }
 
         /** A diamond shape. */
-        val Diamond
+        public val Diamond: RoundedPolygon
             get() = _diamond ?: diamond().normalized().also { _diamond = it }
 
         /** A clam-shell shape. */
-        val ClamShell
+        public val ClamShell: RoundedPolygon
             get() = _clamShell ?: clamShell().normalized().also { _clamShell = it }
 
         /** A pentagon shape. */
-        val Pentagon
+        public val Pentagon: RoundedPolygon
             get() = _pentagon ?: pentagon().normalized().also { _pentagon = it }
 
         /** A gem shape. */
-        val Gem
+        public val Gem: RoundedPolygon
             get() = _gem ?: gem().normalized().also { _gem = it }
 
         /** A sunny shape. */
-        val Sunny
+        public val Sunny: RoundedPolygon
             get() = _sunny ?: sunny().normalized().also { _sunny = it }
 
         /** A very-sunny shape. */
-        val VerySunny
+        public val VerySunny: RoundedPolygon
             get() = _verySunny ?: verySunny().normalized().also { _verySunny = it }
 
         /** A 4-sided cookie shape. */
-        val Cookie4Sided
+        public val Cookie4Sided: RoundedPolygon
             get() = _cookie4Sided ?: cookie4().normalized().also { _cookie4Sided = it }
 
         /** A 6-sided cookie shape. */
-        val Cookie6Sided
+        public val Cookie6Sided: RoundedPolygon
             get() = _cookie6Sided ?: cookie6().normalized().also { _cookie6Sided = it }
 
         /** A 7-sided cookie shape. */
-        val Cookie7Sided
+        public val Cookie7Sided: RoundedPolygon
             get() = _cookie7Sided ?: cookie7().normalized().also { _cookie7Sided = it }
 
         /** A 9-sided cookie shape. */
-        val Cookie9Sided
+        public val Cookie9Sided: RoundedPolygon
             get() = _cookie9Sided ?: cookie9().normalized().also { _cookie9Sided = it }
 
         /** A 12-sided cookie shape. */
-        val Cookie12Sided
+        public val Cookie12Sided: RoundedPolygon
             get() = _cookie12Sided ?: cookie12().normalized().also { _cookie12Sided = it }
 
         /** A ghost-ish shape. */
-        val Ghostish
+        public val Ghostish: RoundedPolygon
             get() = _ghostish ?: ghostish().normalized().also { _ghostish = it }
 
         /** A 4-leaf clover shape. */
-        val Clover4Leaf
+        public val Clover4Leaf: RoundedPolygon
             get() = _clover4Leaf ?: clover4().normalized().also { _clover4Leaf = it }
 
         /** An 8-leaf clover shape. */
-        val Clover8Leaf
+        public val Clover8Leaf: RoundedPolygon
             get() = _clover8Leaf ?: clover8().normalized().also { _clover8Leaf = it }
 
         /** A burst shape. */
-        val Burst
+        public val Burst: RoundedPolygon
             get() = _burst ?: burst().normalized().also { _burst = it }
 
         /** A soft-burst shape. */
-        val SoftBurst
+        public val SoftBurst: RoundedPolygon
             get() = _softBurst ?: softBurst().normalized().also { _softBurst = it }
 
         /** A boom shape. */
-        val Boom
+        public val Boom: RoundedPolygon
             get() = _boom ?: boom().normalized().also { _boom = it }
 
         /** A soft-boom shape. */
-        val SoftBoom
+        public val SoftBoom: RoundedPolygon
             get() = _softBoom ?: softBoom().normalized().also { _softBoom = it }
 
         /** A flower shape. */
-        val Flower
+        public val Flower: RoundedPolygon
             get() = _flower ?: flower().normalized().also { _flower = it }
 
         /** A puffy shape. */
-        val Puffy
+        public val Puffy: RoundedPolygon
             get() = _puffy ?: puffy().normalized().also { _puffy = it }
 
         /** A puffy-diamond shape. */
-        val PuffyDiamond
+        public val PuffyDiamond: RoundedPolygon
             get() = _puffyDiamond ?: puffyDiamond().normalized().also { _puffyDiamond = it }
 
         /** A pixel-circle shape. */
-        val PixelCircle
+        public val PixelCircle: RoundedPolygon
             get() = _pixelCircle ?: pixelCircle().normalized().also { _pixelCircle = it }
 
         /** A pixel-triangle shape. */
-        val PixelTriangle
+        public val PixelTriangle: RoundedPolygon
             get() = _pixelTriangle ?: pixelTriangle().normalized().also { _pixelTriangle = it }
 
         /** A bun shape. */
-        val Bun
+        public val Bun: RoundedPolygon
             get() = _bun ?: bun().normalized().also { _bun = it }
 
         /** A heart shape. */
-        val Heart
+        public val Heart: RoundedPolygon
             get() = _heart ?: heart().normalized().also { _heart = it }
 
         internal fun circle(numVertices: Int = 10): RoundedPolygon {

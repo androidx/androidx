@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Shape
  * Class responsible for managing shadow related dependencies. This includes creation and caching of
  * various [DropShadowPainter] and [InnerShadowPainter] instances based on the provided [Shadow].
  */
-sealed interface ShadowContext {
+public sealed interface ShadowContext {
 
     /**
      * Return an [InnerShadowPainter] instance for the provided [shape] and [shadow]. This may
@@ -31,7 +31,7 @@ sealed interface ShadowContext {
      * across multiple UI elements. In this case, the same dependencies for an [InnerShadowPainter]
      * can be reused.
      */
-    fun createInnerShadowPainter(shape: Shape, shadow: Shadow): InnerShadowPainter =
+    public fun createInnerShadowPainter(shape: Shape, shadow: Shadow): InnerShadowPainter =
         InnerShadowPainter(shape, shadow)
 
     /**
@@ -41,14 +41,14 @@ sealed interface ShadowContext {
      * multiple UI elements. In this case, the same dependencies for a [DropShadowPainter] can be
      * reused.
      */
-    fun createDropShadowPainter(shape: Shape, shadow: Shadow): DropShadowPainter =
+    public fun createDropShadowPainter(shape: Shape, shadow: Shadow): DropShadowPainter =
         DropShadowPainter(shape, shadow)
 
     /**
      * Clear all previously cached [InnerShadowPainter] and [DropShadowPainter] instances alongside
      * all other shadow dependencies.
      */
-    fun clearCache() {}
+    public fun clearCache() {}
 }
 
 /**

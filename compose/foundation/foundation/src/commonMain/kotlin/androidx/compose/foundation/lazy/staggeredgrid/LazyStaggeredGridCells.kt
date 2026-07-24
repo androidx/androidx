@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
  * horizontal staggered grids.
  */
 @Stable
-interface StaggeredGridCells {
+public interface StaggeredGridCells {
     /**
      * Calculates the number of cells and their cross axis size based on [availableSize] and
      * [spacing].
@@ -45,7 +45,7 @@ interface StaggeredGridCells {
      * @param spacing cross axis spacing, e.g. horizontal spacing for [LazyVerticalStaggeredGrid].
      *   The spacing is passed from the corresponding [Arrangement] param of the lazy grid.
      */
-    fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): IntArray
+    public fun Density.calculateCrossAxisCellSizes(availableSize: Int, spacing: Int): IntArray
 
     /**
      * Defines a grid with fixed number of rows or columns.
@@ -53,7 +53,7 @@ interface StaggeredGridCells {
      * For example, for the vertical [LazyVerticalStaggeredGrid] Fixed(3) would mean that there are
      * 3 columns 1/3 of the parent width.
      */
-    class Fixed(private val count: Int) : StaggeredGridCells {
+    public class Fixed(private val count: Int) : StaggeredGridCells {
         init {
             requirePrecondition(count > 0) { "grid with no rows/columns" }
         }
@@ -83,7 +83,7 @@ interface StaggeredGridCells {
      * columns will have equal width. If the screen is 88.dp wide then there will be 4 columns 22.dp
      * each.
      */
-    class Adaptive(private val minSize: Dp) : StaggeredGridCells {
+    public class Adaptive(private val minSize: Dp) : StaggeredGridCells {
         init {
             requirePrecondition(minSize > 0.dp) { "invalid minSize" }
         }
@@ -116,7 +116,7 @@ interface StaggeredGridCells {
      * screen is 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp distributed
      * through [Arrangement.Horizontal].
      */
-    class FixedSize(private val size: Dp) : StaggeredGridCells {
+    public class FixedSize(private val size: Dp) : StaggeredGridCells {
         override fun Density.calculateCrossAxisCellSizes(
             availableSize: Int,
             spacing: Int,
