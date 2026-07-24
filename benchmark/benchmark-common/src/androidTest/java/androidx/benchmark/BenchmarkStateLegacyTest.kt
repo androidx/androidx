@@ -179,6 +179,7 @@ class BenchmarkStateLegacyTest {
         iterationCheck(simplifiedTimingOnlyMode = true)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538632000
     @Test
     fun iterationCheck_withAllocations() {
         // In any of these conditions, it's known that throttling won't happen, so it's safe

@@ -41,7 +41,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 24) // b/454393222
+@SdkSuppress(minSdkVersion = 25) // b/454393222
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class SoftwareKeyboardControllerCompatActivityTest {

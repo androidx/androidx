@@ -140,7 +140,9 @@ public class WindowInsetsControllerCompatActivityTest {
         editText.assertInsetsVisibility(type, true)
     }
 
-    @SdkSuppress(excludedSdks = [23, 28]) // Excluded due to flakes (b/324904606 and b/454349209)
+    @SdkSuppress(
+        excludedSdks = [23, 24, 28]
+    ) // Excluded due to flakes (b/324904606 and b/454349209)
     @Test
     public fun hide_IME() {
         // Test do not currently work on Cuttlefish
