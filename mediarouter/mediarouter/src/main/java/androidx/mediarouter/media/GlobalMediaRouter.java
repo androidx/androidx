@@ -218,6 +218,7 @@ import java.util.concurrent.Executor;
         mRegisteredProviderWatcher.start();
     }
 
+    /** See {@link MediaRouter#resetGlobalRouter()}. */
     /* package */ void reset() {
         mActiveScanThrottlingHelper.reset();
 
@@ -229,11 +230,12 @@ import java.util.concurrent.Executor;
         for (RemoteControlClientRecord record : mRemoteControlClients) {
             record.disconnect();
         }
-
-        List<MediaRouter.ProviderInfo> providers = new ArrayList<>(mProviders);
-        for (MediaRouter.ProviderInfo providerInfo : providers) {
-            removeProvider(providerInfo.mProviderInstance);
+        for (MediaRouter.ProviderInfo providerInfo : mProviders) {
+            MediaRouteProvider provider = providerInfo.mProviderInstance;
+            provider.setCallback(null);
+            provider.setDiscoveryRequest(null);
         }
+        mProviders.clear();
         mCallbackHandler.removeCallbacksAndMessages(null);
     }
 
@@ -1286,7 +1288,7 @@ import java.util.concurrent.Executor;
         }
 
         // Update selected route.
-        if (mSelectedRoute == null || !mSelectedRoute.isEnabled()) {
+        if (mSelectedRoute == null || !mSelectedRoute.isSelectable()) {
             Log.i(
                     TAG,
                     "Unselecting the current route because it "
@@ -1299,7 +1301,7 @@ import java.util.concurrent.Executor;
             // android.media.MediaRouter.selectRoute as a result of this method call.
             selectRouteInternal(
                     chooseFallbackRoute(),
-                    UNSELECT_REASON_UNKNOWN,
+                    UNSELECT_REASON_DISCONNECTED,
                     /* syncMediaRoute1Provider= */ true);
         } else if (selectedRouteDescriptorChanged) {
             // In case the selected route is a route group, select/unselect route controllers
