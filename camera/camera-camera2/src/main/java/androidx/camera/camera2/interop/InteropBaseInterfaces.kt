@@ -54,12 +54,44 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(28) public fun setPhysicalCameraId(cameraId: String): T
 
     /**
+     * Sets the physical camera ID.
+     *
+     * @see setPhysicalCameraId
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(28)
+    @set:RequiresApi(28)
+    public var physicalCameraId: String
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setPhysicalCameraId(value)
+        }
+
+    /**
      * Sets the stream use case.
      *
      * @param streamUseCase stream use case
      * @return this [OutputConfigurationInterop] instance
      */
     @RequiresApi(33) public fun setStreamUseCase(streamUseCase: Long): T
+
+    /**
+     * Sets the stream use case.
+     *
+     * @see setStreamUseCase
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    public var streamUseCase: Long
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setStreamUseCase(value)
+        }
 
     /**
      * Sets the mirror mode.
@@ -70,12 +102,44 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setMirrorMode(mirrorMode: Int): T
 
     /**
+     * Sets the mirror mode.
+     *
+     * @see setMirrorMode
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    public var mirrorMode: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setMirrorMode(value)
+        }
+
+    /**
      * Sets the timestamp base.
      *
      * @param timestampBase timestamp base
      * @return this [OutputConfigurationInterop] instance
      */
     @RequiresApi(33) public fun setTimestampBase(timestampBase: Int): T
+
+    /**
+     * Sets the timestamp base.
+     *
+     * @see setTimestampBase
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    public var timestampBase: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setTimestampBase(value)
+        }
 
     /**
      * Sets the dynamic range profile.
@@ -86,12 +150,44 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setDynamicRangeProfile(dynamicRangeProfile: Long): T
 
     /**
+     * Sets the dynamic range profile.
+     *
+     * @see setDynamicRangeProfile
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    public var dynamicRangeProfile: Long
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setDynamicRangeProfile(value)
+        }
+
+    /**
      * Sets the surface group ID.
      *
      * @param groupId surface group ID
      * @return this [OutputConfigurationInterop] instance
      */
     @RequiresApi(24) public fun setSurfaceGroupId(groupId: Int): T
+
+    /**
+     * Sets the surface group ID.
+     *
+     * @see setSurfaceGroupId
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(24)
+    @set:RequiresApi(24)
+    public var surfaceGroupId: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setSurfaceGroupId(value)
+        }
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraCaptureSession] options. */
@@ -104,6 +200,11 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      * @return this [CameraCaptureSessionInterop] instance
      */
     public fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T
+
+    /** Helper target property supporting `captureRequest[key] = value` indexing operator syntax. */
+    @get:JvmSynthetic
+    public val captureRequest: CaptureRequestOptionTarget
+        get() = CaptureRequestOptionTarget(this)
 
     /**
      * Clears a [CaptureRequest.Key] previously set on this target.
@@ -128,6 +229,20 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      * @return this [CameraCaptureSessionInterop] instance
      */
     public fun setRepeatingCaptureRequestTemplate(templateType: Int): T
+
+    /**
+     * Sets the repeating capture request template type.
+     *
+     * @see setRepeatingCaptureRequestTemplate
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var repeatingCaptureRequestTemplate: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setRepeatingCaptureRequestTemplate(value)
+        }
 
     /**
      * Sets the callback to receive repeating capture updates.
@@ -161,6 +276,20 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      */
     public fun setRepeatingCaptureCallback(callback: CameraCaptureSession.CaptureCallback): T =
         setRepeatingCaptureCallback({ it.run() }, callback)
+
+    /**
+     * Sets the callback to receive repeating capture updates on a direct executor.
+     *
+     * @see setRepeatingCaptureCallback
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setRepeatingCaptureCallback(value)
+        }
 }
 
 /**
@@ -186,6 +315,14 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
     public fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T
 
     /**
+     * Helper target property supporting `stillCaptureRequest[key] = value` indexing operator
+     * syntax.
+     */
+    @get:JvmSynthetic
+    public val stillCaptureRequest: StillCaptureRequestOptionTarget
+        get() = StillCaptureRequestOptionTarget(this)
+
+    /**
      * Sets the template type for still capture requests.
      *
      * @param templateType template type (e.g.,
@@ -193,6 +330,20 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      * @return this [StillCaptureInterop] instance
      */
     public fun setStillCaptureRequestTemplateType(templateType: Int): T
+
+    /**
+     * Sets the template type for still capture requests.
+     *
+     * @see setStillCaptureRequestTemplateType
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var stillCaptureRequestTemplateType: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setStillCaptureRequestTemplateType(value)
+        }
 
     /**
      * Sets the callback to receive still capture updates.
@@ -226,6 +377,20 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      */
     public fun setStillCaptureCallback(callback: CameraCaptureSession.CaptureCallback): T =
         setStillCaptureCallback({ it.run() }, callback)
+
+    /**
+     * Sets the callback to receive still capture updates on a direct executor.
+     *
+     * @see setStillCaptureCallback
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var stillCaptureCallback: CameraCaptureSession.CaptureCallback
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setStillCaptureCallback(value)
+        }
 }
 
 /** Configures Camera2 [android.hardware.camera2.params.SessionConfiguration] options. */
@@ -240,6 +405,14 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
     @RequiresApi(28) public fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V): T
 
     /**
+     * Helper target property supporting `sessionParameter[key] = value` indexing operator syntax.
+     */
+    @get:JvmSynthetic
+    @get:RequiresApi(28)
+    public val sessionParameter: SessionParameterTarget
+        get() = SessionParameterTarget(this)
+
+    /**
      * Sets the operating mode session type.
      *
      * @param sessionType session type
@@ -248,12 +421,44 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
     @RequiresApi(28) public fun setSessionType(sessionType: Int): T
 
     /**
+     * Sets the operating mode session type.
+     *
+     * @see setSessionType
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(28)
+    @set:RequiresApi(28)
+    public var sessionType: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setSessionType(value)
+        }
+
+    /**
      * Sets the session color space.
      *
      * @param colorSpace color space
      * @return this [SessionConfigurationInterop] instance
      */
     @RequiresApi(34) public fun setColorSpace(colorSpace: Int): T
+
+    /**
+     * Sets the session color space.
+     *
+     * @see setColorSpace
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    @get:RequiresApi(34)
+    @set:RequiresApi(34)
+    public var colorSpace: Int
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setColorSpace(value)
+        }
 
     /**
      * Sets the callback to receive session state updates.
@@ -287,6 +492,20 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
      */
     public fun setSessionStateCallback(callback: CameraCaptureSession.StateCallback): T =
         setSessionStateCallback({ it.run() }, callback)
+
+    /**
+     * Sets the callback to receive session state updates on a direct executor.
+     *
+     * @see setSessionStateCallback
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var sessionStateCallback: CameraCaptureSession.StateCallback
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setSessionStateCallback(value)
+        }
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraDevice] options. */
@@ -316,6 +535,20 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
      */
     public fun setDeviceStateCallback(callback: CameraDevice.StateCallback): T =
         setDeviceStateCallback({ it.run() }, callback)
+
+    /**
+     * Sets the callback to receive camera device state updates on a direct executor.
+     *
+     * @see setDeviceStateCallback
+     */
+    @get:JvmSynthetic
+    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
+    @set:JvmSynthetic
+    public var deviceStateCallback: CameraDevice.StateCallback
+        get() = throw UnsupportedOperationException()
+        set(value) {
+            setDeviceStateCallback(value)
+        }
 }
 
 // =========================================================================================
@@ -636,5 +869,33 @@ internal class CaptureCallbackExecutorWrapper(
         frameNumber: Long,
     ) {
         executor.execute { callback.onReadoutStarted(session, request, timestamp, frameNumber) }
+    }
+}
+
+/** Target class supporting `captureRequest[key] = value` indexing operator syntax. */
+public class CaptureRequestOptionTarget
+internal constructor(private val interop: CameraCaptureSessionInterop<*>) {
+    /** Sets a [CaptureRequest.Key] and value on repeating and one-shot requests. */
+    public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
+        interop.setCaptureRequestOption(key, value)
+    }
+}
+
+/** Target class supporting `stillCaptureRequest[key] = value` indexing operator syntax. */
+public class StillCaptureRequestOptionTarget
+internal constructor(private val interop: StillCaptureInterop<*>) {
+    /** Sets a [CaptureRequest.Key] and value for still capture requests. */
+    public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
+        interop.setStillCaptureRequestOption(key, value)
+    }
+}
+
+/** Target class supporting `sessionParameter[key] = value` indexing operator syntax. */
+public class SessionParameterTarget
+internal constructor(private val interop: SessionConfigurationInterop<*>) {
+    /** Sets a session parameter used during session creation. */
+    @RequiresApi(28)
+    public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
+        interop.setSessionParameter(key, value)
     }
 }

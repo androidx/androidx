@@ -361,6 +361,7 @@ constructor(
             "}"
     }
 
+    @CameraXDsl
     public class Builder(private val useCases: List<UseCase>) {
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val interopMutableConfig: MutableOptionsBundle = MutableOptionsBundle.create()

@@ -73,6 +73,13 @@ package androidx.camera.camera2.interop {
   }
 
   public final class Camera2InteropEx {
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static suspend inline Object? applyCamera2Interop(androidx.camera.core.CameraControl, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.CameraControlCamera2Interop,kotlin.Unit> block, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline com.google.common.util.concurrent.ListenableFuture<java.lang.Void> applyCamera2InteropAsync(androidx.camera.core.CameraControl, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.CameraControlCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline androidx.camera.core.ImageCapture.Builder camera2Interop(androidx.camera.core.ImageCapture.Builder, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.ImageCaptureCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline void camera2Interop(androidx.camera.core.ImageCaptureScope, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.ImageCaptureCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline <B extends androidx.camera.core.UseCase.InteropConfigurable<B>> void camera2Interop(androidx.camera.core.InteropConfigurableScope<B>, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.UseCaseCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline androidx.camera.core.SessionConfig.Builder camera2Interop(androidx.camera.core.SessionConfig.Builder, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.SessionConfigCamera2Interop,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline <B extends androidx.camera.core.UseCase.InteropConfigurable<B>> B camera2Interop(B, kotlin.jvm.functions.Function1<androidx.camera.camera2.interop.UseCaseCamera2Interop,kotlin.Unit> block);
     method @BytecodeOnly public static android.hardware.camera2.CameraCharacteristics! getCameraCharacteristics(androidx.camera.core.CameraInfo!);
     method @BytecodeOnly public static String! getCameraId(androidx.camera.core.CameraInfo!);
     method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static androidx.camera.core.CameraSelector toCameraSelector(String);
@@ -83,22 +90,34 @@ package androidx.camera.camera2.interop {
   public interface CameraCaptureSessionInterop<T extends androidx.camera.camera2.interop.CameraCaptureSessionInterop<T>> {
     method public T clearAllCaptureRequestOptions();
     method public T clearCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?> key);
+    method @BytecodeOnly public default androidx.camera.camera2.interop.CaptureRequestOptionTarget! getCaptureRequest();
+    method @BytecodeOnly @Deprecated public default android.hardware.camera2.CameraCaptureSession.CaptureCallback! getRepeatingCaptureCallback();
+    method @BytecodeOnly @Deprecated public default int getRepeatingCaptureRequestTemplate();
     method public <V> T setCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
     method public default T setRepeatingCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
     method public T setRepeatingCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
     method public T setRepeatingCaptureRequestTemplate(int templateType);
+    property @kotlin.jvm.JvmSynthetic public default androidx.camera.camera2.interop.CaptureRequestOptionTarget captureRequest;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default android.hardware.camera2.CameraCaptureSession.CaptureCallback repeatingCaptureCallback;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default int repeatingCaptureRequestTemplate;
   }
 
   public final class CameraControlCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.CameraControl> {
     method public void configure(androidx.camera.core.CameraControl cameraControl);
   }
 
-  public interface CameraControlCamera2Interop extends androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.CameraControlCamera2Interop> {
+  @androidx.camera.core.CameraXDsl public interface CameraControlCamera2Interop extends androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.CameraControlCamera2Interop> {
   }
 
   public interface CameraDeviceInterop<T extends androidx.camera.camera2.interop.CameraDeviceInterop<T>> {
+    method @BytecodeOnly @Deprecated public default android.hardware.camera2.CameraDevice.StateCallback! getDeviceStateCallback();
     method public default T setDeviceStateCallback(android.hardware.camera2.CameraDevice.StateCallback callback);
     method public T setDeviceStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraDevice.StateCallback callback);
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default android.hardware.camera2.CameraDevice.StateCallback deviceStateCallback;
+  }
+
+  public final class CaptureRequestOptionTarget {
+    method public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
   }
 
   @SuppressCompatibility @androidx.camera.camera2.interop.ExperimentalCamera2Interop public class CaptureRequestOptions {
@@ -123,45 +142,79 @@ package androidx.camera.camera2.interop {
     method public void configure(androidx.camera.core.ImageCapture.Builder imageCaptureBuilder);
   }
 
-  public interface ImageCaptureCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> androidx.camera.camera2.interop.StillCaptureInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> {
+  @androidx.camera.core.CameraXDsl public interface ImageCaptureCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> androidx.camera.camera2.interop.StillCaptureInterop<androidx.camera.camera2.interop.ImageCaptureCamera2Interop> {
   }
 
   public interface OutputConfigurationInterop<T extends androidx.camera.camera2.interop.OutputConfigurationInterop<T>> {
+    method @BytecodeOnly @Deprecated @RequiresApi(33) public default long getDynamicRangeProfile();
+    method @BytecodeOnly @Deprecated @RequiresApi(33) public default int getMirrorMode();
+    method @BytecodeOnly @Deprecated @RequiresApi(28) public default String! getPhysicalCameraId();
+    method @BytecodeOnly @Deprecated @RequiresApi(33) public default long getStreamUseCase();
+    method @BytecodeOnly @Deprecated @RequiresApi(24) public default int getSurfaceGroupId();
+    method @BytecodeOnly @Deprecated @RequiresApi(33) public default int getTimestampBase();
     method @RequiresApi(33) public T setDynamicRangeProfile(long dynamicRangeProfile);
     method @RequiresApi(33) public T setMirrorMode(int mirrorMode);
     method @RequiresApi(28) public T setPhysicalCameraId(String cameraId);
     method @RequiresApi(33) public T setStreamUseCase(long streamUseCase);
     method @RequiresApi(24) public T setSurfaceGroupId(int groupId);
     method @RequiresApi(33) public T setTimestampBase(int timestampBase);
+    property @Deprecated @RequiresApi(33) @kotlin.jvm.JvmSynthetic public default long dynamicRangeProfile;
+    property @Deprecated @RequiresApi(33) @kotlin.jvm.JvmSynthetic public default int mirrorMode;
+    property @Deprecated @RequiresApi(28) @kotlin.jvm.JvmSynthetic public default String physicalCameraId;
+    property @Deprecated @RequiresApi(33) @kotlin.jvm.JvmSynthetic public default long streamUseCase;
+    property @Deprecated @RequiresApi(24) @kotlin.jvm.JvmSynthetic public default int surfaceGroupId;
+    property @Deprecated @RequiresApi(33) @kotlin.jvm.JvmSynthetic public default int timestampBase;
   }
 
   public final class SessionConfigCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.SessionConfig.Builder> {
     method public void configure(androidx.camera.core.SessionConfig.Builder sessionConfigBuilder);
   }
 
-  public interface SessionConfigCamera2Interop extends androidx.camera.camera2.interop.CameraDeviceInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.SessionConfigurationInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> {
+  @androidx.camera.core.CameraXDsl public interface SessionConfigCamera2Interop extends androidx.camera.camera2.interop.CameraDeviceInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.CameraCaptureSessionInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> androidx.camera.camera2.interop.SessionConfigurationInterop<androidx.camera.camera2.interop.SessionConfigCamera2Interop> {
   }
 
   public interface SessionConfigurationInterop<T extends androidx.camera.camera2.interop.SessionConfigurationInterop<T>> {
+    method @BytecodeOnly @Deprecated @RequiresApi(34) public default int getColorSpace();
+    method @BytecodeOnly @RequiresApi(28) public default androidx.camera.camera2.interop.SessionParameterTarget! getSessionParameter();
+    method @BytecodeOnly @Deprecated public default android.hardware.camera2.CameraCaptureSession.StateCallback! getSessionStateCallback();
+    method @BytecodeOnly @Deprecated @RequiresApi(28) public default int getSessionType();
     method @RequiresApi(34) public T setColorSpace(int colorSpace);
     method @RequiresApi(28) public <V> T setSessionParameter(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
     method public default T setSessionStateCallback(android.hardware.camera2.CameraCaptureSession.StateCallback callback);
     method public T setSessionStateCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.StateCallback callback);
     method @RequiresApi(28) public T setSessionType(int sessionType);
+    property @Deprecated @RequiresApi(34) @kotlin.jvm.JvmSynthetic public default int colorSpace;
+    property @RequiresApi(28) @kotlin.jvm.JvmSynthetic public default androidx.camera.camera2.interop.SessionParameterTarget sessionParameter;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default android.hardware.camera2.CameraCaptureSession.StateCallback sessionStateCallback;
+    property @Deprecated @RequiresApi(28) @kotlin.jvm.JvmSynthetic public default int sessionType;
+  }
+
+  public final class SessionParameterTarget {
+    method @RequiresApi(28) public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
   }
 
   public interface StillCaptureInterop<T extends androidx.camera.camera2.interop.StillCaptureInterop<T>> {
+    method @BytecodeOnly @Deprecated public default android.hardware.camera2.CameraCaptureSession.CaptureCallback! getStillCaptureCallback();
+    method @BytecodeOnly public default androidx.camera.camera2.interop.StillCaptureRequestOptionTarget! getStillCaptureRequest();
+    method @BytecodeOnly @Deprecated public default int getStillCaptureRequestTemplateType();
     method public default T setStillCaptureCallback(android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
     method public T setStillCaptureCallback(java.util.concurrent.Executor executor, android.hardware.camera2.CameraCaptureSession.CaptureCallback callback);
     method public <V> T setStillCaptureRequestOption(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
     method public T setStillCaptureRequestTemplateType(int templateType);
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default android.hardware.camera2.CameraCaptureSession.CaptureCallback stillCaptureCallback;
+    property @kotlin.jvm.JvmSynthetic public default androidx.camera.camera2.interop.StillCaptureRequestOptionTarget stillCaptureRequest;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public default int stillCaptureRequestTemplateType;
+  }
+
+  public final class StillCaptureRequestOptionTarget {
+    method public operator <V> void set(android.hardware.camera2.CaptureRequest.Key<V> key, V value);
   }
 
   public final class UseCaseCamera2Configurator implements androidx.camera.core.InteropConfigurator<androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?>> {
     method public void configure(androidx.camera.core.UseCase.InteropConfigurable<? extends java.lang.Object?> useCaseConfigurable);
   }
 
-  public interface UseCaseCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.UseCaseCamera2Interop> {
+  @androidx.camera.core.CameraXDsl public interface UseCaseCamera2Interop extends androidx.camera.camera2.interop.OutputConfigurationInterop<androidx.camera.camera2.interop.UseCaseCamera2Interop> {
   }
 
 }

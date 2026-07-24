@@ -384,7 +384,7 @@ package androidx.camera.core {
     method public boolean isOutputFormatSupported(int);
   }
 
-  @androidx.camera.core.CameraXDsl public final class ImageAnalysisScope {
+  @androidx.camera.core.CameraXDsl public final class ImageAnalysisScope implements androidx.camera.core.InteropConfigurableScope<androidx.camera.core.ImageAnalysis.Builder> {
     method @BytecodeOnly @Deprecated public java.util.concurrent.Executor getBackgroundExecutor();
     method @BytecodeOnly @Deprecated public int getBackpressureStrategy();
     method @BytecodeOnly @Deprecated public int getImageQueueDepth();
@@ -626,6 +626,9 @@ package androidx.camera.core {
     ctor public InitializationException(Throwable?);
   }
 
+  @androidx.camera.core.CameraXDsl public interface InteropConfigurableScope<B> {
+  }
+
   public interface InteropConfigurator<T> {
     method public void configure(T);
   }
@@ -697,7 +700,7 @@ package androidx.camera.core {
     method public boolean isStabilizationSupported();
   }
 
-  @androidx.camera.core.CameraXDsl public final class PreviewScope {
+  @androidx.camera.core.CameraXDsl public final class PreviewScope implements androidx.camera.core.InteropConfigurableScope<androidx.camera.core.Preview.Builder> {
     method @BytecodeOnly @Deprecated public androidx.camera.core.DynamicRange getDynamicRange();
     method @BytecodeOnly @Deprecated public int getMirrorMode();
     method @BytecodeOnly @Deprecated public androidx.camera.core.resolutionselector.ResolutionSelector getResolutionSelector();
@@ -805,7 +808,7 @@ package androidx.camera.core {
     property public final androidx.camera.core.ViewPort? viewPort;
   }
 
-  public static final class SessionConfig.Builder {
+  @androidx.camera.core.CameraXDsl public static final class SessionConfig.Builder {
     ctor public SessionConfig.Builder(androidx.camera.core.UseCase... useCases);
     ctor public SessionConfig.Builder(java.util.List<? extends androidx.camera.core.UseCase> useCases);
     method public androidx.camera.core.SessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);

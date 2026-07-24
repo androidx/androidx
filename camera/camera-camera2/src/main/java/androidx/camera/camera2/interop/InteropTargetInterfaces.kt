@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.interop
 
+import androidx.camera.core.CameraXDsl
 import androidx.camera.core.impl.MutableConfig
 
 /**
@@ -37,6 +38,7 @@ import androidx.camera.core.impl.MutableConfig
  * Provides setters for output stream configuration options, such as physical camera ID, stream use
  * case, mirror mode, timestamp base, dynamic range profile, and surface group ID.
  */
+@CameraXDsl
 public interface UseCaseCamera2Interop : OutputConfigurationInterop<UseCaseCamera2Interop>
 
 /**
@@ -57,6 +59,7 @@ public interface UseCaseCamera2Interop : OutputConfigurationInterop<UseCaseCamer
  * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
  * management and may cause state desynchronization, stream interruption, or application crashes.
  */
+@CameraXDsl
 public interface ImageCaptureCamera2Interop :
     OutputConfigurationInterop<ImageCaptureCamera2Interop>,
     StillCaptureInterop<ImageCaptureCamera2Interop>
@@ -75,6 +78,7 @@ public interface ImageCaptureCamera2Interop :
  * [android.hardware.camera2.CameraDevice.close]) bypasses CameraX pipeline management and may cause
  * state desynchronization, stream interruption, or application crashes.
  */
+@CameraXDsl
 public interface SessionConfigCamera2Interop :
     CameraDeviceInterop<SessionConfigCamera2Interop>,
     SessionConfigurationInterop<SessionConfigCamera2Interop>,
@@ -93,6 +97,7 @@ public interface SessionConfigCamera2Interop :
  * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
  * management and may cause state desynchronization, stream interruption, or application crashes.
  */
+@CameraXDsl
 public interface CameraControlCamera2Interop :
     CameraCaptureSessionInterop<CameraControlCamera2Interop>
 
