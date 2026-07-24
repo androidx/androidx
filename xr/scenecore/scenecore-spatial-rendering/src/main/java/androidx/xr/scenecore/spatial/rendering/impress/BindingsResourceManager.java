@@ -17,7 +17,6 @@
 package androidx.xr.scenecore.spatial.rendering.impress;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 
@@ -36,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BindingsResourceManager {
     private static final String RESOURCE_MANAGER_THREAD = "resource_manager_thread";
-    private final String mTAG = getClass().getSimpleName();
     private final Handler mMainThreadHandler;
     private final ReferenceQueue<Object> mQueue = new ReferenceQueue<>();
     private final Set<BindingsObjectPhantomReference> mPhantomReferences =
@@ -83,7 +81,6 @@ public class BindingsResourceManager {
                         });
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                Log.w(mTAG, "Queue processing thread was interrupted and is now terminating.");
                 break;
             }
         }
