@@ -63,7 +63,6 @@ import androidx.compose.ui.unit.toOffset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +71,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CoreTextFieldInputServiceIntegrationTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
     private val inputMethodInterceptor = InputMethodInterceptor(rule)

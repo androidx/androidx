@@ -58,13 +58,12 @@ import androidx.wear.compose.material3.TextButtonDefaults.DefaultButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.LargeButtonSize
 import androidx.wear.compose.material3.TextButtonDefaults.SmallButtonSize
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class TextButtonTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {

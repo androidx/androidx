@@ -29,7 +29,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.xr.glimmer.GOLDEN_DIRECTORY
 import androidx.xr.glimmer.assertRootAgainstGolden
 import androidx.xr.glimmer.setGlimmerThemeContent
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +38,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class GlimmerPagerPageIndicatorScreenshotTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 

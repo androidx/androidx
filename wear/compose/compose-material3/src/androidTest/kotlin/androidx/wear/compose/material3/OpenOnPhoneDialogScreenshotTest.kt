@@ -31,7 +31,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import java.util.Locale
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -41,7 +40,7 @@ import org.junit.runner.RunWith
 @RunWith(TestParameterInjector::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class OpenOnPhoneDialogScreenshotTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 

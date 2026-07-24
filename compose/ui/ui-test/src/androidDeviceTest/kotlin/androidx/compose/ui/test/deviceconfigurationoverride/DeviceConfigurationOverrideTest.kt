@@ -107,7 +107,6 @@ import androidx.core.os.LocaleListCompat
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -116,7 +115,7 @@ import org.junit.Test
 
 class DeviceConfigurationOverrideTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun smallForcedSizeOverride_onSmallerElements_isDisplayed() {

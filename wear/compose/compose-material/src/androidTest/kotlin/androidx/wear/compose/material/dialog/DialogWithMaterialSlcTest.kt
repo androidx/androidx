@@ -59,7 +59,6 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.assertContainsColor
 import androidx.wear.compose.material.setContentWithTheme
 import androidx.wear.compose.material.setContentWithThemeForSizeAssertions
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +66,7 @@ import org.junit.Test
 /** These tests were copied from DialogTest.kt for support of deprecated Dialogs */
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcBehaviourTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag_on_alert_with_buttons() {
@@ -383,7 +382,7 @@ class DialogWithMaterialSlcBehaviourTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcContentSizeAndPositionTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun spaces_icon_and_title_correctly_on_alert_with_buttons() {
@@ -606,7 +605,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcContentColorTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_icon_onbackground_on_alert_for_buttons() {
@@ -1016,7 +1015,7 @@ class DialogWithMaterialSlcContentColorTest {
 
 @Suppress("DEPRECATION")
 class DialogWithMaterialSlcTextStyleTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_title_correct_textstyle_on_alert_for_buttons() {

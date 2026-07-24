@@ -38,7 +38,6 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.view.forEach
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Rule
@@ -54,7 +53,7 @@ import org.junit.runners.model.Statement
 @RunWith(Parameterized::class)
 class JUnitUnhandledExceptionTest(activityClass: Class<out ComponentActivity>) {
 
-    private val composeTestRule = createAndroidComposeRule(activityClass, StandardTestDispatcher())
+    private val composeTestRule = createAndroidComposeRule(activityClass)
 
     // Expect all tests in this suite to throw an ExpectedException. If they do, catch it and pass
     // the test. If they throw a different exception or no exception, fail the test with an

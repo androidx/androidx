@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -58,11 +57,7 @@ import org.junit.runner.RunWith
 @ContextMenuFlagSuppress(suppressedFlagValue = false)
 class TextFieldConfigChangeAppCompatActivityLocaleTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule =
-        createAndroidComposeRule<ConfigChangeAppCompatActivity>(
-            effectContext = StandardTestDispatcher()
-        )
+    @get:Rule val rule = createAndroidComposeRule<ConfigChangeAppCompatActivity>()
 
     private val TAG = "BasicTextField"
     private val fontSize = 10.sp

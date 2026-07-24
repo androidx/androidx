@@ -41,7 +41,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -49,7 +48,7 @@ import org.junit.Test
 //  supports property nested scrolling, but the tests should all still be valid.
 @OptIn(ExperimentalWearMaterialApi::class)
 class SwipeableTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun hasHorizontalScrollSemantics_atMaxValue_whenUnswiped() {

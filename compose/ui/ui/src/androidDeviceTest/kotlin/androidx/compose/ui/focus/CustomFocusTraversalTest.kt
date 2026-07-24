@@ -40,7 +40,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +52,7 @@ class CustomFocusTraversalTest(
     private val moveFocusProgrammatically: Boolean,
     private val useFocusOrderModifier: Boolean,
 ) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     companion object {
         @JvmStatic

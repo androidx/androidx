@@ -42,7 +42,6 @@ import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.TextButtonShapes
 import androidx.wear.compose.material3.setContentWithTheme
 import androidx.wear.compose.material3.verifyScreenshot
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -53,7 +52,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TextButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 

@@ -18,19 +18,15 @@ package androidx.compose.ui.input
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.focus.resetInTouchModeCompat
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,19 +35,9 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 class InputModeTest(private val param: Param) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(inputMode = param.inputMode))
 
     private lateinit var inputModeManager: InputModeManager
-
-    // Manually set global state to touch mode to prevent flakiness when another test leaves the
-    // system in non-touch mode (b/267368621).
-    @Before
-    fun initializeInTouchMode() {
-        InstrumentationRegistry.getInstrumentation().setInTouchMode(param.inputMode == Touch)
-    }
-
-    @After
-    fun resetTouchMode() = InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
 
     @Test
     fun switchToTouchModeProgrammatically() {

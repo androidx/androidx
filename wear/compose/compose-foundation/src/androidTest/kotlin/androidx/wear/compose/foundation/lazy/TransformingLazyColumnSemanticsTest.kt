@@ -39,7 +39,6 @@ import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.TEST_TAG
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +46,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TransformingLazyColumnSemanticsTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val lazyListTag = "LazyList"
 

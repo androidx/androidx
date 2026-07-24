@@ -53,7 +53,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
@@ -76,7 +75,7 @@ class IsDisplayedTest(val config: TestConfig) {
             )
     }
 
-    @get:Rule val rule = createAndroidComposeRule(config.activityClass, StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule(config.activityClass)
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 

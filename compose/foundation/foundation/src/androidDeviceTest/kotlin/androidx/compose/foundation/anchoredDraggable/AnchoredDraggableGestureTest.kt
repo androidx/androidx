@@ -466,7 +466,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
 
     @Test
     fun anchoredDraggable_targetValue_animationCancelledResetsTargetValueToClosest() =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             rule.mainClock.autoAdvance = false
             lateinit var scope: CoroutineScope
             rule.setContent { scope = rememberCoroutineScope() }

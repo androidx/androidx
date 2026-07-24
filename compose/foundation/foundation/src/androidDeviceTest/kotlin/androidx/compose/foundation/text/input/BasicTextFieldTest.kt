@@ -127,7 +127,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -140,7 +139,7 @@ import org.mockito.kotlin.verify
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextFieldTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 

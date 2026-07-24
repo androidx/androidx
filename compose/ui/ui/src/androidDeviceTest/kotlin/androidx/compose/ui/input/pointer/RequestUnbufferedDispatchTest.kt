@@ -45,7 +45,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,8 +56,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RequestUnbufferedDispatchTest {
-    val dispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(dispatcher)
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun checkMotionEventsAreBatchedWhenBuffered() {
@@ -100,7 +98,7 @@ class RequestUnbufferedDispatchTest {
                 override fun doFrame(frameTimeNanos: Long) {
                     framesDuringMotionEventInjection++
                     frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-                    dispatcher.scheduler.runCurrent()
+                    rule.mainClock.scheduler.runCurrent()
                     Choreographer.getInstance().postFrameCallback(this)
                 }
             }
@@ -165,7 +163,7 @@ class RequestUnbufferedDispatchTest {
                 override fun doFrame(frameTimeNanos: Long) {
                     framesDuringMotionEventInjection++
                     frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-                    dispatcher.scheduler.runCurrent()
+                    rule.mainClock.scheduler.runCurrent()
                     Choreographer.getInstance().postFrameCallback(this)
                 }
             }
@@ -240,7 +238,7 @@ class RequestUnbufferedDispatchTest {
                 override fun doFrame(frameTimeNanos: Long) {
                     framesDuringMotionEventInjection++
                     frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-                    dispatcher.scheduler.runCurrent()
+                    rule.mainClock.scheduler.runCurrent()
                     Choreographer.getInstance().postFrameCallback(this)
                 }
             }

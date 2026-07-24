@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import android.os.Build.VERSION.SDK_INT
 import android.os.Looper
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -122,7 +121,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicBoolean
@@ -135,7 +133,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -148,8 +145,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ClickableTest {
 
-    private val dispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(dispatcher)
+    @get:Rule val rule = createComposeRule()
 
     @OptIn(ExperimentalComposeUiApi::class)
     private fun expectedCount(enabled: Int, disabled: Int) =
@@ -171,13 +167,6 @@ class ClickableTest {
     fun after() {
         isDebugInspectorInfoEnabled = false
     }
-
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
-    @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
 
     @Test
     fun defaultSemantics() {
@@ -7465,13 +7454,13 @@ class ClickableTest {
 
         // Wait a small amount of time before we inject the second release, to make sure that
         // coroutines from the initial gestures are launched.
-        dispatcher.scheduler.advanceTimeBy(10.milliseconds)
+        rule.mainClock.scheduler.advanceTimeBy(10.milliseconds)
 
         // Inject the following release
         rule.onNodeWithTag("myClickable").performTouchInput { up() }
 
         // Run past the press delays
-        dispatcher.scheduler.advanceUntilIdle()
+        rule.mainClock.scheduler.advanceUntilIdle()
 
         // We should receive a press -> release -> press -> release
         rule.runOnIdle {
@@ -7651,7 +7640,7 @@ class ClickableTest {
             // advanceTimeBy in that case would still be executed _before_ the event is emitted.
             // Buffered input events are injected after this lambda executes, so this is more like a
             // 'builder' for input events.
-            dispatcher.scheduler.advanceTimeBy(1)
+            rule.mainClock.scheduler.advanceTimeBy(1)
             up()
         }
 

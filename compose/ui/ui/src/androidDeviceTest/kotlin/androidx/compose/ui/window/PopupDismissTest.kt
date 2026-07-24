@@ -43,7 +43,6 @@ import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +59,7 @@ class PopupDismissTest(private val focusable: Boolean) {
         fun initParameters(): Array<Any> = arrayOf(true, false)
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun clickOutsideToDismiss() {

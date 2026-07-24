@@ -60,14 +60,13 @@ import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
 class WearWidgetCaptureTest {
 
-    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule()
 
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()

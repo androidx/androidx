@@ -25,7 +25,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -45,8 +44,7 @@ public class RemoteBaseDocContentTestRule(
 ) : TestRule {
 
     /** [ComposeContentTestRule] used by this [TestRule]. */
-    public val composeTestRule: ComposeContentTestRule =
-        _composeTestRule ?: createComposeRule(StandardTestDispatcher())
+    public val composeTestRule: ComposeContentTestRule = _composeTestRule ?: createComposeRule()
 
     override fun apply(base: Statement, description: Description): Statement =
         if (_composeTestRule == null) composeTestRule.apply(base, description)

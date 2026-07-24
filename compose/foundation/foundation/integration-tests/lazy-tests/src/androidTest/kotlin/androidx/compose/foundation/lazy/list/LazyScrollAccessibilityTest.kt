@@ -55,7 +55,6 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROL
 import androidx.test.filters.MediumTest
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -86,7 +85,7 @@ class LazyScrollAccessibilityTest(private val config: TestConfig) {
             }
     }
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val scrollerTag = "ScrollerTest"
     private var composeView: View? = null

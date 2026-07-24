@@ -37,7 +37,7 @@ class UnconfinedTestDispatcherPhaseOrderingTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
-    val rule = createComposeRule(UnconfinedTestDispatcher())
+    val rule = createComposeRule(ComposeUiTestConfig(UnconfinedTestDispatcher()))
 
     @Test
     fun singlePass() {

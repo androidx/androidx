@@ -40,14 +40,13 @@ import androidx.compose.ui.test.width
 import androidx.compose.ui.unit.Density
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 @MediumTest
 class PositionsTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testCornersEdgesAndCenter() {

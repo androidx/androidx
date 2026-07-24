@@ -69,7 +69,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
@@ -80,7 +79,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DialogWithInsetsTest {
-    @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>()
 
     private val durationSetter =
         ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)

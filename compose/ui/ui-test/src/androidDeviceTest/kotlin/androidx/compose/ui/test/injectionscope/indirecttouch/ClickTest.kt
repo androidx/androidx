@@ -40,7 +40,6 @@ import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.unit.IntSize
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +71,7 @@ class ClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val expectedClickPosition = config.position ?: inputDeviceCenter
 
