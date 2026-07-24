@@ -68,7 +68,7 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      * @param application application instance. If null, [AndroidViewModel] instances will not be
      *   supported.
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
-     *   [ViewModel]s
+     *   [ViewModel]s. Must implement [ViewModelStoreOwner] to support state retention.
      */
     public constructor(
         application: Application?,
@@ -84,7 +84,7 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      * @param application application instance. If null, [AndroidViewModel] instances will not be
      *   supported.
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
-     *   [ViewModel]s
+     *   [ViewModel]s. Must implement [ViewModelStoreOwner] to support state retention.
      * @param defaultArgs default values to populate the [SavedStateHandle] if no state is restored
      */
     @SuppressLint("LambdaLast")
@@ -195,15 +195,16 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
             }
         }
 
-        val controller = SavedStateHandleController(key, owner, defaultArgs)
+        val controller = SavedStateHandleController.getOrCreate(owner)
+        controller.attachSavedStateHandleOnNextRecreation()
+        val handle = controller.getOrCreateHandle(key, defaultArgs)
         val viewModel =
             if (isAndroidViewModel && hasApplication) {
-                newInstance(modelClass, constructor, application, controller.handle)
+                newInstance(modelClass, constructor, application, handle)
             } else {
-                newInstance(modelClass, constructor, controller.handle)
+                newInstance(modelClass, constructor, handle)
             }
 
-        viewModel.addCloseable(SavedStateHandleController.TAG, controller)
         return viewModel
     }
 
