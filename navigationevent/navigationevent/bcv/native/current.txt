@@ -68,6 +68,10 @@ abstract class androidx.navigationevent/NavigationEventInfo { // androidx.naviga
 abstract class androidx.navigationevent/NavigationEventInput { // androidx.navigationevent/NavigationEventInput|null[0]
     constructor <init>() // androidx.navigationevent/NavigationEventInput.<init>|<init>(){}[0]
 
+    final var hasEnabledBackHandlers // androidx.navigationevent/NavigationEventInput.hasEnabledBackHandlers|{}hasEnabledBackHandlers[0]
+        final fun <get-hasEnabledBackHandlers>(): kotlin/Boolean // androidx.navigationevent/NavigationEventInput.hasEnabledBackHandlers.<get-hasEnabledBackHandlers>|<get-hasEnabledBackHandlers>(){}[0]
+    final var hasEnabledForwardHandlers // androidx.navigationevent/NavigationEventInput.hasEnabledForwardHandlers|{}hasEnabledForwardHandlers[0]
+        final fun <get-hasEnabledForwardHandlers>(): kotlin/Boolean // androidx.navigationevent/NavigationEventInput.hasEnabledForwardHandlers.<get-hasEnabledForwardHandlers>|<get-hasEnabledForwardHandlers>(){}[0]
     final var hasEnabledHandlers // androidx.navigationevent/NavigationEventInput.hasEnabledHandlers|{}hasEnabledHandlers[0]
         final fun <get-hasEnabledHandlers>(): kotlin/Boolean // androidx.navigationevent/NavigationEventInput.hasEnabledHandlers.<get-hasEnabledHandlers>|<get-hasEnabledHandlers>(){}[0]
 
@@ -80,6 +84,8 @@ abstract class androidx.navigationevent/NavigationEventInput { // androidx.navig
     final fun dispatchOnForwardProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnForwardProgressed|dispatchOnForwardProgressed(androidx.navigationevent.NavigationEvent){}[0]
     final fun dispatchOnForwardStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent/NavigationEventInput.dispatchOnForwardStarted|dispatchOnForwardStarted(androidx.navigationevent.NavigationEvent){}[0]
     open fun onAdded(androidx.navigationevent/NavigationEventDispatcher) // androidx.navigationevent/NavigationEventInput.onAdded|onAdded(androidx.navigationevent.NavigationEventDispatcher){}[0]
+    open fun onHasEnabledBackHandlersChanged(kotlin/Boolean) // androidx.navigationevent/NavigationEventInput.onHasEnabledBackHandlersChanged|onHasEnabledBackHandlersChanged(kotlin.Boolean){}[0]
+    open fun onHasEnabledForwardHandlersChanged(kotlin/Boolean) // androidx.navigationevent/NavigationEventInput.onHasEnabledForwardHandlersChanged|onHasEnabledForwardHandlersChanged(kotlin.Boolean){}[0]
     open fun onHasEnabledHandlersChanged(kotlin/Boolean) // androidx.navigationevent/NavigationEventInput.onHasEnabledHandlersChanged|onHasEnabledHandlersChanged(kotlin.Boolean){}[0]
     open fun onHistoryChanged(androidx.navigationevent/NavigationEventHistory) // androidx.navigationevent/NavigationEventInput.onHistoryChanged|onHistoryChanged(androidx.navigationevent.NavigationEventHistory){}[0]
     open fun onRemoved() // androidx.navigationevent/NavigationEventInput.onRemoved|onRemoved(){}[0]
