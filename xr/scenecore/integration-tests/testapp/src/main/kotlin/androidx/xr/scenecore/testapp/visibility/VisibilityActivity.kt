@@ -18,16 +18,17 @@ package androidx.xr.scenecore.testapp.visibility
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
@@ -53,6 +54,8 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class VisibilityActivity : AppCompatActivity() {
+    private val viewModel: VisibilityViewModel by viewModels()
+
     private var session: Session? = null
 
     private var parentGltfEntity: GltfModelEntity? = null
@@ -64,9 +67,7 @@ class VisibilityActivity : AppCompatActivity() {
     private var childPanelEntity2: PanelEntity? = null
 
     private lateinit var model: GltfModel
-    private lateinit var childPanel1PointerComponent: SpatialPointerComponent
-
-    private var spatialMode: SpatialMode = SpatialMode.FSM
+    private var childPanel1PointerComponent: SpatialPointerComponent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,11 +79,14 @@ class VisibilityActivity : AppCompatActivity() {
             insets
         }
 
-        // Create rendering session
+        setupViews()
 
         lifecycleScope.launch {
             session = SessionManager(this@VisibilityActivity).createSession()
-            if (session == null) this@VisibilityActivity.finish()
+            if (session == null) {
+                finish()
+                return@launch
+            }
             session
                 ?.scene
                 ?.mainPanelEntity
@@ -92,127 +96,158 @@ class VisibilityActivity : AppCompatActivity() {
                 session?.scene?.keyEntity?.setPose(event.recommendedPose, Space.ACTIVITY)
             }
             session!!.scene.activitySpace.addBoundsChangedListener { dimensions ->
-                spatialMode =
+                val mode =
                     if (dimensions.width == Float.POSITIVE_INFINITY) SpatialMode.FSM
                     else SpatialMode.HSM
+                viewModel.setSpatialMode(mode)
             }
             session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
-            // Toolbar action
-            findViewById<Toolbar>(R.id.visibility_top_app_bar).also {
-                setSupportActionBar(it)
-                it.setNavigationOnClickListener { this@VisibilityActivity.finish() }
-                it.setTitle(R.string.cuj_visibility_test)
-            }
+            // Async get gltf model and create entities
+            model = GltfModel.create(session!!, MODEL_PATH)
+            createGltfEntities()
+            createActivityPanels()
 
-            // Recreate button
-            findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
-                it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
-                it.setOnClickListener { ActivityCompat.recreate(this@VisibilityActivity) }
-            }
-
-            // fsm/hsm toggle
-            findViewById<Button>(R.id.visibility_toggle_fsm_hsm).also {
-                it.setOnClickListener { toggleMode() }
-            }
-
-            // Hide space
-            findViewById<Button>(R.id.visibility_hide_activity_space).also {
-                it.setOnClickListener {
-                    session!!.scene.activitySpace.setEnabled(false)
-                    Handler(Looper.getMainLooper())
-                        .postDelayed(
-                            { session!!.scene.activitySpace.setEnabled(true) },
-                            DELAY_FOR_3_SEC,
-                        )
-                }
-            }
-
-            // Hide main panel
-            findViewById<Button>(R.id.visibility_hide_main_panel).also {
-                it.setOnClickListener {
-                    session!!.scene.mainPanelEntity.setEnabled(false)
-                    Handler(Looper.getMainLooper())
-                        .postDelayed(
-                            { session!!.scene.mainPanelEntity.setEnabled(true) },
-                            DELAY_FOR_3_SEC,
-                        )
-                }
-            }
-
-            // Hide all
-            findViewById<SwitchMaterial>(R.id.visibility_hide_all_entities)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    setDisabledForAllEntities(isChecked)
-                    updateToggles()
-                }
-
-            // Hide gltf entities
-            findViewById<SwitchMaterial>(R.id.visibility_hide_parent_gltf)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    parentGltfEntity?.setEnabled(!isChecked)
-                }
-            findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_gltf)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    childGltfEntity1?.setEnabled(!isChecked)
-                }
-            findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_gltf)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    childGltfEntity2?.setEnabled(!isChecked)
-                }
-
-            // Hide panels
-            findViewById<SwitchMaterial>(R.id.visibility_hide_parent_panel)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    parentPanelEntity?.setEnabled(!isChecked)
-                }
-            findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_panel)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    childPanelEntity1?.setEnabled(!isChecked)
-                }
-            findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_panel)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    childPanelEntity2?.setEnabled(!isChecked)
-                }
-            findViewById<SwitchMaterial>(R.id.visibility_hide_panel1_pointer)
-                .setOnCheckedChangeListener { _, isChecked: Boolean ->
-                    childPanel1PointerComponent.spatialPointerIcon =
-                        if (isChecked) SpatialPointerIcon.NONE else SpatialPointerIcon.DEFAULT
-                }
-
-            // Move gltf entities by moving the parent entity
-            findViewById<Button>(R.id.visibility_move_parent_gltf).setOnClickListener { _ ->
-                val original = parentGltfEntity!!.getPose().translation
-                val newPose =
-                    parentGltfEntity!!
-                        .getPose()
-                        .copy(Vector3(original.x + 0.25f, original.y + 0.5f, original.z))
-                parentGltfEntity!!.setPose(newPose)
-            }
-
-            lifecycleScope.launch {
-                // Async get gltf model
-                model = GltfModel.create(session!!, MODEL_PATH)
-
-                // create gltf entities
-                createGltfEntities()
-
-                // Create activity panel
-                createActivityPanels()
+            // Observe ViewModel state and synchronize UI and entity visibility
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state -> syncState(state) }
             }
         }
     }
 
+    private fun setupViews() {
+        // Toolbar action
+        findViewById<Toolbar>(R.id.visibility_top_app_bar).also {
+            setSupportActionBar(it)
+            it.setNavigationOnClickListener { finish() }
+            it.setTitle(R.string.cuj_visibility_test)
+        }
+
+        // Recreate button
+        findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
+            it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
+            it.setOnClickListener { ActivityCompat.recreate(this) }
+        }
+
+        // fsm/hsm toggle
+        findViewById<Button>(R.id.visibility_toggle_fsm_hsm).also {
+            it.setOnClickListener { toggleMode() }
+        }
+
+        // Temporary 3-second hide space
+        findViewById<Button>(R.id.visibility_hide_activity_space).also {
+            it.setOnClickListener { viewModel.hideActivitySpaceTemporarily() }
+        }
+
+        // Temporary 3-second hide main panel
+        findViewById<Button>(R.id.visibility_hide_main_panel).also {
+            it.setOnClickListener { viewModel.hideMainPanelTemporarily() }
+        }
+
+        // Hide all switch
+        findViewById<SwitchMaterial>(R.id.visibility_hide_all_entities)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setHideAllChecked(isChecked)
+            }
+
+        // Hide gltf entities switches
+        findViewById<SwitchMaterial>(R.id.visibility_hide_parent_gltf).setOnCheckedChangeListener {
+            _,
+            isChecked: Boolean ->
+            viewModel.setParentGltfHidden(isChecked)
+        }
+        findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_gltf)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setChildGltf1Hidden(isChecked)
+            }
+        findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_gltf)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setChildGltf2Hidden(isChecked)
+            }
+
+        // Hide panels switches
+        findViewById<SwitchMaterial>(R.id.visibility_hide_parent_panel)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setParentPanelHidden(isChecked)
+            }
+        findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_panel)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setChildPanel1Hidden(isChecked)
+            }
+        findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_panel)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setChildPanel2Hidden(isChecked)
+            }
+        findViewById<SwitchMaterial>(R.id.visibility_hide_panel1_pointer)
+            .setOnCheckedChangeListener { _, isChecked: Boolean ->
+                viewModel.setPanel1PointerHidden(isChecked)
+            }
+
+        // Move gltf entities by moving the parent entity
+        findViewById<Button>(R.id.visibility_move_parent_gltf).setOnClickListener { _ ->
+            parentGltfEntity?.let { entity ->
+                val original = entity.getPose().translation
+                val newPose =
+                    entity
+                        .getPose()
+                        .copy(Vector3(original.x + 0.25f, original.y + 0.5f, original.z))
+                entity.setPose(newPose)
+            }
+        }
+    }
+
+    private fun syncState(state: VisibilityUiState) {
+        val currentSession = session ?: return
+
+        // 1. Sync temporary space & main panel hides
+        currentSession.scene.activitySpace.setEnabled(!state.isActivitySpaceTemporarilyHidden)
+        currentSession.scene.mainPanelEntity.setEnabled(!state.isMainPanelTemporarilyHidden)
+
+        // 2. Hide All overrides scene entities without altering individual switch states in
+        // ViewModel
+        val hideAll = state.isHideAllChecked
+
+        parentGltfEntity?.setEnabled(!hideAll && !state.isParentGltfHidden)
+        childGltfEntity1?.setEnabled(!hideAll && !state.isChildGltf1Hidden)
+        childGltfEntity2?.setEnabled(!hideAll && !state.isChildGltf2Hidden)
+
+        parentPanelEntity?.setEnabled(!hideAll && !state.isParentPanelHidden)
+        childPanelEntity1?.setEnabled(!hideAll && !state.isChildPanel1Hidden)
+        childPanelEntity2?.setEnabled(!hideAll && !state.isChildPanel2Hidden)
+
+        childPanel1PointerComponent?.spatialPointerIcon =
+            if (hideAll || state.isPanel1PointerHidden) SpatialPointerIcon.NONE
+            else SpatialPointerIcon.DEFAULT
+
+        // 3. Sync UI switches
+        updateSwitch(R.id.visibility_hide_all_entities, state.isHideAllChecked)
+        updateSwitch(R.id.visibility_hide_parent_gltf, state.isParentGltfHidden)
+        updateSwitch(R.id.visibility_hide_first_child_gltf, state.isChildGltf1Hidden)
+        updateSwitch(R.id.visibility_hide_second_child_gltf, state.isChildGltf2Hidden)
+        updateSwitch(R.id.visibility_hide_parent_panel, state.isParentPanelHidden)
+        updateSwitch(R.id.visibility_hide_first_child_panel, state.isChildPanel1Hidden)
+        updateSwitch(R.id.visibility_hide_second_child_panel, state.isChildPanel2Hidden)
+        updateSwitch(R.id.visibility_hide_panel1_pointer, state.isPanel1PointerHidden)
+    }
+
+    private fun updateSwitch(id: Int, isChecked: Boolean) {
+        val switch = findViewById<SwitchMaterial>(id)
+        if (switch.isChecked != isChecked) {
+            switch.isChecked = isChecked
+        }
+    }
+
     private fun toggleMode() {
-        when (spatialMode) {
+        val currentSession = session ?: return
+        when (viewModel.uiState.value.spatialMode) {
             SpatialMode.FSM -> {
-                session!!.scene.requestHomeSpace()
-                spatialMode = SpatialMode.HSM
+                currentSession.scene.requestHomeSpace()
+                viewModel.setSpatialMode(SpatialMode.HSM)
             }
 
             SpatialMode.HSM -> {
-                session!!.scene.requestFullSpace()
-                spatialMode = SpatialMode.FSM
+                currentSession.scene.requestFullSpace()
+                viewModel.setSpatialMode(SpatialMode.FSM)
             }
         }
     }
@@ -230,7 +265,7 @@ class VisibilityActivity : AppCompatActivity() {
             createPanel("Child Panel 2", childPanelEntity1, Pose(Vector3(0.5f, 0f, 0f)))
 
         childPanel1PointerComponent = SpatialPointerComponent.create(session!!)
-        if (!childPanelEntity1!!.addComponent(childPanel1PointerComponent)) {
+        if (!childPanelEntity1!!.addComponent(childPanel1PointerComponent!!)) {
             throw RuntimeException("Failed to add spatial pointer component to child panel 1")
         }
     }
@@ -303,34 +338,7 @@ class VisibilityActivity : AppCompatActivity() {
         return FloatSize2d(scaledSize.width / spaceScale, scaledSize.height / spaceScale)
     }
 
-    private fun setDisabledForAllEntities(disabled: Boolean) {
-        parentGltfEntity?.setEnabled(!disabled)
-        childGltfEntity1?.setEnabled(!disabled)
-        childGltfEntity2?.setEnabled(!disabled)
-
-        parentPanelEntity?.setEnabled(!disabled)
-        childPanelEntity1?.setEnabled(!disabled)
-        childPanelEntity2?.setEnabled(!disabled)
-    }
-
-    private fun updateToggles() {
-        findViewById<SwitchMaterial>(R.id.visibility_hide_parent_gltf).isChecked =
-            !parentGltfEntity!!.isEnabled(false)
-        findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_gltf).isChecked =
-            !childGltfEntity1!!.isEnabled(false)
-        findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_gltf).isChecked =
-            !childGltfEntity2!!.isEnabled(false)
-
-        findViewById<SwitchMaterial>(R.id.visibility_hide_parent_panel).isChecked =
-            !parentPanelEntity!!.isEnabled(false)
-        findViewById<SwitchMaterial>(R.id.visibility_hide_first_child_panel).isChecked =
-            !childPanelEntity1!!.isEnabled(false)
-        findViewById<SwitchMaterial>(R.id.visibility_hide_second_child_panel).isChecked =
-            !childPanelEntity2!!.isEnabled(false)
-    }
-
     companion object {
-        const val DELAY_FOR_3_SEC: Long = 3000
         const val ACTIVITY_NAME: String = "visibilityActivity"
         val MODEL_PATH: Path = Paths.get("models", "Dragon_Evolved.gltf")
     }
