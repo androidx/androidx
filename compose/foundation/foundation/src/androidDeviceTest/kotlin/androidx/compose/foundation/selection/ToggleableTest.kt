@@ -86,6 +86,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -111,6 +112,7 @@ class ToggleableTest {
         isDebugInspectorInfoEnabled = false
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538597974
     @Test
     fun toggleableTest_defaultSemantics() {
         rule.setContent {

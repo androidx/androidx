@@ -24,6 +24,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Rule
@@ -55,6 +56,7 @@ class ActivityScenarioTest {
         activityScenario = ActivityScenario.launch(Activity::class.java)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538633316
     @Test
     fun verifyActivityLaunched() {
         benchmarkRule.validateRunWithIsolationActivityHidden()

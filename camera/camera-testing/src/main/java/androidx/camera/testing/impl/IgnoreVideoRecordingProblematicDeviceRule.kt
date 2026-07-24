@@ -45,6 +45,10 @@ public class IgnoreVideoRecordingProblematicDeviceRule : TestRule {
                 "Emulator API 23 codec native crash.",
                 Build.VERSION.SDK_INT == 23 && AndroidUtil.isEmulator(),
             )
+            Assume.assumeFalse(
+                "Emulator API 24 codec native crash.",
+                Build.VERSION.SDK_INT == 24 && AndroidUtil.isEmulator(),
+            )
             // Skip test for b/399669628, b/401097968
             Assume.assumeFalse(
                 "Emulator API 26 MediaCodec doesn't send encoded data.",

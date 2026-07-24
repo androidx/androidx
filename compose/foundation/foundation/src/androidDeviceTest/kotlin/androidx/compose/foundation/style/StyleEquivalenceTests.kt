@@ -78,6 +78,7 @@ import kotlin.test.assertEquals
 import org.junit.Rule
 import org.junit.runner.RunWith
 
+@SdkSuppress(minSdkVersion = 25) // b/538599561
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class StyleEquivalenceTests {
