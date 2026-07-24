@@ -161,6 +161,7 @@ public class WebSettingsAdapter {
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
      */
+    @SuppressWarnings("deprecation")
     public int getAttributionRegistrationBehavior() {
         return mBoundaryInterface.getAttributionBehavior();
     }
@@ -169,6 +170,7 @@ public class WebSettingsAdapter {
      * Adapter method for
      * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
      */
+    @SuppressWarnings("deprecation")
     public void setAttributionRegistrationBehavior(int behavior) {
         mBoundaryInterface.setAttributionBehavior(behavior);
     }

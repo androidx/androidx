@@ -632,6 +632,7 @@ public class WebViewFeatureInternal {
      * {@link WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
      * {@link WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
      */
+    @SuppressWarnings("deprecation")
     public static final ApiFeature.NoFramework ATTRIBUTION_REGISTRATION_BEHAVIOR =
             new ApiFeature.NoFramework(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
                     Features.ATTRIBUTION_BEHAVIOR);
