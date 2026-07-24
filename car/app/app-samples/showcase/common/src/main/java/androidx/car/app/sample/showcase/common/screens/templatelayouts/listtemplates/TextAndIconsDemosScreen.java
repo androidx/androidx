@@ -31,6 +31,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
@@ -100,7 +101,7 @@ public final class TextAndIconsDemosScreen extends Screen {
                 IconCompat.createWithResource(
                         getCarContext(),
                         imageId))
-                .setTint(color)
+                .setStyle(new CarIconStyle.Builder().setTint(color).build())
                 .build();
     }
 

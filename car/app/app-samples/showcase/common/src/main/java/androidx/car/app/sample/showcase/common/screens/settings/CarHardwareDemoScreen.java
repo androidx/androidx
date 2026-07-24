@@ -22,6 +22,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
@@ -76,7 +77,8 @@ public final class CarHardwareDemoScreen extends Screen {
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
                                                         R.drawable.info_gm_grey_24dp))
-                                                .setTint(CarColor.DEFAULT)
+                                                .setStyle(new CarIconStyle.Builder().setTint(
+                                                        CarColor.DEFAULT).build())
                                                 .build())
                                 .setOnClickListener(() -> getScreenManager().push(
                                         new CarHardwareInfoScreen(getCarContext())))

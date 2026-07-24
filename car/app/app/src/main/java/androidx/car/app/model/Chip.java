@@ -180,7 +180,6 @@ public final class Chip implements Item {
         ChipStyle mStyle;
 
 
-
         /**
          * Sets the title of the chip.
          *
@@ -243,7 +242,8 @@ public final class Chip implements Item {
          *
          * <p>The icon will attempt to use the most specific tint supplied; this is, it will try to
          * use the first tint found in the following priority:
-         * 1. {@link CarIcon.Builder#setTint}
+         * 1. {@link CarIconStyle.Builder#setTint} set in
+         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code startIcon} property
          * 2. {@link Chip.Builder#setStyle(ChipStyle)}
          * {@link ChipStyle.Builder#setContentColor(CarColor)}
          * 3. {@link ChipSection.Builder#setStyle(ChipStyle)} content color
@@ -254,7 +254,7 @@ public final class Chip implements Item {
          * <p>Rasterized images such as
          * ({@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP}) images
          * will not have any tints <strong>unless explicitly supplied through
-         * {@link CarIcon.Builder#setTint}.</strong>.
+         * {@link CarIconStyle.Builder#setTint}.</strong>.
          *
          * @throws NullPointerException if {@code startIcon} is {@code null}
          */
@@ -278,7 +278,8 @@ public final class Chip implements Item {
          *
          * <p>The icon will attempt to use the most specific tint supplied; this is, it will try to
          * use the first tint found in the following priority:
-         * 1. {@link CarIcon.Builder#setTint}
+         * 1. {@link CarIconStyle.Builder#setTint} set in
+         * {@link CarIcon.Builder#setStyle(CarIconStyle)} for the {@code startIcon} property
          * 2. {@link Chip.Builder#setStyle(ChipStyle)}
          * {@link ChipStyle.Builder#setContentColor(CarColor)}
          * 3. {@link ChipSection.Builder#setStyle(ChipStyle)} content color
@@ -289,7 +290,7 @@ public final class Chip implements Item {
          * <p>Rasterized images such as
          * ({@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP}) images
          * will not have any tints <strong>unless explicitly supplied through
-         * {@link CarIcon.Builder#setTint}.</strong>.
+         * {@link CarIconStyle.Builder#setTint}.</strong>.
          *
          * @throws NullPointerException if {@code endIcon} is {@code null}
          */

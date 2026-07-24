@@ -26,6 +26,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
@@ -63,7 +64,7 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                 .setTitle(getCarContext().getString(R.string.ok_action_title))
                 .setIcon(new CarIcon.Builder(
                         IconCompat.createWithResource(getCarContext(), R.drawable.baseline_task_24))
-                                .build());
+                        .build());
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
             primaryActionBuilder.setFlags(FLAG_PRIMARY);
         }
@@ -90,7 +91,8 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                                 IconCompat.createWithResource(
                                         getCarContext(),
                                         R.drawable.ic_emoji_food_beverage_white_48dp))
-                                .setTint(CarColor.GREEN)
+                                .setStyle(
+                                        new CarIconStyle.Builder().setTint(CarColor.GREEN).build())
                                 .build())
                 .addAction(primaryActionBuilder.build())
                 .addAction(
