@@ -18,6 +18,9 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -60,6 +63,8 @@ public class HttpCacheTest {
             mHttpCache.setQuotaBytes(40 * MEBIBYTE);
             assertEquals("Quota should match the set value (40MiB)", 40 * MEBIBYTE,
                     mHttpCache.getQuotaBytes());
+            assertFalse("Should still not be using default quota after setting another custom one",
+                    mHttpCache.isUsingDefaultQuota());
         });
     }
 
@@ -79,6 +84,37 @@ public class HttpCacheTest {
                     mHttpCache.isUsingDefaultQuota());
             assertEquals("Current quota should match default quota after reset",
                     defaultQuota, mHttpCache.getQuotaBytes());
+        });
+    }
+
+    @Test
+    public void testHttpCacheEqualsAndHashCode() {
+        WebkitUtils.onMainThreadSync(() -> {
+            Profile sameProfile = ProfileStore.getInstance().getProfile(TEST_PROFILE_NAME);
+            assertNotNull(sameProfile);
+            HttpCache otherHttpCache = sameProfile.getHttpCache();
+
+            assertEquals("HttpCache instances for the same profile should be equal",
+                    mHttpCache, otherHttpCache);
+            assertEquals("HttpCache hashCodes for the same profile should be equal",
+                    mHttpCache.hashCode(), otherHttpCache.hashCode());
+
+            Profile defaultProfile = ProfileStore.getInstance().getProfile(
+                    Profile.DEFAULT_PROFILE_NAME);
+            assertNotNull(defaultProfile);
+            HttpCache defaultHttpCache = defaultProfile.getHttpCache();
+
+            assertNotEquals(
+                    "HttpCache instances for different profiles should not be equal",
+                    mHttpCache, defaultHttpCache);
+        });
+    }
+
+    @Test
+    public void testSetQuotaNegativeThrows() {
+        WebkitUtils.onMainThreadSync(() -> {
+            assertThrows(IllegalArgumentException.class,
+                    () -> mHttpCache.setQuotaBytes(-1));
         });
     }
 }
