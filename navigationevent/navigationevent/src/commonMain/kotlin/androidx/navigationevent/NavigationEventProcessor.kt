@@ -154,11 +154,29 @@ internal class NavigationEventProcessor {
     /** Whether at least one handler with [PRIORITY_DEFAULT] is enabled. */
     private var hasEnabledDefaultHandlers = false
 
+    /** Whether at least one back handler with [PRIORITY_DEFAULT] is enabled. */
+    private var hasEnabledDefaultBackHandlers = false
+
+    /** Whether at least one forward handler with [PRIORITY_DEFAULT] is enabled. */
+    private var hasEnabledDefaultForwardHandlers = false
+
     /** Whether at least one handler with [PRIORITY_OVERLAY] is enabled. */
     private var hasEnabledOverlayHandlers = false
 
-    /** Whether at least one handler with is enabled. */
+    /** Whether at least one back handler with [PRIORITY_OVERLAY] is enabled. */
+    private var hasEnabledOverlayBackHandlers = false
+
+    /** Whether at least one forward handler with [PRIORITY_OVERLAY] is enabled. */
+    private var hasEnabledOverlayForwardHandlers = false
+
+    /** Whether at least one handler is enabled. */
     private var hasEnabledAnyHandlers = false
+
+    /** Whether at least one back handler is enabled. */
+    private var hasEnabledAnyBackHandlers = false
+
+    /** Whether at least one forward handler is enabled. */
+    private var hasEnabledAnyForwardHandlers = false
 
     /**
      * Recalculates the enabled status for all callback priorities, notifies listeners of any
@@ -168,44 +186,98 @@ internal class NavigationEventProcessor {
      * or its own enabled status changes.
      */
     fun refreshEnabledHandlers() {
-        // 1) Snapshot new truth from current callbacks.
-        // Use `any` instead of `filter` to avoid allocating intermediate lists.
-        // (`any` also short-circuits on the first match, making it strictly cheaper.)
-        val newOverlayEnabled = overlayHandlers.any { it.isBackEnabled || it.isForwardEnabled }
-        val newDefaultEnabled = defaultHandlers.any { it.isBackEnabled || it.isForwardEnabled }
-        val newAnyEnabled = newOverlayEnabled || newDefaultEnabled
+        val newOverlayBackEnabled = overlayHandlers.any { it.isBackEnabled }
+        val newOverlayForwardEnabled = overlayHandlers.any { it.isForwardEnabled }
+        val newOverlayEnabled = newOverlayBackEnabled || newOverlayForwardEnabled
+
+        val newDefaultBackEnabled = defaultHandlers.any { it.isBackEnabled }
+        val newDefaultForwardEnabled = defaultHandlers.any { it.isForwardEnabled }
+        val newDefaultEnabled = newDefaultBackEnabled || newDefaultForwardEnabled
+
+        val newAnyBackEnabled = newOverlayBackEnabled || newDefaultBackEnabled
+        val newAnyForwardEnabled = newOverlayForwardEnabled || newDefaultForwardEnabled
+        val newAnyEnabled = newAnyBackEnabled || newAnyForwardEnabled
 
         val overlayEnabledChanged = hasEnabledOverlayHandlers != newOverlayEnabled
+        val overlayBackEnabledChanged = hasEnabledOverlayBackHandlers != newOverlayBackEnabled
+        val overlayForwardEnabledChanged =
+            hasEnabledOverlayForwardHandlers != newOverlayForwardEnabled
+
         val defaultEnabledChanged = hasEnabledDefaultHandlers != newDefaultEnabled
+        val defaultBackEnabledChanged = hasEnabledDefaultBackHandlers != newDefaultBackEnabled
+        val defaultForwardEnabledChanged =
+            hasEnabledDefaultForwardHandlers != newDefaultForwardEnabled
+
         val anyEnabledChanged = hasEnabledAnyHandlers != newAnyEnabled
+        val anyBackEnabledChanged = hasEnabledAnyBackHandlers != newAnyBackEnabled
+        val anyForwardEnabledChanged = hasEnabledAnyForwardHandlers != newAnyForwardEnabled
 
-        // 2) Notify only when a priority’s state actually changed.
-        if (overlayEnabledChanged) {
+        if (overlayEnabledChanged || overlayBackEnabledChanged || overlayForwardEnabledChanged) {
             overlayInputs.forEach { input ->
-                input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newOverlayEnabled)
+                if (overlayEnabledChanged) {
+                    input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newOverlayEnabled)
+                }
+                if (overlayBackEnabledChanged) {
+                    input.doOnHasEnabledBackHandlersChanged(
+                        hasEnabledBackHandlers = newOverlayBackEnabled
+                    )
+                }
+                if (overlayForwardEnabledChanged) {
+                    input.doOnHasEnabledForwardHandlersChanged(
+                        hasEnabledForwardHandlers = newOverlayForwardEnabled
+                    )
+                }
             }
         }
 
-        if (defaultEnabledChanged) {
+        if (defaultEnabledChanged || defaultBackEnabledChanged || defaultForwardEnabledChanged) {
             defaultInputs.forEach { input ->
-                input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newDefaultEnabled)
+                if (defaultEnabledChanged) {
+                    input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newDefaultEnabled)
+                }
+                if (defaultBackEnabledChanged) {
+                    input.doOnHasEnabledBackHandlersChanged(
+                        hasEnabledBackHandlers = newDefaultBackEnabled
+                    )
+                }
+                if (defaultForwardEnabledChanged) {
+                    input.doOnHasEnabledForwardHandlersChanged(
+                        hasEnabledForwardHandlers = newDefaultForwardEnabled
+                    )
+                }
             }
         }
 
-        if (anyEnabledChanged) {
+        if (anyEnabledChanged || anyBackEnabledChanged || anyForwardEnabledChanged) {
             unspecifiedInputs.forEach { input ->
-                input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newAnyEnabled)
+                if (anyEnabledChanged) {
+                    input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newAnyEnabled)
+                }
+                if (anyBackEnabledChanged) {
+                    input.doOnHasEnabledBackHandlersChanged(
+                        hasEnabledBackHandlers = newAnyBackEnabled
+                    )
+                }
+                if (anyForwardEnabledChanged) {
+                    input.doOnHasEnabledForwardHandlersChanged(
+                        hasEnabledForwardHandlers = newAnyForwardEnabled
+                    )
+                }
             }
         }
 
-        // 3) Commit new flags *after* notifications so change detection compares against the
-        // previous published state. This prevents spurious notifications within the same cycle.
         hasEnabledOverlayHandlers = newOverlayEnabled
-        hasEnabledDefaultHandlers = newDefaultEnabled
-        hasEnabledAnyHandlers = newAnyEnabled
+        hasEnabledOverlayBackHandlers = newOverlayBackEnabled
+        hasEnabledOverlayForwardHandlers = newOverlayForwardEnabled
 
-        // 4) Synchronize the global navigation state to the active (highest-priority) enabled
-        // callback.
+        hasEnabledDefaultHandlers = newDefaultEnabled
+        hasEnabledDefaultBackHandlers = newDefaultBackEnabled
+        hasEnabledDefaultForwardHandlers = newDefaultForwardEnabled
+
+        hasEnabledAnyHandlers = newAnyEnabled
+        hasEnabledAnyBackHandlers = newAnyBackEnabled
+        hasEnabledAnyForwardHandlers = newAnyForwardEnabled
+
         updateEnabledHandlerInfo(handler = inProgressHandler ?: resolveEnabledHandler())
     }
 
@@ -334,7 +406,21 @@ internal class NavigationEventProcessor {
                 PRIORITY_DEFAULT -> hasEnabledDefaultHandlers
                 else -> hasEnabledAnyHandlers
             }
+        val hasEnabledBackHandlers =
+            when (priority) {
+                PRIORITY_OVERLAY -> hasEnabledOverlayBackHandlers
+                PRIORITY_DEFAULT -> hasEnabledDefaultBackHandlers
+                else -> hasEnabledAnyBackHandlers
+            }
+        val hasEnabledForwardHandlers =
+            when (priority) {
+                PRIORITY_OVERLAY -> hasEnabledOverlayForwardHandlers
+                PRIORITY_DEFAULT -> hasEnabledDefaultForwardHandlers
+                else -> hasEnabledAnyForwardHandlers
+            }
         input.doOnHasEnabledHandlersChanged(hasEnabledHandlers)
+        input.doOnHasEnabledBackHandlersChanged(hasEnabledBackHandlers)
+        input.doOnHasEnabledForwardHandlersChanged(hasEnabledForwardHandlers)
     }
 
     /** [NavigationEventDispatcher.removeInput] */
