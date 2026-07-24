@@ -115,7 +115,6 @@ dependencies {
     docs("androidx.compose.ui:ui-viewbinding:1.12.0-rc01")
     docs("androidx.concurrent:concurrent:1.4.0-alpha01")
     docs("androidx.concurrent:concurrent-futures:1.4.0-alpha01")
-    docs("androidx.concurrent:concurrent-futures-ktx:1.3.0")
     docs("androidx.constraintlayout:constraintlayout:2.2.2")
     kmpDocs("androidx.constraintlayout:constraintlayout-compose:1.1.2")
     docs("androidx.constraintlayout:constraintlayout-core:1.1.2")
