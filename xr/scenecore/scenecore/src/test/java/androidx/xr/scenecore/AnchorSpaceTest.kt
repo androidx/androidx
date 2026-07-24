@@ -87,6 +87,8 @@ class AnchorSpaceTest {
     @Suppress("DEPRECATION")
     // TODO: b/494308962 Remove references to arcore-testing Fakes
     fun setup(): Unit = runBlocking {
+        // TODO: b/537470420 Remove once Anchors are properly detached in unit tests.
+        androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
         testDispatcher = StandardTestDispatcher()
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
@@ -103,7 +105,7 @@ class AnchorSpaceTest {
     @After
     fun tearDown() {
         if (::anchor.isInitialized) {
-            anchor.runtimeAnchor.detach()
+            anchor.detach()
         }
         if (::activityController.isInitialized) {
             activityController.destroy()
@@ -334,8 +336,8 @@ class AnchorSpaceTest {
     fun getActivitySpacePose_returnsIdentity() {
         val anchorSpace = AnchorSpace.create(session, anchor)
         val pose = anchorSpace.getPose(Space.ACTIVITY)
-        assertThat(pose.translation).isEqualTo(anchor.runtimeAnchor.pose.translation)
-        assertThat(pose.rotation).isEqualTo(anchor.runtimeAnchor.pose.rotation)
+        assertThat(pose.translation).isEqualTo(anchor.state.value.pose.translation)
+        assertThat(pose.rotation).isEqualTo(anchor.state.value.pose.rotation)
     }
 
     @Test
@@ -343,8 +345,8 @@ class AnchorSpaceTest {
         val anchorSpace = AnchorSpace.create(session, anchor)
         @Suppress("DEPRECATION") // TODO - b/415320653: Space.REAL_WORLD
         val pose = anchorSpace.getPose(Space.REAL_WORLD)
-        assertThat(pose.translation).isEqualTo(anchor.runtimeAnchor.pose.translation)
-        assertThat(pose.rotation).isEqualTo(anchor.runtimeAnchor.pose.rotation)
+        assertThat(pose.translation).isEqualTo(anchor.state.value.pose.translation)
+        assertThat(pose.rotation).isEqualTo(anchor.state.value.pose.rotation)
     }
 
     @Test

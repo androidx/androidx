@@ -55,6 +55,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -215,6 +216,12 @@ class MovableComponentTest {
         mFakePerceptionManager = mFakeRuntime.perceptionManager
         timeSource = mFakeRuntime.timeSource
         SystemClock.setCurrentTimeMillis(mCurrentTimeMillis)
+    }
+
+    @Before
+    fun setup() {
+        // TODO: b/537470420 Remove once Anchors are properly detached in unit tests.
+        androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
     }
 
     @After
