@@ -142,7 +142,6 @@ package androidx.navigation {
     method @BytecodeOnly @MainThread public static void navigate$default(androidx.navigation.NavController!, String!, androidx.navigation.NavOptions!, androidx.navigation.Navigator.Extras!, int, Object!);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
-    method @BytecodeOnly @MainThread public final <T> boolean popBackStack(boolean);
     method @KotlinOnly @MainThread public final inline <reified T> boolean popBackStack(boolean inclusive, optional boolean saveState);
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive, boolean saveState);
