@@ -89,7 +89,7 @@ private constructor(
             } catch (e: Exception) {
                 throw ProcessingException(
                     message =
-                        "Compiler option appfunctions:generateLegacySchemaXml should be either " +
+                        "Compiler option appfunctions:generateV1Xml should be either " +
                             "`true` or `false`",
                     symbol = null,
                     throwable = e,
