@@ -69,8 +69,7 @@ import androidx.compose.ui.unit.dp
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteSpacer, RemoteText, background, combinedClickable, remote-core,
-// remote-creation-core
+) // Referring to RemoteText, combinedClickable, remote-core, remote-creation-core
 @Composable
 fun GesturePropagationDemo() {
     val experimentalProfile =

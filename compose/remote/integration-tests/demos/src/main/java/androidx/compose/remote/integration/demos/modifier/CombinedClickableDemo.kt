@@ -67,10 +67,7 @@ fun CombinedClickableDemo() {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, combinedClickable, remote-core,
-// remote-creation-core
+@Suppress("RestrictedApiAndroidX") // Referring to remote-core, remote-creation-core
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

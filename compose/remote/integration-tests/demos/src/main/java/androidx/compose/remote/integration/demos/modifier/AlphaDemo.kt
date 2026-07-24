@@ -42,7 +42,7 @@ fun AlphaDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { AlphaDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText, background
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

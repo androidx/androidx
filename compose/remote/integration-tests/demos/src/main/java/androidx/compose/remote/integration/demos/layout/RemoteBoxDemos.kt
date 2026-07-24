@@ -58,9 +58,7 @@ import androidx.compose.ui.unit.dp
 
 private const val ALIGNMENT_ID = "ALIGNMENT_ID"
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, background, setUserLocalInt
+@Suppress("RestrictedApiAndroidX") // Referring to setUserLocalInt
 @Composable
 fun RemoteBoxAlignmentsDemo() {
     val alignments =
