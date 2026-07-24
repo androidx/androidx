@@ -30,6 +30,7 @@ import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
@@ -149,7 +150,7 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                 .setTitle("Map+X this!")
                 .setIcon(
                         new CarIcon.Builder(mCommuteIcon)
-                                .setTint(CarColor.BLUE)
+                                .setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build())
                                 .build())
                 .setOnClickListener(
                         () -> getScreenManager().push(new MapPaneDemoScreen(getCarContext())))

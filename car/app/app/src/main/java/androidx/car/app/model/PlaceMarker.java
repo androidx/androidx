@@ -55,8 +55,9 @@ public final class PlaceMarker {
      * images targeting a 64 x 64 dp bounding box. If necessary, the icon will be scaled down while
      * preserving its aspect ratio.
      *
-     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
-     * default tint color as determined by the host will be applied.
+     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
+     * provided to the icon with {@link CarIcon.Builder#setStyle}.
+     * Otherwise, a default tint color as determined by the host will be applied.
      */
     public static final int TYPE_ICON = 0;
 

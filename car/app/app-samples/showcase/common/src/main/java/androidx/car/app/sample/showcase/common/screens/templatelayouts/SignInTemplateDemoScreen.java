@@ -31,6 +31,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.InputCallback;
@@ -313,7 +314,7 @@ public class SignInTemplateDemoScreen extends Screen {
                         .setTitle(title)
                         .setBackgroundColor(CarColor.createCustom(Color.WHITE, Color.WHITE))
                         .setIcon(new CarIcon.Builder(providerIcon)
-                                .setTint(noTint)
+                                .setStyle(new CarIconStyle.Builder().setTint(noTint).build())
                                 .build())
                         .setOnClickListener(ParkedOnlyOnClickListener.create(
                                 this::performSignInWithGoogleFlow)).build());
