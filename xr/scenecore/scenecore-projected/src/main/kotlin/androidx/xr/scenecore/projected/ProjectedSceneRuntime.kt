@@ -34,7 +34,6 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
-import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper
 import androidx.xr.scenecore.runtime.MovableComponent
 import androidx.xr.scenecore.runtime.NodeHolder
@@ -151,10 +150,6 @@ internal constructor(
     }
 
     override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
-        TODO("Not yet implemented")
-    }
-
-    override fun createLoggingEntity(pose: Pose): LoggingEntity {
         TODO("Not yet implemented")
     }
 
