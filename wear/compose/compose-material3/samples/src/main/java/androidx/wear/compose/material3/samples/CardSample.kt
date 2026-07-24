@@ -60,7 +60,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TitleCard
-import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
@@ -376,7 +376,8 @@ fun AppCardContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("App Card") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGestureClickIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -427,7 +428,8 @@ fun TitleCardContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("Title Card") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGestureClickIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 

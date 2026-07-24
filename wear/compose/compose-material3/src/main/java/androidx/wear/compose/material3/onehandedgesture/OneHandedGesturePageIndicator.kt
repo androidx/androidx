@@ -263,7 +263,7 @@ public class OneHandedGesturePageIndicatorState @RememberInComposition construct
         }
     }
 
-    internal lateinit var gestureManager: GestureManager
+    internal lateinit var gestureManager: OneHandedGestureManager
     internal lateinit var gestureConfiguration: OneHandedGestureConfiguration
     private val mutex = Mutex()
 
@@ -282,7 +282,7 @@ private fun GesturePageIndicator(
     gestureIndicatorTint: Color,
     gestureIndicatorBackgroundColor: Color,
 ) {
-    val gestureManager = LocalGestureManager.current
+    val gestureManager = LocalOneHandedGestureManager.current
     val avd = gestureConfiguration.action.animatedImageVector()
     val duration = avd.totalDuration.milliseconds
 

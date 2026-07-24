@@ -22,28 +22,28 @@ import androidx.compose.runtime.Immutable
  * Defines the distinct actions of one-handed gestures supported by the system.
  *
  * When a gesture is performed, the system first identifies all handlers registered for that
- * specific [GestureAction]. From that set, it identifies the handlers with the highest assigned
- * priority.
+ * specific [OneHandedGestureAction]. From that set, it identifies the handlers with the highest
+ * assigned priority.
  *
  * Handlers with the highest priority take precedence. It is not recommended to register multiple
  * gestures for the same action and priority (but if that is the case, all of them will be actioned)
  */
 @Immutable
 @JvmInline
-public value class GestureAction internal constructor(internal val value: Int) {
+public value class OneHandedGestureAction internal constructor(internal val value: Int) {
     public companion object {
         /**
          * The primary gesture action.
          *
          * Depending on the current UI context, this could be a click, selection or scroll action.
          */
-        public val Primary: GestureAction = GestureAction(1)
+        public val Primary: OneHandedGestureAction = OneHandedGestureAction(1)
 
         /**
          * The dismiss gesture action.
          *
          * Typically used to perform a "go back" action, close a dialog or exit the current screen.
          */
-        public val Dismiss: GestureAction = GestureAction(2)
+        public val Dismiss: OneHandedGestureAction = OneHandedGestureAction(2)
     }
 }
