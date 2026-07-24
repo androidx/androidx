@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.dp
  */
 @Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
-class FlowRowOverflow
+public class FlowRowOverflow
 private constructor(
     type: OverflowType,
     minLinesToShowCollapse: Int = 0,
@@ -74,12 +74,13 @@ private constructor(
         collapseGetter,
     ) {
 
-    companion object {
+    public companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
-        @ExperimentalLayoutApi val Visible = FlowRowOverflow(OverflowType.Visible)
+        @ExperimentalLayoutApi
+        public val Visible: FlowRowOverflow = FlowRowOverflow(OverflowType.Visible)
 
         /** Clip the overflowing content to fix its container. */
-        @ExperimentalLayoutApi val Clip = FlowRowOverflow(OverflowType.Clip)
+        @ExperimentalLayoutApi public val Clip: FlowRowOverflow = FlowRowOverflow(OverflowType.Clip)
 
         /**
          * Registers an "expand indicator" composable for handling overflow in a [FlowRow].
@@ -93,7 +94,9 @@ private constructor(
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
-        fun expandIndicator(content: @Composable FlowRowOverflowScope.() -> Unit): FlowRowOverflow {
+        public fun expandIndicator(
+            content: @Composable FlowRowOverflowScope.() -> Unit
+        ): FlowRowOverflow {
             val seeMoreGetter = { state: FlowLayoutOverflowState ->
                 @Composable {
                     val scope = FlowRowOverflowScopeImpl(state)
@@ -127,7 +130,7 @@ private constructor(
          */
         @ExperimentalLayoutApi
         @Composable
-        fun expandOrCollapseIndicator(
+        public fun expandOrCollapseIndicator(
             expandIndicator: @Composable FlowRowOverflowScope.() -> Unit,
             collapseIndicator: @Composable FlowRowOverflowScope.() -> Unit,
             minRowsToShowCollapse: Int = 1,
@@ -187,7 +190,7 @@ private constructor(
  */
 @Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
-class FlowColumnOverflow
+public class FlowColumnOverflow
 private constructor(
     type: OverflowType,
     minLinesToShowCollapse: Int = 0,
@@ -204,13 +207,16 @@ private constructor(
     ) {
     @Deprecated("FlowLayout overflow is no longer maintained")
     @ExperimentalLayoutApi
-    companion object {
+    public companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @ExperimentalLayoutApi
-        val Visible = FlowColumnOverflow(FlowLayoutOverflow.OverflowType.Visible)
+        public val Visible: FlowColumnOverflow =
+            FlowColumnOverflow(FlowLayoutOverflow.OverflowType.Visible)
 
         /** Clip the overflowing content to fix its container. */
-        @ExperimentalLayoutApi val Clip = FlowColumnOverflow(FlowLayoutOverflow.OverflowType.Clip)
+        @ExperimentalLayoutApi
+        public val Clip: FlowColumnOverflow =
+            FlowColumnOverflow(FlowLayoutOverflow.OverflowType.Clip)
 
         /**
          * Registers an "expand indicator" composable for handling overflow in a [FlowColumn].
@@ -224,7 +230,7 @@ private constructor(
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
-        fun expandIndicator(
+        public fun expandIndicator(
             content: @Composable FlowColumnOverflowScope.() -> Unit
         ): FlowColumnOverflow {
             val seeMoreGetter = { state: FlowLayoutOverflowState ->
@@ -260,7 +266,7 @@ private constructor(
          */
         @ExperimentalLayoutApi
         @Composable
-        fun expandOrCollapseIndicator(
+        public fun expandOrCollapseIndicator(
             expandIndicator: @Composable FlowColumnOverflowScope.() -> Unit,
             collapseIndicator: @Composable FlowColumnOverflowScope.() -> Unit,
             minColumnsToShowCollapse: Int = 1,
@@ -320,7 +326,7 @@ private constructor(
  */
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @ExperimentalLayoutApi
-class ContextualFlowRowOverflow
+public class ContextualFlowRowOverflow
 private constructor(
     type: OverflowType,
     minLinesToShowCollapse: Int = 0,
@@ -338,14 +344,16 @@ private constructor(
 
     @Deprecated("FlowLayout overflow is no longer maintained")
     @ExperimentalLayoutApi
-    companion object {
+    public companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @ExperimentalLayoutApi
-        val Visible = ContextualFlowRowOverflow(FlowLayoutOverflow.OverflowType.Visible)
+        public val Visible: ContextualFlowRowOverflow =
+            ContextualFlowRowOverflow(FlowLayoutOverflow.OverflowType.Visible)
 
         /** Clip the overflowing content to fix its container. */
         @ExperimentalLayoutApi
-        val Clip = ContextualFlowRowOverflow(FlowLayoutOverflow.OverflowType.Clip)
+        public val Clip: ContextualFlowRowOverflow =
+            ContextualFlowRowOverflow(FlowLayoutOverflow.OverflowType.Clip)
 
         /**
          * Registers an "expand indicator" composable for handling overflow in a
@@ -359,7 +367,7 @@ private constructor(
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
-        fun expandIndicator(
+        public fun expandIndicator(
             content: @Composable ContextualFlowRowOverflowScope.() -> Unit
         ): ContextualFlowRowOverflow {
             val seeMoreGetter = { state: FlowLayoutOverflowState ->
@@ -398,7 +406,7 @@ private constructor(
          */
         @ExperimentalLayoutApi
         @Composable
-        fun expandOrCollapseIndicator(
+        public fun expandOrCollapseIndicator(
             expandIndicator: @Composable ContextualFlowRowOverflowScope.() -> Unit,
             collapseIndicator: @Composable ContextualFlowRowOverflowScope.() -> Unit,
             minRowsToShowCollapse: Int = 1,
@@ -458,7 +466,7 @@ private constructor(
  */
 @Deprecated("ContextualFlowLayouts are no longer maintained")
 @ExperimentalLayoutApi
-class ContextualFlowColumnOverflow
+public class ContextualFlowColumnOverflow
 private constructor(
     type: OverflowType,
     minLinesToShowCollapse: Int = 0,
@@ -476,14 +484,16 @@ private constructor(
 
     @Deprecated("ContextualFlowLayouts are no longer maintained")
     @ExperimentalLayoutApi
-    companion object {
+    public companion object {
         /** Display all content, even if there is not enough space in the specified bounds. */
         @ExperimentalLayoutApi
-        val Visible = ContextualFlowColumnOverflow(FlowLayoutOverflow.OverflowType.Visible)
+        public val Visible: ContextualFlowColumnOverflow =
+            ContextualFlowColumnOverflow(FlowLayoutOverflow.OverflowType.Visible)
 
         /** Clip the overflowing content to fix its container. */
         @ExperimentalLayoutApi
-        val Clip = ContextualFlowColumnOverflow(FlowLayoutOverflow.OverflowType.Clip)
+        public val Clip: ContextualFlowColumnOverflow =
+            ContextualFlowColumnOverflow(FlowLayoutOverflow.OverflowType.Clip)
 
         /**
          * Registers an "expand indicator" composable for handling overflow in a
@@ -497,7 +507,7 @@ private constructor(
          * @param content composable that visually indicates more items can be loaded.
          */
         @ExperimentalLayoutApi
-        fun expandIndicator(
+        public fun expandIndicator(
             content: @Composable ContextualFlowColumnOverflowScope.() -> Unit
         ): ContextualFlowColumnOverflow {
             val seeMoreGetter = { state: FlowLayoutOverflowState ->
@@ -536,7 +546,7 @@ private constructor(
          */
         @ExperimentalLayoutApi
         @Composable
-        fun expandOrCollapseIndicator(
+        public fun expandOrCollapseIndicator(
             expandIndicator: @Composable ContextualFlowColumnOverflowScope.() -> Unit,
             collapseIndicator: @Composable ContextualFlowColumnOverflowScope.() -> Unit,
             minColumnsToShowCollapse: Int = 1,
@@ -591,7 +601,7 @@ private constructor(
  */
 @Deprecated("FlowLayout overflow is no longer maintained")
 @ExperimentalLayoutApi
-sealed class FlowLayoutOverflow(
+public sealed class FlowLayoutOverflow(
     internal val type: OverflowType,
     private val minLinesToShowCollapse: Int = 0,
     private val minCrossAxisSizeToShowCollapse: Int = 0,

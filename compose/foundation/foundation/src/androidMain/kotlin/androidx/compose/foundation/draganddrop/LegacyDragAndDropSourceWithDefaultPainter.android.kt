@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.InspectorInfo
     replaceWith = ReplaceWith("Modifier.dragAndDropSource(transferData)"),
 )
 @ExperimentalFoundationApi
-fun Modifier.dragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier =
+public fun Modifier.dragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier =
     this then LegacyDragAndDropSourceWithDefaultShadowElement(dragAndDropSourceHandler = block)
 
 @ExperimentalFoundationApi

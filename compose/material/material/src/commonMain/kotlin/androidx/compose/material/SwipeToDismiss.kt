@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 
 /** The directions in which a [SwipeToDismiss] can be dismissed. */
-enum class DismissDirection {
+public enum class DismissDirection {
     /** Can be dismissed by swiping in the reading direction. */
     StartToEnd,
 
@@ -52,7 +52,7 @@ enum class DismissDirection {
 }
 
 /** Possible values of [DismissState]. */
-enum class DismissValue {
+public enum class DismissValue {
     /** Indicates the component has not been dismissed yet. */
     Default,
 
@@ -70,7 +70,7 @@ enum class DismissValue {
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @ExperimentalMaterialApi
-class DismissState(
+public class DismissState(
     initialValue: DismissValue,
     confirmStateChange: (DismissValue) -> Boolean = { true },
 ) : SwipeableState<DismissValue>(initialValue, confirmStateChange = confirmStateChange) {
@@ -80,7 +80,7 @@ class DismissState(
      * If the composable is settled at the default state, then this will be null. Use this to change
      * the background of the [SwipeToDismiss] if you want different actions on each side.
      */
-    val dismissDirection: DismissDirection?
+    public val dismissDirection: DismissDirection?
         get() = if (offset.value == 0f) null else if (offset.value > 0f) StartToEnd else EndToStart
 
     /**
@@ -88,7 +88,7 @@ class DismissState(
      *
      * @param direction The dismiss direction.
      */
-    fun isDismissed(direction: DismissDirection): Boolean {
+    public fun isDismissed(direction: DismissDirection): Boolean {
         return currentValue == if (direction == StartToEnd) DismissedToEnd else DismissedToStart
     }
 
@@ -99,7 +99,7 @@ class DismissState(
      *
      * @return the reason the reset animation ended
      */
-    suspend fun reset() = animateTo(targetValue = Default)
+    public suspend fun reset(): Unit = animateTo(targetValue = Default)
 
     /**
      * Dismiss the component in the given [direction], with an animation and suspend. This method
@@ -107,14 +107,16 @@ class DismissState(
      *
      * @param direction The dismiss direction.
      */
-    suspend fun dismiss(direction: DismissDirection) {
+    public suspend fun dismiss(direction: DismissDirection) {
         val targetValue = if (direction == StartToEnd) DismissedToEnd else DismissedToStart
         animateTo(targetValue = targetValue)
     }
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [DismissState]. */
-        fun Saver(confirmStateChange: (DismissValue) -> Boolean) =
+        public fun Saver(
+            confirmStateChange: (DismissValue) -> Boolean
+        ): Saver<DismissState, DismissValue> =
             Saver<DismissState, DismissValue>(
                 save = { it.currentValue },
                 restore = { DismissState(it, confirmStateChange) },
@@ -130,7 +132,7 @@ class DismissState(
  */
 @Composable
 @ExperimentalMaterialApi
-fun rememberDismissState(
+public fun rememberDismissState(
     initialValue: DismissValue = Default,
     confirmStateChange: (DismissValue) -> Boolean = { true },
 ): DismissState {
@@ -154,7 +156,7 @@ fun rememberDismissState(
 @Composable
 @ExperimentalMaterialApi
 @Suppress("ReferencesDeprecated")
-fun SwipeToDismiss(
+public fun SwipeToDismiss(
     state: DismissState,
     modifier: Modifier = Modifier,
     directions: Set<DismissDirection> = setOf(EndToStart, StartToEnd),
@@ -163,7 +165,7 @@ fun SwipeToDismiss(
     },
     background: @Composable RowScope.() -> Unit,
     dismissContent: @Composable RowScope.() -> Unit,
-) =
+): Unit =
     BoxWithConstraints(modifier) {
         val width = constraints.maxWidth.toFloat()
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl

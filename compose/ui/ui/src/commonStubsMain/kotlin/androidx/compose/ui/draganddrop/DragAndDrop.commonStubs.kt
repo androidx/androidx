@@ -19,9 +19,9 @@ package androidx.compose.ui.draganddrop
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.implementedInJetBrainsFork
 
-actual class DragAndDropTransferData
+public actual class DragAndDropTransferData
 
-actual class DragAndDropEvent
+public actual class DragAndDropEvent
 
 internal actual val DragAndDropEvent.positionInRoot: Offset
     get() = implementedInJetBrainsFork()

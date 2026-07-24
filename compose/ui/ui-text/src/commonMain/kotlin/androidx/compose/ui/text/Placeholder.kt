@@ -35,17 +35,17 @@ import androidx.compose.ui.unit.isUnspecified
  * @throws IllegalArgumentException if [TextUnit.Unspecified] is passed to [width] or [height].
  */
 @Immutable
-class Placeholder(
-    val width: TextUnit,
-    val height: TextUnit,
-    val placeholderVerticalAlign: PlaceholderVerticalAlign,
+public class Placeholder(
+    public val width: TextUnit,
+    public val height: TextUnit,
+    public val placeholderVerticalAlign: PlaceholderVerticalAlign,
 ) {
     init {
         requirePrecondition(!width.isUnspecified) { "width cannot be TextUnit.Unspecified" }
         requirePrecondition(!height.isUnspecified) { "height cannot be TextUnit.Unspecified" }
     }
 
-    fun copy(
+    public fun copy(
         width: TextUnit = this.width,
         height: TextUnit = this.height,
         placeholderVerticalAlign: PlaceholderVerticalAlign = this.placeholderVerticalAlign,
@@ -57,7 +57,7 @@ class Placeholder(
         )
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Placeholder) return false
         if (width != other.width) return false
@@ -66,14 +66,14 @@ class Placeholder(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = width.hashCode()
         result = 31 * result + height.hashCode()
         result = 31 * result + placeholderVerticalAlign.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "Placeholder(" +
             "width=$width, " +
             "height=$height, " +
@@ -88,10 +88,10 @@ class Placeholder(
  * @see Placeholder
  */
 @kotlin.jvm.JvmInline
-value class PlaceholderVerticalAlign
+public value class PlaceholderVerticalAlign
 internal constructor(@Suppress("unused") private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             AboveBaseline -> "AboveBaseline"
             Top -> "Top"
@@ -104,21 +104,21 @@ internal constructor(@Suppress("unused") private val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /** Align the bottom of the placeholder with the baseline. */
-        val AboveBaseline
+        public val AboveBaseline: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(1)
 
         /** Align the top of the placeholder with the top of the entire line. */
-        val Top
+        public val Top: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(2)
 
         /** Align the bottom of the placeholder with the bottom of the entire line. */
-        val Bottom
+        public val Bottom: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(3)
 
         /** Align the center of the placeholder with the center of the entire line. */
-        val Center
+        public val Center: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(4)
 
         /**
@@ -127,7 +127,7 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * same line. This option will use the proceeding text's top instead of the whole line's
          * top.
          */
-        val TextTop
+        public val TextTop: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(5)
 
         /**
@@ -136,7 +136,7 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * other styles in the same line. This option will use the proceeding text's bottom instead
          * of the whole line's bottom.
          */
-        val TextBottom
+        public val TextBottom: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(6)
 
         /**
@@ -145,7 +145,7 @@ internal constructor(@Suppress("unused") private val value: Int) {
          * styles in the same line. This option will use the proceeding text's center instead of the
          * whole line's center.
          */
-        val TextCenter
+        public val TextCenter: PlaceholderVerticalAlign
             get() = PlaceholderVerticalAlign(7)
     }
 }

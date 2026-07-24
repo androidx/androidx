@@ -59,20 +59,20 @@ import androidx.compose.runtime.Composable
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Repeatable
-annotation class Preview(
-    val name: String = "",
-    val group: String = "",
-    @IntRange(from = 1) val apiLevel: Int = -1,
+public annotation class Preview(
+    public val name: String = "",
+    public val group: String = "",
+    @IntRange(from = 1) public val apiLevel: Int = -1,
     // TODO(mount): Make this Dp when they are inline classes
-    val widthDp: Int = -1,
+    public val widthDp: Int = -1,
     // TODO(mount): Make this Dp when they are inline classes
-    val heightDp: Int = -1,
-    val locale: String = "",
-    @FloatRange(from = 0.01) val fontScale: Float = 1f,
-    val showSystemUi: Boolean = false,
-    val showBackground: Boolean = false,
-    val backgroundColor: Long = 0,
-    @AndroidUiMode val uiMode: Int = 0,
-    @Device val device: String = Devices.DEFAULT,
-    @Wallpaper val wallpaper: Int = Wallpapers.NONE,
+    public val heightDp: Int = -1,
+    public val locale: String = "",
+    @FloatRange(from = 0.01) public val fontScale: Float = 1f,
+    public val showSystemUi: Boolean = false,
+    public val showBackground: Boolean = false,
+    public val backgroundColor: Long = 0,
+    @AndroidUiMode public val uiMode: Int = 0,
+    @Device public val device: String = Devices.DEFAULT,
+    @Wallpaper public val wallpaper: Int = Wallpapers.NONE,
 )

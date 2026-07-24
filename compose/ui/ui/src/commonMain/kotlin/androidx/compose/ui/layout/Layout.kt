@@ -74,7 +74,7 @@ import kotlin.jvm.JvmName
 @Suppress("ComposableLambdaParameterPosition")
 @UiComposable
 @Composable
-inline fun Layout(
+public inline fun Layout(
     content: @Composable @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy,
@@ -121,7 +121,7 @@ inline fun Layout(
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 @UiComposable
-inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
+public inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
     val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
     val materialized = currentComposer.materialize(modifier)
     val localMap = currentComposer.currentCompositionLocalMap
@@ -162,7 +162,7 @@ inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
 @Suppress("ComposableLambdaParameterPosition", "NOTHING_TO_INLINE")
 @UiComposable
 @Composable
-inline fun Layout(
+public inline fun Layout(
     contents: List<@Composable @UiComposable () -> Unit>,
     modifier: Modifier = Modifier,
     measurePolicy: MultiContentMeasurePolicy,
@@ -235,7 +235,7 @@ internal fun materializerOfWithCompositionLocalInjection(
     "This API is unsafe for UI performance at scale - using it incorrectly will lead " +
         "to exponential performance issues. This API should be avoided whenever possible."
 )
-fun MultiMeasureLayout(
+public fun MultiMeasureLayout(
     modifier: Modifier = Modifier,
     content: @Composable @UiComposable () -> Unit,
     measurePolicy: MeasurePolicy,

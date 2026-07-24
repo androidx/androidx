@@ -29,7 +29,7 @@ import kotlin.math.sign
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class FontScaleConverterTable
+public class FontScaleConverterTable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /**
  * Creates a lookup table for the given conversions.
@@ -42,10 +42,10 @@ class FontScaleConverterTable
  * @param toDp array of dimensions in DP that correspond to an SP value in fromSp
  * @throws IllegalArgumentException if the array lengths don't match or are empty
  */
-constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
-    @VisibleForTesting val mFromSpValues: FloatArray
+public constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
+    @VisibleForTesting public val mFromSpValues: FloatArray
 
-    @VisibleForTesting val mToDpValues: FloatArray
+    @VisibleForTesting public val mToDpValues: FloatArray
 
     init {
         require(!(fromSp.size != toDp.size || fromSp.isEmpty())) {
@@ -55,15 +55,15 @@ constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
         mToDpValues = toDp
     }
 
-    override fun convertDpToSp(dp: Float): Float {
+    public override fun convertDpToSp(dp: Float): Float {
         return lookupAndInterpolate(dp, mToDpValues, mFromSpValues)
     }
 
-    override fun convertSpToDp(sp: Float): Float {
+    public override fun convertSpToDp(sp: Float): Float {
         return lookupAndInterpolate(sp, mFromSpValues, mToDpValues)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
         if (other !is FontScaleConverterTable) return false
@@ -71,13 +71,13 @@ constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
             mToDpValues.contentEquals(other.mToDpValues))
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = mFromSpValues.contentHashCode()
         result = 31 * result + mToDpValues.contentHashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return ("FontScaleConverter{" +
             "fromSpValues=" +
             mFromSpValues.contentToString() +
@@ -86,7 +86,7 @@ constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
             '}')
     }
 
-    companion object {
+    public companion object {
         private fun lookupAndInterpolate(
             sourceValue: Float,
             sourceValues: FloatArray,

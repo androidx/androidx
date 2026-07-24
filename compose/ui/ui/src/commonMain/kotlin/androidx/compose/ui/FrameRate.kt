@@ -49,8 +49,9 @@ import androidx.compose.ui.util.fastForEach
  * @sample androidx.compose.ui.samples.SetFrameRateSample
  * @see graphicsLayer
  */
-fun Modifier.preferredFrameRate(@FloatRange(from = 0.0, to = 360.0) frameRate: Float) =
-    this.graphicsLayer().frameRate(frameRate)
+public fun Modifier.preferredFrameRate(
+    @FloatRange(from = 0.0, to = 360.0) frameRate: Float
+): Modifier = this.graphicsLayer().frameRate(frameRate)
 
 /**
  * Set a requested frame rate on Composable
@@ -68,7 +69,7 @@ fun Modifier.preferredFrameRate(@FloatRange(from = 0.0, to = 360.0) frameRate: F
  * @sample androidx.compose.ui.samples.SetFrameRateCategorySample
  * @see graphicsLayer
  */
-fun Modifier.preferredFrameRate(frameRateCategory: FrameRateCategory) =
+public fun Modifier.preferredFrameRate(frameRateCategory: FrameRateCategory): Modifier =
     this.graphicsLayer().frameRate(frameRateCategory.value)
 
 private fun Modifier.frameRate(frameRate: Float) = this then FrameRateElement(frameRate)

@@ -51,7 +51,7 @@ private val syncLoadedTypefaces = mutableScatterMapOf<FontFamily, Typeface>()
         ReplaceWith("FontFamily.Resolver.preload(fontFamily, Font.AndroidResourceLoader(context))"),
     level = DeprecationLevel.WARNING,
 )
-fun fontResource(fontFamily: FontFamily): Typeface {
+public fun fontResource(fontFamily: FontFamily): Typeface {
     return fontResourceFromContext(LocalContext.current, fontFamily)
 }
 

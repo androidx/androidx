@@ -24,7 +24,7 @@ import androidx.compose.ui.node.DelegatableNode
  * node, make sure to use this node with a focus modifier (such as focusTarget or focusable), or
  * make this node also delegate to a [androidx.compose.ui.focus.FocusTargetModifierNode].
  */
-interface IndirectPointerInputModifierNode : DelegatableNode {
+public interface IndirectPointerInputModifierNode : DelegatableNode {
 
     /**
      * Handles [IndirectPointerEvent]s that are dispatched to the node. A node can only receive
@@ -33,12 +33,12 @@ interface IndirectPointerInputModifierNode : DelegatableNode {
      * @param event The [IndirectPointerEvent] that has been dispatched.
      * @param pass The [PointerEventPass] in which this function is being called.
      */
-    fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass)
+    public fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass)
 
     /**
      * Invoked to notify the handler that no more calls to [IndirectPointerInputModifierNode] will
      * be made, until at least new pointers exist. This can occur for a few reasons:
      * 1. Android dispatches ACTION_CANCEL to Compose.
      */
-    fun onCancelIndirectPointerInput()
+    public fun onCancelIndirectPointerInput()
 }

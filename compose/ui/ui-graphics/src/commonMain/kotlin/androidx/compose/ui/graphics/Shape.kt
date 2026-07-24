@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.LayoutDirection
 
 /** Defines a generic shape. */
 @Stable
-interface Shape {
+public interface Shape {
     /**
      * Creates [Outline] of this shape for the given [size].
      *
@@ -32,5 +32,9 @@ interface Shape {
      * @param density the current density of the screen.
      * @return [Outline] of this shape for the given [size].
      */
-    fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline
+    public fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline
 }

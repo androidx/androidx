@@ -24,7 +24,7 @@ import android.view.inputmethod.InputConnection
  * Represents a request to open an Android text input session via
  * `PlatformTextInputSession.startInputMethod`.
  */
-actual fun interface PlatformTextInputMethodRequest {
+public actual fun interface PlatformTextInputMethodRequest {
 
     /**
      * Called when the platform requests an [InputConnection] via [View.onCreateInputConnection].
@@ -54,5 +54,5 @@ actual fun interface PlatformTextInputMethodRequest {
      */
     // Please take a look at go/text-input-session-android-gotchas to learn more about corner cases
     // of Android InputConnection management
-    fun createInputConnection(outAttributes: EditorInfo): InputConnection
+    public fun createInputConnection(outAttributes: EditorInfo): InputConnection
 }

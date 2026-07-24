@@ -155,20 +155,20 @@ import org.jetbrains.annotations.TestOnly
  * @sample androidx.compose.ui.samples.PopupWithBlurSample
  */
 @Immutable
-actual class PopupProperties
-constructor(
+public actual class PopupProperties
+public constructor(
     internal val flags: Int,
     internal val inheritSecurePolicy: Boolean = true,
-    actual val dismissOnBackPress: Boolean = true,
-    actual val dismissOnClickOutside: Boolean = true,
-    val excludeFromSystemGesture: Boolean = true,
-    actual val usePlatformDefaultWidth: Boolean = false,
-    val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
-    val windowToken: IBinder? = null,
-    val blurBehindRadius: Dp = Dp.Unspecified,
-    val scrimAlpha: Float = Float.NaN,
+    public actual val dismissOnBackPress: Boolean = true,
+    public actual val dismissOnClickOutside: Boolean = true,
+    public val excludeFromSystemGesture: Boolean = true,
+    public actual val usePlatformDefaultWidth: Boolean = false,
+    public val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+    public val windowToken: IBinder? = null,
+    public val blurBehindRadius: Dp = Dp.Unspecified,
+    public val scrimAlpha: Float = Float.NaN,
 ) {
-    actual constructor(
+    public actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
@@ -187,7 +187,7 @@ constructor(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -208,7 +208,7 @@ constructor(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         flags: Int,
         inheritSecurePolicy: Boolean = true,
         dismissOnBackPress: Boolean = true,
@@ -227,7 +227,7 @@ constructor(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         flags: Int,
         inheritSecurePolicy: Boolean = true,
         dismissOnBackPress: Boolean = true,
@@ -250,7 +250,7 @@ constructor(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -274,7 +274,7 @@ constructor(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    actual constructor(
+    public actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
@@ -288,7 +288,7 @@ constructor(
         clippingEnabled = clippingEnabled,
     )
 
-    constructor(
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -365,7 +365,7 @@ constructor(
      *
      * @sample androidx.compose.ui.samples.PopupFromServiceSample
      */
-    constructor(
+    public constructor(
         focusable: Boolean = false,
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
@@ -394,11 +394,11 @@ constructor(
      * Whether the popup is focusable. When true, the popup will receive IME events and key presses,
      * such as when the back button is pressed.
      */
-    actual val focusable: Boolean
+    public actual val focusable: Boolean
         get() = (flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) == 0
 
     /** Policy for how [WindowManager.LayoutParams.FLAG_SECURE] is set on the popup's window. */
-    val securePolicy: SecureFlagPolicy
+    public val securePolicy: SecureFlagPolicy
         get() =
             when {
                 inheritSecurePolicy -> SecureFlagPolicy.Inherit
@@ -411,7 +411,7 @@ constructor(
      * Whether the popup window is clipped to the screen boundaries, or allowed to extend beyond the
      * bounds of the screen.
      */
-    actual val clippingEnabled: Boolean
+    public actual val clippingEnabled: Boolean
         get() = (flags and WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS) == 0
 
     override fun equals(other: Any?): Boolean {
@@ -468,7 +468,7 @@ constructor(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-actual fun Popup(
+public actual fun Popup(
     alignment: Alignment,
     offset: IntOffset,
     onDismissRequest: (() -> Unit)?,
@@ -500,7 +500,7 @@ actual fun Popup(
  * @param content The content to be displayed inside the popup.
  */
 @Composable
-actual fun Popup(
+public actual fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
@@ -1271,5 +1271,5 @@ private fun Rect.toIntBounds() = IntRect(left = left, top = top, right = right, 
  */
 // TODO(b/139861182): Move this functionality to ComposeTestRule
 @TestOnly
-fun isPopupLayout(view: View, testTag: String? = null): Boolean =
+public fun isPopupLayout(view: View, testTag: String? = null): Boolean =
     view is PopupLayout && (testTag == null || testTag == view.testTag)

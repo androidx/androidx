@@ -23,13 +23,13 @@ import androidx.compose.ui.text.AnnotatedString
     "Use Clipboard instead, which supports suspend functions.",
     ReplaceWith("Clipboard", "androidx.compose.ui.platform.Clipboard"),
 )
-interface ClipboardManager {
+public interface ClipboardManager {
     /**
      * This method put the text into the Clipboard.
      *
      * @param annotatedString The [AnnotatedString] to be put into Clipboard.
      */
-    @Suppress("GetterSetterNames") fun setText(annotatedString: AnnotatedString)
+    @Suppress("GetterSetterNames") public fun setText(annotatedString: AnnotatedString)
 
     /**
      * This method get the text from the Clipboard.
@@ -37,10 +37,10 @@ interface ClipboardManager {
      * @return The text in the Clipboard. It could be null due to 2 reasons: 1. Clipboard is
      *   empty; 2. Cannot convert the [CharSequence] text in Clipboard to [AnnotatedString].
      */
-    fun getText(): AnnotatedString?
+    public fun getText(): AnnotatedString?
 
     /** This method returns true if there is a text in the Clipboard, false otherwise. */
-    fun hasText(): Boolean = getText()?.isNotEmpty() == true
+    public fun hasText(): Boolean = getText()?.isNotEmpty() == true
 
     /**
      * Returns the clipboard entry that's provided by the platform's ClipboardManager.
@@ -51,7 +51,7 @@ interface ClipboardManager {
      * It's safe to call this function without triggering Clipboard access warnings on mobile
      * platforms.
      */
-    fun getClip(): ClipEntry? = null
+    public fun getClip(): ClipEntry? = null
 
     /**
      * Puts the given [clipEntry] in platform's ClipboardManager.
@@ -59,7 +59,7 @@ interface ClipboardManager {
      * @param clipEntry Platform specific clip object that either holds data or links to it. Pass
      *   null to clear the clipboard.
      */
-    @Suppress("GetterSetterNames") fun setClip(clipEntry: ClipEntry?) = Unit
+    @Suppress("GetterSetterNames") public fun setClip(clipEntry: ClipEntry?): Unit = Unit
 
     /**
      * Returns the native clipboard that exposes the full functionality of platform clipboard.
@@ -68,14 +68,14 @@ interface ClipboardManager {
      *   Clipboard interface.
      */
     @Suppress("DEPRECATION")
-    val nativeClipboard: NativeClipboard
+    public val nativeClipboard: NativeClipboard
         get() {
             throw UnsupportedOperationException("This platform does not offer a native Clipboard")
         }
 }
 
 /** Platform specific protocol that expresses an item in the native Clipboard. */
-expect class ClipEntry {
+public expect class ClipEntry {
 
     /**
      * Returns a [ClipMetadata] which describes the contents of this [ClipEntry]. This is an ideal
@@ -84,15 +84,15 @@ expect class ClipEntry {
      *
      * Calling this function does not trigger any content access warnings on any platform.
      */
-    val clipMetadata: ClipMetadata
+    public val clipMetadata: ClipMetadata
 }
 
 /**
  * Platform specific protocol that describes an item in the native Clipboard. This object should not
  * contain any actual piece of data.
  */
-expect class ClipMetadata
+public expect class ClipMetadata
 
 /** Native Clipboard specific to each platform. */
 @Deprecated("Use direct reference to platform type instead of typealias")
-expect class NativeClipboard
+public expect class NativeClipboard

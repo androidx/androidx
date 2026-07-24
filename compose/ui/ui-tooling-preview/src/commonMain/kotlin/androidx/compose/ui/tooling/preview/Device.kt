@@ -19,78 +19,78 @@ package androidx.compose.ui.tooling.preview
 import androidx.annotation.StringDef
 
 /** List with the pre-defined devices available to be used in the preview. */
-object Devices {
-    const val DEFAULT = ""
+public object Devices {
+    public const val DEFAULT: String = ""
 
-    const val NEXUS_7 = "id:Nexus 7"
-    const val NEXUS_7_2013 = "id:Nexus 7 2013"
-    const val NEXUS_5 = "id:Nexus 5"
-    const val NEXUS_6 = "id:Nexus 6"
-    const val NEXUS_9 = "id:Nexus 9"
-    const val NEXUS_10 = "name:Nexus 10"
-    const val NEXUS_5X = "id:Nexus 5X"
-    const val NEXUS_6P = "id:Nexus 6P"
-    const val PIXEL_C = "id:pixel_c"
-    const val PIXEL = "id:pixel"
-    const val PIXEL_XL = "id:pixel_xl"
-    const val PIXEL_2 = "id:pixel_2"
-    const val PIXEL_2_XL = "id:pixel_2_xl"
-    const val PIXEL_3 = "id:pixel_3"
-    const val PIXEL_3_XL = "id:pixel_3_xl"
-    const val PIXEL_3A = "id:pixel_3a"
-    const val PIXEL_3A_XL = "id:pixel_3a_xl"
-    const val PIXEL_4 = "id:pixel_4"
-    const val PIXEL_4_XL = "id:pixel_4_xl"
-    const val PIXEL_4A = "id:pixel_4a"
-    const val PIXEL_5 = "id:pixel_5"
-    const val PIXEL_6 = "id:pixel_6"
-    const val PIXEL_6_PRO = "id:pixel_6_pro"
-    const val PIXEL_6A = "id:pixel_6a"
-    const val PIXEL_7 = "id:pixel_7"
-    const val PIXEL_7_PRO = "id:pixel_7_pro"
-    const val PIXEL_7A = "id:pixel_7a"
-    const val PIXEL_8 = "id:pixel_8"
-    const val PIXEL_8_PRO = "id:pixel_8_pro"
-    const val PIXEL_8A = "id:pixel_8a"
-    const val PIXEL_9 = "id:pixel_9"
-    const val PIXEL_9_PRO = "id:pixel_9_pro"
-    const val PIXEL_9_PRO_FOLD = "id:pixel_9_pro_fold"
-    const val PIXEL_9_PRO_XL = "id:pixel_9_pro_xl"
-    const val PIXEL_FOLD = "id:pixel_fold"
-    const val PIXEL_TABLET = "id:pixel_tablet"
+    public const val NEXUS_7: String = "id:Nexus 7"
+    public const val NEXUS_7_2013: String = "id:Nexus 7 2013"
+    public const val NEXUS_5: String = "id:Nexus 5"
+    public const val NEXUS_6: String = "id:Nexus 6"
+    public const val NEXUS_9: String = "id:Nexus 9"
+    public const val NEXUS_10: String = "name:Nexus 10"
+    public const val NEXUS_5X: String = "id:Nexus 5X"
+    public const val NEXUS_6P: String = "id:Nexus 6P"
+    public const val PIXEL_C: String = "id:pixel_c"
+    public const val PIXEL: String = "id:pixel"
+    public const val PIXEL_XL: String = "id:pixel_xl"
+    public const val PIXEL_2: String = "id:pixel_2"
+    public const val PIXEL_2_XL: String = "id:pixel_2_xl"
+    public const val PIXEL_3: String = "id:pixel_3"
+    public const val PIXEL_3_XL: String = "id:pixel_3_xl"
+    public const val PIXEL_3A: String = "id:pixel_3a"
+    public const val PIXEL_3A_XL: String = "id:pixel_3a_xl"
+    public const val PIXEL_4: String = "id:pixel_4"
+    public const val PIXEL_4_XL: String = "id:pixel_4_xl"
+    public const val PIXEL_4A: String = "id:pixel_4a"
+    public const val PIXEL_5: String = "id:pixel_5"
+    public const val PIXEL_6: String = "id:pixel_6"
+    public const val PIXEL_6_PRO: String = "id:pixel_6_pro"
+    public const val PIXEL_6A: String = "id:pixel_6a"
+    public const val PIXEL_7: String = "id:pixel_7"
+    public const val PIXEL_7_PRO: String = "id:pixel_7_pro"
+    public const val PIXEL_7A: String = "id:pixel_7a"
+    public const val PIXEL_8: String = "id:pixel_8"
+    public const val PIXEL_8_PRO: String = "id:pixel_8_pro"
+    public const val PIXEL_8A: String = "id:pixel_8a"
+    public const val PIXEL_9: String = "id:pixel_9"
+    public const val PIXEL_9_PRO: String = "id:pixel_9_pro"
+    public const val PIXEL_9_PRO_FOLD: String = "id:pixel_9_pro_fold"
+    public const val PIXEL_9_PRO_XL: String = "id:pixel_9_pro_xl"
+    public const val PIXEL_FOLD: String = "id:pixel_fold"
+    public const val PIXEL_TABLET: String = "id:pixel_tablet"
 
-    const val AUTOMOTIVE_1024p = "id:automotive_1024p_landscape"
+    public const val AUTOMOTIVE_1024p: String = "id:automotive_1024p_landscape"
 
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND] from the " +
             "wear:wear-tooling-preview library instead"
     )
-    const val WEAR_OS_LARGE_ROUND = "id:wearos_large_round"
+    public const val WEAR_OS_LARGE_ROUND: String = "id:wearos_large_round"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND] from the " +
             "wear:wear-tooling-preview library instead"
     )
-    const val WEAR_OS_SMALL_ROUND = "id:wearos_small_round"
+    public const val WEAR_OS_SMALL_ROUND: String = "id:wearos_small_round"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.SQUARE] from the " +
             "wear:wear-tooling-preview library instead"
     )
-    const val WEAR_OS_SQUARE = "id:wearos_square"
+    public const val WEAR_OS_SQUARE: String = "id:wearos_square"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.RECT] from the " +
             "wear:wear-tooling-preview library instead"
     )
-    const val WEAR_OS_RECT = "id:wearos_rect"
+    public const val WEAR_OS_RECT: String = "id:wearos_rect"
 
     // Reference devices
-    const val PHONE = "spec:width=411dp,height=891dp"
-    const val FOLDABLE = "spec:width=673dp,height=841dp"
-    const val TABLET = "spec:width=1280dp,height=800dp,dpi=240"
-    const val DESKTOP = "spec:width=1920dp,height=1080dp,dpi=160"
+    public const val PHONE: String = "spec:width=411dp,height=891dp"
+    public const val FOLDABLE: String = "spec:width=673dp,height=841dp"
+    public const val TABLET: String = "spec:width=1280dp,height=800dp,dpi=240"
+    public const val DESKTOP: String = "spec:width=1920dp,height=1080dp,dpi=160"
 
     // TV devices (not adding 4K since it will be very heavy for preview)
-    const val TV_720p = "spec:width=1280dp,height=720dp"
-    const val TV_1080p = "spec:width=1920dp,height=1080dp"
+    public const val TV_720p: String = "spec:width=1280dp,height=720dp"
+    public const val TV_1080p: String = "spec:width=1920dp,height=1080dp"
 }
 
 /** Annotation for defining the [Preview] device to use. */

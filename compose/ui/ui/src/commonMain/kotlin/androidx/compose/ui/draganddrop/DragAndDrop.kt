@@ -24,10 +24,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
  * Definition for a type representing transferable data. It could be a remote URI, rich text data on
  * the clip board, a local file, or more.
  */
-expect class DragAndDropTransferData
+public expect class DragAndDropTransferData
 
 /** A representation of an event sent by the platform during a drag and drop operation. */
-expect class DragAndDropEvent
+public expect class DragAndDropEvent
 
 /**
  * Returns the position of this [DragAndDropEvent] relative to the root Compose View in the layout
@@ -36,7 +36,7 @@ expect class DragAndDropEvent
 internal expect val DragAndDropEvent.positionInRoot: Offset
 
 /** A scope that allows starting a drag and drop session. */
-interface DragAndDropStartTransferScope {
+public interface DragAndDropStartTransferScope {
     /**
      * Initiates a drag-and-drop operation for transferring data.
      *
@@ -49,7 +49,7 @@ interface DragAndDropStartTransferScope {
      *   false means the system was unable to do a drag because of another ongoing operation or some
      *   other reasons.
      */
-    fun startDragAndDropTransfer(
+    public fun startDragAndDropTransfer(
         transferData: DragAndDropTransferData,
         decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
@@ -57,7 +57,7 @@ interface DragAndDropStartTransferScope {
 }
 
 /** Provides a means of receiving a transfer data from a drag and drop session. */
-interface DragAndDropTarget {
+public interface DragAndDropTarget {
 
     /**
      * An item has been dropped inside this [DragAndDropTarget].
@@ -65,34 +65,34 @@ interface DragAndDropTarget {
      * @return true to indicate that the [DragAndDropEvent] was consumed; false indicates it was
      *   rejected.
      */
-    fun onDrop(event: DragAndDropEvent): Boolean
+    public fun onDrop(event: DragAndDropEvent): Boolean
 
     /**
      * A drag and drop session has just been started and this [DragAndDropTarget] is eligible to
      * receive it. This gives an opportunity to set the state for a [DragAndDropTarget] in
      * preparation for consuming a drag and drop session.
      */
-    fun onStarted(event: DragAndDropEvent) = Unit
+    public fun onStarted(event: DragAndDropEvent): Unit = Unit
 
     /** An item being dropped has entered into the bounds of this [DragAndDropTarget]. */
-    fun onEntered(event: DragAndDropEvent) = Unit
+    public fun onEntered(event: DragAndDropEvent): Unit = Unit
 
     /** An item being dropped has moved within the bounds of this [DragAndDropTarget]. */
-    fun onMoved(event: DragAndDropEvent) = Unit
+    public fun onMoved(event: DragAndDropEvent): Unit = Unit
 
     /** An item being dropped has moved outside the bounds of this [DragAndDropTarget]. */
-    fun onExited(event: DragAndDropEvent) = Unit
+    public fun onExited(event: DragAndDropEvent): Unit = Unit
 
     /**
      * An event in the current drag and drop session has changed within this [DragAndDropTarget]
      * bounds. Perhaps a modifier key has been pressed or released.
      */
-    fun onChanged(event: DragAndDropEvent) = Unit
+    public fun onChanged(event: DragAndDropEvent): Unit = Unit
 
     /**
      * The drag and drop session has been completed. All [DragAndDropTarget] instances in the
      * hierarchy that previously received an [onStarted] event will receive this event. This gives
      * an opportunity to reset the state for a [DragAndDropTarget].
      */
-    fun onEnded(event: DragAndDropEvent) = Unit
+    public fun onEnded(event: DragAndDropEvent): Unit = Unit
 }

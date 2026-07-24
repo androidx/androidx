@@ -17,7 +17,7 @@
 package androidx.compose.ui.input.key
 
 /** The native platform-specific keyboard key event. */
-expect class NativeKeyEvent
+public expect class NativeKeyEvent
 
 /**
  * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the item that is
@@ -28,14 +28,14 @@ expect class NativeKeyEvent
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@kotlin.jvm.JvmInline value class KeyEvent(val nativeKeyEvent: NativeKeyEvent)
+@kotlin.jvm.JvmInline public value class KeyEvent(public val nativeKeyEvent: NativeKeyEvent)
 
 /**
  * The key that was pressed.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
-expect val KeyEvent.key: Key
+public expect val KeyEvent.key: Key
 
 /**
  * The UTF16 value corresponding to the key event that was pressed. The unicode character takes into
@@ -53,42 +53,42 @@ expect val KeyEvent.key: Key
  * values, the first from the high-surrogates range, (\uD800-\uDBFF), the second from the
  * low-surrogates range (\uDC00-\uDFFF).
  */
-expect val KeyEvent.utf16CodePoint: Int
+public expect val KeyEvent.utf16CodePoint: Int
 
 /**
  * The [type][KeyEventType] of key event.
  *
  * @sample androidx.compose.ui.samples.KeyEventTypeSample
  */
-expect val KeyEvent.type: KeyEventType
+public expect val KeyEvent.type: KeyEventType
 
 /**
  * Indicates whether the Alt key is pressed.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
-expect val KeyEvent.isAltPressed: Boolean
+public expect val KeyEvent.isAltPressed: Boolean
 
 /**
  * Indicates whether the Ctrl key is pressed.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsCtrlPressedSample
  */
-expect val KeyEvent.isCtrlPressed: Boolean
+public expect val KeyEvent.isCtrlPressed: Boolean
 
 /**
  * Indicates whether the Meta key is pressed.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsMetaPressedSample
  */
-expect val KeyEvent.isMetaPressed: Boolean
+public expect val KeyEvent.isMetaPressed: Boolean
 
 /**
  * Indicates whether the Shift key is pressed.
  *
  * @sample androidx.compose.ui.samples.KeyEventIsShiftPressedSample
  */
-expect val KeyEvent.isShiftPressed: Boolean
+public expect val KeyEvent.isShiftPressed: Boolean
 
 /**
  * The type of Key Event.
@@ -96,9 +96,9 @@ expect val KeyEvent.isShiftPressed: Boolean
  * @sample androidx.compose.ui.samples.KeyEventTypeSample
  */
 @kotlin.jvm.JvmInline
-value class KeyEventType internal constructor(@Suppress("unused") private val value: Int) {
+public value class KeyEventType internal constructor(@Suppress("unused") private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             KeyUp -> "KeyUp"
             KeyDown -> "KeyDown"
@@ -107,13 +107,13 @@ value class KeyEventType internal constructor(@Suppress("unused") private val va
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Unknown key event.
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val Unknown: KeyEventType
+        public val Unknown: KeyEventType
             get() = KeyEventType(0)
 
         /**
@@ -121,7 +121,7 @@ value class KeyEventType internal constructor(@Suppress("unused") private val va
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val KeyUp: KeyEventType
+        public val KeyUp: KeyEventType
             get() = KeyEventType(1)
 
         /**
@@ -129,7 +129,7 @@ value class KeyEventType internal constructor(@Suppress("unused") private val va
          *
          * @sample androidx.compose.ui.samples.KeyEventTypeSample
          */
-        val KeyDown: KeyEventType
+        public val KeyDown: KeyEventType
             get() = KeyEventType(2)
     }
 }

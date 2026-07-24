@@ -30,7 +30,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  * process a given [ClipEntry].
  */
 @ExperimentalComposeUiApi
-fun ClipEntry.firstUriOrNull(): Uri? {
+public fun ClipEntry.firstUriOrNull(): Uri? {
     for (i in 0 until clipData.itemCount) {
         val uri = clipData.getItemAt(i).uri
         if (uri != null) return uri

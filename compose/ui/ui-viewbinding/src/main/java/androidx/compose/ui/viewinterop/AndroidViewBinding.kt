@@ -71,7 +71,7 @@ import androidx.viewbinding.ViewBinding
  *   update the information and state of the binding
  */
 @Composable
-fun <T : ViewBinding> AndroidViewBinding(
+public fun <T : ViewBinding> AndroidViewBinding(
     factory: (inflater: LayoutInflater, parent: ViewGroup, attachToParent: Boolean) -> T,
     modifier: Modifier = Modifier,
     update: T.() -> Unit = {},
@@ -140,7 +140,7 @@ fun <T : ViewBinding> AndroidViewBinding(
  *   update the information and state of the binding.
  */
 @Composable
-fun <T : ViewBinding> AndroidViewBinding(
+public fun <T : ViewBinding> AndroidViewBinding(
     factory: (inflater: LayoutInflater, parent: ViewGroup, attachToParent: Boolean) -> T,
     modifier: Modifier = Modifier,
     onReset: (T.() -> Unit)? = null,

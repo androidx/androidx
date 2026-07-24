@@ -20,18 +20,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastAny
 
 /** A set of vertex data used by [Canvas.drawVertices]. */
-class Vertices(
-    val vertexMode: VertexMode,
+public class Vertices(
+    public val vertexMode: VertexMode,
     positions: List<Offset>,
     textureCoordinates: List<Offset>,
     colors: List<Color>,
     indices: List<Int>,
 ) /*extends NativeFieldWrapperClass2*/ {
 
-    val positions: FloatArray
-    val textureCoordinates: FloatArray
-    val colors: IntArray
-    val indices: ShortArray
+    public val positions: FloatArray
+    public val textureCoordinates: FloatArray
+    public val colors: IntArray
+    public val indices: ShortArray
 
     init {
         if (textureCoordinates.size != positions.size)

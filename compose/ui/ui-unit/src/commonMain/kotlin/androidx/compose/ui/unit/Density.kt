@@ -31,7 +31,7 @@ import androidx.compose.ui.util.fastRoundToInt
  * @param fontScale Current user preference for the scaling factor for fonts.
  */
 @Stable
-fun Density(density: Float, fontScale: Float = 1f): Density = DensityImpl(density, fontScale)
+public fun Density(density: Float, fontScale: Float = 1f): Density = DensityImpl(density, fontScale)
 
 private data class DensityImpl(override val density: Float, override val fontScale: Float) : Density
 
@@ -42,17 +42,17 @@ private data class DensityImpl(override val density: Float, override val fontSca
  */
 @Immutable
 @JvmDefaultWithCompatibility
-interface Density : FontScaling {
+public interface Density : FontScaling {
 
     /** The logical density of the display. This is a scaling factor for the [Dp] unit. */
-    @Stable val density: Float
+    @Stable public val density: Float
 
     /** Convert [Dp] to pixels. Pixels are used to paint to Canvas. */
-    @Stable fun Dp.toPx(): Float = value * density
+    @Stable public fun Dp.toPx(): Float = value * density
 
     /** Convert [Dp] to [Int] by rounding */
     @Stable
-    fun Dp.roundToPx(): Int {
+    public fun Dp.roundToPx(): Int {
         val px = toPx()
         return if (px.isInfinite()) Constraints.Infinity else px.fastRoundToInt()
     }
@@ -63,35 +63,35 @@ interface Density : FontScaling {
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     @Stable
-    fun TextUnit.toPx(): Float {
+    public fun TextUnit.toPx(): Float {
         checkPrecondition(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
         return toDp().toPx()
     }
 
     /** Convert Sp to [Int] by rounding */
-    @Stable fun TextUnit.roundToPx(): Int = toPx().fastRoundToInt()
+    @Stable public fun TextUnit.roundToPx(): Int = toPx().fastRoundToInt()
 
     /** Convert an [Int] pixel value to [Dp]. */
-    @Stable fun Int.toDp(): Dp = (this / density).dp
+    @Stable public fun Int.toDp(): Dp = (this / density).dp
 
     /** Convert an [Int] pixel value to Sp. */
-    @Stable fun Int.toSp(): TextUnit = toDp().toSp()
+    @Stable public fun Int.toSp(): TextUnit = toDp().toSp()
 
     /** Convert a [Float] pixel value to a Dp */
-    @Stable fun Float.toDp(): Dp = (this / density).dp
+    @Stable public fun Float.toDp(): Dp = (this / density).dp
 
     /** Convert a [Float] pixel value to a Sp */
-    @Stable fun Float.toSp(): TextUnit = toDp().toSp()
+    @Stable public fun Float.toSp(): TextUnit = toDp().toSp()
 
     /** Convert a [DpRect] to a [Rect]. */
     @Stable
-    fun DpRect.toRect(): Rect {
+    public fun DpRect.toRect(): Rect {
         return Rect(left.toPx(), top.toPx(), right.toPx(), bottom.toPx())
     }
 
     /** Convert a [DpSize] to a [Size]. */
     @Stable
-    fun DpSize.toSize(): Size =
+    public fun DpSize.toSize(): Size =
         if (isSpecified) {
             Size(width.toPx(), height.toPx())
         } else {
@@ -100,7 +100,7 @@ interface Density : FontScaling {
 
     /** Convert a [Size] to a [DpSize]. */
     @Stable
-    fun Size.toDpSize(): DpSize =
+    public fun Size.toDpSize(): DpSize =
         if (isSpecified) {
             DpSize(width.toDp(), height.toDp())
         } else {

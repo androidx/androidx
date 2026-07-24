@@ -74,7 +74,7 @@ import androidx.compose.ui.unit.dp
  *   single one.
  */
 @Composable
-fun LazyVerticalStaggeredGrid(
+public fun LazyVerticalStaggeredGrid(
     columns: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -142,7 +142,7 @@ fun LazyVerticalStaggeredGrid(
  *   single one.
  */
 @Composable
-fun LazyVerticalStaggeredGrid(
+public fun LazyVerticalStaggeredGrid(
     columns: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -178,7 +178,7 @@ fun LazyVerticalStaggeredGrid(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LazyVerticalStaggeredGrid(
+public fun LazyVerticalStaggeredGrid(
     columns: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -274,7 +274,7 @@ private fun rememberColumnSlots(
  *   single one.
  */
 @Composable
-fun LazyHorizontalStaggeredGrid(
+public fun LazyHorizontalStaggeredGrid(
     rows: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -343,7 +343,7 @@ fun LazyHorizontalStaggeredGrid(
  *   single one.
  */
 @Composable
-fun LazyHorizontalStaggeredGrid(
+public fun LazyHorizontalStaggeredGrid(
     rows: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -379,7 +379,7 @@ fun LazyHorizontalStaggeredGrid(
 
 @Deprecated("Use the non deprecated overload", level = DeprecationLevel.HIDDEN)
 @Composable
-fun LazyHorizontalStaggeredGrid(
+public fun LazyHorizontalStaggeredGrid(
     rows: StaggeredGridCells,
     modifier: Modifier = Modifier,
     state: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -468,7 +468,7 @@ private class LazyStaggeredGridSlotCache(
 
 /** Receiver scope for [LazyVerticalStaggeredGrid] and [LazyHorizontalStaggeredGrid] */
 @LazyStaggeredGridScopeMarker
-sealed interface LazyStaggeredGridScope {
+public sealed interface LazyStaggeredGridScope {
 
     /**
      * Add a single item to the staggered grid.
@@ -489,7 +489,7 @@ sealed interface LazyStaggeredGridScope {
      *   [StaggeredGridCells] the item will occupy. By default each item will take one lane.
      * @param content composable content displayed by current item
      */
-    fun item(
+    public fun item(
         key: Any? = null,
         contentType: Any? = null,
         span: StaggeredGridItemSpan? = null,
@@ -517,7 +517,7 @@ sealed interface LazyStaggeredGridScope {
      *   by [StaggeredGridCells] the item will occupy. By default each item will take one lane.
      * @param itemContent composable content displayed by item on provided position
      */
-    fun items(
+    public fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
@@ -546,7 +546,7 @@ sealed interface LazyStaggeredGridScope {
  *   [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-inline fun <T> LazyStaggeredGridScope.items(
+public inline fun <T> LazyStaggeredGridScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
     crossinline contentType: (item: T) -> Any? = { null },
@@ -582,7 +582,7 @@ inline fun <T> LazyStaggeredGridScope.items(
  *   [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-inline fun <T> LazyStaggeredGridScope.itemsIndexed(
+public inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
@@ -618,7 +618,7 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
  *   [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed by the provided item
  */
-inline fun <T> LazyStaggeredGridScope.items(
+public inline fun <T> LazyStaggeredGridScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
     crossinline contentType: (item: T) -> Any? = { null },
@@ -654,7 +654,7 @@ inline fun <T> LazyStaggeredGridScope.items(
  *   [StaggeredGridCells] the item will occupy. By default each item will take one lane.
  * @param itemContent composable content displayed given item and index
  */
-inline fun <T> LazyStaggeredGridScope.itemsIndexed(
+public inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },

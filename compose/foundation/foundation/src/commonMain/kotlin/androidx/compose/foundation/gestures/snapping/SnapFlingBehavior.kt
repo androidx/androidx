@@ -65,7 +65,7 @@ import kotlinx.coroutines.withContext
  *   velocity is large enough. Large enough means large enough to naturally decay.
  * @param snapAnimationSpec The animation spec used to finally snap to the correct bound.
  */
-fun snapFlingBehavior(
+public fun snapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
     decayAnimationSpec: DecayAnimationSpec<Float>,
     snapAnimationSpec: AnimationSpec<Float>,
@@ -226,7 +226,7 @@ internal class SnapFlingBehavior(
  * @param snapLayoutInfoProvider The information about the layout that will do snapping
  */
 @Composable
-fun rememberSnapFlingBehavior(
+public fun rememberSnapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider
 ): TargetedFlingBehavior {
     val density = LocalDensity.current

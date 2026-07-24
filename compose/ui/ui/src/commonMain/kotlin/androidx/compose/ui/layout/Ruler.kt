@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.Placeable.PlacementScope
  * @see RulerScope.provides
  * @see RulerScope.providesRelative
  */
-sealed class Ruler(internal val calculate: (PlacementScope.(Float) -> Float)?) {
+public sealed class Ruler(internal val calculate: (PlacementScope.(Float) -> Float)?) {
     /**
      * Returns the coordinate for the [Ruler], defined with the [coordinate] value at
      * [sourceCoordinates] and read at [targetCoordinates].
@@ -44,13 +44,13 @@ sealed class Ruler(internal val calculate: (PlacementScope.(Float) -> Float)?) {
  * [Placeable.PlacementScope.current] and can be set with [MeasureScope.layout] using
  * [RulerScope.provides] or [RulerScope.providesRelative].
  */
-class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> Float)?) :
+public class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> Float)?) :
     Ruler(calculation) {
     /**
      * Creates a [VerticalRuler] whose values are directly provided. The developer can set the ruler
      * value in [MeasureScope.layout] using [RulerScope.provides] or [RulerScope.providesRelative].
      */
-    constructor() : this(null)
+    public constructor() : this(null)
 
     override fun calculateCoordinate(
         coordinate: Float,
@@ -61,12 +61,12 @@ class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> 
         return targetCoordinates.localPositionOf(sourceCoordinates, offset).x
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a [VerticalRuler] derived from the greater value of all [VerticalRuler]s in
          * [rulers] that supply a value. This is the bottom-most of all provided ruler values.
          */
-        fun maxOf(vararg rulers: VerticalRuler) = derived { defaultValue ->
+        public fun maxOf(vararg rulers: VerticalRuler): VerticalRuler = derived { defaultValue ->
             mergeRulerValues(true, rulers, defaultValue)
         }
 
@@ -74,7 +74,7 @@ class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> 
          * Creates a [VerticalRuler] derived from the least value of all [VerticalRuler]s in
          * [rulers] that supply a value. This is the top-most of all provided ruler values.
          */
-        fun minOf(vararg rulers: VerticalRuler) = derived { defaultValue ->
+        public fun minOf(vararg rulers: VerticalRuler): VerticalRuler = derived { defaultValue ->
             mergeRulerValues(false, rulers, defaultValue)
         }
 
@@ -87,8 +87,9 @@ class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> 
          * @see minOf
          * @see maxOf
          */
-        fun derived(calculation: PlacementScope.(defaultValue: Float) -> Float) =
-            VerticalRuler(calculation)
+        public fun derived(
+            calculation: PlacementScope.(defaultValue: Float) -> Float
+        ): VerticalRuler = VerticalRuler(calculation)
     }
 }
 
@@ -98,14 +99,14 @@ class VerticalRuler private constructor(calculation: (PlacementScope.(Float) -> 
  * [Placeable.PlacementScope.current] and can be set with [MeasureScope.layout] using
  * [RulerScope.provides].
  */
-class HorizontalRuler private constructor(calculation: (PlacementScope.(Float) -> Float)?) :
+public class HorizontalRuler private constructor(calculation: (PlacementScope.(Float) -> Float)?) :
     Ruler(calculation) {
     /**
      * Creates a [HorizontalRuler] whose values are directly provided. The developer can set the
      * ruler value in [MeasureScope.layout] using [RulerScope.provides] or
      * [RulerScope.providesRelative].
      */
-    constructor() : this(null)
+    public constructor() : this(null)
 
     override fun calculateCoordinate(
         coordinate: Float,
@@ -116,22 +117,24 @@ class HorizontalRuler private constructor(calculation: (PlacementScope.(Float) -
         return targetCoordinates.localPositionOf(sourceCoordinates, offset).y
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates a [HorizontalRuler] derived from the greater value of all [HorizontalRuler]s in
          * [rulers] that supply a value. This is the right-most of all provided ruler values.
          */
-        fun maxOf(vararg rulers: HorizontalRuler) = HorizontalRuler { defaultValue ->
-            mergeRulerValues(true, rulers, defaultValue)
-        }
+        public fun maxOf(vararg rulers: HorizontalRuler): HorizontalRuler =
+            HorizontalRuler { defaultValue ->
+                mergeRulerValues(true, rulers, defaultValue)
+            }
 
         /**
          * Creates a [HorizontalRuler] derived from the least value of all [HorizontalRuler]s in
          * [rulers] that supply a value. This is the left-most of all provided ruler values.
          */
-        fun minOf(vararg rulers: HorizontalRuler) = HorizontalRuler { defaultValue ->
-            mergeRulerValues(false, rulers, defaultValue)
-        }
+        public fun minOf(vararg rulers: HorizontalRuler): HorizontalRuler =
+            HorizontalRuler { defaultValue ->
+                mergeRulerValues(false, rulers, defaultValue)
+            }
 
         /**
          * Creates a [HorizontalRuler] whose values are derived from values available in the
@@ -142,8 +145,9 @@ class HorizontalRuler private constructor(calculation: (PlacementScope.(Float) -
          * @see minOf
          * @see maxOf
          */
-        fun derived(calculation: PlacementScope.(defaultValue: Float) -> Float) =
-            HorizontalRuler(calculation)
+        public fun derived(
+            calculation: PlacementScope.(defaultValue: Float) -> Float
+        ): HorizontalRuler = HorizontalRuler(calculation)
     }
 }
 

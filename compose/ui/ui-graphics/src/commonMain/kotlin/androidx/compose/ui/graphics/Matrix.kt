@@ -42,18 +42,18 @@ import kotlin.math.sin
 //
 // DO NOT REMOVE THOSE TESTS.
 @kotlin.jvm.JvmInline
-value class Matrix(
-    val values: FloatArray =
+public value class Matrix(
+    public val values: FloatArray =
         floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
 ) {
-    inline operator fun get(row: Int, column: Int) = values[(row * 4) + column]
+    public inline operator fun get(row: Int, column: Int): Float = values[(row * 4) + column]
 
-    inline operator fun set(row: Int, column: Int, v: Float) {
+    public inline operator fun set(row: Int, column: Int, v: Float) {
         values[(row * 4) + column] = v
     }
 
     /** Does the 3D transform on [point] and returns the `x` and `y` values in an [Offset]. */
-    fun map(point: Offset): Offset {
+    public fun map(point: Offset): Offset {
         // See top-level comment
         if (values.size < 16) return point
 
@@ -77,7 +77,7 @@ value class Matrix(
     }
 
     /** Does a 3D transform on [rect] and returns its bounds after the transform. */
-    fun map(rect: Rect): Rect {
+    public fun map(rect: Rect): Rect {
         // See top-level comment
         if (values.size < 16) return rect
 
@@ -133,7 +133,7 @@ value class Matrix(
     }
 
     /** Does a 3D transform on [rect], transforming [rect] with the results. */
-    fun map(rect: MutableRect) {
+    public fun map(rect: MutableRect) {
         // See top-level comment
         if (values.size < 16) return
 
@@ -187,7 +187,7 @@ value class Matrix(
     }
 
     /** Multiply this matrix by [m] and assign the result to this matrix. */
-    operator fun timesAssign(m: Matrix) {
+    public operator fun timesAssign(m: Matrix) {
         // See top-level comment
         val v = values
         if (v.size < 16) return
@@ -239,7 +239,7 @@ value class Matrix(
     }
 
     /** Invert `this` Matrix. */
-    fun invert() {
+    public fun invert() {
         // See top-level comment
         if (values.size < 16) return
 
@@ -298,7 +298,7 @@ value class Matrix(
     }
 
     /** Resets the `this` to the identity matrix. */
-    fun reset() {
+    public fun reset() {
         // See top-level comment
         val v = values
         if (v.size < 16) return
@@ -321,7 +321,7 @@ value class Matrix(
     }
 
     /** Sets the entire matrix to the matrix in [matrix]. */
-    fun setFrom(matrix: Matrix) {
+    public fun setFrom(matrix: Matrix) {
         val src = values
         val dst = matrix.values
 
@@ -348,7 +348,7 @@ value class Matrix(
     }
 
     /** Applies a [degrees] rotation around X to `this`. */
-    fun rotateX(degrees: Float) {
+    public fun rotateX(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
 
@@ -387,7 +387,7 @@ value class Matrix(
     }
 
     /** Applies a [degrees] rotation around Y to `this`. */
-    fun rotateY(degrees: Float) {
+    public fun rotateY(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
 
@@ -426,7 +426,7 @@ value class Matrix(
     }
 
     /** Applies a [degrees] rotation around Z to `this`. */
-    fun rotateZ(degrees: Float) {
+    public fun rotateZ(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
 
@@ -465,7 +465,7 @@ value class Matrix(
     }
 
     /** Scale this matrix by [x], [y], [z] */
-    fun scale(x: Float = 1f, y: Float = 1f, z: Float = 1f) {
+    public fun scale(x: Float = 1f, y: Float = 1f, z: Float = 1f) {
         // See top-level comment
         if (values.size < 16) return
         this[0, 0] *= x
@@ -483,7 +483,7 @@ value class Matrix(
     }
 
     /** Translate this matrix by [x], [y], [z] */
-    fun translate(x: Float = 0f, y: Float = 0f, z: Float = 0f) {
+    public fun translate(x: Float = 0f, y: Float = 0f, z: Float = 0f) {
         // See top-level comment
         if (values.size < 16) return
         val t1 = this[0, 0] * x + this[1, 0] * y + this[2, 0] * z + this[3, 0]
@@ -522,7 +522,7 @@ value class Matrix(
      * m *= Matrix().apply { translate(pivotX, pivotY) }
      * ```
      */
-    fun resetToPivotedTransform(
+    public fun resetToPivotedTransform(
         pivotX: Float = 0f,
         pivotY: Float = 0f,
         translationX: Float = 0f,
@@ -613,39 +613,39 @@ value class Matrix(
         this[3, 3] = 1f
     }
 
-    companion object {
+    public companion object {
         /** Index of the flattened array that represents the scale factor along the X axis */
-        const val ScaleX = 0
+        public const val ScaleX: Int = 0
 
         /** Index of the flattened array that represents the skew factor along the Y axis */
-        const val SkewY = 1
+        public const val SkewY: Int = 1
 
         /** Index of the flattened array that represents the perspective factor along the X axis */
-        const val Perspective0 = 3
+        public const val Perspective0: Int = 3
 
         /** Index of the flattened array that represents the skew factor along the X axis */
-        const val SkewX = 4
+        public const val SkewX: Int = 4
 
         /** Index of the flattened array that represents the scale factor along the Y axis */
-        const val ScaleY = 5
+        public const val ScaleY: Int = 5
 
         /** Index of the flattened array that represents the perspective factor along the Y axis */
-        const val Perspective1 = 7
+        public const val Perspective1: Int = 7
 
         /** Index of the flattened array that represents the scale factor along the Z axis */
-        const val ScaleZ = 10
+        public const val ScaleZ: Int = 10
 
         /** Index of the flattened array that represents the translation along the X axis */
-        const val TranslateX = 12
+        public const val TranslateX: Int = 12
 
         /** Index of the flattened array that represents the translation along the Y axis */
-        const val TranslateY = 13
+        public const val TranslateY: Int = 13
 
         /** Index of the flattened array that represents the translation along the Z axis */
-        const val TranslateZ = 14
+        public const val TranslateZ: Int = 14
 
         /** Index of the flattened array that represents the perspective factor along the Z axis */
-        const val Perspective2 = 15
+        public const val Perspective2: Int = 15
     }
 }
 
@@ -657,7 +657,7 @@ private inline fun dot(m1: Matrix, row: Int, m2: Matrix, column: Int): Float {
 }
 
 /** Whether the given matrix is the identity matrix. */
-fun Matrix.isIdentity(): Boolean {
+public fun Matrix.isIdentity(): Boolean {
     // See top-level comment
     val v = values
     if (v.size < 16) return false

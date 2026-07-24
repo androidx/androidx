@@ -46,13 +46,13 @@ internal expect fun rememberDefaultPrefetchScheduler(): PrefetchScheduler
         "Request."
 )
 @ExperimentalFoundationApi
-interface PrefetchScheduler {
+public interface PrefetchScheduler {
 
     /**
      * Accepts a prefetch request. Implementations should find a time to execute them which will
      * have minimal impact on user experience.
      */
-    fun schedulePrefetch(prefetchRequest: PrefetchRequest)
+    public fun schedulePrefetch(prefetchRequest: PrefetchRequest)
 }
 
 /**
@@ -65,7 +65,7 @@ interface PrefetchScheduler {
         "Request."
 )
 @ExperimentalFoundationApi
-sealed interface PrefetchRequest {
+public sealed interface PrefetchRequest {
 
     /**
      * Gives this request a chance to execute work. It should only do work if it thinks it can
@@ -75,7 +75,7 @@ sealed interface PrefetchRequest {
      *   indicates this request wants to have [execute] called again to do more work, while `false`
      *   indicates its work is complete.
      */
-    fun PrefetchRequestScope.execute(): Boolean
+    public fun PrefetchRequestScope.execute(): Boolean
 }
 
 /**
@@ -88,12 +88,12 @@ sealed interface PrefetchRequest {
         "Request."
 )
 @ExperimentalFoundationApi
-interface PrefetchRequestScope {
+public interface PrefetchRequestScope {
     /**
      * How much time is available to do prefetch work. Implementations of [PrefetchRequest] should
      * do their best to fit their work into this time without going over.
      */
-    fun availableTimeNanos(): Long
+    public fun availableTimeNanos(): Long
 }
 
 /**

@@ -72,13 +72,13 @@ import kotlinx.coroutines.launch
  *   this scrollable is being dragged.
  */
 @Stable
-fun Modifier.scrollable2D(
+public fun Modifier.scrollable2D(
     state: Scrollable2DState,
     enabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = null,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
-) =
+): Modifier =
     this then
         Scrollable2DElement(state, overscrollEffect, enabled, flingBehavior, interactionSource)
 

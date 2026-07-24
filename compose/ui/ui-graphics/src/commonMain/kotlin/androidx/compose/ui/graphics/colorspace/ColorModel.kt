@@ -29,7 +29,7 @@ import androidx.compose.ui.util.unpackInt1
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class ColorModel
+public value class ColorModel
 internal constructor(
     /**
      * pack both the number of components and an ordinal value to distinguish between different
@@ -44,42 +44,42 @@ internal constructor(
      */
     @get:IntRange(from = 1, to = 4)
     @Stable
-    val componentCount: Int
+    public val componentCount: Int
         get() {
             return unpackInt1(packedValue)
         }
 
-    companion object {
+    public companion object {
         /**
          * The RGB model is a color model with 3 components that refer to the three additive
          * primiaries: red, green and blue.
          */
-        val Rgb
+        public val Rgb: ColorModel
             get() = ColorModel(packInts(3, 0))
 
         /**
          * The XYZ model is a color model with 3 components that are used to model human color
          * vision on a basic sensory level.
          */
-        val Xyz
+        public val Xyz: ColorModel
             get() = ColorModel(packInts(3, 1))
 
         /**
          * The Lab model is a color model with 3 components used to describe a color space that is
          * more perceptually uniform than XYZ.
          */
-        val Lab
+        public val Lab: ColorModel
             get() = ColorModel(packInts(3, 2))
 
         /**
          * The CMYK model is a color model with 4 components that refer to four inks used in color
          * printing: cyan, magenta, yellow and black (or key). CMYK is a subtractive color model.
          */
-        val Cmyk
+        public val Cmyk: ColorModel
             get() = ColorModel(packInts(4, 3))
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             Rgb -> "Rgb"
             Xyz -> "Xyz"

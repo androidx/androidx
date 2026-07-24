@@ -93,7 +93,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @ExperimentalMaterial3Api
-fun ModalBottomSheet(
+public fun ModalBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberBottomSheetState(initialValue = Hidden),
@@ -187,21 +187,21 @@ fun ModalBottomSheet(
  */
 @Immutable
 @ExperimentalMaterial3Api
-expect class ModalBottomSheetProperties(
+public expect class ModalBottomSheetProperties(
     shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = true,
 ) {
-    val shouldDismissOnBackPress: Boolean
-    val shouldDismissOnClickOutside: Boolean
+    public val shouldDismissOnBackPress: Boolean
+    public val shouldDismissOnClickOutside: Boolean
 }
 
 /** Default values for [ModalBottomSheet] */
 @Immutable
 @ExperimentalMaterial3Api
-expect object ModalBottomSheetDefaults {
+public expect object ModalBottomSheetDefaults {
 
     /** Properties used to customize the behavior of a [ModalBottomSheet]. */
-    val properties: ModalBottomSheetProperties
+    public val properties: ModalBottomSheetProperties
 }
 
 /**
@@ -228,10 +228,10 @@ expect object ModalBottomSheetDefaults {
 )
 @Composable
 @ExperimentalMaterial3Api
-fun rememberModalBottomSheetState(
+public fun rememberModalBottomSheetState(
     skipPartiallyExpanded: Boolean = false,
     confirmValueChange: (SheetValue) -> Boolean = { true },
-) =
+): SheetState =
     rememberSheetState(
         initialValue = Hidden,
         enabledValues =

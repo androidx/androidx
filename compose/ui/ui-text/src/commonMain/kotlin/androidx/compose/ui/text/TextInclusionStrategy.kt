@@ -25,7 +25,7 @@ import androidx.compose.ui.geometry.Rect
  *
  * @see Paragraph.getRangeForRect
  */
-fun interface TextInclusionStrategy {
+public fun interface TextInclusionStrategy {
     /**
      * Returns true if this [TextInclusionStrategy] considers the text range's [textBounds] to be
      * inside the given [rect].
@@ -33,20 +33,22 @@ fun interface TextInclusionStrategy {
      * @param textBounds the bounding box of a range of the text.
      * @param rect a rectangle area.
      */
-    fun isIncluded(textBounds: Rect, rect: Rect): Boolean
+    public fun isIncluded(textBounds: Rect, rect: Rect): Boolean
 
-    companion object {
+    public companion object {
         /**
          * The [TextInclusionStrategy] that includes the text range whose bounds has any overlap
          * with the given rect.
          */
-        val AnyOverlap = TextInclusionStrategy { textBounds, rect -> textBounds.overlaps(rect) }
+        public val AnyOverlap: TextInclusionStrategy = TextInclusionStrategy { textBounds, rect ->
+            textBounds.overlaps(rect)
+        }
 
         /**
          * The [TextInclusionStrategy] that includes the text range whose bounds is completely
          * contained by the given rect.
          */
-        val ContainsAll = TextInclusionStrategy { textBounds, rect ->
+        public val ContainsAll: TextInclusionStrategy = TextInclusionStrategy { textBounds, rect ->
             !rect.isEmpty &&
                 textBounds.left >= rect.left &&
                 textBounds.right <= rect.right &&
@@ -58,8 +60,9 @@ fun interface TextInclusionStrategy {
          * The [TextInclusionStrategy] that includes the text range whose bounds' center is
          * contained by the given rect.
          */
-        val ContainsCenter = TextInclusionStrategy { textBounds, rect ->
-            rect.contains(textBounds.center)
-        }
+        public val ContainsCenter: TextInclusionStrategy =
+            TextInclusionStrategy { textBounds, rect ->
+                rect.contains(textBounds.center)
+            }
     }
 }

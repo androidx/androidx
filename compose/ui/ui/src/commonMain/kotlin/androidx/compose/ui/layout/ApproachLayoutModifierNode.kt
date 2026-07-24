@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
  */
-interface ApproachLayoutModifierNode : LayoutModifierNode {
+public interface ApproachLayoutModifierNode : LayoutModifierNode {
     /**
      * [isMeasurementApproachInProgress] signals whether the measurement is currently approaching
      * destination size. It will be queried after the destination has been determined by the
@@ -80,7 +80,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
      * [isMeasurementApproachInProgress]. A prolonged indication of incomplete approach will prevent
      * the system from potentially skipping approach pass when possible.
      */
-    fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean
+    public fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean
 
     /**
      * [isPlacementApproachInProgress] indicates whether the position is approaching destination
@@ -95,13 +95,13 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
      *
      * By default, [isPlacementApproachInProgress] returns false.
      */
-    fun Placeable.PlacementScope.isPlacementApproachInProgress(
+    public fun Placeable.PlacementScope.isPlacementApproachInProgress(
         lookaheadCoordinates: LayoutCoordinates
     ): Boolean {
         return false
     }
 
-    override fun MeasureScope.measure(
+    public override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult = measurable.measure(constraints).run { layout(width, height) { place(0, 0) } }
@@ -125,13 +125,13 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
      *
      * @sample androidx.compose.ui.samples.LookaheadLayoutCoordinatesSample
      */
-    fun ApproachMeasureScope.approachMeasure(
+    public fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult
 
     /** The function used to calculate minIntrinsicWidth for the approach pass changes. */
-    fun ApproachIntrinsicMeasureScope.minApproachIntrinsicWidth(
+    public fun ApproachIntrinsicMeasureScope.minApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int,
     ): Int =
@@ -153,7 +153,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
         }
 
     /** The function used to calculate minIntrinsicHeight for the approach pass changes. */
-    fun ApproachIntrinsicMeasureScope.minApproachIntrinsicHeight(
+    public fun ApproachIntrinsicMeasureScope.minApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int,
     ): Int =
@@ -175,7 +175,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
         }
 
     /** The function used to calculate maxIntrinsicWidth for the approach pass changes. */
-    fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicWidth(
+    public fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int,
     ): Int =
@@ -197,7 +197,7 @@ interface ApproachLayoutModifierNode : LayoutModifierNode {
         }
 
     /** The function used to calculate maxIntrinsicHeight for the approach pass changes. */
-    fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicHeight(
+    public fun ApproachIntrinsicMeasureScope.maxApproachIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int,
     ): Int =

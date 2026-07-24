@@ -38,7 +38,7 @@ import androidx.compose.runtime.setValue
  * integration with app and/or platform specific lifecycles.
  */
 @ExperimentalTestApi
-class StateRestorationTester(private val composeTest: ComposeUiTest) {
+public class StateRestorationTester(private val composeTest: ComposeUiTest) {
 
     private var registry: RestorationRegistry? = null
 
@@ -48,7 +48,7 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
      *
      * @see ComposeUiTest.setContent
      */
-    fun setContent(composable: @Composable () -> Unit) {
+    public fun setContent(composable: @Composable () -> Unit) {
         composeTest.setContent {
             InjectRestorationRegistry { registry ->
                 this.registry = registry
@@ -64,7 +64,7 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
      * again. This allows you to test how your component behaves when state restoration is
      * happening. Note that state stored via [remember] will be lost.
      */
-    fun emulateSaveAndRestore() {
+    public fun emulateSaveAndRestore() {
         val registry = checkNotNull(registry) { "setContent should be called first!" }
         composeTest.runOnIdle { registry.saveStateAndDisposeChildren() }
         composeTest.runOnIdle { registry.emitChildrenWithRestoredState() }

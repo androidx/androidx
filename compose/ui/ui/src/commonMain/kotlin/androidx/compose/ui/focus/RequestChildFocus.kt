@@ -35,7 +35,7 @@ import androidx.compose.ui.node.requireOwner
  * @return `true` if a matching child was found and focus was granted; `false` if no such child
  *   exists, it is already focused, or the focus request failed.
  */
-fun DelegatableNode.requestFocusForChildInRootBounds(
+public fun DelegatableNode.requestFocusForChildInRootBounds(
     left: Int,
     top: Int,
     right: Int,

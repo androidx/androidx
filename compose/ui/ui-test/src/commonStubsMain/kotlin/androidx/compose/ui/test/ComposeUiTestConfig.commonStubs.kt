@@ -22,10 +22,10 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 @Immutable
-actual class ComposeUiTestConfig
-actual constructor(
-    actual val effectContext: CoroutineContext,
-    actual val runTestContext: CoroutineContext,
-    actual val testTimeout: Duration,
-    actual val inputMode: InputMode,
+public actual class ComposeUiTestConfig
+public actual constructor(
+    public actual val effectContext: CoroutineContext,
+    public actual val runTestContext: CoroutineContext,
+    public actual val testTimeout: Duration,
+    public actual val inputMode: InputMode,
 )

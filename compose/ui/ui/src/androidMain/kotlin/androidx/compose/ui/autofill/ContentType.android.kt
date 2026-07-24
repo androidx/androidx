@@ -53,51 +53,69 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_POSTAL_CODE
 import androidx.autofill.HintConstants.AUTOFILL_HINT_SMS_OTP
 import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
 
-actual sealed interface ContentType {
-    actual companion object {
+public actual sealed interface ContentType {
+    public actual companion object {
         // Define constants for predefined autofill hints
-        actual val Username = ContentType(AUTOFILL_HINT_USERNAME)
-        actual val Password = ContentType(AUTOFILL_HINT_PASSWORD)
-        actual val EmailAddress = ContentType(AUTOFILL_HINT_EMAIL_ADDRESS)
-        actual val NewUsername = ContentType(AUTOFILL_HINT_NEW_USERNAME)
-        actual val NewPassword = ContentType(AUTOFILL_HINT_NEW_PASSWORD)
-        actual val PostalAddress = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS)
-        actual val PostalCode = ContentType(AUTOFILL_HINT_POSTAL_CODE)
-        actual val CreditCardNumber = ContentType(AUTOFILL_HINT_CREDIT_CARD_NUMBER)
-        actual val CreditCardSecurityCode = ContentType(AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE)
-        actual val CreditCardExpirationDate = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE)
-        actual val CreditCardExpirationMonth =
+        public actual val Username: ContentType = ContentType(AUTOFILL_HINT_USERNAME)
+        public actual val Password: ContentType = ContentType(AUTOFILL_HINT_PASSWORD)
+        public actual val EmailAddress: ContentType = ContentType(AUTOFILL_HINT_EMAIL_ADDRESS)
+        public actual val NewUsername: ContentType = ContentType(AUTOFILL_HINT_NEW_USERNAME)
+        public actual val NewPassword: ContentType = ContentType(AUTOFILL_HINT_NEW_PASSWORD)
+        public actual val PostalAddress: ContentType = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS)
+        public actual val PostalCode: ContentType = ContentType(AUTOFILL_HINT_POSTAL_CODE)
+        public actual val CreditCardNumber: ContentType =
+            ContentType(AUTOFILL_HINT_CREDIT_CARD_NUMBER)
+        public actual val CreditCardSecurityCode: ContentType =
+            ContentType(AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE)
+        public actual val CreditCardExpirationDate: ContentType =
+            ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE)
+        public actual val CreditCardExpirationMonth: ContentType =
             ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH)
-        actual val CreditCardExpirationYear = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR)
-        actual val CreditCardExpirationDay = ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY)
-        actual val AddressCountry = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY)
-        actual val AddressRegion = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_REGION)
-        actual val AddressLocality = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY)
-        actual val AddressStreet = ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS)
-        actual val AddressAuxiliaryDetails =
+        public actual val CreditCardExpirationYear: ContentType =
+            ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR)
+        public actual val CreditCardExpirationDay: ContentType =
+            ContentType(AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY)
+        public actual val AddressCountry: ContentType =
+            ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY)
+        public actual val AddressRegion: ContentType =
+            ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_REGION)
+        public actual val AddressLocality: ContentType =
+            ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY)
+        public actual val AddressStreet: ContentType =
+            ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS)
+        public actual val AddressAuxiliaryDetails: ContentType =
             ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS)
-        actual val PostalCodeExtended =
+        public actual val PostalCodeExtended: ContentType =
             ContentType(AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE)
-        actual val PersonFullName = ContentType(AUTOFILL_HINT_PERSON_NAME)
-        actual val PersonFirstName = ContentType(AUTOFILL_HINT_PERSON_NAME_GIVEN)
-        actual val PersonLastName = ContentType(AUTOFILL_HINT_PERSON_NAME_FAMILY)
-        actual val PersonMiddleName = ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE)
-        actual val PersonMiddleInitial = ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL)
-        actual val PersonNamePrefix = ContentType(AUTOFILL_HINT_PERSON_NAME_PREFIX)
-        actual val PersonNameSuffix = ContentType(AUTOFILL_HINT_PERSON_NAME_SUFFIX)
-        actual val PhoneNumber = ContentType(AUTOFILL_HINT_PHONE_NUMBER)
-        actual val PhoneNumberDevice = ContentType(AUTOFILL_HINT_PHONE_NUMBER_DEVICE)
-        actual val PhoneCountryCode = ContentType(AUTOFILL_HINT_PHONE_COUNTRY_CODE)
-        actual val PhoneNumberNational = ContentType(AUTOFILL_HINT_PHONE_NATIONAL)
-        actual val Gender = ContentType(AUTOFILL_HINT_GENDER)
-        actual val BirthDateFull = ContentType(AUTOFILL_HINT_BIRTH_DATE_FULL)
-        actual val BirthDateDay = ContentType(AUTOFILL_HINT_BIRTH_DATE_DAY)
-        actual val BirthDateMonth = ContentType(AUTOFILL_HINT_BIRTH_DATE_MONTH)
-        actual val BirthDateYear = ContentType(AUTOFILL_HINT_BIRTH_DATE_YEAR)
-        actual val SmsOtpCode = ContentType(AUTOFILL_HINT_SMS_OTP)
+        public actual val PersonFullName: ContentType = ContentType(AUTOFILL_HINT_PERSON_NAME)
+        public actual val PersonFirstName: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_GIVEN)
+        public actual val PersonLastName: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_FAMILY)
+        public actual val PersonMiddleName: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE)
+        public actual val PersonMiddleInitial: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL)
+        public actual val PersonNamePrefix: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_PREFIX)
+        public actual val PersonNameSuffix: ContentType =
+            ContentType(AUTOFILL_HINT_PERSON_NAME_SUFFIX)
+        public actual val PhoneNumber: ContentType = ContentType(AUTOFILL_HINT_PHONE_NUMBER)
+        public actual val PhoneNumberDevice: ContentType =
+            ContentType(AUTOFILL_HINT_PHONE_NUMBER_DEVICE)
+        public actual val PhoneCountryCode: ContentType =
+            ContentType(AUTOFILL_HINT_PHONE_COUNTRY_CODE)
+        public actual val PhoneNumberNational: ContentType =
+            ContentType(AUTOFILL_HINT_PHONE_NATIONAL)
+        public actual val Gender: ContentType = ContentType(AUTOFILL_HINT_GENDER)
+        public actual val BirthDateFull: ContentType = ContentType(AUTOFILL_HINT_BIRTH_DATE_FULL)
+        public actual val BirthDateDay: ContentType = ContentType(AUTOFILL_HINT_BIRTH_DATE_DAY)
+        public actual val BirthDateMonth: ContentType = ContentType(AUTOFILL_HINT_BIRTH_DATE_MONTH)
+        public actual val BirthDateYear: ContentType = ContentType(AUTOFILL_HINT_BIRTH_DATE_YEAR)
+        public actual val SmsOtpCode: ContentType = ContentType(AUTOFILL_HINT_SMS_OTP)
     }
 
-    actual operator fun plus(other: ContentType): ContentType
+    public actual operator fun plus(other: ContentType): ContentType
 }
 
 private class AndroidContentType(val androidAutofillHints: Set<String>) : ContentType {
@@ -118,7 +136,7 @@ private class AndroidContentType(val androidAutofillHints: Set<String>) : Conten
  * `ContentType(androidx.autofill.HintConstants.AUTOFILL_HINT_FLIGHT_CONFIRMATION_CODE)` can be used
  * to create a new flight confirmation code hint.
  */
-fun ContentType(contentHint: String): ContentType = AndroidContentType(setOf(contentHint))
+public fun ContentType(contentHint: String): ContentType = AndroidContentType(setOf(contentHint))
 
 internal val ContentType.contentHints: Array<String>
     get() = (this as AndroidContentType).androidAutofillHints.toTypedArray()

@@ -34,54 +34,55 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
-actual class GraphicsLayer {
-    actual var compositingStrategy: CompositingStrategy = implementedInJetBrainsFork()
-    actual var topLeft: IntOffset = implementedInJetBrainsFork()
-    actual var size: IntSize = implementedInJetBrainsFork()
-    actual var alpha: Float = implementedInJetBrainsFork()
-    actual var scaleX: Float = implementedInJetBrainsFork()
-    actual var scaleY: Float = implementedInJetBrainsFork()
-    actual var translationX: Float = implementedInJetBrainsFork()
-    actual var translationY: Float = implementedInJetBrainsFork()
-    actual var shadowElevation: Float = implementedInJetBrainsFork()
-    actual var rotationX: Float = implementedInJetBrainsFork()
-    actual var rotationY: Float = implementedInJetBrainsFork()
-    actual var rotationZ: Float = implementedInJetBrainsFork()
-    actual var cameraDistance: Float = implementedInJetBrainsFork()
-    actual var renderEffect: RenderEffect? = implementedInJetBrainsFork()
+public actual class GraphicsLayer {
+    public actual var compositingStrategy: CompositingStrategy = implementedInJetBrainsFork()
+    public actual var topLeft: IntOffset = implementedInJetBrainsFork()
+    public actual var size: IntSize = implementedInJetBrainsFork()
+    public actual var alpha: Float = implementedInJetBrainsFork()
+    public actual var scaleX: Float = implementedInJetBrainsFork()
+    public actual var scaleY: Float = implementedInJetBrainsFork()
+    public actual var translationX: Float = implementedInJetBrainsFork()
+    public actual var translationY: Float = implementedInJetBrainsFork()
+    public actual var shadowElevation: Float = implementedInJetBrainsFork()
+    public actual var rotationX: Float = implementedInJetBrainsFork()
+    public actual var rotationY: Float = implementedInJetBrainsFork()
+    public actual var rotationZ: Float = implementedInJetBrainsFork()
+    public actual var cameraDistance: Float = implementedInJetBrainsFork()
+    public actual var renderEffect: RenderEffect? = implementedInJetBrainsFork()
 
-    actual fun record(
+    public actual fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
         block: DrawScope.() -> Unit,
     ): Unit = implementedInJetBrainsFork()
 
-    actual var clip: Boolean = implementedInJetBrainsFork()
+    public actual var clip: Boolean = implementedInJetBrainsFork()
 
     internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?): Unit =
         implementedInJetBrainsFork()
 
-    actual var pivotOffset: Offset = implementedInJetBrainsFork()
-    actual var blendMode: BlendMode = implementedInJetBrainsFork()
-    actual var colorFilter: ColorFilter? = implementedInJetBrainsFork()
+    public actual var pivotOffset: Offset = implementedInJetBrainsFork()
+    public actual var blendMode: BlendMode = implementedInJetBrainsFork()
+    public actual var colorFilter: ColorFilter? = implementedInJetBrainsFork()
 
-    actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float): Unit =
+    public actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float): Unit =
         implementedInJetBrainsFork()
 
-    actual fun setPathOutline(path: Path): Unit = implementedInJetBrainsFork()
+    public actual fun setPathOutline(path: Path): Unit = implementedInJetBrainsFork()
 
-    actual val outline: Outline = implementedInJetBrainsFork()
+    public actual val outline: Outline = implementedInJetBrainsFork()
 
-    actual fun setRectOutline(topLeft: Offset, size: Size): Unit = implementedInJetBrainsFork()
+    public actual fun setRectOutline(topLeft: Offset, size: Size): Unit =
+        implementedInJetBrainsFork()
 
-    actual var isReleased: Boolean = implementedInJetBrainsFork()
-    actual var ambientShadowColor: Color = implementedInJetBrainsFork()
-    actual var spotShadowColor: Color = implementedInJetBrainsFork()
+    public actual var isReleased: Boolean = implementedInJetBrainsFork()
+    public actual var ambientShadowColor: Color = implementedInJetBrainsFork()
+    public actual var spotShadowColor: Color = implementedInJetBrainsFork()
 
-    actual suspend fun toImageBitmap(): ImageBitmap = implementedInJetBrainsFork()
+    public actual suspend fun toImageBitmap(): ImageBitmap = implementedInJetBrainsFork()
 
-    actual fun setOutsets(
+    public actual fun setOutsets(
         @IntRange(from = 0) left: Int,
         @IntRange(from = 0) top: Int,
         @IntRange(from = 0) right: Int,

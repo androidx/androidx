@@ -24,15 +24,15 @@ import androidx.compose.ui.util.fastJoinToString
  *
  * @param components the list of components to be rendered in the context menu.
  */
-class TextContextMenuData(val components: List<TextContextMenuComponent>) {
-    override fun toString(): String {
+public class TextContextMenuData(public val components: List<TextContextMenuComponent>) {
+    public override fun toString(): String {
         val componentsStr =
             components.fastJoinToString(prefix = "[\n\t", separator = "\n\t", postfix = "\n]")
         return "TextContextMenuData(components=$componentsStr)"
     }
 
-    companion object {
-        val Empty = TextContextMenuData(emptyList())
+    public companion object {
+        public val Empty: TextContextMenuData = TextContextMenuData(emptyList())
     }
 }
 
@@ -43,32 +43,32 @@ class TextContextMenuData(val components: List<TextContextMenuComponent>) {
  *   in [Modifier.filterTextContextMenuComponents][filterTextContextMenuComponents]. It is advisable
  *   to use a `data object` as a key here.
  */
-abstract class TextContextMenuComponent internal constructor(val key: Any)
+public abstract class TextContextMenuComponent internal constructor(public val key: Any)
 
 /** A [TextContextMenuComponent] separator in a text context menu. */
-object TextContextMenuSeparator : TextContextMenuComponent(Any())
+public object TextContextMenuSeparator : TextContextMenuComponent(Any())
 
 /** A session for an open text context menu that can be used to close the context menu. */
 @Suppress("NotCloseable") // AutoCloseable not available in common.
-interface TextContextMenuSession {
+public interface TextContextMenuSession {
     /** Closes the text context menu. */
-    fun close()
+    public fun close()
 }
 
 /** Contains the `object`s used as keys for the compose provided context menu items. */
-object TextContextMenuKeys {
+public object TextContextMenuKeys {
     /** Key for the context menu "Cut" item. */
-    val CutKey = Any()
+    public val CutKey: Any = Any()
 
     /** Key for the context menu "Copy" item. */
-    val CopyKey = Any()
+    public val CopyKey: Any = Any()
 
     /** Key for the context menu "Paste" item. */
-    val PasteKey = Any()
+    public val PasteKey: Any = Any()
 
     /** Key for the context menu "Select All" item. */
-    val SelectAllKey = Any()
+    public val SelectAllKey: Any = Any()
 
     /** Key for the context menu "Autofill" item. */
-    val AutofillKey = Any()
+    public val AutofillKey: Any = Any()
 }

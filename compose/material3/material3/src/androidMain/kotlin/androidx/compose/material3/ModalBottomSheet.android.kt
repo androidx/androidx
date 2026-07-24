@@ -77,10 +77,11 @@ import java.util.UUID
  */
 @Immutable
 @ExperimentalMaterial3Api
-actual class ModalBottomSheetProperties {
-    val securePolicy: SecureFlagPolicy
-    actual val shouldDismissOnBackPress: Boolean
-    @get:JvmName("shouldDismissOnClickOutside") actual val shouldDismissOnClickOutside: Boolean
+public actual class ModalBottomSheetProperties {
+    public val securePolicy: SecureFlagPolicy
+    public actual val shouldDismissOnBackPress: Boolean
+    @get:JvmName("shouldDismissOnClickOutside")
+    public actual val shouldDismissOnClickOutside: Boolean
     internal val isAppearanceLightStatusBars: Boolean?
     internal val isAppearanceLightNavigationBars: Boolean?
 
@@ -90,7 +91,7 @@ actual class ModalBottomSheetProperties {
      * This constructor provides default behavior for [ModalBottomSheet]. See other constructors for
      * customization options.
      */
-    constructor() {
+    public constructor() {
         this.securePolicy = SecureFlagPolicy.Inherit
         this.shouldDismissOnBackPress = true
         this.shouldDismissOnClickOutside = true
@@ -98,7 +99,10 @@ actual class ModalBottomSheetProperties {
         this.isAppearanceLightNavigationBars = null
     }
 
-    actual constructor(shouldDismissOnBackPress: Boolean, shouldDismissOnClickOutside: Boolean) {
+    public actual constructor(
+        shouldDismissOnBackPress: Boolean,
+        shouldDismissOnClickOutside: Boolean,
+    ) {
         this.securePolicy = SecureFlagPolicy.Inherit
         this.shouldDismissOnBackPress = shouldDismissOnBackPress
         this.shouldDismissOnClickOutside = shouldDismissOnClickOutside
@@ -116,7 +120,7 @@ actual class ModalBottomSheetProperties {
      * @param shouldDismissOnClickOutside Whether the modal bottom sheet can be dismissed by
      *   clicking on the scrim.
      */
-    constructor(
+    public constructor(
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
         shouldDismissOnBackPress: Boolean = true,
         shouldDismissOnClickOutside: Boolean = true,
@@ -147,7 +151,7 @@ actual class ModalBottomSheetProperties {
      * @param shouldDismissOnClickOutside Whether the modal bottom sheet can be dismissed by
      *   clicking on the scrim.
      */
-    constructor(
+    public constructor(
         isAppearanceLightStatusBars: Boolean,
         isAppearanceLightNavigationBars: Boolean,
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -185,10 +189,10 @@ actual class ModalBottomSheetProperties {
 /** Default values for [ModalBottomSheet] */
 @Immutable
 @ExperimentalMaterial3Api
-actual object ModalBottomSheetDefaults {
+public actual object ModalBottomSheetDefaults {
 
     /** Properties used to customize the behavior of a [ModalBottomSheet]. */
-    actual val properties = ModalBottomSheetProperties()
+    public actual val properties: ModalBottomSheetProperties = ModalBottomSheetProperties()
 
     /**
      * Properties used to customize the behavior of a [ModalBottomSheet].
@@ -208,11 +212,11 @@ actual object ModalBottomSheetDefaults {
         replaceWith = ReplaceWith("properties"),
     )
     @Suppress("UNUSED_PARAMETER")
-    fun properties(
+    public fun properties(
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
         isFocusable: Boolean = true,
         shouldDismissOnBackPress: Boolean = true,
-    ) =
+    ): ModalBottomSheetProperties =
         ModalBottomSheetProperties(
             securePolicy = securePolicy,
             shouldDismissOnBackPress = shouldDismissOnBackPress,

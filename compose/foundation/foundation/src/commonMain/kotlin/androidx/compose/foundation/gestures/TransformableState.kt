@@ -46,7 +46,7 @@ import kotlinx.coroutines.coroutineScope
  * suspend function.
  */
 @JvmDefaultWithCompatibility
-interface TransformableState {
+public interface TransformableState {
     /**
      * Call this function to take control of transformations and gain the ability to send transform
      * events via [TransformScope.transformBy]. All actions that change zoom, pan or rotation values
@@ -56,7 +56,7 @@ interface TransformableState {
      * If [transform] is called from elsewhere with the [transformPriority] higher or equal to
      * ongoing transform, ongoing transform will be canceled.
      */
-    suspend fun transform(
+    public suspend fun transform(
         transformPriority: MutatePriority = MutatePriority.Default,
         block: suspend TransformScope.() -> Unit,
     )
@@ -65,7 +65,7 @@ interface TransformableState {
      * Whether this [TransformableState] is currently transforming by gesture or programmatically or
      * not.
      */
-    val isTransformInProgress: Boolean
+    public val isTransformInProgress: Boolean
 }
 
 /**
@@ -80,7 +80,7 @@ interface TransformableState {
  * implementing more natural transformations around the point where the transformation occurs.
  */
 @JvmDefaultWithCompatibility
-interface TransformScope {
+public interface TransformScope {
     /**
      * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in pixels
      * and by [rotationChange] in degrees.
@@ -98,7 +98,7 @@ interface TransformScope {
      * @param panChange panning offset change, in [Offset] pixels
      * @param rotationChange change of the rotation in degrees
      */
-    fun transformBy(
+    public fun transformBy(
         zoomChange: Float = 1f,
         panChange: Offset = Offset.Zero,
         rotationChange: Float = 0f,
@@ -116,12 +116,13 @@ interface TransformScope {
      * @param panChange panning offset change, in [Offset] pixels
      * @param rotationChange change of the rotation in degrees
      */
-    fun transformByWithCentroid(
+    public fun transformByWithCentroid(
         centroid: Offset = Offset.Unspecified,
         zoomChange: Float = 1f,
         panChange: Offset = Offset.Zero,
         rotationChange: Float = 0f,
-    ) = transformBy(zoomChange = zoomChange, panChange = panChange, rotationChange = rotationChange)
+    ): Unit =
+        transformBy(zoomChange = zoomChange, panChange = panChange, rotationChange = rotationChange)
 }
 
 /**
@@ -142,7 +143,7 @@ interface TransformScope {
         "This centroid (if specified) is the point at which zooming or rotation should happen " +
         "around which allows for more natural transformations."
 )
-fun TransformableState(
+public fun TransformableState(
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState = TransformableState { _, z, p, r -> onTransformation(z, p, r) }
 
@@ -160,7 +161,7 @@ fun TransformableState(
  *   occurs. The changes are a relative scale multiplier for zoom, [Offset] in pixels for pan and
  *   degrees for rotation. Callers should update their state in this lambda.
  */
-fun TransformableState(
+public fun TransformableState(
     onTransformation:
         (centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState = DefaultTransformableState(onTransformation)
@@ -185,7 +186,7 @@ fun TransformableState(
         "happen around which allows for more natural transformations."
 )
 @Composable
-fun rememberTransformableState(
+public fun rememberTransformableState(
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState = rememberTransformableState { _, z, p, r -> onTransformation(z, p, r) }
 
@@ -205,7 +206,7 @@ fun rememberTransformableState(
  *   degrees for rotation. Callers should update their state in this lambda.
  */
 @Composable
-fun rememberTransformableState(
+public fun rememberTransformableState(
     onTransformation:
         (centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState {
@@ -221,10 +222,10 @@ fun rememberTransformableState(
  * @param animationSpec [AnimationSpec] to be used for animation
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.animateZoomBy(
+public suspend fun TransformableState.animateZoomBy(
     zoomFactor: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
-) =
+): Unit =
     animateZoomBy(
         zoomFactor = zoomFactor,
         animationSpec = animationSpec,
@@ -241,7 +242,7 @@ suspend fun TransformableState.animateZoomBy(
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.animateZoomBy(
+public suspend fun TransformableState.animateZoomBy(
     zoomFactor: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
     centroid: Offset = Offset.Unspecified,
@@ -264,10 +265,11 @@ suspend fun TransformableState.animateZoomBy(
  * @param animationSpec [AnimationSpec] to be used for animation
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.animateRotateBy(
+public suspend fun TransformableState.animateRotateBy(
     degrees: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
-) = animateRotateBy(degrees = degrees, animationSpec = animationSpec, centroid = Offset.Unspecified)
+): Unit =
+    animateRotateBy(degrees = degrees, animationSpec = animationSpec, centroid = Offset.Unspecified)
 
 /**
  * Animate rotate by a ratio of [degrees] clockwise and suspend until its finished.
@@ -278,7 +280,7 @@ suspend fun TransformableState.animateRotateBy(
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.animateRotateBy(
+public suspend fun TransformableState.animateRotateBy(
     degrees: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
     centroid: Offset = Offset.Unspecified,
@@ -300,10 +302,11 @@ suspend fun TransformableState.animateRotateBy(
  * @param animationSpec [AnimationSpec] to be used for pan animation
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.animatePanBy(
+public suspend fun TransformableState.animatePanBy(
     offset: Offset,
     animationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
-) = animatePanBy(offset = offset, animationSpec = animationSpec, centroid = Offset.Unspecified)
+): Unit =
+    animatePanBy(offset = offset, animationSpec = animationSpec, centroid = Offset.Unspecified)
 
 /**
  * Animate pan by [offset] Offset in pixels and suspend until its finished
@@ -314,7 +317,7 @@ suspend fun TransformableState.animatePanBy(
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.animatePanBy(
+public suspend fun TransformableState.animatePanBy(
     offset: Offset,
     animationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
     centroid: Offset = Offset.Unspecified,
@@ -351,14 +354,14 @@ suspend fun TransformableState.animatePanBy(
  * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.animateBy(
+public suspend fun TransformableState.animateBy(
     zoomFactor: Float,
     panOffset: Offset,
     rotationDegrees: Float,
     zoomAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
     panAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
     rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
-) =
+): Unit =
     animateBy(
         zoomFactor = zoomFactor,
         panOffset = panOffset,
@@ -390,7 +393,7 @@ suspend fun TransformableState.animateBy(
  *   is [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.animateBy(
+public suspend fun TransformableState.animateBy(
     zoomFactor: Float,
     panOffset: Offset,
     rotationDegrees: Float,
@@ -573,7 +576,7 @@ private data class AnimationData(val zoom: Float, val offset: Offset, val degree
  * @param zoomFactor ratio over the current size by which to zoom
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.zoomBy(zoomFactor: Float) =
+public suspend fun TransformableState.zoomBy(zoomFactor: Float): Unit =
     zoomBy(zoomFactor = zoomFactor, centroid = Offset.Unspecified)
 
 /**
@@ -585,15 +588,17 @@ suspend fun TransformableState.zoomBy(zoomFactor: Float) =
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.zoomBy(zoomFactor: Float, centroid: Offset = Offset.Unspecified) =
-    transform {
-        transformByWithCentroid(
-            centroid = centroid,
-            zoomChange = zoomFactor,
-            panChange = Offset.Zero,
-            rotationChange = 0f,
-        )
-    }
+public suspend fun TransformableState.zoomBy(
+    zoomFactor: Float,
+    centroid: Offset = Offset.Unspecified,
+): Unit = transform {
+    transformByWithCentroid(
+        centroid = centroid,
+        zoomChange = zoomFactor,
+        panChange = Offset.Zero,
+        rotationChange = 0f,
+    )
+}
 
 /**
  * Rotate without animation by a [degrees] degrees and suspend until it's set.
@@ -601,7 +606,8 @@ suspend fun TransformableState.zoomBy(zoomFactor: Float, centroid: Offset = Offs
  * @param degrees degrees by which to rotate
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.rotateBy(degrees: Float) = rotateBy(degrees, Offset.Unspecified)
+public suspend fun TransformableState.rotateBy(degrees: Float): Unit =
+    rotateBy(degrees, Offset.Unspecified)
 
 /**
  * Rotate without animation by a [degrees] degrees and suspend until it's set.
@@ -611,15 +617,17 @@ suspend fun TransformableState.rotateBy(degrees: Float) = rotateBy(degrees, Offs
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.rotateBy(degrees: Float, centroid: Offset = Offset.Unspecified) =
-    transform {
-        transformByWithCentroid(
-            centroid = centroid,
-            zoomChange = 1f,
-            panChange = Offset.Zero,
-            rotationChange = degrees,
-        )
-    }
+public suspend fun TransformableState.rotateBy(
+    degrees: Float,
+    centroid: Offset = Offset.Unspecified,
+): Unit = transform {
+    transformByWithCentroid(
+        centroid = centroid,
+        zoomChange = 1f,
+        panChange = Offset.Zero,
+        rotationChange = degrees,
+    )
+}
 
 /**
  * Pan without animation by a [offset] Offset in pixels and suspend until it's set.
@@ -627,7 +635,7 @@ suspend fun TransformableState.rotateBy(degrees: Float, centroid: Offset = Offse
  * @param offset offset in pixels by which to pan
  */
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-suspend fun TransformableState.panBy(offset: Offset) =
+public suspend fun TransformableState.panBy(offset: Offset): Unit =
     panBy(offset = offset, centroid = Offset.Unspecified)
 
 /**
@@ -638,15 +646,17 @@ suspend fun TransformableState.panBy(offset: Offset) =
  *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
  *   [TransformableState].
  */
-suspend fun TransformableState.panBy(offset: Offset, centroid: Offset = Offset.Unspecified) =
-    transform {
-        transformByWithCentroid(
-            centroid = centroid,
-            zoomChange = 1f,
-            panChange = offset,
-            rotationChange = 0f,
-        )
-    }
+public suspend fun TransformableState.panBy(
+    offset: Offset,
+    centroid: Offset = Offset.Unspecified,
+): Unit = transform {
+    transformByWithCentroid(
+        centroid = centroid,
+        zoomChange = 1f,
+        panChange = offset,
+        rotationChange = 0f,
+    )
+}
 
 /**
  * Stop and suspend until any ongoing [TransformableState.transform] with priority
@@ -654,7 +664,7 @@ suspend fun TransformableState.panBy(offset: Offset, centroid: Offset = Offset.U
  *
  * @param terminationPriority transformation that runs with this priority or lower will be stopped
  */
-suspend fun TransformableState.stopTransformation(
+public suspend fun TransformableState.stopTransformation(
     terminationPriority: MutatePriority = MutatePriority.Default
 ) {
     this.transform(terminationPriority) {

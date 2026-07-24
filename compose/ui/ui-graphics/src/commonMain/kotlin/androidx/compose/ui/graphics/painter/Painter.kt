@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * Implementations should provide a meaningful equals method that compares values of different
  * [Painter] subclasses and not rely on just referential equality
  */
-abstract class Painter {
+public abstract class Painter {
 
     /**
      * Optional [Paint] used to draw contents into an offscreen layer in order to apply alpha or
@@ -143,7 +143,7 @@ abstract class Painter {
      * does not have an intrinsic size, it will always draw within the full bounds of the
      * destination
      */
-    abstract val intrinsicSize: Size
+    public abstract val intrinsicSize: Size
 
     /**
      * Implementation of drawing logic for instances of [Painter]. This is invoked internally within
@@ -169,7 +169,11 @@ abstract class Painter {
      */
     protected open fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean = false
 
-    fun DrawScope.draw(size: Size, alpha: Float = DefaultAlpha, colorFilter: ColorFilter? = null) {
+    public fun DrawScope.draw(
+        size: Size,
+        alpha: Float = DefaultAlpha,
+        colorFilter: ColorFilter? = null,
+    ) {
         configureAlpha(alpha)
         configureColorFilter(colorFilter)
         configureLayoutDirection(layoutDirection)

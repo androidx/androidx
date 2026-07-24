@@ -62,26 +62,26 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @RestrictsSuspension
 @JvmDefaultWithCompatibility
-interface AwaitPointerEventScope : Density {
+public interface AwaitPointerEventScope : Density {
     /**
      * The measured size of the pointer input region. Input events will be reported with a
      * coordinate space of (0, 0) to (size.width, size,height) as the input region, with (0, 0)
      * indicating the upper left corner.
      */
-    val size: IntSize
+    public val size: IntSize
 
     /*
      * The additional space applied to each side of the layout area. This can be
      * non-[zero][Size.Zero] when `minimumTouchTargetSize` is set in [pointerInput].
      */
-    val extendedTouchPadding: Size
+    public val extendedTouchPadding: Size
         get() = Size.Zero
 
     /** The [PointerEvent] from the most recent touch event. */
-    val currentEvent: PointerEvent
+    public val currentEvent: PointerEvent
 
     /** The [ViewConfiguration] used to tune gesture detectors. */
-    val viewConfiguration: ViewConfiguration
+    public val viewConfiguration: ViewConfiguration
 
     /**
      * Suspend until a [PointerEvent] is reported to the specified input [pass]. [pass] defaults to
@@ -93,13 +93,15 @@ interface AwaitPointerEventScope : Density {
      * should mutate the returned [PointerEvent] before awaiting another event to consume aspects of
      * the event before the next stage of input processing runs.
      */
-    suspend fun awaitPointerEvent(pass: PointerEventPass = PointerEventPass.Main): PointerEvent
+    public suspend fun awaitPointerEvent(
+        pass: PointerEventPass = PointerEventPass.Main
+    ): PointerEvent
 
     /**
      * Runs [block] and returns the result of [block] or `null` if [timeMillis] has passed before
      * [timeMillis].
      */
-    suspend fun <T> withTimeoutOrNull(
+    public suspend fun <T> withTimeoutOrNull(
         timeMillis: Long,
         block: suspend AwaitPointerEventScope.() -> T,
     ): T? = block()
@@ -108,7 +110,7 @@ interface AwaitPointerEventScope : Density {
      * Runs [block] and returns its results. An [PointerEventTimeoutCancellationException] is thrown
      * if [timeMillis] has passed before [block] completes.
      */
-    suspend fun <T> withTimeout(
+    public suspend fun <T> withTimeout(
         timeMillis: Long,
         block: suspend AwaitPointerEventScope.() -> T,
     ): T = block()
@@ -125,23 +127,23 @@ interface AwaitPointerEventScope : Density {
 // interface implement CoroutineScope would be an invitation to break structured concurrency in
 // these extensions, leaving other launched coroutines running in the calling scope.
 @JvmDefaultWithCompatibility
-interface PointerInputScope : Density {
+public interface PointerInputScope : Density {
     /**
      * The measured size of the pointer input region. Input events will be reported with a
      * coordinate space of (0, 0) to (size.width, size,height) as the input region, with (0, 0)
      * indicating the upper left corner.
      */
-    val size: IntSize
+    public val size: IntSize
 
     /**
      * The additional space applied to each side of the layout area when the layout is smaller than
      * [ViewConfiguration.minimumTouchTargetSize].
      */
-    val extendedTouchPadding: Size
+    public val extendedTouchPadding: Size
         get() = Size.Zero
 
     /** The [ViewConfiguration] used to tune gesture detectors. */
-    val viewConfiguration: ViewConfiguration
+    public val viewConfiguration: ViewConfiguration
 
     /**
      * Intercept pointer input that children receive even if the pointer is out of bounds.
@@ -153,7 +155,7 @@ interface PointerInputScope : Density {
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
     @JsName("varinterceptOutOfBoundsChildEvents")
-    var interceptOutOfBoundsChildEvents: Boolean
+    public var interceptOutOfBoundsChildEvents: Boolean
         get() = false
         set(_) {}
 
@@ -166,7 +168,7 @@ interface PointerInputScope : Density {
      * by using [kotlinx.coroutines.launch]. [block]s are dispatched to in the order in which they
      * were installed.
      */
-    suspend fun <R> awaitPointerEventScope(block: suspend AwaitPointerEventScope.() -> R): R
+    public suspend fun <R> awaitPointerEventScope(block: suspend AwaitPointerEventScope.() -> R): R
 }
 
 @Suppress("ConstPropertyName")
@@ -184,7 +186,7 @@ private const val PointerInputModifierNoParamError =
 // is not used without key parameters.
 @Suppress("UNUSED_PARAMETER", "UnusedReceiverParameter", "ModifierFactoryUnreferencedReceiver")
 @Deprecated(PointerInputModifierNoParamError, level = DeprecationLevel.ERROR)
-fun Modifier.pointerInput(block: suspend PointerInputScope.() -> Unit): Modifier =
+public fun Modifier.pointerInput(block: suspend PointerInputScope.() -> Unit): Modifier =
     error(PointerInputModifierNoParamError)
 
 @Deprecated(
@@ -196,8 +198,10 @@ fun Modifier.pointerInput(block: suspend PointerInputScope.() -> Unit): Modifier
             "androidx.compose.ui.input.pointer.Modifier.pointerInput",
         ),
 )
-fun Modifier.pointerInput(key1: Any?, block: suspend PointerInputScope.() -> Unit): Modifier =
-    this then SuspendPointerInputElement(key1 = key1, pointerInputEventHandler = block)
+public fun Modifier.pointerInput(
+    key1: Any?,
+    block: suspend PointerInputScope.() -> Unit,
+): Modifier = this then SuspendPointerInputElement(key1 = key1, pointerInputEventHandler = block)
 
 /**
  * Create a modifier for processing pointer input within the region of the modified element.
@@ -230,7 +234,7 @@ fun Modifier.pointerInput(key1: Any?, block: suspend PointerInputScope.() -> Uni
  * do not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  */
-fun Modifier.pointerInput(key1: Any?, block: PointerInputEventHandler): Modifier =
+public fun Modifier.pointerInput(key1: Any?, block: PointerInputEventHandler): Modifier =
     this then SuspendPointerInputElement(key1 = key1, pointerInputEventHandler = block)
 
 @Deprecated(
@@ -242,7 +246,7 @@ fun Modifier.pointerInput(key1: Any?, block: PointerInputEventHandler): Modifier
             "androidx.compose.ui.input.pointer.Modifier.pointerInput",
         ),
 )
-fun Modifier.pointerInput(
+public fun Modifier.pointerInput(
     key1: Any?,
     key2: Any?,
     block: suspend PointerInputScope.() -> Unit,
@@ -280,7 +284,11 @@ fun Modifier.pointerInput(
  * do not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  */
-fun Modifier.pointerInput(key1: Any?, key2: Any?, block: PointerInputEventHandler): Modifier =
+public fun Modifier.pointerInput(
+    key1: Any?,
+    key2: Any?,
+    block: PointerInputEventHandler,
+): Modifier =
     this then SuspendPointerInputElement(key1 = key1, key2 = key2, pointerInputEventHandler = block)
 
 @Deprecated(
@@ -292,7 +300,7 @@ fun Modifier.pointerInput(key1: Any?, key2: Any?, block: PointerInputEventHandle
             "androidx.compose.ui.input.pointer.Modifier.pointerInput",
         ),
 )
-fun Modifier.pointerInput(
+public fun Modifier.pointerInput(
     vararg keys: Any?,
     block: suspend PointerInputScope.() -> Unit,
 ): Modifier = this then SuspendPointerInputElement(keys = keys, pointerInputEventHandler = block)
@@ -328,15 +336,15 @@ fun Modifier.pointerInput(
  * do not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  */
-fun Modifier.pointerInput(vararg keys: Any?, block: PointerInputEventHandler): Modifier =
+public fun Modifier.pointerInput(vararg keys: Any?, block: PointerInputEventHandler): Modifier =
     this then SuspendPointerInputElement(keys = keys, pointerInputEventHandler = block)
 
 /*
  * Represents the 'block' lambda passed into [Modifier.pointerInput]. It's used to receive and
  * consume pointer input events.
  */
-fun interface PointerInputEventHandler {
-    suspend operator fun PointerInputScope.invoke()
+public fun interface PointerInputEventHandler {
+    public suspend operator fun PointerInputScope.invoke()
 }
 
 internal class SuspendPointerInputElement(
@@ -399,7 +407,7 @@ private val EmptyPointerEvent = PointerEvent(emptyList())
         ),
 )
 @Suppress("DEPRECATION")
-fun SuspendingPointerInputModifierNode(
+public fun SuspendingPointerInputModifierNode(
     pointerInputHandler: suspend PointerInputScope.() -> Unit
 ): SuspendingPointerInputModifierNode {
     return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputHandler)
@@ -411,7 +419,7 @@ fun SuspendingPointerInputModifierNode(
  * [SuspendingPointerInputModifierNode] should only be needed when you want to delegate to
  * suspending pointer input as part of the implementation of a complex [Modifier.Node].
  */
-fun SuspendingPointerInputModifierNode(
+public fun SuspendingPointerInputModifierNode(
     pointerInputEventHandler: PointerInputEventHandler
 ): SuspendingPointerInputModifierNode {
     return SuspendingPointerInputModifierNodeImpl(null, null, null, pointerInputEventHandler)
@@ -423,7 +431,7 @@ fun SuspendingPointerInputModifierNode(
  * handler's execution). Note: The handler still executes lazily, meaning nothing will be done until
  * a new event comes in.
  */
-sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
+public sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
     /**
      * Handler for pointer input events. When changed, any previously executing pointerInputHandler
      * will be canceled.
@@ -438,7 +446,7 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
                     "SuspendingPointerInputModifierNode.pointerInputEventHandler",
             ),
     )
-    var pointerInputHandler: suspend PointerInputScope.() -> Unit
+    public var pointerInputHandler: suspend PointerInputScope.() -> Unit
 
     /**
      * Handler for pointer input events. When changed, any previously executing
@@ -447,7 +455,7 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
     // Supports more dynamic use cases than previous functional type version.
     // NOTE: If you implement this interface, replace the default implementation. For more
     // technical details, see aosp/3070509
-    var pointerInputEventHandler: PointerInputEventHandler
+    public var pointerInputEventHandler: PointerInputEventHandler
         get() = TODO("pointerInputEventHandler must be implemented (get()).")
         set(value) = TODO("pointerInputEventHandler must be implemented (set($value)).")
 
@@ -460,7 +468,7 @@ sealed interface SuspendingPointerInputModifierNode : PointerInputModifierNode {
      * press, double click, etc.), and by switching the modes, any currently-running gestures are no
      * longer valid.
      */
-    fun resetPointerInputHandler()
+    public fun resetPointerInputHandler()
 }
 
 // Used for multi-sleep solution within [PointerEventHandlerCoroutine.withTimeout()].
@@ -899,7 +907,7 @@ internal class SuspendingPointerInputModifierNodeImpl(
  * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time of the
  * coroutine is too long.
  */
-expect class PointerEventTimeoutCancellationException(time: Long) : CancellationException
+public expect class PointerEventTimeoutCancellationException(time: Long) : CancellationException
 
 /**
  * Used in place of the standard Job cancellation pathway to avoid reflective javaClass.simpleName

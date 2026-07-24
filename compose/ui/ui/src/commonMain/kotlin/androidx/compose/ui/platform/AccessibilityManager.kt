@@ -20,7 +20,7 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /** Interface for managing accessibility. */
 @JvmDefaultWithCompatibility
-interface AccessibilityManager {
+public interface AccessibilityManager {
 
     /**
      * Calculate the recommended timeout for changes to the UI needed by this user. Controls should
@@ -43,7 +43,7 @@ interface AccessibilityManager {
      * @param containsControls The contents of UI contain controls.
      * @return The recommended UI timeout for the current user in milliseconds.
      */
-    fun calculateRecommendedTimeoutMillis(
+    public fun calculateRecommendedTimeoutMillis(
         originalTimeoutMillis: Long,
         containsIcons: Boolean = false,
         containsText: Boolean = false,

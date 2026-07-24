@@ -30,7 +30,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /** Constructs a [Size] from the given width and height */
-@Stable inline fun Size(width: Float, height: Float) = Size(packFloats(width, height))
+@Stable public inline fun Size(width: Float, height: Float): Size = Size(packFloats(width, height))
 
 /**
  * Holds a 2D floating-point size.
@@ -51,27 +51,29 @@ import kotlin.math.min
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class Size(val packedValue: Long) {
+public value class Size(public val packedValue: Long) {
     @Stable
-    inline val width: Float
+    public inline val width: Float
         get() = unpackFloat1(packedValue)
 
     @Stable
-    inline val height: Float
+    public inline val height: Float
         get() = unpackFloat2(packedValue)
 
-    @Stable inline operator fun component1(): Float = width
+    @Stable public inline operator fun component1(): Float = width
 
-    @Stable inline operator fun component2(): Float = height
+    @Stable public inline operator fun component2(): Float = height
 
     /** Returns a copy of this Size instance optionally overriding the width or height parameter */
-    fun copy(width: Float = unpackFloat1(packedValue), height: Float = unpackFloat2(packedValue)) =
-        Size(packFloats(width, height))
+    public fun copy(
+        width: Float = unpackFloat1(packedValue),
+        height: Float = unpackFloat2(packedValue),
+    ): Size = Size(packFloats(width, height))
 
-    companion object {
+    public companion object {
         /** An empty size, one with a zero width and a zero height. */
         @Stable
-        val Zero
+        public val Zero: Size
             get() = Size(0x0L)
 
         /**
@@ -80,7 +82,7 @@ value class Size(val packedValue: Long) {
          * allowed.
          */
         @Stable
-        val Unspecified
+        public val Unspecified: Size
             get() = Size(UnspecifiedPackedFloats)
     }
 
@@ -90,7 +92,7 @@ value class Size(val packedValue: Long) {
      * Negative areas are considered empty.
      */
     @Stable
-    fun isEmpty(): Boolean {
+    public fun isEmpty(): Boolean {
         return isUnspecified or (width <= 0f) or (height <= 0f)
     }
 
@@ -101,7 +103,7 @@ value class Size(val packedValue: Long) {
      * multiplied by the scalar right-hand-side operand (a [Float]).
      */
     @Stable
-    operator fun times(operand: Float): Size =
+    public operator fun times(operand: Float): Size =
         Size(packFloats(unpackFloat1(packedValue) * operand, unpackFloat2(packedValue) * operand))
 
     /**
@@ -111,20 +113,20 @@ value class Size(val packedValue: Long) {
      * divided by the scalar right-hand-side operand (a [Float]).
      */
     @Stable
-    operator fun div(operand: Float): Size =
+    public operator fun div(operand: Float): Size =
         Size(packFloats(unpackFloat1(packedValue) / operand, unpackFloat2(packedValue) / operand))
 
     /** The lesser of the magnitudes of the [width] and the [height]. */
     @Stable
-    val minDimension: Float
+    public val minDimension: Float
         get() = min(unpackAbsFloat1(packedValue), unpackAbsFloat2(packedValue))
 
     /** The greater of the magnitudes of the [width] and the [height]. */
     @Stable
-    val maxDimension: Float
+    public val maxDimension: Float
         get() = max(unpackAbsFloat1(packedValue), unpackAbsFloat2(packedValue))
 
-    override fun toString() =
+    public override fun toString(): String =
         if (isSpecified) {
             "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
         } else {
@@ -136,19 +138,19 @@ value class Size(val packedValue: Long) {
 
 /** `false` when this is [Size.Unspecified]. */
 @Stable
-inline val Size.isSpecified: Boolean
+public inline val Size.isSpecified: Boolean
     get() = packedValue != 0x7fc00000_7fc00000L // NaN_NaN, see UnspecifiedPackedFloats
 
 /** `true` when this is [Size.Unspecified]. */
 @Stable
-inline val Size.isUnspecified: Boolean
+public inline val Size.isUnspecified: Boolean
     get() = packedValue == 0x7fc00000_7fc00000L // NaN_NaN, see UnspecifiedPackedFloats
 
 /**
  * If this [Size]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed and its
  * result is returned.
  */
-inline fun Size.takeOrElse(block: () -> Size): Size = if (isSpecified) this else block()
+public inline fun Size.takeOrElse(block: () -> Size): Size = if (isSpecified) this else block()
 
 /**
  * Linearly interpolate between two sizes
@@ -164,7 +166,7 @@ inline fun Size.takeOrElse(block: () -> Size): Size = if (isSpecified) this else
  * `AnimationController`.
  */
 @Stable
-fun lerp(start: Size, stop: Size, fraction: Float): Size =
+public fun lerp(start: Size, stop: Size, fraction: Float): Size =
     Size(
         packFloats(
             lerp(unpackFloat1(start.packedValue), unpackFloat1(stop.packedValue), fraction),
@@ -173,18 +175,18 @@ fun lerp(start: Size, stop: Size, fraction: Float): Size =
     )
 
 /** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
-@Stable inline operator fun Int.times(size: Size) = size * this.toFloat()
+@Stable public inline operator fun Int.times(size: Size): Size = size * this.toFloat()
 
 /** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
-@Stable inline operator fun Double.times(size: Size) = size * this.toFloat()
+@Stable public inline operator fun Double.times(size: Size): Size = size * this.toFloat()
 
 /** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
-@Stable inline operator fun Float.times(size: Size) = size * this
+@Stable public inline operator fun Float.times(size: Size): Size = size * this
 
 /** Convert a [Size] to a [Rect]. */
-@Stable fun Size.toRect(): Rect = Rect(Offset.Zero, this)
+@Stable public fun Size.toRect(): Rect = Rect(Offset.Zero, this)
 
 /** Returns the [Offset] of the center of the rect from the point of [0, 0] with this [Size]. */
 @Stable
-val Size.center: Offset
+public val Size.center: Offset
     get() = Offset(unpackFloat1(packedValue) / 2f, unpackFloat2(packedValue) / 2f)

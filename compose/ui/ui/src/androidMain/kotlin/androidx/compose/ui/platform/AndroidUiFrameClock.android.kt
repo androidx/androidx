@@ -21,13 +21,13 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-class AndroidUiFrameClock
+public class AndroidUiFrameClock
 internal constructor(
-    val choreographer: Choreographer,
+    public val choreographer: Choreographer,
     private val dispatcher: AndroidUiDispatcher?,
 ) : androidx.compose.runtime.MonotonicFrameClock {
 
-    constructor(choreographer: Choreographer) : this(choreographer, null)
+    public constructor(choreographer: Choreographer) : this(choreographer, null)
 
     override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
         val uiDispatcher =

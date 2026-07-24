@@ -112,14 +112,14 @@ import kotlin.math.min
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class Color(val value: ULong) {
+public value class Color(public val value: ULong) {
     /**
      * Returns this color's color space.
      *
      * @return A non-null instance of [ColorSpace]
      */
     @Stable
-    val colorSpace: ColorSpace
+    public val colorSpace: ColorSpace
         get() = ColorSpaces.getColorSpace((value and 0x3fUL).toInt())
 
     /**
@@ -129,7 +129,7 @@ value class Color(val value: ULong) {
      * @param colorSpace The destination color space, cannot be null
      * @return A non-null color instance in the specified color space
      */
-    fun convert(colorSpace: ColorSpace): Color {
+    public fun convert(colorSpace: ColorSpace): Color {
         // If the destination color space is the same as this color's color space,
         // the connector we get will be the identity connector
         val connector = this.colorSpace.connect(colorSpace)
@@ -148,7 +148,7 @@ value class Color(val value: ULong) {
      * @see green
      */
     @Stable
-    val red: Float
+    public val red: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 48) and 0xffUL).toFloat() / 255.0f
@@ -169,7 +169,7 @@ value class Color(val value: ULong) {
      * @see blue
      */
     @Stable
-    val green: Float
+    public val green: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 40) and 0xffUL).toFloat() / 255.0f
@@ -190,7 +190,7 @@ value class Color(val value: ULong) {
      * @see green
      */
     @Stable
-    val blue: Float
+    public val blue: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 32) and 0xffUL).toFloat() / 255.0f
@@ -207,7 +207,7 @@ value class Color(val value: ULong) {
      * @see blue
      */
     @Stable
-    val alpha: Float
+    public val alpha: Float
         get() {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 56) and 0xffUL).toFloat() / 255.0f
@@ -216,22 +216,24 @@ value class Color(val value: ULong) {
             }
         }
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component1(): Float = red
+    @Suppress("NOTHING_TO_INLINE") @Stable public inline operator fun component1(): Float = red
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component2(): Float = green
+    @Suppress("NOTHING_TO_INLINE") @Stable public inline operator fun component2(): Float = green
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component3(): Float = blue
+    @Suppress("NOTHING_TO_INLINE") @Stable public inline operator fun component3(): Float = blue
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component4(): Float = alpha
+    @Suppress("NOTHING_TO_INLINE") @Stable public inline operator fun component4(): Float = alpha
 
-    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component5(): ColorSpace = colorSpace
+    @Suppress("NOTHING_TO_INLINE")
+    @Stable
+    public inline operator fun component5(): ColorSpace = colorSpace
 
     /**
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace] of
      * the returned [Color] is the same as this [colorSpace].
      */
     @Stable
-    fun copy(
+    public fun copy(
         alpha: Float = this.alpha,
         red: Float = this.red,
         green: Float = this.green,
@@ -256,53 +258,53 @@ value class Color(val value: ULong) {
         return "Color($red, $green, $blue, $alpha, ${colorSpace.name})"
     }
 
-    companion object {
+    public companion object {
         @Stable
-        val Black
+        public val Black: Color
             get() = Color(0xFF000000)
 
         @Stable
-        val DarkGray
+        public val DarkGray: Color
             get() = Color(0xFF444444)
 
         @Stable
-        val Gray
+        public val Gray: Color
             get() = Color(0xFF888888)
 
         @Stable
-        val LightGray
+        public val LightGray: Color
             get() = Color(0xFFCCCCCC)
 
         @Stable
-        val White
+        public val White: Color
             get() = Color(0xFFFFFFFF)
 
         @Stable
-        val Red
+        public val Red: Color
             get() = Color(0xFFFF0000)
 
         @Stable
-        val Green
+        public val Green: Color
             get() = Color(0xFF00FF00)
 
         @Stable
-        val Blue
+        public val Blue: Color
             get() = Color(0xFF0000FF)
 
         @Stable
-        val Yellow
+        public val Yellow: Color
             get() = Color(0xFFFFFF00)
 
         @Stable
-        val Cyan
+        public val Cyan: Color
             get() = Color(0xFF00FFFF)
 
         @Stable
-        val Magenta
+        public val Magenta: Color
             get() = Color(0xFFFF00FF)
 
         @Stable
-        val Transparent
+        public val Transparent: Color
             get() = Color(0x00000000)
 
         /**
@@ -312,7 +314,7 @@ value class Color(val value: ULong) {
          * [isSpecified] for any color that isn't [Unspecified].
          */
         @Stable
-        val Unspecified
+        public val Unspecified: Color
             get() = Color(0f, 0f, 0f, 0f, ColorSpaces.Unspecified)
 
         /**
@@ -326,7 +328,7 @@ value class Color(val value: ULong) {
          * @param value The strength of the color, where 0 is black.
          * @param colorSpace The RGB color space used to calculate the Color from the HSV values.
          */
-        fun hsv(
+        public fun hsv(
             hue: Float,
             saturation: Float,
             value: Float,
@@ -359,7 +361,7 @@ value class Color(val value: ULong) {
          * @param alpha Alpha channel to apply to the computed color
          * @param colorSpace The RGB color space used to calculate the Color from the HSL values.
          */
-        fun hsl(
+        public fun hsl(
             hue: Float,
             saturation: Float,
             lightness: Float,
@@ -384,7 +386,7 @@ value class Color(val value: ULong) {
 }
 
 // Same as Color.Unspecified.packedValue, but avoids a getstatic
-@PublishedApi internal const val UnspecifiedColor = 0x10UL
+@PublishedApi internal const val UnspecifiedColor: ULong = 0x10UL
 
 /**
  * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
@@ -401,7 +403,7 @@ value class Color(val value: ULong) {
  *   [ColorSpace.MinId].
  */
 @Stable
-fun Color(
+public fun Color(
     red: Float,
     green: Float,
     blue: Float,
@@ -490,7 +492,7 @@ internal fun UncheckedColor(
  * @return A non-null instance of {@link Color}
  */
 @Stable
-fun Color(@ColorInt color: Int): Color {
+public fun Color(@ColorInt color: Int): Color {
     return Color(color.toULong() shl 32)
 }
 
@@ -505,7 +507,7 @@ fun Color(@ColorInt color: Int): Color {
  * @return A non-null instance of {@link Color}
  */
 @Stable
-fun Color(color: Long): Color {
+public fun Color(color: Long): Color {
     return Color((color shl 32).toULong())
 }
 
@@ -520,7 +522,7 @@ fun Color(color: Long): Color {
  * @return A non-null instance of {@link Color}
  */
 @Stable
-fun Color(
+public fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
     @IntRange(from = 0, to = 0xFF) blue: Int,
@@ -541,7 +543,11 @@ fun Color(
  * [ColorSpaces.Oklab] color space.
  */
 @Stable
-fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
+public fun lerp(
+    start: Color,
+    stop: Color,
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float,
+): Color {
     val colorSpace = ColorSpaces.Oklab
     val startColor = start.convert(colorSpace)
     val endColor = stop.convert(colorSpace)
@@ -584,7 +590,7 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
  *   space of [background].
  */
 @Stable
-fun Color.compositeOver(background: Color): Color {
+public fun Color.compositeOver(background: Color): Color {
     val fg = this.convert(background.colorSpace)
 
     val bgA = background.alpha
@@ -628,7 +634,7 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
  *   [RGB][ColorModel.Rgb] color model
  */
 @Stable
-fun Color.luminance(): Float {
+public fun Color.luminance(): Float {
     val colorSpace = colorSpace
     requirePrecondition(colorSpace.model == ColorModel.Rgb) {
         "The specified color must be encoded in an RGB color space. " +
@@ -651,25 +657,25 @@ fun Color.luminance(): Float {
  */
 @Stable
 @ColorInt
-fun Color.toArgb(): Int {
+public fun Color.toArgb(): Int {
     return (convert(ColorSpaces.Srgb).value shr 32).toInt()
 }
 
 /** `false` when this is [Color.Unspecified]. */
 @Stable
-inline val Color.isSpecified: Boolean
+public inline val Color.isSpecified: Boolean
     get() = value != UnspecifiedColor
 
 /** `true` when this is [Color.Unspecified]. */
 @Stable
-inline val Color.isUnspecified: Boolean
+public inline val Color.isUnspecified: Boolean
     get() = value == UnspecifiedColor
 
 /**
  * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result
  * is returned.
  */
-inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
+public inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this else block()
 
 /**
  * Alternative to `() -> Color` that's useful for avoiding boxing.
@@ -678,7 +684,7 @@ inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this e
  *
  * fun nonBoxedArgs(color: ColorProducer?)
  */
-fun interface ColorProducer {
+public fun interface ColorProducer {
     /** Return the color */
-    operator fun invoke(): Color
+    public operator fun invoke(): Color
 }

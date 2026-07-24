@@ -86,7 +86,7 @@ import androidx.compose.ui.unit.toSize
     level = DeprecationLevel.HIDDEN,
 )
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -100,7 +100,7 @@ fun Modifier.graphicsLayer(
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     shape: Shape = RectangleShape,
     clip: Boolean = false,
-) =
+): Modifier =
     graphicsLayer(
         scaleX = scaleX,
         scaleY = scaleY,
@@ -171,7 +171,7 @@ fun Modifier.graphicsLayer(
     level = DeprecationLevel.HIDDEN,
 )
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -186,7 +186,7 @@ fun Modifier.graphicsLayer(
     shape: Shape = RectangleShape,
     clip: Boolean = false,
     renderEffect: RenderEffect? = null,
-) =
+): Modifier =
     graphicsLayer(
         scaleX = scaleX,
         scaleY = scaleY,
@@ -264,7 +264,7 @@ fun Modifier.graphicsLayer(
     level = DeprecationLevel.HIDDEN,
 )
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -281,7 +281,7 @@ fun Modifier.graphicsLayer(
     renderEffect: RenderEffect? = null,
     ambientShadowColor: Color = DefaultShadowColor,
     spotShadowColor: Color = DefaultShadowColor,
-) =
+): Modifier =
     graphicsLayer(
         scaleX,
         scaleY,
@@ -368,7 +368,7 @@ fun Modifier.graphicsLayer(
     level = DeprecationLevel.HIDDEN,
 )
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -386,7 +386,7 @@ fun Modifier.graphicsLayer(
     ambientShadowColor: Color = DefaultShadowColor,
     spotShadowColor: Color = DefaultShadowColor,
     compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
-) =
+): Modifier =
     graphicsLayer(
         scaleX,
         scaleY,
@@ -475,7 +475,7 @@ fun Modifier.graphicsLayer(
     level = DeprecationLevel.HIDDEN,
 )
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -495,7 +495,7 @@ fun Modifier.graphicsLayer(
     compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
     blendMode: BlendMode = BlendMode.SrcOver,
     colorFilter: ColorFilter? = null,
-) =
+): Modifier =
     this then
         GraphicsLayerElement(
             scaleX,
@@ -579,7 +579,7 @@ fun Modifier.graphicsLayer(
  * @param outsets see [GraphicsLayerScope.outsets]
  */
 @Stable
-fun Modifier.graphicsLayer(
+public fun Modifier.graphicsLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
@@ -600,7 +600,7 @@ fun Modifier.graphicsLayer(
     blendMode: BlendMode = BlendMode.SrcOver,
     colorFilter: ColorFilter? = null,
     outsets: LayerOutsets = LayerOutsets.Zero,
-) =
+): Modifier =
     this then
         GraphicsLayerElement(
             scaleX,
@@ -738,7 +738,7 @@ private data class GraphicsLayerElement(
  * @param block block on [GraphicsLayerScope] where you define the layer properties.
  */
 @Stable
-fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
+public fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
     this then BlockGraphicsLayerElement(block)
 
 /**
@@ -747,9 +747,10 @@ fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class CompositingStrategy internal constructor(@Suppress("unused") private val value: Int) {
+public value class CompositingStrategy
+internal constructor(@Suppress("unused") private val value: Int) {
 
-    companion object {
+    public companion object {
 
         /**
          * Rendering to an offscreen buffer will be determined automatically by the rest of the
@@ -762,7 +763,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * will also render into an intermediate offscreen buffer before being drawn into the
          * destination.
          */
-        val Auto
+        public val Auto: CompositingStrategy
             get() = CompositingStrategy(0)
 
         /**
@@ -772,7 +773,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * the contents can be drawn into this graphics layer and masked out by drawing additional
          * shapes with [BlendMode.Clear]
          */
-        val Offscreen
+        public val Offscreen: CompositingStrategy
             get() = CompositingStrategy(1)
 
         /**
@@ -784,7 +785,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
          * layer and alpha is applied. This should only be used if the contents of the layer are
          * known well in advance and are expected to not be overlapping.
          */
-        val ModulateAlpha
+        public val ModulateAlpha: CompositingStrategy
             get() = CompositingStrategy(2)
     }
 }
@@ -794,7 +795,7 @@ value class CompositingStrategy internal constructor(@Suppress("unused") private
  * drawn image.
  */
 @Stable
-fun Modifier.toolingGraphicsLayer() =
+public fun Modifier.toolingGraphicsLayer(): Modifier =
     if (isDebugInspectorInfoEnabled) this.then(Modifier.graphicsLayer()) else this
 
 private class BlockGraphicsLayerElement(val block: GraphicsLayerScope.() -> Unit) :

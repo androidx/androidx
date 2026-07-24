@@ -110,7 +110,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /** Possible values of [DrawerState]. */
-enum class DrawerValue {
+public enum class DrawerValue {
     /** The state of the drawer when it is closed. */
     Closed,
 
@@ -126,7 +126,7 @@ enum class DrawerValue {
  */
 @Suppress("NotCloseable")
 @Stable
-class DrawerState(
+public class DrawerState(
     initialValue: DrawerValue,
     internal val confirmStateChange: (DrawerValue) -> Boolean = { true },
 ) {
@@ -146,11 +146,11 @@ class DrawerState(
         )
 
     /** Whether the drawer is open. */
-    val isOpen: Boolean
+    public val isOpen: Boolean
         get() = currentValue == DrawerValue.Open
 
     /** Whether the drawer is closed. */
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = currentValue == DrawerValue.Closed
 
     /**
@@ -160,13 +160,13 @@ class DrawerState(
      * in. If a swipe or an animation is in progress, this corresponds the state drawer was in
      * before the swipe or animation started.
      */
-    val currentValue: DrawerValue
+    public val currentValue: DrawerValue
         get() {
             return anchoredDraggableState.settledValue
         }
 
     /** Whether the state is currently animating. */
-    val isAnimationRunning: Boolean
+    public val isAnimationRunning: Boolean
         get() {
             return anchoredDraggableState.isAnimationRunning
         }
@@ -177,7 +177,7 @@ class DrawerState(
      *
      * @return the reason the open animation ended
      */
-    suspend fun open() =
+    public suspend fun open(): Unit =
         animateTo(targetValue = DrawerValue.Open, animationSpec = openDrawerMotionSpec)
 
     /**
@@ -186,7 +186,7 @@ class DrawerState(
      *
      * @return the reason the close animation ended
      */
-    suspend fun close() =
+    public suspend fun close(): Unit =
         animateTo(targetValue = DrawerValue.Closed, animationSpec = closeDrawerMotionSpec)
 
     /**
@@ -200,7 +200,7 @@ class DrawerState(
             "This method has been replaced by the open and close methods. The animation " +
                 "spec is now an implementation detail of ModalDrawer."
     )
-    suspend fun animateTo(targetValue: DrawerValue, anim: AnimationSpec<Float>) {
+    public suspend fun animateTo(targetValue: DrawerValue, anim: AnimationSpec<Float>) {
         animateTo(targetValue = targetValue, animationSpec = anim)
     }
 
@@ -209,7 +209,7 @@ class DrawerState(
      *
      * @param targetValue The new target value
      */
-    suspend fun snapTo(targetValue: DrawerValue) {
+    public suspend fun snapTo(targetValue: DrawerValue) {
         anchoredDraggableState.snapTo(targetValue)
     }
 
@@ -220,7 +220,7 @@ class DrawerState(
      * finishes. If an animation is running, this is the target value of that animation. Finally, if
      * no swipe or animation is in progress, this is the same as the [currentValue].
      */
-    val targetValue: DrawerValue
+    public val targetValue: DrawerValue
         get() = anchoredDraggableState.targetValue
 
     /**
@@ -235,7 +235,7 @@ class DrawerState(
                 "directly instead of wrapping it in a state object.",
         replaceWith = ReplaceWith("currentOffset"),
     )
-    val offset: State<Float> =
+    public val offset: State<Float> =
         object : State<Float> {
             override val value: Float
                 get() = anchoredDraggableState.offset
@@ -247,7 +247,7 @@ class DrawerState(
      *
      * @see [AnchoredDraggableState.offset] for more information.
      */
-    val currentOffset: Float
+    public val currentOffset: Float
         get() = anchoredDraggableState.offset
 
     internal var density: Density? by mutableStateOf(null)
@@ -285,9 +285,11 @@ class DrawerState(
         }
     }
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [DrawerState]. */
-        fun Saver(confirmStateChange: (DrawerValue) -> Boolean) =
+        public fun Saver(
+            confirmStateChange: (DrawerValue) -> Boolean
+        ): Saver<DrawerState, DrawerValue> =
             Saver<DrawerState, DrawerValue>(
                 save = { it.currentValue },
                 restore = { DrawerState(it, confirmStateChange) },
@@ -302,7 +304,7 @@ class DrawerState(
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
-fun rememberDrawerState(
+public fun rememberDrawerState(
     initialValue: DrawerValue,
     confirmStateChange: (DrawerValue) -> Boolean = { true },
 ): DrawerState {
@@ -331,7 +333,7 @@ fun rememberDrawerState(
  * @param content content of the rest of the UI
  */
 @Composable
-fun ModalNavigationDrawer(
+public fun ModalNavigationDrawer(
     drawerContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
@@ -485,7 +487,7 @@ fun ModalNavigationDrawer(
  * @param content content of the rest of the UI
  */
 @Composable
-fun DismissibleNavigationDrawer(
+public fun DismissibleNavigationDrawer(
     drawerContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
@@ -609,7 +611,7 @@ fun DismissibleNavigationDrawer(
  * @param content content of the rest of the UI
  */
 @Composable
-fun PermanentNavigationDrawer(
+public fun PermanentNavigationDrawer(
     drawerContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -641,7 +643,7 @@ fun PermanentNavigationDrawer(
  * @param content content inside of a modal navigation drawer
  */
 @Composable
-fun ModalDrawerSheet(
+public fun ModalDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
     drawerContainerColor: Color = DrawerDefaults.modalContainerColor,
@@ -684,7 +686,7 @@ fun ModalDrawerSheet(
  * @param content content inside of a modal navigation drawer
  */
 @Composable
-fun ModalDrawerSheet(
+public fun ModalDrawerSheet(
     drawerState: DrawerState,
     modifier: Modifier = Modifier,
     drawerShape: Shape = DrawerDefaults.shape,
@@ -730,7 +732,7 @@ fun ModalDrawerSheet(
  * @param content content inside of a dismissible navigation drawer
  */
 @Composable
-fun DismissibleDrawerSheet(
+public fun DismissibleDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
     drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
@@ -773,7 +775,7 @@ fun DismissibleDrawerSheet(
  * @param content content inside of a dismissible navigation drawer
  */
 @Composable
-fun DismissibleDrawerSheet(
+public fun DismissibleDrawerSheet(
     drawerState: DrawerState,
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
@@ -815,7 +817,7 @@ fun DismissibleDrawerSheet(
  * @param content content inside a permanent navigation drawer
  */
 @Composable
-fun PermanentDrawerSheet(
+public fun PermanentDrawerSheet(
     modifier: Modifier = Modifier,
     drawerShape: Shape = RectangleShape,
     drawerContainerColor: Color = DrawerDefaults.standardContainerColor,
@@ -1048,22 +1050,22 @@ internal fun DrawerPredictiveBackHandler(
 }
 
 /** Object to hold default values for [ModalNavigationDrawer] */
-object DrawerDefaults {
+public object DrawerDefaults {
     /** Default Elevation for drawer container in the [ModalNavigationDrawer]. */
-    val ModalDrawerElevation = ElevationTokens.Level0
+    public val ModalDrawerElevation: Dp = ElevationTokens.Level0
 
     /** Default Elevation for drawer container in the [PermanentNavigationDrawer]. */
-    val PermanentDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
+    public val PermanentDrawerElevation: Dp = NavigationDrawerTokens.StandardContainerElevation
 
     /** Default Elevation for drawer container in the [DismissibleNavigationDrawer]. */
-    val DismissibleDrawerElevation = NavigationDrawerTokens.StandardContainerElevation
+    public val DismissibleDrawerElevation: Dp = NavigationDrawerTokens.StandardContainerElevation
 
     /** Default shape for a navigation drawer. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = NavigationDrawerTokens.ContainerShape.value
 
     /** Default color of the scrim that obscures content when the drawer is open */
-    val scrimColor: Color
+    public val scrimColor: Color
         @Composable get() = ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
 
     /** Default container color for a navigation drawer */
@@ -1072,24 +1074,24 @@ object DrawerDefaults {
         replaceWith = ReplaceWith("standardContainerColor"),
         level = DeprecationLevel.WARNING,
     )
-    val containerColor: Color
+    public val containerColor: Color
         @Composable get() = NavigationDrawerTokens.StandardContainerColor.value
 
     /**
      * Default container color for a [DismissibleNavigationDrawer] and [PermanentNavigationDrawer]
      */
-    val standardContainerColor: Color
+    public val standardContainerColor: Color
         @Composable get() = NavigationDrawerTokens.StandardContainerColor.value
 
     /** Default container color for a [ModalNavigationDrawer] */
-    val modalContainerColor: Color
+    public val modalContainerColor: Color
         @Composable get() = NavigationDrawerTokens.ModalContainerColor.value
 
     /** Default and maximum width of a navigation drawer */
-    val MaximumDrawerWidth = NavigationDrawerTokens.ContainerWidth
+    public val MaximumDrawerWidth: Dp = NavigationDrawerTokens.ContainerWidth
 
     /** Default window insets for drawer sheets */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -1119,7 +1121,7 @@ object DrawerDefaults {
  *   happen internally.
  */
 @Composable
-fun NavigationDrawerItem(
+public fun NavigationDrawerItem(
     label: @Composable () -> Unit,
     selected: Boolean,
     onClick: () -> Unit,
@@ -1166,38 +1168,38 @@ fun NavigationDrawerItem(
 
 /** Represents the colors of the various elements of a drawer item. */
 @Stable
-interface NavigationDrawerItemColors {
+public interface NavigationDrawerItemColors {
     /**
      * Represents the icon color for this item, depending on whether it is [selected].
      *
      * @param selected whether the item is selected
      */
-    @Composable fun iconColor(selected: Boolean): State<Color>
+    @Composable public fun iconColor(selected: Boolean): State<Color>
 
     /**
      * Represents the text color for this item, depending on whether it is [selected].
      *
      * @param selected whether the item is selected
      */
-    @Composable fun textColor(selected: Boolean): State<Color>
+    @Composable public fun textColor(selected: Boolean): State<Color>
 
     /**
      * Represents the badge color for this item, depending on whether it is [selected].
      *
      * @param selected whether the item is selected
      */
-    @Composable fun badgeColor(selected: Boolean): State<Color>
+    @Composable public fun badgeColor(selected: Boolean): State<Color>
 
     /**
      * Represents the container color for this item, depending on whether it is [selected].
      *
      * @param selected whether the item is selected
      */
-    @Composable fun containerColor(selected: Boolean): State<Color>
+    @Composable public fun containerColor(selected: Boolean): State<Color>
 }
 
 /** Defaults used in [NavigationDrawerItem]. */
-object NavigationDrawerItemDefaults {
+public object NavigationDrawerItemDefaults {
     /**
      * Creates a [NavigationDrawerItemColors] with the provided colors according to the Material
      * specification.
@@ -1214,7 +1216,7 @@ object NavigationDrawerItemDefaults {
      * @return the resulting [NavigationDrawerItemColors] used for [NavigationDrawerItem]
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedContainerColor: Color = NavigationDrawerTokens.ActiveIndicatorColor.value,
         unselectedContainerColor: Color = Color.Transparent,
         selectedIconColor: Color = NavigationDrawerTokens.ActiveIconColor.value,
@@ -1239,7 +1241,7 @@ object NavigationDrawerItemDefaults {
      * Default external padding for a [NavigationDrawerItem] according to the Material
      * specification.
      */
-    val ItemPadding = PaddingValues(horizontal = 12.dp)
+    public val ItemPadding: PaddingValues = PaddingValues(horizontal = 12.dp)
 }
 
 @Stable

@@ -50,7 +50,7 @@ private inline fun <T : Any> computedDefaultOf(
  */
 @SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
-val LocalConfiguration: ProvidableCompositionLocal<Configuration> =
+public val LocalConfiguration: ProvidableCompositionLocal<Configuration> =
     if (ComposeUiFlags.isMinimalistLocalsEnabled) {
         compositionLocalWithComputedDefaultOf { LocalContext.currentValue.resources.configuration }
     } else {
@@ -58,7 +58,7 @@ val LocalConfiguration: ProvidableCompositionLocal<Configuration> =
     }
 
 /** Provides a [Context] that can be used by Android applications. */
-val LocalContext =
+public val LocalContext: ProvidableCompositionLocal<Context> =
     computedDefaultOf<Context>("LocalContext") {
         LocalAndroidComposeView.currentValue?.context ?: noLocalProvidedFor("LocalContext")
     }
@@ -67,7 +67,7 @@ val LocalContext =
  * The Android [Resources]. This will be updated when [LocalConfiguration] changes, to ensure that
  * calls to APIs such as [Resources.getString] return updated values.
  */
-val LocalResources =
+public val LocalResources: ProvidableCompositionLocal<Resources> =
     compositionLocalWithComputedDefaultOf<Resources> {
         // Read LocalConfiguration here to invalidate callers of LocalResources when the
         // configuration changes. This is preferable to explicitly providing the resources object
@@ -97,19 +97,20 @@ internal val LocalResourceIdCache =
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
     ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
 )
-actual val LocalLifecycleOwner
-    get() = LocalLifecycleOwner
+public actual val LocalLifecycleOwner: ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner>
+    get() = androidx.lifecycle.compose.LocalLifecycleOwner
 
 /** The CompositionLocal containing the current [SavedStateRegistryOwner]. */
 @Deprecated(
     "Moved to savedstate-compose library in androidx.savedstate.compose package.",
     ReplaceWith("androidx.savedstate.compose.LocalSavedStateRegistryOwner"),
 )
-val LocalSavedStateRegistryOwner
-    get() = LocalSavedStateRegistryOwner
+public val LocalSavedStateRegistryOwner:
+    ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner>
+    get() = androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
 /** The CompositionLocal containing the current Compose [View]. */
-val LocalView =
+public val LocalView: ProvidableCompositionLocal<View> =
     computedDefaultOf<View>("LocalView") {
         LocalAndroidComposeView.currentValue ?: noLocalProvidedFor("LocalView")
     }

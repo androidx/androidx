@@ -91,7 +91,7 @@ import kotlinx.coroutines.launch
  * well as to write custom drag methods using [drag] suspend function.
  */
 @JvmDefaultWithCompatibility
-interface DraggableState {
+public interface DraggableState {
     /**
      * Call this function to take control of drag logic.
      *
@@ -105,7 +105,7 @@ interface DraggableState {
      * @param dragPriority of the drag operation
      * @param block to perform drag in
      */
-    suspend fun drag(
+    public suspend fun drag(
         dragPriority: MutatePriority = MutatePriority.Default,
         block: suspend DragScope.() -> Unit,
     )
@@ -124,13 +124,13 @@ interface DraggableState {
      *
      * @param delta amount of scroll dispatched in the nested drag process
      */
-    fun dispatchRawDelta(delta: Float)
+    public fun dispatchRawDelta(delta: Float)
 }
 
 /** Scope used for suspending drag blocks */
-interface DragScope {
+public interface DragScope {
     /** Attempts to drag by [pixels] px. */
-    fun dragBy(pixels: Float)
+    public fun dragBy(pixels: Float)
 }
 
 /**
@@ -145,7 +145,7 @@ interface DragScope {
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-fun DraggableState(onDelta: (Float) -> Unit): DraggableState = DefaultDraggableState(onDelta)
+public fun DraggableState(onDelta: (Float) -> Unit): DraggableState = DefaultDraggableState(onDelta)
 
 /**
  * Create and remember default implementation of [DraggableState] interface that allows to pass a
@@ -158,7 +158,7 @@ fun DraggableState(onDelta: (Float) -> Unit): DraggableState = DefaultDraggableS
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Composable
-fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
+public fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
     val onDeltaState = rememberUpdatedState(onDelta)
     return remember { DraggableState { onDeltaState.value.invoke(it) } }
 }
@@ -203,7 +203,7 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  *   like bottom to top and left to right will behave like right to left.
  */
 @Stable
-fun Modifier.draggable(
+public fun Modifier.draggable(
     state: DraggableState,
     orientation: Orientation,
     enabled: Boolean = true,

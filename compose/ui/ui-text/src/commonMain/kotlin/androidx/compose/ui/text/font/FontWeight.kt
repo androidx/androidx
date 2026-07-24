@@ -28,46 +28,46 @@ import androidx.compose.ui.util.lerp
  * @see FontFamily
  */
 @Immutable
-class FontWeight(val weight: Int) : Comparable<FontWeight> {
+public class FontWeight(public val weight: Int) : Comparable<FontWeight> {
 
-    companion object {
+    public companion object {
         /** [Thin] */
-        @Stable val W100 = FontWeight(100)
+        @Stable public val W100: FontWeight = FontWeight(100)
         /** [ExtraLight] */
-        @Stable val W200 = FontWeight(200)
+        @Stable public val W200: FontWeight = FontWeight(200)
         /** [Light] */
-        @Stable val W300 = FontWeight(300)
+        @Stable public val W300: FontWeight = FontWeight(300)
         /** [Normal] / regular / plain */
-        @Stable val W400 = FontWeight(400)
+        @Stable public val W400: FontWeight = FontWeight(400)
         /** [Medium] */
-        @Stable val W500 = FontWeight(500)
+        @Stable public val W500: FontWeight = FontWeight(500)
         /** [SemiBold] */
-        @Stable val W600 = FontWeight(600)
+        @Stable public val W600: FontWeight = FontWeight(600)
         /** [Bold] */
-        @Stable val W700 = FontWeight(700)
+        @Stable public val W700: FontWeight = FontWeight(700)
         /** [ExtraBold] */
-        @Stable val W800 = FontWeight(800)
+        @Stable public val W800: FontWeight = FontWeight(800)
         /** [Black] */
-        @Stable val W900 = FontWeight(900)
+        @Stable public val W900: FontWeight = FontWeight(900)
 
         /** Alias for [W100] */
-        @Stable val Thin = W100
+        @Stable public val Thin: FontWeight = W100
         /** Alias for [W200] */
-        @Stable val ExtraLight = W200
+        @Stable public val ExtraLight: FontWeight = W200
         /** Alias for [W300] */
-        @Stable val Light = W300
+        @Stable public val Light: FontWeight = W300
         /** The default font weight - alias for [W400] */
-        @Stable val Normal = W400
+        @Stable public val Normal: FontWeight = W400
         /** Alias for [W500] */
-        @Stable val Medium = W500
+        @Stable public val Medium: FontWeight = W500
         /** Alias for [W600] */
-        @Stable val SemiBold = W600
+        @Stable public val SemiBold: FontWeight = W600
         /** A commonly used font weight that is heavier than normal - alias for [W700] */
-        @Stable val Bold = W700
+        @Stable public val Bold: FontWeight = W700
         /** Alias for [W800] */
-        @Stable val ExtraBold = W800
+        @Stable public val ExtraBold: FontWeight = W800
         /** Alias for [W900] */
-        @Stable val Black = W900
+        @Stable public val Black: FontWeight = W900
 
         /** A list of all the font weights. */
         internal val values: List<FontWeight> =
@@ -80,22 +80,22 @@ class FontWeight(val weight: Int) : Comparable<FontWeight> {
         }
     }
 
-    override operator fun compareTo(other: FontWeight): Int {
+    public override operator fun compareTo(other: FontWeight): Int {
         return weight.compareTo(other.weight)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FontWeight) return false
         if (weight != other.weight) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return weight
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "FontWeight(weight=$weight)"
     }
 }
@@ -113,7 +113,7 @@ class FontWeight(val weight: Int) : Comparable<FontWeight> {
  * Values for [fraction] are usually obtained from an [Animation<Float>], such as an
  * `AnimationController`.
  */
-fun lerp(start: FontWeight, stop: FontWeight, fraction: Float): FontWeight {
+public fun lerp(start: FontWeight, stop: FontWeight, fraction: Float): FontWeight {
     val weight = lerp(start.weight, stop.weight, fraction).coerceIn(1, 1000)
     return FontWeight(weight)
 }

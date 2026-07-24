@@ -85,7 +85,7 @@ import kotlin.math.floor
  * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable
-fun BasicText(
+public fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -187,7 +187,7 @@ fun BasicText(
  * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable
-fun BasicText(
+public fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -311,7 +311,7 @@ fun BasicText(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -352,7 +352,7 @@ fun BasicText(
  */
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -380,7 +380,7 @@ fun BasicText(
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -403,7 +403,7 @@ fun BasicText(
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -428,7 +428,7 @@ fun BasicText(
 
 @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -437,11 +437,11 @@ fun BasicText(
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
-) = BasicText(text, modifier, style, onTextLayout, overflow, softWrap, maxLines, minLines)
+): Unit = BasicText(text, modifier, style, onTextLayout, overflow, softWrap, maxLines, minLines)
 
 @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
 @Composable
-fun BasicText(
+public fun BasicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
@@ -451,7 +451,7 @@ fun BasicText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
-) =
+): Unit =
     BasicText(
         text = text,
         modifier = modifier,

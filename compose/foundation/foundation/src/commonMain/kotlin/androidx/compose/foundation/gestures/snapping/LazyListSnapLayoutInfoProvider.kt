@@ -38,7 +38,7 @@ import kotlin.math.sign
  *   within the viewport.
  * @return A [SnapLayoutInfoProvider] that can be used with [snapFlingBehavior]
  */
-fun SnapLayoutInfoProvider(
+public fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
     snapPosition: SnapPosition = SnapPosition.Center,
 ): SnapLayoutInfoProvider =
@@ -111,7 +111,7 @@ fun SnapLayoutInfoProvider(
  *   within the viewport.
  */
 @Composable
-fun rememberSnapFlingBehavior(
+public fun rememberSnapFlingBehavior(
     lazyListState: LazyListState,
     snapPosition: SnapPosition = SnapPosition.Center,
 ): FlingBehavior {

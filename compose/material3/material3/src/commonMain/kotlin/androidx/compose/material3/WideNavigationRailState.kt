@@ -34,7 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 /** Possible values of [WideNavigationRailState]. */
-enum class WideNavigationRailValue {
+public enum class WideNavigationRailValue {
     /** The state of the rail when it is collapsed. */
     Collapsed,
 
@@ -48,39 +48,39 @@ enum class WideNavigationRailValue {
  *
  * @see rememberWideNavigationRailState to construct the default implementation.
  */
-interface WideNavigationRailState {
+public interface WideNavigationRailState {
     /** Whether the state is currently animating */
-    val isAnimating: Boolean
+    public val isAnimating: Boolean
 
     /** Whether the rail is going to be expanded or not. */
-    val targetValue: WideNavigationRailValue
+    public val targetValue: WideNavigationRailValue
 
     /** Whether the rail is currently expanded or not. */
-    val currentValue: WideNavigationRailValue
+    public val currentValue: WideNavigationRailValue
 
     /** Expand the rail with animation and suspend until it fully expands. */
-    suspend fun expand()
+    public suspend fun expand()
 
     /** Collapse the rail with animation and suspend until it fully collapses. */
-    suspend fun collapse()
+    public suspend fun collapse()
 
     /**
      * Collapse the rail with animation if it's expanded, or expand it if it's collapsed, and
      * suspend until it's set to its new state.
      */
-    suspend fun toggle()
+    public suspend fun toggle()
 
     /**
      * Set the state without any animation and suspend until it's set.
      *
      * @param targetValue the expanded boolean to set to
      */
-    suspend fun snapTo(targetValue: WideNavigationRailValue)
+    public suspend fun snapTo(targetValue: WideNavigationRailValue)
 }
 
 /** Create and [remember] a [WideNavigationRailState]. */
 @Composable
-fun rememberWideNavigationRailState(
+public fun rememberWideNavigationRailState(
     initialValue: WideNavigationRailValue = WideNavigationRailValue.Collapsed
 ): WideNavigationRailState {
     // TODO: Load the motionScheme tokens from the component tokens file.

@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /** [Painter] implementation used to fill the provided bounds with the specified color */
-class ColorPainter(val color: Color) : Painter() {
+public class ColorPainter(public val color: Color) : Painter() {
     private var alpha: Float = 1.0f
 
     private var colorFilter: ColorFilter? = null

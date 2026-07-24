@@ -41,7 +41,7 @@ import android.content.Context
         "FontFamily.ResourceLoader during upgrade.",
     replaceWith = ReplaceWith("createFontFamilyResolver()"),
 )
-fun createFontFamilyResolver(
+public fun createFontFamilyResolver(
     fontResourceLoader: Font.ResourceLoader,
     context: Context,
 ): FontFamily.Resolver {

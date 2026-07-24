@@ -19,7 +19,7 @@ package androidx.compose.ui.input.pointer
 import androidx.compose.ui.implementedInJetBrainsFork
 
 @Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING", "DataClassDefinition")
-actual data class PointerEvent
+public actual data class PointerEvent
 internal actual constructor(
     actual val changes: List<PointerInputChange>,
     internal val internalPointerEvent: InternalPointerEvent?,
@@ -33,61 +33,61 @@ internal actual constructor(
     actual var type: PointerEventType = implementedInJetBrainsFork()
 
     /** @param changes The changes. */
-    actual constructor(changes: List<PointerInputChange>) : this(changes, null) {
+    public actual constructor(changes: List<PointerInputChange>) : this(changes, null) {
         implementedInJetBrainsFork()
     }
 }
 
-actual val PointerButtons.isPrimaryPressed: Boolean
+public actual val PointerButtons.isPrimaryPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerButtons.isSecondaryPressed: Boolean
+public actual val PointerButtons.isSecondaryPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerButtons.isTertiaryPressed: Boolean
+public actual val PointerButtons.isTertiaryPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerButtons.isBackPressed: Boolean
+public actual val PointerButtons.isBackPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerButtons.isForwardPressed: Boolean
+public actual val PointerButtons.isForwardPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual fun PointerButtons.isPressed(buttonIndex: Int): Boolean = implementedInJetBrainsFork()
+public actual fun PointerButtons.isPressed(buttonIndex: Int): Boolean = implementedInJetBrainsFork()
 
-actual val PointerButtons.areAnyPressed: Boolean
+public actual val PointerButtons.areAnyPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual fun PointerButtons.indexOfFirstPressed(): Int = implementedInJetBrainsFork()
+public actual fun PointerButtons.indexOfFirstPressed(): Int = implementedInJetBrainsFork()
 
-actual fun PointerButtons.indexOfLastPressed(): Int = implementedInJetBrainsFork()
+public actual fun PointerButtons.indexOfLastPressed(): Int = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isCtrlPressed: Boolean
+public actual val PointerKeyboardModifiers.isCtrlPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isMetaPressed: Boolean
+public actual val PointerKeyboardModifiers.isMetaPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isAltPressed: Boolean
+public actual val PointerKeyboardModifiers.isAltPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isAltGraphPressed: Boolean
+public actual val PointerKeyboardModifiers.isAltGraphPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isSymPressed: Boolean
+public actual val PointerKeyboardModifiers.isSymPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isShiftPressed: Boolean
+public actual val PointerKeyboardModifiers.isShiftPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isFunctionPressed: Boolean
+public actual val PointerKeyboardModifiers.isFunctionPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isCapsLockOn: Boolean
+public actual val PointerKeyboardModifiers.isCapsLockOn: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isScrollLockOn: Boolean
+public actual val PointerKeyboardModifiers.isScrollLockOn: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val PointerKeyboardModifiers.isNumLockOn: Boolean
+public actual val PointerKeyboardModifiers.isNumLockOn: Boolean
     get() = implementedInJetBrainsFork()

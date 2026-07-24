@@ -31,10 +31,10 @@ import androidx.compose.runtime.Stable
  * @sample androidx.compose.foundation.samples.LazyLayoutItemProviderSample
  */
 @Stable
-interface LazyLayoutItemProvider {
+public interface LazyLayoutItemProvider {
 
     /** The total number of items in the lazy layout (visible or not). */
-    @get:IntRange(from = 0) val itemCount: Int
+    @get:IntRange(from = 0) public val itemCount: Int
 
     /**
      * The item for the given [index] and [key]. Indices are a core concept on LazyLayouts and
@@ -55,7 +55,7 @@ interface LazyLayoutItemProvider {
      * @param index the index of the item in the list
      * @param key The key of the item as described above.
      */
-    @Composable fun Item(@IntRange(from = 0) index: Int, key: Any)
+    @Composable public fun Item(@IntRange(from = 0) index: Int, key: Any)
 
     /**
      * Returns the content type for the item on this index. It is used to improve the item
@@ -65,7 +65,7 @@ interface LazyLayoutItemProvider {
      * @param index the index of an item in the layout.
      * @return The content type mapped from [index].
      */
-    fun getContentType(@IntRange(from = 0) index: Int): Any? = null
+    public fun getContentType(@IntRange(from = 0) index: Int): Any? = null
 
     /**
      * Returns the key for the item on this index.
@@ -74,7 +74,7 @@ interface LazyLayoutItemProvider {
      * @return The key mapped from [index].
      * @see getDefaultLazyLayoutKey which you can use if the user didn't provide a key.
      */
-    fun getKey(@IntRange(from = 0) index: Int): Any = getDefaultLazyLayoutKey(index)
+    public fun getKey(@IntRange(from = 0) index: Int): Any = getDefaultLazyLayoutKey(index)
 
     /**
      * Get index for given key. The index is not guaranteed to be known for all keys in layout for
@@ -84,7 +84,7 @@ interface LazyLayoutItemProvider {
      * @param key the key of an item in the layout.
      * @return The index mapped from [key] if it is present in the layout, otherwise -1.
      */
-    fun getIndex(key: Any): Int = -1
+    public fun getIndex(key: Any): Int = -1
 }
 
 /**
@@ -118,4 +118,4 @@ internal fun LazyLayoutItemProvider.findIndexByKey(key: Any?, lastKnownIndex: In
  * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
  * change.
  */
-@Suppress("MissingNullability") expect fun getDefaultLazyLayoutKey(index: Int): Any
+@Suppress("MissingNullability") public expect fun getDefaultLazyLayoutKey(index: Int): Any

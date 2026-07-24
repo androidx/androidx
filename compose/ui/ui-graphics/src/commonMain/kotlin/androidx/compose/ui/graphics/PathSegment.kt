@@ -34,18 +34,18 @@ package androidx.compose.ui.graphics
  * @property weight Conic weight, only valid if [type] is [Type.Conic]. See [Type.Conic] for more
  *   information.
  */
-class PathSegment
+public class PathSegment
 internal constructor(
-    val type: Type,
-    @get:Suppress("ArrayReturn") val points: FloatArray,
-    val weight: Float,
+    public val type: Type,
+    @get:Suppress("ArrayReturn") public val points: FloatArray,
+    public val weight: Float,
 ) {
 
     /**
      * Type of a given segment in a [Path], either a command ([Type.Move], [Type.Close],
      * [Type.Done]) or a curve ([Type.Line], [Type.Cubic], [Type.Quadratic], [Type.Conic]).
      */
-    enum class Type {
+    public enum class Type {
         /**
          * Move command, the path segment contains 1 point indicating the move destination. The
          * weight is set 0.0f and not meaningful.
@@ -132,11 +132,11 @@ internal constructor(
  * to avoid allocating a new segment when returning a [Done][PathSegment.Type.Done] result from
  * [PathIterator.next].
  */
-val DoneSegment = PathSegment(PathSegment.Type.Done, FloatArray(0), 0.0f)
+public val DoneSegment: PathSegment = PathSegment(PathSegment.Type.Done, FloatArray(0), 0.0f)
 
 /**
  * A [PathSegment] containing the [Close][PathSegment.Type.Close] command. This static object exists
  * to avoid allocating a new segment when returning a [Close][PathSegment.Type.Close] result from
  * [PathIterator.next].
  */
-val CloseSegment = PathSegment(PathSegment.Type.Close, FloatArray(0), 0.0f)
+public val CloseSegment: PathSegment = PathSegment(PathSegment.Type.Close, FloatArray(0), 0.0f)

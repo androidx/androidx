@@ -26,21 +26,21 @@ import androidx.compose.ui.util.fastForEach
 // needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface ViewAdapter {
-    val id: Int
+public interface ViewAdapter {
+    public val id: Int
 
-    fun willInsert(view: View, parent: ViewGroup)
+    public fun willInsert(view: View, parent: ViewGroup)
 
-    fun didInsert(view: View, parent: ViewGroup)
+    public fun didInsert(view: View, parent: ViewGroup)
 
-    fun didUpdate(view: View, parent: ViewGroup)
+    public fun didUpdate(view: View, parent: ViewGroup)
 }
 
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is
 // needed
 //  for convenient LayoutParams usage in compose with views.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun <T : ViewAdapter> View.getOrAddAdapter(id: Int, factory: () -> T): T {
+public fun <T : ViewAdapter> View.getOrAddAdapter(id: Int, factory: () -> T): T {
     return getViewAdapter().get(id, factory)
 }
 

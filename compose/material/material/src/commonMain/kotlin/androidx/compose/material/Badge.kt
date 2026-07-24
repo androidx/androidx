@@ -55,7 +55,7 @@ import androidx.compose.ui.util.fastFirst
  * @param content the anchor to which this badge will be positioned
  */
 @Composable
-fun BadgedBox(
+public fun BadgedBox(
     badge: @Composable BoxScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
@@ -122,7 +122,7 @@ fun BadgedBox(
  * @param content optional content to be rendered inside the badge
  */
 @Composable
-fun Badge(
+public fun Badge(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.error,
     contentColor: Color = contentColorFor(backgroundColor),

@@ -125,7 +125,7 @@ import androidx.compose.ui.unit.Density
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SecureTextField(
+public fun SecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -293,7 +293,7 @@ fun SecureTextField(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutlinedSecureTextField(
+public fun OutlinedSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

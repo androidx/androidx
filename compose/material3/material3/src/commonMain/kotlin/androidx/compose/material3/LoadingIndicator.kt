@@ -95,12 +95,12 @@ import kotlinx.coroutines.launch
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun LoadingIndicator(
+public fun LoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     color: Color = LoadingIndicatorDefaults.indicatorColor,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
-) =
+): Unit =
     LoadingIndicatorImpl(
         progress = progress,
         modifier = modifier,
@@ -133,11 +133,11 @@ fun LoadingIndicator(
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun LoadingIndicator(
+public fun LoadingIndicator(
     modifier: Modifier = Modifier,
     color: Color = LoadingIndicatorDefaults.indicatorColor,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
-) =
+): Unit =
     LoadingIndicatorImpl(
         modifier = modifier,
         containerColor = Color.Unspecified,
@@ -181,14 +181,14 @@ fun LoadingIndicator(
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun ContainedLoadingIndicator(
+public fun ContainedLoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
     containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
     indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
     containerShape: Shape = LoadingIndicatorDefaults.containerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
-) =
+): Unit =
     LoadingIndicatorImpl(
         progress = progress,
         modifier = modifier,
@@ -224,13 +224,13 @@ fun ContainedLoadingIndicator(
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun ContainedLoadingIndicator(
+public fun ContainedLoadingIndicator(
     modifier: Modifier = Modifier,
     containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
     indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
     containerShape: Shape = LoadingIndicatorDefaults.containerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
-) =
+): Unit =
     LoadingIndicatorImpl(
         modifier = modifier,
         containerColor = containerColor,
@@ -502,37 +502,37 @@ private fun LoadingIndicatorImpl(
  * @material3expressive
  */
 @ExperimentalMaterial3ExpressiveApi
-object LoadingIndicatorDefaults {
+public object LoadingIndicatorDefaults {
 
     /** A [LoadingIndicator] default container width. */
-    val ContainerWidth: Dp = LoadingIndicatorTokens.ContainerWidth
+    public val ContainerWidth: Dp = LoadingIndicatorTokens.ContainerWidth
 
     /** A [LoadingIndicator] default container height. */
-    val ContainerHeight: Dp = LoadingIndicatorTokens.ContainerHeight
+    public val ContainerHeight: Dp = LoadingIndicatorTokens.ContainerHeight
 
     /** A [LoadingIndicator] default active indicator size. */
-    val IndicatorSize = LoadingIndicatorTokens.ActiveSize
+    public val IndicatorSize: Dp = LoadingIndicatorTokens.ActiveSize
 
     /** A [LoadingIndicator] default container [Shape]. */
-    val containerShape: Shape
+    public val containerShape: Shape
         @Composable get() = LoadingIndicatorTokens.ContainerShape.value
 
     /**
      * A [LoadingIndicator] default active indicator [Color] when using an uncontained
      * [LoadingIndicator].
      */
-    val indicatorColor: Color
+    public val indicatorColor: Color
         @Composable get() = LoadingIndicatorTokens.ActiveIndicatorColor.value
 
     /**
      * A [LoadingIndicator] default active indicator [Color] when using a
      * [ContainedLoadingIndicator].
      */
-    val containedIndicatorColor: Color
+    public val containedIndicatorColor: Color
         @Composable get() = LoadingIndicatorTokens.ContainedActiveColor.value
 
     /** A [LoadingIndicator] default container [Color] when using a [ContainedLoadingIndicator]. */
-    val containedContainerColor: Color
+    public val containedContainerColor: Color
         @Composable get() = LoadingIndicatorTokens.ContainedContainerColor.value
 
     /**
@@ -542,7 +542,7 @@ object LoadingIndicatorDefaults {
      * By default, an indeterminate loading indicator will morph between seven shapes, but you may
      * provide your own shapes sequence when calling the API.
      */
-    val IndeterminateIndicatorPolygons =
+    public val IndeterminateIndicatorPolygons: List<RoundedPolygon> =
         listOf(
             MaterialShapes.SoftBurst,
             MaterialShapes.Cookie9Sided,
@@ -561,7 +561,7 @@ object LoadingIndicatorDefaults {
      * By default, a determinate loading indicator will will morph between two shapes, but you may
      * provide your own shapes sequence when calling the API.
      */
-    val DeterminateIndicatorPolygons =
+    public val DeterminateIndicatorPolygons: List<RoundedPolygon> =
         listOf(
             // Rotating the circle gets us a smoother morphing to the soft-burst shapes, which is
             // also being rotated at the same angle.

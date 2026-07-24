@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /** Creates a [LayerOutsets] with the same value for all sides. */
-fun LayerOutsets(all: Dp) = LayerOutsets(all, all, all, all)
+public fun LayerOutsets(all: Dp): LayerOutsets = LayerOutsets(all, all, all, all)
 
 /**
  * Creates a [LayerOutsets] where the horizontal value is applied to the left and right, and the
  * vertical value is applied to the top and bottom.
  */
-fun LayerOutsets(vertical: Dp, horizontal: Dp) =
+public fun LayerOutsets(vertical: Dp, horizontal: Dp): LayerOutsets =
     LayerOutsets(horizontal, vertical, horizontal, vertical)
 
 /**
@@ -45,11 +45,11 @@ fun LayerOutsets(vertical: Dp, horizontal: Dp) =
  * @param bottom The outset on the bottom side.
  */
 @Immutable
-class LayerOutsets(
-    val left: Dp = 0.dp,
-    val top: Dp = 0.dp,
-    val right: Dp = 0.dp,
-    val bottom: Dp = 0.dp,
+public class LayerOutsets(
+    public val left: Dp = 0.dp,
+    public val top: Dp = 0.dp,
+    public val right: Dp = 0.dp,
+    public val bottom: Dp = 0.dp,
 ) {
     init {
         requirePrecondition(left >= 0.dp && right >= 0.dp && top >= 0.dp && bottom >= 0.dp) {
@@ -57,9 +57,9 @@ class LayerOutsets(
         }
     }
 
-    companion object {
+    public companion object {
         /** A [LayerOutsets] with all sides set to zero. */
-        val Zero = LayerOutsets()
+        public val Zero: LayerOutsets = LayerOutsets()
     }
 
     override fun equals(other: Any?): Boolean {

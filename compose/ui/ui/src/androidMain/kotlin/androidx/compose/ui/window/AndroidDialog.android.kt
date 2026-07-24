@@ -178,21 +178,21 @@ import kotlin.math.roundToInt
  * @sample androidx.compose.ui.samples.DialogWithBlurSample
  */
 @Immutable
-actual class DialogProperties(
-    actual val dismissOnBackPress: Boolean = true,
-    actual val dismissOnClickOutside: Boolean = true,
-    val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-    actual val usePlatformDefaultWidth: Boolean = true,
-    val decorFitsSystemWindows: Boolean = true,
-    val windowTitle: String = "",
-    val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
-    val windowToken: IBinder? = null,
-    val blurBehindRadius: Dp = Dp.Unspecified,
-    val backgroundBlurRadius: Dp = Dp.Unspecified,
-    val scrimAlpha: Float = Float.NaN,
-    val windowShape: Shape? = null,
+public actual class DialogProperties(
+    public actual val dismissOnBackPress: Boolean = true,
+    public actual val dismissOnClickOutside: Boolean = true,
+    public val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+    public actual val usePlatformDefaultWidth: Boolean = true,
+    public val decorFitsSystemWindows: Boolean = true,
+    public val windowTitle: String = "",
+    public val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
+    public val windowToken: IBinder? = null,
+    public val blurBehindRadius: Dp = Dp.Unspecified,
+    public val backgroundBlurRadius: Dp = Dp.Unspecified,
+    public val scrimAlpha: Float = Float.NaN,
+    public val windowShape: Shape? = null,
 ) {
-    constructor() :
+    public constructor() :
         this(
             dismissOnBackPress = true,
             dismissOnClickOutside = true,
@@ -208,7 +208,7 @@ actual class DialogProperties(
             windowShape = null,
         )
 
-    actual constructor(
+    public actual constructor(
         dismissOnBackPress: Boolean,
         dismissOnClickOutside: Boolean,
         usePlatformDefaultWidth: Boolean,
@@ -221,7 +221,7 @@ actual class DialogProperties(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -240,7 +240,7 @@ actual class DialogProperties(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -265,7 +265,7 @@ actual class DialogProperties(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -281,7 +281,7 @@ actual class DialogProperties(
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         dismissOnBackPress: Boolean = true,
         dismissOnClickOutside: Boolean = true,
         securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -346,7 +346,7 @@ actual class DialogProperties(
  * @param content The content to be displayed inside the dialog.
  */
 @Composable
-actual fun Dialog(
+public actual fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties,
     content: @Composable () -> Unit,
@@ -395,8 +395,8 @@ actual fun Dialog(
  *
  * Implemented by dialog's root layout.
  */
-interface DialogWindowProvider {
-    val window: Window
+public interface DialogWindowProvider {
+    public val window: Window
 }
 
 @Suppress("ViewConstructor")

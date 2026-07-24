@@ -34,41 +34,41 @@ import androidx.compose.ui.unit.Dp
  * and rendered by passing it as an argument to [rememberVectorPainter]
  */
 @Immutable
-class ImageVector
+public class ImageVector
 internal constructor(
 
     /** Name of the Vector asset */
-    val name: String,
+    public val name: String,
 
     /** Intrinsic width of the vector asset in [Dp] */
-    val defaultWidth: Dp,
+    public val defaultWidth: Dp,
 
     /** Intrinsic height of the vector asset in [Dp] */
-    val defaultHeight: Dp,
+    public val defaultHeight: Dp,
 
     /**
      * Used to define the width of the viewport space. Viewport is basically the virtual canvas
      * where the paths are drawn on.
      */
-    val viewportWidth: Float,
+    public val viewportWidth: Float,
 
     /**
      * Used to define the height of the viewport space. Viewport is basically the virtual canvas
      * where the paths are drawn on.
      */
-    val viewportHeight: Float,
+    public val viewportHeight: Float,
 
     /** Root group of the vector asset that contains all the child groups and paths */
-    val root: VectorGroup,
+    public val root: VectorGroup,
 
     /** Optional tint color to be applied to the vector graphic */
-    val tintColor: Color,
+    public val tintColor: Color,
 
     /** Blend mode used to apply [tintColor] */
-    val tintBlendMode: BlendMode,
+    public val tintBlendMode: BlendMode,
 
     /** Determines if the vector asset should automatically be mirrored for right to left locales */
-    val autoMirror: Boolean,
+    public val autoMirror: Boolean,
 
     /**
      * Identifier used to disambiguate between different ImageVector instances in a more efficient
@@ -84,7 +84,7 @@ internal constructor(
      * is recommended to be memoized across composition calls to avoid doing redundant work
      */
     @Suppress("MissingGetterMatchingBuilder")
-    class Builder(
+    public class Builder(
 
         /** Name of the vector asset */
         private val name: String = DefaultGroupName,
@@ -130,7 +130,7 @@ internal constructor(
                 ),
             DeprecationLevel.HIDDEN,
         )
-        constructor(
+        public constructor(
             /** Name of the vector asset */
             name: String = DefaultGroupName,
 
@@ -195,7 +195,7 @@ internal constructor(
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun addGroup(
+        public fun addGroup(
             name: String = DefaultGroupName,
             rotate: Float = DefaultRotation,
             pivotX: Float = DefaultPivotX,
@@ -229,7 +229,7 @@ internal constructor(
          *
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
-        fun clearGroup(): Builder {
+        public fun clearGroup(): Builder {
             ensureNotConsumed()
             val popped = nodes.pop()
             currentGroup.children.add(popped.asVectorGroup())
@@ -263,7 +263,7 @@ internal constructor(
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
         @Suppress("MissingGetterMatchingBuilder")
-        fun addPath(
+        public fun addPath(
             pathData: List<PathNode>,
             pathFillType: PathFillType = DefaultFillType,
             name: String = DefaultPathName,
@@ -307,7 +307,7 @@ internal constructor(
          *
          * @return The newly created ImageVector instance
          */
-        fun build(): ImageVector {
+        public fun build(): ImageVector {
             ensureNotConsumed()
             // pop all groups except for the root
             while (nodes.size > 1) {
@@ -376,7 +376,7 @@ internal constructor(
         )
     }
 
-    companion object {
+    public companion object {
         private var imageVectorCount = 0
         private val lock = makeSynchronizedObject(this)
 
@@ -387,7 +387,7 @@ internal constructor(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ImageVector) return false
 
@@ -403,7 +403,7 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + defaultWidth.hashCode()
         result = 31 * result + defaultHeight.hashCode()
@@ -417,7 +417,7 @@ internal constructor(
     }
 }
 
-sealed class VectorNode
+public sealed class VectorNode
 
 /**
  * Defines a group of paths or subgroups, plus transformation information. The transformations are
@@ -427,47 +427,47 @@ sealed class VectorNode
  * This is constructed as part of the result of [ImageVector.Builder] construction
  */
 @Immutable
-class VectorGroup
+public class VectorGroup
 internal constructor(
     /** Name of the corresponding group */
-    val name: String = DefaultGroupName,
+    public val name: String = DefaultGroupName,
 
     /** Rotation of the group in degrees */
-    val rotation: Float = DefaultRotation,
+    public val rotation: Float = DefaultRotation,
 
     /** X coordinate of the pivot point to rotate or scale the group */
-    val pivotX: Float = DefaultPivotX,
+    public val pivotX: Float = DefaultPivotX,
 
     /** Y coordinate of the pivot point to rotate or scale the group */
-    val pivotY: Float = DefaultPivotY,
+    public val pivotY: Float = DefaultPivotY,
 
     /** Scale factor in the X-axis to apply to the group */
-    val scaleX: Float = DefaultScaleX,
+    public val scaleX: Float = DefaultScaleX,
 
     /** Scale factor in the Y-axis to apply to the group */
-    val scaleY: Float = DefaultScaleY,
+    public val scaleY: Float = DefaultScaleY,
 
     /** Translation in virtual pixels to apply along the x-axis */
-    val translationX: Float = DefaultTranslationX,
+    public val translationX: Float = DefaultTranslationX,
 
     /** Translation in virtual pixels to apply along the y-axis */
-    val translationY: Float = DefaultTranslationY,
+    public val translationY: Float = DefaultTranslationY,
 
     /** Path information used to clip the content within the group */
-    val clipPathData: List<PathNode> = EmptyPath,
+    public val clipPathData: List<PathNode> = EmptyPath,
 
     /** Child Vector nodes that are part of this group, this can contain paths or other groups */
     private val children: List<VectorNode> = emptyList(),
 ) : VectorNode(), Iterable<VectorNode> {
 
-    val size: Int
+    public val size: Int
         get() = children.size
 
-    operator fun get(index: Int): VectorNode {
+    public operator fun get(index: Int): VectorNode {
         return children[index]
     }
 
-    override fun iterator(): Iterator<VectorNode> {
+    public override fun iterator(): Iterator<VectorNode> {
         return object : Iterator<VectorNode> {
 
             val it = children.iterator()
@@ -478,7 +478,7 @@ internal constructor(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is VectorGroup) return false
 
@@ -496,7 +496,7 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + rotation.hashCode()
         result = 31 * result + pivotX.hashCode()
@@ -518,65 +518,65 @@ internal constructor(
  * This is constructed as part of the result of [ImageVector.Builder] construction
  */
 @Immutable
-class VectorPath
+public class VectorPath
 internal constructor(
     /** Name of the corresponding path */
-    val name: String = DefaultPathName,
+    public val name: String = DefaultPathName,
 
     /** Path information to render the shape of the path */
-    val pathData: List<PathNode>,
+    public val pathData: List<PathNode>,
 
     /** Rule to determine how the interior of the path is to be calculated */
-    val pathFillType: PathFillType,
+    public val pathFillType: PathFillType,
 
     /** Specifies the color or gradient used to fill the path */
-    val fill: Brush? = null,
+    public val fill: Brush? = null,
 
     /** Opacity to fill the path */
-    val fillAlpha: Float = 1.0f,
+    public val fillAlpha: Float = 1.0f,
 
     /** Specifies the color or gradient used to fill the stroke */
-    val stroke: Brush? = null,
+    public val stroke: Brush? = null,
 
     /** Opacity to stroke the path */
-    val strokeAlpha: Float = 1.0f,
+    public val strokeAlpha: Float = 1.0f,
 
     /** Width of the line to stroke the path */
-    val strokeLineWidth: Float = DefaultStrokeLineWidth,
+    public val strokeLineWidth: Float = DefaultStrokeLineWidth,
 
     /**
      * Specifies the linecap for a stroked path, either butt, round, or square. The default is butt.
      */
-    val strokeLineCap: StrokeCap = DefaultStrokeLineCap,
+    public val strokeLineCap: StrokeCap = DefaultStrokeLineCap,
 
     /**
      * Specifies the linejoin for a stroked path, either miter, round or bevel. The default is miter
      */
-    val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+    public val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
 
     /** Specifies the miter limit for a stroked path, the default is 4 */
-    val strokeLineMiter: Float = DefaultStrokeLineMiter,
+    public val strokeLineMiter: Float = DefaultStrokeLineMiter,
 
     /**
      * Specifies the fraction of the path to trim from the start, in the range from 0 to 1. The
      * default is 0.
      */
-    val trimPathStart: Float = DefaultTrimPathStart,
+    public val trimPathStart: Float = DefaultTrimPathStart,
 
     /**
      * Specifies the fraction of the path to trim from the end, in the range from 0 to 1. The
      * default is 1.
      */
-    val trimPathEnd: Float = DefaultTrimPathEnd,
+    public val trimPathEnd: Float = DefaultTrimPathEnd,
 
     /**
      * Specifies the offset of the trim region (allows showed region to include the start and end),
      * in the range from 0 to 1. The default is 0.
      */
-    val trimPathOffset: Float = DefaultTrimPathOffset,
+    public val trimPathOffset: Float = DefaultTrimPathOffset,
 ) : VectorNode() {
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
@@ -600,7 +600,7 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + pathData.hashCode()
         result = 31 * result + (fill?.hashCode() ?: 0)
@@ -637,7 +637,7 @@ internal constructor(
  *   calculated.
  * @param pathBuilder [PathBuilder] lambda for adding [PathNode]s to this path.
  */
-inline fun ImageVector.Builder.path(
+public inline fun ImageVector.Builder.path(
     name: String = DefaultPathName,
     fill: Brush? = null,
     fillAlpha: Float = 1.0f,
@@ -649,7 +649,7 @@ inline fun ImageVector.Builder.path(
     strokeLineMiter: Float = DefaultStrokeLineMiter,
     pathFillType: PathFillType = DefaultFillType,
     pathBuilder: PathBuilder.() -> Unit,
-) =
+): ImageVector.Builder =
     addPath(
         PathData(pathBuilder),
         pathFillType,
@@ -680,7 +680,7 @@ inline fun ImageVector.Builder.path(
  * @param clipPathData the path information used to clip the content within the group
  * @param block builder lambda to add children to this group
  */
-inline fun ImageVector.Builder.group(
+public inline fun ImageVector.Builder.group(
     name: String = DefaultGroupName,
     rotate: Float = DefaultRotation,
     pivotX: Float = DefaultPivotX,
@@ -691,7 +691,7 @@ inline fun ImageVector.Builder.group(
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
     block: ImageVector.Builder.() -> Unit,
-) = apply {
+): ImageVector.Builder = apply {
     addGroup(name, rotate, pivotX, pivotY, scaleX, scaleY, translationX, translationY, clipPathData)
     block()
     clearGroup()

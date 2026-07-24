@@ -40,8 +40,9 @@ import androidx.compose.ui.platform.InspectorInfo
  * @sample androidx.compose.ui.samples.OnGloballyPositioned
  */
 @Stable
-fun Modifier.onGloballyPositioned(onGloballyPositioned: (LayoutCoordinates) -> Unit) =
-    this then OnGloballyPositionedElement(onGloballyPositioned)
+public fun Modifier.onGloballyPositioned(
+    onGloballyPositioned: (LayoutCoordinates) -> Unit
+): Modifier = this then OnGloballyPositionedElement(onGloballyPositioned)
 
 private class OnGloballyPositionedElement(val onGloballyPositioned: (LayoutCoordinates) -> Unit) :
     ModifierNodeElement<OnGloballyPositionedNode>() {
@@ -86,12 +87,12 @@ private class OnGloballyPositionedNode(var callback: (LayoutCoordinates) -> Unit
  * @sample androidx.compose.ui.samples.OnGloballyPositioned
  */
 @JvmDefaultWithCompatibility
-interface OnGloballyPositionedModifier : Modifier.Element {
+public interface OnGloballyPositionedModifier : Modifier.Element {
     /**
      * Called with the final LayoutCoordinates of the Layout after measuring. Note that it will be
      * called after a composition when the coordinates are finalized. The position in the modifier
      * chain makes no difference in either the [LayoutCoordinates] argument or when the
      * [onGloballyPositioned] is called.
      */
-    fun onGloballyPositioned(coordinates: LayoutCoordinates)
+    public fun onGloballyPositioned(coordinates: LayoutCoordinates)
 }

@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
  * Create an [ImageBitmap] from the given [Bitmap]. Note this does not create a copy of the original
  * [Bitmap] and changes to it will modify the returned [ImageBitmap]
  */
-fun Bitmap.asImageBitmap(): ImageBitmap = AndroidImageBitmap(this)
+public fun Bitmap.asImageBitmap(): ImageBitmap = AndroidImageBitmap(this)
 
 internal actual fun createImageBitmap(bytes: ByteArray): ImageBitmap {
     return BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
@@ -56,7 +56,7 @@ internal actual fun ActualImageBitmap(
  * @Throws UnsupportedOperationException if this [ImageBitmap] is not backed by an
  *   android.graphics.Bitmap
  */
-fun ImageBitmap.asAndroidBitmap(): Bitmap =
+public fun ImageBitmap.asAndroidBitmap(): Bitmap =
     when (this) {
         is AndroidImageBitmap -> bitmap
         else -> throw UnsupportedOperationException("Unable to obtain android.graphics.Bitmap")

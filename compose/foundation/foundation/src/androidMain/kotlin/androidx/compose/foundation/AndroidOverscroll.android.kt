@@ -79,7 +79,7 @@ import kotlin.math.roundToInt
  *   before drawing it if the platform effect is a glow effect, otherwise ignored.
  */
 @Composable
-fun rememberPlatformOverscrollFactory(
+public fun rememberPlatformOverscrollFactory(
     glowColor: Color = DefaultGlowColor,
     glowDrawPadding: PaddingValues = DefaultGlowPaddingValues,
 ): OverscrollFactory {

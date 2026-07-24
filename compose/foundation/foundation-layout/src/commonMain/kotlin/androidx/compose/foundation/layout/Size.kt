@@ -59,7 +59,7 @@ import androidx.compose.ui.util.fastRoundToInt
  * @sample androidx.compose.foundation.layout.samples.SimpleWidthModifier
  */
 @Stable
-fun Modifier.width(width: Dp) =
+public fun Modifier.width(width: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = width,
@@ -86,7 +86,7 @@ fun Modifier.width(width: Dp) =
  * @sample androidx.compose.foundation.layout.samples.SimpleHeightModifier
  */
 @Stable
-fun Modifier.height(height: Dp) =
+public fun Modifier.height(height: Dp): Modifier =
     this.then(
         SizeElement(
             minHeight = height,
@@ -113,7 +113,7 @@ fun Modifier.height(height: Dp) =
  * @sample androidx.compose.foundation.layout.samples.SimpleSizeModifier
  */
 @Stable
-fun Modifier.size(size: Dp) =
+public fun Modifier.size(size: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = size,
@@ -143,7 +143,7 @@ fun Modifier.size(size: Dp) =
  * @sample androidx.compose.foundation.layout.samples.SimpleSizeModifier
  */
 @Stable
-fun Modifier.size(width: Dp, height: Dp) =
+public fun Modifier.size(width: Dp, height: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = width,
@@ -172,7 +172,7 @@ fun Modifier.size(width: Dp, height: Dp) =
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleSizeModifierWithDpSize
  */
-@Stable fun Modifier.size(size: DpSize) = size(size.width, size.height)
+@Stable public fun Modifier.size(size: DpSize): Modifier = size(size.width, size.height)
 
 /**
  * Constrain the width of the content to be between [min]dp and [max]dp as permitted by the incoming
@@ -180,7 +180,7 @@ fun Modifier.size(width: Dp, height: Dp) =
  * will obey the incoming constraints and attempt to be as close as possible to the preferred size.
  */
 @Stable
-fun Modifier.widthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
+public fun Modifier.widthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified): Modifier =
     this.then(
         SizeElement(
             minWidth = min,
@@ -202,7 +202,7 @@ fun Modifier.widthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
  * preferred size.
  */
 @Stable
-fun Modifier.heightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
+public fun Modifier.heightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified): Modifier =
     this.then(
         SizeElement(
             minHeight = min,
@@ -224,12 +224,12 @@ fun Modifier.heightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
  * will obey the incoming constraints and attempt to be as close as possible to the preferred size.
  */
 @Stable
-fun Modifier.sizeIn(
+public fun Modifier.sizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified,
-) =
+): Modifier =
     this.then(
         SizeElement(
             minWidth = minWidth,
@@ -263,7 +263,7 @@ fun Modifier.sizeIn(
  * @sample androidx.compose.foundation.layout.samples.SimpleRequiredWidthModifier
  */
 @Stable
-fun Modifier.requiredWidth(width: Dp) =
+public fun Modifier.requiredWidth(width: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = width,
@@ -293,7 +293,7 @@ fun Modifier.requiredWidth(width: Dp) =
  * @sample androidx.compose.foundation.layout.samples.SimpleRequiredHeightModifier
  */
 @Stable
-fun Modifier.requiredHeight(height: Dp) =
+public fun Modifier.requiredHeight(height: Dp): Modifier =
     this.then(
         SizeElement(
             minHeight = height,
@@ -323,7 +323,7 @@ fun Modifier.requiredHeight(height: Dp) =
  * @sample androidx.compose.foundation.layout.samples.SimpleRequiredSizeModifier
  */
 @Stable
-fun Modifier.requiredSize(size: Dp) =
+public fun Modifier.requiredSize(size: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = size,
@@ -351,7 +351,7 @@ fun Modifier.requiredSize(size: Dp) =
  * respected when the incoming constraints allow it.
  */
 @Stable
-fun Modifier.requiredSize(width: Dp, height: Dp) =
+public fun Modifier.requiredSize(width: Dp, height: Dp): Modifier =
     this.then(
         SizeElement(
             minWidth = width,
@@ -378,7 +378,8 @@ fun Modifier.requiredSize(width: Dp, height: Dp) =
  * See [requiredSizeIn] to set a size range. See [size] to set a preferred size, which is only
  * respected when the incoming constraints allow it.
  */
-@Stable fun Modifier.requiredSize(size: DpSize) = requiredSize(size.width, size.height)
+@Stable
+public fun Modifier.requiredSize(size: DpSize): Modifier = requiredSize(size.width, size.height)
 
 /**
  * Constrain the width of the content to be between [min]dp and [max]dp. If the content chooses a
@@ -388,7 +389,7 @@ fun Modifier.requiredSize(width: Dp, height: Dp) =
  * [Constraints] were respected.
  */
 @Stable
-fun Modifier.requiredWidthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
+public fun Modifier.requiredWidthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified): Modifier =
     this.then(
         SizeElement(
             minWidth = min,
@@ -411,7 +412,7 @@ fun Modifier.requiredWidthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified)
  * [Constraints] were respected.
  */
 @Stable
-fun Modifier.requiredHeightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
+public fun Modifier.requiredHeightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified): Modifier =
     this.then(
         SizeElement(
             minHeight = min,
@@ -435,12 +436,12 @@ fun Modifier.requiredHeightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified
  * respected.
  */
 @Stable
-fun Modifier.requiredSizeIn(
+public fun Modifier.requiredSizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
     maxHeight: Dp = Dp.Unspecified,
-) =
+): Modifier =
     this.then(
         SizeElement(
             minWidth = minWidth,
@@ -475,7 +476,7 @@ fun Modifier.requiredSizeIn(
  * @sample androidx.compose.foundation.layout.samples.FillHalfWidthModifier
  */
 @Stable
-fun Modifier.fillMaxWidth(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
+public fun Modifier.fillMaxWidth(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier =
     this.then(if (fraction == 1f) FillWholeMaxWidth else FillElement.width(fraction))
 
 private val FillWholeMaxWidth = FillElement.width(1f)
@@ -496,8 +497,9 @@ private val FillWholeMaxWidth = FillElement.width(1f)
  * @sample androidx.compose.foundation.layout.samples.FillHalfHeightModifier
  */
 @Stable
-fun Modifier.fillMaxHeight(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
-    this.then(if (fraction == 1f) FillWholeMaxHeight else FillElement.height(fraction))
+public fun Modifier.fillMaxHeight(
+    @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+): Modifier = this.then(if (fraction == 1f) FillWholeMaxHeight else FillElement.height(fraction))
 
 private val FillWholeMaxHeight = FillElement.height(1f)
 
@@ -520,7 +522,7 @@ private val FillWholeMaxHeight = FillElement.height(1f)
  * @sample androidx.compose.foundation.layout.samples.FillHalfSizeModifier
  */
 @Stable
-fun Modifier.fillMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
+public fun Modifier.fillMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier =
     this.then(if (fraction == 1f) FillWholeMaxSize else FillElement.size(fraction))
 
 private val FillWholeMaxSize = FillElement.size(1f)
@@ -538,10 +540,10 @@ private val FillWholeMaxSize = FillElement.size(1f)
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentHorizontallyAlignedModifier
  */
 @Stable
-fun Modifier.wrapContentWidth(
+public fun Modifier.wrapContentWidth(
     align: Alignment.Horizontal = Alignment.CenterHorizontally,
     unbounded: Boolean = false,
-) =
+): Modifier =
     this.then(
         if (align == Alignment.CenterHorizontally && !unbounded) {
             WrapContentWidthCenter
@@ -568,10 +570,10 @@ private val WrapContentWidthStart = WrapContentElement.width(Alignment.Start, fa
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentVerticallyAlignedModifier
  */
 @Stable
-fun Modifier.wrapContentHeight(
+public fun Modifier.wrapContentHeight(
     align: Alignment.Vertical = Alignment.CenterVertically,
     unbounded: Boolean = false,
-) =
+): Modifier =
     this.then(
         if (align == Alignment.CenterVertically && !unbounded) {
             WrapContentHeightCenter
@@ -598,7 +600,10 @@ private val WrapContentHeightTop = WrapContentElement.height(Alignment.Top, fals
  * @sample androidx.compose.foundation.layout.samples.SimpleWrapContentAlignedModifier
  */
 @Stable
-fun Modifier.wrapContentSize(align: Alignment = Alignment.Center, unbounded: Boolean = false) =
+public fun Modifier.wrapContentSize(
+    align: Alignment = Alignment.Center,
+    unbounded: Boolean = false,
+): Modifier =
     this.then(
         if (align == Alignment.Center && !unbounded) {
             WrapContentSizeCenter
@@ -623,8 +628,10 @@ private val WrapContentSizeTopStart = WrapContentElement.size(Alignment.TopStart
  * @sample androidx.compose.foundation.layout.samples.DefaultMinSizeSample
  */
 @Stable
-fun Modifier.defaultMinSize(minWidth: Dp = Dp.Unspecified, minHeight: Dp = Dp.Unspecified) =
-    this.then(UnspecifiedConstraintsElement(minWidth = minWidth, minHeight = minHeight))
+public fun Modifier.defaultMinSize(
+    minWidth: Dp = Dp.Unspecified,
+    minHeight: Dp = Dp.Unspecified,
+): Modifier = this.then(UnspecifiedConstraintsElement(minWidth = minWidth, minHeight = minHeight))
 
 private class FillElement(
     private val direction: Direction,

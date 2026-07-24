@@ -37,7 +37,7 @@ import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Waterfall
  *
  * Other animation properties can be retrieved with [getAnimation].
  */
-sealed interface WindowInsetsRulers {
+public sealed interface WindowInsetsRulers {
     /**
      * The current values for the window insets RectRulers. Values for some insets may not be
      * provided on platforms that don't support specific Window Insets types. These also may not be
@@ -45,7 +45,7 @@ sealed interface WindowInsetsRulers {
      *
      * @sample androidx.compose.ui.samples.WindowInsetsRulersSample
      */
-    val current: RectRulers
+    public val current: RectRulers
 
     /**
      * The values for the insets when the insets are fully visible. The value does not change when
@@ -63,19 +63,19 @@ sealed interface WindowInsetsRulers {
      *
      * @sample androidx.compose.ui.samples.MaximumSample
      */
-    val maximum: RectRulers
+    public val maximum: RectRulers
 
     /** Additional properties related to animating this [WindowInsetsRulers]. */
-    fun getAnimation(scope: Placeable.PlacementScope): WindowInsetsAnimation
+    public fun getAnimation(scope: Placeable.PlacementScope): WindowInsetsAnimation
 
-    companion object {
+    public companion object {
         /**
          * Rulers used for caption bar insets.
          *
          * See
          * [WindowInsetsCompat.Type.captionBar](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#captionBar())
          */
-        val CaptionBar: WindowInsetsRulers = WindowInsetsRulersImpl("caption bar")
+        public val CaptionBar: WindowInsetsRulers = WindowInsetsRulersImpl("caption bar")
 
         /**
          * Rulers used for display cutout insets.
@@ -86,7 +86,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.displayCutout](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#displayCutout())
          */
-        val DisplayCutout: WindowInsetsRulers = WindowInsetsRulersImpl("display cutout")
+        public val DisplayCutout: WindowInsetsRulers = WindowInsetsRulersImpl("display cutout")
 
         /**
          * Rulers used for IME insets.
@@ -94,7 +94,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.ime](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#ime())
          */
-        val Ime: WindowInsetsRulers = WindowInsetsRulersImpl("ime")
+        public val Ime: WindowInsetsRulers = WindowInsetsRulersImpl("ime")
 
         /**
          * Rulers used for mandatory system gestures insets.
@@ -102,7 +102,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.mandatorySystemGestures](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#mandatorySystemGestures())
          */
-        val MandatorySystemGestures: WindowInsetsRulers =
+        public val MandatorySystemGestures: WindowInsetsRulers =
             WindowInsetsRulersImpl("mandatory system gestures")
 
         /**
@@ -111,7 +111,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.navigationBars](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#navigationBars())
          */
-        val NavigationBars: WindowInsetsRulers = WindowInsetsRulersImpl("navigation bars")
+        public val NavigationBars: WindowInsetsRulers = WindowInsetsRulersImpl("navigation bars")
 
         /**
          * Rulers used for status bars insets.
@@ -119,7 +119,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.statusBars](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#statusBars())
          */
-        val StatusBars: WindowInsetsRulers = WindowInsetsRulersImpl("status bars")
+        public val StatusBars: WindowInsetsRulers = WindowInsetsRulersImpl("status bars")
 
         /**
          * Rulers used for system bars insets, including [StatusBars], [NavigationBars], and
@@ -130,7 +130,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.systemBars](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#systemBars())
          */
-        val SystemBars: WindowInsetsRulers =
+        public val SystemBars: WindowInsetsRulers =
             InnermostInsetsRulers("system bars", arrayOf(StatusBars, NavigationBars, CaptionBar))
 
         /**
@@ -139,7 +139,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.systemGestures](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#systemGestures())
          */
-        val SystemGestures: WindowInsetsRulers = WindowInsetsRulersImpl("system gestures")
+        public val SystemGestures: WindowInsetsRulers = WindowInsetsRulersImpl("system gestures")
 
         /**
          * Rulers used for tappable elements insets.
@@ -147,7 +147,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [WindowInsetsCompat.Type.tappableElement](https://developer.android.com/reference/androidx/core/view/WindowInsetsCompat.Type#tappableElement())
          */
-        val TappableElement: WindowInsetsRulers = WindowInsetsRulersImpl("tappable element")
+        public val TappableElement: WindowInsetsRulers = WindowInsetsRulersImpl("tappable element")
 
         /**
          * Rulers used for waterfall insets.
@@ -155,7 +155,7 @@ sealed interface WindowInsetsRulers {
          * See
          * [DisplayCutoutCompat.getWaterfallInsets](https://developer.android.com/reference/androidx/core/view/DisplayCutoutCompat#getWaterfallInsets())
          */
-        val Waterfall: WindowInsetsRulers = WindowInsetsRulersImpl("waterfall")
+        public val Waterfall: WindowInsetsRulers = WindowInsetsRulersImpl("waterfall")
 
         /**
          * Rulers used for insets including system bars, IME, and the display cutout.
@@ -165,7 +165,7 @@ sealed interface WindowInsetsRulers {
          * @see Ime
          * @see TappableElement
          */
-        val SafeDrawing: WindowInsetsRulers =
+        public val SafeDrawing: WindowInsetsRulers =
             InnermostInsetsRulers(
                 "safe drawing",
                 arrayOf(StatusBars, NavigationBars, CaptionBar, DisplayCutout, Ime, TappableElement),
@@ -175,7 +175,7 @@ sealed interface WindowInsetsRulers {
          * Rulers used for insets that include places where gestures could conflict. This includes
          * [MandatorySystemGestures], [SystemGestures], [TappableElement], and [Waterfall].
          */
-        val SafeGestures: WindowInsetsRulers =
+        public val SafeGestures: WindowInsetsRulers =
             InnermostInsetsRulers(
                 "safe gestures",
                 arrayOf(MandatorySystemGestures, SystemGestures, TappableElement, Waterfall),
@@ -185,7 +185,7 @@ sealed interface WindowInsetsRulers {
          * Rulers used for insets that are safe for any content. This includes [SafeGestures] and
          * [SafeDrawing].
          */
-        val SafeContent: WindowInsetsRulers =
+        public val SafeContent: WindowInsetsRulers =
             InnermostInsetsRulers(
                 "safe content",
                 arrayOf(
@@ -207,7 +207,7 @@ sealed interface WindowInsetsRulers {
          * [WindowInsetsAnimation.isVisible] and [WindowInsetsAnimation.isAnimating] set to
          * meaningful values.
          */
-        fun innermostOf(vararg windowInsetsRulers: WindowInsetsRulers): WindowInsetsRulers =
+        public fun innermostOf(vararg windowInsetsRulers: WindowInsetsRulers): WindowInsetsRulers =
             InnermostInsetsRulers(null, windowInsetsRulers)
     }
 }
@@ -217,10 +217,11 @@ sealed interface WindowInsetsRulers {
  * provides values for the bounds of the display cutout. [WindowInsetsRulers.DisplayCutout] provides
  * the safe inset values for content avoiding all display cutouts.
  */
-fun Placeable.PlacementScope.getDisplayCutoutBounds(): List<RectRulers> = findDisplayCutouts(this)
+public fun Placeable.PlacementScope.getDisplayCutoutBounds(): List<RectRulers> =
+    findDisplayCutouts(this)
 
 /** Provides properties related to animating [WindowInsetsRulers]. */
-sealed interface WindowInsetsAnimation {
+public sealed interface WindowInsetsAnimation {
     /**
      * The starting insets values of the animation when the insets are animating
      * ([WindowInsetsAnimation.isAnimating] is `true`). When the insets are not animating, no ruler
@@ -228,7 +229,7 @@ sealed interface WindowInsetsAnimation {
      *
      * @sample androidx.compose.ui.samples.SourceAndTargetInsetsSample
      */
-    val source: RectRulers
+    public val source: RectRulers
 
     /**
      * The ending insets values of the animation when the insets are animating
@@ -237,17 +238,17 @@ sealed interface WindowInsetsAnimation {
      *
      * @sample androidx.compose.ui.samples.SourceAndTargetInsetsSample
      */
-    val target: RectRulers
+    public val target: RectRulers
 
     /**
      * True when the Window Insets are visible. For example, for [StatusBars], when a status bar is
      * shown, [isVisible] will be `true`. When the status bar is hidden, [isVisible] will be
      * `false`. [isVisible] remains `true` during animations.
      */
-    val isVisible: Boolean
+    public val isVisible: Boolean
 
     /** True when the Window Insets are currently being animated. */
-    val isAnimating: Boolean
+    public val isAnimating: Boolean
 
     /**
      * The current fraction of the animation if the Window Insets are being animated or `0` if
@@ -255,10 +256,10 @@ sealed interface WindowInsetsAnimation {
      * start to `1` at the end, but it may go out of that range if an interpolator causes the
      * fraction to overshoot the range.
      */
-    val fraction: Float
+    public val fraction: Float
 
     /** The duration of the animation in milliseconds. */
-    @get:IntRange(from = 0) val durationMillis: Long
+    @get:IntRange(from = 0) public val durationMillis: Long
 
     /**
      * The translucency of the animating window. This is used when Window Insets animate by fading
@@ -266,7 +267,7 @@ sealed interface WindowInsetsAnimation {
      *
      * @sample androidx.compose.ui.samples.InsetsRulersAlphaSample
      */
-    @get:FloatRange(from = 0.0, to = 1.0) val alpha: Float
+    @get:FloatRange(from = 0.0, to = 1.0) public val alpha: Float
 }
 
 internal expect fun findDisplayCutouts(placementScope: Placeable.PlacementScope): List<RectRulers>

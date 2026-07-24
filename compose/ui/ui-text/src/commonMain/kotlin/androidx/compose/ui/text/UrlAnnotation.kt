@@ -27,19 +27,19 @@ package androidx.compose.ui.text
 @ExperimentalTextApi
 @Deprecated("Use LinkAnnotatation.Url(url) instead", ReplaceWith("LinkAnnotation.Url(url)"))
 @Suppress("Deprecation")
-class UrlAnnotation(val url: String) : AnnotatedString.Annotation {
-    override fun equals(other: Any?): Boolean {
+public class UrlAnnotation(public val url: String) : AnnotatedString.Annotation {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is UrlAnnotation) return false
         if (url != other.url) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return url.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "UrlAnnotation(url=$url)"
     }
 }

@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Offset
  * Class that represents the corresponding Shader implementation on a platform. This maps to
  * Gradients or ImageShaders
  */
-expect class Shader
+public expect class Shader
 
 /**
  * Class that applies the transform matrix to the corresponding [Shader]. This is useful for
@@ -64,7 +64,7 @@ internal expect class TransformShader() {
  * see the [TileMode] enum. If no [TileMode] is provided the default value of [TileMode.Clamp] is
  * used
  */
-fun LinearGradientShader(
+public fun LinearGradientShader(
     from: Offset,
     to: Offset,
     colors: List<Color>,
@@ -94,7 +94,7 @@ internal expect fun ActualLinearGradientShader(
  * argument. For details, see the [TileMode] enum. If no [TileMode] is provided the default value of
  * [TileMode.Clamp] is used
  */
-fun RadialGradientShader(
+public fun RadialGradientShader(
     center: Offset,
     radius: Float,
     colors: List<Color>,
@@ -122,7 +122,7 @@ internal expect fun ActualRadialGradientShader(
  * @param colors Colors to be rendered as part of the gradient
  * @param colorStops Placement of the colors along the sweep about the center position
  */
-fun SweepGradientShader(
+public fun SweepGradientShader(
     center: Offset,
     colors: List<Color>,
     colorStops: List<Float>? = null,
@@ -139,7 +139,7 @@ internal expect fun ActualSweepGradientShader(
  * in an area larger than the size of the [ImageBitmap], the region is filled in the horizontal and
  * vertical directions based on the [tileModeX] and [tileModeY] parameters.
  */
-fun ImageShader(
+public fun ImageShader(
     image: ImageBitmap,
     tileModeX: TileMode = TileMode.Clamp,
     tileModeY: TileMode = TileMode.Clamp,
@@ -161,7 +161,7 @@ internal expect fun ActualImageShader(
  * @param blendMode BlendMode used to composite the source against the destination shader
  * @see BlendMode
  */
-fun CompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader =
+public fun CompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader =
     ActualCompositeShader(dst, src, blendMode)
 
 internal expect fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader

@@ -66,7 +66,7 @@ import androidx.compose.ui.graphics.takeOrElse
  *   use [primary] by default for its background color, when in a dark theme it will use [surface].
  */
 @Stable
-class Colors(
+public class Colors(
     primary: Color,
     primaryVariant: Color,
     secondary: Color,
@@ -81,47 +81,48 @@ class Colors(
     onError: Color,
     isLight: Boolean,
 ) {
-    var primary by mutableStateOf(primary, structuralEqualityPolicy())
+    public var primary: Color by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
 
-    var primaryVariant by mutableStateOf(primaryVariant, structuralEqualityPolicy())
+    public var primaryVariant: Color by mutableStateOf(primaryVariant, structuralEqualityPolicy())
         internal set
 
-    var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
+    public var secondary: Color by mutableStateOf(secondary, structuralEqualityPolicy())
         internal set
 
-    var secondaryVariant by mutableStateOf(secondaryVariant, structuralEqualityPolicy())
+    public var secondaryVariant: Color by
+        mutableStateOf(secondaryVariant, structuralEqualityPolicy())
         internal set
 
-    var background by mutableStateOf(background, structuralEqualityPolicy())
+    public var background: Color by mutableStateOf(background, structuralEqualityPolicy())
         internal set
 
-    var surface by mutableStateOf(surface, structuralEqualityPolicy())
+    public var surface: Color by mutableStateOf(surface, structuralEqualityPolicy())
         internal set
 
-    var error by mutableStateOf(error, structuralEqualityPolicy())
+    public var error: Color by mutableStateOf(error, structuralEqualityPolicy())
         internal set
 
-    var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
+    public var onPrimary: Color by mutableStateOf(onPrimary, structuralEqualityPolicy())
         internal set
 
-    var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
+    public var onSecondary: Color by mutableStateOf(onSecondary, structuralEqualityPolicy())
         internal set
 
-    var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
+    public var onBackground: Color by mutableStateOf(onBackground, structuralEqualityPolicy())
         internal set
 
-    var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
+    public var onSurface: Color by mutableStateOf(onSurface, structuralEqualityPolicy())
         internal set
 
-    var onError by mutableStateOf(onError, structuralEqualityPolicy())
+    public var onError: Color by mutableStateOf(onError, structuralEqualityPolicy())
         internal set
 
-    var isLight by mutableStateOf(isLight, structuralEqualityPolicy())
+    public var isLight: Boolean by mutableStateOf(isLight, structuralEqualityPolicy())
         internal set
 
     /** Returns a copy of this Colors, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         primary: Color = this.primary,
         primaryVariant: Color = this.primaryVariant,
         secondary: Color = this.secondary,
@@ -178,7 +179,7 @@ class Colors(
  *
  * @see darkColors
  */
-fun lightColors(
+public fun lightColors(
     primary: Color = Color(0xFF6200EE),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
@@ -218,7 +219,7 @@ fun lightColors(
  *
  * @see lightColors
  */
-fun darkColors(
+public fun darkColors(
     primary: Color = Color(0xFFBB86FC),
     primaryVariant: Color = Color(0xFF3700B3),
     secondary: Color = Color(0xFF03DAC6),
@@ -257,7 +258,7 @@ fun darkColors(
  *
  * @return [Colors.primary] if in light theme, else [Colors.surface]
  */
-val Colors.primarySurface: Color
+public val Colors.primarySurface: Color
     get() = if (isLight) primary else surface
 
 /**
@@ -276,7 +277,7 @@ val Colors.primarySurface: Color
  *   the theme's [Colors], then returns [Color.Unspecified].
  * @see contentColorFor
  */
-fun Colors.contentColorFor(backgroundColor: Color): Color {
+public fun Colors.contentColorFor(backgroundColor: Color): Color {
     return when (backgroundColor) {
         primary -> onPrimary
         primaryVariant -> onPrimary
@@ -307,7 +308,7 @@ fun Colors.contentColorFor(backgroundColor: Color): Color {
  */
 @Composable
 @ReadOnlyComposable
-fun contentColorFor(backgroundColor: Color) =
+public fun contentColorFor(backgroundColor: Color): Color =
     MaterialTheme.colors.contentColorFor(backgroundColor).takeOrElse { LocalContentColor.current }
 
 /**

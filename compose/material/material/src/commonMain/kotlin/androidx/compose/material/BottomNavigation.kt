@@ -97,7 +97,7 @@ import kotlin.math.roundToInt
  *   [BottomNavigationItem]s
  */
 @Composable
-fun BottomNavigation(
+public fun BottomNavigation(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
@@ -153,7 +153,7 @@ fun BottomNavigation(
  *   [BottomNavigationItem]s
  */
 @Composable
-fun BottomNavigation(
+public fun BottomNavigation(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -195,7 +195,7 @@ fun BottomNavigation(
  * @param unselectedContentColor the color of the text label and icon when this item is not selected
  */
 @Composable
-fun RowScope.BottomNavigationItem(
+public fun RowScope.BottomNavigationItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -246,12 +246,12 @@ fun RowScope.BottomNavigationItem(
 }
 
 /** Contains default values used for [BottomNavigation]. */
-object BottomNavigationDefaults {
+public object BottomNavigationDefaults {
     /** Default elevation used for [BottomNavigation]. */
-    val Elevation = 8.dp
+    public val Elevation: Dp = 8.dp
 
     /** Recommended window insets to be used and consumed by bottom navigation */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(

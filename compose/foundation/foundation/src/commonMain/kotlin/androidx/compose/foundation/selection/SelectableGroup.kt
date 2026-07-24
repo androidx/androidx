@@ -27,4 +27,4 @@ import androidx.compose.ui.semantics.semantics
  *
  * @see selectableGroup
  */
-@Stable fun Modifier.selectableGroup() = this.semantics { selectableGroup() }
+@Stable public fun Modifier.selectableGroup(): Modifier = this.semantics { selectableGroup() }

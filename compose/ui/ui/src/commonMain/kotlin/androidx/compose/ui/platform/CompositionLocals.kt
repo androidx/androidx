@@ -71,9 +71,10 @@ private inline fun <T : Any> computedNullableDefaultOf(
     }
 
 /** The CompositionLocal to provide communication with platform accessibility service. */
-val LocalAccessibilityManager = computedNullableDefaultOf {
-    LocalOwner.currentValue.accessibilityManager
-}
+public val LocalAccessibilityManager: ProvidableCompositionLocal<AccessibilityManager?> =
+    computedNullableDefaultOf {
+        LocalOwner.currentValue.accessibilityManager
+    }
 
 /**
  * The CompositionLocal that can be used to trigger autofill actions. Eg.
@@ -85,7 +86,9 @@ val LocalAccessibilityManager = computedNullableDefaultOf {
         androidx.compose.ui.autofill.ContentDataType instead.
         """
 )
-val LocalAutofill = computedNullableDefaultOf { LocalOwner.currentValue.autofill }
+public val LocalAutofill: ProvidableCompositionLocal<Autofill?> = computedNullableDefaultOf {
+    LocalOwner.currentValue.autofill
+}
 
 /**
  * The CompositionLocal that can be used to add [AutofillNode][import
@@ -98,24 +101,28 @@ val LocalAutofill = computedNullableDefaultOf { LocalOwner.currentValue.autofill
         androidx.compose.ui.autofill.ContentDataType instead.
         """
 )
-val LocalAutofillTree =
+public val LocalAutofillTree: ProvidableCompositionLocal<AutofillTree> =
     computedDefaultOf("LocalAutofillTree") { LocalOwner.currentValue.autofillTree }
 
 /**
  * The CompositionLocal that can be used to trigger autofill actions. Eg. [AutofillManager.commit].
  */
-val LocalAutofillManager = computedNullableDefaultOf { LocalOwner.currentValue.autofillManager }
+public val LocalAutofillManager: ProvidableCompositionLocal<AutofillManager?> =
+    computedNullableDefaultOf {
+        LocalOwner.currentValue.autofillManager
+    }
 
 /** The CompositionLocal to provide communication with platform clipboard service. */
 @Deprecated(
     "Use LocalClipboard instead which supports suspend functions",
     ReplaceWith("LocalClipboard", "androidx.compose.ui.platform.LocalClipboard"),
 )
-val LocalClipboardManager =
+public val LocalClipboardManager: ProvidableCompositionLocal<ClipboardManager> =
     computedDefaultOf("LocalClipboardManager") { LocalOwner.currentValue.clipboardManager }
 
 /** The CompositionLocal to provide communication with platform clipboard service. */
-val LocalClipboard = computedDefaultOf("LocalClipboard") { LocalOwner.currentValue.clipboard }
+public val LocalClipboard: ProvidableCompositionLocal<Clipboard> =
+    computedDefaultOf("LocalClipboard") { LocalOwner.currentValue.clipboard }
 
 /**
  * The CompositionLocal to provide access to a [GraphicsContext] instance for creation of
@@ -128,7 +135,7 @@ val LocalClipboard = computedDefaultOf("LocalClipboard") { LocalOwner.currentVal
  * androidx.compose.ui.graphics.rememberGraphicsLayer] instead to ensure that a [GraphicsLayer] is
  * released when the corresponding composable is disposed.
  */
-val LocalGraphicsContext =
+public val LocalGraphicsContext: ProvidableCompositionLocal<GraphicsContext> =
     computedDefaultOf("LocalGraphicsContext") { LocalOwner.currentValue.graphicsContext }
 
 /**
@@ -138,10 +145,11 @@ val LocalGraphicsContext =
  * typically used when a [DP][androidx.compose.ui.unit.Dp] is provided and it must be converted in
  * the body of [Layout] or [DrawModifier].
  */
-val LocalDensity = computedDefaultOf("LocalDensity") { LocalOwner.currentValue.density }
+public val LocalDensity: ProvidableCompositionLocal<Density> =
+    computedDefaultOf("LocalDensity") { LocalOwner.currentValue.density }
 
 /** The CompositionLocal that can be used to control focus within Compose. */
-val LocalFocusManager =
+public val LocalFocusManager: ProvidableCompositionLocal<FocusManager> =
     computedDefaultOf<FocusManager>("LocalFocusManager") { LocalOwner.currentValue.focusOwner }
 
 /** The CompositionLocal to provide platform font loading methods. */
@@ -151,48 +159,60 @@ val LocalFocusManager =
     replaceWith = ReplaceWith("LocalFontFamilyResolver"),
 )
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-val LocalFontLoader =
+public val LocalFontLoader:
+    ProvidableCompositionLocal<
+        @Suppress("DEPRECATION")
+        androidx.compose.ui.text.font.Font.ResourceLoader
+    > =
     computedDefaultOf("LocalFontLoader") {
         @Suppress("DEPRECATION") LocalOwner.currentValue.fontLoader
     }
 
 /** The CompositionLocal for compose font resolution from FontFamily. */
-val LocalFontFamilyResolver =
+public val LocalFontFamilyResolver:
+    ProvidableCompositionLocal<androidx.compose.ui.text.font.FontFamily.Resolver> =
     computedDefaultOf("LocalFontFamilyResolver") { LocalOwner.currentValue.fontFamilyResolver }
 
 /** The CompositionLocal to provide haptic feedback to the user. */
-val LocalHapticFeedback =
+public val LocalHapticFeedback:
+    ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> =
     computedDefaultOf("LocalHapticFeedback") { LocalOwner.currentValue.hapticFeedBack }
 
 /**
  * The CompositionLocal to provide an instance of InputModeManager which controls the current input
  * mode.
  */
-val LocalInputModeManager =
+public val LocalInputModeManager:
+    ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> =
     computedDefaultOf("LocalInputModeManager") { LocalOwner.currentValue.inputModeManager }
 
 /** The CompositionLocal to provide the layout direction. */
-val LocalLayoutDirection =
+public val LocalLayoutDirection:
+    ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> =
     computedDefaultOf("LocalLayoutDirection") { LocalOwner.currentValue.layoutDirection }
 
 /** The providable CompositionLocal to provide the locale list. This list can never be empty. */
 @get:VisibleForTesting
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-val LocalProvidableLocaleList =
+public val LocalProvidableLocaleList: ProvidableCompositionLocal<LocaleList> =
     computedDefaultOf("LocalProvidableLocaleList") { LocalOwner.currentValue.localeList }
 
 /** The CompositionLocal to provide the locale list. This list will never be empty. */
-val LocalLocaleList: CompositionLocal<LocaleList>
+public val LocalLocaleList: CompositionLocal<LocaleList>
     get() = LocalProvidableLocaleList
 
 /** The CompositionLocal to provide the locale. */
-val LocalLocale: CompositionLocal<Locale> = compositionLocalWithComputedDefaultOf {
+public val LocalLocale: CompositionLocal<Locale> = compositionLocalWithComputedDefaultOf {
     LocalLocaleList.currentValue.first()
 }
 
 /** The CompositionLocal to provide communication with platform text input service. */
 @Deprecated("Use PlatformTextInputModifierNode instead.")
-val LocalTextInputService = computedNullableDefaultOf { LocalOwner.currentValue.textInputService }
+public val LocalTextInputService:
+    ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> =
+    computedNullableDefaultOf {
+        LocalOwner.currentValue.textInputService
+    }
 
 /**
  * The [CompositionLocal] to provide a [SoftwareKeyboardController] that can control the current
@@ -200,26 +220,31 @@ val LocalTextInputService = computedNullableDefaultOf { LocalOwner.currentValue.
  *
  * Will be null if the software keyboard cannot be controlled.
  */
-val LocalSoftwareKeyboardController = computedNullableDefaultOf {
-    LocalOwner.currentValue.softwareKeyboardController
-}
+public val LocalSoftwareKeyboardController:
+    ProvidableCompositionLocal<SoftwareKeyboardController?> =
+    computedNullableDefaultOf {
+        LocalOwner.currentValue.softwareKeyboardController
+    }
 
 /** The CompositionLocal to provide text-related toolbar. */
-val LocalTextToolbar = computedDefaultOf("LocalTextToolbar") { LocalOwner.currentValue.textToolbar }
+public val LocalTextToolbar: ProvidableCompositionLocal<TextToolbar> =
+    computedDefaultOf("LocalTextToolbar") { LocalOwner.currentValue.textToolbar }
 
 /** The CompositionLocal to provide functionality related to URL, e.g. open URI. */
-val LocalUriHandler = staticCompositionLocalWithComputedDefaultOf {
-    LocalOwner.currentValue.uriHandler
-}
+public val LocalUriHandler: ProvidableCompositionLocal<UriHandler> =
+    staticCompositionLocalWithComputedDefaultOf {
+        LocalOwner.currentValue.uriHandler
+    }
 
 /** The CompositionLocal that provides the ViewConfiguration. */
-val LocalViewConfiguration =
+public val LocalViewConfiguration: ProvidableCompositionLocal<ViewConfiguration> =
     computedDefaultOf("LocalViewConfiguration") { LocalOwner.currentValue.viewConfiguration }
 
 /**
  * The CompositionLocal that provides information about the window that hosts the current [Owner].
  */
-val LocalWindowInfo = computedDefaultOf("LocalWindowInfo") { LocalOwner.currentValue.windowInfo }
+public val LocalWindowInfo: ProvidableCompositionLocal<WindowInfo> =
+    computedDefaultOf("LocalWindowInfo") { LocalOwner.currentValue.windowInfo }
 
 /**
  * The CompositionLocal to provide platform sound effects.
@@ -232,7 +257,7 @@ val LocalWindowInfo = computedDefaultOf("LocalWindowInfo") { LocalOwner.currentV
  */
 @Suppress("NullAnnotationGroup")
 @OptIn(ExperimentalComposeUiApi::class)
-val LocalSoundEffect: ProvidableCompositionLocal<SoundEffect> =
+public val LocalSoundEffect: ProvidableCompositionLocal<SoundEffect> =
     if (androidx.compose.ui.ComposeUiFlags.isMinimalistLocalsEnabled) {
         staticCompositionLocalWithComputedDefaultOf { LocalOwner.currentValue.soundEffect }
     } else {
@@ -244,7 +269,7 @@ val LocalSoundEffect: ProvidableCompositionLocal<SoundEffect> =
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
     ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
 )
-expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
+public expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
 
 internal val LocalPointerIconService = computedNullableDefaultOf {
     LocalOwner.currentValue.pointerIconService
@@ -257,7 +282,7 @@ internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false
  * True when the system is currently capturing the contents of a scrollable in this compose view or
  * any parent compose view.
  */
-val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
+public val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
     get() = LocalProvidableScrollCaptureInProgress
 
 /**
@@ -270,7 +295,9 @@ val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
  * Typically you should not set _false_ outside of screenshot tests without also providing a
  * `cursorBrush` to `BasicTextField` to implement a custom design
  */
-val LocalCursorBlinkEnabled: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
+public val LocalCursorBlinkEnabled: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf {
+    true
+}
 
 @Suppress("NullAnnotationGroup")
 @ExperimentalComposeUiApi

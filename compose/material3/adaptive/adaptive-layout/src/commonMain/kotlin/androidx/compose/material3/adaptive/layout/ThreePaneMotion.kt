@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.IntSize
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-class ThreePaneMotion
+public class ThreePaneMotion
 internal constructor(
     private val primaryPaneMotion: PaneMotion,
     private val secondaryPaneMotion: PaneMotion,
@@ -42,14 +42,14 @@ internal constructor(
      * @param role the specified role of the pane, see [ListDetailPaneScaffoldRole] and
      *   [SupportingPaneScaffoldRole].
      */
-    operator fun get(role: ThreePaneScaffoldRole): PaneMotion =
+    public operator fun get(role: ThreePaneScaffoldRole): PaneMotion =
         when (role) {
             ThreePaneScaffoldRole.Primary -> primaryPaneMotion
             ThreePaneScaffoldRole.Secondary -> secondaryPaneMotion
             ThreePaneScaffoldRole.Tertiary -> tertiaryPaneMotion
         }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneMotion) return false
         if (primaryPaneMotion != other.primaryPaneMotion) return false
@@ -58,23 +58,23 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = primaryPaneMotion.hashCode()
         result = 31 * result + secondaryPaneMotion.hashCode()
         result = 31 * result + tertiaryPaneMotion.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "ThreePaneMotion(" +
             "primaryPaneMotion=$primaryPaneMotion, " +
             "secondaryPaneMotion=$secondaryPaneMotion, " +
             "tertiaryPaneMotion=$tertiaryPaneMotion)"
     }
 
-    companion object {
+    public companion object {
         /** A default [ThreePaneMotion] instance that specifies no motions. */
-        val NoMotion =
+        public val NoMotion: ThreePaneMotion =
             ThreePaneMotion(PaneMotion.NoMotion, PaneMotion.NoMotion, PaneMotion.NoMotion)
     }
 }

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.Constraints
  *   the direction of scrolling. This usually means nesting scrollable in the same direction
  *   containers which is a performance issue and is discouraged.
  */
-fun checkScrollableContainerConstraints(constraints: Constraints, orientation: Orientation) {
+public fun checkScrollableContainerConstraints(constraints: Constraints, orientation: Orientation) {
     if (orientation == Orientation.Vertical) {
         checkPrecondition(constraints.maxHeight != Constraints.Infinity) {
             "Vertically scrollable component was measured with an infinity maximum height " +

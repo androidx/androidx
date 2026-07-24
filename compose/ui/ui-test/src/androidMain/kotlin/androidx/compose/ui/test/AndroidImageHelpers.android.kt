@@ -60,7 +60,7 @@ import kotlin.math.roundToInt
     level = DeprecationLevel.HIDDEN,
 )
 @RequiresApi(Build.VERSION_CODES.O)
-fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
+public fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
     return captureToImage(timeoutMillis = 2_000)
 }
 
@@ -84,7 +84,7 @@ fun SemanticsNodeInteraction.captureToImage(): ImageBitmap {
  */
 @OptIn(ExperimentalTestApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-fun SemanticsNodeInteraction.captureToImage(timeoutMillis: Long = 2_000): ImageBitmap {
+public fun SemanticsNodeInteraction.captureToImage(timeoutMillis: Long = 2_000): ImageBitmap {
     val nodes = fetchSemanticsNodes(atLeastOneRootRequired = true).selectedNodes
     require(nodes.isNotEmpty()) { "Failed to capture a node to bitmap." }
 

@@ -25,7 +25,7 @@ import androidx.compose.ui.node.visitSelfAndChildren
  * Implement this interface to create a modifier node that can be used to request changes in the
  * focus state of a [FocusTargetNode] down the hierarchy.
  */
-interface FocusRequesterModifierNode : DelegatableNode
+public interface FocusRequesterModifierNode : DelegatableNode
 
 /**
  * Use this function to request focus. If the system grants focus to a component associated with
@@ -34,7 +34,7 @@ interface FocusRequesterModifierNode : DelegatableNode
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
-fun FocusRequesterModifierNode.requestFocus(): Boolean {
+public fun FocusRequesterModifierNode.requestFocus(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
         return focusTarget.requestFocus()
     }
@@ -54,7 +54,7 @@ fun FocusRequesterModifierNode.requestFocus(): Boolean {
  *   associated with this [FocusRequester]. False otherwise.
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
-fun FocusRequesterModifierNode.captureFocus(): Boolean {
+public fun FocusRequesterModifierNode.captureFocus(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.captureFocus()) {
             return true
@@ -74,7 +74,7 @@ fun FocusRequesterModifierNode.captureFocus(): Boolean {
  *   one of the components associated with this [focusRequester] freed focus.
  * @sample androidx.compose.ui.samples.CaptureFocusSample
  */
-fun FocusRequesterModifierNode.freeFocus(): Boolean {
+public fun FocusRequesterModifierNode.freeFocus(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { if (it.freeFocus()) return true }
     return false
 }
@@ -94,7 +94,7 @@ fun FocusRequesterModifierNode.freeFocus(): Boolean {
 //             " restoreFocusedChild to restore focus.",
 //     level = DeprecationLevel.WARNING,
 // )
-fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
+public fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.saveFocusedChild()) {
             return true
@@ -111,7 +111,7 @@ fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
  * @return true if we successfully restored focus to one of the children of the [focusTarget]
  *   associated with this node.
  */
-fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
+public fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { if (it.restoreFocusedChild()) return true }
     return false
 }

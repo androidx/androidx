@@ -198,7 +198,7 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette =
  * @param context The context required to get system resource data.
  */
 @RequiresApi(Build.VERSION_CODES.S)
-fun dynamicLightColorScheme(context: Context): ColorScheme {
+public fun dynamicLightColorScheme(context: Context): ColorScheme {
     return if (Build.VERSION.SDK_INT >= 34) {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
         dynamicLightColorScheme34(context)
@@ -220,7 +220,7 @@ fun dynamicLightColorScheme(context: Context): ColorScheme {
  * @param context The context required to get system resource data.
  */
 @RequiresApi(Build.VERSION_CODES.S)
-fun dynamicDarkColorScheme(context: Context): ColorScheme {
+public fun dynamicDarkColorScheme(context: Context): ColorScheme {
     return if (Build.VERSION.SDK_INT >= 34) {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
         dynamicDarkColorScheme34(context)

@@ -85,7 +85,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <
+public fun <
     RoleT : PaneScaffoldRole,
     ScaffoldValueT : PaneScaffoldValue<RoleT>,
 > ExtendedPaneScaffoldPaneScope<RoleT, ScaffoldValueT>.AnimatedPane(
@@ -140,7 +140,7 @@ fun <
 @OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <
+public fun <
     RoleT : PaneScaffoldRole,
     ScaffoldValueT : PaneScaffoldValue<RoleT>,
 > ExtendedPaneScaffoldPaneScope<RoleT, ScaffoldValueT>.AnimatedPane(
@@ -149,7 +149,7 @@ fun <
     exitTransition: ExitTransition = motionDataProvider.calculateDefaultExitTransition(paneRole),
     boundsAnimationSpec: FiniteAnimationSpec<IntRect> = PaneMotionDefaults.AnimationSpec,
     content: (@Composable AnimatedPaneScope.() -> Unit),
-) =
+): Unit =
     AnimatedPane(
         modifier = modifier,
         enterTransition = enterTransition,
@@ -191,7 +191,7 @@ fun <
 @OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <
+public fun <
     RoleT : PaneScaffoldRole,
     ScaffoldValueT : PaneScaffoldValue<RoleT>,
 > ExtendedPaneScaffoldPaneScope<RoleT, ScaffoldValueT>.AnimatedPane(
@@ -201,7 +201,7 @@ fun <
     boundsAnimationSpec: FiniteAnimationSpec<IntRect> = PaneMotionDefaults.AnimationSpec,
     dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)? = null,
     content: (@Composable AnimatedPaneScope.() -> Unit),
-) =
+): Unit =
     AnimatedPane(
         modifier = modifier,
         enterTransition = enterTransition,
@@ -309,11 +309,11 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
  * Scope for the content of [AnimatedPane]. It extends from the necessary animation scopes so
  * developers can use the info carried by the scopes to do certain customizations.
  */
-sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
-    companion object {
+public sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
+    public companion object {
         /** Create an instance of [AnimatedPaneScope] for the given [AnimatedVisibilityScope]. */
         @ExperimentalMaterial3AdaptiveApi
-        fun create(animatedVisibilityScope: AnimatedVisibilityScope): AnimatedPaneScope =
+        public fun create(animatedVisibilityScope: AnimatedVisibilityScope): AnimatedPaneScope =
             Impl(animatedVisibilityScope)
     }
 
@@ -329,10 +329,10 @@ sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
-interface AnimatedPaneOverride {
+public interface AnimatedPaneOverride {
     /** Behavior function that is called by the [AnimatedPane] composable. */
     @Composable
-    fun <
+    public fun <
         Role : PaneScaffoldRole,
         ScaffoldValue : PaneScaffoldValue<Role>,
     > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane()
@@ -355,21 +355,24 @@ interface AnimatedPaneOverride {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 @Immutable
-class AnimatedPaneOverrideScope<Role : PaneScaffoldRole, ScaffoldValue : PaneScaffoldValue<Role>>
+public class AnimatedPaneOverrideScope<
+    Role : PaneScaffoldRole,
+    ScaffoldValue : PaneScaffoldValue<Role>,
+>
 internal constructor(
-    val scope: ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>,
-    val modifier: Modifier,
-    val enterTransition: EnterTransition,
-    val exitTransition: ExitTransition,
-    val boundsAnimationSpec: FiniteAnimationSpec<IntRect>,
-    val dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)?,
-    val shape: Shape,
-    val content: (@Composable AnimatedPaneScope.() -> Unit),
+    public val scope: ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>,
+    public val modifier: Modifier,
+    public val enterTransition: EnterTransition,
+    public val exitTransition: ExitTransition,
+    public val boundsAnimationSpec: FiniteAnimationSpec<IntRect>,
+    public val dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)?,
+    public val shape: Shape,
+    public val content: (@Composable AnimatedPaneScope.() -> Unit),
 )
 
 /** CompositionLocal containing the currently-selected [AnimatedPaneOverride]. */
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
-val LocalAnimatedPaneOverride: ProvidableCompositionLocal<AnimatedPaneOverride> =
+public val LocalAnimatedPaneOverride: ProvidableCompositionLocal<AnimatedPaneOverride> =
     compositionLocalOf {
         DefaultAnimatedPaneOverride
     }

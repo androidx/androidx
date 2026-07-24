@@ -111,7 +111,7 @@ internal class AndroidWindowInsets(internal val type: Int, private val name: Str
  *
  * This property should be set prior to first composition.
  */
-var AbstractComposeView.consumeWindowInsets: Boolean
+public var AbstractComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
         setTag(R.id.consume_window_insets_tag, value)
@@ -128,21 +128,21 @@ var AbstractComposeView.consumeWindowInsets: Boolean
     level = DeprecationLevel.HIDDEN,
     message = "Please use AbstractComposeView.consumeWindowInsets",
 )
-var ComposeView.consumeWindowInsets: Boolean
+public var ComposeView.consumeWindowInsets: Boolean
     get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
         setTag(R.id.consume_window_insets_tag, value)
     }
 
 /** For the [WindowInsetsCompat.Type.captionBar]. */
-actual val WindowInsets.Companion.captionBar: WindowInsets
+actual public val WindowInsets.Companion.captionBar: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().captionBar
 
 /**
  * For the [WindowInsetsCompat.Type.displayCutout]. This insets represents the area that the display
  * cutout (e.g. for camera) is and important content should be excluded from.
  */
-actual val WindowInsets.Companion.displayCutout: WindowInsets
+actual public val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().displayCutout
 
 /**
@@ -154,14 +154,14 @@ actual val WindowInsets.Companion.displayCutout: WindowInsets
  * file and call `WindowCompat.setDecorFitsSystemWindows(window, false)` in their
  * [android.app.Activity.onCreate].
  */
-actual val WindowInsets.Companion.ime: WindowInsets
+actual public val WindowInsets.Companion.ime: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().ime
 
 /**
  * For the [WindowInsetsCompat.Type.mandatorySystemGestures]. These insets represents the space
  * where system gestures have priority over application gestures.
  */
-actual val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
+actual public val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().mandatorySystemGestures
@@ -170,27 +170,27 @@ actual val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
  * For the [WindowInsetsCompat.Type.navigationBars]. These insets represent where system UI places
  * navigation bars. Interactive UI should avoid the navigation bars area.
  */
-actual val WindowInsets.Companion.navigationBars: WindowInsets
+actual public val WindowInsets.Companion.navigationBars: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().navigationBars
 
 /** For the [WindowInsetsCompat.Type.statusBars]. */
-actual val WindowInsets.Companion.statusBars: WindowInsets
+actual public val WindowInsets.Companion.statusBars: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().statusBars
 
 /** For the [WindowInsetsCompat.Type.systemBars]. */
-actual val WindowInsets.Companion.systemBars: WindowInsets
+actual public val WindowInsets.Companion.systemBars: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().systemBars
 
 /** For the [WindowInsetsCompat.Type.systemGestures]. */
-actual val WindowInsets.Companion.systemGestures: WindowInsets
+actual public val WindowInsets.Companion.systemGestures: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().systemGestures
 
 /** For the [WindowInsetsCompat.Type.tappableElement]. */
-actual val WindowInsets.Companion.tappableElement: WindowInsets
+actual public val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().tappableElement
 
 /** The insets for the curved areas in a waterfall display. */
-actual val WindowInsets.Companion.waterfall: WindowInsets
+actual public val WindowInsets.Companion.waterfall: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().waterfall
 
 /**
@@ -198,14 +198,14 @@ actual val WindowInsets.Companion.waterfall: WindowInsets
  *
  * See [DisplayCutoutCompat.getCutoutPath]
  */
-actual val WindowInsets.Companion.cutoutPath: Path?
+actual public val WindowInsets.Companion.cutoutPath: Path?
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().cutoutPath
 
 /**
  * The insets that include areas where content may be covered by other drawn content. This includes
  * all [system bars][systemBars], [display cutout][displayCutout], and [soft keyboard][ime].
  */
-actual val WindowInsets.Companion.safeDrawing: WindowInsets
+actual public val WindowInsets.Companion.safeDrawing: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().safeDrawing
 
 /**
@@ -213,21 +213,21 @@ actual val WindowInsets.Companion.safeDrawing: WindowInsets
  * [system gestures][systemGestures], [mandatory system gestures][mandatorySystemGestures],
  * [rounded display areas][waterfall], and [tappable areas][tappableElement].
  */
-actual val WindowInsets.Companion.safeGestures: WindowInsets
+actual public val WindowInsets.Companion.safeGestures: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().safeGestures
 
 /**
  * The insets that include all areas that may be drawn over or have gesture confusion, including
  * everything in [safeDrawing] and [safeGestures].
  */
-actual val WindowInsets.Companion.safeContent: WindowInsets
+actual public val WindowInsets.Companion.safeContent: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().safeContent
 
 /**
  * The insets that the [WindowInsetsCompat.Type.captionBar] will consume if shown. If it cannot be
  * shown then this will be empty.
  */
-val WindowInsets.Companion.captionBarIgnoringVisibility: WindowInsets
+public val WindowInsets.Companion.captionBarIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().captionBarIgnoringVisibility
@@ -237,7 +237,7 @@ val WindowInsets.Companion.captionBarIgnoringVisibility: WindowInsets
  * represent where system UI places navigation bars. Interactive UI should avoid the navigation bars
  * area. If navigation bars cannot be shown, then this will be empty.
  */
-val WindowInsets.Companion.navigationBarsIgnoringVisibility: WindowInsets
+public val WindowInsets.Companion.navigationBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().navigationBarsIgnoringVisibility
@@ -246,7 +246,7 @@ val WindowInsets.Companion.navigationBarsIgnoringVisibility: WindowInsets
  * The insets that [WindowInsetsCompat.Type.statusBars] will consume if shown. If the status bar can
  * never be shown, then this will be empty.
  */
-val WindowInsets.Companion.statusBarsIgnoringVisibility: WindowInsets
+public val WindowInsets.Companion.statusBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().statusBarsIgnoringVisibility
@@ -256,7 +256,7 @@ val WindowInsets.Companion.statusBarsIgnoringVisibility: WindowInsets
  *
  * If system bars can never be shown, then this will be empty.
  */
-val WindowInsets.Companion.systemBarsIgnoringVisibility: WindowInsets
+public val WindowInsets.Companion.systemBarsIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().systemBarsIgnoringVisibility
@@ -266,7 +266,7 @@ val WindowInsets.Companion.systemBarsIgnoringVisibility: WindowInsets
  *
  * If there are never tappable elements then this is empty.
  */
-val WindowInsets.Companion.tappableElementIgnoringVisibility: WindowInsets
+public val WindowInsets.Companion.tappableElementIgnoringVisibility: WindowInsets
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().tappableElementIgnoringVisibility
@@ -275,28 +275,28 @@ val WindowInsets.Companion.tappableElementIgnoringVisibility: WindowInsets
  * `true` when the [caption bar][captionBar] is being displayed, irrespective of whether it
  * intersects with the Window.
  */
-val WindowInsets.Companion.isCaptionBarVisible: Boolean
+public val WindowInsets.Companion.isCaptionBarVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().captionBar.isVisible
 
 /**
  * `true` when the [soft keyboard][ime] is being displayed, irrespective of whether it intersects
  * with the Window.
  */
-val WindowInsets.Companion.isImeVisible: Boolean
+public val WindowInsets.Companion.isImeVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().ime.isVisible
 
 /**
  * `true` when the [statusBars] are being displayed, irrespective of whether they intersect with the
  * Window.
  */
-val WindowInsets.Companion.areStatusBarsVisible: Boolean
+public val WindowInsets.Companion.areStatusBarsVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().statusBars.isVisible
 
 /**
  * `true` when the [navigationBars] are being displayed, irrespective of whether they intersect with
  * the Window.
  */
-val WindowInsets.Companion.areNavigationBarsVisible: Boolean
+public val WindowInsets.Companion.areNavigationBarsVisible: Boolean
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().navigationBars.isVisible
@@ -305,13 +305,13 @@ val WindowInsets.Companion.areNavigationBarsVisible: Boolean
  * `true` when the [systemBars] are being displayed, irrespective of whether they intersect with the
  * Window.
  */
-val WindowInsets.Companion.areSystemBarsVisible: Boolean
+public val WindowInsets.Companion.areSystemBarsVisible: Boolean
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().systemBars.isVisible
 /**
  * `true` when the [tappableElement] is being displayed, irrespective of whether they intersect with
  * the Window.
  */
-val WindowInsets.Companion.isTappableElementVisible: Boolean
+public val WindowInsets.Companion.isTappableElementVisible: Boolean
     @Composable
     @NonRestartableComposable
     get() = WindowInsetsHolder.current().tappableElement.isVisible
@@ -322,7 +322,7 @@ val WindowInsets.Companion.isTappableElementVisible: Boolean
  *
  * This will be the same as [imeAnimationTarget] when there is no IME animation in progress.
  */
-val WindowInsets.Companion.imeAnimationSource: WindowInsets
+public val WindowInsets.Companion.imeAnimationSource: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().imeAnimationSource
 
 /**
@@ -331,7 +331,7 @@ val WindowInsets.Companion.imeAnimationSource: WindowInsets
  *
  * This will be the same as [imeAnimationSource] when there is no IME animation in progress.
  */
-val WindowInsets.Companion.imeAnimationTarget: WindowInsets
+public val WindowInsets.Companion.imeAnimationTarget: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().imeAnimationTarget
 
 /** The insets for various values in the current window. */

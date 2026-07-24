@@ -33,5 +33,5 @@ import androidx.compose.ui.graphics.graphicsLayer
  * Example usage:
  */
 @Stable
-fun Modifier.rotate(degrees: Float) =
+public fun Modifier.rotate(degrees: Float): Modifier =
     if (degrees != 0f) graphicsLayer(rotationZ = degrees) else this

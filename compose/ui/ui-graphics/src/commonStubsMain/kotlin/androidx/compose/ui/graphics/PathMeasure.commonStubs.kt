@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual fun PathMeasure(): PathMeasure = implementedInJetBrainsFork()
+public actual fun PathMeasure(): PathMeasure = implementedInJetBrainsFork()

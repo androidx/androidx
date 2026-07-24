@@ -121,7 +121,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 // This takes a composable lambda, but it is not primarily a container.
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
-fun BasicSecureTextField(
+public fun BasicSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -392,7 +392,7 @@ internal expect fun rememberPlatformPasswordVisibilitySettingsState(): SplitVisi
 )
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
-fun BasicSecureTextField(
+public fun BasicSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -433,7 +433,7 @@ fun BasicSecureTextField(
 )
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
-fun BasicSecureTextField(
+public fun BasicSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

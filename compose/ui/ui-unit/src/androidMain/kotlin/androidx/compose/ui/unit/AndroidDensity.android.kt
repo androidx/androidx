@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.fontscaling.FontScaleConverterFactory
  *
  * @param context density values will be extracted from this [Context]
  */
-fun Density(context: Context): Density {
+public fun Density(context: Context): Density {
     val fontScale = context.resources.configuration.fontScale
     return DensityWithConverter(
         context.resources.displayMetrics.density,

@@ -88,7 +88,7 @@ import androidx.compose.ui.semantics.semantics
         ),
 )
 @NonRestartableComposable
-fun Image(
+public fun Image(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -145,7 +145,7 @@ fun Image(
  */
 @Composable
 @NonRestartableComposable
-fun Image(
+public fun Image(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -191,7 +191,7 @@ fun Image(
  */
 @Composable
 @NonRestartableComposable
-fun Image(
+public fun Image(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -199,7 +199,7 @@ fun Image(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-) =
+): Unit =
     Image(
         painter = rememberVectorPainter(imageVector),
         contentDescription = contentDescription,
@@ -237,7 +237,7 @@ fun Image(
  * @param colorFilter Optional colorFilter to apply for the [Painter] when it is rendered onscreen
  */
 @Composable
-fun Image(
+public fun Image(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,

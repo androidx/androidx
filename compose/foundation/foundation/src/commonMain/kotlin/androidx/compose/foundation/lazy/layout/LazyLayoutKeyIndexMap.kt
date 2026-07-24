@@ -25,12 +25,12 @@ import androidx.compose.foundation.internal.checkPrecondition
  * A key-index mapping that can be used by the [LazyLayoutItemProvider] to keep track of indices and
  * keys in [LazyLayout].
  */
-interface LazyLayoutKeyIndexMap {
+public interface LazyLayoutKeyIndexMap {
     /** @return current index for given [key] or `-1` if not found. */
-    fun getIndex(key: Any): Int
+    public fun getIndex(key: Any): Int
 
     /** @return key for a given [index] if it is known, or null otherwise. */
-    fun getKey(index: Int): Any?
+    public fun getKey(index: Int): Any?
 }
 
 /**
@@ -40,7 +40,7 @@ interface LazyLayoutKeyIndexMap {
  * @param itemIndexRange Range of items to keep track of.
  * @param intervalContent Source of item information in the form of [LazyLayoutIntervalContent].
  */
-fun LazyLayoutKeyIndexMap(
+public fun LazyLayoutKeyIndexMap(
     itemIndexRange: IntRange,
     intervalContent: LazyLayoutIntervalContent<*>,
 ): LazyLayoutKeyIndexMap = NearestRangeKeyIndexMap(itemIndexRange, intervalContent)

@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 /** The receiver scope of a layout's intrinsic measurements lambdas. */
-interface IntrinsicMeasureScope : Density {
+public interface IntrinsicMeasureScope : Density {
     /**
      * The [LayoutDirection] of the `Layout` or `LayoutModifier` using the measure scope to measure
      * their children.
      */
-    val layoutDirection: LayoutDirection
+    public val layoutDirection: LayoutDirection
 
     /**
      * This indicates whether the ongoing measurement is for lookahead pass. [IntrinsicMeasureScope]
@@ -34,6 +34,6 @@ interface IntrinsicMeasureScope : Density {
      *
      * @sample androidx.compose.ui.samples.animateContentSizeAfterLookaheadPass
      */
-    val isLookingAhead: Boolean
+    public val isLookingAhead: Boolean
         get() = false
 }

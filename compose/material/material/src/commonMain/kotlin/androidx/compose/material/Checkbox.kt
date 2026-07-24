@@ -81,7 +81,7 @@ import kotlin.math.max
  *   customization between states.
  */
 @Composable
-fun Checkbox(
+public fun Checkbox(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
@@ -129,7 +129,7 @@ fun Checkbox(
  * @see [Checkbox] if you want a simple component that represents Boolean state
  */
 @Composable
-fun TriStateCheckbox(
+public fun TriStateCheckbox(
     state: ToggleableState,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -176,14 +176,14 @@ fun TriStateCheckbox(
  * specifications.
  */
 @Stable
-interface CheckboxColors {
+public interface CheckboxColors {
 
     /**
      * Represents the color used for the checkmark inside the checkbox, depending on [state].
      *
      * @param state the [ToggleableState] of the checkbox
      */
-    @Composable fun checkmarkColor(state: ToggleableState): State<Color>
+    @Composable public fun checkmarkColor(state: ToggleableState): State<Color>
 
     /**
      * Represents the color used for the box (background) of the checkbox, depending on [enabled]
@@ -192,7 +192,7 @@ interface CheckboxColors {
      * @param enabled whether the checkbox is enabled or not
      * @param state the [ToggleableState] of the checkbox
      */
-    @Composable fun boxColor(enabled: Boolean, state: ToggleableState): State<Color>
+    @Composable public fun boxColor(enabled: Boolean, state: ToggleableState): State<Color>
 
     /**
      * Represents the color used for the border of the checkbox, depending on [enabled] and [state].
@@ -200,11 +200,11 @@ interface CheckboxColors {
      * @param enabled whether the checkbox is enabled or not
      * @param state the [ToggleableState] of the checkbox
      */
-    @Composable fun borderColor(enabled: Boolean, state: ToggleableState): State<Color>
+    @Composable public fun borderColor(enabled: Boolean, state: ToggleableState): State<Color>
 }
 
 /** Defaults used in [Checkbox] and [TriStateCheckbox]. */
-object CheckboxDefaults {
+public object CheckboxDefaults {
     /**
      * Creates a [CheckboxColors] that will animate between the provided colors according to the
      * Material specification.
@@ -217,7 +217,7 @@ object CheckboxDefaults {
      *   [TriStateCheckbox] when disabled AND in an [ToggleableState.Indeterminate] state.
      */
     @Composable
-    fun colors(
+    public fun colors(
         checkedColor: Color = MaterialTheme.colors.secondary,
         uncheckedColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
         checkmarkColor: Color = MaterialTheme.colors.surface,

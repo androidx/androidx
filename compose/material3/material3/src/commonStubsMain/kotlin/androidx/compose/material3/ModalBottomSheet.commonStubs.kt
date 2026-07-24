@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.Color
 
 @Immutable
 @ExperimentalMaterial3Api
-actual class ModalBottomSheetProperties
-actual constructor(
-    actual val shouldDismissOnBackPress: Boolean,
-    actual val shouldDismissOnClickOutside: Boolean,
+public actual class ModalBottomSheetProperties
+public actual constructor(
+    public actual val shouldDismissOnBackPress: Boolean,
+    public actual val shouldDismissOnClickOutside: Boolean,
 ) {
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
@@ -33,7 +33,7 @@ actual constructor(
         replaceWith = ReplaceWith("ModalBottomSheetProperties(shouldDismissOnBackPress)"),
     )
     @Suppress("UNUSED_PARAMETER")
-    constructor(
+    public constructor(
         shouldDismissOnBackPress: Boolean,
         isAppearanceLightStatusBars: Boolean,
         isAppearanceLightNavigationBars: Boolean,
@@ -42,8 +42,8 @@ actual constructor(
 
 @Immutable
 @ExperimentalMaterial3Api
-actual object ModalBottomSheetDefaults {
-    actual val properties: ModalBottomSheetProperties = implementedInJetBrainsFork()
+public actual object ModalBottomSheetDefaults {
+    public actual val properties: ModalBottomSheetProperties = implementedInJetBrainsFork()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

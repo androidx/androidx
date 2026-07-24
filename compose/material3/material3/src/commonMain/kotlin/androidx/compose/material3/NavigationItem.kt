@@ -81,18 +81,18 @@ import kotlin.math.roundToInt
 
 /** Class that describes the different supported icon positions of the navigation item. */
 @JvmInline
-value class NavigationItemIconPosition private constructor(private val value: Int) {
-    companion object {
+public value class NavigationItemIconPosition private constructor(private val value: Int) {
+    public companion object {
         /* The icon is positioned on top of the label. */
-        val Top
+        public val Top: NavigationItemIconPosition
             get() = NavigationItemIconPosition(0)
 
         /* The icon is positioned at the start of the label. */
-        val Start
+        public val Start: NavigationItemIconPosition
             get() = NavigationItemIconPosition(1)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             Top -> "Top"
             Start -> "Start"
@@ -113,21 +113,21 @@ value class NavigationItemIconPosition private constructor(private val value: In
  * @constructor create an instance with arbitrary colors.
  */
 @Immutable
-class NavigationItemColors
-constructor(
-    val selectedIconColor: Color,
-    val selectedTextColor: Color,
-    val selectedIndicatorColor: Color,
-    val unselectedIconColor: Color,
-    val unselectedTextColor: Color,
-    val disabledIconColor: Color,
-    val disabledTextColor: Color,
+public class NavigationItemColors
+public constructor(
+    public val selectedIconColor: Color,
+    public val selectedTextColor: Color,
+    public val selectedIndicatorColor: Color,
+    public val unselectedIconColor: Color,
+    public val unselectedTextColor: Color,
+    public val disabledIconColor: Color,
+    public val disabledTextColor: Color,
 ) {
     /**
      * Returns a copy of this NavigationItemColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”.
      */
-    fun copy(
+    public fun copy(
         selectedIconColor: Color = this.selectedIconColor,
         selectedTextColor: Color = this.selectedTextColor,
         selectedIndicatorColor: Color = this.selectedIndicatorColor,
@@ -135,7 +135,7 @@ constructor(
         unselectedTextColor: Color = this.unselectedTextColor,
         disabledIconColor: Color = this.disabledIconColor,
         disabledTextColor: Color = this.disabledTextColor,
-    ) =
+    ): NavigationItemColors =
         NavigationItemColors(
             selectedIconColor.takeOrElse { this.selectedIconColor },
             selectedTextColor.takeOrElse { this.selectedTextColor },
@@ -153,7 +153,7 @@ constructor(
      * @param enabled whether the item is enabled
      */
     @Stable
-    fun iconColor(selected: Boolean, enabled: Boolean): Color {
+    public fun iconColor(selected: Boolean, enabled: Boolean): Color {
         return when {
             !enabled -> disabledIconColor
             selected -> selectedIconColor
@@ -168,7 +168,7 @@ constructor(
      * @param enabled whether the item is enabled
      */
     @Stable
-    fun textColor(selected: Boolean, enabled: Boolean): Color {
+    public fun textColor(selected: Boolean, enabled: Boolean): Color {
         return when {
             !enabled -> disabledTextColor
             selected -> selectedTextColor

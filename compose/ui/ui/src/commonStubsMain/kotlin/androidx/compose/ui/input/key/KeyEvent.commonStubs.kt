@@ -18,25 +18,25 @@ package androidx.compose.ui.input.key
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-actual class NativeKeyEvent
+public actual class NativeKeyEvent
 
-actual val KeyEvent.key: Key
+public actual val KeyEvent.key: Key
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.utf16CodePoint: Int
+public actual val KeyEvent.utf16CodePoint: Int
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.type: KeyEventType
+public actual val KeyEvent.type: KeyEventType
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.isAltPressed: Boolean
+public actual val KeyEvent.isAltPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.isCtrlPressed: Boolean
+public actual val KeyEvent.isCtrlPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.isMetaPressed: Boolean
+public actual val KeyEvent.isMetaPressed: Boolean
     get() = implementedInJetBrainsFork()
 
-actual val KeyEvent.isShiftPressed: Boolean
+public actual val KeyEvent.isShiftPressed: Boolean
     get() = implementedInJetBrainsFork()

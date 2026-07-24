@@ -76,12 +76,13 @@ import kotlinx.coroutines.launch
     level = DeprecationLevel.WARNING,
 )
 @Stable
-fun Modifier.onFirstVisible(
+public fun Modifier.onFirstVisible(
     @IntRange(from = 0) minDurationMs: Long = 0,
     @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,
     viewportBounds: LayoutBoundsHolder? = null,
     callback: () -> Unit,
-) = this then OnFirstVisibleElement(minDurationMs, minFractionVisible, viewportBounds, callback)
+): Modifier =
+    this then OnFirstVisibleElement(minDurationMs, minFractionVisible, viewportBounds, callback)
 
 private class OnFirstVisibleElement(
     val minDurationMs: Long,

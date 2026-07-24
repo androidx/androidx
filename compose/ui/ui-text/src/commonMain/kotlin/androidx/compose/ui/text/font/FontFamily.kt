@@ -31,7 +31,7 @@ import androidx.compose.ui.text.internal.checkPrecondition
 // TODO(b/214587299): Add large ktdoc comment here about how it all works, including fallback and
 //  optional
 @Immutable
-sealed class FontFamily(canLoadSynchronously: Boolean) {
+public sealed class FontFamily protected constructor(canLoadSynchronously: Boolean) {
 
     /**
      * Main interface for resolving [FontFamily] into a platform-specific typeface for use in
@@ -43,7 +43,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
      * Fonts may be preloaded by calling [Resolver.preload] to avoid text reflow when async fonts
      * load.
      */
-    sealed interface Resolver {
+    public sealed interface Resolver {
 
         /**
          * Preloading resolves and caches all fonts reachable in a [FontFamily].
@@ -68,7 +68,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          * @param fontFamily the family to resolve all fonts from
          * @throws IllegalStateException if any reachable font fails to load
          */
-        suspend fun preload(fontFamily: FontFamily)
+        public suspend fun preload(fontFamily: FontFamily)
 
         /**
          * Resolves a typeface using any appropriate logic for the [FontFamily].
@@ -86,7 +86,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          * @return platform-specific Typeface such as [android.graphics.Typeface]
          * @throws IllegalStateException if the FontFamily cannot resolve a to a typeface
          */
-        fun resolve(
+        public fun resolve(
             fontFamily: FontFamily? = null,
             fontWeight: FontWeight = FontWeight.Normal,
             fontStyle: FontStyle = FontStyle.Normal,
@@ -94,9 +94,9 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
         ): State<Any>
     }
 
-    companion object {
+    public companion object {
         /** The platform default font. */
-        val Default: SystemFontFamily = DefaultFontFamily()
+        public val Default: SystemFontFamily = DefaultFontFamily()
 
         /**
          * Font family with low contrast and plain stroke endings.
@@ -105,7 +105,8 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          *
          * See [CSS sans-serif](https://www.w3.org/TR/css-fonts-3/#sans-serif)
          */
-        val SansSerif = GenericFontFamily("sans-serif", "FontFamily.SansSerif")
+        public val SansSerif: GenericFontFamily =
+            GenericFontFamily("sans-serif", "FontFamily.SansSerif")
 
         /**
          * The formal text style for scripts.
@@ -114,7 +115,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          *
          * See [CSS serif](https://www.w3.org/TR/css-fonts-3/#serif)
          */
-        val Serif = GenericFontFamily("serif", "FontFamily.Serif")
+        public val Serif: GenericFontFamily = GenericFontFamily("serif", "FontFamily.Serif")
 
         /**
          * Font family where glyphs have the same fixed width.
@@ -123,7 +124,8 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          *
          * See [CSS monospace](https://www.w3.org/TR/css-fonts-3/#monospace)
          */
-        val Monospace = GenericFontFamily("monospace", "FontFamily.Monospace")
+        public val Monospace: GenericFontFamily =
+            GenericFontFamily("monospace", "FontFamily.Monospace")
 
         /**
          * Cursive, hand-written like font family.
@@ -135,7 +137,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
          *
          * See [CSS cursive](https://www.w3.org/TR/css-fonts-3/#cursive)
          */
-        val Cursive = GenericFontFamily("cursive", "FontFamily.Cursive")
+        public val Cursive: GenericFontFamily = GenericFontFamily("cursive", "FontFamily.Cursive")
     }
 
     @Suppress("CanBePrimaryConstructorProperty") // for deprecation
@@ -143,14 +145,14 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
         message = "Unused property that has no meaning. Do not use.",
         level = DeprecationLevel.ERROR,
     )
-    val canLoadSynchronously = canLoadSynchronously
+    public val canLoadSynchronously: Boolean = canLoadSynchronously
 }
 
 /** A base class of [FontFamily]s that is created from file sources. */
-sealed class FileBasedFontFamily : FontFamily(false)
+public sealed class FileBasedFontFamily protected constructor() : FontFamily(false)
 
 /** A base class of [FontFamily]s installed on the system. */
-sealed class SystemFontFamily : FontFamily(true)
+public sealed class SystemFontFamily protected constructor() : FontFamily(true)
 
 /**
  * Defines a font family with list of [Font].
@@ -159,27 +161,27 @@ sealed class SystemFontFamily : FontFamily(true)
  * @sample androidx.compose.ui.text.samples.CustomFontFamilySample
  */
 @Immutable
-class FontListFontFamily
+public class FontListFontFamily
 internal constructor(
     /** The fallback list of fonts used for resolving typefaces for this FontFamily. */
-    val fonts: List<Font>
+    public val fonts: List<Font>
 ) : FileBasedFontFamily(), List<Font> by fonts {
     init {
         checkPrecondition(fonts.isNotEmpty()) { "At least one font should be passed to FontFamily" }
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FontListFontFamily) return false
         if (fonts != other.fonts) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return fonts.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "FontListFontFamily(fonts=$fonts)"
     }
 }
@@ -196,9 +198,10 @@ internal constructor(
  * @see FontFamily.Cursive
  */
 @Immutable
-class GenericFontFamily internal constructor(val name: String, private val fontFamilyName: String) :
+public class GenericFontFamily
+internal constructor(public val name: String, private val fontFamilyName: String) :
     SystemFontFamily() {
-    override fun toString(): String = fontFamilyName
+    public override fun toString(): String = fontFamilyName
 }
 
 /** Defines a default font family. */
@@ -212,19 +215,20 @@ internal class DefaultFontFamily internal constructor() : SystemFontFamily() {
  *
  * @param typeface A typeface instance.
  */
-class LoadedFontFamily internal constructor(val typeface: Typeface) : FontFamily(true) {
-    override fun equals(other: Any?): Boolean {
+public class LoadedFontFamily internal constructor(public val typeface: Typeface) :
+    FontFamily(true) {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LoadedFontFamily) return false
         if (typeface != other.typeface) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return typeface.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "LoadedFontFamily(typeface=$typeface)"
     }
 }
@@ -234,18 +238,18 @@ class LoadedFontFamily internal constructor(val typeface: Typeface) : FontFamily
  *
  * @param fonts list of font files
  */
-@Stable fun FontFamily(fonts: List<Font>): FontFamily = FontListFontFamily(fonts)
+@Stable public fun FontFamily(fonts: List<Font>): FontFamily = FontListFontFamily(fonts)
 
 /**
  * Construct a font family that contains list of custom font files.
  *
  * @param fonts list of font files
  */
-@Stable fun FontFamily(vararg fonts: Font): FontFamily = FontListFontFamily(fonts.asList())
+@Stable public fun FontFamily(vararg fonts: Font): FontFamily = FontListFontFamily(fonts.asList())
 
 /**
  * Construct a font family that contains loaded font family: Typeface.
  *
  * @param typeface A typeface instance.
  */
-@Stable fun FontFamily(typeface: Typeface): FontFamily = LoadedFontFamily(typeface)
+@Stable public fun FontFamily(typeface: Typeface): FontFamily = LoadedFontFamily(typeface)

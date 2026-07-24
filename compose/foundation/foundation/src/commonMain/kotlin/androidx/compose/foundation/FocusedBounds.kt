@@ -34,4 +34,5 @@ import androidx.compose.ui.layout.LayoutCoordinates
             "instead to query this information on demand as needed.",
     level = DeprecationLevel.ERROR,
 )
-fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier = this
+public fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
+    this

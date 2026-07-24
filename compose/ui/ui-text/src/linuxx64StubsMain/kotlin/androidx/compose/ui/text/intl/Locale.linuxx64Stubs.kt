@@ -20,26 +20,26 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.implementedInJetBrainsFork
 
 @Immutable
-actual class Locale {
-    actual companion object {
-        actual val current: Locale
+public actual class Locale {
+    public actual companion object {
+        public actual val current: Locale
             get() = implementedInJetBrainsFork()
     }
 
-    actual constructor(languageTag: String) {
+    public actual constructor(languageTag: String) {
         implementedInJetBrainsFork()
     }
 
-    actual val language: String
+    public actual val language: String
         get() = implementedInJetBrainsFork()
 
-    actual val script: String
+    public actual val script: String
         get() = implementedInJetBrainsFork()
 
-    actual val region: String
+    public actual val region: String
         get() = implementedInJetBrainsFork()
 
-    actual fun toLanguageTag(): String = implementedInJetBrainsFork()
+    public actual fun toLanguageTag(): String = implementedInJetBrainsFork()
 
     actual override operator fun equals(other: Any?): Boolean = implementedInJetBrainsFork()
 

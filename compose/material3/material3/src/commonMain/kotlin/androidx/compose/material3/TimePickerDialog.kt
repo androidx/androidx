@@ -65,7 +65,7 @@ import kotlin.math.truncate
  * @param content the content of the dialog (i.e. a [TimePicker], for example)
  */
 @Composable
-fun TimePickerDialog(
+public fun TimePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     title: @Composable () -> Unit,
@@ -135,7 +135,7 @@ fun TimePickerDialog(
  * @param content the content of the dialog (i.e. a [TimePicker], for example)
  */
 @Composable
-fun RichTimePickerDialog(
+public fun RichTimePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -404,25 +404,25 @@ internal fun RichTimePickerCustomLayout(
 }
 
 /** Default properties for a [TimePickerDialog] */
-object TimePickerDialogDefaults {
+public object TimePickerDialogDefaults {
     /** Container color for [TimePickerDialog] */
-    val containerColor
+    public val containerColor: Color
         @Composable get() = DialogTokens.ContainerColor.value
 
     /** Shape color for [TimePickerDialog] */
-    val shape
+    public val shape: Shape
         @Composable get() = DialogTokens.ContainerShape.value
 
     /** Container color for a rich [TimePickerDialog] */
-    val richContainerColor
+    public val richContainerColor: Color
         @Composable get() = MaterialTheme.colorScheme.surfaceContainer
 
     /** Shape color for a rich [TimePickerDialog] */
-    val richShape
+    public val richShape: Shape
         @Composable get() = ShapeKeyTokens.CornerExtraLarge.value
 
     /** Min Screen Height required to display a TimePicker in Picker in mode */
-    val MinHeightForTimePicker: Dp = 300.dp
+    public val MinHeightForTimePicker: Dp = 300.dp
 
     /**
      * A button that toggles the display mode of the time picker between
@@ -434,7 +434,7 @@ object TimePickerDialogDefaults {
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun DisplayModeToggle(
+    public fun DisplayModeToggle(
         onDisplayModeChange: () -> Unit,
         displayMode: TimePickerDisplayMode,
         modifier: Modifier = Modifier,
@@ -475,7 +475,7 @@ object TimePickerDialogDefaults {
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ScrollDisplayModeToggle(
+    public fun ScrollDisplayModeToggle(
         onDisplayModeChange: () -> Unit,
         displayMode: TimePickerDisplayMode,
         modifier: Modifier = Modifier,
@@ -513,7 +513,7 @@ object TimePickerDialogDefaults {
      * @param displayMode the current display mode of the time picker
      */
     @Composable
-    fun Title(displayMode: TimePickerDisplayMode, modifier: Modifier = Modifier) {
+    public fun Title(displayMode: TimePickerDisplayMode, modifier: Modifier = Modifier) {
         val titleRes =
             when (displayMode) {
                 TimePickerDisplayMode.Picker -> Strings.TimePickerDialogTitle
@@ -537,15 +537,15 @@ object TimePickerDialogDefaults {
  */
 @Immutable
 @JvmInline
-value class TimePickerDisplayMode internal constructor(internal val value: Int) {
+public value class TimePickerDisplayMode internal constructor(internal val value: Int) {
 
-    companion object {
+    public companion object {
         /** Time picker input mode */
-        val Picker
+        public val Picker: TimePickerDisplayMode
             get() = TimePickerDisplayMode(0)
 
         /** Time text input mode */
-        val Input
+        public val Input: TimePickerDisplayMode
             get() = TimePickerDisplayMode(1)
 
         /**
@@ -553,11 +553,11 @@ value class TimePickerDisplayMode internal constructor(internal val value: Int) 
          *
          * This mode displays the time selection using vertical scroll wheels (e.g. [ScrollField]).
          */
-        val Scroll
+        public val Scroll: TimePickerDisplayMode
             get() = TimePickerDisplayMode(2)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             Picker -> "Picker"
             Input -> "Input"

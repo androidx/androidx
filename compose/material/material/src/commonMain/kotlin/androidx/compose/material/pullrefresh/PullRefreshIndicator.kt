@@ -72,7 +72,7 @@ import kotlin.math.pow
 @ExperimentalMaterialApi
 // TODO(b/244423199): Consider whether the state parameter should be replaced with lambdas to
 //  enable people to use this indicator with custom pull-to-refresh components.
-fun PullRefreshIndicator(
+public fun PullRefreshIndicator(
     refreshing: Boolean,
     state: PullRefreshState,
     modifier: Modifier = Modifier,

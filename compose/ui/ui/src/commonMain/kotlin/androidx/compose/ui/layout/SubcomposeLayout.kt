@@ -90,7 +90,7 @@ import kotlin.jvm.JvmInline
  * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
  */
 @Composable
-fun SubcomposeLayout(
+public fun SubcomposeLayout(
     modifier: Modifier = Modifier,
     measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult,
 ) {
@@ -122,7 +122,7 @@ fun SubcomposeLayout(
  */
 @Composable
 @UiComposable
-fun SubcomposeLayout(
+public fun SubcomposeLayout(
     state: SubcomposeLayoutState,
     modifier: Modifier = Modifier,
     measurePolicy: SubcomposeMeasureScope.(Constraints) -> MeasureResult,
@@ -152,7 +152,7 @@ fun SubcomposeLayout(
  * The receiver scope of a [SubcomposeLayout]'s measure lambda which adds ability to dynamically
  * subcompose a content during the measuring on top of the features provided by [MeasureScope].
  */
-interface SubcomposeMeasureScope : MeasureScope {
+public interface SubcomposeMeasureScope : MeasureScope {
     /**
      * Performs subcomposition of the provided [content] with given [slotId].
      *
@@ -169,7 +169,7 @@ interface SubcomposeMeasureScope : MeasureScope {
      *   subtree emitted from [content] is dependent on incoming constraints, consider using
      *   constraints received from the lookahead pass for both passes.
      */
-    fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable>
+    public fun subcompose(slotId: Any?, content: @Composable () -> Unit): List<Measurable>
 }
 
 /**
@@ -177,9 +177,9 @@ interface SubcomposeMeasureScope : MeasureScope {
  *
  * [slotReusePolicy] the policy defining what slots should be retained to be reused later.
  */
-class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePolicy) {
+public class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePolicy) {
     /** State used by [SubcomposeLayout]. */
-    constructor() : this(NoOpSubcomposeSlotReusePolicy)
+    public constructor() : this(NoOpSubcomposeSlotReusePolicy)
 
     /**
      * State used by [SubcomposeLayout].
@@ -196,7 +196,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
             "androidx.compose.ui.layout.SubcomposeSlotReusePolicy",
         ),
     )
-    constructor(
+    public constructor(
         maxSlotsToRetainForReuse: Int
     ) : this(SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse))
 
@@ -237,7 +237,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
      * @param content the composable content which defines the slot.
      * @return [PrecomposedSlotHandle] instance which allows you to dispose the content.
      */
-    fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle =
+    public fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle =
         state.precompose(slotId, content)
 
     /**
@@ -251,7 +251,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
      *   scope.subcompose(slotId) call during the measure pass faster as the content is already
      *   composed.
      */
-    fun createPausedPrecomposition(
+    public fun createPausedPrecomposition(
         slotId: Any?,
         content: @Composable () -> Unit,
     ): PausedPrecomposition = state.precomposePaused(slotId, content)
@@ -270,7 +270,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
      *
      * @see [PausedComposition]
      */
-    sealed interface PausedPrecomposition {
+    public sealed interface PausedPrecomposition {
 
         /**
          * Returns `true` when the [PausedPrecomposition] is complete. [isComplete] matches the last
@@ -280,7 +280,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * any state changes read by the paused composition while it is paused will cause the
          * composition to require the paused composition to need to be resumed before it is used.
          */
-        val isComplete: Boolean
+        public val isComplete: Boolean
 
         /**
          * Resume the composition that has been paused. This method should be called until [resume]
@@ -300,7 +300,8 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * @return `true` if the composition is complete and `false` if one or more calls to
          *   `resume` are required to complete composition.
          */
-        @Suppress("ExecutorRegistration") fun resume(shouldPause: ShouldPauseCallback): Boolean
+        @Suppress("ExecutorRegistration")
+        public fun resume(shouldPause: ShouldPauseCallback): Boolean
 
         /**
          * Apply the composition. This is the last step of a paused composition and is required to
@@ -316,17 +317,17 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * @return [PrecomposedSlotHandle] you can use to premeasure the slot as well, or to dispose
          *   the composed content.
          */
-        fun apply(): PrecomposedSlotHandle
+        public fun apply(): PrecomposedSlotHandle
 
         /**
          * Cancels the paused composition. This should only be used if the composition is going to
          * be disposed and the entire composition is not going to be used.
          */
-        fun cancel()
+        public fun cancel()
     }
 
     /** Instance of this interface is returned by [precompose] function. */
-    interface PrecomposedSlotHandle {
+    public interface PrecomposedSlotHandle {
 
         /**
          * This function allows to dispose the content for the slot which was precomposed previously
@@ -338,10 +339,10 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * This could be useful if after the future calculations this item is not anymore expected
          * to be used during the measure pass anytime soon.
          */
-        fun dispose()
+        public fun dispose()
 
         /** The amount of placeables composed into this slot. */
-        val placeablesCount: Int
+        public val placeablesCount: Int
             get() = 0
 
         /**
@@ -350,7 +351,7 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * @param index the placeable index. Should be smaller than [placeablesCount].
          * @param constraints Constraints to measure this placeable with.
          */
-        fun premeasure(index: Int, constraints: Constraints) {}
+        public fun premeasure(index: Int, constraints: Constraints) {}
 
         /**
          * Conditionally executes [block] for each [Modifier.Node] of this Composition that is a
@@ -359,13 +360,16 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
          * See [androidx.compose.ui.node.traverseDescendants] for the complete semantics of this
          * function.
          */
-        fun traverseDescendants(key: Any?, block: (TraversableNode) -> TraverseDescendantsAction) {}
+        public fun traverseDescendants(
+            key: Any?,
+            block: (TraversableNode) -> TraverseDescendantsAction,
+        ) {}
 
         /**
          * Retrieves the latest measured size for a given placeable [index]. This will return
          * [IntSize.Zero] if this is called before [premeasure].
          */
-        fun getSize(index: Int): IntSize = IntSize.Zero
+        public fun getSize(index: Int): IntSize = IntSize.Zero
     }
 }
 
@@ -375,19 +379,19 @@ class SubcomposeLayoutState(private val slotReusePolicy: SubcomposeSlotReusePoli
  * creating a completely new slot the layout would reuse the kept slot. This allows to do less work
  * especially if the slot contents are similar.
  */
-interface SubcomposeSlotReusePolicy {
+public interface SubcomposeSlotReusePolicy {
     /**
      * This function will be called with [slotIds] set populated with the slot ids available to
      * reuse. In the implementation you can remove slots you don't want to retain.
      */
-    fun getSlotsToRetain(slotIds: SlotIdsSet)
+    public fun getSlotsToRetain(slotIds: SlotIdsSet)
 
     /**
      * Returns true if the content previously composed with [reusableSlotId] is compatible with the
      * content which is going to be composed for [slotId]. Slots could be considered incompatible if
      * they display completely different types of the UI.
      */
-    fun areCompatible(slotId: Any?, reusableSlotId: Any?): Boolean
+    public fun areCompatible(slotId: Any?, reusableSlotId: Any?): Boolean
 
     /**
      * Set containing slot ids currently available to reuse. Used by [getSlotsToRetain]. The set
@@ -395,18 +399,18 @@ interface SubcomposeSlotReusePolicy {
      *
      * This class works exactly as [MutableSet], but doesn't allow to add new items in it.
      */
-    class SlotIdsSet
+    public class SlotIdsSet
     internal constructor(
         @PublishedApi
         internal val set: MutableOrderedScatterSet<Any?> = mutableOrderedScatterSetOf()
     ) : Collection<Any?> {
 
-        override val size: Int
+        public override val size: Int
             get() = set.size
 
-        override fun isEmpty(): Boolean = set.isEmpty()
+        public override fun isEmpty(): Boolean = set.isEmpty()
 
-        override fun containsAll(elements: Collection<Any?>): Boolean {
+        public override fun containsAll(elements: Collection<Any?>): Boolean {
             elements.forEach { element ->
                 if (element !in set) {
                     return false
@@ -415,32 +419,32 @@ interface SubcomposeSlotReusePolicy {
             return true
         }
 
-        override fun contains(element: Any?): Boolean = set.contains(element)
+        public override fun contains(element: Any?): Boolean = set.contains(element)
 
         internal fun add(slotId: Any?) = set.add(slotId)
 
-        override fun iterator(): MutableIterator<Any?> = set.asMutableSet().iterator()
+        public override fun iterator(): MutableIterator<Any?> = set.asMutableSet().iterator()
 
         /**
          * Removes a [slotId] from this set, if it is present.
          *
          * @return `true` if the slot id was removed, `false` if the set was not modified.
          */
-        fun remove(slotId: Any?): Boolean = set.remove(slotId)
+        public fun remove(slotId: Any?): Boolean = set.remove(slotId)
 
         /**
          * Removes all slot ids from [slotIds] that are also contained in this set.
          *
          * @return `true` if any slot id was removed, `false` if the set was not modified.
          */
-        fun removeAll(slotIds: Collection<Any?>): Boolean = set.remove(slotIds)
+        public fun removeAll(slotIds: Collection<Any?>): Boolean = set.remove(slotIds)
 
         /**
          * Removes all slot ids that match the given [predicate].
          *
          * @return `true` if any slot id was removed, `false` if the set was not modified.
          */
-        fun removeAll(predicate: (Any?) -> Boolean): Boolean {
+        public fun removeAll(predicate: (Any?) -> Boolean): Boolean {
             val size = set.size
             set.removeIf(predicate)
             return size != set.size
@@ -451,23 +455,24 @@ interface SubcomposeSlotReusePolicy {
          *
          * @return `true` if any slot id was removed, `false` if the set was not modified.
          */
-        fun retainAll(slotIds: Collection<Any?>): Boolean = set.retainAll(slotIds)
+        public fun retainAll(slotIds: Collection<Any?>): Boolean = set.retainAll(slotIds)
 
         /**
          * Retains only slotIds that match the given [predicate].
          *
          * @return `true` if any slot id was removed, `false` if the set was not modified.
          */
-        fun retainAll(predicate: (Any?) -> Boolean): Boolean = set.retainAll(predicate)
+        public fun retainAll(predicate: (Any?) -> Boolean): Boolean = set.retainAll(predicate)
 
         /** Removes all slot ids from this set. */
-        fun clear() = set.clear()
+        public fun clear(): Unit = set.clear()
 
         /**
          * Remove entries until [size] equals [maxSlotsToRetainForReuse]. Entries inserted last are
          * removed first.
          */
-        fun trimToSize(maxSlotsToRetainForReuse: Int) = set.trimToSize(maxSlotsToRetainForReuse)
+        public fun trimToSize(maxSlotsToRetainForReuse: Int): Unit =
+            set.trimToSize(maxSlotsToRetainForReuse)
 
         /**
          * Iterates over every element stored in this set by invoking the specified [block] lambda.
@@ -479,7 +484,7 @@ interface SubcomposeSlotReusePolicy {
          * @HidesMember, which means in practice this will never get called. Please use
          *   [fastForEach] instead.
          */
-        fun forEach(block: (Any?) -> Unit) = set.forEach(block)
+        public fun forEach(block: (Any?) -> Unit): Unit = set.forEach(block)
 
         /**
          * Iterates over every element stored in this set by invoking the specified [block] lambda.
@@ -490,7 +495,7 @@ interface SubcomposeSlotReusePolicy {
          * necessary because [forEach] is obscured by `Collection<T>.forEach` since it is marked
          * with @HidesMember.
          */
-        inline fun fastForEach(block: (Any?) -> Unit) = set.forEach(block)
+        public inline fun fastForEach(block: (Any?) -> Unit): Unit = set.forEach(block)
     }
 }
 
@@ -499,7 +504,7 @@ interface SubcomposeSlotReusePolicy {
  *
  * @param maxSlotsToRetainForReuse the [SubcomposeLayout] will retain up to this amount of slots.
  */
-fun SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse: Int): SubcomposeSlotReusePolicy =
+public fun SubcomposeSlotReusePolicy(maxSlotsToRetainForReuse: Int): SubcomposeSlotReusePolicy =
     FixedCountSubcomposeSlotReusePolicy(maxSlotsToRetainForReuse)
 
 /**

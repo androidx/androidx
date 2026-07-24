@@ -24,7 +24,9 @@ import androidx.compose.runtime.compositionLocalOf
  *
  * It will be not null, for example, when the current content is composed as an item of lazy list.
  */
-val LocalPinnableContainer = compositionLocalOf<PinnableContainer?> { null }
+public val LocalPinnableContainer:
+    androidx.compose.runtime.ProvidableCompositionLocal<PinnableContainer?> =
+    compositionLocalOf<PinnableContainer?> { null }
 
 /**
  * Represents a container which can be pinned when the content of this container is important.
@@ -38,7 +40,7 @@ val LocalPinnableContainer = compositionLocalOf<PinnableContainer?> { null }
  * @see LocalPinnableContainer
  */
 @Stable
-interface PinnableContainer {
+public interface PinnableContainer {
 
     /**
      * Allows to pin this container when the associated content is considered important.
@@ -48,17 +50,17 @@ interface PinnableContainer {
      *
      * Don't forget to call [PinnedHandle.release] when this content is not important anymore.
      */
-    fun pin(): PinnedHandle
+    public fun pin(): PinnedHandle
 
     /** This is an object returned by [pin] which allows to release the pinning. */
     @Suppress("NotCloseable")
-    fun interface PinnedHandle {
+    public fun interface PinnedHandle {
         /**
          * Releases the pin.
          *
          * For example, if this [PinnableContainer] is an item of lazy list releasing the pinning
          * will allow lazy list to stop composing the item when it is not visible.
          */
-        fun release()
+        public fun release()
     }
 }

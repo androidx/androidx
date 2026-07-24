@@ -56,10 +56,10 @@ private const val DefaultFrameDelay = 16_000_000L
 // in the kotlinx testing library. DO NOT MAKE OPT-IN!
 @ExperimentalCoroutinesApi
 @ExperimentalTestApi
-class TestMonotonicFrameClock(
+public class TestMonotonicFrameClock(
     private val coroutineScope: CoroutineScope,
     @get:Suppress("MethodNameUnits") // Nanos for high-precision animation clocks
-    val frameDelayNanos: Long = DefaultFrameDelay,
+    public val frameDelayNanos: Long = DefaultFrameDelay,
     private val onPerformTraversals: (Long) -> Unit = {},
 ) : MonotonicFrameClock {
     private val delayController =
@@ -78,7 +78,7 @@ class TestMonotonicFrameClock(
     private val frameDeferringInterceptor = FrameDeferringContinuationInterceptor(parentInterceptor)
 
     /** Returns whether there are any awaiters on this clock. */
-    val hasAwaiters: Boolean
+    public val hasAwaiters: Boolean
         get() =
             frameDeferringInterceptor.hasTrampolinedTasks ||
                 synchronized(lock) { awaiters.isNotEmpty() }
@@ -90,7 +90,7 @@ class TestMonotonicFrameClock(
      * themselves.
      */
     @ExperimentalTestApi
-    val continuationInterceptor: ContinuationInterceptor
+    public val continuationInterceptor: ContinuationInterceptor
         get() = frameDeferringInterceptor
 
     /**
@@ -161,5 +161,5 @@ class TestMonotonicFrameClock(
 /** The frame delay time for the [TestMonotonicFrameClock] in milliseconds. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExperimentalTestApi // Required by kotlinc to use frameDelayNanos
-val TestMonotonicFrameClock.frameDelayMillis: Long
+public val TestMonotonicFrameClock.frameDelayMillis: Long
     get() = frameDelayNanos / 1_000_000

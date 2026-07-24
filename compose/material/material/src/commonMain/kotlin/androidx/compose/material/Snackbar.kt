@@ -82,7 +82,7 @@ import kotlin.math.max
  *   perform
  */
 @Composable
-fun Snackbar(
+public fun Snackbar(
     modifier: Modifier = Modifier,
     action: @Composable (() -> Unit)? = null,
     actionOnNewLine: Boolean = false,
@@ -154,7 +154,7 @@ fun Snackbar(
  *   shadow below the SnackBar
  */
 @Composable
-fun Snackbar(
+public fun Snackbar(
     snackbarData: SnackbarData,
     modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
@@ -190,13 +190,13 @@ fun Snackbar(
 }
 
 /** Object to hold defaults used by [Snackbar] */
-object SnackbarDefaults {
+public object SnackbarDefaults {
 
     /** Default alpha of the overlay applied to the [backgroundColor] */
     private const val SnackbarOverlayAlpha = 0.8f
 
     /** Default background color of the [Snackbar] */
-    val backgroundColor: Color
+    public val backgroundColor: Color
         @Composable
         get() =
             MaterialTheme.colors.onSurface
@@ -217,7 +217,7 @@ object SnackbarDefaults {
      * [MaterialTheme.colors] to attempt to reduce the contrast, and when in a dark theme this
      * function uses [Colors.primaryVariant].
      */
-    val primaryActionColor: Color
+    public val primaryActionColor: Color
         @Composable
         get() {
             val colors = MaterialTheme.colors

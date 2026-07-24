@@ -21,21 +21,21 @@ import androidx.compose.runtime.Immutable
 /** Quality levels for image filters. See [Paint.filterQuality]. */
 @Immutable
 @kotlin.jvm.JvmInline
-value class FilterQuality internal constructor(val value: Int) {
+public value class FilterQuality internal constructor(public val value: Int) {
 
-    companion object {
+    public companion object {
         /**
          * Fastest possible filtering, albeit also the lowest quality Typically this implies
          * nearest-neighbour filtering.
          */
-        val None
+        public val None: FilterQuality
             get() = FilterQuality(0)
 
         /**
          * Better quality than [None], faster than [Medium]. Typically this implies bilinear
          * interpolation.
          */
-        val Low
+        public val Low: FilterQuality
             get() = FilterQuality(1)
 
         /**
@@ -44,18 +44,18 @@ value class FilterQuality internal constructor(val value: Int) {
          * Typically this implies a combination of bilinear interpolation and pyramidal parametric
          * prefiltering (mipmaps).
          */
-        val Medium
+        public val Medium: FilterQuality
             get() = FilterQuality(2)
 
         /**
          * Best possible quality filtering, albeit also the slowest. Typically this implies bicubic
          * interpolation or better.
          */
-        val High
+        public val High: FilterQuality
             get() = FilterQuality(3)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             None -> "None"
             Low -> "Low"

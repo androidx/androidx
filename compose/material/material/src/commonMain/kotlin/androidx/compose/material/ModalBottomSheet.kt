@@ -70,7 +70,7 @@ import kotlin.math.min
 import kotlinx.coroutines.launch
 
 /** Possible values of [ModalBottomSheetState]. */
-enum class ModalBottomSheetValue {
+public enum class ModalBottomSheetValue {
     /** The bottom sheet is not visible. */
     Hidden,
 
@@ -100,7 +100,7 @@ enum class ModalBottomSheetValue {
  *   be thrown.
  */
 @OptIn(ExperimentalMaterialApi::class)
-class ModalBottomSheetState(
+public class ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
     density: Density,
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
@@ -118,14 +118,14 @@ class ModalBottomSheetState(
         )
 
     /** The current value of the [ModalBottomSheetState]. */
-    val currentValue: ModalBottomSheetValue
+    public val currentValue: ModalBottomSheetValue
         get() = anchoredDraggableState.currentValue
 
     /**
      * The target value the state will settle at once the current interaction ends, or the
      * [currentValue] if there is no interaction in progress.
      */
-    val targetValue: ModalBottomSheetValue
+    public val targetValue: ModalBottomSheetValue
         get() = anchoredDraggableState.targetValue
 
     /**
@@ -138,7 +138,7 @@ class ModalBottomSheetState(
     )
     @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
-    val progress: Float
+    public val progress: Float
         get() = anchoredDraggableState.progress
 
     /**
@@ -149,7 +149,7 @@ class ModalBottomSheetState(
      * @param to The end value used to calculate the distance
      */
     @FloatRange(from = 0.0, to = 1.0)
-    fun progress(from: ModalBottomSheetValue, to: ModalBottomSheetValue): Float {
+    public fun progress(from: ModalBottomSheetValue, to: ModalBottomSheetValue): Float {
         val fromOffset = anchoredDraggableState.anchors.positionOf(from)
         val toOffset = anchoredDraggableState.anchors.positionOf(to)
         val currentOffset =
@@ -162,7 +162,7 @@ class ModalBottomSheetState(
     }
 
     /** Whether the bottom sheet is visible. */
-    val isVisible: Boolean
+    public val isVisible: Boolean
         get() = anchoredDraggableState.currentValue != Hidden
 
     internal val hasHalfExpandedState: Boolean
@@ -182,7 +182,7 @@ class ModalBottomSheetState(
      * than 50% of the parent's height, the bottom sheet will be half expanded. Otherwise it will be
      * fully expanded.
      */
-    suspend fun show() {
+    public suspend fun show() {
         val hasExpandedState = anchoredDraggableState.anchors.hasAnchorFor(Expanded)
         val targetValue =
             when (currentValue) {
@@ -207,7 +207,7 @@ class ModalBottomSheetState(
      * Hide the bottom sheet with animation and suspend until it if fully hidden or animation has
      * been cancelled.
      */
-    suspend fun hide() = animateTo(Hidden)
+    public suspend fun hide(): Unit = animateTo(Hidden)
 
     /**
      * Fully expand the bottom sheet with animation and suspend until it if fully expanded or
@@ -230,12 +230,12 @@ class ModalBottomSheetState(
 
     internal fun requireOffset() = anchoredDraggableState.requireOffset()
 
-    companion object {
+    public companion object {
         /**
          * The default [Saver] implementation for [ModalBottomSheetState]. Saves the [currentValue]
          * and recreates a [ModalBottomSheetState] with the saved value as initial value.
          */
-        fun Saver(
+        public fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (ModalBottomSheetValue) -> Boolean,
             skipHalfExpanded: Boolean,
@@ -270,7 +270,7 @@ class ModalBottomSheetState(
  *   be thrown.
  */
 @Composable
-fun rememberModalBottomSheetState(
+public fun rememberModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
     animationSpec: AnimationSpec<Float> = ModalBottomSheetDefaults.AnimationSpec,
     confirmValueChange: (ModalBottomSheetValue) -> Boolean = { true },
@@ -339,7 +339,7 @@ fun rememberModalBottomSheetState(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 // Keep defaults in sync with androidx.compose.material.navigation.ModalBottomSheetLayout
-fun ModalBottomSheetLayout(
+public fun ModalBottomSheetLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     sheetState: ModalBottomSheetState = rememberModalBottomSheetState(Hidden),
@@ -513,17 +513,17 @@ private fun Scrim(color: Color, onDismiss: () -> Unit, visible: Boolean) {
 }
 
 /** Contains useful Defaults for [ModalBottomSheetLayout]. */
-object ModalBottomSheetDefaults {
+public object ModalBottomSheetDefaults {
 
     /** The default elevation used by [ModalBottomSheetLayout]. */
-    val Elevation = 16.dp
+    public val Elevation: Dp = 16.dp
 
     /** The default scrim color used by [ModalBottomSheetLayout]. */
-    val scrimColor: Color
+    public val scrimColor: Color
         @Composable get() = MaterialTheme.colors.onSurface.copy(alpha = 0.32f)
 
     /** The default animation spec used by [ModalBottomSheetState]. */
-    val AnimationSpec: AnimationSpec<Float> =
+    public val AnimationSpec: AnimationSpec<Float> =
         tween(durationMillis = 300, easing = FastOutSlowInEasing)
 }
 

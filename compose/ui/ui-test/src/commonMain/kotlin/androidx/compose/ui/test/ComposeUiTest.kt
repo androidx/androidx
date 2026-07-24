@@ -82,7 +82,7 @@ import kotlinx.coroutines.test.TestResult
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi
-expect fun runComposeUiTest(
+public expect fun runComposeUiTest(
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = 60.seconds,
@@ -113,7 +113,7 @@ expect fun runComposeUiTest(
  * An instance of [ComposeUiTest] can be obtained through [runComposeUiTest] or any of its platform
  * specific variants, the argument to which will have it as the receiver scope.
  */
-interface ComposeUiTest : SemanticsNodeInteractionsProvider {
+public interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     /**
      * Current device screen's density. Note that it is technically possible for a Compose hierarchy
      * to define a different density for a certain subtree. Try to use
@@ -121,10 +121,10 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * be obtained from
      * [SemanticsNode.layoutInfo][androidx.compose.ui.semantics.SemanticsNode.layoutInfo].
      */
-    val density: Density
+    public val density: Density
 
     /** Clock that drives frames and recompositions in compose tests. */
-    val mainClock: MainTestClock
+    public val mainClock: MainTestClock
 
     /**
      * Runs the given [action] on the UI thread.
@@ -134,7 +134,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @param action action to execute on the UI thread
      * @return result of [action]
      */
-    fun <T> runOnUiThread(action: () -> T): T
+    public fun <T> runOnUiThread(action: () -> T): T
 
     /**
      * Executes the given [action] in the same way as [runOnUiThread] but [waits][waitForIdle] until
@@ -146,7 +146,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @param action action to execute after the UI is idle
      * @return result of [action]
      */
-    fun <T> runOnIdle(action: () -> T): T
+    public fun <T> runOnIdle(action: () -> T): T
 
     /**
      * Executes the given [block] with implicit synchronization suppressed. [block] should contain
@@ -174,7 +174,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @see runOnUiThread
      * @see hasPendingWork
      */
-    fun <T> runWithoutImplicitWait(block: () -> T): T
+    public fun <T> runWithoutImplicitWait(block: () -> T): T
 
     /**
      * Waits for the UI to become idle. Quiescence is reached when there are no more pending changes
@@ -190,7 +190,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * execute when auto advancement is disabled. For example, Android's measure, layout and draw
      * passes can still happen if required by the View system.
      */
-    fun waitForIdle()
+    public fun waitForIdle()
 
     /**
      * Suspends until the UI is idle. Quiescence is reached when there are no more pending changes
@@ -206,7 +206,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * execute when auto advancement is disabled. For example, Android's measure, layout and draw
      * passes can still happen if required by the View system.
      */
-    suspend fun awaitIdle()
+    public suspend fun awaitIdle()
 
     /**
      * Blocks until the given [condition] is satisfied.
@@ -232,7 +232,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @throws androidx.compose.ui.test.ComposeTimeoutException If the condition is not satisfied
      *   after [timeoutMillis] (in wall clock time).
      */
-    fun waitUntil(
+    public fun waitUntil(
         conditionDescription: String? = null,
         timeoutMillis: Long = 1_000,
         condition: () -> Boolean,
@@ -246,7 +246,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @throws IllegalStateException if called more than once per test, or if the implementation
      *   doesn't have access to a host to set content in.
      */
-    fun setContent(composable: @Composable () -> Unit)
+    public fun setContent(composable: @Composable () -> Unit)
 
     /**
      * Returns whether the Compose UI has any pending work.
@@ -265,7 +265,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * @return true if there is pending work, false otherwise
      * @sample androidx.compose.ui.test.samples.hasPendingWorkSample
      */
-    fun hasPendingWork(): Boolean
+    public fun hasPendingWork(): Boolean
 }
 
 /**
@@ -284,7 +284,7 @@ interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     level = DeprecationLevel.HIDDEN,
 )
 @ExperimentalTestApi
-fun ComposeUiTest.waitUntilNodeCount(
+public fun ComposeUiTest.waitUntilNodeCount(
     matcher: SemanticsMatcher,
     count: Int,
     timeoutMillis: Long = 1_000L,
@@ -305,7 +305,7 @@ fun ComposeUiTest.waitUntilNodeCount(
  *   [matcher] is not [count] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-fun ComposeUiTest.waitUntilNodeCount(
+public fun ComposeUiTest.waitUntilNodeCount(
     matcher: SemanticsMatcher,
     count: Int,
     timeoutMillis: Long = 1_000L,
@@ -335,7 +335,7 @@ fun ComposeUiTest.waitUntilNodeCount(
     level = DeprecationLevel.HIDDEN,
 )
 @ExperimentalTestApi
-fun ComposeUiTest.waitUntilAtLeastOneExists(
+public fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
 ) {
@@ -354,7 +354,7 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-fun ComposeUiTest.waitUntilAtLeastOneExists(
+public fun ComposeUiTest.waitUntilAtLeastOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
     useUnmergedTree: Boolean = false,
@@ -379,10 +379,10 @@ fun ComposeUiTest.waitUntilAtLeastOneExists(
     level = DeprecationLevel.HIDDEN,
 )
 @ExperimentalTestApi
-fun ComposeUiTest.waitUntilExactlyOneExists(
+public fun ComposeUiTest.waitUntilExactlyOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
-) = waitUntilExactlyOneExists(matcher, timeoutMillis, false)
+): Unit = waitUntilExactlyOneExists(matcher, timeoutMillis, false)
 
 /**
  * Blocks until exactly one node matches the given [matcher].
@@ -396,11 +396,11 @@ fun ComposeUiTest.waitUntilExactlyOneExists(
  *   given [matcher] after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-fun ComposeUiTest.waitUntilExactlyOneExists(
+public fun ComposeUiTest.waitUntilExactlyOneExists(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
     useUnmergedTree: Boolean = false,
-) = waitUntilNodeCount(matcher, 1, timeoutMillis, useUnmergedTree)
+): Unit = waitUntilNodeCount(matcher, 1, timeoutMillis, useUnmergedTree)
 
 /**
  * Blocks until no nodes match the given [matcher].
@@ -417,8 +417,10 @@ fun ComposeUiTest.waitUntilExactlyOneExists(
     level = DeprecationLevel.HIDDEN,
 )
 @ExperimentalTestApi
-fun ComposeUiTest.waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis: Long = 1_000L) =
-    waitUntilDoesNotExist(matcher, timeoutMillis, false)
+public fun ComposeUiTest.waitUntilDoesNotExist(
+    matcher: SemanticsMatcher,
+    timeoutMillis: Long = 1_000L,
+): Unit = waitUntilDoesNotExist(matcher, timeoutMillis, false)
 
 /**
  * Blocks until no nodes match the given [matcher].
@@ -432,11 +434,11 @@ fun ComposeUiTest.waitUntilDoesNotExist(matcher: SemanticsMatcher, timeoutMillis
  *   after [timeoutMillis] (in wall clock time).
  * @see ComposeUiTest.waitUntil
  */
-fun ComposeUiTest.waitUntilDoesNotExist(
+public fun ComposeUiTest.waitUntilDoesNotExist(
     matcher: SemanticsMatcher,
     timeoutMillis: Long = 1_000L,
     useUnmergedTree: Boolean = false,
-) = waitUntilNodeCount(matcher, 0, timeoutMillis, useUnmergedTree)
+): Unit = waitUntilNodeCount(matcher, 0, timeoutMillis, useUnmergedTree)
 
 /**
  * Capability query to determine if the current [ComposeUiTest] implementation supports registering
@@ -448,7 +450,7 @@ fun ComposeUiTest.waitUntilDoesNotExist(
  * @return true if the implementation supports [IdlingResource] registration, false otherwise.
  * @see IdlingResourceOwner
  */
-fun ComposeUiTest.isIdlingResourceSupported(): Boolean {
+public fun ComposeUiTest.isIdlingResourceSupported(): Boolean {
     return this is IdlingResourceOwner
 }
 
@@ -462,7 +464,7 @@ fun ComposeUiTest.isIdlingResourceSupported(): Boolean {
  * @return true if the idling resource was successfully registered, or false if the implementation
  *   does not support idling resources.
  */
-fun ComposeUiTest.registerIdlingResource(idlingResource: IdlingResource): Boolean {
+public fun ComposeUiTest.registerIdlingResource(idlingResource: IdlingResource): Boolean {
     if (!isIdlingResourceSupported()) {
         return false
     }
@@ -480,7 +482,7 @@ fun ComposeUiTest.registerIdlingResource(idlingResource: IdlingResource): Boolea
  * @return true if the idling resource was successfully unregistered, or false if the implementation
  *   does not support idling resources.
  */
-fun ComposeUiTest.unregisterIdlingResource(idlingResource: IdlingResource): Boolean {
+public fun ComposeUiTest.unregisterIdlingResource(idlingResource: IdlingResource): Boolean {
     if (!isIdlingResourceSupported()) {
         return false
     }

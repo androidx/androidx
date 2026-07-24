@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.LayoutDirection
  *
  * @param builder the builder lambda to apply on a [Path]
  */
-class GenericShape(
+public class GenericShape(
     private val builder: Path.(size: Size, layoutDirection: LayoutDirection) -> Unit
 ) : Shape {
 
-    override fun createOutline(
+    public override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
@@ -45,12 +45,12 @@ class GenericShape(
         return Outline.Generic(path)
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         return (other as? GenericShape)?.builder === builder
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return builder.hashCode()
     }
 }

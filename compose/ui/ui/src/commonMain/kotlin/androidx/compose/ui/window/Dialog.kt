@@ -32,14 +32,14 @@ import androidx.compose.runtime.Immutable
  *   argument**.
  */
 @Immutable
-expect class DialogProperties(
+public expect class DialogProperties(
     dismissOnBackPress: Boolean = true,
     dismissOnClickOutside: Boolean = true,
     usePlatformDefaultWidth: Boolean = true,
 ) {
-    val dismissOnBackPress: Boolean
-    val dismissOnClickOutside: Boolean
-    val usePlatformDefaultWidth: Boolean
+    public val dismissOnBackPress: Boolean
+    public val dismissOnClickOutside: Boolean
+    public val usePlatformDefaultWidth: Boolean
 }
 
 /**
@@ -61,7 +61,7 @@ expect class DialogProperties(
  * @param content The content to be displayed inside the dialog.
  */
 @Composable
-expect fun Dialog(
+public expect fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     content: @Composable () -> Unit,

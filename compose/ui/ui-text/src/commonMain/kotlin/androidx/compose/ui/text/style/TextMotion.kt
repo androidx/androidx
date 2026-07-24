@@ -24,14 +24,14 @@ import androidx.compose.runtime.Immutable
  * @sample androidx.compose.ui.text.samples.TextMotionSample
  */
 @Immutable
-expect class TextMotion {
-    companion object {
+public expect class TextMotion {
+    public companion object {
         /**
          * Optimizes rendering for readability.
          *
          * Use for static (non-animated) text. This is the default.
          */
-        val Static: TextMotion
+        public val Static: TextMotion
 
         /**
          * Renders text with maximum linearity to provide smooth scaling, translating, or rotating
@@ -39,6 +39,6 @@ expect class TextMotion {
          *
          * May slightly reduce readability on low-DPI devices.
          */
-        val Animated: TextMotion
+        public val Animated: TextMotion
     }
 }

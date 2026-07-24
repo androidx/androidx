@@ -21,19 +21,19 @@ package androidx.compose.ui.text
  *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
  */
-abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation {
+public abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation {
     /**
      * Interaction listener triggered when user interacts with this link.
      *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
      */
-    abstract val linkInteractionListener: LinkInteractionListener?
+    public abstract val linkInteractionListener: LinkInteractionListener?
     /**
      * Style configuration for this link in different states.
      *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
      */
-    abstract val styles: TextLinkStyles?
+    public abstract val styles: TextLinkStyles?
 
     /**
      * An annotation that contains a [url] string. When clicking on the text to which this
@@ -45,21 +45,21 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
      *
      * @see LinkAnnotation
      */
-    class Url(
-        val url: String,
-        override val styles: TextLinkStyles? = null,
-        override val linkInteractionListener: LinkInteractionListener? = null,
+    public class Url(
+        public val url: String,
+        public override val styles: TextLinkStyles? = null,
+        public override val linkInteractionListener: LinkInteractionListener? = null,
     ) : LinkAnnotation() {
 
         /** Returns a copy of this [Url], optionally overriding some of the values. */
         @Suppress("ExecutorRegistration")
-        fun copy(
+        public fun copy(
             url: String = this.url,
             styles: TextLinkStyles? = this.styles,
             linkInteractionListener: LinkInteractionListener? = this.linkInteractionListener,
-        ) = Url(url, styles, linkInteractionListener)
+        ): Url = Url(url, styles, linkInteractionListener)
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
 
@@ -70,14 +70,14 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = url.hashCode()
             result = 31 * result + (styles?.hashCode() ?: 0)
             result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "LinkAnnotation.Url(url=$url)"
         }
     }
@@ -88,22 +88,22 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
      *
      * @see LinkAnnotation
      */
-    class Clickable(
-        val tag: String,
-        override val styles: TextLinkStyles? = null,
+    public class Clickable(
+        public val tag: String,
+        public override val styles: TextLinkStyles? = null,
         // nullable for the save/restore purposes
-        override val linkInteractionListener: LinkInteractionListener?,
+        public override val linkInteractionListener: LinkInteractionListener?,
     ) : LinkAnnotation() {
 
         /** Returns a copy of this [Clickable], optionally overriding some of the values. */
         @Suppress("ExecutorRegistration")
-        fun copy(
+        public fun copy(
             tag: String = this.tag,
             styles: TextLinkStyles? = this.styles,
             linkInteractionListener: LinkInteractionListener? = this.linkInteractionListener,
-        ) = Clickable(tag, styles, linkInteractionListener)
+        ): Clickable = Clickable(tag, styles, linkInteractionListener)
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Clickable) return false
 
@@ -114,14 +114,14 @@ abstract class LinkAnnotation private constructor() : AnnotatedString.Annotation
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = tag.hashCode()
             result = 31 * result + (styles?.hashCode() ?: 0)
             result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "LinkAnnotation.Clickable(tag=$tag)"
         }
     }

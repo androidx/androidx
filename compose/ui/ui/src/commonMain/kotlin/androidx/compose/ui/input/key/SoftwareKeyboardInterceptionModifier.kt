@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *   [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onInterceptKeyBeforeSoftKeyboard(
+public fun Modifier.onInterceptKeyBeforeSoftKeyboard(
     onInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
 ): Modifier =
     this then
@@ -55,9 +55,10 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
  *   will be sent to this [SoftKeyboardInterceptionModifierNode]'s child. If none of the children
  *   consume the event, it will be sent back up to the root [KeyInputModifierNode] using the
  *   onKeyEvent callback, and ultimately to the software keyboard.
+ * @return true if the event is consumed, false otherwise.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
+public fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
     onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
 ): Modifier =
     this then

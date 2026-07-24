@@ -62,7 +62,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  * @sample androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
  */
 @Composable
-fun MultiAspectCarouselScope(content: @Composable MultiAspectCarouselScope.() -> Unit) {
+public fun MultiAspectCarouselScope(content: @Composable MultiAspectCarouselScope.() -> Unit) {
     val scope = remember { MultiAspectCarouselScopeImpl() }
     scope.content()
 }
@@ -80,7 +80,7 @@ fun MultiAspectCarouselScope(content: @Composable MultiAspectCarouselScope.() ->
  * @param state the [LazyListState] of the list this item belongs to
  */
 @ExperimentalMaterial3Api
-fun MultiAspectCarouselItemDrawInfo(
+public fun MultiAspectCarouselItemDrawInfo(
     index: Int,
     state: LazyListState,
 ): MultiAspectCarouselItemDrawInfo =
@@ -132,7 +132,7 @@ fun MultiAspectCarouselItemDrawInfo(
  * @param state the [LazyGridState] of the list this item belongs to
  */
 @ExperimentalMaterial3Api
-fun MultiAspectCarouselItemDrawInfo(
+public fun MultiAspectCarouselItemDrawInfo(
     index: Int,
     state: LazyGridState,
 ): MultiAspectCarouselItemDrawInfo =
@@ -183,7 +183,7 @@ fun MultiAspectCarouselItemDrawInfo(
  *
  * @sample androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
  */
-interface MultiAspectCarouselScope {
+public interface MultiAspectCarouselScope {
 
     /**
      * Clip and parallax a composable item in a LazyLayout to the given [shape] according to mask
@@ -195,7 +195,7 @@ interface MultiAspectCarouselScope {
      *   bounds in the main axis and the parallax effect
      */
     @ExperimentalMaterial3Api
-    fun Modifier.maskClip(
+    public fun Modifier.maskClip(
         shape: Shape,
         multiAspectItemDrawInfo: MultiAspectCarouselItemDrawInfo,
     ): Modifier
@@ -213,7 +213,7 @@ interface MultiAspectCarouselScope {
      */
     @ExperimentalMaterial3Api
     @Composable
-    fun Modifier.maskBorder(
+    public fun Modifier.maskBorder(
         border: BorderStroke,
         shape: Shape,
         multiAspectItemDrawInfo: MultiAspectCarouselItemDrawInfo,
@@ -368,28 +368,28 @@ private interface MultiAspectCarouselItemInfoState {
  * @sample androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
  */
 @ExperimentalMaterial3Api
-sealed interface MultiAspectCarouselItemDrawInfo {
+public sealed interface MultiAspectCarouselItemDrawInfo {
 
     /** The index of this item in the list. */
-    val index: Int
+    public val index: Int
 
     /**
      * The current size of this item in the main scrolling axis taking into account any masking from
      * maskStart and maskEnd.
      */
-    @get:FrequentlyChangingValue val size: Float
+    @get:FrequentlyChangingValue public val size: Float
 
     /**
      * The smallest size this item will ever be masked to in the main scrolling axis. [size] will
      * never be less than [minSize].
      */
-    val minSize: Float
+    public val minSize: Float
 
     /**
      * The maximum size this item will be in the main scrolling axis. This is the fully unmasked
      * size of the item with no mask applied. [size] will never be greater than [maxSize].
      */
-    val maxSize: Float
+    public val maxSize: Float
 
     /**
      * The offset in pixels from the start of this item's bounds by which the item should be masked.
@@ -397,7 +397,7 @@ sealed interface MultiAspectCarouselItemDrawInfo {
      * When this item exists the start or top of the viewport, maskStart will increase to make it
      * look like this item is being squeezed against the edge of the viewport.
      */
-    @get:FrequentlyChangingValue val maskStart: Float
+    @get:FrequentlyChangingValue public val maskStart: Float
 
     /**
      * The offset in pixels from the end of this item's bounds by which the item should be masked.
@@ -405,7 +405,7 @@ sealed interface MultiAspectCarouselItemDrawInfo {
      * When this item exists the end or bottom of the viewport, maskEnd will increase to make it
      * look like this item is being squeezed against the edge of the viewport.
      */
-    @get:FrequentlyChangingValue val maskEnd: Float
+    @get:FrequentlyChangingValue public val maskEnd: Float
 
     /**
      * The distance in pixels to translate this item's content in the main scrolling axis.
@@ -414,10 +414,10 @@ sealed interface MultiAspectCarouselItemDrawInfo {
      * direction of scroll, making it look like the item is moving more slowly and being compressed
      * against the edge of the viewport.
      */
-    @get:FrequentlyChangingValue val parallax: Float
+    @get:FrequentlyChangingValue public val parallax: Float
 
     /** True if the main scrolling axis is horizontal. */
-    val isHorizontal: Boolean
+    public val isHorizontal: Boolean
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

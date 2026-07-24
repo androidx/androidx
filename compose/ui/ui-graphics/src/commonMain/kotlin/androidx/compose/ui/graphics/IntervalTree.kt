@@ -29,18 +29,22 @@ import kotlin.math.min
  * to looking at the result of queries with [IntervalTree.findOverlaps].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open class Interval<T>(val start: Float, val end: Float, val data: T? = null) {
+public open class Interval<T>(
+    public val start: Float,
+    public val end: Float,
+    public val data: T? = null,
+) {
     /** Returns trues if this interval overlaps with another interval. */
-    fun overlaps(other: Interval<T>) = start <= other.end && end >= other.start
+    public fun overlaps(other: Interval<T>): Boolean = start <= other.end && end >= other.start
 
     /**
      * Returns trues if this interval overlaps with the interval defined by [start] and [end].
      * [start] must be less than or equal to [end].
      */
-    fun overlaps(start: Float, end: Float) = this.start <= end && this.end >= start
+    public fun overlaps(start: Float, end: Float): Boolean = this.start <= end && this.end >= start
 
     /** Returns true if this interval contains [value]. */
-    operator fun contains(value: Float) = value in start..end
+    public operator fun contains(value: Float): Boolean = value in start..end
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -76,7 +80,7 @@ internal val EmptyInterval: Interval<Any?> = Interval(Float.MAX_VALUE, Float.MIN
  * all the segments in a path that overlap with a given vertical interval.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class IntervalTree<T> {
+public class IntervalTree<T> {
     // Note: this interval tree is implemented as a binary red/black tree that gets
     // re-balanced on updates. There's nothing notable about this particular data
     // structure beyond what can be found in various descriptions of binary search
@@ -90,7 +94,7 @@ class IntervalTree<T> {
      * Clears this tree and prepares it for reuse. After calling [clear], any call to [findOverlaps]
      * returns false.
      */
-    fun clear() {
+    public fun clear() {
         root = terminator
     }
 
@@ -98,7 +102,7 @@ class IntervalTree<T> {
      * Finds the first interval that overlaps with the specified [interval]. If no overlap can be
      * found, return [EmptyInterval].
      */
-    fun findFirstOverlap(interval: ClosedFloatingPointRange<Float>) =
+    public fun findFirstOverlap(interval: ClosedFloatingPointRange<Float>): Interval<T> =
         findFirstOverlap(interval.start, interval.endInclusive)
 
     /**
@@ -106,7 +110,7 @@ class IntervalTree<T> {
      * overlap can be found, return [EmptyInterval]. [start] *must* be lesser than or equal to
      * [end].
      */
-    fun findFirstOverlap(start: Float, end: Float = start): Interval<T> {
+    public fun findFirstOverlap(start: Float, end: Float = start): Interval<T> {
         if (root !== terminator) {
             forEach(start, end) { interval ->
                 return interval
@@ -120,17 +124,17 @@ class IntervalTree<T> {
      * Finds all the intervals that overlap with the specified [interval]. If [results] is
      * specified, [results] is returned, otherwise a new [MutableList] is returned.
      */
-    fun findOverlaps(
+    public fun findOverlaps(
         interval: ClosedFloatingPointRange<Float>,
         results: MutableList<Interval<T>> = mutableListOf(),
-    ) = findOverlaps(interval.start, interval.endInclusive, results)
+    ): MutableList<Interval<T>> = findOverlaps(interval.start, interval.endInclusive, results)
 
     /**
      * Finds all the intervals that overlap with the interval defined by [start] and [end]. [start]
      * *must* be lesser than or equal to [end]. If [results] is specified, [results] is returned,
      * otherwise a new [MutableList] is returned.
      */
-    fun findOverlaps(
+    public fun findOverlaps(
         start: Float,
         end: Float = start,
         results: MutableList<Interval<T>> = mutableListOf(),
@@ -168,13 +172,14 @@ class IntervalTree<T> {
     }
 
     /** Returns true if [value] is inside any of the intervals in this tree. */
-    operator fun contains(value: Float) = findFirstOverlap(value, value) !== EmptyInterval
+    public operator fun contains(value: Float): Boolean =
+        findFirstOverlap(value, value) !== EmptyInterval
 
     /** Returns true if the specified [interval] overlaps with any of the intervals in this tree. */
-    operator fun contains(interval: ClosedFloatingPointRange<Float>) =
+    public operator fun contains(interval: ClosedFloatingPointRange<Float>): Boolean =
         findFirstOverlap(interval.start, interval.endInclusive) !== EmptyInterval
 
-    operator fun iterator(): Iterator<Interval<T>> {
+    public operator fun iterator(): Iterator<Interval<T>> {
         return object : Iterator<Interval<T>> {
             private var next = root.lowestNode()
 
@@ -191,7 +196,7 @@ class IntervalTree<T> {
     }
 
     /** Adds the specified [Interval] to the interval tree. */
-    operator fun plusAssign(interval: Interval<T>) {
+    public operator fun plusAssign(interval: Interval<T>) {
         addInterval(interval.start, interval.end, interval.data)
     }
 
@@ -202,7 +207,7 @@ class IntervalTree<T> {
      * @param end The end coordinate of the interval, must be >= [start]
      * @param data Data to associate with the interval
      */
-    fun addInterval(start: Float, end: Float, data: T?) {
+    public fun addInterval(start: Float, end: Float, data: T?) {
         val node = Node(start, end, data, TreeColorRed)
 
         // Update the tree without doing any balancing

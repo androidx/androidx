@@ -34,7 +34,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  * @see SoundEffect
  */
 @Composable
-fun SoundEffectOnInteraction(enabled: Boolean, content: @Composable () -> Unit) {
+public fun SoundEffectOnInteraction(enabled: Boolean, content: @Composable () -> Unit) {
     @OptIn(ExperimentalComposeUiApi::class)
     if (!AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
         content()

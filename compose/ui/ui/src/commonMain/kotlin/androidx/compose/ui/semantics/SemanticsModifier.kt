@@ -32,21 +32,21 @@ internal fun generateSemanticsId() = lastIdentifier.addAndGet(1)
  * use cases.
  */
 @JvmDefaultWithCompatibility
-interface SemanticsModifier : Modifier.Element {
+public interface SemanticsModifier : Modifier.Element {
     @Deprecated(
         message =
             "SemanticsModifier.id is now unused and has been set to a fixed value. " +
                 "Retrieve the id from LayoutInfo instead.",
         replaceWith = ReplaceWith(""),
     )
-    val id: Int
+    public val id: Int
         get() = -1
 
     /**
      * The SemanticsConfiguration holds substantive data, especially a list of key/value pairs such
      * as (label -> "buttonName").
      */
-    val semanticsConfiguration: SemanticsConfiguration
+    public val semanticsConfiguration: SemanticsConfiguration
 }
 
 internal class CoreSemanticsModifierNode(
@@ -102,7 +102,7 @@ internal class EmptySemanticsModifier : Modifier.Node(), SemanticsModifierNode {
  *   Don't call [SemanticsModifierNode.applySemantics] from within the [properties] block. It will
  *   result in an infinite loop.
  */
-fun Modifier.semantics(
+public fun Modifier.semantics(
     mergeDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit),
 ): Modifier =
@@ -177,8 +177,9 @@ internal class AppendedSemanticsElement(
  *   Don't call [SemanticsModifierNode.applySemantics] from within the [properties] block. It will
  *   result in an infinite loop.
  */
-fun Modifier.clearAndSetSemantics(properties: (SemanticsPropertyReceiver.() -> Unit)): Modifier =
-    this then ClearAndSetSemanticsElement(properties)
+public fun Modifier.clearAndSetSemantics(
+    properties: (SemanticsPropertyReceiver.() -> Unit)
+): Modifier = this then ClearAndSetSemanticsElement(properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
 internal class ClearAndSetSemanticsElement(val properties: SemanticsPropertyReceiver.() -> Unit) :

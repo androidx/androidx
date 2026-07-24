@@ -29,7 +29,7 @@ import androidx.compose.ui.semantics.testTag
  *
  * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
  */
-@Stable fun Modifier.testTag(tag: String) = this then TestTagElement(tag)
+@Stable public fun Modifier.testTag(tag: String): Modifier = this then TestTagElement(tag)
 
 private class TestTagElement(private val tag: String) : ModifierNodeElement<TestTagNode>() {
 

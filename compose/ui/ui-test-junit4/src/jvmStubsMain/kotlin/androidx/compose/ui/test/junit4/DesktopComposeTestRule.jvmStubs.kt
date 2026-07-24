@@ -19,7 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.compose.ui.test.ExperimentalTestApi
 import kotlin.coroutines.CoroutineContext
 
-actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()
+public actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsFork()
 
 @Deprecated(
     message =
@@ -29,5 +29,5 @@ actual fun createComposeRule(): ComposeContentTestRule = implementedInJetBrainsF
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi
-actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
+public actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     implementedInJetBrainsFork()

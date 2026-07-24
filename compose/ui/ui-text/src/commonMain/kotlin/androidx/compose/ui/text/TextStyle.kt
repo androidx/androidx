@@ -55,11 +55,11 @@ import kotlin.jvm.JvmName
 // Maintainer note: When adding a new constructor or copy parameter, make sure to add a test case to
 // TextStyleInvalidationTest to ensure the correct phase(s) get invalidated.
 @Immutable
-class TextStyle
+public class TextStyle
 internal constructor(
     internal val spanStyle: SpanStyle,
     internal val paragraphStyle: ParagraphStyle,
-    val platformStyle: PlatformTextStyle? = null,
+    public val platformStyle: PlatformTextStyle? = null,
 ) {
     internal constructor(
         spanStyle: SpanStyle,
@@ -77,7 +77,7 @@ internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -135,7 +135,7 @@ internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -231,7 +231,7 @@ internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -292,7 +292,7 @@ internal constructor(
             "Unspecified object for performance reason.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -384,7 +384,7 @@ internal constructor(
      * @param hyphens hyphenation configuration.
      * @param textMotion [TextMotion] character placement optimization
      */
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -477,7 +477,7 @@ internal constructor(
      * @param hyphens hyphenation configuration.
      * @param textMotion [TextMotion] character placement optimization
      */
-    constructor(
+    public constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -544,7 +544,7 @@ internal constructor(
             "Unspecified object for performance reason.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -604,9 +604,9 @@ internal constructor(
         platformStyle = platformStyle,
     )
 
-    @Stable fun toSpanStyle(): SpanStyle = spanStyle
+    @Stable public fun toSpanStyle(): SpanStyle = spanStyle
 
-    @Stable fun toParagraphStyle(): ParagraphStyle = paragraphStyle
+    @Stable public fun toParagraphStyle(): ParagraphStyle = paragraphStyle
 
     /**
      * Merges this style with [other].
@@ -617,7 +617,7 @@ internal constructor(
      * @param other style to merge
      */
     @Stable
-    fun merge(other: TextStyle? = null): TextStyle {
+    public fun merge(other: TextStyle? = null): TextStyle {
         if (other == null || other == Default) return this
         return TextStyle(
             spanStyle = toSpanStyle().merge(other.toSpanStyle()),
@@ -642,7 +642,7 @@ internal constructor(
      * @see merge
      */
     @Stable
-    fun merge(
+    public fun merge(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -713,7 +713,7 @@ internal constructor(
         level = DeprecationLevel.HIDDEN,
     )
     @Stable
-    fun merge(
+    public fun merge(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -782,7 +782,7 @@ internal constructor(
      * @see merge
      */
     @Stable
-    fun merge(other: SpanStyle): TextStyle {
+    public fun merge(other: SpanStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle().merge(other),
             paragraphStyle = toParagraphStyle(),
@@ -795,7 +795,7 @@ internal constructor(
      * @see merge
      */
     @Stable
-    fun merge(other: ParagraphStyle): TextStyle {
+    public fun merge(other: ParagraphStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle(),
             paragraphStyle = toParagraphStyle().merge(other),
@@ -803,13 +803,13 @@ internal constructor(
     }
 
     /** Plus operator overload that applies a [merge]. */
-    @Stable operator fun plus(other: TextStyle): TextStyle = this.merge(other)
+    @Stable public operator fun plus(other: TextStyle): TextStyle = this.merge(other)
 
     /** Plus operator overload that applies a [merge]. */
-    @Stable operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
+    @Stable public operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
 
     /** Plus operator overload that applies a [merge]. */
-    @Stable operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
+    @Stable public operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
 
     @Deprecated(
         "TextStyle copy constructors that do not take new stable parameters " +
@@ -817,7 +817,7 @@ internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
@@ -884,7 +884,7 @@ internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
@@ -953,7 +953,7 @@ internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
@@ -1025,7 +1025,7 @@ internal constructor(
             "Unspecified object for performance reason.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
@@ -1092,7 +1092,7 @@ internal constructor(
         )
     }
 
-    fun copy(
+    public fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
         fontWeight: FontWeight? = this.spanStyle.fontWeight,
@@ -1166,7 +1166,7 @@ internal constructor(
             "Unspecified object for performance reason.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -1230,7 +1230,7 @@ internal constructor(
         )
     }
 
-    fun copy(
+    public fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -1295,44 +1295,44 @@ internal constructor(
     }
 
     /** The brush to use when drawing text. If not null, overrides [color]. */
-    val brush: Brush?
+    public val brush: Brush?
         get() = this.spanStyle.brush
 
     /** The text color. */
-    val color: Color
+    public val color: Color
         get() = this.spanStyle.color
 
     /**
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    val alpha: Float
+    public val alpha: Float
         get() = this.spanStyle.alpha
 
     /**
      * The size of glyphs to use when painting the text. This may be [TextUnit.Unspecified] for
      * inheriting from another [TextStyle].
      */
-    val fontSize: TextUnit
+    public val fontSize: TextUnit
         get() = this.spanStyle.fontSize
 
     /** The typeface thickness to use when painting the text (e.g., bold). */
-    val fontWeight: FontWeight?
+    public val fontWeight: FontWeight?
         get() = this.spanStyle.fontWeight
 
     /** The typeface variant to use when drawing the letters (e.g., italic). */
-    val fontStyle: FontStyle?
+    public val fontStyle: FontStyle?
         get() = this.spanStyle.fontStyle
 
     /**
      * Whether to synthesize font weight and/or style when the requested weight or style cannot be
      * found in the provided font family.
      */
-    val fontSynthesis: FontSynthesis?
+    public val fontSynthesis: FontSynthesis?
         get() = this.spanStyle.fontSynthesis
 
     /** The font family to be used when rendering the text. */
-    val fontFamily: FontFamily?
+    public val fontFamily: FontFamily?
         get() = this.spanStyle.fontFamily
 
     /**
@@ -1340,49 +1340,49 @@ internal constructor(
      * font-feature-settings attribute:
      * https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
      */
-    val fontFeatureSettings: String?
+    public val fontFeatureSettings: String?
         get() = this.spanStyle.fontFeatureSettings
 
     /** The amount of space to add between each letter. */
-    val letterSpacing: TextUnit
+    public val letterSpacing: TextUnit
         get() = this.spanStyle.letterSpacing
 
     /** The amount by which the text is shifted up from the current baseline. */
-    val baselineShift: BaselineShift?
+    public val baselineShift: BaselineShift?
         get() = this.spanStyle.baselineShift
 
     /** The geometric transformation applied the text. */
-    val textGeometricTransform: TextGeometricTransform?
+    public val textGeometricTransform: TextGeometricTransform?
         get() = this.spanStyle.textGeometricTransform
 
     /** The locale list used to select region-specific glyphs. */
-    val localeList: LocaleList?
+    public val localeList: LocaleList?
         get() = this.spanStyle.localeList
 
     /** The background color for the text. */
-    val background: Color
+    public val background: Color
         get() = this.spanStyle.background
 
     /** The decorations to paint on the text (e.g., an underline). */
-    val textDecoration: TextDecoration?
+    public val textDecoration: TextDecoration?
         get() = this.spanStyle.textDecoration
 
     /** The shadow effect applied on the text. */
-    val shadow: Shadow?
+    public val shadow: Shadow?
         get() = this.spanStyle.shadow
 
     /** Drawing style of text, whether fill in the text while drawing or stroke around the edges. */
-    val drawStyle: DrawStyle?
+    public val drawStyle: DrawStyle?
         get() = this.spanStyle.drawStyle
 
     /** The alignment of the text within the lines of the paragraph. */
-    val textAlign: TextAlign
+    public val textAlign: TextAlign
         get() = this.paragraphStyle.textAlign
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getTextAlign-buA522U") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_textAlign: TextAlign?
+    public val deprecated_boxing_textAlign: TextAlign?
         get() = this.textAlign
 
     /**
@@ -1390,21 +1390,21 @@ internal constructor(
      * Right To Left. If no value is provided the system will use the [LayoutDirection] as the
      * primary signal.
      */
-    val textDirection: TextDirection
+    public val textDirection: TextDirection
         get() = this.paragraphStyle.textDirection
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getTextDirection-mmuk1to") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_textDirection: TextDirection?
+    public val deprecated_boxing_textDirection: TextDirection?
         get() = this.textDirection
 
     /** Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. */
-    val lineHeight: TextUnit
+    public val lineHeight: TextUnit
         get() = this.paragraphStyle.lineHeight
 
     /** The indentation of the paragraph. */
-    val textIndent: TextIndent?
+    public val textIndent: TextIndent?
         get() = this.paragraphStyle.textIndent
 
     /**
@@ -1415,31 +1415,31 @@ internal constructor(
      *
      * When null, [LineHeightStyle.Default] is used.
      */
-    val lineHeightStyle: LineHeightStyle?
+    public val lineHeightStyle: LineHeightStyle?
         get() = this.paragraphStyle.lineHeightStyle
 
     /** The hyphens configuration of the paragraph. */
-    val hyphens: Hyphens
+    public val hyphens: Hyphens
         get() = this.paragraphStyle.hyphens
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getHyphens-EaSxIns") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_hyphens: Hyphens?
+    public val deprecated_boxing_hyphens: Hyphens?
         get() = this.hyphens
 
     /** The line breaking configuration of the paragraph. */
-    val lineBreak: LineBreak
+    public val lineBreak: LineBreak
         get() = this.paragraphStyle.lineBreak
 
     @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
     @get:JvmName("getLineBreak-LgCVezo") // b/320819734
     @Suppress("unused", "RedundantNullableReturnType", "PropertyName")
-    val deprecated_boxing_lineBreak: LineBreak?
+    public val deprecated_boxing_lineBreak: LineBreak?
         get() = this.lineBreak
 
     /** Text character placement configuration, whether to optimize for animated or static text. */
-    val textMotion: TextMotion?
+    public val textMotion: TextMotion?
         get() = this.paragraphStyle.textMotion
 
     override fun equals(other: Any?): Boolean {
@@ -1466,13 +1466,13 @@ internal constructor(
      *
      * @param other The TextStyle to compare to.
      */
-    fun hasSameLayoutAffectingAttributes(other: TextStyle): Boolean {
+    public fun hasSameLayoutAffectingAttributes(other: TextStyle): Boolean {
         return (this === other) ||
             (paragraphStyle == other.paragraphStyle &&
                 spanStyle.hasSameLayoutAffectingAttributes(other.spanStyle))
     }
 
-    fun hasSameDrawAffectingAttributes(other: TextStyle): Boolean {
+    public fun hasSameDrawAffectingAttributes(other: TextStyle): Boolean {
         return (this === other) || (spanStyle.hasSameNonLayoutAttributes(other.spanStyle))
     }
 
@@ -1521,9 +1521,9 @@ internal constructor(
             ")"
     }
 
-    companion object {
+    public companion object {
         /** Constant for default text style. */
-        @Stable val Default = TextStyle()
+        @Stable public val Default: TextStyle = TextStyle()
     }
 }
 
@@ -1539,7 +1539,7 @@ internal constructor(
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
+public fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
     return TextStyle(
         spanStyle = lerp(start.toSpanStyle(), stop.toSpanStyle(), fraction),
         paragraphStyle = lerp(start.toParagraphStyle(), stop.toParagraphStyle(), fraction),
@@ -1555,7 +1555,7 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
  * @param direction a layout direction to be used for resolving text layout direction algorithm
  * @return resolved text style.
  */
-fun resolveDefaults(style: TextStyle, direction: LayoutDirection) =
+public fun resolveDefaults(style: TextStyle, direction: LayoutDirection): TextStyle =
     TextStyle(
         spanStyle = resolveSpanStyleDefaults(style.spanStyle),
         paragraphStyle = resolveParagraphStyleDefaults(style.paragraphStyle, direction),

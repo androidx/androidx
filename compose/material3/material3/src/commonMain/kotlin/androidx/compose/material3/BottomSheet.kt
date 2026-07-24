@@ -114,7 +114,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @ExperimentalMaterial3Api
-fun BottomSheet(
+public fun BottomSheet(
     modifier: Modifier = Modifier,
     state: SheetState = rememberBottomSheetState(initialValue = Hidden),
     onDismissRequest: () -> Unit = {},

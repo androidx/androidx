@@ -68,11 +68,11 @@ import kotlinx.coroutines.launch
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-fun Modifier.transformable(
+public fun Modifier.transformable(
     state: TransformableState,
     lockRotationOnZoomPan: Boolean = false,
     enabled: Boolean = true,
-) = transformable(state, { true }, lockRotationOnZoomPan, enabled)
+): Modifier = transformable(state, { true }, lockRotationOnZoomPan, enabled)
 
 /**
  * Enable transformation gestures of the modified UI element.
@@ -96,12 +96,12 @@ fun Modifier.transformable(
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-fun Modifier.transformable(
+public fun Modifier.transformable(
     state: TransformableState,
     canPan: (Offset) -> Boolean,
     lockRotationOnZoomPan: Boolean = false,
     enabled: Boolean = true,
-) = this then TransformableElement(state, canPan, lockRotationOnZoomPan, enabled)
+): Modifier = this then TransformableElement(state, canPan, lockRotationOnZoomPan, enabled)
 
 private class TransformableElement(
     private val state: TransformableState,

@@ -26,9 +26,9 @@ import androidx.compose.runtime.Stable
  * [KeyboardType.Ascii].
  */
 @kotlin.jvm.JvmInline
-value class KeyboardType private constructor(@Suppress("unused") private val value: Int) {
+public value class KeyboardType private constructor(@Suppress("unused") private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Unspecified -> "Unspecified"
             Text -> "Text"
@@ -60,10 +60,10 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
         }
     }
 
-    companion object {
+    public companion object {
         /** The keyboard type is not specified. */
         @Stable
-        val Unspecified: KeyboardType
+        public val Unspecified: KeyboardType
             get() = KeyboardType(0)
 
         /**
@@ -74,7 +74,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * folders/routines, or general comments).
          */
         @Stable
-        val Text: KeyboardType
+        public val Text: KeyboardType
             get() = KeyboardType(1)
 
         /**
@@ -89,7 +89,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * needed.
          */
         @Stable
-        val Ascii: KeyboardType
+        public val Ascii: KeyboardType
             get() = KeyboardType(2)
 
         /**
@@ -101,7 +101,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * Note: Lacks decimal points and positive/negative (+/-) signs.
          */
         @Stable
-        val Number: KeyboardType
+        public val Number: KeyboardType
             get() = KeyboardType(3)
 
         /**
@@ -111,7 +111,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * **When to use it**: Phone number input fields.
          */
         @Stable
-        val Phone: KeyboardType
+        public val Phone: KeyboardType
             get() = KeyboardType(4)
 
         /**
@@ -123,7 +123,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * Note: IMEs typically disable auto-correct and suggestions for this type.
          */
         @Stable
-        val Uri: KeyboardType
+        public val Uri: KeyboardType
             get() = KeyboardType(5)
 
         /**
@@ -135,7 +135,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * Note: IMEs typically disable auto-correct for this type.
          */
         @Stable
-        val Email: KeyboardType
+        public val Email: KeyboardType
             get() = KeyboardType(6)
 
         /**
@@ -148,7 +148,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * learning your text.
          */
         @Stable
-        val Password: KeyboardType
+        public val Password: KeyboardType
             get() = KeyboardType(7)
 
         /**
@@ -158,7 +158,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * passcodes, or secure one-time verification codes (OTPs).
          */
         @Stable
-        val NumberPassword: KeyboardType
+        public val NumberPassword: KeyboardType
             get() = KeyboardType(8)
 
         /**
@@ -169,7 +169,7 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * weights, or coordinates.
          */
         @Stable
-        val Decimal: KeyboardType
+        public val Decimal: KeyboardType
             get() = KeyboardType(9)
 
         /**
@@ -179,82 +179,82 @@ value class KeyboardType private constructor(@Suppress("unused") private val val
          * [Password] (masked) using an eye-icon button to let the user reveal what they typed.
          */
         @Stable
-        val PasswordVisible: KeyboardType
+        public val PasswordVisible: KeyboardType
             get() = KeyboardType(10)
 
         /** Optimizes the keyboard for entering shipping or mailing addresses. */
         @Stable
-        val PostalAddress: KeyboardType
+        public val PostalAddress: KeyboardType
             get() = KeyboardType(11)
 
         /** Optimizes the keyboard for entering names, typically capitalizing each word. */
         @Stable
-        val PersonName: KeyboardType
+        public val PersonName: KeyboardType
             get() = KeyboardType(12)
 
         /** Optimizes the keyboard for email subject lines. */
         @Stable
-        val EmailSubject: KeyboardType
+        public val EmailSubject: KeyboardType
             get() = KeyboardType(13)
 
         /** Optimizes the keyboard for sending short instant messages (SMS). */
         @Stable
-        val ShortMessage: KeyboardType
+        public val ShortMessage: KeyboardType
             get() = KeyboardType(14)
 
         /** Optimizes the keyboard for writing emails or other long-form content. */
         @Stable
-        val LongMessage: KeyboardType
+        public val LongMessage: KeyboardType
             get() = KeyboardType(15)
 
         /** Optimizes the keyboard for filtering lists or search queries. */
         @Stable
-        val Filter: KeyboardType
+        public val Filter: KeyboardType
             get() = KeyboardType(16)
 
         /** Keyboard layout optimized for entering phonetic spellings or pronunciation guides. */
         @Stable
-        val Phonetic: KeyboardType
+        public val Phonetic: KeyboardType
             get() = KeyboardType(17)
 
         /** Displays a numeric keypad optimized for entering both dates and times. */
         @Stable
-        val DateTime: KeyboardType
+        public val DateTime: KeyboardType
             get() = KeyboardType(18)
 
         /** Displays a numeric keypad optimized for date entry, typically containing `/` or `-`. */
         @Stable
-        val Date: KeyboardType
+        public val Date: KeyboardType
             get() = KeyboardType(19)
 
         /** Displays a numeric keypad optimized for time entry, typically containing `:`. */
         @Stable
-        val Time: KeyboardType
+        public val Time: KeyboardType
             get() = KeyboardType(20)
 
         /** Displays a numeric keypad showing 0-9 and a negative/positive sign key (`+/-`). */
         @Stable
-        val NumberSigned: KeyboardType
+        public val NumberSigned: KeyboardType
             get() = KeyboardType(21)
 
         /** Displays a numeric keypad showing 0-9, decimal separators, and sign keys. */
         @Stable
-        val DecimalSigned: KeyboardType
+        public val DecimalSigned: KeyboardType
             get() = KeyboardType(22)
 
         /** Shows a masked numeric keypad containing decimal separators. */
         @Stable
-        val DecimalPassword: KeyboardType
+        public val DecimalPassword: KeyboardType
             get() = KeyboardType(23)
 
         /** Shows a masked numeric keypad containing positive/negative signs. */
         @Stable
-        val NumberPasswordSigned: KeyboardType
+        public val NumberPasswordSigned: KeyboardType
             get() = KeyboardType(24)
 
         /** Shows a masked numeric keypad containing both decimal separators and signs. */
         @Stable
-        val DecimalPasswordSigned: KeyboardType
+        public val DecimalPasswordSigned: KeyboardType
             get() = KeyboardType(25)
     }
 }

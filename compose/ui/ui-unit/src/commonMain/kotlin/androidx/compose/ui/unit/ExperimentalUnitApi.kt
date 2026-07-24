@@ -18,4 +18,4 @@ package androidx.compose.ui.unit
 
 @RequiresOptIn("This API is experimental and is likely to change in the future.")
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalUnitApi
+public annotation class ExperimentalUnitApi

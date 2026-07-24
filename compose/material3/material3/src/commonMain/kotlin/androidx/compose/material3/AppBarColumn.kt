@@ -47,7 +47,7 @@ import androidx.compose.ui.util.fastForEach
  */
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
-fun AppBarColumn(
+public fun AppBarColumn(
     modifier: Modifier = Modifier,
     overflowIndicator: @Composable (AppBarMenuState) -> Unit = { menuState ->
         AppBarOverflowIndicator(menuState)
@@ -95,15 +95,15 @@ fun AppBarColumn(
 @Deprecated(level = DeprecationLevel.HIDDEN, message = "Maintained for binary compatibility.")
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
-fun AppBarColumn(
+public fun AppBarColumn(
     overflowIndicator: @Composable (AppBarMenuState) -> Unit,
     modifier: Modifier = Modifier,
     maxItemCount: Int = Int.MAX_VALUE,
     content: AppBarColumnScope.() -> Unit,
-) = AppBarColumn(modifier, overflowIndicator, maxItemCount, content)
+): Unit = AppBarColumn(modifier, overflowIndicator, maxItemCount, content)
 
 /** DSL scope for building the content of an [AppBarColumn]. */
-interface AppBarColumnScope : AppBarScope
+public interface AppBarColumnScope : AppBarScope
 
 private class AppBarColumnScopeImpl(val impl: AppBarScopeImpl) :
     AppBarColumnScope, AppBarScope by impl, AppBarItemProvider by impl

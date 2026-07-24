@@ -27,8 +27,8 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class RenderIntent internal constructor(@Suppress("unused") internal val value: Int) {
-    companion object {
+public value class RenderIntent internal constructor(@Suppress("unused") internal val value: Int) {
+    public companion object {
         /**
          * Compresses the source gamut into the destination gamut. This render intent affects all
          * colors, inside and outside of destination gamut. The goal of this render intent is to
@@ -36,14 +36,14 @@ value class RenderIntent internal constructor(@Suppress("unused") internal val v
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
-        val Perceptual
+        public val Perceptual: RenderIntent
             get() = RenderIntent(0)
 
         /**
          * Similar to the [Absolute] render intent, this render intent matches the closest color in
          * the destination gamut but makes adjustments for the destination white point.
          */
-        val Relative
+        public val Relative: RenderIntent
             get() = RenderIntent(1)
 
         /**
@@ -52,7 +52,7 @@ value class RenderIntent internal constructor(@Suppress("unused") internal val v
          *
          * This render intent is currently not implemented and behaves like [Relative].
          */
-        val Saturation
+        public val Saturation: RenderIntent
             get() = RenderIntent(2)
 
         /**
@@ -60,11 +60,11 @@ value class RenderIntent internal constructor(@Suppress("unused") internal val v
          * the destination gamut are mapped to the closest possible color within the gamut of the
          * destination color space (they are clipped).
          */
-        val Absolute
+        public val Absolute: RenderIntent
             get() = RenderIntent(3)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             Perceptual -> "Perceptual"
             Relative -> "Relative"

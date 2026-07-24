@@ -45,7 +45,7 @@ import kotlin.math.max
  * [Painter] implementation that draws an inner shadow with the geometry defined by the specified
  * shape and [Shadow].
  */
-class InnerShadowPainter
+public class InnerShadowPainter
 internal constructor(
     private val shape: Shape,
     private val shadow: Shadow,
@@ -62,7 +62,7 @@ internal constructor(
      * @param shape Shape of the shadow
      * @param shadow Parameters used to render the shadow
      */
-    constructor(
+    public constructor(
         shape: Shape,
         shadow: Shadow,
     ) : this(shape, shadow, InnerShadowRendererProvider.Default)

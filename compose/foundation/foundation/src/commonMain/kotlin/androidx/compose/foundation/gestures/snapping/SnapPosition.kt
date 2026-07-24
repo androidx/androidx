@@ -23,7 +23,7 @@ import androidx.compose.runtime.Stable
  * a given snap item in its containing layout.
  */
 @Stable
-interface SnapPosition {
+public interface SnapPosition {
     /**
      * Calculates the snap position where items will be aligned to in a snapping container. For
      * instance, if [SnapPosition.Center] is used, once the snapping finishes the center of one of
@@ -45,7 +45,7 @@ interface SnapPosition {
      * @return The offset of the snap position where items will be aligned to in a snapping
      *   container.
      */
-    fun position(
+    public fun position(
         layoutSize: Int,
         itemSize: Int,
         beforeContentPadding: Int,
@@ -55,7 +55,7 @@ interface SnapPosition {
     ): Int
 
     /** Aligns the center of the item with the center of the containing layout. */
-    object Center : SnapPosition {
+    public object Center : SnapPosition {
         override fun position(
             layoutSize: Int,
             itemSize: Int,
@@ -76,7 +76,7 @@ interface SnapPosition {
     }
 
     /** Aligns the start of the item with the start of the containing layout. */
-    object Start : SnapPosition {
+    public object Start : SnapPosition {
         override fun position(
             layoutSize: Int,
             itemSize: Int,
@@ -92,7 +92,7 @@ interface SnapPosition {
     }
 
     /** Aligns the end of the item with the end of the containing layout. */
-    object End : SnapPosition {
+    public object End : SnapPosition {
         override fun position(
             layoutSize: Int,
             itemSize: Int,

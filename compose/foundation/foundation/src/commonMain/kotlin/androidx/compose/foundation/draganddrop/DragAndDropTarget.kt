@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.InspectorInfo
  * All drag and drop target modifiers in the hierarchy will be given an opportunity to participate
  * in a given drag and drop session via [shouldStartDragAndDrop].
  */
-fun Modifier.dragAndDropTarget(
+public fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
     target: DragAndDropTarget,
 ): Modifier =

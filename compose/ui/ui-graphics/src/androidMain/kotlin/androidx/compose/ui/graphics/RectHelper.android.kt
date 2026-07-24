@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.IntRect
             "android.graphics.Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())"
         ),
 )
-fun Rect.toAndroidRect(): android.graphics.Rect {
+public fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
 }
 
@@ -39,7 +39,7 @@ fun Rect.toAndroidRect(): android.graphics.Rect {
  * Creates a new instance of [android.graphics.RectF] with the same bounds specified in the given
  * [Rect]
  */
-fun Rect.toAndroidRectF(): android.graphics.RectF {
+public fun Rect.toAndroidRectF(): android.graphics.RectF {
     return android.graphics.RectF(left, top, right, bottom)
 }
 
@@ -47,7 +47,7 @@ fun Rect.toAndroidRectF(): android.graphics.RectF {
  * Creates a new instance of [androidx.compose.ui.geometry.Rect] with the same bounds specified in
  * the given [android.graphics.Rect]
  */
-fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
+public fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
     androidx.compose.ui.geometry.Rect(
         this.left.toFloat(),
         this.top.toFloat(),
@@ -59,17 +59,18 @@ fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
  * Creates a new instance of [androidx.compose.ui.geometry.Rect] with the same bounds specified in
  * the given [android.graphics.RectF].
  */
-fun android.graphics.RectF.toComposeRect(): Rect =
+public fun android.graphics.RectF.toComposeRect(): Rect =
     Rect(this.left, this.top, this.right, this.bottom)
 
 /**
  * Creates a new instance of [android.graphics.Rect] with the same bounds specified in the given
  * [IntRect]
  */
-fun IntRect.toAndroidRect(): android.graphics.Rect = android.graphics.Rect(left, top, right, bottom)
+public fun IntRect.toAndroidRect(): android.graphics.Rect =
+    android.graphics.Rect(left, top, right, bottom)
 
 /**
  * Creates a new instance of [androidx.compose.ui.unit.IntRect] with the same bounds specified in
  * the given [android.graphics.Rect]
  */
-fun android.graphics.Rect.toComposeIntRect(): IntRect = IntRect(left, top, right, bottom)
+public fun android.graphics.Rect.toComposeIntRect(): IntRect = IntRect(left, top, right, bottom)

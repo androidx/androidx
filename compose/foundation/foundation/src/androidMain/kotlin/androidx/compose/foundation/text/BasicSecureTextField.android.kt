@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +52,9 @@ private const val TAG = "BasicSecureTextField"
  *
  * The default value `null` indicates that the main thread will be used.
  */
-val LocalTextFieldContentObserverRegistrationExecutor = staticCompositionLocalOf<Executor?> { null }
+public val LocalTextFieldContentObserverRegistrationExecutor:
+    ProvidableCompositionLocal<Executor?> =
+    staticCompositionLocalOf<Executor?> { null }
 
 /**
  * Interface abstracting the access to system password visibility settings. Resolves differences

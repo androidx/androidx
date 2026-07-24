@@ -54,6 +54,7 @@ import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -88,7 +89,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
-fun Switch(
+public fun Switch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
@@ -333,12 +334,12 @@ private class ThumbNode(
 }
 
 /** Contains the default values used by [Switch] */
-object SwitchDefaults {
+public object SwitchDefaults {
     /**
      * Creates a [SwitchColors] that represents the different colors used in a [Switch] in different
      * states.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultSwitchColors
+    @Composable public fun colors(): SwitchColors = MaterialTheme.colorScheme.defaultSwitchColors
 
     /**
      * Creates a [SwitchColors] that represents the different colors used in a [Switch] in different
@@ -362,7 +363,7 @@ object SwitchDefaults {
      * @param disabledUncheckedIconColor the color used for the icon when disabled and unchecked
      */
     @Composable
-    fun colors(
+    public fun colors(
         checkedThumbColor: Color = SwitchTokens.SelectedHandleColor.value,
         checkedTrackColor: Color = SwitchTokens.SelectedTrackColor.value,
         checkedBorderColor: Color = Color.Transparent,
@@ -467,7 +468,7 @@ object SwitchDefaults {
         }
 
     /** Icon size to use for `thumbContent` */
-    val IconSize = 16.dp
+    public val IconSize: Dp = 16.dp
 }
 
 /**
@@ -493,30 +494,30 @@ object SwitchDefaults {
  *   default implementation that follows Material specifications.
  */
 @Immutable
-class SwitchColors
-constructor(
-    val checkedThumbColor: Color,
-    val checkedTrackColor: Color,
-    val checkedBorderColor: Color,
-    val checkedIconColor: Color,
-    val uncheckedThumbColor: Color,
-    val uncheckedTrackColor: Color,
-    val uncheckedBorderColor: Color,
-    val uncheckedIconColor: Color,
-    val disabledCheckedThumbColor: Color,
-    val disabledCheckedTrackColor: Color,
-    val disabledCheckedBorderColor: Color,
-    val disabledCheckedIconColor: Color,
-    val disabledUncheckedThumbColor: Color,
-    val disabledUncheckedTrackColor: Color,
-    val disabledUncheckedBorderColor: Color,
-    val disabledUncheckedIconColor: Color,
+public class SwitchColors
+public constructor(
+    public val checkedThumbColor: Color,
+    public val checkedTrackColor: Color,
+    public val checkedBorderColor: Color,
+    public val checkedIconColor: Color,
+    public val uncheckedThumbColor: Color,
+    public val uncheckedTrackColor: Color,
+    public val uncheckedBorderColor: Color,
+    public val uncheckedIconColor: Color,
+    public val disabledCheckedThumbColor: Color,
+    public val disabledCheckedTrackColor: Color,
+    public val disabledCheckedBorderColor: Color,
+    public val disabledCheckedIconColor: Color,
+    public val disabledUncheckedThumbColor: Color,
+    public val disabledUncheckedTrackColor: Color,
+    public val disabledUncheckedBorderColor: Color,
+    public val disabledUncheckedIconColor: Color,
 ) {
     /**
      * Returns a copy of this SwitchColors, optionally overriding some of the values. This uses the
      * Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         checkedThumbColor: Color = this.checkedThumbColor,
         checkedTrackColor: Color = this.checkedTrackColor,
         checkedBorderColor: Color = this.checkedBorderColor,
@@ -533,7 +534,7 @@ constructor(
         disabledUncheckedTrackColor: Color = this.disabledUncheckedTrackColor,
         disabledUncheckedBorderColor: Color = this.disabledUncheckedBorderColor,
         disabledUncheckedIconColor: Color = this.disabledUncheckedIconColor,
-    ) =
+    ): SwitchColors =
         SwitchColors(
             checkedThumbColor.takeOrElse { this.checkedThumbColor },
             checkedTrackColor.takeOrElse { this.checkedTrackColor },

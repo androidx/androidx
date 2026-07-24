@@ -32,7 +32,10 @@ import kotlin.math.roundToInt
  *   [VerticalPager].
  * @sample androidx.compose.foundation.samples.PagerCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutScrollScope(state: PagerState, scrollScope: ScrollScope): LazyLayoutScrollScope {
+public fun LazyLayoutScrollScope(
+    state: PagerState,
+    scrollScope: ScrollScope,
+): LazyLayoutScrollScope {
     return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
 
         override val firstVisibleItemIndex: Int

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.window.PopupProperties
 
 @Composable
-actual fun DropdownMenuItem(
+actual public fun DropdownMenuItem(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,
@@ -37,7 +37,7 @@ actual fun DropdownMenuItem(
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
-actual fun DropdownMenu(
+actual public fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier,

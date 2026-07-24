@@ -61,7 +61,7 @@ import kotlinx.coroutines.test.TestDispatcher
             "createComposeRule(ComposeUiTestConfig(effectContext))",
     replaceWith = ReplaceWith("createComposeRule(ComposeUiTestConfig(effectContext))"),
 )
-expect fun createComposeRule(
+public expect fun createComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeContentTestRule
 
@@ -82,7 +82,7 @@ expect fun createComposeRule(
  *   over the [CoroutineContext] used for composition, the test timeout, and other
  *   environment-specific settings.
  */
-expect fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule
+public expect fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRule
 
 /**
  * Factory method to provide an implementation of [ComposeContentTestRule].
@@ -103,4 +103,4 @@ expect fun createComposeRule(config: ComposeUiTestConfig): ComposeContentTestRul
  * [Keyboard][androidx.compose.ui.input.InputMode.Companion.Keyboard]) or customize other
  * environment settings, use the overload that accepts a [ComposeUiTestConfig].
  */
-expect fun createComposeRule(): ComposeContentTestRule
+public expect fun createComposeRule(): ComposeContentTestRule

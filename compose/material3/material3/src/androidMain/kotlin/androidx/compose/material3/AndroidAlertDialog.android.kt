@@ -28,7 +28,7 @@ import androidx.compose.ui.window.DialogProperties
 // Please note that binary compatibility for Desktop is tracked only in JetBrains fork
 
 @Composable
-actual fun AlertDialog(
+public actual fun AlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier,

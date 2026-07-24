@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 @Composable
 @VectorComposable
-fun Group(
+public fun Group(
     name: String = DefaultGroupName,
     rotation: Float = DefaultRotation,
     pivotX: Float = DefaultPivotX,
@@ -55,7 +55,7 @@ fun Group(
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
     content: @Composable @VectorComposable () -> Unit,
-) {
+): Unit {
     ComposeNode<GroupComponent, VectorApplier>(
         factory = { GroupComponent() },
         update = {
@@ -97,7 +97,7 @@ fun Group(
  */
 @Composable
 @VectorComposable
-fun Path(
+public fun Path(
     pathData: List<PathNode>,
     pathFillType: PathFillType = DefaultFillType,
     name: String = DefaultPathName,
@@ -112,7 +112,7 @@ fun Path(
     trimPathStart: Float = DefaultTrimPathStart,
     trimPathEnd: Float = DefaultTrimPathEnd,
     trimPathOffset: Float = DefaultTrimPathOffset,
-) {
+): Unit {
     ComposeNode<PathComponent, VectorApplier>(
         factory = { PathComponent() },
         update = {
@@ -134,24 +134,24 @@ fun Path(
     )
 }
 
-class VectorApplier(root: VNode) : AbstractApplier<VNode>(root) {
-    override fun insertTopDown(index: Int, instance: VNode) {
+public class VectorApplier(root: VNode) : AbstractApplier<VNode>(root) {
+    public override fun insertTopDown(index: Int, instance: VNode) {
         // Ignored as the tree is built bottom-up.
     }
 
-    override fun insertBottomUp(index: Int, instance: VNode) {
+    public override fun insertBottomUp(index: Int, instance: VNode) {
         current.asGroup().insertAt(index, instance)
     }
 
-    override fun remove(index: Int, count: Int) {
+    public override fun remove(index: Int, count: Int) {
         current.asGroup().remove(index, count)
     }
 
-    override fun onClear() {
+    protected override fun onClear() {
         root.asGroup().let { it.remove(0, it.numChildren) }
     }
 
-    override fun move(from: Int, to: Int, count: Int) {
+    public override fun move(from: Int, to: Int, count: Int) {
         current.asGroup().move(from, to, count)
     }
 

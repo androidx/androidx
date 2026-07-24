@@ -69,7 +69,7 @@ internal fun Inspectable(
 @Suppress("DeprecatedCallableAddReplaceWith")
 @Deprecated("This method should not be used in application code and will be removed soon.")
 @Composable
-fun InInspectionModeOnly(content: @Composable () -> Unit) {
+public fun InInspectionModeOnly(content: @Composable () -> Unit) {
     if (LocalInspectionMode.current) {
         content()
     }

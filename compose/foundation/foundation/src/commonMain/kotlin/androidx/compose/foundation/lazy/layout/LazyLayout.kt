@@ -61,12 +61,12 @@ import androidx.compose.ui.unit.Constraints
 @Deprecated("Please use overload with LazyLayoutMeasurePolicy", level = DeprecationLevel.HIDDEN)
 @ExperimentalFoundationApi
 @Composable
-fun LazyLayout(
+public fun LazyLayout(
     itemProvider: () -> LazyLayoutItemProvider,
     modifier: Modifier = Modifier,
     prefetchState: LazyLayoutPrefetchState? = null,
     measurePolicy: LazyLayoutMeasureScope.(Constraints) -> MeasureResult,
-) = LazyLayout(itemProvider, modifier, prefetchState, LazyLayoutMeasurePolicy(measurePolicy))
+): Unit = LazyLayout(itemProvider, modifier, prefetchState, LazyLayoutMeasurePolicy(measurePolicy))
 
 /**
  * A layout that only composes and lays out currently needed items. Can be used to build efficient
@@ -104,7 +104,7 @@ fun LazyLayout(
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyLayout(
+public fun LazyLayout(
     itemProvider: () -> LazyLayoutItemProvider,
     modifier: Modifier = Modifier,
     prefetchState: LazyLayoutPrefetchState? = null,

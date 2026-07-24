@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
  * @see BringIntoViewRequester
  */
 @Deprecated(message = "Use BringIntoViewModifierNode instead")
-interface BringIntoViewResponder {
+public interface BringIntoViewResponder {
 
     /**
      * Return the rectangle in this node that should be brought into view by this node's parent, in
@@ -70,7 +70,7 @@ interface BringIntoViewResponder {
      *   should be the destination rectangle that [localRect] will eventually occupy, once the
      *   adjusting animation is finished.
      */
-    fun calculateRectForParent(localRect: Rect): Rect
+    public fun calculateRectForParent(localRect: Rect): Rect
 
     /**
      * Bring this specified rectangle into bounds by making this parent to move or adjust its
@@ -86,7 +86,7 @@ interface BringIntoViewResponder {
      *   bounds of the request change while the request is being processed. If the rectangle cannot
      *   be calculated, e.g. because the [LayoutCoordinates] are not attached, return null.
      */
-    suspend fun bringChildIntoView(localRect: () -> Rect?)
+    public suspend fun bringChildIntoView(localRect: () -> Rect?)
 }
 
 /**
@@ -99,7 +99,7 @@ interface BringIntoViewResponder {
  */
 @Suppress("ModifierInspectorInfo")
 @Deprecated(message = "Use BringIntoViewModifierNode instead")
-fun Modifier.bringIntoViewResponder(
+public fun Modifier.bringIntoViewResponder(
     @Suppress("DEPRECATION") responder: BringIntoViewResponder
 ): Modifier = this.then(BringIntoViewResponderElement(responder))
 

@@ -60,7 +60,7 @@ import androidx.compose.ui.util.fastRoundToInt
  * @see WindowInsets
  */
 @Stable
-fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
+public fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
     this then
         InsetsPaddingModifierElement(
             insets,
@@ -81,7 +81,7 @@ fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
  * @sample androidx.compose.foundation.layout.samples.consumedInsetsSample
  */
 @Stable
-fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
+public fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
     this then
         UnionInsetsConsumingModifierElement(
             insets,
@@ -105,7 +105,7 @@ fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
  * @sample androidx.compose.foundation.layout.samples.consumedInsetsPaddingSample
  */
 @Stable
-fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
+public fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
     this then
         PaddingValuesConsumingModifierElement(
             paddingValues,
@@ -126,7 +126,9 @@ fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
  * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
  */
 @Stable
-fun Modifier.onConsumedWindowInsetsChanged(block: (consumedWindowInsets: WindowInsets) -> Unit) =
+public fun Modifier.onConsumedWindowInsetsChanged(
+    block: (consumedWindowInsets: WindowInsets) -> Unit
+): Modifier =
     this then
         ConsumedInsetsModifierElement(
             block,
@@ -150,7 +152,7 @@ fun Modifier.onConsumedWindowInsetsChanged(block: (consumedWindowInsets: WindowI
  *
  * @sample androidx.compose.foundation.layout.samples.safeDrawingPaddingSample
  */
-expect fun Modifier.safeDrawingPadding(): Modifier
+expect public fun Modifier.safeDrawingPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [safe gestures][WindowInsets.Companion.safeGestures] insets.
@@ -166,7 +168,7 @@ expect fun Modifier.safeDrawingPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.safeGesturesPaddingSample
  */
-expect fun Modifier.safeGesturesPadding(): Modifier
+expect public fun Modifier.safeGesturesPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [safe content][WindowInsets.Companion.safeContent] insets.
@@ -182,7 +184,7 @@ expect fun Modifier.safeGesturesPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.safeContentPaddingSample
  */
-expect fun Modifier.safeContentPadding(): Modifier
+expect public fun Modifier.safeContentPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [system bars][WindowInsets.Companion.systemBars] insets.
@@ -198,7 +200,7 @@ expect fun Modifier.safeContentPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.systemBarsPaddingSample
  */
-expect fun Modifier.systemBarsPadding(): Modifier
+expect public fun Modifier.systemBarsPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [display cutout][WindowInsets.Companion.displayCutout].
@@ -214,7 +216,7 @@ expect fun Modifier.systemBarsPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.displayCutoutPaddingSample
  */
-expect fun Modifier.displayCutoutPadding(): Modifier
+expect public fun Modifier.displayCutoutPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [status bars][WindowInsets.Companion.statusBars] insets.
@@ -230,7 +232,7 @@ expect fun Modifier.displayCutoutPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-expect fun Modifier.statusBarsPadding(): Modifier
+expect public fun Modifier.statusBarsPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [ime][WindowInsets.Companion.ime] insets.
@@ -246,7 +248,7 @@ expect fun Modifier.statusBarsPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.imePaddingSample
  */
-expect fun Modifier.imePadding(): Modifier
+expect public fun Modifier.imePadding(): Modifier
 
 /**
  * Adds padding to accommodate the [navigation bars][WindowInsets.Companion.navigationBars] insets.
@@ -262,7 +264,7 @@ expect fun Modifier.imePadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.statusBarsAndNavigationBarsPaddingSample
  */
-expect fun Modifier.navigationBarsPadding(): Modifier
+expect public fun Modifier.navigationBarsPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [caption bar][WindowInsets.Companion.captionBar] insets.
@@ -278,7 +280,7 @@ expect fun Modifier.navigationBarsPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.captionBarPaddingSample
  */
-expect fun Modifier.captionBarPadding(): Modifier
+expect public fun Modifier.captionBarPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [waterfall][WindowInsets.Companion.waterfall] insets.
@@ -294,7 +296,7 @@ expect fun Modifier.captionBarPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.waterfallPaddingSample
  */
-expect fun Modifier.waterfallPadding(): Modifier
+expect public fun Modifier.waterfallPadding(): Modifier
 
 /**
  * Adds padding to accommodate the [system gestures][WindowInsets.Companion.systemGestures] insets.
@@ -310,7 +312,7 @@ expect fun Modifier.waterfallPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.systemGesturesPaddingSample
  */
-expect fun Modifier.systemGesturesPadding(): Modifier
+expect public fun Modifier.systemGesturesPadding(): Modifier
 
 /**
  * Adds padding to accommodate the
@@ -328,7 +330,7 @@ expect fun Modifier.systemGesturesPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.mandatorySystemGesturesPaddingSample
  */
-expect fun Modifier.mandatorySystemGesturesPadding(): Modifier
+expect public fun Modifier.mandatorySystemGesturesPadding(): Modifier
 
 /**
  * This recalculates the [WindowInsets] based on the size and position. This only works when
@@ -356,7 +358,8 @@ expect fun Modifier.mandatorySystemGesturesPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.consumeWindowInsetsWithPaddingSample
  */
-fun Modifier.recalculateWindowInsets(): Modifier = this then RecalculateWindowInsetsModifierElement
+public fun Modifier.recalculateWindowInsets(): Modifier =
+    this then RecalculateWindowInsetsModifierElement
 
 // This is here only for ABI compatibility. This class is unused.
 internal class InsetsPaddingModifier

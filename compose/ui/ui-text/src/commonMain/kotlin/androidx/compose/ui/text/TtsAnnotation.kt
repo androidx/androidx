@@ -21,26 +21,26 @@ package androidx.compose.ui.text
  * processed by a text-to-speech engine, the engine may use the data in this annotation in addition
  * to or instead of its associated text.
  */
-sealed class TtsAnnotation : AnnotatedString.Annotation
+public sealed class TtsAnnotation : AnnotatedString.Annotation
 
 /**
  * The text associated with this annotation is a series of characters that have to be read verbatim.
  *
  * @param verbatim a string where the characters are read verbatim except whitespace.
  */
-class VerbatimTtsAnnotation(val verbatim: String) : TtsAnnotation() {
-    override fun equals(other: Any?): Boolean {
+public class VerbatimTtsAnnotation(public val verbatim: String) : TtsAnnotation() {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is VerbatimTtsAnnotation) return false
         if (verbatim != other.verbatim) return false
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         return verbatim.hashCode()
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "VerbatimTtsAnnotation(verbatim=$verbatim)"
     }
 }

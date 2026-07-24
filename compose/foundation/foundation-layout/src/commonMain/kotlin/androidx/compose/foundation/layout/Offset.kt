@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
  * @see absoluteOffset
  */
 @Stable
-fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
+public fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp): Modifier =
     this then
         OffsetElement(
             x = x,
@@ -75,7 +75,7 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * @see offset
  */
 @Stable
-fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
+public fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp): Modifier =
     this then
         OffsetElement(
             x = x,
@@ -107,7 +107,7 @@ fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * @sample androidx.compose.foundation.layout.samples.OffsetPxModifier
  * @see [absoluteOffset]
  */
-fun Modifier.offset(offset: Density.() -> IntOffset) =
+public fun Modifier.offset(offset: Density.() -> IntOffset): Modifier =
     this then
         OffsetPxElement(
             offset = offset,
@@ -136,7 +136,7 @@ fun Modifier.offset(offset: Density.() -> IntOffset) =
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetPxModifier
  * @see offset
  */
-fun Modifier.absoluteOffset(offset: Density.() -> IntOffset) =
+public fun Modifier.absoluteOffset(offset: Density.() -> IntOffset): Modifier =
     this then
         OffsetPxElement(
             offset = offset,

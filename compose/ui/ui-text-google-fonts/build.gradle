@@ -50,7 +50,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "Compose Downloadable Fonts integration for Google Fonts"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:ui:ui-text-google-fonts:ui-text-google-fonts-samples"))
 }
 

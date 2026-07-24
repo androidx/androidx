@@ -29,7 +29,8 @@ import kotlin.jvm.JvmInline
  * @see withAnnotation
  * @see AnnotatedString.getStringAnnotations
  */
-@JvmInline value class StringAnnotation(val value: String) : AnnotatedString.Annotation
+@JvmInline
+public value class StringAnnotation(public val value: String) : AnnotatedString.Annotation
 
 internal fun AnnotatedString.Range<out AnnotatedString.Annotation>.unbox():
     AnnotatedString.Range<String> =

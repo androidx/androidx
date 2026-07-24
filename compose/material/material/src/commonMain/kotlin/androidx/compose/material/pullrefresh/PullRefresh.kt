@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.Velocity
  */
 // TODO(b/244423199): Move pullRefresh into its own material library similar to material-ripple.
 @ExperimentalMaterialApi
-fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true) =
+public fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true): Modifier =
     pullRefresh(state::onPull, state::onRelease, enabled)
 
 /**
@@ -62,11 +62,11 @@ fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true) =
  *   [onPull] nor [onRelease] will be invoked.
  */
 @ExperimentalMaterialApi
-fun Modifier.pullRefresh(
+public fun Modifier.pullRefresh(
     onPull: (pullDelta: Float) -> Float,
     onRelease: suspend (flingVelocity: Float) -> Float,
     enabled: Boolean = true,
-) = nestedScroll(PullRefreshNestedScrollConnection(onPull, onRelease, enabled))
+): Modifier = nestedScroll(PullRefreshNestedScrollConnection(onPull, onRelease, enabled))
 
 private class PullRefreshNestedScrollConnection(
     private val onPull: (pullDelta: Float) -> Float,

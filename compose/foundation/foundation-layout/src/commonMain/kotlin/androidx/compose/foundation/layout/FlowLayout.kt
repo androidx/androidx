@@ -88,7 +88,7 @@ import kotlin.math.min
 @Deprecated("The overflow parameter has been deprecated")
 @Composable
 @ExperimentalLayoutApi
-fun FlowRow(
+public fun FlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -151,7 +151,7 @@ fun FlowRow(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FlowRow(
+public fun FlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -159,7 +159,7 @@ fun FlowRow(
     maxItemsInEachRow: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     content: @Composable FlowRowScope.() -> Unit,
-) =
+): Unit =
     FlowRow(
         modifier,
         horizontalArrangement,
@@ -202,7 +202,7 @@ fun FlowRow(
 @Deprecated("The overflow parameter has been deprecated")
 @Composable
 @ExperimentalLayoutApi
-fun FlowColumn(
+public fun FlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -260,7 +260,7 @@ fun FlowColumn(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FlowColumn(
+public fun FlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -268,7 +268,7 @@ fun FlowColumn(
     maxItemsInEachColumn: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     content: @Composable FlowColumnScope.() -> Unit,
-) =
+): Unit =
     FlowColumn(
         modifier,
         verticalArrangement,
@@ -283,7 +283,7 @@ fun FlowColumn(
 /** Scope for the children of [FlowRow]. */
 @LayoutScopeMarker
 @Stable
-interface FlowRowScope : RowScope {
+public interface FlowRowScope : RowScope {
     /**
      * Have the item fill (possibly only partially) the max height of the tallest item in the row it
      * was placed in, within the [FlowRow].
@@ -296,30 +296,32 @@ interface FlowRowScope : RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleFlowRow_EqualHeight
      */
     @ExperimentalLayoutApi
-    fun Modifier.fillMaxRowHeight(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier
+    public fun Modifier.fillMaxRowHeight(
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+    ): Modifier
 }
 
 /** Scope for the overflow [FlowRow]. */
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface FlowRowOverflowScope : FlowRowScope {
+public interface FlowRowOverflowScope : FlowRowScope {
     /**
      * Total Number of Items available to show in [FlowRow] This includes items that may not be
      * displayed.
      *
      * In [ContextualFlowRow], this matches the [ContextualFlowRow]'s `itemCount` parameter
      */
-    @ExperimentalLayoutApi val totalItemCount: Int
+    @ExperimentalLayoutApi public val totalItemCount: Int
 
     /** Total Number of Items displayed in the [FlowRow] */
-    @ExperimentalLayoutApi val shownItemCount: Int
+    @ExperimentalLayoutApi public val shownItemCount: Int
 }
 
 /** Scope for the children of [FlowColumn]. */
 @LayoutScopeMarker
 @Stable
-interface FlowColumnScope : ColumnScope {
+public interface FlowColumnScope : ColumnScope {
     /**
      * Have the item fill (possibly only partially) the max width of the widest item in the column
      * it was placed in, within the [FlowColumn].
@@ -332,7 +334,7 @@ interface FlowColumnScope : ColumnScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumn_EqualWidth
      */
     @ExperimentalLayoutApi
-    fun Modifier.fillMaxColumnWidth(
+    public fun Modifier.fillMaxColumnWidth(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
 }
@@ -341,17 +343,17 @@ interface FlowColumnScope : ColumnScope {
 @LayoutScopeMarker
 @Stable
 @ExperimentalLayoutApi
-interface FlowColumnOverflowScope : FlowColumnScope {
+public interface FlowColumnOverflowScope : FlowColumnScope {
     /**
      * Total Number of Items available to show in [FlowColumn] This includes items that may not be
      * displayed.
      *
      * In [ContextualFlowColumn], this matches the [ContextualFlowColumn]'s `itemCount` parameter
      */
-    @ExperimentalLayoutApi val totalItemCount: Int
+    @ExperimentalLayoutApi public val totalItemCount: Int
 
     /** Total Number of Items displayed in the [FlowColumn] */
-    @ExperimentalLayoutApi val shownItemCount: Int
+    @ExperimentalLayoutApi public val shownItemCount: Int
 }
 
 @OptIn(ExperimentalLayoutApi::class)

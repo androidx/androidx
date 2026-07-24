@@ -110,7 +110,7 @@ import kotlinx.coroutines.launch
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-fun Modifier.styleable(styleState: StyleState? = null, style: Style): Modifier =
+public fun Modifier.styleable(styleState: StyleState? = null, style: Style): Modifier =
     if (style === Style) this else this then StyleElement(styleState, style) then StyleInnerElement
 
 /**
@@ -136,7 +136,7 @@ fun Modifier.styleable(styleState: StyleState? = null, style: Style): Modifier =
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-fun Modifier.styleable(styleState: StyleState?, vararg styles: Style): Modifier =
+public fun Modifier.styleable(styleState: StyleState?, vararg styles: Style): Modifier =
     styleable(styleState, Style(*styles))
 
 /**
@@ -168,7 +168,7 @@ fun Modifier.styleable(styleState: StyleState?, vararg styles: Style): Modifier 
     "UnusedReceiverParameter",
     "ModifierFactoryUnreferencedReceiver",
 )
-fun Modifier.styleable(styleState: StyleState?): Modifier {
+public fun Modifier.styleable(styleState: StyleState?): Modifier {
     error(StyleableWithNoStyles)
 }
 

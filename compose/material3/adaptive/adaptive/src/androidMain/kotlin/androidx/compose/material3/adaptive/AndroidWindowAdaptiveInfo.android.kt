@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.map
 )
 @Composable
 @Suppress("DEPRECATION")
-fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
+public fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
 
 /**
  * Returns and automatically update the current window size in [DpSize].
@@ -50,7 +50,7 @@ fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(
 @JvmName("currentWindowDpSize")
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun currentWindowDpSizeDeprecated(): DpSize =
+public fun currentWindowDpSizeDeprecated(): DpSize =
     // Workaround (b/358626778): Directly using WindowInfo.containerDpSize breaks tests based on
     //   DeviceConfigurationOverride.ForcedSize. Those clients need to migrate to
     //   DeviceConfigurationOverride.WindowSize when its available.
@@ -68,7 +68,7 @@ fun currentWindowDpSizeDeprecated(): DpSize =
 )
 @JvmName("currentWindowSize")
 @Composable
-fun currentWindowSizeDeprecated(): IntSize = LocalWindowInfo.current.containerSize
+public fun currentWindowSizeDeprecated(): IntSize = LocalWindowInfo.current.containerSize
 
 /**
  * Collects the current window folding features from [WindowInfoTracker] in to a [State].
@@ -76,7 +76,7 @@ fun currentWindowSizeDeprecated(): IntSize = LocalWindowInfo.current.containerSi
  * @return a [State] of a [FoldingFeature] list.
  */
 @Composable
-fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
+public fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
     return remember(context) {
             WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).map {

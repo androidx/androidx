@@ -30,7 +30,7 @@ import kotlin.contracts.contract
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
+public inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
     contract { callsInPlace(action) }
     for (index in indices) {
         val item = get(index)
@@ -48,7 +48,7 @@ inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastForEachReversed(action: (T) -> Unit) {
+public inline fun <T> List<T>.fastForEachReversed(action: (T) -> Unit) {
     contract { callsInPlace(action) }
     for (index in indices.reversed()) {
         val item = get(index)
@@ -66,7 +66,7 @@ inline fun <T> List<T>.fastForEachReversed(action: (T) -> Unit) {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+public inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
     contract { callsInPlace(action) }
     for (index in indices) {
         val item = get(index)
@@ -83,7 +83,7 @@ inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastAll(predicate: (T) -> Boolean): Boolean {
+public inline fun <T> List<T>.fastAll(predicate: (T) -> Boolean): Boolean {
     contract { callsInPlace(predicate) }
     fastForEach { if (!predicate(it)) return false }
     return true
@@ -98,7 +98,7 @@ inline fun <T> List<T>.fastAll(predicate: (T) -> Boolean): Boolean {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
+public inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
     contract { callsInPlace(predicate) }
     fastForEach { if (predicate(it)) return true }
     return false
@@ -113,7 +113,7 @@ inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
+public inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
     contract { callsInPlace(predicate) }
     fastForEach { if (predicate(it)) return it }
     return null
@@ -129,7 +129,7 @@ inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
+public inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
     contract { callsInPlace(selector) }
     var sum = 0
     fastForEach { element -> sum += selector(element) }
@@ -146,7 +146,7 @@ inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
+public inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEach { target += transform(it) }
@@ -164,7 +164,7 @@ inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R : Comparable<R>> List<T>.fastMaxBy(selector: (T) -> R): T? {
+public inline fun <T, R : Comparable<R>> List<T>.fastMaxBy(selector: (T) -> R): T? {
     contract { callsInPlace(selector) }
     if (isEmpty()) return null
     var maxElem = get(0)
@@ -190,7 +190,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxBy(selector: (T) -> R): T? {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
+public inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     destination: C,
     transform: (T) -> R,
 ): C {
@@ -208,7 +208,7 @@ inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastLastOrNull(predicate: (T) -> Boolean): T? {
+public inline fun <T> List<T>.fastLastOrNull(predicate: (T) -> Boolean): T? {
     contract { callsInPlace(predicate) }
     for (index in indices.reversed()) {
         val item = get(index)
@@ -226,7 +226,7 @@ inline fun <T> List<T>.fastLastOrNull(predicate: (T) -> Boolean): T? {
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
+public inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
     contract { callsInPlace(predicate) }
     val target = ArrayList<T>(size)
     fastForEach { if (predicate(it)) target += (it) }
@@ -243,7 +243,10 @@ inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastFilteredMap(predicate: (T) -> Boolean, transform: (T) -> R): List<R> {
+public inline fun <T, R> List<T>.fastFilteredMap(
+    predicate: (T) -> Boolean,
+    transform: (T) -> R,
+): List<R> {
     contract {
         callsInPlace(predicate)
         callsInPlace(transform)
@@ -265,7 +268,7 @@ inline fun <T, R> List<T>.fastFilteredMap(predicate: (T) -> Boolean, transform: 
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
+public inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
     contract { callsInPlace(operation) }
     var accumulator = initial
     fastForEach { e -> accumulator = operation(accumulator, e) }
@@ -282,7 +285,7 @@ inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
  */
 @OptIn(ExperimentalContracts::class)
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<R> {
+public inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEachIndexed { index, e -> target += transform(index, e) }
@@ -299,7 +302,7 @@ inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<
  */
 @OptIn(ExperimentalContracts::class)
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-inline fun <T, R> List<T>.fastMapIndexedNotNull(transform: (index: Int, T) -> R?): List<R> {
+public inline fun <T, R> List<T>.fastMapIndexedNotNull(transform: (index: Int, T) -> R?): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEachIndexed { index, e -> transform(index, e)?.let { target += it } }
@@ -316,7 +319,7 @@ inline fun <T, R> List<T>.fastMapIndexedNotNull(transform: (index: Int, T) -> R?
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R? {
+public inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R? {
     contract { callsInPlace(selector) }
     if (isEmpty()) return null
     var maxValue = selector(get(0))
@@ -337,7 +340,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrDefault(
+public inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrDefault(
     defaultValue: R,
     selector: (T) -> R,
 ): R {
@@ -363,7 +366,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrDefault(
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
+public inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
     contract { callsInPlace(transform) }
     if (size <= 1) return emptyList()
     val result = mutableListOf<R>()
@@ -394,7 +397,7 @@ inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
+public inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
     contract { callsInPlace(operation) }
     if (isEmpty()) throwUnsupportedOperationException("Empty collection can't be reduced.")
     var accumulator: S = first()
@@ -415,7 +418,7 @@ inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R, V> List<T>.fastZip(other: List<R>, transform: (a: T, b: R) -> V): List<V> {
+public inline fun <T, R, V> List<T>.fastZip(other: List<R>, transform: (a: T, b: R) -> V): List<V> {
     contract { callsInPlace(transform) }
     val minSize = minOf(size, other.size)
     val target = ArrayList<V>(minSize)
@@ -435,7 +438,7 @@ inline fun <T, R, V> List<T>.fastZip(other: List<R>, transform: (a: T, b: R) -> 
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastMapNotNull(transform: (T) -> R?): List<R> {
+public inline fun <T, R> List<T>.fastMapNotNull(transform: (T) -> R?): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEach { e -> transform(e)?.let { target += it } }
@@ -454,7 +457,7 @@ inline fun <T, R> List<T>.fastMapNotNull(transform: (T) -> R?): List<R> {
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  */
-fun <T> List<T>.fastJoinToString(
+public fun <T> List<T>.fastJoinToString(
     separator: CharSequence = ", ",
     prefix: CharSequence = "",
     postfix: CharSequence = "",
@@ -478,7 +481,7 @@ fun <T> List<T>.fastJoinToString(
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
+public inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
     contract { callsInPlace(selector) }
     val set = MutableScatterSet<K>(size)
     val target = ArrayList<T>(size)
@@ -499,7 +502,7 @@ inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R : Comparable<R>> List<T>.fastMinByOrNull(selector: (T) -> R): T? {
+public inline fun <T, R : Comparable<R>> List<T>.fastMinByOrNull(selector: (T) -> R): T? {
     contract { callsInPlace(selector) }
     if (isEmpty()) return null
     var minElem = get(0)
@@ -525,7 +528,7 @@ inline fun <T, R : Comparable<R>> List<T>.fastMinByOrNull(selector: (T) -> R): T
  */
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): List<R> {
+public inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
     fastForEach { e ->
@@ -542,7 +545,7 @@ inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): List<R> {
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  */
-fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
+public fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
     val target = ArrayList<T>(size)
     fastForEach { if ((it) != null) target += (it) }
     return target
@@ -559,7 +562,7 @@ fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T> List<T>.fastFirst(predicate: (T) -> Boolean): T {
+public inline fun <T> List<T>.fastFirst(predicate: (T) -> Boolean): T {
     contract { callsInPlace(predicate) }
     fastForEach { if (predicate(it)) return it }
     throwNoSuchElementException("Collection contains no element matching the predicate.")

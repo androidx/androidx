@@ -33,14 +33,14 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottomStart a size of the bottom start corner
  * @see RoundedCornerShape for an example of the usage.
  */
-abstract class CornerBasedShape(
-    val topStart: CornerSize,
-    val topEnd: CornerSize,
-    val bottomEnd: CornerSize,
-    val bottomStart: CornerSize,
+public abstract class CornerBasedShape(
+    public val topStart: CornerSize,
+    public val topEnd: CornerSize,
+    public val bottomEnd: CornerSize,
+    public val bottomStart: CornerSize,
 ) : Shape, Interpolatable {
 
-    final override fun createOutline(
+    public final override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
@@ -86,7 +86,7 @@ abstract class CornerBasedShape(
      * @param bottomStart the resolved size for the bottom start corner
      * @param layoutDirection the current layout direction.
      */
-    abstract fun createOutline(
+    public abstract fun createOutline(
         size: Size,
         topStart: Float,
         topEnd: Float,
@@ -103,7 +103,7 @@ abstract class CornerBasedShape(
      * @param bottomEnd a size of the bottom end corner
      * @param bottomStart a size of the bottom start corner
      */
-    abstract fun copy(
+    public abstract fun copy(
         topStart: CornerSize = this.topStart,
         topEnd: CornerSize = this.topEnd,
         bottomEnd: CornerSize = this.bottomEnd,
@@ -111,12 +111,12 @@ abstract class CornerBasedShape(
     ): CornerBasedShape
 
     /** Default implementation. Returns null. Override this to get interpolatable benefits. */
-    override fun lerp(other: Any?, t: Float): Any? = null
+    public override fun lerp(other: Any?, t: Float): Any? = null
 
     /**
      * Creates a copy of this Shape with a new corner size.
      *
      * @param all a size to apply for all four corners
      */
-    fun copy(all: CornerSize): CornerBasedShape = copy(all, all, all, all)
+    public fun copy(all: CornerSize): CornerBasedShape = copy(all, all, all, all)
 }

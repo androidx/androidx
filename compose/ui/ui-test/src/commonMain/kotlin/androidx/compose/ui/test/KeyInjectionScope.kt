@@ -53,7 +53,7 @@ private const val DefaultPauseDurationBetweenKeyPressesMillis = 50L
  * @see InjectionScope
  */
 @JvmDefaultWithCompatibility
-interface KeyInjectionScope : InjectionScope {
+public interface KeyInjectionScope : InjectionScope {
 
     /**
      * Indicates whether caps lock is on or not.
@@ -61,7 +61,7 @@ interface KeyInjectionScope : InjectionScope {
      * Note that this reflects the state of the injected input only, it does not correspond to the
      * state of an actual keyboard attached to the device on which a test is run
      */
-    val isCapsLockOn: Boolean
+    public val isCapsLockOn: Boolean
 
     /**
      * Indicates whether num lock is on or not.
@@ -69,7 +69,7 @@ interface KeyInjectionScope : InjectionScope {
      * Note that this reflects the state of the injected input only, it does not correspond to the
      * state of an actual keyboard attached to the device on which a test is run
      */
-    val isNumLockOn: Boolean
+    public val isNumLockOn: Boolean
 
     /**
      * Indicates whether scroll lock is on or not.
@@ -77,7 +77,7 @@ interface KeyInjectionScope : InjectionScope {
      * Note that this reflects the state of the injected input only, it does not correspond to the
      * state of an actual keyboard attached to the device on which a test is run
      */
-    val isScrollLockOn: Boolean
+    public val isScrollLockOn: Boolean
 
     /**
      * Sends a key down event for the given [key].
@@ -86,7 +86,7 @@ interface KeyInjectionScope : InjectionScope {
      *
      * @param key The key to be pressed down.
      */
-    fun keyDown(key: Key)
+    public fun keyDown(key: Key)
 
     /**
      * Sends a key up event for the given [key].
@@ -95,7 +95,7 @@ interface KeyInjectionScope : InjectionScope {
      *
      * @param key The key to be released.
      */
-    fun keyUp(key: Key)
+    public fun keyUp(key: Key)
 
     /**
      * Checks if the given [key] is down.
@@ -103,7 +103,7 @@ interface KeyInjectionScope : InjectionScope {
      * @param key The key to be checked.
      * @return true if the given [key] is pressed down, false otherwise.
      */
-    fun isKeyDown(key: Key): Boolean
+    public fun isKeyDown(key: Key): Boolean
 }
 
 internal class KeyInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
@@ -143,7 +143,7 @@ internal class KeyInjectionScopeImpl(private val baseScope: MultiModalInjectionS
  * @param key The key to be pressed down.
  * @param pressDurationMillis Duration of press in milliseconds.
  */
-fun KeyInjectionScope.pressKey(
+public fun KeyInjectionScope.pressKey(
     key: Key,
     pressDurationMillis: Long = DefaultKeyPressDurationMillis,
 ) {
@@ -161,7 +161,7 @@ fun KeyInjectionScope.pressKey(
  * @param key The key to be held down during injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given key down.
  */
-fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit) {
+public fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit) {
     keyDown(key)
     try {
         block.invoke(this)
@@ -181,7 +181,7 @@ fun KeyInjectionScope.withKeyDown(key: Key, block: KeyInjectionScope.() -> Unit)
  * @param block Sequence of KeyInjectionScope methods to be injected with the given keys down.
  */
 // TODO(b/234011835): Refactor this and all functions that take List<Keys> to use vararg instead.
-fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
+public fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     keys.forEach { keyDown(it) }
     try {
         block.invoke(this)
@@ -200,7 +200,7 @@ fun KeyInjectionScope.withKeysDown(keys: List<Key>, block: KeyInjectionScope.() 
  * @param key The key to be toggled around the injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given key down.
  */
-fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Unit) {
+public fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Unit) {
     pressKey(key)
     try {
         block.invoke(this)
@@ -219,7 +219,7 @@ fun KeyInjectionScope.withKeyToggled(key: Key, block: KeyInjectionScope.() -> Un
  * @param keys The keys to be toggled around the injection of the [block].
  * @param block Sequence of KeyInjectionScope methods to be injected with the given keys down.
  */
-fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
+public fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.() -> Unit) {
     pressKeys(keys)
     try {
         block.invoke(this)
@@ -233,7 +233,7 @@ fun KeyInjectionScope.withKeysToggled(keys: List<Key>, block: KeyInjectionScope.
  *
  * @return true if the function key is currently down, false otherwise.
  */
-val KeyInjectionScope.isFnDown: Boolean
+public val KeyInjectionScope.isFnDown: Boolean
     get() = isKeyDown(Key.Function)
 
 /**
@@ -241,7 +241,7 @@ val KeyInjectionScope.isFnDown: Boolean
  *
  * @return true if a control key is currently down, false otherwise.
  */
-val KeyInjectionScope.isCtrlDown: Boolean
+public val KeyInjectionScope.isCtrlDown: Boolean
     get() = isKeyDown(Key.CtrlLeft) || isKeyDown(Key.CtrlRight)
 
 /**
@@ -249,7 +249,7 @@ val KeyInjectionScope.isCtrlDown: Boolean
  *
  * @return true if an alt key is currently down, false otherwise.
  */
-val KeyInjectionScope.isAltDown: Boolean
+public val KeyInjectionScope.isAltDown: Boolean
     get() = isKeyDown(Key.AltLeft) || isKeyDown(Key.AltRight)
 
 /**
@@ -257,7 +257,7 @@ val KeyInjectionScope.isAltDown: Boolean
  *
  * @return true if a meta key is currently down, false otherwise.
  */
-val KeyInjectionScope.isMetaDown: Boolean
+public val KeyInjectionScope.isMetaDown: Boolean
     get() = isKeyDown(Key.MetaLeft) || isKeyDown(Key.MetaRight)
 
 /**
@@ -265,7 +265,7 @@ val KeyInjectionScope.isMetaDown: Boolean
  *
  * @return true if a shift key is currently down, false otherwise.
  */
-val KeyInjectionScope.isShiftDown: Boolean
+public val KeyInjectionScope.isShiftDown: Boolean
     get() = isKeyDown(Key.ShiftLeft) || isKeyDown(Key.ShiftRight)
 
 /**

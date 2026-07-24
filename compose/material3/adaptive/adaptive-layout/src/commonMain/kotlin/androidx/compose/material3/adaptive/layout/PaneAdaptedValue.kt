@@ -28,7 +28,7 @@ import androidx.compose.ui.Alignment
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-sealed interface PaneAdaptedValue {
+public sealed interface PaneAdaptedValue {
     private class Simple(private val description: String) : PaneAdaptedValue {
         override fun toString() = "PaneAdaptedValue[$description]"
     }
@@ -41,16 +41,16 @@ sealed interface PaneAdaptedValue {
      *   will be put under.
      */
     @Immutable
-    class Reflowed(internal val reflowUnder: PaneScaffoldRole) : PaneAdaptedValue {
-        override fun toString() = "PaneAdaptedValue[Reflowed to $reflowUnder]"
+    public class Reflowed(internal val reflowUnder: PaneScaffoldRole) : PaneAdaptedValue {
+        public override fun toString(): String = "PaneAdaptedValue[Reflowed to $reflowUnder]"
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Reflowed) return false
             return reflowUnder == other.reflowUnder
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             return reflowUnder.hashCode()
         }
     }
@@ -71,7 +71,7 @@ sealed interface PaneAdaptedValue {
      *   behavior.
      */
     @Immutable
-    class Levitated(
+    public class Levitated(
         internal val alignment: Alignment,
         internal val scrim: (@Composable () -> Unit)? = null,
         internal val dragToResizeState: DragToResizeState? = null,
@@ -81,14 +81,15 @@ sealed interface PaneAdaptedValue {
             message = "Keep the old constructor for binary compatibility",
             level = DeprecationLevel.HIDDEN,
         )
-        constructor(
+        public constructor(
             alignment: Alignment,
             scrim: (@Composable () -> Unit)? = null,
         ) : this(alignment, scrim, null)
 
-        override fun toString() = "PaneAdaptedValue[Levitated with $alignment and scrim=$scrim]"
+        public override fun toString(): String =
+            "PaneAdaptedValue[Levitated with $alignment and scrim=$scrim]"
 
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Levitated) return false
             if (alignment != other.alignment) return false
@@ -97,7 +98,7 @@ sealed interface PaneAdaptedValue {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = alignment.hashCode()
             result = 31 * result + scrim.hashCode()
             result = 31 * result + dragToResizeState.hashCode()
@@ -105,10 +106,10 @@ sealed interface PaneAdaptedValue {
         }
     }
 
-    companion object {
+    public companion object {
         /** Indicates that the associated pane should be displayed in its full width and height. */
-        val Expanded: PaneAdaptedValue = Simple("Expanded")
+        public val Expanded: PaneAdaptedValue = Simple("Expanded")
         /** Indicates that the associated pane should be hidden. */
-        val Hidden: PaneAdaptedValue = Simple("Hidden")
+        public val Hidden: PaneAdaptedValue = Simple("Hidden")
     }
 }

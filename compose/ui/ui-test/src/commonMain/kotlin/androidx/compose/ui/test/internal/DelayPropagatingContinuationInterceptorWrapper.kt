@@ -35,7 +35,7 @@ import kotlinx.coroutines.test.TestDispatcher
 // recompile if it did fault.
 @OptIn(InternalCoroutinesApi::class)
 @InternalTestApi
-abstract class DelayPropagatingContinuationInterceptorWrapper(
+public abstract class DelayPropagatingContinuationInterceptorWrapper(
     wrappedInterceptor: ContinuationInterceptor
 ) :
     AbstractCoroutineContextElement(ContinuationInterceptor),

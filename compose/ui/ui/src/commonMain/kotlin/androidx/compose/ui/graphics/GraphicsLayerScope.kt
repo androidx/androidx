@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.js.JsName
 
 /** Default camera distance for all layers */
-const val DefaultCameraDistance = 8.0f
+public const val DefaultCameraDistance: Float = 8.0f
 
 /** Default ambient shadow color for all layers. */
-val DefaultShadowColor
+public val DefaultShadowColor: Color
     get() = Color.Black
 
 /**
@@ -44,12 +44,12 @@ val DefaultShadowColor
  */
 @JvmDefaultWithCompatibility
 @PlacementScopeMarker
-interface GraphicsLayerScope : Density {
+public interface GraphicsLayerScope : Density {
     /** The horizontal scale of the drawn area. Default value is `1`. */
-    var scaleX: Float
+    public var scaleX: Float
 
     /** The vertical scale of the drawn area. Default value is `1`. */
-    var scaleY: Float
+    public var scaleY: Float
 
     /**
      * The alpha of the drawn area. Setting this to something other than `1` will cause the drawn
@@ -57,13 +57,13 @@ interface GraphicsLayerScope : Density {
      * value is `1` and the range is between `0` and `1`.
      */
     /*@setparam:FloatRange(from = 0.0, to = 1.0)*/
-    var alpha: Float
+    public var alpha: Float
 
     /** Horizontal pixel offset of the layer relative to its left bound. Default value is `0`. */
-    var translationX: Float
+    public var translationX: Float
 
     /** Vertical pixel offset of the layer relative to its top bound. Default value is `0` */
-    var translationY: Float
+    public var translationY: Float
 
     /**
      * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and [shape] set,
@@ -73,7 +73,7 @@ interface GraphicsLayerScope : Density {
      * the shadow will not be drawn on Android versions less than 10.
      */
     /*@setparam:FloatRange(from = 0.0)*/
-    var shadowElevation: Float
+    public var shadowElevation: Float
 
     /**
      * Sets the color of the ambient shadow that is drawn when [shadowElevation] > 0f.
@@ -90,7 +90,7 @@ interface GraphicsLayerScope : Density {
      */
     // Add default getter/setter implementation to avoid breaking api changes due to abstract
     // method additions. ReusableGraphicsLayer is the only implementation anyway.
-    var ambientShadowColor: Color
+    public var ambientShadowColor: Color
         get() = DefaultShadowColor
         // Keep the parameter name so current.txt maintains it for named parameter usage
         @Suppress("UNUSED_PARAMETER") set(ambientShadowColor) {}
@@ -110,7 +110,7 @@ interface GraphicsLayerScope : Density {
      */
     // Add default getter/setter implementation to avoid breaking api changes due to abstract
     // method additions. ReusableGraphicsLayer is the only implementation anyway.
-    var spotShadowColor: Color
+    public var spotShadowColor: Color
         get() = DefaultShadowColor
         // Keep the parameter name so current.txt maintains it for named parameter usage
         @Suppress("UNUSED_PARAMETER") set(spotShadowColor) {}
@@ -119,18 +119,18 @@ interface GraphicsLayerScope : Density {
      * The rotation, in degrees, of the contents around the horizontal axis in degrees. Default
      * value is `0`.
      */
-    var rotationX: Float
+    public var rotationX: Float
 
     /**
      * The rotation, in degrees, of the contents around the vertical axis in degrees. Default value
      * is `0`.
      */
-    var rotationY: Float
+    public var rotationY: Float
 
     /**
      * The rotation, in degrees, of the contents around the Z axis in degrees. Default value is `0`.
      */
-    var rotationZ: Float
+    public var rotationZ: Float
 
     /**
      * Sets the distance along the Z axis (orthogonal to the X/Y plane on which layers are drawn)
@@ -152,7 +152,7 @@ interface GraphicsLayerScope : Density {
      * [DefaultCameraDistance]
      */
     /*@setparam:FloatRange(from = 0.0)*/
-    var cameraDistance: Float
+    public var cameraDistance: Float
 
     /**
      * Offset percentage along the x and y axis for which contents are rotated and scaled. The
@@ -160,17 +160,17 @@ interface GraphicsLayerScope : Density {
      * right as well as the top and bottom bounds of the layer. Default value is
      * [TransformOrigin.Center]
      */
-    var transformOrigin: TransformOrigin
+    public var transformOrigin: TransformOrigin
 
     /**
      * The [Shape] of the layer. When [shadowElevation] is non-zero a shadow is produced using this
      * [shape]. When [clip] is `true` contents will be clipped to this [shape]. When clipping, the
      * content will be redrawn when the [shape] changes. Default value is [RectangleShape]
      */
-    var shape: Shape
+    public var shape: Shape
 
     /** Set to `true` to clip the content to the [shape]. Default value is `false` */
-    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") var clip: Boolean
+    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") public var clip: Boolean
 
     /**
      * Configure the [RenderEffect] to apply to this [GraphicsLayerScope]. This will apply a visual
@@ -181,7 +181,7 @@ interface GraphicsLayerScope : Density {
      * Note this parameter is only supported on Android 12 and above. Attempts to use this Modifier
      * on older Android versions will be ignored.
      */
-    var renderEffect: RenderEffect?
+    public var renderEffect: RenderEffect?
         get() = null
         set(_) {}
 
@@ -191,7 +191,7 @@ interface GraphicsLayerScope : Density {
      * [GraphicsLayerScope] to use an offscreen compositing layer for rendering and is equivalent to
      * using [CompositingStrategy.Offscreen].
      */
-    var blendMode: BlendMode
+    public var blendMode: BlendMode
         get() = BlendMode.SrcOver
         set(_) {}
 
@@ -200,7 +200,7 @@ interface GraphicsLayerScope : Density {
      * non-null will force this [GraphicsLayer] to use an offscreen compositing layer for rendering
      * and is equivalent to using [CompositingStrategy.Offscreen]
      */
-    var colorFilter: ColorFilter?
+    public var colorFilter: ColorFilter?
         get() = null
         set(_) {}
 
@@ -208,7 +208,7 @@ interface GraphicsLayerScope : Density {
      * Determines the [CompositingStrategy] used to render the contents of this graphicsLayer into
      * an offscreen buffer first before rendering to the destination
      */
-    var compositingStrategy: CompositingStrategy
+    public var compositingStrategy: CompositingStrategy
         get() = CompositingStrategy.Auto
         // Keep the parameter name so current.txt maintains it for named parameter usage
         @Suppress("UNUSED_PARAMETER") set(compositingStrategy) {}
@@ -218,7 +218,7 @@ interface GraphicsLayerScope : Density {
      * size specified, however, if the graphicsLayer is promoted to an offscreen rasterization
      * layer, any content rendered outside of the specified size will be clipped.
      */
-    val size: Size
+    public val size: Size
         get() = Size.Unspecified
 
     /**
@@ -227,7 +227,7 @@ interface GraphicsLayerScope : Density {
      * promoted to an offscreen rasterization layer. The clip and shadow will still be based on the
      * original size of the layer.
      */
-    var outsets: LayerOutsets
+    public var outsets: LayerOutsets
         get() = LayerOutsets.Zero
         set(_) {}
 }
@@ -258,14 +258,14 @@ private class GraphicsContextObserver(private val graphicsContext: GraphicsConte
  */
 @Composable
 @ComposableOpenTarget(-1)
-fun rememberGraphicsLayer(): GraphicsLayer {
+public fun rememberGraphicsLayer(): GraphicsLayer {
     val graphicsContext = LocalGraphicsContext.current
     return remember { GraphicsContextObserver(graphicsContext) }.graphicsLayer
 }
 
 /** Creates simple [GraphicsLayerScope]. */
 @JsName("funGraphicsLayerScope")
-fun GraphicsLayerScope(): GraphicsLayerScope = ReusableGraphicsLayerScope()
+public fun GraphicsLayerScope(): GraphicsLayerScope = ReusableGraphicsLayerScope()
 
 internal object Fields {
     const val ScaleX: Int = 0b1 shl 0

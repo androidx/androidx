@@ -21,7 +21,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 
-class AndroidUriHandler(private val context: Context) : UriHandler {
+public class AndroidUriHandler(private val context: Context) : UriHandler {
 
     /**
      * Open given URL in browser

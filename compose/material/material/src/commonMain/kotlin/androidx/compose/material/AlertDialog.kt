@@ -80,7 +80,7 @@ import kotlin.math.max
  * @param properties Typically platform specific properties to further configure the dialog.
  */
 @Composable
-expect fun AlertDialog(
+public expect fun AlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -119,7 +119,7 @@ expect fun AlertDialog(
  * @param properties Typically platform specific properties to further configure the dialog.
  */
 @Composable
-expect fun AlertDialog(
+public expect fun AlertDialog(
     onDismissRequest: () -> Unit,
     buttons: @Composable () -> Unit,
     modifier: Modifier = Modifier,

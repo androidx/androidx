@@ -83,10 +83,10 @@ internal fun SemanticsNode(
  * the same layout node, and if "mergeDescendants" is specified and enabled, also the "merged"
  * configuration of its subtree.
  */
-class SemanticsNode
+public class SemanticsNode
 internal constructor(
     internal val outerSemanticsNode: Modifier.Node,
-    val mergingEnabled: Boolean,
+    public val mergingEnabled: Boolean,
     internal val layoutNode: LayoutNode,
     internal val unmergedConfig: SemanticsConfiguration,
 ) {
@@ -98,18 +98,18 @@ internal constructor(
         get() = fakeNodeParent != null
 
     /** The [LayoutInfo] that this is associated with. */
-    val layoutInfo: LayoutInfo
+    public val layoutInfo: LayoutInfo
         get() = layoutNode
 
     /** The [root][RootForTest] this node is attached to. */
-    val root: RootForTest?
+    public val root: RootForTest?
         get() = layoutNode.owner?.rootForTest
 
     /**
      * For newer AccessibilityNodeInfo-based integration test frameworks, it can be matched in the
      * extras with key "androidx.compose.ui.semantics.id"
      */
-    val id: Int = layoutNode.semanticsId
+    public val id: Int = layoutNode.semanticsId
 
     // GEOMETRY
 
@@ -119,7 +119,7 @@ internal constructor(
      * If this is a clickable region, this is the rectangle that accepts touch input. This can be
      * larger than [size] when the layout is less than [ViewConfiguration.minimumTouchTargetSize]
      */
-    val touchBoundsInRoot: Rect
+    public val touchBoundsInRoot: Rect
         get() {
             val semanticsModifierNode = findSemanticsModifierNodeToGetBounds()
             if (semanticsModifierNode == null) {
@@ -148,7 +148,7 @@ internal constructor(
         }
 
     /** The size of the bounding box for this node, with no clipping applied */
-    val size: IntSize
+    public val size: IntSize
         get() = findCoordinatorToGetBounds()?.size ?: IntSize.Zero
 
     /**
@@ -156,14 +156,14 @@ internal constructor(
      * applied. To get the bounds with no clipping applied, use Rect([positionInRoot],
      * [size].toSize())
      */
-    val boundsInRoot: Rect
+    public val boundsInRoot: Rect
         get() = findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.boundsInRoot() ?: Rect.Zero
 
     /**
      * The position of this node relative to the root of this Compose hierarchy, with no clipping
      * applied
      */
-    val positionInRoot: Offset
+    public val positionInRoot: Offset
         get() =
             findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.positionInRoot() ?: Offset.Zero
 
@@ -171,18 +171,18 @@ internal constructor(
      * The bounding box for this node relative to the window, with clipping applied. To get the
      * bounds with no clipping applied, use PxBounds([positionInWindow], [size].toSize())
      */
-    val boundsInWindow: Rect
+    public val boundsInWindow: Rect
         get() =
             findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.boundsInWindow() ?: Rect.Zero
 
     /** The position of this node relative to the window, with no clipping applied */
-    val positionInWindow: Offset
+    public val positionInWindow: Offset
         get() =
             findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.positionInWindow()
                 ?: Offset.Zero
 
     /** The position of this node relative to the screen, with no clipping applied */
-    val positionOnScreen: Offset
+    public val positionOnScreen: Offset
         get() =
             findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.positionOnScreen()
                 ?: Offset.Zero
@@ -224,7 +224,7 @@ internal constructor(
      * Returns the position of an [alignment line][AlignmentLine], or [AlignmentLine.Unspecified] if
      * the line is not provided.
      */
-    fun getAlignmentLinePosition(alignmentLine: AlignmentLine): Int {
+    public fun getAlignmentLinePosition(alignmentLine: AlignmentLine): Int {
         return findCoordinatorToGetBounds()?.get(alignmentLine) ?: AlignmentLine.Unspecified
     }
 
@@ -239,7 +239,7 @@ internal constructor(
      */
     // TODO(b/184376083): This is too expensive for a val (full subtree recreation every call);
     //               optimize this when the merging algorithm is improved.
-    val config: SemanticsConfiguration
+    public val config: SemanticsConfiguration
         get() {
             if (isMergingSemanticsOfDescendants) {
                 val mergedConfig = unmergedConfig.copy()
@@ -318,7 +318,7 @@ internal constructor(
      */
     // TODO(b/184376083): This is too expensive for a val (full subtree recreation every call);
     //               optimize this when the merging algorithm is improved.
-    val children: List<SemanticsNode>
+    public val children: List<SemanticsNode>
         get() = getChildren()
 
     /**
@@ -365,11 +365,11 @@ internal constructor(
     }
 
     /** Whether this SemanticNode is the root of a tree or not */
-    val isRoot: Boolean
+    public val isRoot: Boolean
         get() = parent == null
 
     /** The parent of this node in the tree. */
-    val parent: SemanticsNode?
+    public val parent: SemanticsNode?
         get() {
             if (fakeNodeParent != null) return fakeNodeParent
             var node: LayoutNode? = null

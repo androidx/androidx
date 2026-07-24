@@ -19,14 +19,14 @@ package androidx.compose.ui.contentcapture
 import androidx.compose.ui.ExperimentalComposeUiApi
 
 @ExperimentalComposeUiApi
-sealed interface ContentCaptureManager {
-    companion object {
+public sealed interface ContentCaptureManager {
+    public companion object {
         /**
          * A flag to force disable the content capture feature.
          *
          * If you find any issues with the new feature, flip this flag to true to confirm they are
          * newly introduced then file a bug.
          */
-        @ExperimentalComposeUiApi var isEnabled: Boolean = true
+        @ExperimentalComposeUiApi public var isEnabled: Boolean = true
     }
 }

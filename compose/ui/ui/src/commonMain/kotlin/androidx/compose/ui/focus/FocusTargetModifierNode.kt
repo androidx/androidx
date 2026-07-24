@@ -28,13 +28,13 @@ import kotlin.js.JsName
  * This modifier node can be delegated to in order to create a modifier that makes a component
  * focusable.
  */
-sealed interface FocusTargetModifierNode : DelegatableNode {
+public sealed interface FocusTargetModifierNode : DelegatableNode {
     /**
      * The [FocusState] associated with this [FocusTargetModifierNode]. When you delegate to a
      * [FocusTargetModifierNode], instead of implementing [FocusEventModifierNode], you can get the
      * state by accessing this variable.
      */
-    val focusState: FocusState
+    public val focusState: FocusState
 
     /**
      * Request focus for this node.
@@ -46,7 +46,7 @@ sealed interface FocusTargetModifierNode : DelegatableNode {
         replaceWith = ReplaceWith("this.requestFocus()"),
         level = DeprecationLevel.HIDDEN,
     )
-    fun requestFocus(): Boolean
+    public fun requestFocus(): Boolean
 
     /**
      * Request focus for this node.
@@ -54,7 +54,7 @@ sealed interface FocusTargetModifierNode : DelegatableNode {
      * @param focusDirection The direction from which the focus is being requested
      * @return true if focus was successfully requested
      */
-    fun requestFocus(focusDirection: FocusDirection = FocusDirection.Enter): Boolean
+    public fun requestFocus(focusDirection: FocusDirection = FocusDirection.Enter): Boolean
 
     /**
      * The [Focusability] for this node.
@@ -65,7 +65,7 @@ sealed interface FocusTargetModifierNode : DelegatableNode {
      * If the current focus state would be affected by a new focusability, focus will be invalidated
      * as needed.
      */
-    var focusability: Focusability
+    public var focusability: Focusability
 }
 
 // Before aosp/3296711 we would calculate semantics configuration lazily. The focusable
@@ -90,7 +90,7 @@ private object InvalidateSemantics {
     level = DeprecationLevel.HIDDEN,
 )
 @JsName("funFocusTargetModifierNode")
-fun FocusTargetModifierNode(): FocusTargetModifierNode =
+public fun FocusTargetModifierNode(): FocusTargetModifierNode =
     FocusTargetNode(onDispatchEventsCompleted = InvalidateSemantics::onDispatchEventsCompleted)
 
 /**
@@ -105,7 +105,7 @@ fun FocusTargetModifierNode(): FocusTargetModifierNode =
  *   before the node is marked as detached (node.isAttached will still be true).
  */
 @JsName("funFocusTargetModifierNode2")
-fun FocusTargetModifierNode(
+public fun FocusTargetModifierNode(
     focusability: Focusability = Focusability.Always,
     onFocusChange: ((previous: FocusState, current: FocusState) -> Unit)? = null,
 ): FocusTargetModifierNode =
@@ -119,7 +119,7 @@ fun FocusTargetModifierNode(
  * - This node is not focused and there is no focused descendant.
  * - This node is detached from the composition hierarchy.
  */
-fun FocusTargetModifierNode.getFocusedRect(): Rect? {
+public fun FocusTargetModifierNode.getFocusedRect(): Rect? {
     if (!node.isAttached) return null
     // Reading focusState includes traversal and computation. We shouldn't do it twice.
     val currentFocusState = focusState

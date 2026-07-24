@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-actual fun PathIterator(
+public actual fun PathIterator(
     path: Path,
     conicEvaluation: PathIterator.ConicEvaluation,
     tolerance: Float,

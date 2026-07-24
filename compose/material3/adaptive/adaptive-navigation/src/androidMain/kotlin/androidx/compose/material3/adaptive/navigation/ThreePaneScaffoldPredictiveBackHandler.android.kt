@@ -54,7 +54,7 @@ import kotlinx.coroutines.withContext
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <T> ThreePaneScaffoldPredictiveBackHandler(
+public fun <T> ThreePaneScaffoldPredictiveBackHandler(
     navigator: ThreePaneScaffoldNavigator<T>,
     backBehavior: BackNavigationBehavior,
 ) {

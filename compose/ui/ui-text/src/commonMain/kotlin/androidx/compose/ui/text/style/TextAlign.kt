@@ -24,9 +24,9 @@ import androidx.compose.ui.text.internal.requirePrecondition
  * @property value internal integer representation of the text alignment.
  */
 @kotlin.jvm.JvmInline
-value class TextAlign internal constructor(val value: Int) {
+public value class TextAlign internal constructor(public val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Left -> "Left"
             Right -> "Right"
@@ -39,17 +39,17 @@ value class TextAlign internal constructor(val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /** Aligns text to the left edge. */
-        val Left
+        public val Left: TextAlign
             get() = TextAlign(1)
 
         /** Aligns text to the right edge. */
-        val Right
+        public val Right: TextAlign
             get() = TextAlign(2)
 
         /** Aligns text to the center. */
-        val Center
+        public val Center: TextAlign
             get() = TextAlign(3)
 
         /**
@@ -57,7 +57,7 @@ value class TextAlign internal constructor(val value: Int) {
          *
          * Lines ending with hard line breaks align to [Start].
          */
-        val Justify
+        public val Justify: TextAlign
             get() = TextAlign(4)
 
         /**
@@ -65,7 +65,7 @@ value class TextAlign internal constructor(val value: Int) {
          *
          * Maps to the left edge for LTR, and the right edge for RTL.
          */
-        val Start
+        public val Start: TextAlign
             get() = TextAlign(5)
 
         /**
@@ -73,15 +73,15 @@ value class TextAlign internal constructor(val value: Int) {
          *
          * Maps to the right edge for LTR, and the left edge for RTL.
          */
-        val End
+        public val End: TextAlign
             get() = TextAlign(6)
 
         /** Represents an unset [TextAlign] value. */
-        val Unspecified
+        public val Unspecified: TextAlign
             get() = TextAlign(0)
 
         /** Return a list containing all possible values of TextAlign. */
-        fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
+        public fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
 
         /**
          * Creates [TextAlign] from [value].
@@ -92,7 +92,7 @@ value class TextAlign internal constructor(val value: Int) {
          * @throws IllegalArgumentException if [value] is invalid.
          * @see [TextAlign.value]
          */
-        fun valueOf(value: Int): TextAlign {
+        public fun valueOf(value: Int): TextAlign {
             requirePrecondition(value in 0..6) {
                 "The given value=$value is not recognized by TextAlign."
             }
@@ -106,13 +106,13 @@ value class TextAlign internal constructor(val value: Int) {
  *
  * @see TextAlign.Unspecified
  */
-inline val TextAlign.isSpecified: Boolean
+public inline val TextAlign.isSpecified: Boolean
     get() = value != 0
 
 /**
  * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
  * returned.
  */
-inline fun TextAlign.takeOrElse(block: () -> TextAlign): TextAlign {
+public inline fun TextAlign.takeOrElse(block: () -> TextAlign): TextAlign {
     return if (isSpecified) this else block()
 }

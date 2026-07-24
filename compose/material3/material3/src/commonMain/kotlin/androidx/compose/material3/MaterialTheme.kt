@@ -53,12 +53,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * @param content The content inheriting this theme
  */
 @Composable
-fun MaterialTheme(
+public fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit,
-) =
+): Unit =
     MaterialTheme(
         colorScheme = colorScheme,
         motionScheme = MaterialTheme.motionScheme,
@@ -89,7 +89,7 @@ fun MaterialTheme(
  * @param typography A set of text styles to be used as this hierarchy's typography system
  */
 @Composable
-fun MaterialTheme(
+public fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     motionScheme: MotionScheme = MaterialTheme.motionScheme,
     shapes: Shapes = MaterialTheme.shapes,
@@ -120,14 +120,14 @@ fun MaterialTheme(
  * Contains functions to access the current theme values provided at the call site's position in the
  * hierarchy.
  */
-object MaterialTheme {
+public object MaterialTheme {
 
     /**
      * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
      *
      * @sample androidx.compose.material3.samples.ThemeColorSample
      */
-    val colorScheme: ColorScheme
+    public val colorScheme: ColorScheme
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.colorScheme
 
     /**
@@ -135,7 +135,7 @@ object MaterialTheme {
      *
      * @sample androidx.compose.material3.samples.ThemeTextStyleSample
      */
-    val typography: Typography
+    public val typography: Typography
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.typography
 
     /**
@@ -143,11 +143,11 @@ object MaterialTheme {
      *
      * @sample androidx.compose.material3.samples.ThemeShapeSample
      */
-    val shapes: Shapes
+    public val shapes: Shapes
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.shapes
 
     /** Retrieves the current [MotionScheme] at the call site's position in the hierarchy. */
-    val motionScheme: MotionScheme
+    public val motionScheme: MotionScheme
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.motionScheme
 
     /**
@@ -157,7 +157,7 @@ object MaterialTheme {
      * values from inside CompositionLocalConsumerModifierNode implementations - in most cases you
      * should use [colorScheme] and other properties directly.
      */
-    val LocalMaterialTheme: CompositionLocal<Values>
+    public val LocalMaterialTheme: CompositionLocal<Values>
         get() = _localMaterialTheme
 
     /**
@@ -179,7 +179,7 @@ object MaterialTheme {
         level = DeprecationLevel.WARNING,
         message = "Use [LocalMaterialTheme.current.motionScheme] instead",
     )
-    val LocalMotionScheme: CompositionLocal<MotionScheme>
+    public val LocalMotionScheme: CompositionLocal<MotionScheme>
         get() = compositionLocalWithComputedDefaultOf {
             LocalMaterialTheme.currentValue.motionScheme
         }
@@ -196,11 +196,11 @@ object MaterialTheme {
      * @property motionScheme [MotionScheme] used by material components
      */
     @Immutable
-    class Values(
-        val colorScheme: ColorScheme = lightColorScheme(),
-        val typography: Typography = Typography(),
-        val shapes: Shapes = Shapes(),
-        val motionScheme: MotionScheme = standard(),
+    public class Values(
+        public val colorScheme: ColorScheme = lightColorScheme(),
+        public val typography: Typography = Typography(),
+        public val shapes: Shapes = Shapes(),
+        public val motionScheme: MotionScheme = standard(),
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -258,7 +258,7 @@ object MaterialTheme {
  * @param content The content inheriting this theme
  */
 @Composable
-fun MaterialExpressiveTheme(
+public fun MaterialExpressiveTheme(
     colorScheme: ColorScheme? = null,
     motionScheme: MotionScheme? = null,
     shapes: Shapes? = null,

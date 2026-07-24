@@ -48,9 +48,9 @@ import kotlin.math.roundToInt
  * @see TrackpadInjectionScope
  */
 // TODO(fresen): add better multi modal example when we have key input support
-sealed interface MultiModalInjectionScope : InjectionScope {
+public sealed interface MultiModalInjectionScope : InjectionScope {
     /** Injects all touch events sent by the given [block] */
-    fun touch(block: TouchInjectionScope.() -> Unit)
+    public fun touch(block: TouchInjectionScope.() -> Unit)
 
     /**
      * Injects all indirect pointer events sent by the given [block]. This API requires an active
@@ -69,7 +69,7 @@ sealed interface MultiModalInjectionScope : InjectionScope {
      *   will throw an exception. Note: This is not related to the screen coordinates.
      * @param block Block of code/events to execute in indirect scope
      */
-    fun indirectPointer(
+    public fun indirectPointer(
         indirectPointerEventPrimaryDirectionalMotionAxis:
             IndirectPointerEventPrimaryDirectionalMotionAxis,
         inputDeviceSize: IntSize,
@@ -77,16 +77,16 @@ sealed interface MultiModalInjectionScope : InjectionScope {
     )
 
     /** Injects all mouse events sent by the given [block] */
-    fun mouse(block: MouseInjectionScope.() -> Unit)
+    public fun mouse(block: MouseInjectionScope.() -> Unit)
 
     /** Injects all key events sent by the given [block] */
-    fun key(block: KeyInjectionScope.() -> Unit)
+    public fun key(block: KeyInjectionScope.() -> Unit)
 
     /** Injects all rotary events sent by the given [block] */
-    fun rotary(block: RotaryInjectionScope.() -> Unit)
+    public fun rotary(block: RotaryInjectionScope.() -> Unit)
 
     /** Injects all trackpad events sent by the given [block] */
-    fun trackpad(block: TrackpadInjectionScope.() -> Unit)
+    public fun trackpad(block: TrackpadInjectionScope.() -> Unit)
 }
 
 internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: TestContext) :

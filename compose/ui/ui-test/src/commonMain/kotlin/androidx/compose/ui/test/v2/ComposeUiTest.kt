@@ -96,7 +96,7 @@ import kotlinx.coroutines.test.TestResult
             "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
         ),
 )
-expect fun runComposeUiTest(
+public expect fun runComposeUiTest(
     effectContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     runTestContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     testTimeout: Duration = kotlin.time.Duration.parse("60s"),
@@ -125,7 +125,7 @@ expect fun runComposeUiTest(
  *   environment-specific settings.
  * @param block The test function.
  */
-expect fun runComposeUiTest(
+public expect fun runComposeUiTest(
     config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult
@@ -155,4 +155,4 @@ expect fun runComposeUiTest(
  * @sample androidx.compose.ui.test.samples.RunComposeUiTestConfigSample
  * @param block The test function.
  */
-expect fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult
+public expect fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult

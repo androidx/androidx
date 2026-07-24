@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalResources
  *
  * @return Loaded image file represented as an [ImageBitmap]
  */
-fun ImageBitmap.Companion.imageResource(res: Resources, @DrawableRes id: Int): ImageBitmap {
+public fun ImageBitmap.Companion.imageResource(res: Resources, @DrawableRes id: Int): ImageBitmap {
     return (res.getDrawable(id, null) as BitmapDrawable).bitmap.asImageBitmap()
 }
 
@@ -50,7 +50,7 @@ fun ImageBitmap.Companion.imageResource(res: Resources, @DrawableRes id: Int): I
  * @return the decoded image data associated with the resource
  */
 @Composable
-fun ImageBitmap.Companion.imageResource(@DrawableRes id: Int): ImageBitmap {
+public fun ImageBitmap.Companion.imageResource(@DrawableRes id: Int): ImageBitmap {
     val resources = LocalResources.current
     val value = remember { TypedValue() }
     resources.getValue(id, value, true)

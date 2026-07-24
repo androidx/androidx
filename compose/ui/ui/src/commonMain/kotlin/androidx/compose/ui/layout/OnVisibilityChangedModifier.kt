@@ -63,12 +63,12 @@ import kotlinx.coroutines.launch
  * @see layoutBounds
  */
 @Stable
-fun Modifier.onVisibilityChanged(
+public fun Modifier.onVisibilityChanged(
     @IntRange(from = 0) minDurationMs: Long = 0,
     @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,
     viewportBounds: LayoutBoundsHolder? = null,
     callback: (Boolean) -> Unit,
-) =
+): Modifier =
     this then
         OnVisibilityChangedElement(minDurationMs, minFractionVisible, viewportBounds, callback)
 
@@ -107,7 +107,7 @@ fun Modifier.onVisibilityChanged(
  *   true in cases where the fraction visible is greater, and false when it is not.
  * @see onVisibilityChanged
  */
-fun onVisibilityChangedNode(
+public fun onVisibilityChangedNode(
     @IntRange(from = 0) minDurationMs: Long = 0,
     @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,
     viewportBounds: LayoutBoundsHolder? = null,

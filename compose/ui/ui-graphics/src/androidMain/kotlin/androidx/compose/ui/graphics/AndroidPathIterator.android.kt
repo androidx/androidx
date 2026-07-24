@@ -20,7 +20,7 @@ import androidx.graphics.path.PathIterator as PlatformPathIterator
 import androidx.graphics.path.PathIterator.ConicEvaluation as PlatformConicEvaluation
 import androidx.graphics.path.PathSegment.Type as PlatformPathSegmentType
 
-actual fun PathIterator(
+public actual fun PathIterator(
     path: Path,
     conicEvaluation: PathIterator.ConicEvaluation,
     tolerance: Float,

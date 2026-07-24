@@ -17,4 +17,4 @@
 package androidx.compose.ui.graphics.drawscope
 
 /** DSL marker used to distinguish between drawing operations and canvas transform operations */
-@DslMarker annotation class DrawScopeMarker
+@DslMarker public annotation class DrawScopeMarker

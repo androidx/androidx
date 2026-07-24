@@ -62,7 +62,7 @@ import kotlin.math.max
  * @see paddingFromBaseline
  */
 @Stable
-fun Modifier.paddingFrom(
+public fun Modifier.paddingFrom(
     alignmentLine: AlignmentLine,
     before: Dp = Dp.Unspecified,
     after: Dp = Dp.Unspecified,
@@ -106,7 +106,7 @@ fun Modifier.paddingFrom(
  * @see paddingFromBaseline
  */
 @Stable
-fun Modifier.paddingFrom(
+public fun Modifier.paddingFrom(
     alignmentLine: AlignmentLine,
     before: TextUnit = TextUnit.Unspecified,
     after: TextUnit = TextUnit.Unspecified,
@@ -141,7 +141,10 @@ fun Modifier.paddingFrom(
  * @see paddingFrom
  */
 @Stable
-fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspecified) =
+public fun Modifier.paddingFromBaseline(
+    top: Dp = Dp.Unspecified,
+    bottom: Dp = Dp.Unspecified,
+): Modifier =
     this.then(
             if (top.isSpecified) {
                 Modifier.paddingFrom(FirstBaseline, before = top)
@@ -173,10 +176,10 @@ fun Modifier.paddingFromBaseline(top: Dp = Dp.Unspecified, bottom: Dp = Dp.Unspe
  * @see paddingFrom
  */
 @Stable
-fun Modifier.paddingFromBaseline(
+public fun Modifier.paddingFromBaseline(
     top: TextUnit = TextUnit.Unspecified,
     bottom: TextUnit = TextUnit.Unspecified,
-) =
+): Modifier =
     this.then(
             if (!top.isUnspecified) Modifier.paddingFrom(FirstBaseline, before = top) else Modifier
         )

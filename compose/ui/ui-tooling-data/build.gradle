@@ -75,6 +75,5 @@ androidx {
     inceptionYear = "2021"
     description = "Compose tooling library data. This library provides data about compose" +
             " for different tooling purposes."
-    legacyDisableKotlinStrictApiMode = true
 }
 

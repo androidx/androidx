@@ -22,14 +22,14 @@ package androidx.compose.ui.text.font
  * @see FontFamily
  */
 @kotlin.jvm.JvmInline
-value class FontStyle
+public value class FontStyle
 @Deprecated(
     "Please use FontStyle.Normal or FontStyle.Italic",
     replaceWith = ReplaceWith("FontStyle."),
 )
-constructor(val value: Int) {
+public constructor(public val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Normal -> "Normal"
             Italic -> "Italic"
@@ -37,18 +37,18 @@ constructor(val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /** Use the upright glyphs */
         @Suppress("DEPRECATION")
-        val Normal
+        public val Normal: FontStyle
             get() = FontStyle(0)
 
         /** Use glyphs designed for slanting */
         @Suppress("DEPRECATION")
-        val Italic
+        public val Italic: FontStyle
             get() = FontStyle(1)
 
         /** Returns a list of possible values of [FontStyle]. */
-        fun values(): List<FontStyle> = listOf(Normal, Italic)
+        public fun values(): List<FontStyle> = listOf(Normal, Italic)
     }
 }
