@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"清單方塊"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"文字欄位"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"簽名"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"要捨棄變更嗎？"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"變更尚未儲存。"</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"繼續編輯"</string>
+    <string name="discard_button" msgid="345675813790884187">"捨棄"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"畫筆"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"螢光筆"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"橡皮擦"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"調色盤"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"還原"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"重做"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"切換註解"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"深藍色"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"紅色"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"綠色"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"金色"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"橄欖綠"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"棕色"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"灰色"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"藍色"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"珊瑚紅"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"萊姆綠"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"黃色"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"青檸色"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"棕褐色"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"淺灰色"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"紫色"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"粉紅色"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"薄荷綠"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"橘色"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"鋼藍色"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"深紅色"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"白色"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"薰衣草色"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"淡粉紅色"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"淡綠色"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"蜜桃色"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"淺藍色"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"淡橙紅"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"白色"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"珊瑚紅"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"萊姆綠"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"長春藍"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"橘色"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"黃色"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"淡粉紅色"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"淺藍色"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"淡綠色"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"鮮黃色"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"蜜桃色"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"乾燥玫瑰色"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"橄欖綠"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"中紫色"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"中綠色"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"玫瑰粉"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"鋼藍色"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"紫丁香色"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"灰綠色"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"米色"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>

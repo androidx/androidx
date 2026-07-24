@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"பட்டியல் பெட்டி"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"வார்த்தைப் பெட்டி"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"கையொப்பம்"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"மாற்றங்களை நிராகரிக்கவா?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"நீங்கள் செய்த மாற்றங்கள் சேமிக்கப்படவில்லை."</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"தொடர்ந்து திருத்து"</string>
+    <string name="discard_button" msgid="345675813790884187">"நிராகரி"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"பேனா"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"ஹைலைட்டர்"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"எரேசர்"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"வண்ணத் தட்டு"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"செயல்தவிர்க்கும்"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"மீண்டும் செய்யும்"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"விரிவுரையை நிலைமாற்றும்"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"அடர் நீலம்"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"சிவப்பு"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"பச்சை"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"தங்கம்"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"ஆலிவ் பச்சை"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"பழுப்பு"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"சாம்பல்"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"நீலம்"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"பவளச் சிவப்பு"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"இளம் பச்சை"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"மஞ்சள்"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"வெளிர் எலுமிச்சை நிறம்"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"மஞ்சள் கலந்த பழுப்பு"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"வெளிர் சாம்பல்"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"ஊதா"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"இளஞ்சிவப்பு"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"குளிர்பச்சை"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"ஆரஞ்சு"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"ஸ்டீல் நீலம்"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"அடர் சிவப்பு"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"வெள்ளை"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"லாவெண்டர்"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"வெளிர் இளஞ்சிவப்பு"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"வெளிர் பச்சை"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"பீச்"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"வெளிர் நீலம்"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"சால்மன்"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"வெள்ளை"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"பவளச் சிவப்பு"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"இளம் பச்சை"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"பெரிவிங்கிள் நீலம்"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"ஆரஞ்சு"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"மஞ்சள்"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"வெளிர் இளஞ்சிவப்பு"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"வெளிர் நீலம்"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"வெளிர் பச்சை"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"பிரகாசமான மஞ்சள்"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"பீச்"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"டஸ்டி ரோஸ்"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"ஆலிவ் பச்சை"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"நடுத்தர ஊதா"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"நடுத்தரப் பச்சை"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"ரோஸ் இளஞ்சிவப்பு"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"ஸ்டீல் நீலம்"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"இளம் ஊதா"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"வெளிர் பச்சை"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"பழுப்பு"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>
