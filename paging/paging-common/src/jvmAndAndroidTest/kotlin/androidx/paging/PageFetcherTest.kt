@@ -612,90 +612,200 @@ class PageFetcherTest {
         }
 
     @Test
-    fun jump() =
+    fun jump_prependPlaceholders() =
         testScope.runTest {
-            withContext(coroutineContext) {
-                val pagingSources = mutableListOf<PagingSource<Int, Int>>()
-                val pagingSourceFactory = suspend {
-                    TestPagingSource().also { pagingSources.add(it) }
-                }
-                val config =
-                    PagingConfig(
-                        pageSize = 1,
-                        prefetchDistance = 1,
-                        enablePlaceholders = true,
-                        initialLoadSize = 2,
-                        maxSize = 3,
-                        jumpThreshold = 10,
-                    )
-                val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
-                val fetcherState = collectFetcherState(pageFetcher)
+            val pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSourceFactory = suspend { TestPagingSource().also { pagingSources.add(it) } }
+            val config =
+                PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 1,
+                    enablePlaceholders = true,
+                    initialLoadSize = 2,
+                    maxSize = 3,
+                    jumpThreshold = 10,
+                )
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
 
-                advanceUntilIdle()
-                assertThat(fetcherState.newEvents())
-                    .isEqualTo(
-                        listOf(
-                            localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51),
-                        )
+            advanceUntilIdle()
+            assertThat(fetcherState.newEvents())
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 50..51),
                     )
+                )
 
-                // Jump due to sufficiently large presentedItemsBefore
-                fetcherState.pagingDataList[0]
-                    .hintReceiver
-                    .processHint(
-                        ViewportHint.Access(
-                            pageOffset = 0,
-                            // indexInPage value is incorrect, but should not be considered for
-                            // jumps
-                            indexInPage = 0,
-                            presentedItemsBefore = -20,
-                            presentedItemsAfter = 0,
-                            originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0,
-                        )
+            // Jump due to sufficiently large presentedItemsBefore
+            fetcherState.pagingDataList[0]
+                .hintReceiver
+                .processHint(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        // indexInPage value is incorrect, but should not be considered for
+                        // jumps
+                        indexInPage = 0,
+                        presentedItemsBefore = -20,
+                        presentedItemsAfter = 0,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
                     )
-                advanceUntilIdle()
-                assertTrue { pagingSources[0].invalid }
-                // Assert no new events added to current generation
-                assertEquals(2, fetcherState.pageEventLists[0].size)
-                assertThat(fetcherState.newEvents())
-                    .isEqualTo(
-                        listOf(
-                            localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51),
-                        )
+                )
+            advanceUntilIdle()
+            assertTrue { pagingSources[0].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[0].size)
+            val newvents = fetcherState.newEvents()
+            assertThat(newvents)
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 30..31),
                     )
+                )
+            fetcherState.job.cancel()
+        }
 
-                // Jump due to sufficiently large presentedItemsAfter
-                fetcherState.pagingDataList[1]
-                    .hintReceiver
-                    .processHint(
-                        ViewportHint.Access(
-                            pageOffset = 0,
-                            // indexInPage value is incorrect, but should not be considered for
-                            // jumps
-                            indexInPage = 0,
-                            presentedItemsBefore = 0,
-                            presentedItemsAfter = -20,
-                            originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0,
-                        )
-                    )
-                advanceUntilIdle()
-                assertTrue { pagingSources[1].invalid }
-                // Assert no new events added to current generation
-                assertEquals(2, fetcherState.pageEventLists[1].size)
-                assertThat(fetcherState.newEvents())
-                    .isEqualTo(
-                        listOf(
-                            localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51),
-                        )
-                    )
+    @Test
+    fun jump_appendPlaceholders() =
+        testScope.runTest {
+            val pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSourceFactory = suspend { TestPagingSource().also { pagingSources.add(it) } }
+            val config =
+                PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 1,
+                    enablePlaceholders = true,
+                    initialLoadSize = 2,
+                    maxSize = 3,
+                    jumpThreshold = 10,
+                )
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
 
-                fetcherState.job.cancel()
-            }
+            advanceUntilIdle()
+            assertThat(fetcherState.newEvents())
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 50..51),
+                    )
+                )
+
+            // Jump due to sufficiently large presentedItemsAfter
+            fetcherState.pagingDataList[0]
+                .hintReceiver
+                .processHint(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        // indexInPage value is incorrect, but should not be considered for
+                        // jumps
+                        indexInPage = 0,
+                        presentedItemsBefore = 0,
+                        presentedItemsAfter = -20,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
+                    )
+                )
+            advanceUntilIdle()
+            assertTrue { pagingSources[0].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[1].size)
+            assertThat(fetcherState.newEvents())
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 71..72),
+                    )
+                )
+
+            fetcherState.job.cancel()
+        }
+
+    @Test
+    fun jump_prependPlaceholdersThenAppendPlaceholders() =
+        testScope.runTest {
+            val pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSourceFactory = suspend { TestPagingSource().also { pagingSources.add(it) } }
+            val config =
+                PagingConfig(
+                    pageSize = 1,
+                    prefetchDistance = 1,
+                    enablePlaceholders = true,
+                    initialLoadSize = 2,
+                    maxSize = 3,
+                    jumpThreshold = 10,
+                )
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+            assertThat(fetcherState.newEvents())
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 50..51),
+                    )
+                )
+
+            // Jump due to sufficiently large presentedItemsBefore
+            fetcherState.pagingDataList[0]
+                .hintReceiver
+                .processHint(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        // indexInPage value is incorrect, but should not be considered for
+                        // jumps
+                        indexInPage = 0,
+                        presentedItemsBefore = -20,
+                        presentedItemsAfter = 0,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
+                    )
+                )
+            advanceUntilIdle()
+            assertTrue { pagingSources[0].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[0].size)
+            val newvents = fetcherState.newEvents()
+            assertThat(newvents)
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 30..31),
+                    )
+                )
+
+            // Jump due to sufficiently large presentedItemsAfter
+            fetcherState.pagingDataList[1]
+                .hintReceiver
+                .processHint(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        // indexInPage value is incorrect, but should not be considered for
+                        // jumps
+                        indexInPage = 0,
+                        presentedItemsBefore = 0,
+                        presentedItemsAfter = -20,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
+                    )
+                )
+            advanceUntilIdle()
+            assertTrue { pagingSources[1].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[1].size)
+            // the second jump is based off on last loaded page, which is idx 30 + 20 placeholders
+            assertThat(fetcherState.newEvents())
+                .isEqualTo(
+                    listOf(
+                        localLoadStateUpdate(refreshLocal = Loading),
+                        createRefresh(range = 51..52),
+                    )
+                )
+
+            fetcherState.job.cancel()
         }
 
     @Test
