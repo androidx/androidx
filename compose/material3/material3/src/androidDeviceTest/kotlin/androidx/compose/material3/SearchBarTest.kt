@@ -1092,8 +1092,8 @@ class SearchBarTest {
         }
 
         rule.runOnIdle {
-            scrollBehavior!!.scrollOffsetLimit = -350f
-            scrollBehavior!!.scrollOffset = -300f
+            scrollBehavior!!.scrollState.scrollOffsetLimit = -350f
+            scrollBehavior!!.scrollState.scrollOffset = -300f
         }
 
         scrollBehavior = null
@@ -1101,8 +1101,8 @@ class SearchBarTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         rule.runOnIdle {
-            assertThat(scrollBehavior!!.scrollOffsetLimit).isEqualTo(-350f)
-            assertThat(scrollBehavior!!.scrollOffset).isEqualTo(-300f)
+            assertThat(scrollBehavior!!.scrollState.scrollOffsetLimit).isEqualTo(-350f)
+            assertThat(scrollBehavior!!.scrollState.scrollOffset).isEqualTo(-300f)
         }
     }
 
