@@ -22,6 +22,7 @@ import androidx.annotation.UiThread;
 
 import org.chromium.support_lib_boundary.HttpCacheBoundaryInterface;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * HttpCache manages the configuration of the HTTP cache for a {@link Profile}.
@@ -30,10 +31,14 @@ import org.jspecify.annotations.NonNull;
  */
 public final class HttpCache {
     private final @NonNull HttpCacheBoundaryInterface mHttpCacheImpl;
+    private final @NonNull String mProfileName;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public HttpCache(@NonNull HttpCacheBoundaryInterface httpCacheImpl) {
+    public HttpCache(
+            @NonNull String profileName,
+            @NonNull HttpCacheBoundaryInterface httpCacheImpl) {
         mHttpCacheImpl = httpCacheImpl;
+        mProfileName = profileName;
     }
 
     /**
@@ -129,4 +134,34 @@ public final class HttpCache {
         }
         mHttpCacheImpl.setQuotaBytes(quotaInBytes);
     }
+
+    /**
+     * Compares this HttpCache with the specified object for equality.
+     * <p>
+     * Two {@link HttpCache} instances are considered equal if they are associated with the same
+     * {@link Profile} (i.e., they have the same profile name).
+     *
+     * @param obj the object to compare with.
+     * @return {@code true} if the objects are equal; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof HttpCache)) {
+            return false;
+        }
+        HttpCache other = (HttpCache) obj;
+        return this.mProfileName.equals(other.mProfileName);
+    }
+
+    /**
+     * Returns a hash code value for the object, consistent with {@link #equals(Object)}.
+     */
+    @Override
+    public int hashCode() {
+        return mProfileName.hashCode();
+    }
+
 }

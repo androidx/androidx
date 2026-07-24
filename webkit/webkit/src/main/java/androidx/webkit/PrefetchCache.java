@@ -55,10 +55,14 @@ import java.util.concurrent.Executor;
 public final class PrefetchCache {
 
     private final @NonNull ProfileBoundaryInterface mProfileImpl;
+    private final @NonNull String mProfileName;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public PrefetchCache(@NonNull ProfileBoundaryInterface profileImpl) {
+    public PrefetchCache(
+            @NonNull String profileName,
+            @NonNull ProfileBoundaryInterface profileImpl) {
         mProfileImpl = profileImpl;
+        mProfileName = profileName;
     }
 
     /**
@@ -373,5 +377,34 @@ public final class PrefetchCache {
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+    }
+
+    /**
+     * Compares this PrefetchCache with the specified object for equality.
+     * <p>
+     * Two {@link PrefetchCache} instances are considered equal if they are associated with the same
+     * {@link Profile} (i.e., they have the same profile name).
+     *
+     * @param obj the object to compare with.
+     * @return {@code true} if the objects are equal; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof PrefetchCache)) {
+            return false;
+        }
+        PrefetchCache other = (PrefetchCache) obj;
+        return this.mProfileName.equals(other.mProfileName);
+    }
+
+    /**
+     * Returns a hash code value for the object, consistent with {@link #equals(Object)}.
+     */
+    @Override
+    public int hashCode() {
+        return mProfileName.hashCode();
     }
 }
