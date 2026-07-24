@@ -50,7 +50,7 @@ fun ClickableDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { ClickableDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

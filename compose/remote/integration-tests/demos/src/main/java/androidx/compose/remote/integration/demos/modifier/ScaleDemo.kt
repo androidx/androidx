@@ -43,7 +43,7 @@ fun ScaleDemo() {
     RemoteDemo(modifier = Modifier.fillMaxSize().padding(16.dp)) { ScaleDemoContent() }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText
 @RemoteComponentPreview
 @Composable
 @RemoteComposable
@@ -63,7 +63,7 @@ private fun ScaleDemoContent() {
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview, RemoteText, background
+@Suppress("RestrictedApiAndroidX") // Referring to background
 @Composable
 @RemoteComposable
 private fun Content(testModifier: RemoteModifier) {

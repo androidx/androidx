@@ -86,8 +86,7 @@ class ListActivity : ComponentActivity() {
 @Composable
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteText, background, rememberRemoteScrollState, remote-player-view,
-// verticalScroll
+) // Referring to RemoteText, rememberRemoteScrollState, verticalScroll, remote-player-view
 fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
     val scrollState = rememberRemoteScrollState()
     RemoteColumn(
