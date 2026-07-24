@@ -28,6 +28,7 @@ import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import kotlin.math.abs
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -403,6 +404,9 @@ private constructor(private val config: PagingConfig) {
                     // incrementally
                     // build anchorPosition and adjust the value we use for placeholdersBefore
                     // accordingly.
+                    // This loop does not include items from the actual page that the hint was based
+                    // on, so
+                    // they need to be added in the following step.
                     for (pageOffset in fetcherPageOffsetFirst until hint.pageOffset) {
                         // Aside from incrementing anchorPosition normally using the loaded page's
                         // size, there are 4 race-cases to consider:
@@ -439,7 +443,29 @@ private constructor(private val config: PagingConfig) {
                     // hint.indexInPage, which accounts for placeholders and may not be within the
                     // bounds
                     // of page.data.indices.
-                    anchorPosition += hint.indexInPage
+                    anchorPosition +=
+                        // Accessing placeholders. `indexInPage` may include separators, but
+                        // they need to be excluded from
+                        // anchorPosition so we cannot rely on `indexInPage` and should use
+                        // `presentedItemsX` instead.
+                        // This will work for non-transformed data as well as data with
+                        // separators.
+                        if (hint.presentedItemsAfter < 0) {
+                            // adding last page's loaded data size + number of
+                            // placeholders accessed.
+                            pages[hint.pageOffset + initialPageIndex].data.size - 1 +
+                                abs(hint.presentedItemsAfter)
+                        } else if (hint.presentedItemsBefore < 0) {
+                            // essentially deducting accessed placeholders from placeholdersBefore
+                            hint.presentedItemsBefore
+                        } else {
+                            // Access within bounds of loaded data. `indexInPage` may include
+                            // separators, but
+                            // this layer does not if any or how many separators were injected, so
+                            // using indexInPage is
+                            // a best-effort here
+                            hint.indexInPage
+                        }
 
                     // In the special case where viewportHint references a missing PREPEND page, we
                     // need
