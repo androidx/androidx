@@ -36,6 +36,7 @@ import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.InteropConfigurator;
 import androidx.camera.core.Logger;
 import androidx.camera.core.imagecapture.CameraCapturePipeline;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -617,6 +618,14 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public @NonNull Config getInteropConfig() {
         return MutableOptionsBundle.from(mInteropConfig);
+    }
+
+    @Override
+    public @NonNull ListenableFuture<Void> applyInteropAsync(
+            @NonNull InteropConfigurator<? super CameraControl> configurator) {
+        configurator.configure(this);
+        mControlUpdateCallback.onCameraControlUpdateSessionConfig();
+        return Futures.immediateFuture(null);
     }
 
     /**
