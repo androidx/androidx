@@ -18,16 +18,16 @@ package androidx.compose.foundation.content
 
 import androidx.compose.foundation.implementedInJetBrainsFork
 
-actual class MediaType internal constructor() {
-    actual constructor(representation: String) : this()
+public actual class MediaType internal constructor() {
+    public actual constructor(representation: String) : this()
 
-    actual val representation: String = implementedInJetBrainsFork()
+    public actual val representation: String = implementedInJetBrainsFork()
 
-    actual companion object {
-        actual val Text: MediaType = implementedInJetBrainsFork()
-        actual val PlainText: MediaType = implementedInJetBrainsFork()
-        actual val HtmlText: MediaType = implementedInJetBrainsFork()
-        actual val Image: MediaType = implementedInJetBrainsFork()
-        actual val All: MediaType = implementedInJetBrainsFork()
+    public actual companion object {
+        public actual val Text: MediaType = implementedInJetBrainsFork()
+        public actual val PlainText: MediaType = implementedInJetBrainsFork()
+        public actual val HtmlText: MediaType = implementedInJetBrainsFork()
+        public actual val Image: MediaType = implementedInJetBrainsFork()
+        public actual val All: MediaType = implementedInJetBrainsFork()
     }
 }

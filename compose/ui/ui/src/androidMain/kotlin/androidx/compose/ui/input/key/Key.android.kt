@@ -30,10 +30,10 @@ import androidx.compose.ui.util.unpackInt1
  * @sample androidx.compose.ui.samples.KeyEventIsAltPressedSample
  */
 @JvmInline
-actual value class Key(val keyCode: Long) {
-    actual companion object {
+public actual value class Key(public val keyCode: Long) {
+    public actual companion object {
         /** Unknown key. */
-        actual val Unknown
+        public actual val Unknown: Key
             get() = Key(KeyEvent.KEYCODE_UNKNOWN)
 
         /**
@@ -42,7 +42,7 @@ actual value class Key(val keyCode: Long) {
          * Usually situated below the display on phones and used as a multi-function feature key for
          * selecting a software defined function shown on the bottom left of the display.
          */
-        actual val SoftLeft
+        public actual val SoftLeft: Key
             get() = Key(KeyEvent.KEYCODE_SOFT_LEFT)
 
         /**
@@ -51,7 +51,7 @@ actual value class Key(val keyCode: Long) {
          * Usually situated below the display on phones and used as a multi-function feature key for
          * selecting a software defined function shown on the bottom right of the display.
          */
-        actual val SoftRight
+        public actual val SoftRight: Key
             get() = Key(KeyEvent.KEYCODE_SOFT_RIGHT)
 
         /**
@@ -65,7 +65,7 @@ actual value class Key(val keyCode: Long) {
                 "`Key.SystemHome`",
             level = DeprecationLevel.ERROR,
         )
-        actual val Home
+        public actual val Home: Key
             get() = Key(KeyEvent.KEYCODE_HOME)
 
         /**
@@ -73,15 +73,15 @@ actual value class Key(val keyCode: Long) {
          *
          * This key is handled by the framework and is never delivered to applications.
          */
-        actual val SystemHome
+        public actual val SystemHome: Key
             get() = Key(KeyEvent.KEYCODE_HOME)
 
         /** Back key. */
-        actual val Back
+        public actual val Back: Key
             get() = Key(KeyEvent.KEYCODE_BACK)
 
         /** Help key. */
-        actual val Help
+        public actual val Help: Key
             get() = Key(KeyEvent.KEYCODE_HELP)
 
         /**
@@ -89,7 +89,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Goes backward by one item in an ordered collection of items.
          */
-        actual val NavigatePrevious
+        public actual val NavigatePrevious: Key
             get() = Key(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS)
 
         /**
@@ -97,7 +97,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Advances to the next item in an ordered collection of items.
          */
-        actual val NavigateNext
+        public actual val NavigateNext: Key
             get() = Key(KeyEvent.KEYCODE_NAVIGATE_NEXT)
 
         /**
@@ -106,7 +106,7 @@ actual value class Key(val keyCode: Long) {
          * Activates the item that currently has focus or expands to the next level of a navigation
          * hierarchy.
          */
-        actual val NavigateIn
+        public actual val NavigateIn: Key
             get() = Key(KeyEvent.KEYCODE_NAVIGATE_IN)
 
         /**
@@ -115,31 +115,31 @@ actual value class Key(val keyCode: Long) {
          * Backs out one level of a navigation hierarchy or collapses the item that currently has
          * focus.
          */
-        actual val NavigateOut
+        public actual val NavigateOut: Key
             get() = Key(KeyEvent.KEYCODE_NAVIGATE_OUT)
 
         /** Consumed by the system for navigation up. */
-        actual val SystemNavigationUp
+        public actual val SystemNavigationUp: Key
             get() = Key(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP)
 
         /** Consumed by the system for navigation down. */
-        actual val SystemNavigationDown
+        public actual val SystemNavigationDown: Key
             get() = Key(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN)
 
         /** Consumed by the system for navigation left. */
-        actual val SystemNavigationLeft
+        public actual val SystemNavigationLeft: Key
             get() = Key(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_LEFT)
 
         /** Consumed by the system for navigation right. */
-        actual val SystemNavigationRight
+        public actual val SystemNavigationRight: Key
             get() = Key(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_RIGHT)
 
         /** Call key. */
-        actual val Call
+        public actual val Call: Key
             get() = Key(KeyEvent.KEYCODE_CALL)
 
         /** End Call key. */
-        actual val EndCall
+        public actual val EndCall: Key
             get() = Key(KeyEvent.KEYCODE_ENDCALL)
 
         /**
@@ -147,7 +147,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionUp
+        public actual val DirectionUp: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_UP)
 
         /**
@@ -155,7 +155,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionDown
+        public actual val DirectionDown: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_DOWN)
 
         /**
@@ -163,7 +163,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionLeft
+        public actual val DirectionLeft: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_LEFT)
 
         /**
@@ -171,7 +171,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionRight
+        public actual val DirectionRight: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_RIGHT)
 
         /**
@@ -179,23 +179,23 @@ actual value class Key(val keyCode: Long) {
          *
          * May also be synthesized from trackball motions.
          */
-        actual val DirectionCenter
+        public actual val DirectionCenter: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_CENTER)
 
         /** Directional Pad Up-Left. */
-        actual val DirectionUpLeft
+        public actual val DirectionUpLeft: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_UP_LEFT)
 
         /** Directional Pad Down-Left. */
-        actual val DirectionDownLeft
+        public actual val DirectionDownLeft: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_DOWN_LEFT)
 
         /** Directional Pad Up-Right. */
-        actual val DirectionUpRight
+        public actual val DirectionUpRight: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_UP_RIGHT)
 
         /** Directional Pad Down-Right. */
-        actual val DirectionDownRight
+        public actual val DirectionDownRight: Key
             get() = Key(KeyEvent.KEYCODE_DPAD_DOWN_RIGHT)
 
         /**
@@ -203,7 +203,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Adjusts the speaker volume up.
          */
-        actual val VolumeUp
+        public actual val VolumeUp: Key
             get() = Key(KeyEvent.KEYCODE_VOLUME_UP)
 
         /**
@@ -211,11 +211,11 @@ actual value class Key(val keyCode: Long) {
          *
          * Adjusts the speaker volume down.
          */
-        actual val VolumeDown
+        public actual val VolumeDown: Key
             get() = Key(KeyEvent.KEYCODE_VOLUME_DOWN)
 
         /** Power key. */
-        actual val Power
+        public actual val Power: Key
             get() = Key(KeyEvent.KEYCODE_POWER)
 
         /**
@@ -223,207 +223,207 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a camera application or take pictures.
          */
-        actual val Camera
+        public actual val Camera: Key
             get() = Key(KeyEvent.KEYCODE_CAMERA)
 
         /** Clear key. */
-        actual val Clear
+        public actual val Clear: Key
             get() = Key(KeyEvent.KEYCODE_CLEAR)
 
         /** '0' key. */
-        actual val Zero
+        public actual val Zero: Key
             get() = Key(KeyEvent.KEYCODE_0)
 
         /** '1' key. */
-        actual val One
+        public actual val One: Key
             get() = Key(KeyEvent.KEYCODE_1)
 
         /** '2' key. */
-        actual val Two
+        public actual val Two: Key
             get() = Key(KeyEvent.KEYCODE_2)
 
         /** '3' key. */
-        actual val Three
+        public actual val Three: Key
             get() = Key(KeyEvent.KEYCODE_3)
 
         /** '4' key. */
-        actual val Four
+        public actual val Four: Key
             get() = Key(KeyEvent.KEYCODE_4)
 
         /** '5' key. */
-        actual val Five
+        public actual val Five: Key
             get() = Key(KeyEvent.KEYCODE_5)
 
         /** '6' key. */
-        actual val Six
+        public actual val Six: Key
             get() = Key(KeyEvent.KEYCODE_6)
 
         /** '7' key. */
-        actual val Seven
+        public actual val Seven: Key
             get() = Key(KeyEvent.KEYCODE_7)
 
         /** '8' key. */
-        actual val Eight
+        public actual val Eight: Key
             get() = Key(KeyEvent.KEYCODE_8)
 
         /** '9' key. */
-        actual val Nine
+        public actual val Nine: Key
             get() = Key(KeyEvent.KEYCODE_9)
 
         /** '+' key. */
-        actual val Plus
+        public actual val Plus: Key
             get() = Key(KeyEvent.KEYCODE_PLUS)
 
         /** '-' key. */
-        actual val Minus
+        public actual val Minus: Key
             get() = Key(KeyEvent.KEYCODE_MINUS)
 
         /** '*' key. */
-        actual val Multiply
+        public actual val Multiply: Key
             get() = Key(KeyEvent.KEYCODE_STAR)
 
         /** '=' key. */
-        actual val Equals
+        public actual val Equals: Key
             get() = Key(KeyEvent.KEYCODE_EQUALS)
 
         /** '#' key. */
-        actual val Pound
+        public actual val Pound: Key
             get() = Key(KeyEvent.KEYCODE_POUND)
 
         /** 'A' key. */
-        actual val A
+        public actual val A: Key
             get() = Key(KeyEvent.KEYCODE_A)
 
         /** 'B' key. */
-        actual val B
+        public actual val B: Key
             get() = Key(KeyEvent.KEYCODE_B)
 
         /** 'C' key. */
-        actual val C
+        public actual val C: Key
             get() = Key(KeyEvent.KEYCODE_C)
 
         /** 'D' key. */
-        actual val D
+        public actual val D: Key
             get() = Key(KeyEvent.KEYCODE_D)
 
         /** 'E' key. */
-        actual val E
+        public actual val E: Key
             get() = Key(KeyEvent.KEYCODE_E)
 
         /** 'F' key. */
-        actual val F
+        public actual val F: Key
             get() = Key(KeyEvent.KEYCODE_F)
 
         /** 'G' key. */
-        actual val G
+        public actual val G: Key
             get() = Key(KeyEvent.KEYCODE_G)
 
         /** 'H' key. */
-        actual val H
+        public actual val H: Key
             get() = Key(KeyEvent.KEYCODE_H)
 
         /** 'I' key. */
-        actual val I
+        public actual val I: Key
             get() = Key(KeyEvent.KEYCODE_I)
 
         /** 'J' key. */
-        actual val J
+        public actual val J: Key
             get() = Key(KeyEvent.KEYCODE_J)
 
         /** 'K' key. */
-        actual val K
+        public actual val K: Key
             get() = Key(KeyEvent.KEYCODE_K)
 
         /** 'L' key. */
-        actual val L
+        public actual val L: Key
             get() = Key(KeyEvent.KEYCODE_L)
 
         /** 'M' key. */
-        actual val M
+        public actual val M: Key
             get() = Key(KeyEvent.KEYCODE_M)
 
         /** 'N' key. */
-        actual val N
+        public actual val N: Key
             get() = Key(KeyEvent.KEYCODE_N)
 
         /** 'O' key. */
-        actual val O
+        public actual val O: Key
             get() = Key(KeyEvent.KEYCODE_O)
 
         /** 'P' key. */
-        actual val P
+        public actual val P: Key
             get() = Key(KeyEvent.KEYCODE_P)
 
         /** 'Q' key. */
-        actual val Q
+        public actual val Q: Key
             get() = Key(KeyEvent.KEYCODE_Q)
 
         /** 'R' key. */
-        actual val R
+        public actual val R: Key
             get() = Key(KeyEvent.KEYCODE_R)
 
         /** 'S' key. */
-        actual val S
+        public actual val S: Key
             get() = Key(KeyEvent.KEYCODE_S)
 
         /** 'T' key. */
-        actual val T
+        public actual val T: Key
             get() = Key(KeyEvent.KEYCODE_T)
 
         /** 'U' key. */
-        actual val U
+        public actual val U: Key
             get() = Key(KeyEvent.KEYCODE_U)
 
         /** 'V' key. */
-        actual val V
+        public actual val V: Key
             get() = Key(KeyEvent.KEYCODE_V)
 
         /** 'W' key. */
-        actual val W
+        public actual val W: Key
             get() = Key(KeyEvent.KEYCODE_W)
 
         /** 'X' key. */
-        actual val X
+        public actual val X: Key
             get() = Key(KeyEvent.KEYCODE_X)
 
         /** 'Y' key. */
-        actual val Y
+        public actual val Y: Key
             get() = Key(KeyEvent.KEYCODE_Y)
 
         /** 'Z' key. */
-        actual val Z
+        public actual val Z: Key
             get() = Key(KeyEvent.KEYCODE_Z)
 
         /** ',' key. */
-        actual val Comma
+        public actual val Comma: Key
             get() = Key(KeyEvent.KEYCODE_COMMA)
 
         /** '.' key. */
-        actual val Period
+        public actual val Period: Key
             get() = Key(KeyEvent.KEYCODE_PERIOD)
 
         /** Left Alt modifier key. */
-        actual val AltLeft
+        public actual val AltLeft: Key
             get() = Key(KeyEvent.KEYCODE_ALT_LEFT)
 
         /** Right Alt modifier key. */
-        actual val AltRight
+        public actual val AltRight: Key
             get() = Key(KeyEvent.KEYCODE_ALT_RIGHT)
 
         /** Left Shift modifier key. */
-        actual val ShiftLeft
+        public actual val ShiftLeft: Key
             get() = Key(KeyEvent.KEYCODE_SHIFT_LEFT)
 
         /** Right Shift modifier key. */
-        actual val ShiftRight
+        public actual val ShiftRight: Key
             get() = Key(KeyEvent.KEYCODE_SHIFT_RIGHT)
 
         /** Tab key. */
-        actual val Tab
+        public actual val Tab: Key
             get() = Key(KeyEvent.KEYCODE_TAB)
 
         /** Space key. */
-        actual val Spacebar
+        public actual val Spacebar: Key
             get() = Key(KeyEvent.KEYCODE_SPACE)
 
         /**
@@ -431,7 +431,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to enter alternate symbols.
          */
-        actual val Symbol
+        public actual val Symbol: Key
             get() = Key(KeyEvent.KEYCODE_SYM)
 
         /**
@@ -439,7 +439,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a browser application.
          */
-        actual val Browser
+        public actual val Browser: Key
             get() = Key(KeyEvent.KEYCODE_EXPLORER)
 
         /**
@@ -447,11 +447,11 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a mail application.
          */
-        actual val Envelope
+        public actual val Envelope: Key
             get() = Key(KeyEvent.KEYCODE_ENVELOPE)
 
         /** Enter key. */
-        actual val Enter
+        public actual val Enter: Key
             get() = Key(KeyEvent.KEYCODE_ENTER)
 
         /**
@@ -459,7 +459,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Deletes characters before the insertion point, unlike [Delete].
          */
-        actual val Backspace
+        public actual val Backspace: Key
             get() = Key(KeyEvent.KEYCODE_DEL)
 
         /**
@@ -467,47 +467,47 @@ actual value class Key(val keyCode: Long) {
          *
          * Deletes characters ahead of the insertion point, unlike [Backspace].
          */
-        actual val Delete
+        public actual val Delete: Key
             get() = Key(KeyEvent.KEYCODE_FORWARD_DEL)
 
         /** Escape key. */
-        actual val Escape
+        public actual val Escape: Key
             get() = Key(KeyEvent.KEYCODE_ESCAPE)
 
         /** Left Control modifier key. */
-        actual val CtrlLeft
+        public actual val CtrlLeft: Key
             get() = Key(KeyEvent.KEYCODE_CTRL_LEFT)
 
         /** Right Control modifier key. */
-        actual val CtrlRight
+        public actual val CtrlRight: Key
             get() = Key(KeyEvent.KEYCODE_CTRL_RIGHT)
 
         /** Caps Lock key. */
-        actual val CapsLock
+        public actual val CapsLock: Key
             get() = Key(KeyEvent.KEYCODE_CAPS_LOCK)
 
         /** Scroll Lock key. */
-        actual val ScrollLock
+        public actual val ScrollLock: Key
             get() = Key(KeyEvent.KEYCODE_SCROLL_LOCK)
 
         /** Left Meta modifier key. */
-        actual val MetaLeft
+        public actual val MetaLeft: Key
             get() = Key(KeyEvent.KEYCODE_META_LEFT)
 
         /** Right Meta modifier key. */
-        actual val MetaRight
+        public actual val MetaRight: Key
             get() = Key(KeyEvent.KEYCODE_META_RIGHT)
 
         /** Function modifier key. */
-        actual val Function
+        public actual val Function: Key
             get() = Key(KeyEvent.KEYCODE_FUNCTION)
 
         /** System Request / Print Screen key. */
-        actual val PrintScreen
+        public actual val PrintScreen: Key
             get() = Key(KeyEvent.KEYCODE_SYSRQ)
 
         /** Break / Pause key. */
-        actual val Break
+        public actual val Break: Key
             get() = Key(KeyEvent.KEYCODE_BREAK)
 
         /**
@@ -516,7 +516,7 @@ actual value class Key(val keyCode: Long) {
          * Used for scrolling or moving the cursor around to the start of a line or to the top of a
          * list.
          */
-        actual val MoveHome
+        public actual val MoveHome: Key
             get() = Key(KeyEvent.KEYCODE_MOVE_HOME)
 
         /**
@@ -525,7 +525,7 @@ actual value class Key(val keyCode: Long) {
          * Used for scrolling or moving the cursor around to the end of a line or to the bottom of a
          * list.
          */
-        actual val MoveEnd
+        public actual val MoveEnd: Key
             get() = Key(KeyEvent.KEYCODE_MOVE_END)
 
         /**
@@ -533,51 +533,51 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles insert / overwrite edit mode.
          */
-        actual val Insert
+        public actual val Insert: Key
             get() = Key(KeyEvent.KEYCODE_INSERT)
 
         /** Cut key. */
-        actual val Cut
+        public actual val Cut: Key
             get() = Key(KeyEvent.KEYCODE_CUT)
 
         /** Copy key. */
-        actual val Copy
+        public actual val Copy: Key
             get() = Key(KeyEvent.KEYCODE_COPY)
 
         /** Paste key. */
-        actual val Paste
+        public actual val Paste: Key
             get() = Key(KeyEvent.KEYCODE_PASTE)
 
         /** '`' (backtick) key. */
-        actual val Grave
+        public actual val Grave: Key
             get() = Key(KeyEvent.KEYCODE_GRAVE)
 
         /** '[' key. */
-        actual val LeftBracket
+        public actual val LeftBracket: Key
             get() = Key(KeyEvent.KEYCODE_LEFT_BRACKET)
 
         /** ']' key. */
-        actual val RightBracket
+        public actual val RightBracket: Key
             get() = Key(KeyEvent.KEYCODE_RIGHT_BRACKET)
 
         /** '/' key. */
-        actual val Slash
+        public actual val Slash: Key
             get() = Key(KeyEvent.KEYCODE_SLASH)
 
         /** '\' key. */
-        actual val Backslash
+        public actual val Backslash: Key
             get() = Key(KeyEvent.KEYCODE_BACKSLASH)
 
         /** ';' key. */
-        actual val Semicolon
+        public actual val Semicolon: Key
             get() = Key(KeyEvent.KEYCODE_SEMICOLON)
 
         /** ''' (apostrophe) key. */
-        actual val Apostrophe
+        public actual val Apostrophe: Key
             get() = Key(KeyEvent.KEYCODE_APOSTROPHE)
 
         /** '@' key. */
-        actual val At
+        public actual val At: Key
             get() = Key(KeyEvent.KEYCODE_AT)
 
         /**
@@ -585,7 +585,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to enter numeric symbols. This key is not Num Lock; it is more like [AltLeft].
          */
-        actual val Number
+        public actual val Number: Key
             get() = Key(KeyEvent.KEYCODE_NUM)
 
         /**
@@ -593,7 +593,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to hang up calls and stop media.
          */
-        actual val HeadsetHook
+        public actual val HeadsetHook: Key
             get() = Key(KeyEvent.KEYCODE_HEADSETHOOK)
 
         /**
@@ -601,27 +601,27 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to focus the camera.
          */
-        actual val Focus
+        public actual val Focus: Key
             get() = Key(KeyEvent.KEYCODE_FOCUS)
 
         /** Menu key. */
-        actual val Menu
+        public actual val Menu: Key
             get() = Key(KeyEvent.KEYCODE_MENU)
 
         /** Notification key. */
-        actual val Notification
+        public actual val Notification: Key
             get() = Key(KeyEvent.KEYCODE_NOTIFICATION)
 
         /** Search key. */
-        actual val Search
+        public actual val Search: Key
             get() = Key(KeyEvent.KEYCODE_SEARCH)
 
         /** Page Up key. */
-        actual val PageUp
+        public actual val PageUp: Key
             get() = Key(KeyEvent.KEYCODE_PAGE_UP)
 
         /** Page Down key. */
-        actual val PageDown
+        public actual val PageDown: Key
             get() = Key(KeyEvent.KEYCODE_PAGE_DOWN)
 
         /**
@@ -629,7 +629,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to switch symbol sets (Emoji, Kao-moji).
          */
-        actual val PictureSymbols
+        public actual val PictureSymbols: Key
             get() = Key(KeyEvent.KEYCODE_PICTSYMBOLS)
 
         /**
@@ -637,7 +637,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to switch character sets (Kanji, Katakana).
          */
-        actual val SwitchCharset
+        public actual val SwitchCharset: Key
             get() = Key(KeyEvent.KEYCODE_SWITCH_CHARSET)
 
         /**
@@ -646,7 +646,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the A button should be either the button labeled A or the first
          * button on the bottom row of controller buttons.
          */
-        actual val ButtonA
+        public actual val ButtonA: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_A)
 
         /**
@@ -655,7 +655,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the B button should be either the button labeled B or the second
          * button on the bottom row of controller buttons.
          */
-        actual val ButtonB
+        public actual val ButtonB: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_B)
 
         /**
@@ -664,7 +664,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the C button should be either the button labeled C or the third
          * button on the bottom row of controller buttons.
          */
-        actual val ButtonC
+        public actual val ButtonC: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_C)
 
         /**
@@ -673,7 +673,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the X button should be either the button labeled X or the first
          * button on the upper row of controller buttons.
          */
-        actual val ButtonX
+        public actual val ButtonX: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_X)
 
         /**
@@ -682,7 +682,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the Y button should be either the button labeled Y or the second
          * button on the upper row of controller buttons.
          */
-        actual val ButtonY
+        public actual val ButtonY: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_Y)
 
         /**
@@ -691,7 +691,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the Z button should be either the button labeled Z or the third
          * button on the upper row of controller buttons.
          */
-        actual val ButtonZ
+        public actual val ButtonZ: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_Z)
 
         /**
@@ -700,7 +700,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the L1 button should be either the button labeled L1 (or L) or the
          * top left trigger button.
          */
-        actual val ButtonL1
+        public actual val ButtonL1: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_L1)
 
         /**
@@ -709,7 +709,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the R1 button should be either the button labeled R1 (or R) or the
          * top right trigger button.
          */
-        actual val ButtonR1
+        public actual val ButtonR1: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_R1)
 
         /**
@@ -718,7 +718,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the L2 button should be either the button labeled L2 or the bottom
          * left trigger button.
          */
-        actual val ButtonL2
+        public actual val ButtonL2: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_L2)
 
         /**
@@ -727,7 +727,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the R2 button should be either the button labeled R2 or the bottom
          * right trigger button.
          */
-        actual val ButtonR2
+        public actual val ButtonR2: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_R2)
 
         /**
@@ -736,7 +736,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the left thumb button indicates that the left (or only) joystick is
          * pressed.
          */
-        actual val ButtonThumbLeft
+        public actual val ButtonThumbLeft: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_THUMBL)
 
         /**
@@ -745,7 +745,7 @@ actual value class Key(val keyCode: Long) {
          * On a game controller, the right thumb button indicates that the right joystick is
          * pressed.
          */
-        actual val ButtonThumbRight
+        public actual val ButtonThumbRight: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_THUMBR)
 
         /**
@@ -753,7 +753,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On a game controller, the button labeled Start.
          */
-        actual val ButtonStart
+        public actual val ButtonStart: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_START)
 
         /**
@@ -761,7 +761,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On a game controller, the button labeled Select.
          */
-        actual val ButtonSelect
+        public actual val ButtonSelect: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_SELECT)
 
         /**
@@ -769,71 +769,71 @@ actual value class Key(val keyCode: Long) {
          *
          * On a game controller, the button labeled Mode.
          */
-        actual val ButtonMode
+        public actual val ButtonMode: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_MODE)
 
         /** Generic Game Pad Button #1. */
-        actual val Button1
+        public actual val Button1: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_1)
 
         /** Generic Game Pad Button #2. */
-        actual val Button2
+        public actual val Button2: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_2)
 
         /** Generic Game Pad Button #3. */
-        actual val Button3
+        public actual val Button3: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_3)
 
         /** Generic Game Pad Button #4. */
-        actual val Button4
+        public actual val Button4: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_4)
 
         /** Generic Game Pad Button #5. */
-        actual val Button5
+        public actual val Button5: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_5)
 
         /** Generic Game Pad Button #6. */
-        actual val Button6
+        public actual val Button6: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_6)
 
         /** Generic Game Pad Button #7. */
-        actual val Button7
+        public actual val Button7: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_7)
 
         /** Generic Game Pad Button #8. */
-        actual val Button8
+        public actual val Button8: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_8)
 
         /** Generic Game Pad Button #9. */
-        actual val Button9
+        public actual val Button9: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_9)
 
         /** Generic Game Pad Button #10. */
-        actual val Button10
+        public actual val Button10: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_10)
 
         /** Generic Game Pad Button #11. */
-        actual val Button11
+        public actual val Button11: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_11)
 
         /** Generic Game Pad Button #12. */
-        actual val Button12
+        public actual val Button12: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_12)
 
         /** Generic Game Pad Button #13. */
-        actual val Button13
+        public actual val Button13: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_13)
 
         /** Generic Game Pad Button #14. */
-        actual val Button14
+        public actual val Button14: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_14)
 
         /** Generic Game Pad Button #15. */
-        actual val Button15
+        public actual val Button15: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_15)
 
         /** Generic Game Pad Button #16. */
-        actual val Button16
+        public actual val Button16: Key
             get() = Key(KeyEvent.KEYCODE_BUTTON_16)
 
         /**
@@ -841,55 +841,55 @@ actual value class Key(val keyCode: Long) {
          *
          * Navigates forward in the history stack. Complement of [Back].
          */
-        actual val Forward
+        public actual val Forward: Key
             get() = Key(KeyEvent.KEYCODE_FORWARD)
 
         /** F1 key. */
-        actual val F1
+        public actual val F1: Key
             get() = Key(KeyEvent.KEYCODE_F1)
 
         /** F2 key. */
-        actual val F2
+        public actual val F2: Key
             get() = Key(KeyEvent.KEYCODE_F2)
 
         /** F3 key. */
-        actual val F3
+        public actual val F3: Key
             get() = Key(KeyEvent.KEYCODE_F3)
 
         /** F4 key. */
-        actual val F4
+        public actual val F4: Key
             get() = Key(KeyEvent.KEYCODE_F4)
 
         /** F5 key. */
-        actual val F5
+        public actual val F5: Key
             get() = Key(KeyEvent.KEYCODE_F5)
 
         /** F6 key. */
-        actual val F6
+        public actual val F6: Key
             get() = Key(KeyEvent.KEYCODE_F6)
 
         /** F7 key. */
-        actual val F7
+        public actual val F7: Key
             get() = Key(KeyEvent.KEYCODE_F7)
 
         /** F8 key. */
-        actual val F8
+        public actual val F8: Key
             get() = Key(KeyEvent.KEYCODE_F8)
 
         /** F9 key. */
-        actual val F9
+        public actual val F9: Key
             get() = Key(KeyEvent.KEYCODE_F9)
 
         /** F10 key. */
-        actual val F10
+        public actual val F10: Key
             get() = Key(KeyEvent.KEYCODE_F10)
 
         /** F11 key. */
-        actual val F11
+        public actual val F11: Key
             get() = Key(KeyEvent.KEYCODE_F11)
 
         /** F12 key. */
-        actual val F12
+        public actual val F12: Key
             get() = Key(KeyEvent.KEYCODE_F12)
 
         /**
@@ -898,123 +898,123 @@ actual value class Key(val keyCode: Long) {
          * This is the Num Lock key; it is different from [Number]. This key alters the behavior of
          * other keys on the numeric keypad.
          */
-        actual val NumLock
+        public actual val NumLock: Key
             get() = Key(KeyEvent.KEYCODE_NUM_LOCK)
 
         /** Numeric keypad '0' key. */
-        actual val NumPad0
+        public actual val NumPad0: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_0)
 
         /** Numeric keypad '1' key. */
-        actual val NumPad1
+        public actual val NumPad1: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_1)
 
         /** Numeric keypad '2' key. */
-        actual val NumPad2
+        public actual val NumPad2: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_2)
 
         /** Numeric keypad '3' key. */
-        actual val NumPad3
+        public actual val NumPad3: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_3)
 
         /** Numeric keypad '4' key. */
-        actual val NumPad4
+        public actual val NumPad4: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_4)
 
         /** Numeric keypad '5' key. */
-        actual val NumPad5
+        public actual val NumPad5: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_5)
 
         /** Numeric keypad '6' key. */
-        actual val NumPad6
+        public actual val NumPad6: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_6)
 
         /** Numeric keypad '7' key. */
-        actual val NumPad7
+        public actual val NumPad7: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_7)
 
         /** Numeric keypad '8' key. */
-        actual val NumPad8
+        public actual val NumPad8: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_8)
 
         /** Numeric keypad '9' key. */
-        actual val NumPad9
+        public actual val NumPad9: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_9)
 
         /** Numeric keypad '/' key (for division). */
-        actual val NumPadDivide
+        public actual val NumPadDivide: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_DIVIDE)
 
         /** Numeric keypad '*' key (for multiplication). */
-        actual val NumPadMultiply
+        public actual val NumPadMultiply: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_MULTIPLY)
 
         /** Numeric keypad '-' key (for subtraction). */
-        actual val NumPadSubtract
+        public actual val NumPadSubtract: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_SUBTRACT)
 
         /** Numeric keypad '+' key (for addition). */
-        actual val NumPadAdd
+        public actual val NumPadAdd: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_ADD)
 
         /** Numeric keypad '.' key (for decimals or digit grouping). */
-        actual val NumPadDot
+        public actual val NumPadDot: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_DOT)
 
         /** Numeric keypad ',' key (for decimals or digit grouping). */
-        actual val NumPadComma
+        public actual val NumPadComma: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_COMMA)
 
         /** Numeric keypad Enter key. */
-        actual val NumPadEnter
+        public actual val NumPadEnter: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_ENTER)
 
         /** Numeric keypad '=' key. */
-        actual val NumPadEquals
+        public actual val NumPadEquals: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_EQUALS)
 
         /** Numeric keypad '(' key. */
-        actual val NumPadLeftParenthesis
+        public actual val NumPadLeftParenthesis: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_LEFT_PAREN)
 
         /** Numeric keypad ')' key. */
-        actual val NumPadRightParenthesis
+        public actual val NumPadRightParenthesis: Key
             get() = Key(KeyEvent.KEYCODE_NUMPAD_RIGHT_PAREN)
 
         /** Play media key. */
-        actual val MediaPlay
+        public actual val MediaPlay: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_PLAY)
 
         /** Pause media key. */
-        actual val MediaPause
+        public actual val MediaPause: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_PAUSE)
 
         /** Play/Pause media key. */
-        actual val MediaPlayPause
+        public actual val MediaPlayPause: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
 
         /** Stop media key. */
-        actual val MediaStop
+        public actual val MediaStop: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_STOP)
 
         /** Record media key. */
-        actual val MediaRecord
+        public actual val MediaRecord: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_RECORD)
 
         /** Play Next media key. */
-        actual val MediaNext
+        public actual val MediaNext: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_NEXT)
 
         /** Play Previous media key. */
-        actual val MediaPrevious
+        public actual val MediaPrevious: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
 
         /** Rewind media key. */
-        actual val MediaRewind
+        public actual val MediaRewind: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_REWIND)
 
         /** Fast Forward media key. */
-        actual val MediaFastForward
+        public actual val MediaFastForward: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD)
 
         /**
@@ -1022,7 +1022,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May be used to close a CD tray, for example.
          */
-        actual val MediaClose
+        public actual val MediaClose: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_CLOSE)
 
         /**
@@ -1030,7 +1030,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches the audio tracks.
          */
-        actual val MediaAudioTrack
+        public actual val MediaAudioTrack: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_AUDIO_TRACK)
 
         /**
@@ -1038,7 +1038,7 @@ actual value class Key(val keyCode: Long) {
          *
          * May be used to eject a CD tray, for example.
          */
-        actual val MediaEject
+        public actual val MediaEject: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_EJECT)
 
         /**
@@ -1046,15 +1046,15 @@ actual value class Key(val keyCode: Long) {
          *
          * Goes to the top of media menu.
          */
-        actual val MediaTopMenu
+        public actual val MediaTopMenu: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_TOP_MENU)
 
         /** Skip forward media key. */
-        actual val MediaSkipForward
+        public actual val MediaSkipForward: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD)
 
         /** Skip backward media key. */
-        actual val MediaSkipBackward
+        public actual val MediaSkipBackward: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD)
 
         /**
@@ -1062,7 +1062,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Steps media forward, one frame at a time.
          */
-        actual val MediaStepForward
+        public actual val MediaStepForward: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_STEP_FORWARD)
 
         /**
@@ -1070,7 +1070,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Steps media backward, one frame at a time.
          */
-        actual val MediaStepBackward
+        public actual val MediaStepBackward: Key
             get() = Key(KeyEvent.KEYCODE_MEDIA_STEP_BACKWARD)
 
         /**
@@ -1078,7 +1078,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Mutes the microphone, unlike [VolumeMute].
          */
-        actual val MicrophoneMute
+        public actual val MicrophoneMute: Key
             get() = Key(KeyEvent.KEYCODE_MUTE)
 
         /**
@@ -1089,7 +1089,7 @@ actual value class Key(val keyCode: Long) {
          * This key should normally be implemented as a toggle such that the first press mutes the
          * speaker and the second press restores the original volume.
          */
-        actual val VolumeMute
+        public actual val VolumeMute: Key
             get() = Key(KeyEvent.KEYCODE_VOLUME_MUTE)
 
         /**
@@ -1098,7 +1098,7 @@ actual value class Key(val keyCode: Long) {
          * Common on TV remotes to show additional information related to what is currently being
          * viewed.
          */
-        actual val Info
+        public actual val Info: Key
             get() = Key(KeyEvent.KEYCODE_INFO)
 
         /**
@@ -1106,7 +1106,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, increments the television channel.
          */
-        actual val ChannelUp
+        public actual val ChannelUp: Key
             get() = Key(KeyEvent.KEYCODE_CHANNEL_UP)
 
         /**
@@ -1114,15 +1114,15 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, decrements the television channel.
          */
-        actual val ChannelDown
+        public actual val ChannelDown: Key
             get() = Key(KeyEvent.KEYCODE_CHANNEL_DOWN)
 
         /** Zoom in key. */
-        actual val ZoomIn
+        public actual val ZoomIn: Key
             get() = Key(KeyEvent.KEYCODE_ZOOM_IN)
 
         /** Zoom out key. */
-        actual val ZoomOut
+        public actual val ZoomOut: Key
             get() = Key(KeyEvent.KEYCODE_ZOOM_OUT)
 
         /**
@@ -1130,7 +1130,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, switches to viewing live TV.
          */
-        actual val Tv
+        public actual val Tv: Key
             get() = Key(KeyEvent.KEYCODE_TV)
 
         /**
@@ -1139,7 +1139,7 @@ actual value class Key(val keyCode: Long) {
          * On TV remotes, toggles picture-in-picture mode or other windowing functions. On Android
          * Wear devices, triggers a display offset.
          */
-        actual val Window
+        public actual val Window: Key
             get() = Key(KeyEvent.KEYCODE_WINDOW)
 
         /**
@@ -1147,7 +1147,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, shows a programming guide.
          */
-        actual val Guide
+        public actual val Guide: Key
             get() = Key(KeyEvent.KEYCODE_GUIDE)
 
         /**
@@ -1155,7 +1155,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On some TV remotes, switches to a DVR mode for recorded shows.
          */
-        actual val Dvr
+        public actual val Dvr: Key
             get() = Key(KeyEvent.KEYCODE_DVR)
 
         /**
@@ -1163,7 +1163,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On some TV remotes, bookmarks content or web pages.
          */
-        actual val Bookmark
+        public actual val Bookmark: Key
             get() = Key(KeyEvent.KEYCODE_BOOKMARK)
 
         /**
@@ -1171,7 +1171,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches the mode for closed-captioning text, for example during television shows.
          */
-        actual val Captions
+        public actual val Captions: Key
             get() = Key(KeyEvent.KEYCODE_CAPTIONS)
 
         /**
@@ -1179,7 +1179,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Starts the system settings activity.
          */
-        actual val Settings
+        public actual val Settings: Key
             get() = Key(KeyEvent.KEYCODE_SETTINGS)
 
         /**
@@ -1187,7 +1187,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, toggles the power on a television screen.
          */
-        actual val TvPower
+        public actual val TvPower: Key
             get() = Key(KeyEvent.KEYCODE_TV_POWER)
 
         /**
@@ -1195,7 +1195,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, switches the input on a television screen.
          */
-        actual val TvInput
+        public actual val TvInput: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT)
 
         /**
@@ -1203,7 +1203,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, toggles the power on an external Set-top-box.
          */
-        actual val SetTopBoxPower
+        public actual val SetTopBoxPower: Key
             get() = Key(KeyEvent.KEYCODE_STB_POWER)
 
         /**
@@ -1211,7 +1211,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, switches the input mode on an external Set-top-box.
          */
-        actual val SetTopBoxInput
+        public actual val SetTopBoxInput: Key
             get() = Key(KeyEvent.KEYCODE_STB_INPUT)
 
         /**
@@ -1219,7 +1219,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, toggles the power on an external A/V Receiver.
          */
-        actual val AvReceiverPower
+        public actual val AvReceiverPower: Key
             get() = Key(KeyEvent.KEYCODE_AVR_POWER)
 
         /**
@@ -1227,7 +1227,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, switches the input mode on an external A/V Receiver.
          */
-        actual val AvReceiverInput
+        public actual val AvReceiverInput: Key
             get() = Key(KeyEvent.KEYCODE_AVR_INPUT)
 
         /**
@@ -1235,7 +1235,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, acts as a contextual/programmable key.
          */
-        actual val ProgramRed
+        public actual val ProgramRed: Key
             get() = Key(KeyEvent.KEYCODE_PROG_RED)
 
         /**
@@ -1243,7 +1243,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, acts as a contextual/programmable key.
          */
-        actual val ProgramGreen
+        public actual val ProgramGreen: Key
             get() = Key(KeyEvent.KEYCODE_PROG_GREEN)
 
         /**
@@ -1251,7 +1251,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, acts as a contextual/programmable key.
          */
-        actual val ProgramYellow
+        public actual val ProgramYellow: Key
             get() = Key(KeyEvent.KEYCODE_PROG_YELLOW)
 
         /**
@@ -1259,7 +1259,7 @@ actual value class Key(val keyCode: Long) {
          *
          * On TV remotes, acts as a contextual/programmable key.
          */
-        actual val ProgramBlue
+        public actual val ProgramBlue: Key
             get() = Key(KeyEvent.KEYCODE_PROG_BLUE)
 
         /**
@@ -1267,7 +1267,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Should bring up the application switcher dialog.
          */
-        actual val AppSwitch
+        public actual val AppSwitch: Key
             get() = Key(KeyEvent.KEYCODE_APP_SWITCH)
 
         /**
@@ -1277,7 +1277,7 @@ actual value class Key(val keyCode: Long) {
          * QWERTY keyboard. On some devices, the same function may be performed by pressing
          * Shift+Space.
          */
-        actual val LanguageSwitch
+        public actual val LanguageSwitch: Key
             get() = Key(KeyEvent.KEYCODE_LANGUAGE_SWITCH)
 
         /**
@@ -1287,7 +1287,7 @@ actual value class Key(val keyCode: Long) {
          * certain settings such as on a crowded train. On some devices, the key may only operate
          * when long-pressed.
          */
-        actual val MannerMode
+        public actual val MannerMode: Key
             get() = Key(KeyEvent.KEYCODE_MANNER_MODE)
 
         /**
@@ -1295,7 +1295,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles the display between 2D and 3D mode.
          */
-        actual val Toggle2D3D
+        public actual val Toggle2D3D: Key
             get() = Key(KeyEvent.KEYCODE_3D_MODE)
 
         /**
@@ -1303,7 +1303,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch an address book application.
          */
-        actual val Contacts
+        public actual val Contacts: Key
             get() = Key(KeyEvent.KEYCODE_CONTACTS)
 
         /**
@@ -1311,7 +1311,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a calendar application.
          */
-        actual val Calendar
+        public actual val Calendar: Key
             get() = Key(KeyEvent.KEYCODE_CALENDAR)
 
         /**
@@ -1319,7 +1319,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a music player application.
          */
-        actual val Music
+        public actual val Music: Key
             get() = Key(KeyEvent.KEYCODE_MUSIC)
 
         /**
@@ -1327,39 +1327,39 @@ actual value class Key(val keyCode: Long) {
          *
          * Used to launch a calculator application.
          */
-        actual val Calculator
+        public actual val Calculator: Key
             get() = Key(KeyEvent.KEYCODE_CALCULATOR)
 
         /** Japanese full-width / half-width key. */
-        actual val ZenkakuHankaru
+        public actual val ZenkakuHankaru: Key
             get() = Key(KeyEvent.KEYCODE_ZENKAKU_HANKAKU)
 
         /** Japanese alphanumeric key. */
-        actual val Eisu
+        public actual val Eisu: Key
             get() = Key(KeyEvent.KEYCODE_EISU)
 
         /** Japanese non-conversion key. */
-        actual val Muhenkan
+        public actual val Muhenkan: Key
             get() = Key(KeyEvent.KEYCODE_MUHENKAN)
 
         /** Japanese conversion key. */
-        actual val Henkan
+        public actual val Henkan: Key
             get() = Key(KeyEvent.KEYCODE_HENKAN)
 
         /** Japanese katakana / hiragana key. */
-        actual val KatakanaHiragana
+        public actual val KatakanaHiragana: Key
             get() = Key(KeyEvent.KEYCODE_KATAKANA_HIRAGANA)
 
         /** Japanese Yen key. */
-        actual val Yen
+        public actual val Yen: Key
             get() = Key(KeyEvent.KEYCODE_YEN)
 
         /** Japanese Ro key. */
-        actual val Ro
+        public actual val Ro: Key
             get() = Key(KeyEvent.KEYCODE_RO)
 
         /** Japanese kana key. */
-        actual val Kana
+        public actual val Kana: Key
             get() = Key(KeyEvent.KEYCODE_KANA)
 
         /**
@@ -1367,7 +1367,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Launches the global assist activity. Not delivered to applications.
          */
-        actual val Assist
+        public actual val Assist: Key
             get() = Key(KeyEvent.KEYCODE_ASSIST)
 
         /**
@@ -1375,7 +1375,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Adjusts the screen brightness down.
          */
-        actual val BrightnessDown
+        public actual val BrightnessDown: Key
             get() = Key(KeyEvent.KEYCODE_BRIGHTNESS_DOWN)
 
         /**
@@ -1383,7 +1383,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Adjusts the screen brightness up.
          */
-        actual val BrightnessUp
+        public actual val BrightnessUp: Key
             get() = Key(KeyEvent.KEYCODE_BRIGHTNESS_UP)
 
         /**
@@ -1392,7 +1392,7 @@ actual value class Key(val keyCode: Long) {
          * Puts the device to sleep. Behaves somewhat like [Power] but it has no effect if the
          * device is already asleep.
          */
-        actual val Sleep
+        public actual val Sleep: Key
             get() = Key(KeyEvent.KEYCODE_SLEEP)
 
         /**
@@ -1401,11 +1401,11 @@ actual value class Key(val keyCode: Long) {
          * Wakes up the device. Behaves somewhat like [Power] but it has no effect if the device is
          * already awake.
          */
-        actual val WakeUp
+        public actual val WakeUp: Key
             get() = Key(KeyEvent.KEYCODE_WAKEUP)
 
         /** Put device to sleep unless a wakelock is held. */
-        actual val SoftSleep
+        public actual val SoftSleep: Key
             get() = Key(KeyEvent.KEYCODE_SOFT_SLEEP)
 
         /**
@@ -1414,7 +1414,7 @@ actual value class Key(val keyCode: Long) {
          * Initiates peripheral pairing mode. Useful for pairing remote control devices or game
          * controllers, especially if no other input mode is available.
          */
-        actual val Pairing
+        public actual val Pairing: Key
             get() = Key(KeyEvent.KEYCODE_PAIRING)
 
         /**
@@ -1422,7 +1422,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Goes to the last viewed channel.
          */
-        actual val LastChannel
+        public actual val LastChannel: Key
             get() = Key(KeyEvent.KEYCODE_LAST_CHANNEL)
 
         /**
@@ -1430,7 +1430,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Displays data services like weather, sports.
          */
-        actual val TvDataService
+        public actual val TvDataService: Key
             get() = Key(KeyEvent.KEYCODE_TV_DATA_SERVICE)
 
         /**
@@ -1438,7 +1438,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Launches the global voice assist activity. Not delivered to applications.
          */
-        actual val VoiceAssist
+        public actual val VoiceAssist: Key
             get() = Key(KeyEvent.KEYCODE_VOICE_ASSIST)
 
         /**
@@ -1446,7 +1446,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles TV service / Radio service.
          */
-        actual val TvRadioService
+        public actual val TvRadioService: Key
             get() = Key(KeyEvent.KEYCODE_TV_RADIO_SERVICE)
 
         /**
@@ -1454,7 +1454,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Displays Teletext service.
          */
-        actual val TvTeletext
+        public actual val TvTeletext: Key
             get() = Key(KeyEvent.KEYCODE_TV_TELETEXT)
 
         /**
@@ -1464,7 +1464,7 @@ actual value class Key(val keyCode: Long) {
          * selecting separate channel. Corresponds to Number Entry Mode (0x1D) of CEC User Control
          * Code.
          */
-        actual val TvNumberEntry
+        public actual val TvNumberEntry: Key
             get() = Key(KeyEvent.KEYCODE_TV_NUMBER_ENTRY)
 
         /**
@@ -1472,7 +1472,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to analog terrestrial broadcast service.
          */
-        actual val TvTerrestrialAnalog
+        public actual val TvTerrestrialAnalog: Key
             get() = Key(KeyEvent.KEYCODE_TV_TERRESTRIAL_ANALOG)
 
         /**
@@ -1480,7 +1480,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to digital terrestrial broadcast service.
          */
-        actual val TvTerrestrialDigital
+        public actual val TvTerrestrialDigital: Key
             get() = Key(KeyEvent.KEYCODE_TV_TERRESTRIAL_DIGITAL)
 
         /**
@@ -1488,7 +1488,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to digital satellite broadcast service.
          */
-        actual val TvSatellite
+        public actual val TvSatellite: Key
             get() = Key(KeyEvent.KEYCODE_TV_SATELLITE)
 
         /**
@@ -1496,7 +1496,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to BS digital satellite broadcasting service available in Japan.
          */
-        actual val TvSatelliteBs
+        public actual val TvSatelliteBs: Key
             get() = Key(KeyEvent.KEYCODE_TV_SATELLITE_BS)
 
         /**
@@ -1504,7 +1504,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to CS digital satellite broadcasting service available in Japan.
          */
-        actual val TvSatelliteCs
+        public actual val TvSatelliteCs: Key
             get() = Key(KeyEvent.KEYCODE_TV_SATELLITE_CS)
 
         /**
@@ -1512,7 +1512,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles between BS and CS digital satellite services.
          */
-        actual val TvSatelliteService
+        public actual val TvSatelliteService: Key
             get() = Key(KeyEvent.KEYCODE_TV_SATELLITE_SERVICE)
 
         /**
@@ -1520,7 +1520,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles selecting broadcast services.
          */
-        actual val TvNetwork
+        public actual val TvNetwork: Key
             get() = Key(KeyEvent.KEYCODE_TV_NETWORK)
 
         /**
@@ -1528,7 +1528,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles broadcast input source between antenna and cable.
          */
-        actual val TvAntennaCable
+        public actual val TvAntennaCable: Key
             get() = Key(KeyEvent.KEYCODE_TV_ANTENNA_CABLE)
 
         /**
@@ -1536,7 +1536,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to HDMI input #1.
          */
-        actual val TvInputHdmi1
+        public actual val TvInputHdmi1: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_HDMI_1)
 
         /**
@@ -1544,7 +1544,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to HDMI input #2.
          */
-        actual val TvInputHdmi2
+        public actual val TvInputHdmi2: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_HDMI_2)
 
         /**
@@ -1552,7 +1552,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to HDMI input #3.
          */
-        actual val TvInputHdmi3
+        public actual val TvInputHdmi3: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_HDMI_3)
 
         /**
@@ -1560,7 +1560,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to HDMI input #4.
          */
-        actual val TvInputHdmi4
+        public actual val TvInputHdmi4: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_HDMI_4)
 
         /**
@@ -1568,7 +1568,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to composite video input #1.
          */
-        actual val TvInputComposite1
+        public actual val TvInputComposite1: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_COMPOSITE_1)
 
         /**
@@ -1576,7 +1576,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to composite video input #2.
          */
-        actual val TvInputComposite2
+        public actual val TvInputComposite2: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_COMPOSITE_2)
 
         /**
@@ -1584,7 +1584,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to component video input #1.
          */
-        actual val TvInputComponent1
+        public actual val TvInputComponent1: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_COMPONENT_1)
 
         /**
@@ -1592,7 +1592,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to component video input #2.
          */
-        actual val TvInputComponent2
+        public actual val TvInputComponent2: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_COMPONENT_2)
 
         /**
@@ -1600,7 +1600,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Switches to VGA (analog RGB) input #1.
          */
-        actual val TvInputVga1
+        public actual val TvInputVga1: Key
             get() = Key(KeyEvent.KEYCODE_TV_INPUT_VGA_1)
 
         /**
@@ -1608,7 +1608,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Toggles audio description off / on.
          */
-        actual val TvAudioDescription
+        public actual val TvAudioDescription: Key
             get() = Key(KeyEvent.KEYCODE_TV_AUDIO_DESCRIPTION)
 
         /**
@@ -1616,7 +1616,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Increase the audio description volume as compared with normal audio volume.
          */
-        actual val TvAudioDescriptionMixingVolumeUp
+        public actual val TvAudioDescriptionMixingVolumeUp: Key
             get() = Key(KEYCODE_TV_AUDIO_DESCRIPTION_MIX_UP)
 
         /**
@@ -1624,7 +1624,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Lessen audio description volume as compared with normal audio volume.
          */
-        actual val TvAudioDescriptionMixingVolumeDown
+        public actual val TvAudioDescriptionMixingVolumeDown: Key
             get() = Key(KEYCODE_TV_AUDIO_DESCRIPTION_MIX_DOWN)
 
         /**
@@ -1632,7 +1632,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Changes Zoom mode (Normal, Full, Zoom, Wide-zoom, etc.)
          */
-        actual val TvZoomMode
+        public actual val TvZoomMode: Key
             get() = Key(KeyEvent.KEYCODE_TV_ZOOM_MODE)
 
         /**
@@ -1640,7 +1640,7 @@ actual value class Key(val keyCode: Long) {
          *
          * Goes to the title list. Corresponds to Contents Menu (0x0B) of CEC User Control Code
          */
-        actual val TvContentsMenu
+        public actual val TvContentsMenu: Key
             get() = Key(KeyEvent.KEYCODE_TV_CONTENTS_MENU)
 
         /**
@@ -1649,7 +1649,7 @@ actual value class Key(val keyCode: Long) {
          * Goes to the context menu of media contents. Corresponds to Media Context-sensitive Menu
          * (0x11) of CEC User Control Code.
          */
-        actual val TvMediaContextMenu
+        public actual val TvMediaContextMenu: Key
             get() = Key(KeyEvent.KEYCODE_TV_MEDIA_CONTEXT_MENU)
 
         /**
@@ -1658,7 +1658,7 @@ actual value class Key(val keyCode: Long) {
          * Goes to the timer recording menu. Corresponds to Timer Programming (0x54) of CEC User
          * Control Code.
          */
-        actual val TvTimerProgramming
+        public actual val TvTimerProgramming: Key
             get() = Key(KeyEvent.KEYCODE_TV_TIMER_PROGRAMMING)
 
         /**
@@ -1666,42 +1666,42 @@ actual value class Key(val keyCode: Long) {
          *
          * Main power/reset button.
          */
-        actual val StemPrimary
+        public actual val StemPrimary: Key
             get() = Key(KeyEvent.KEYCODE_STEM_PRIMARY)
 
         /** Generic stem key 1 for Wearables. */
-        actual val Stem1
+        public actual val Stem1: Key
             get() = Key(KeyEvent.KEYCODE_STEM_1)
 
         /** Generic stem key 2 for Wearables. */
-        actual val Stem2
+        public actual val Stem2: Key
             get() = Key(KeyEvent.KEYCODE_STEM_2)
 
         /** Generic stem key 3 for Wearables. */
-        actual val Stem3
+        public actual val Stem3: Key
             get() = Key(KeyEvent.KEYCODE_STEM_3)
 
         /** Show all apps. */
-        actual val AllApps
+        public actual val AllApps: Key
             get() = Key(KeyEvent.KEYCODE_ALL_APPS)
 
         /** Refresh key. */
-        actual val Refresh
+        public actual val Refresh: Key
             get() = Key(KeyEvent.KEYCODE_REFRESH)
 
         /** Thumbs up key. Apps can use this to let user up-vote content. */
-        actual val ThumbsUp
+        public actual val ThumbsUp: Key
             get() = Key(KeyEvent.KEYCODE_THUMBS_UP)
 
         /** Thumbs down key. Apps can use this to let user down-vote content. */
-        actual val ThumbsDown
+        public actual val ThumbsDown: Key
             get() = Key(KeyEvent.KEYCODE_THUMBS_DOWN)
 
         /**
          * Used to switch current [account][android.accounts.Account] that is consuming content. May
          * be consumed by system to set account globally.
          */
-        actual val ProfileSwitch
+        public actual val ProfileSwitch: Key
             get() = Key(KeyEvent.KEYCODE_PROFILE_SWITCH)
 
         // Keys that don't exist on Android.
@@ -1709,51 +1709,51 @@ actual value class Key(val keyCode: Long) {
         // real keycodes.
 
         /** Numeric keypad Up Arrow Key. Unsupported on Android. */
-        actual val NumPadDirectionUp
+        public actual val NumPadDirectionUp: Key
             get() = Key(-1000000001)
 
         /** Numeric keypad Down Arrow Key. Unsupported on Android. */
-        actual val NumPadDirectionDown
+        public actual val NumPadDirectionDown: Key
             get() = Key(-1000000002)
 
         /** Numeric keypad Left Arrow Key. Unsupported on Android. */
-        actual val NumPadDirectionLeft
+        public actual val NumPadDirectionLeft: Key
             get() = Key(-1000000003)
 
         /** Numeric keypad Right Arrow Key. Unsupported on Android. */
-        actual val NumPadDirectionRight
+        public actual val NumPadDirectionRight: Key
             get() = Key(-1000000004)
 
         /** Numeric keypad Home Key. Unsupported on Android. */
-        actual val NumPadMoveHome
+        public actual val NumPadMoveHome: Key
             get() = Key(-1000000005)
 
         /** Numeric keypad End Key. Unsupported on Android. */
-        actual val NumPadMoveEnd
+        public actual val NumPadMoveEnd: Key
             get() = Key(-1000000006)
 
         /** Numeric keypad Page Up Key. Unsupported on Android. */
-        actual val NumPadPageUp
+        public actual val NumPadPageUp: Key
             get() = Key(-1000000007)
 
         /** Numeric keypad Page Down Key. Unsupported on Android. */
-        actual val NumPadPageDown
+        public actual val NumPadPageDown: Key
             get() = Key(-1000000008)
 
         /** Numeric keypad Insert Key. Unsupported on Android. */
-        actual val NumPadInsert
+        public actual val NumPadInsert: Key
             get() = Key(-1000000009)
 
         /** Numeric keypad Delete key. Unsupported on Android. */
-        actual val NumPadDelete
+        public actual val NumPadDelete: Key
             get() = Key(-1000000010)
     }
 
-    actual override fun toString(): String = "Key code: $keyCode"
+    public actual override fun toString(): String = "Key code: $keyCode"
 }
 
 /** The native keycode corresponding to this [Key]. */
-val Key.nativeKeyCode: Int
+public val Key.nativeKeyCode: Int
     get() = unpackInt1(keyCode)
 
-fun Key(nativeKeyCode: Int): Key = Key(packInts(nativeKeyCode, 0))
+public fun Key(nativeKeyCode: Int): Key = Key(packInts(nativeKeyCode, 0))

@@ -61,7 +61,7 @@ import androidx.compose.ui.util.fastFirst
  * @param content the anchor to which this badge will be positioned
  */
 @Composable
-fun BadgedBox(
+public fun BadgedBox(
     badge: @Composable BoxScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
@@ -148,7 +148,7 @@ fun BadgedBox(
  * @param content optional content to be rendered inside this badge
  */
 @Composable
-fun Badge(
+public fun Badge(
     modifier: Modifier = Modifier,
     containerColor: Color = BadgeDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -189,9 +189,9 @@ fun Badge(
 }
 
 /** Default values used for [Badge] implementations. */
-object BadgeDefaults {
+public object BadgeDefaults {
     /** Default container color for a badge. */
-    val containerColor: Color
+    public val containerColor: Color
         @Composable get() = BadgeTokens.Color.value
 }
 

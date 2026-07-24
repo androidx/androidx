@@ -26,7 +26,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * @see ThreePaneScaffoldValue
  */
 @ExperimentalMaterial3AdaptiveApi
-sealed interface PaneScaffoldValue<Role : PaneScaffoldRole> {
+public sealed interface PaneScaffoldValue<Role : PaneScaffoldRole> {
     /** Returns the [PaneAdaptedValue] of the given [role] of a pane. */
-    operator fun get(role: Role): PaneAdaptedValue
+    public operator fun get(role: Role): PaneAdaptedValue
 }

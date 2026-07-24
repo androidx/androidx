@@ -247,7 +247,7 @@ import kotlinx.coroutines.launch
  *   change the position and sizing of different components of the timepicker.
  */
 @Composable
-fun TimePicker(
+public fun TimePicker(
     state: TimePickerState,
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
@@ -275,7 +275,7 @@ fun TimePicker(
  *   change the position and sizing of different components of the timepicker.
  */
 @Composable
-fun TimePicker(
+public fun TimePicker(
     state: TimePickerState,
     shapes: TimePickerShapes,
     modifier: Modifier = Modifier,
@@ -299,7 +299,7 @@ fun TimePicker(
  *   time input in different states. See [TimePickerDefaults.colors].
  */
 @Composable
-fun TimeInput(
+public fun TimeInput(
     state: TimePickerState,
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.colors(),
@@ -323,7 +323,7 @@ fun TimeInput(
  *   time input in different states. See [TimePickerDefaults.richColors].
  */
 @Composable
-fun TimeInput(
+public fun TimeInput(
     state: TimePickerState,
     shapes: TimePickerShapes,
     modifier: Modifier = Modifier,
@@ -348,7 +348,7 @@ fun TimeInput(
  *   time input in different states. See [TimePickerDefaults.richColors].
  */
 @Composable
-fun TimeScroll(
+public fun TimeScroll(
     state: TimePickerState,
     shapes: TimePickerShapes,
     modifier: Modifier = Modifier,
@@ -403,10 +403,11 @@ internal fun TimePickerImpl(
 
 /** Contains the default values used by [TimePicker] */
 @Stable
-object TimePickerDefaults {
+public object TimePickerDefaults {
 
     /** Default colors used by a [TimePicker] in different states */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultTimePickerColors
+    @Composable
+    public fun colors(): TimePickerColors = MaterialTheme.colorScheme.defaultTimePickerColors
 
     /**
      * Default colors used by a [TimePicker] in different states
@@ -437,7 +438,7 @@ object TimePickerDefaults {
      *   display buttons to switch between hour and minutes
      */
     @Composable
-    fun colors(
+    public fun colors(
         clockDialColor: Color = Color.Unspecified,
         clockDialSelectedContentColor: Color = Color.Unspecified,
         clockDialUnselectedContentColor: Color = Color.Unspecified,
@@ -452,7 +453,7 @@ object TimePickerDefaults {
         timeSelectorUnselectedContainerColor: Color = Color.Unspecified,
         timeSelectorSelectedContentColor: Color = Color.Unspecified,
         timeSelectorUnselectedContentColor: Color = Color.Unspecified,
-    ) =
+    ): TimePickerColors =
         MaterialTheme.colorScheme.defaultTimePickerColors.copy(
             clockDialColor = clockDialColor,
             clockDialSelectedContentColor = clockDialSelectedContentColor,
@@ -471,7 +472,9 @@ object TimePickerDefaults {
         )
 
     /** Default colors used by a rich [TimePicker] in different states */
-    @Composable fun richColors() = MaterialTheme.colorScheme.defaultRichTimePickerColors
+    @Composable
+    public fun richColors(): TimePickerColors =
+        MaterialTheme.colorScheme.defaultRichTimePickerColors
 
     /**
      * Default colors used by a rich [TimePicker] in different states
@@ -502,7 +505,7 @@ object TimePickerDefaults {
      *   display buttons to switch between hour and minutes
      */
     @Composable
-    fun richColors(
+    public fun richColors(
         clockDialColor: Color = Color.Unspecified,
         clockDialSelectedContentColor: Color = Color.Unspecified,
         clockDialUnselectedContentColor: Color = Color.Unspecified,
@@ -517,7 +520,7 @@ object TimePickerDefaults {
         timeSelectorUnselectedContainerColor: Color = Color.Unspecified,
         timeSelectorSelectedContentColor: Color = Color.Unspecified,
         timeSelectorUnselectedContentColor: Color = Color.Unspecified,
-    ) =
+    ): TimePickerColors =
         MaterialTheme.colorScheme.defaultRichTimePickerColors.copy(
             clockDialColor = clockDialColor,
             clockDialSelectedContentColor = clockDialSelectedContentColor,
@@ -611,10 +614,10 @@ object TimePickerDefaults {
     /** Default layout type, uses the screen dimensions to choose an appropriate layout. */
     @ReadOnlyComposable
     @Composable
-    fun layoutType(): TimePickerLayoutType = defaultTimePickerLayoutType
+    public fun layoutType(): TimePickerLayoutType = defaultTimePickerLayoutType
 
     /** Default shapes used by a [TimePicker] */
-    @Composable fun shapes() = MaterialTheme.shapes.defaultTimePickerShapes
+    @Composable public fun shapes(): TimePickerShapes = MaterialTheme.shapes.defaultTimePickerShapes
 
     /**
      * Default shapes used by a [TimePicker]
@@ -623,7 +626,7 @@ object TimePickerDefaults {
      * @param periodSelectorShape the shape used for the AM/PM toggle.
      */
     @Composable
-    fun shapes(
+    public fun shapes(
         timeFieldShape: Shape? = null,
         periodSelectorShape: Shape? = null,
     ): TimePickerShapes =
@@ -650,12 +653,15 @@ object TimePickerDefaults {
  * @property periodSelectorShape is the shape used for the AM/PM toggle.
  */
 @Immutable
-class TimePickerShapes(val timeFieldShape: Shape, val periodSelectorShape: Shape) {
+public class TimePickerShapes(
+    public val timeFieldShape: Shape,
+    public val periodSelectorShape: Shape,
+) {
     /** Returns a copy of this TimePickerShapes, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         timeFieldShape: Shape? = this.timeFieldShape,
         periodSelectorShape: Shape? = this.periodSelectorShape,
-    ) =
+    ): TimePickerShapes =
         TimePickerShapes(
             timeFieldShape = timeFieldShape ?: this.timeFieldShape,
             periodSelectorShape = periodSelectorShape ?: this.periodSelectorShape,
@@ -706,28 +712,28 @@ class TimePickerShapes(val timeFieldShape: Shape, val periodSelectorShape: Shape
  *   default implementation that follows Material specifications.
  */
 @Immutable
-class TimePickerColors
-constructor(
-    val clockDialColor: Color,
-    val selectorColor: Color,
-    val containerColor: Color,
-    val periodSelectorBorderColor: Color,
-    val clockDialSelectedContentColor: Color,
-    val clockDialUnselectedContentColor: Color,
-    val periodSelectorSelectedContainerColor: Color,
-    val periodSelectorUnselectedContainerColor: Color,
-    val periodSelectorSelectedContentColor: Color,
-    val periodSelectorUnselectedContentColor: Color,
-    val timeSelectorSelectedContainerColor: Color,
-    val timeSelectorUnselectedContainerColor: Color,
-    val timeSelectorSelectedContentColor: Color,
-    val timeSelectorUnselectedContentColor: Color,
+public class TimePickerColors
+public constructor(
+    public val clockDialColor: Color,
+    public val selectorColor: Color,
+    public val containerColor: Color,
+    public val periodSelectorBorderColor: Color,
+    public val clockDialSelectedContentColor: Color,
+    public val clockDialUnselectedContentColor: Color,
+    public val periodSelectorSelectedContainerColor: Color,
+    public val periodSelectorUnselectedContainerColor: Color,
+    public val periodSelectorSelectedContentColor: Color,
+    public val periodSelectorUnselectedContentColor: Color,
+    public val timeSelectorSelectedContainerColor: Color,
+    public val timeSelectorUnselectedContainerColor: Color,
+    public val timeSelectorSelectedContentColor: Color,
+    public val timeSelectorUnselectedContentColor: Color,
 ) {
     /**
      * Returns a copy of this TimePickerColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         clockDialColor: Color = this.containerColor,
         selectorColor: Color = this.selectorColor,
         containerColor: Color = this.containerColor,
@@ -742,7 +748,7 @@ constructor(
         timeSelectorUnselectedContainerColor: Color = this.timeSelectorUnselectedContainerColor,
         timeSelectorSelectedContentColor: Color = this.timeSelectorSelectedContentColor,
         timeSelectorUnselectedContentColor: Color = this.timeSelectorUnselectedContentColor,
-    ) =
+    ): TimePickerColors =
         TimePickerColors(
             clockDialColor.takeOrElse { this.clockDialColor },
             selectorColor.takeOrElse { this.selectorColor },
@@ -873,7 +879,7 @@ constructor(
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
 @Composable
-fun rememberTimePickerState(
+public fun rememberTimePickerState(
     initialHour: Int = 0,
     initialMinute: Int = 0,
     is24Hour: Boolean = is24HourFormat,
@@ -893,19 +899,19 @@ fun rememberTimePickerState(
 /** Represents the different configurations for the layout of the Time Picker */
 @Immutable
 @JvmInline
-value class TimePickerLayoutType internal constructor(internal val value: Int) {
+public value class TimePickerLayoutType internal constructor(internal val value: Int) {
 
-    companion object {
+    public companion object {
         /** Displays the Time picker with a horizontal layout. Should be used in landscape mode. */
-        val Horizontal
+        public val Horizontal: TimePickerLayoutType
             get() = TimePickerLayoutType(0)
 
         /** Displays the Time picker with a vertical layout. Should be used in portrait mode. */
-        val Vertical
+        public val Vertical: TimePickerLayoutType
             get() = TimePickerLayoutType(1)
     }
 
-    override fun toString() =
+    public override fun toString(): String =
         when (this) {
             Horizontal -> "Horizontal"
             Vertical -> "Vertical"
@@ -948,7 +954,7 @@ private val RichTimePickerPaddingHorizontal
  *
  * @see rememberTimePickerState to construct the default implementation.
  */
-interface TimePickerState {
+public interface TimePickerState {
 
     /**
      * The currently selected minute (0-59).
@@ -957,7 +963,7 @@ interface TimePickerState {
      * (e.g. mid-typing in [TimeInput]) without changing the behavior of this property, which always
      * guarantees a valid value.
      */
-    @get:IntRange(from = 0, to = 59) @setparam:IntRange(from = 0, to = 59) var minute: Int
+    @get:IntRange(from = 0, to = 59) @setparam:IntRange(from = 0, to = 59) public var minute: Int
 
     /**
      * The currently selected hour (0-23).
@@ -966,7 +972,7 @@ interface TimePickerState {
      * mid-typing in [TimeInput]) without changing the behavior of this property, which always
      * guarantees a valid value.
      */
-    @get:IntRange(from = 0, to = 23) @setparam:IntRange(from = 0, to = 23) var hour: Int
+    @get:IntRange(from = 0, to = 23) @setparam:IntRange(from = 0, to = 23) public var hour: Int
 
     /**
      * The input for the hour.
@@ -976,7 +982,7 @@ interface TimePickerState {
      * without polluting [hour] with invalid values.
      */
     @get:IntRange(from = 0)
-    var hourInput: Int
+    public var hourInput: Int
         get() = hour
         set(value) {
             if (isValidHour(value)) {
@@ -992,7 +998,7 @@ interface TimePickerState {
      * [TimeInput] without polluting [minute] with invalid values.
      */
     @get:IntRange(from = 0)
-    var minuteInput: Int
+    public var minuteInput: Int
         get() = minute
         set(value) {
             if (value in 0..MaxMinuteValue) {
@@ -1004,24 +1010,24 @@ interface TimePickerState {
      * Indicates whether the time picker uses 24-hour format (`true`) or 12-hour format with AM/PM
      * (`false`).
      */
-    var is24hour: Boolean
+    public var is24hour: Boolean
 
     /** Specifies whether the hour or minute component is being actively selected by the user. */
-    var selection: TimePickerSelectionMode
+    public var selection: TimePickerSelectionMode
 }
 
 /**
  * Indicates whether the selected time falls within the period from 12 PM inclusive to 12 AM non
  * inclusive.
  */
-val TimePickerState.isPm
+public val TimePickerState.isPm: Boolean
     get() = hour >= 12
 
 /**
  * `true` if the current `hourInput` represents a valid hour (0-23 for 24h, 0-11 for 12h AM, 12-23
  * for 12h PM).
  */
-val TimePickerState.isHourInputValid: Boolean
+public val TimePickerState.isHourInputValid: Boolean
     get() = isValidHour(hourInput)
 
 private fun TimePickerState.isValidHour(hour: Int): Boolean {
@@ -1035,11 +1041,11 @@ private fun TimePickerState.isValidHour(hour: Int): Boolean {
 }
 
 /** `true` if the current `minuteInput` represents a valid minute (0-59). */
-val TimePickerState.isMinuteInputValid: Boolean
+public val TimePickerState.isMinuteInputValid: Boolean
     get() = minuteInput in 0..MaxMinuteValue
 
 /** `true` if the time input values are valid. */
-val TimePickerState.isInputValid
+public val TimePickerState.isInputValid: Boolean
     get() = isMinuteInputValid && isHourInputValid
 
 /**
@@ -1053,7 +1059,11 @@ val TimePickerState.isInputValid
  * @param is24Hour The format for this time picker. `false` for 12 hour format with an AM/PM toggle
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  */
-fun TimePickerState(initialHour: Int, initialMinute: Int, is24Hour: Boolean): TimePickerState =
+public fun TimePickerState(
+    initialHour: Int,
+    initialMinute: Int,
+    is24Hour: Boolean,
+): TimePickerState =
     TimePickerState(
         initialHour = initialHour,
         initialMinute = initialMinute,
@@ -1073,7 +1083,7 @@ fun TimePickerState(initialHour: Int, initialMinute: Int, is24Hour: Boolean): Ti
  *   or `true` for 24 hour format without toggle. Defaults to follow system setting.
  * @param initialSelection starting selection mode for this state.
  */
-fun TimePickerState(
+public fun TimePickerState(
     initialHour: Int,
     initialMinute: Int,
     is24Hour: Boolean,
@@ -1082,16 +1092,16 @@ fun TimePickerState(
 
 /** The selection mode for the time picker */
 @JvmInline
-value class TimePickerSelectionMode private constructor(val value: Int) {
-    companion object {
-        val Hour
+public value class TimePickerSelectionMode private constructor(public val value: Int) {
+    public companion object {
+        public val Hour: TimePickerSelectionMode
             get() = TimePickerSelectionMode(0)
 
-        val Minute
+        public val Minute: TimePickerSelectionMode
             get() = TimePickerSelectionMode(1)
     }
 
-    override fun toString(): String =
+    public override fun toString(): String =
         when (this) {
             Hour -> "Hour"
             Minute -> "Minute"

@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.LineBreak.WordBreak
  */
 @Immutable
 @JvmInline
-actual value class LineBreak internal constructor(internal val mask: Int) {
+public actual value class LineBreak internal constructor(internal val mask: Int) {
 
     /**
      * This represents a configuration for line breaking on Android, describing [Strategy],
@@ -50,31 +50,31 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
      * @param strictness defines the line breaking rules
      * @param wordBreak defines how words are broken
      */
-    constructor(
+    public constructor(
         strategy: Strategy,
         strictness: Strictness,
         wordBreak: WordBreak,
     ) : this(packBytes(strategy.value, strictness.value, wordBreak.value))
 
-    val strategy: Strategy
+    public val strategy: Strategy
         get() = Strategy(unpackByte1(mask))
 
-    val strictness: Strictness
+    public val strictness: Strictness
         get() = Strictness(unpackByte2(mask))
 
-    val wordBreak: WordBreak
+    public val wordBreak: WordBreak
         get() = WordBreak(unpackByte3(mask))
 
-    fun copy(
+    public fun copy(
         strategy: Strategy = this.strategy,
         strictness: Strictness = this.strictness,
         wordBreak: WordBreak = this.wordBreak,
     ): LineBreak = LineBreak(strategy = strategy, strictness = strictness, wordBreak = wordBreak)
 
-    override fun toString(): String =
+    public override fun toString(): String =
         "LineBreak(strategy=$strategy, strictness=$strictness, wordBreak=$wordBreak)"
 
-    actual companion object {
+    public actual companion object {
         /**
          * The greedy, fast line breaking algorithm. Ideal for text that updates often, such as a
          * text editor, as the text will reflow minimally.
@@ -93,7 +93,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
          * </pre>
          */
         @Stable
-        actual val Simple: LineBreak =
+        public actual val Simple: LineBreak =
             LineBreak(
                 packBytes(Strategy.Simple.value, Strictness.Normal.value, WordBreak.Default.value)
             )
@@ -116,7 +116,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
          * </pre>
          */
         @Stable
-        actual val Heading: LineBreak =
+        public actual val Heading: LineBreak =
             LineBreak(
                 packBytes(Strategy.Balanced.value, Strictness.Loose.value, WordBreak.Phrase.value)
             )
@@ -139,7 +139,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
          * </pre>
          */
         @Stable
-        actual val Paragraph: LineBreak =
+        public actual val Paragraph: LineBreak =
             LineBreak(
                 packBytes(
                     Strategy.HighQuality.value,
@@ -153,14 +153,14 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
          * desired.
          */
         @Stable
-        actual val Unspecified: LineBreak
+        public actual val Unspecified: LineBreak
             get() = LineBreak(0)
     }
 
     /** The strategy used for line breaking. */
     @JvmInline
-    value class Strategy internal constructor(internal val value: Int) {
-        companion object {
+    public value class Strategy internal constructor(internal val value: Int) {
+        public companion object {
             /**
              * Basic, fast break strategy. Hyphenation, if enabled, is done only for words that
              * don't fit on an entire line by themselves.
@@ -173,7 +173,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * +---------+
              * </pre>
              */
-            val Simple: Strategy
+            public val Simple: Strategy
                 get() = Strategy(1)
 
             /**
@@ -188,7 +188,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * +---------+
              * </pre>
              */
-            val HighQuality: Strategy
+            public val HighQuality: Strategy
                 get() = Strategy(2)
 
             /**
@@ -201,18 +201,18 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * +-----------------------+
              * </pre>
              */
-            val Balanced: Strategy
+            public val Balanced: Strategy
                 get() = Strategy(3)
 
             /**
              * This represents an unset value, a usual replacement for "null" when a primitive value
              * is desired.
              */
-            val Unspecified: Strategy
+            public val Unspecified: Strategy
                 get() = Strategy(0)
         }
 
-        override fun toString(): String =
+        public override fun toString(): String =
             when (this) {
                 Simple -> "Strategy.Simple"
                 HighQuality -> "Strategy.HighQuality"
@@ -227,12 +227,12 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
      * can be inserted. It is useful when working with CJK scripts.
      */
     @JvmInline
-    value class Strictness internal constructor(internal val value: Int) {
-        companion object {
+    public value class Strictness internal constructor(internal val value: Int) {
+        public companion object {
             /**
              * Default breaking rules for the locale, which may correspond to [Normal] or [Strict].
              */
-            val Default: Strictness
+            public val Default: Strictness
                 get() = Strictness(1)
 
             /**
@@ -240,7 +240,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              *
              * For example, in Japanese it allows breaking before iteration marks, such as 々, 〻.
              */
-            val Loose: Strictness
+            public val Loose: Strictness
                 get() = Strictness(2)
 
             /**
@@ -249,7 +249,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * For example, in Japanese it allows breaking before characters like small hiragana
              * (ぁ), small katakana (ァ), halfwidth variants (ｧ).
              */
-            val Normal: Strictness
+            public val Normal: Strictness
                 get() = Strictness(3)
 
             /**
@@ -258,18 +258,18 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * For example, in Japanese it does not allow breaking before characters like small
              * hiragana (ぁ), small katakana (ァ), halfwidth variants (ｧ).
              */
-            val Strict: Strictness
+            public val Strict: Strictness
                 get() = Strictness(4)
 
             /**
              * This represents an unset value, a usual replacement for "null" when a primitive value
              * is desired.
              */
-            val Unspecified: Strictness
+            public val Unspecified: Strictness
                 get() = Strictness(0)
         }
 
-        override fun toString(): String =
+        public override fun toString(): String =
             when (this) {
                 Default -> "Strictness.None"
                 Loose -> "Strictness.Loose"
@@ -282,8 +282,8 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
 
     /** Describes how line breaks should be inserted within words. */
     @JvmInline
-    value class WordBreak internal constructor(internal val value: Int) {
-        companion object {
+    public value class WordBreak internal constructor(internal val value: Int) {
+        public companion object {
             /**
              * Default word breaking rules for the locale. In latin scripts this means inserting
              * line breaks between words, while in languages that don't use whitespace (e.g.
@@ -302,7 +302,7 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * +---------+
              * </pre>
              */
-            val Default: WordBreak
+            public val Default: WordBreak
                 get() = WordBreak(1)
 
             /**
@@ -323,14 +323,14 @@ actual value class LineBreak internal constructor(internal val mask: Int) {
              * +---------+
              * </pre>
              */
-            val Phrase: WordBreak
+            public val Phrase: WordBreak
                 get() = WordBreak(2)
 
             /**
              * This represents an unset value, a usual replacement for "null" when a primitive value
              * is desired.
              */
-            val Unspecified: WordBreak
+            public val Unspecified: WordBreak
                 get() = WordBreak(0)
         }
 

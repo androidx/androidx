@@ -26,16 +26,16 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
  * measure object is used. If the path is modified, you must call [PathMeasure.setPath] with the
  * path.
  */
-expect fun PathMeasure(): PathMeasure
+public expect fun PathMeasure(): PathMeasure
 
 @JvmDefaultWithCompatibility
-interface PathMeasure {
+public interface PathMeasure {
 
     /**
      * The total length of the current contour, or 0 if no path is associated with this measure
      * object.
      */
-    val length: Float
+    public val length: Float
 
     /**
      * Given a start and stop distance, return in dst the intervening segment(s). If the segment is
@@ -43,7 +43,7 @@ interface PathMeasure {
      * (0..getLength()). If startD >= stopD then return false (and leave dst untouched). Begin the
      * segment with a moveTo if startWithMoveTo is true.
      */
-    fun getSegment(
+    public fun getSegment(
         startDistance: Float,
         stopDistance: Float,
         destination: Path,
@@ -51,7 +51,7 @@ interface PathMeasure {
     ): Boolean
 
     /** Assign a new path, or null to have none. */
-    fun setPath(path: Path?, forceClosed: Boolean)
+    public fun setPath(path: Path?, forceClosed: Boolean)
 
     /**
      * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding position
@@ -59,7 +59,7 @@ interface PathMeasure {
      * @param distance The distance along the current contour to sample
      * @return [Offset.Unspecified] if there is no path set
      */
-    fun getPosition(distance: Float): Offset
+    public fun getPosition(distance: Float): Offset
 
     /**
      * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding tangent
@@ -67,5 +67,5 @@ interface PathMeasure {
      * @param distance The distance along the current contour to sample
      * @return [Offset.Unspecified] if there is no path set
      */
-    fun getTangent(distance: Float): Offset
+    public fun getTangent(distance: Float): Offset
 }

@@ -20,9 +20,9 @@ import kotlinx.coroutines.CancellationException
 
 private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
 
-actual class PointerEventTimeoutCancellationException actual constructor(time: Long) :
+public actual class PointerEventTimeoutCancellationException public actual constructor(time: Long) :
     CancellationException("Timed out waiting for $time ms") {
-    override fun fillInStackTrace(): Throwable {
+    public override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
         stackTrace = EmptyStackTraceElements
         return this

@@ -24,33 +24,33 @@ package androidx.compose.ui.autofill
  * property that matches the underlying data's type will return a non-null value. All other
  * properties will return `null`.
  */
-interface FillableData {
+public interface FillableData {
     /** The `CharSequence` (text) representation of the data, or `null` if none is available. */
-    val textValue: CharSequence?
+    public val textValue: CharSequence?
         get() = null
 
     /** The `Boolean` representation of the data, or `null` if none is available. */
-    val booleanValue: Boolean?
+    public val booleanValue: Boolean?
         @Suppress("AutoBoxing") get() = null
 
     /** The `Int` (integer) representation of the data, or `null` if none is available. */
-    val listIndexValue: Int?
+    public val listIndexValue: Int?
         @Suppress("AutoBoxing") get() = null
 
     /** Returns the list index value if it is available, otherwise returns the [defaultValue]. */
-    fun getListIndexOrDefault(defaultValue: Int): Int = listIndexValue ?: defaultValue
+    public fun getListIndexOrDefault(defaultValue: Int): Int = listIndexValue ?: defaultValue
 
     /** The date in milliseconds since epoch, or `null` if none is available. */
-    val dateMillisValue: Long?
+    public val dateMillisValue: Long?
         @Suppress("AutoBoxing") get() = null
 
     /**
      * Returns the date in milliseconds value if it is available, otherwise returns the
      * [defaultValue].
      */
-    fun getDateMillisOrDefault(defaultValue: Long): Long = dateMillisValue ?: defaultValue
+    public fun getDateMillisOrDefault(defaultValue: Long): Long = dateMillisValue ?: defaultValue
 
-    companion object
+    public companion object
 }
 
 /**
@@ -63,7 +63,7 @@ interface FillableData {
  * @return A [FillableData] object containing the boolean data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): FillableData?
+public expect fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): FillableData?
 
 /**
  * Creates a [FillableData] instance from a [CharSequence].
@@ -75,7 +75,7 @@ expect fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): Fill
  * @return A [FillableData] object containing the text data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData.Companion.createFromText(textValue: CharSequence): FillableData?
+public expect fun FillableData.Companion.createFromText(textValue: CharSequence): FillableData?
 
 /**
  * Creates a [FillableData] instance from an [Int].
@@ -88,7 +88,7 @@ expect fun FillableData.Companion.createFromText(textValue: CharSequence): Filla
  * @return A [FillableData] object containing the integer data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData.Companion.createFromListIndex(listIndexValue: Int): FillableData?
+public expect fun FillableData.Companion.createFromListIndex(listIndexValue: Int): FillableData?
 
 /**
  * Creates a [FillableData] instance from a [Long].
@@ -101,4 +101,4 @@ expect fun FillableData.Companion.createFromListIndex(listIndexValue: Int): Fill
  * @return A [FillableData] object containing the long data, or `null` if the platform does not
  *   support autofill.
  */
-expect fun FillableData.Companion.createFromDateMillis(dateMillisValue: Long): FillableData?
+public expect fun FillableData.Companion.createFromDateMillis(dateMillisValue: Long): FillableData?

@@ -22,9 +22,9 @@ import android.credentials.GetCredentialResponse
 import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
 
-object SemanticsPropertiesAndroid {
+public object SemanticsPropertiesAndroid {
     /** @see SemanticsPropertyReceiver.testTagsAsResourceId */
-    val TestTagsAsResourceId =
+    public val TestTagsAsResourceId: SemanticsPropertyKey<Boolean> =
         SemanticsPropertyKey<Boolean>(
             name = "TestTagsAsResourceId",
             isImportantForAccessibility = false,
@@ -32,12 +32,12 @@ object SemanticsPropertiesAndroid {
         )
 
     /** @see SemanticsPropertyReceiver.accessibilityClassName */
-    val AccessibilityClassName =
+    public val AccessibilityClassName: SemanticsPropertyKey<String> =
         AccessibilityKey<String>("AccessibilityClassName") { parentValue, _ -> parentValue }
 
     /** @see SemanticsPropertyReceiver.credentialRequest */
     @get:RequiresApi(34)
-    val CredentialRequest =
+    public val CredentialRequest: SemanticsPropertyKey<CredentialRequestData> =
         SemanticsPropertyKey<CredentialRequestData>(
             name = "CredentialRequest",
             isImportantForAccessibility = false,
@@ -61,11 +61,11 @@ object SemanticsPropertiesAndroid {
  * @param accessibilityExtraKey The key used to store the value in the extras [android.os.Bundle].
  * @param mergePolicy The merge policy to use when merging descendant semantics.
  */
-fun <T> SemanticsPropertyKey(
+public fun <T> SemanticsPropertyKey(
     name: String,
     accessibilityExtraKey: String,
     mergePolicy: (T?, T) -> T? = { parentValue, _ -> parentValue },
-) =
+): SemanticsPropertyKey<T> =
     SemanticsPropertyKey(
         name = name,
         isImportantForAccessibility = false,
@@ -89,7 +89,7 @@ fun <T> SemanticsPropertyKey(
  * semantics node of the app (and no child nodes set it back to false), then every testTag will be
  * mapped.
  */
-var SemanticsPropertyReceiver.testTagsAsResourceId by
+public var SemanticsPropertyReceiver.testTagsAsResourceId: Boolean by
     SemanticsPropertiesAndroid.TestTagsAsResourceId
 
 /*
@@ -106,7 +106,7 @@ var SemanticsPropertyReceiver.testTagsAsResourceId by
  * constant defined on Android platform. For example, to assign a button classname you would use
  * "android.widget.Button".
  */
-var SemanticsPropertyReceiver.accessibilityClassName by
+public var SemanticsPropertyReceiver.accessibilityClassName: String by
     SemanticsPropertiesAndroid.AccessibilityClassName
 
 /**
@@ -116,9 +116,9 @@ var SemanticsPropertyReceiver.accessibilityClassName by
  * @param callback callback to receive the credential response or exception
  */
 @RequiresApi(34)
-class CredentialRequestData(
-    val request: GetCredentialRequest,
-    val callback: OutcomeReceiver<GetCredentialResponse, GetCredentialException>,
+public class CredentialRequestData(
+    public val request: GetCredentialRequest,
+    public val callback: OutcomeReceiver<GetCredentialResponse, GetCredentialException>,
 )
 
 /**
@@ -128,7 +128,7 @@ class CredentialRequestData(
  */
 @get:RequiresApi(34)
 @set:RequiresApi(34)
-var SemanticsPropertyReceiver.credentialRequest: CredentialRequestData
+public var SemanticsPropertyReceiver.credentialRequest: CredentialRequestData
     get() =
         throw UnsupportedOperationException(
             "You cannot retrieve a semantics property directly - " +

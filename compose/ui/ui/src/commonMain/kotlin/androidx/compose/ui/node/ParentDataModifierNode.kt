@@ -30,15 +30,16 @@ import androidx.compose.ui.unit.Density
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
  * [androidx.compose.ui.layout.ParentDataModifier]
  */
-interface ParentDataModifierNode : DelegatableNode {
+public interface ParentDataModifierNode : DelegatableNode {
     /**
      * Provides a parentData, given the [parentData] already provided through the modifier's chain.
      */
-    fun Density.modifyParentData(parentData: Any?): Any?
+    public fun Density.modifyParentData(parentData: Any?): Any?
 }
 
 /**
  * This invalidates the current node's parent data, and ensures that layouts that utilize it will be
  * scheduled to relayout for the next frame.
  */
-fun ParentDataModifierNode.invalidateParentData() = requireLayoutNode().invalidateParentData()
+public fun ParentDataModifierNode.invalidateParentData(): Unit =
+    requireLayoutNode().invalidateParentData()

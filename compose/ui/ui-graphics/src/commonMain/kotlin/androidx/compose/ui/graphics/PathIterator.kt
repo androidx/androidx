@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.PathIterator.ConicEvaluation
  * @param tolerance When [conicEvaluation] is set to [PathIterator.ConicEvaluation.AsQuadratics]
  *   defines the maximum distance between the original conic curve and its quadratic approximations
  */
-expect fun PathIterator(
+public expect fun PathIterator(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
     tolerance: Float = 0.25f,
@@ -48,12 +48,12 @@ expect fun PathIterator(
  * [AsConic][ConicEvaluation.AsQuadratics], conic segments are approximated using 1 or more
  * quadratic segments. The error of the approximation is controlled by [tolerance].
  */
-interface PathIterator : Iterator<PathSegment> {
+public interface PathIterator : Iterator<PathSegment> {
     /**
      * Used to define how conic segments are evaluated when iterating over a [Path] using
      * [PathIterator].
      */
-    enum class ConicEvaluation {
+    public enum class ConicEvaluation {
         /** Conic segments are returned as conic segments. */
         AsConic,
 
@@ -65,20 +65,20 @@ interface PathIterator : Iterator<PathSegment> {
     }
 
     /** The [Path] this iterator iterates on. */
-    val path: Path
+    public val path: Path
 
     /**
      * Indicates whether conic segments, when present, are preserved as-is or converted to quadratic
      * segments, using an approximation whose error is controlled by [tolerance].
      */
-    val conicEvaluation: ConicEvaluation
+    public val conicEvaluation: ConicEvaluation
 
     /**
      * Error of the approximation used to evaluate conic segments if they are converted to
      * quadratics. The error is defined as the maximum distance between the original conic segment
      * and its quadratic approximation. See [conicEvaluation].
      */
-    val tolerance: Float
+    public val tolerance: Float
 
     /**
      * Returns the number of verbs present in this iterator, i.e. the number of calls to [next]
@@ -95,7 +95,7 @@ interface PathIterator : Iterator<PathSegment> {
      *   elements and converting any conics as appropriate. Set to false to save on processing, at
      *   the cost of a less exact result.
      */
-    fun calculateSize(includeConvertedConics: Boolean = true): Int
+    public fun calculateSize(includeConvertedConics: Boolean = true): Int
 
     /** Returns `true` if the iteration has more elements. */
     override fun hasNext(): Boolean
@@ -121,7 +121,7 @@ interface PathIterator : Iterator<PathSegment> {
      *   [IllegalStateException] otherwise.
      * @param offset Offset in [outPoints] where to store the result
      */
-    fun next(outPoints: FloatArray, offset: Int = 0): PathSegment.Type
+    public fun next(outPoints: FloatArray, offset: Int = 0): PathSegment.Type
 
     /**
      * Returns the next [path segment][PathSegment] in the iteration, or [DoneSegment] if the

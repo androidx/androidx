@@ -132,7 +132,7 @@ import kotlin.math.pow
  * To learn more about the white point adaptation process, refer to the documentation of
  * [Adaptation].
  */
-class Rgb
+public class Rgb
 /**
  * Creates a new RGB color space using a specified set of primaries and a specified white point.
  *
@@ -170,7 +170,7 @@ class Rgb
 internal constructor(
     name: String,
     primaries: FloatArray,
-    val whitePoint: WhitePoint,
+    public val whitePoint: WhitePoint,
     transform: FloatArray?,
     oetf: DoubleFunction,
     eotf: DoubleFunction,
@@ -186,7 +186,7 @@ internal constructor(
      * @return An instance of [TransferParameters] or null if this color space's transfer functions
      *   do not match the equation defined in [TransferParameters]
      */
-    val transferParameters: TransferParameters?,
+    public val transferParameters: TransferParameters?,
     id: Int,
 ) : ColorSpace(name, ColorModel.Rgb, id) {
 
@@ -211,7 +211,9 @@ internal constructor(
      * @see eotf
      * @see Rgb.transferParameters
      */
-    val oetf: (Double) -> Double = { x -> oetfOrig(x).coerceIn(min.toDouble(), max.toDouble()) }
+    public val oetf: (Double) -> Double = { x ->
+        oetfOrig(x).coerceIn(min.toDouble(), max.toDouble())
+    }
 
     internal val oetfFunc: DoubleFunction = DoubleFunction { x ->
         oetfOrig(x).coerceIn(min.toDouble(), max.toDouble())
@@ -235,14 +237,16 @@ internal constructor(
      * @see oetf
      * @see Rgb.transferParameters
      */
-    val eotf: (Double) -> Double = { x -> eotfOrig(x.coerceIn(min.toDouble(), max.toDouble())) }
+    public val eotf: (Double) -> Double = { x ->
+        eotfOrig(x.coerceIn(min.toDouble(), max.toDouble()))
+    }
 
     internal val eotfFunc = DoubleFunction { x ->
         eotfOrig(x.coerceIn(min.toDouble(), max.toDouble()))
     }
 
-    override val isWideGamut: Boolean
-    override val isSrgb: Boolean
+    public override val isWideGamut: Boolean
+    public override val isSrgb: Boolean
 
     init {
         if (primaries.size != 6 && primaries.size != 9) {
@@ -285,7 +289,7 @@ internal constructor(
      * @return A new non-null array of 2 floats
      * @see whitePoint
      */
-    @Size(6) fun getPrimaries(): FloatArray = primaries.copyOf()
+    @Size(6) public fun getPrimaries(): FloatArray = primaries.copyOf()
 
     /**
      * Returns the transform of this color space as a new array. The transform is used to convert
@@ -297,7 +301,7 @@ internal constructor(
      * @return A new array of 9 floats
      * @see getInverseTransform
      */
-    @Size(9) fun getTransform(): FloatArray = transform.copyOf()
+    @Size(9) public fun getTransform(): FloatArray = transform.copyOf()
 
     /**
      * Returns the inverse transform of this color space as a new array. The inverse transform is
@@ -309,7 +313,7 @@ internal constructor(
      * @return A new array of 9 floats
      * @see getTransform
      */
-    @Size(9) fun getInverseTransform(): FloatArray = inverseTransform.copyOf()
+    @Size(9) public fun getInverseTransform(): FloatArray = inverseTransform.copyOf()
 
     /**
      * Creates a new RGB color space using a 3x3 column-major transform matrix. The transform matrix
@@ -327,7 +331,7 @@ internal constructor(
      *     * The OETF is null or the EOTF is null.
      *     * The minimum valid value is >= the maximum valid value.
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         oetf: (Double) -> Double,
@@ -374,7 +378,7 @@ internal constructor(
      *     * The OETF is null or the EOTF is null.
      *     * The minimum valid value is >= the maximum valid value.
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
@@ -409,7 +413,7 @@ internal constructor(
      *     * The name is null or has a length of 0.
      *     * Gamma is negative.
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         function: TransferParameters,
@@ -440,7 +444,7 @@ internal constructor(
      *     * The white point array is null or has a length that is neither 2 or 3.
      *     * The transfer parameters are invalid.
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
@@ -512,7 +516,7 @@ internal constructor(
      *
      * @see get
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         gamma: Double,
@@ -545,7 +549,7 @@ internal constructor(
      *
      * @see get
      */
-    constructor(
+    public constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
@@ -640,7 +644,7 @@ internal constructor(
      * @see getPrimaries
      */
     @Size(min = 6)
-    fun getPrimaries(@Size(min = 6) primaries: FloatArray): FloatArray {
+    public fun getPrimaries(@Size(min = 6) primaries: FloatArray): FloatArray {
         return this.primaries.copyInto(primaries)
     }
 
@@ -656,7 +660,7 @@ internal constructor(
      * @see getInverseTransform
      */
     @Size(min = 9)
-    fun getTransform(@Size(min = 9) transform: FloatArray): FloatArray {
+    public fun getTransform(@Size(min = 9) transform: FloatArray): FloatArray {
         return this.transform.copyInto(transform)
     }
 
@@ -673,15 +677,15 @@ internal constructor(
      * @see getTransform
      */
     @Size(min = 9)
-    fun getInverseTransform(@Size(min = 9) inverseTransform: FloatArray): FloatArray {
+    public fun getInverseTransform(@Size(min = 9) inverseTransform: FloatArray): FloatArray {
         return this.inverseTransform.copyInto(inverseTransform)
     }
 
-    override fun getMinValue(component: Int): Float {
+    public override fun getMinValue(component: Int): Float {
         return min
     }
 
-    override fun getMaxValue(component: Int): Float {
+    public override fun getMaxValue(component: Int): Float {
         return max
     }
 
@@ -700,7 +704,7 @@ internal constructor(
      * @see fromLinear
      */
     @Size(3)
-    fun toLinear(r: Float, g: Float, b: Float): FloatArray {
+    public fun toLinear(r: Float, g: Float, b: Float): FloatArray {
         return toLinear(floatArrayOf(r, g, b))
     }
 
@@ -718,7 +722,7 @@ internal constructor(
      * @see fromLinear
      */
     @Size(min = 3)
-    fun toLinear(@Size(min = 3) v: FloatArray): FloatArray {
+    public fun toLinear(@Size(min = 3) v: FloatArray): FloatArray {
         // Compiler hint to avoid extra bounds checks
         if (v.size < 3) return v
         v[0] = eotfFunc(v[0].toDouble()).toFloat()
@@ -742,7 +746,7 @@ internal constructor(
      * @see toLinear
      */
     @Size(3)
-    fun fromLinear(r: Float, g: Float, b: Float): FloatArray {
+    public fun fromLinear(r: Float, g: Float, b: Float): FloatArray {
         return fromLinear(floatArrayOf(r, g, b))
     }
 
@@ -760,7 +764,7 @@ internal constructor(
      * @see toLinear
      */
     @Size(min = 3)
-    fun fromLinear(@Size(min = 3) v: FloatArray): FloatArray {
+    public fun fromLinear(@Size(min = 3) v: FloatArray): FloatArray {
         // Compiler hint to avoid extra bounds checks
         if (v.size < 3) return v
         v[0] = oetfFunc(v[0].toDouble()).toFloat()
@@ -769,7 +773,7 @@ internal constructor(
         return v
     }
 
-    override fun toXyz(v: FloatArray): FloatArray {
+    public override fun toXyz(v: FloatArray): FloatArray {
         // Compiler hint to avoid extra bounds checks
         if (v.size < 3) return v
         v[0] = eotfFunc(v[0].toDouble()).toFloat()
@@ -819,7 +823,7 @@ internal constructor(
         return Color(v0, v1, v2, a, colorSpace)
     }
 
-    override fun fromXyz(v: FloatArray): FloatArray {
+    public override fun fromXyz(v: FloatArray): FloatArray {
         mul3x3Float3(inverseTransform, v)
         // Compiler hint to avoid extra bounds checks
         if (v.size < 3) return v
@@ -829,7 +833,7 @@ internal constructor(
         return v
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
         if (!super.equals(other)) return false
@@ -849,7 +853,7 @@ internal constructor(
         return if (oetfOrig != rgb.oetfOrig) false else eotfOrig == rgb.eotfOrig
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + whitePoint.hashCode()
         result = 31 * result + primaries.contentHashCode()

@@ -69,7 +69,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @sample androidx.compose.foundation.layout.samples.windowInsetsNestedScrollDemo
  */
 @ExperimentalLayoutApi
-fun Modifier.imeNestedScroll(): Modifier {
+public fun Modifier.imeNestedScroll(): Modifier {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         return this
     }

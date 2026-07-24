@@ -107,7 +107,7 @@ import kotlin.math.roundToInt
  * @param content the content of this navigation bar, typically 3-5 [NavigationBarItem]s
  */
 @Composable
-fun NavigationBar(
+public fun NavigationBar(
     modifier: Modifier = Modifier,
     containerColor: Color = NavigationBarDefaults.containerColor,
     contentColor: Color = MaterialTheme.colorScheme.contentColorFor(containerColor),
@@ -169,7 +169,7 @@ fun NavigationBar(
  *   happen internally.
  */
 @Composable
-fun RowScope.NavigationBarItem(
+public fun RowScope.NavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -297,16 +297,16 @@ fun RowScope.NavigationBarItem(
 }
 
 /** Defaults used in [NavigationBar]. */
-object NavigationBarDefaults {
+public object NavigationBarDefaults {
     /** Default elevation for a navigation bar. */
-    val Elevation: Dp = ElevationTokens.Level0
+    public val Elevation: Dp = ElevationTokens.Level0
 
     /** Default color for a navigation bar. */
-    val containerColor: Color
+    public val containerColor: Color
         @Composable get() = NavigationBarTokens.ContainerColor.value
 
     /** Default window insets to be used and consumed by navigation bar */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -315,13 +315,15 @@ object NavigationBarDefaults {
 }
 
 /** Defaults used in [NavigationBarItem]. */
-object NavigationBarItemDefaults {
+public object NavigationBarItemDefaults {
 
     /**
      * Creates a [NavigationBarItemColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultNavigationBarItemColors
+    @Composable
+    public fun colors(): NavigationBarItemColors =
+        MaterialTheme.colorScheme.defaultNavigationBarItemColors
 
     /**
      * Creates a [NavigationBarItemColors] with the provided colors according to the Material
@@ -337,7 +339,7 @@ object NavigationBarItemDefaults {
      * @return the resulting [NavigationBarItemColors] used for [NavigationBarItem]
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = Color.Unspecified,
         selectedTextColor: Color = Color.Unspecified,
         indicatorColor: Color = Color.Unspecified,
@@ -382,7 +384,7 @@ object NavigationBarItemDefaults {
         level = DeprecationLevel.HIDDEN,
     )
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
         selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
         indicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,
@@ -413,21 +415,21 @@ object NavigationBarItemDefaults {
  * @constructor create an instance with arbitrary colors.
  */
 @Immutable
-class NavigationBarItemColors
-constructor(
-    val selectedIconColor: Color,
-    val selectedTextColor: Color,
-    val selectedIndicatorColor: Color,
-    val unselectedIconColor: Color,
-    val unselectedTextColor: Color,
-    val disabledIconColor: Color,
-    val disabledTextColor: Color,
+public class NavigationBarItemColors
+public constructor(
+    public val selectedIconColor: Color,
+    public val selectedTextColor: Color,
+    public val selectedIndicatorColor: Color,
+    public val unselectedIconColor: Color,
+    public val unselectedTextColor: Color,
+    public val disabledIconColor: Color,
+    public val disabledTextColor: Color,
 ) {
     /**
      * Returns a copy of this NavigationBarItemColors, optionally overriding some of the values.
      * This uses the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         selectedIconColor: Color = this.selectedIconColor,
         selectedTextColor: Color = this.selectedTextColor,
         selectedIndicatorColor: Color = this.selectedIndicatorColor,
@@ -435,7 +437,7 @@ constructor(
         unselectedTextColor: Color = this.unselectedTextColor,
         disabledIconColor: Color = this.disabledIconColor,
         disabledTextColor: Color = this.disabledTextColor,
-    ) =
+    ): NavigationBarItemColors =
         NavigationBarItemColors(
             selectedIconColor.takeOrElse { this.selectedIconColor },
             selectedTextColor.takeOrElse { this.selectedTextColor },

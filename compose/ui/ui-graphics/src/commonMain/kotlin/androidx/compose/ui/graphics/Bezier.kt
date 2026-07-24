@@ -70,7 +70,7 @@ private fun evaluateX(segment: PathSegment, t: Float): Float {
  * curve at that position.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun evaluateY(segment: PathSegment, t: Float): Float {
+public fun evaluateY(segment: PathSegment, t: Float): Float {
     val points = segment.points
 
     return when (segment.type) {
@@ -111,7 +111,7 @@ private fun evaluateCubic(p0: Float, p1: Float, p2: Float, p3: Float, t: Float):
  */
 @Suppress("UnnecessaryVariable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun evaluateCubic(p1: Float, p2: Float, t: Float): Float {
+public fun evaluateCubic(p1: Float, p2: Float, t: Float): Float {
     val a = 1.0f / 3.0f + (p1 - p2)
     val b = (p2 - 2.0f * p1)
     val c = p1
@@ -123,7 +123,7 @@ fun evaluateCubic(p1: Float, p2: Float, t: Float): Float {
  * returns [Float.NaN].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun findFirstRoot(segment: PathSegment, fraction: Float): Float {
+public fun findFirstRoot(segment: PathSegment, fraction: Float): Float {
     val points = segment.points
     return when (segment.type) {
         PathSegment.Type.Move -> Float.NaN
@@ -189,7 +189,7 @@ private fun findFirstQuadraticRoot(p0: Float, p1: Float, p2: Float): Float {
  * If no root can be found, this method returns [Float.NaN].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun findFirstCubicRoot(p0: Float, p1: Float, p2: Float, p3: Float): Float {
+public fun findFirstCubicRoot(p0: Float, p1: Float, p2: Float, p3: Float): Float {
     // This function implements Cardano's algorithm as described in "A Primer on Bézier Curves":
     // https://pomax.github.io/bezierinfo/#yforx
     //
@@ -369,7 +369,7 @@ private fun findDerivativeRoots(
  * The [roots] array is used as a scratch array and must be able to hold at least 5 floats.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun computeHorizontalBounds(
+public fun computeHorizontalBounds(
     segment: PathSegment,
     roots: FloatArray,
     index: Int = 0,
@@ -414,7 +414,7 @@ internal fun computeVerticalBounds(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun computeCubicVerticalBounds(
+public fun computeCubicVerticalBounds(
     p0y: Float,
     p1y: Float,
     p2y: Float,

@@ -20,5 +20,5 @@ import android.view.View
 import androidx.compose.ui.node.LayoutNode
 
 /** Return the owner as a View from the associated LayoutNode. */
-val LayoutInfo.view: View?
+public val LayoutInfo.view: View?
     get() = (this as LayoutNode).owner as? View

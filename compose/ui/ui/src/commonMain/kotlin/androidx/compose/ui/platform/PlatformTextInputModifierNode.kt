@@ -41,10 +41,10 @@ import kotlinx.coroutines.flow.collectLatest
  *
  * @sample androidx.compose.ui.samples.platformTextInputModifierNodeSample
  */
-interface PlatformTextInputModifierNode : DelegatableNode
+public interface PlatformTextInputModifierNode : DelegatableNode
 
 /** Receiver type for [establishTextInputSession]. */
-expect interface PlatformTextInputSession {
+public expect interface PlatformTextInputSession {
     /**
      * Starts the text input session and suspends until it is closed.
      *
@@ -57,7 +57,7 @@ expect interface PlatformTextInputSession {
      * @param request The platform-specific [PlatformTextInputMethodRequest] that will be used to
      *   initiate the session.
      */
-    suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
+    public suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
 }
 
 /**
@@ -67,10 +67,10 @@ expect interface PlatformTextInputSession {
  * suspend functions with a [PlatformTextInputSession] receiver. If they need a [CoroutineScope]
  * they should call the [kotlinx.coroutines.coroutineScope] function.
  */
-interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineScope
+public interface PlatformTextInputSessionScope : PlatformTextInputSession, CoroutineScope
 
 /** Single-function interface passed to [InterceptPlatformTextInput]. */
-fun interface PlatformTextInputInterceptor {
+public fun interface PlatformTextInputInterceptor {
 
     /**
      * Called when a function passed to
@@ -89,7 +89,7 @@ fun interface PlatformTextInputInterceptor {
      * previous call will be allowed to finish running any `finally` blocks before the new session
      * starts.
      */
-    suspend fun interceptStartInputMethod(
+    public suspend fun interceptStartInputMethod(
         request: PlatformTextInputMethodRequest,
         nextHandler: PlatformTextInputSession,
     ): Nothing
@@ -125,7 +125,7 @@ fun interface PlatformTextInputInterceptor {
  *   call [PlatformTextInputSession.startInputMethod] to actually show and initiate the connection
  *   with the input method.
  */
-suspend fun PlatformTextInputModifierNode.establishTextInputSession(
+public suspend fun PlatformTextInputModifierNode.establishTextInputSession(
     block: suspend PlatformTextInputSessionScope.() -> Nothing
 ): Nothing {
     require(node.isAttached) { "establishTextInputSession called from an unattached node" }
@@ -147,7 +147,7 @@ suspend fun PlatformTextInputModifierNode.establishTextInputSession(
  * @sample androidx.compose.ui.samples.disableSoftKeyboardSample
  */
 @Composable
-fun InterceptPlatformTextInput(
+public fun InterceptPlatformTextInput(
     interceptor: PlatformTextInputInterceptor,
     content: @Composable () -> Unit,
 ) {

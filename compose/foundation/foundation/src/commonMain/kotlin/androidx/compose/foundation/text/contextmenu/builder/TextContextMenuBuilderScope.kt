@@ -30,7 +30,7 @@ import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMe
  * function is not in the common source set, but is instead defined as an extension function in the
  * platform specific source sets.
  */
-class TextContextMenuBuilderScope internal constructor() {
+public class TextContextMenuBuilderScope internal constructor() {
     private val components = mutableObjectListOf<TextContextMenuComponent>()
     private val filters = mutableObjectListOf<(TextContextMenuComponent) -> Boolean>()
 
@@ -91,7 +91,7 @@ class TextContextMenuBuilderScope internal constructor() {
      * Adds a separator to the list of text context menu components. Successive separators will be
      * combined into a single separator.
      */
-    fun separator() {
+    public fun separator() {
         components += TextContextMenuSeparator
     }
 }

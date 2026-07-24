@@ -91,7 +91,7 @@ import androidx.compose.ui.unit.dp
  * @param content The content to be displayed on this Surface
  */
 @Composable
-fun Surface(
+public fun Surface(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     color: Color = MaterialTheme.colors.surface,
@@ -196,7 +196,7 @@ fun Surface(
  */
 @ExperimentalMaterialApi
 @Composable
-fun Surface(
+public fun Surface(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -307,7 +307,7 @@ fun Surface(
  */
 @ExperimentalMaterialApi
 @Composable
-fun Surface(
+public fun Surface(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -420,7 +420,7 @@ fun Surface(
  */
 @ExperimentalMaterialApi
 @Composable
-fun Surface(
+public fun Surface(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,

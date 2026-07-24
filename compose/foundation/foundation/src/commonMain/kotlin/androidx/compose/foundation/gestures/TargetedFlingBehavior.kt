@@ -20,7 +20,7 @@ import androidx.compose.runtime.Stable
 
 /** Interface to specify fling behavior with additional information about its animation target. */
 @Stable
-interface TargetedFlingBehavior : FlingBehavior {
+public interface TargetedFlingBehavior : FlingBehavior {
 
     /**
      * Perform settling via fling animation with given velocity and suspend until fling has
@@ -41,12 +41,12 @@ interface TargetedFlingBehavior : FlingBehavior {
      *   snapping animation progression.
      * @return remaining velocity after fling operation has ended
      */
-    suspend fun ScrollScope.performFling(
+    public suspend fun ScrollScope.performFling(
         initialVelocity: Float,
         onRemainingDistanceUpdated: (Float) -> Unit,
     ): Float
 
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float =
+    public override suspend fun ScrollScope.performFling(initialVelocity: Float): Float =
         performFling(initialVelocity, NoOnReport)
 }
 

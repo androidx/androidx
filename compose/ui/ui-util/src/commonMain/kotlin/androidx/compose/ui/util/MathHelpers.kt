@@ -22,17 +22,17 @@ import kotlin.math.floor
 import kotlin.math.roundToLong
 
 /** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
-fun lerp(start: Float, stop: Float, fraction: Float): Float {
+public fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return (1 - fraction) * start + fraction * stop
 }
 
 /** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
-fun lerp(start: Int, stop: Int, fraction: Float): Int {
+public fun lerp(start: Int, stop: Int, fraction: Float): Int {
     return start + ((stop - start) * fraction.toDouble()).fastRoundToInt()
 }
 
 /** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
-fun lerp(start: Long, stop: Long, fraction: Float): Long {
+public fun lerp(start: Long, stop: Long, fraction: Float): Long {
     return start + ((stop - start) * fraction.toDouble()).roundToLong()
 }
 
@@ -41,7 +41,7 @@ fun lerp(start: Long, stop: Long, fraction: Float): Long {
  * `kotlin.comparisons.minfOf()` for 4 arguments as it avoids allocating an array because of the
  * varargs.
  */
-inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
+public inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
     // ART inlines everything and generates only 3 fmin instructions
     return minOf(a, minOf(b, minOf(c, d)))
 }
@@ -51,7 +51,7 @@ inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
  * `kotlin.comparisons.maxOf()` for 4 arguments as it avoids allocating an array because of the
  * varargs.
  */
-inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
+public inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
     // ART inlines everything and generates only 3 fmax instructions
     return maxOf(a, maxOf(b, maxOf(c, d)))
 }
@@ -61,16 +61,16 @@ inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
  * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-inline fun Float.fastCoerceIn(minimumValue: Float, maximumValue: Float) =
+public inline fun Float.fastCoerceIn(minimumValue: Float, maximumValue: Float): Float =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-inline fun Float.fastCoerceAtLeast(minimumValue: Float): Float {
+public inline fun Float.fastCoerceAtLeast(minimumValue: Float): Float {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
+public inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
     return if (this > maximumValue) maximumValue else this
 }
 
@@ -79,16 +79,16 @@ inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
  * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-inline fun Double.fastCoerceIn(minimumValue: Double, maximumValue: Double) =
+public inline fun Double.fastCoerceIn(minimumValue: Double, maximumValue: Double): Double =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-inline fun Double.fastCoerceAtLeast(minimumValue: Double): Double {
+public inline fun Double.fastCoerceAtLeast(minimumValue: Double): Double {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
+public inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
     return if (this > maximumValue) maximumValue else this
 }
 
@@ -97,16 +97,16 @@ inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
  * [maximumValue]. Unlike [Int.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-inline fun Int.fastCoerceIn(minimumValue: Int, maximumValue: Int) =
+public inline fun Int.fastCoerceIn(minimumValue: Int, maximumValue: Int): Int =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-inline fun Int.fastCoerceAtLeast(minimumValue: Int): Int {
+public inline fun Int.fastCoerceAtLeast(minimumValue: Int): Int {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-inline fun Int.fastCoerceAtMost(maximumValue: Int): Int {
+public inline fun Int.fastCoerceAtMost(maximumValue: Int): Int {
     return if (this > maximumValue) maximumValue else this
 }
 
@@ -115,16 +115,16 @@ inline fun Int.fastCoerceAtMost(maximumValue: Int): Int {
  * [maximumValue]. Unlike [Long.coerceIn], the range is not validated: the caller must ensure that
  * [minimumValue] is less than [maximumValue].
  */
-inline fun Long.fastCoerceIn(minimumValue: Long, maximumValue: Long) =
+public inline fun Long.fastCoerceIn(minimumValue: Long, maximumValue: Long): Long =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
 /** Ensures that this value is not less than the specified [minimumValue]. */
-inline fun Long.fastCoerceAtLeast(minimumValue: Long): Long {
+public inline fun Long.fastCoerceAtLeast(minimumValue: Long): Long {
     return if (this < minimumValue) minimumValue else this
 }
 
 /** Ensures that this value is not greater than the specified [maximumValue]. */
-inline fun Long.fastCoerceAtMost(maximumValue: Long): Long {
+public inline fun Long.fastCoerceAtMost(maximumValue: Long): Long {
     return if (this > maximumValue) maximumValue else this
 }
 
@@ -132,7 +132,7 @@ inline fun Long.fastCoerceAtMost(maximumValue: Long): Long {
  * Returns `true` if this float is a finite floating-point value; returns `false` otherwise (for
  * `NaN` and infinity).
  */
-inline fun Float.fastIsFinite(): Boolean {
+public inline fun Float.fastIsFinite(): Boolean {
     // TODO: We can delegate back to Float.isFinite() when
     //  https://youtrack.jetbrains.com/issue/KT-70695 is fixed and Compose depends on the proper
     // version of Kotlin
@@ -143,7 +143,7 @@ inline fun Float.fastIsFinite(): Boolean {
  * Returns `true` if this double is a finite floating-point value; returns `false` otherwise (for
  * `NaN` and infinity).
  */
-inline fun Double.fastIsFinite(): Boolean {
+public inline fun Double.fastIsFinite(): Boolean {
     // TODO: We can delegate back to Float.isFinite() when
     //  https://youtrack.jetbrains.com/issue/KT-70695 is fixed and Compose depends on the proper
     // version of Kotlin
@@ -166,7 +166,7 @@ inline fun Double.fastIsFinite(): Boolean {
  * - 3.8146973E-5 in the range -65_536f..65_536f
  * - 1.5258789E-4 in the range -16_777_216..16_777_216f
  */
-fun fastCbrt(x: Float): Float {
+public fun fastCbrt(x: Float): Float {
     // Our fast cube root approximation is implemented using the binary
     // representation of a float as a log space (log2 in our case). In
     // log space, we can reason about the cube root function in a
@@ -302,7 +302,7 @@ fun fastCbrt(x: Float): Float {
  * - [Float.NEGATIVE_INFINITY], returns [Float.NaN]
  * - 0f, 0.25f, 0.5f, 0.75f, or 1.0f (0, 90, 180, 360 degrees), the returned value is exact
  */
-inline fun normalizedAngleSin(normalizedDegrees: Float): Float {
+public inline fun normalizedAngleSin(normalizedDegrees: Float): Float {
     val degrees = normalizedDegrees - floor(normalizedDegrees + 0.5f)
     val x = 2.0f * abs(degrees)
     val a = 1.0f - x
@@ -334,13 +334,13 @@ inline fun normalizedAngleSin(normalizedDegrees: Float): Float {
  * - [Float.NEGATIVE_INFINITY], returns [Float.NaN]
  * - 0f, 0.25f, 0.5f, 0.75f, or 1.0f (0, 90, 180, 360 degrees), the returned value is exact
  */
-inline fun normalizedAngleCos(normalizedDegrees: Float): Float =
+public inline fun normalizedAngleCos(normalizedDegrees: Float): Float =
     normalizedAngleSin(normalizedDegrees + 0.25f)
 
 /**
  * Compares two floating-point values for equality, treating [Float.NaN] as equal to [Float.NaN].
  */
-inline fun Float.equalsIncludingNaN(other: Float): Boolean {
+public inline fun Float.equalsIncludingNaN(other: Float): Boolean {
     if (this.isNaN() && other.isNaN()) return true
     return this == other
 }

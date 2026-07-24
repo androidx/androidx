@@ -65,7 +65,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
  * @see Interaction
  */
 @Stable
-interface InteractionSource {
+public interface InteractionSource {
     /**
      * [Flow] representing the stream of all [Interaction]s emitted through this
      * [InteractionSource]. This can be used to see [Interaction]s emitted in order, and with
@@ -73,7 +73,7 @@ interface InteractionSource {
      *
      * @sample androidx.compose.foundation.samples.InteractionSourceFlowSample
      */
-    val interactions: Flow<Interaction>
+    public val interactions: Flow<Interaction>
 }
 
 /**
@@ -98,14 +98,14 @@ interface InteractionSource {
  * @see Interaction
  */
 @Stable
-interface MutableInteractionSource : InteractionSource {
+public interface MutableInteractionSource : InteractionSource {
     /**
      * Emits [interaction] into [interactions]. This method is not thread-safe and should not be
      * invoked concurrently.
      *
      * @see tryEmit
      */
-    suspend fun emit(interaction: Interaction)
+    public suspend fun emit(interaction: Interaction)
 
     /**
      * Tries to emit [interaction] into [interactions] without suspending. It returns `true` if the
@@ -113,7 +113,7 @@ interface MutableInteractionSource : InteractionSource {
      *
      * @see emit
      */
-    fun tryEmit(interaction: Interaction): Boolean
+    public fun tryEmit(interaction: Interaction): Boolean
 }
 
 /**
@@ -128,7 +128,7 @@ interface MutableInteractionSource : InteractionSource {
  */
 @JsName("funMutableInteractionSource")
 @RememberInComposition
-fun MutableInteractionSource(): MutableInteractionSource = MutableInteractionSourceImpl()
+public fun MutableInteractionSource(): MutableInteractionSource = MutableInteractionSourceImpl()
 
 @Stable
 private class MutableInteractionSourceImpl : MutableInteractionSource {

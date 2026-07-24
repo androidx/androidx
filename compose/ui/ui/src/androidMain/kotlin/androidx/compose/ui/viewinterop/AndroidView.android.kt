@@ -98,7 +98,7 @@ import androidx.savedstate.compose.LocalSavedStateRegistryOwner
  */
 @Composable
 @UiComposable
-fun <T : View> AndroidView(
+public fun <T : View> AndroidView(
     factory: (Context) -> T,
     modifier: Modifier = Modifier,
     update: (T) -> Unit = NoOpUpdate,
@@ -191,7 +191,7 @@ fun <T : View> AndroidView(
  */
 @Composable
 @UiComposable
-fun <T : View> AndroidView(
+public fun <T : View> AndroidView(
     factory: (Context) -> T,
     modifier: Modifier = Modifier,
     onReset: ((T) -> Unit)? = null,
@@ -301,7 +301,7 @@ private fun <T : View> LayoutNode.requireViewFactoryHolder(): ViewFactoryHolder<
 }
 
 /** An empty update block used by [AndroidView]. */
-val NoOpUpdate: View.() -> Unit = {}
+public val NoOpUpdate: View.() -> Unit = {}
 
 internal class ViewFactoryHolder<T : View>
 private constructor(

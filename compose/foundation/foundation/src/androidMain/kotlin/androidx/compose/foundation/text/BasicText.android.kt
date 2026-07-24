@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalDensity
@@ -58,7 +59,8 @@ import java.util.concurrent.RejectedExecutionException
  *
  * @sample androidx.compose.foundation.samples.BackgroundTextMeasurementSample
  */
-val LocalBackgroundTextMeasurementExecutor = staticCompositionLocalOf<Executor?> { null }
+public val LocalBackgroundTextMeasurementExecutor: ProvidableCompositionLocal<Executor?> =
+    staticCompositionLocalOf<Executor?> { null }
 
 @Composable
 @NonRestartableComposable

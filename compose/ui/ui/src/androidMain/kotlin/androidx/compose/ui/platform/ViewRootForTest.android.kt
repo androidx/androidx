@@ -25,26 +25,26 @@ import androidx.compose.ui.node.RootForTest
  * tests.
  */
 @VisibleForTesting
-interface ViewRootForTest : RootForTest {
+public interface ViewRootForTest : RootForTest {
 
     /** The view backing this Owner. */
-    val view: View
+    public val view: View
 
     /** Returns true when the associated LifecycleOwner is in the resumed state */
-    val isLifecycleInResumedState: Boolean
+    public val isLifecycleInResumedState: Boolean
 
     /** Whether the Owner has pending layout work. */
-    val hasPendingMeasureOrLayout: Boolean
+    public val hasPendingMeasureOrLayout: Boolean
 
     /** Called to invalidate the Android [View] sub-hierarchy handled by this [View]. */
-    fun invalidateDescendants()
+    public fun invalidateDescendants()
 
-    companion object {
+    public companion object {
         /**
          * Called after a View implementing [ViewRootForTest] is created. Used by
          * AndroidComposeTestRule to keep track of all attached ComposeViews. Not to be set or used
          * by any other component.
          */
-        @VisibleForTesting var onViewCreatedCallback: ((ViewRootForTest) -> Unit)? = null
+        @VisibleForTesting public var onViewCreatedCallback: ((ViewRootForTest) -> Unit)? = null
     }
 }

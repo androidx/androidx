@@ -33,7 +33,7 @@ import kotlin.coroutines.coroutineContext
  * [androidx.compose.ui.test.junit4.ComposeTestRule].
  */
 @JvmDefaultWithCompatibility
-interface InfiniteAnimationPolicy : CoroutineContext.Element {
+public interface InfiniteAnimationPolicy : CoroutineContext.Element {
     /**
      * Call this to apply the policy on the given suspending [block]. Execution of the block is
      * determined by the policy implementation. For example, a test policy could decide not to run
@@ -43,12 +43,12 @@ interface InfiniteAnimationPolicy : CoroutineContext.Element {
      * one that after returning from [onInfiniteOperation] will call it again. If the block is not
      * part of an infinite animation, the policy will still be applied.
      */
-    suspend fun <R> onInfiniteOperation(block: suspend () -> R): R
+    public suspend fun <R> onInfiniteOperation(block: suspend () -> R): R
 
-    override val key: CoroutineContext.Key<*>
+    public override val key: CoroutineContext.Key<*>
         get() = Key
 
-    companion object Key : CoroutineContext.Key<InfiniteAnimationPolicy>
+    public companion object Key : CoroutineContext.Key<InfiniteAnimationPolicy>
 }
 
 /**

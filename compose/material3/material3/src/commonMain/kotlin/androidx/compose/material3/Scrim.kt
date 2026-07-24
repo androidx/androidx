@@ -47,7 +47,7 @@ import androidx.compose.ui.semantics.traversalIndex
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Scrim(
+public fun Scrim(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = {},
@@ -79,9 +79,9 @@ fun Scrim(
 }
 
 /** Object containing default values for the [Scrim] component. */
-object ScrimDefaults {
+public object ScrimDefaults {
     /** The default color and opacity for [Scrim]. */
-    val color: Color
+    public val color: Color
         @Composable
         @ReadOnlyComposable
         get() = ScrimTokens.ContainerColor.value.copy(alpha = ScrimTokens.ContainerOpacity)

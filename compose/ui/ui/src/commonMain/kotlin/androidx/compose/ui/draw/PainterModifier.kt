@@ -57,14 +57,14 @@ import kotlin.math.max
  * @param colorFilter optional [ColorFilter] to apply to [painter]
  * @sample androidx.compose.ui.samples.PainterModifierSample
  */
-fun Modifier.paint(
+public fun Modifier.paint(
     painter: Painter,
     sizeToIntrinsics: Boolean = true,
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
-) =
+): Modifier =
     this then
         PainterElement(
             painter = painter,

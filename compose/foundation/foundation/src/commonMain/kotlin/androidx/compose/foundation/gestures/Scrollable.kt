@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
  *   this scrollable is being dragged.
  */
 @Stable
-fun Modifier.scrollable(
+public fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
     enabled: Boolean = true,
@@ -157,7 +157,7 @@ fun Modifier.scrollable(
  *   implementation.
  */
 @Stable
-fun Modifier.scrollable(
+public fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
     overscrollEffect: OverscrollEffect?,
@@ -166,7 +166,7 @@ fun Modifier.scrollable(
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
     bringIntoViewSpec: BringIntoViewSpec? = null,
-) =
+): Modifier =
     this then
         ScrollableElement(
             state,
@@ -484,10 +484,10 @@ internal class ScrollableNode(
 }
 
 /** Contains the default values used by [scrollable] */
-object ScrollableDefaults {
+public object ScrollableDefaults {
 
     /** Create and remember default [FlingBehavior] that will represent a natural fling curve. */
-    @Composable fun flingBehavior(): FlingBehavior = rememberPlatformDefaultFlingBehavior()
+    @Composable public fun flingBehavior(): FlingBehavior = rememberPlatformDefaultFlingBehavior()
 
     /**
      * Returns a remembered [OverscrollEffect] created from the current value of
@@ -504,7 +504,7 @@ object ScrollableDefaults {
             ),
     )
     @Composable
-    fun overscrollEffect(): OverscrollEffect {
+    public fun overscrollEffect(): OverscrollEffect {
         return rememberPlatformOverscrollEffect() ?: NoOpOverscrollEffect
     }
 
@@ -549,7 +549,7 @@ object ScrollableDefaults {
      * @param reverseScrolling whether scrolling direction should be reversed
      * @return `true` if scroll direction should be reversed, `false` otherwise.
      */
-    fun reverseDirection(
+    public fun reverseDirection(
         layoutDirection: LayoutDirection,
         orientation: Orientation,
         reverseScrolling: Boolean,

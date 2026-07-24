@@ -77,7 +77,7 @@ import kotlin.math.max
  */
 @Composable
 @ExperimentalMaterialApi
-fun ListItem(
+public fun ListItem(
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     secondaryText: @Composable (() -> Unit)? = null,

@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual fun BlendMode.isSupported(): Boolean = implementedInJetBrainsFork()
+public actual fun BlendMode.isSupported(): Boolean = implementedInJetBrainsFork()

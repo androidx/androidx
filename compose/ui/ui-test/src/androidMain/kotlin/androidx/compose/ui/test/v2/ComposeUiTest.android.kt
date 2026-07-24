@@ -89,7 +89,7 @@ import kotlinx.coroutines.test.runTest
             "runComposeUiTest(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
         ),
 )
-actual fun runComposeUiTest(
+public actual fun runComposeUiTest(
     effectContext: CoroutineContext,
     runTestContext: CoroutineContext,
     testTimeout: Duration,
@@ -130,7 +130,7 @@ actual fun runComposeUiTest(
  * @param block The suspendable test body.
  */
 @Suppress("RedundantUnitReturnType")
-actual fun runComposeUiTest(
+public actual fun runComposeUiTest(
     config: ComposeUiTestConfig,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult {
@@ -168,7 +168,7 @@ actual fun runComposeUiTest(
  */
 @OptIn(ExperimentalTestApi::class)
 @Suppress("DEPRECATION", "KotlinRunTestResultUnused")
-actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
+public actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult =
     if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {
         runComposeUiTest(ComposeUiTestConfig(), block)
     } else {
@@ -227,7 +227,7 @@ actual fun runComposeUiTest(block: suspend ComposeUiTest.() -> Unit): TestResult
             "runAndroidComposeUiTest<A>(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), block)"
         ),
 )
-inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
+public inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
     effectContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     runTestContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     testTimeout: Duration = kotlin.time.Duration.parse("60s"),
@@ -254,7 +254,7 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
+public inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
     config: ComposeUiTestConfig,
     noinline block: suspend AndroidComposeUiTest<A>.() -> Unit,
 ): TestResult {
@@ -282,7 +282,7 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
  */
-inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
+public inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
     noinline block: suspend AndroidComposeUiTest<A>.() -> Unit
 ): TestResult = runAndroidComposeUiTest(A::class.java, block)
 
@@ -330,7 +330,7 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
             "After:\n" +
             "runAndroidComposeUiTest(activityClass, ComposeUiTestConfig(effectContext, runTestContext, testTimeout)) { ... }",
 )
-fun <A : ComponentActivity> runAndroidComposeUiTest(
+public fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
     runTestContext: CoroutineContext = EmptyCoroutineContext,
@@ -369,7 +369,7 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-fun <A : ComponentActivity> runAndroidComposeUiTest(
+public fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
     config: ComposeUiTestConfig,
     block: suspend AndroidComposeUiTest<A>.() -> Unit,
@@ -406,7 +406,7 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  */
 @OptIn(ExperimentalTestApi::class)
 @Suppress("RedundantUnitReturnType", "DEPRECATION", "KotlinRunTestResultUnused")
-fun <A : ComponentActivity> runAndroidComposeUiTest(
+public fun <A : ComponentActivity> runAndroidComposeUiTest(
     activityClass: Class<A>,
     block: suspend AndroidComposeUiTest<A>.() -> Unit,
 ): TestResult {
@@ -511,7 +511,7 @@ private fun <A : ComponentActivity> runAndroidComposeUiTest(
  * @param block The test function.
  */
 @Suppress("RedundantUnitReturnType")
-fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
+public fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
     return AndroidComposeUiTestEnvironment {
             error(
                 "runEmptyComposeUiTest {} does not provide an Activity to set Compose content in. " +
@@ -578,7 +578,7 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit): TestResult {
             "AndroidComposeUiTestEnvironment(ComposeUiTestConfig(effectContext, runTestContext, testTimeout), activityProvider)"
         ),
 )
-inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
+public inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     effectContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     runTestContext: CoroutineContext = kotlin.coroutines.EmptyCoroutineContext,
     testTimeout: Duration = kotlin.time.Duration.parse("60s"),
@@ -622,7 +622,7 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * @param activityProvider A lambda that should return the current Activity instance of type [A], if
  *   it is available. If it is not available, it should return `null`.
  */
-inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
+public inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     config: ComposeUiTestConfig,
     crossinline activityProvider: () -> A?,
 ): androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> {
@@ -664,7 +664,7 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * @see AndroidComposeUiTestFlags.isInputModeSetForDeviceTests
  */
 @OptIn(ExperimentalTestApi::class)
-fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
+public fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
     activityProvider: () -> A?
 ): androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> {
     return if (AndroidComposeUiTestFlags.isInputModeSetForDeviceTests) {

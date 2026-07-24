@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.IntSize
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
  */
 @Stable
-fun Modifier.onSizeChanged(onSizeChanged: (IntSize) -> Unit) =
+public fun Modifier.onSizeChanged(onSizeChanged: (IntSize) -> Unit): Modifier =
     this.then(OnSizeChangedModifier(onSizeChanged = onSizeChanged))
 
 private class OnSizeChangedModifier(private val onSizeChanged: (IntSize) -> Unit) :
@@ -101,7 +101,7 @@ internal class OnSizeChangedNode(private var onSizeChanged: (IntSize) -> Unit) :
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
  */
 @JvmDefaultWithCompatibility
-interface OnRemeasuredModifier : Modifier.Element {
+public interface OnRemeasuredModifier : Modifier.Element {
     /** Called after a layout's contents have been remeasured. */
-    fun onRemeasured(size: IntSize)
+    public fun onRemeasured(size: IntSize)
 }

@@ -68,7 +68,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
     level = DeprecationLevel.HIDDEN,
 )
 @Suppress("MentionsGoogle")
-fun Font(
+public fun Font(
     googleFont: GoogleFont,
     fontProvider: GoogleFont.Provider,
     weight: FontWeight = FontWeight.Normal,
@@ -103,7 +103,7 @@ fun Font(
  */
 // contains Google in name because this function provides integration with fonts.google.com
 @Suppress("MentionsGoogle")
-fun Font(
+public fun Font(
     googleFont: GoogleFont,
     fontProvider: GoogleFont.Provider,
     weight: FontWeight = FontWeight.Normal,
@@ -142,7 +142,7 @@ fun Font(
  */
 // contains Google in name because this function provides integration with fonts.google.com
 @Suppress("MentionsGoogle")
-fun Font(
+public fun Font(
     googleFont: GoogleFont,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
@@ -184,7 +184,7 @@ fun Font(
  */
 // contains Google in name because this function provides integration with fonts.google.com
 @Suppress("MentionsGoogle")
-class GoogleFont(val name: String, val bestEffort: Boolean = true) {
+public class GoogleFont(public val name: String, public val bestEffort: Boolean = true) {
     init {
         require(name.isNotEmpty()) { "name cannot be empty" }
     }
@@ -196,7 +196,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
      */
     // contains Google in name because this function provides integration with fonts.google.com
     @Suppress("MentionsGoogle")
-    class Provider
+    public class Provider
     private constructor(
         internal val providerAuthority: String,
         internal val providerPackage: String,
@@ -223,7 +223,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
          *   list represents one collection of signature hashes. Refer to your font provider's
          *   documentation for these values.
          */
-        constructor(
+        public constructor(
             providerAuthority: String,
             providerPackage: String,
             certificates: List<List<ByteArray>>,
@@ -248,7 +248,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
          *   provider. Each set in the list represents one collection of signature hashes. Refer to
          *   your font provider's documentation for these values.
          */
-        constructor(
+        public constructor(
             providerAuthority: String,
             providerPackage: String,
             @ArrayRes certificates: Int,
@@ -287,7 +287,7 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
  * @throws IllegalStateException if the provider is on device, but certificates don't match
  */
 @WorkerThread
-fun GoogleFont.Provider.isAvailableOnDevice(
+public fun GoogleFont.Provider.isAvailableOnDevice(
     @Suppress("ContextFirst") context: Context // extension function
 ): Boolean = checkAvailable(context.packageManager, context.resources)
 

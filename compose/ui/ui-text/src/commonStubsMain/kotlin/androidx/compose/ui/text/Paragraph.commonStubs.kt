@@ -36,72 +36,77 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 
 @JvmDefaultWithCompatibility
-actual sealed interface Paragraph {
-    actual val width: Float
-    actual val height: Float
-    actual val minIntrinsicWidth: Float
-    actual val maxIntrinsicWidth: Float
-    actual val firstBaseline: Float
-    actual val lastBaseline: Float
-    actual val didExceedMaxLines: Boolean
-    actual val lineCount: Int
-    actual val placeholderRects: List<Rect?>
+public actual sealed interface Paragraph {
+    public actual val width: Float
+    public actual val height: Float
+    public actual val minIntrinsicWidth: Float
+    public actual val maxIntrinsicWidth: Float
+    public actual val firstBaseline: Float
+    public actual val lastBaseline: Float
+    public actual val didExceedMaxLines: Boolean
+    public actual val lineCount: Int
+    public actual val placeholderRects: List<Rect?>
 
-    actual fun getPathForRange(start: Int, end: Int): Path
+    public actual fun getPathForRange(start: Int, end: Int): Path
 
-    actual fun getCursorRect(offset: Int): Rect
+    public actual fun getCursorRect(offset: Int): Rect
 
-    actual fun getLineLeft(lineIndex: Int): Float
+    public actual fun getLineLeft(lineIndex: Int): Float
 
-    actual fun getLineRight(lineIndex: Int): Float
+    public actual fun getLineRight(lineIndex: Int): Float
 
-    actual fun getLineTop(lineIndex: Int): Float
+    public actual fun getLineTop(lineIndex: Int): Float
 
-    actual fun getLineBaseline(lineIndex: Int): Float
+    public actual fun getLineBaseline(lineIndex: Int): Float
 
-    actual fun getLineBottom(lineIndex: Int): Float
+    public actual fun getLineBottom(lineIndex: Int): Float
 
-    actual fun getLineHeight(lineIndex: Int): Float
+    public actual fun getLineHeight(lineIndex: Int): Float
 
-    actual fun getLineWidth(lineIndex: Int): Float
+    public actual fun getLineWidth(lineIndex: Int): Float
 
-    actual fun getLineStart(lineIndex: Int): Int
+    public actual fun getLineStart(lineIndex: Int): Int
 
-    actual fun getLineEnd(lineIndex: Int, visibleEnd: Boolean): Int
+    public actual fun getLineEnd(lineIndex: Int, visibleEnd: Boolean): Int
 
-    actual fun isLineEllipsized(lineIndex: Int): Boolean
+    public actual fun isLineEllipsized(lineIndex: Int): Boolean
 
-    actual fun getLineForOffset(offset: Int): Int
+    public actual fun getLineForOffset(offset: Int): Int
 
-    actual fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
+    public actual fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
 
-    actual fun getParagraphDirection(offset: Int): ResolvedTextDirection
+    public actual fun getParagraphDirection(offset: Int): ResolvedTextDirection
 
-    actual fun getBidiRunDirection(offset: Int): ResolvedTextDirection
+    public actual fun getBidiRunDirection(offset: Int): ResolvedTextDirection
 
-    actual fun getLineForVerticalPosition(vertical: Float): Int
+    public actual fun getLineForVerticalPosition(vertical: Float): Int
 
-    actual fun getOffsetForPosition(position: Offset): Int
+    public actual fun getOffsetForPosition(position: Offset): Int
 
-    actual fun getRangeForRect(
+    public actual fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy,
     ): TextRange
 
-    actual fun getBoundingBox(offset: Int): Rect
+    public actual fun getBoundingBox(offset: Int): Rect
 
-    actual fun fillBoundingBoxes(
+    public actual fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
         @IntRange(from = 0) arrayStart: Int,
     )
 
-    actual fun getWordBoundary(offset: Int): TextRange
+    public actual fun getWordBoundary(offset: Int): TextRange
 
-    actual fun paint(canvas: Canvas, color: Color, shadow: Shadow?, textDecoration: TextDecoration?)
+    public actual fun paint(
+        canvas: Canvas,
+        color: Color,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?,
+    )
 
-    actual fun paint(
+    public actual fun paint(
         canvas: Canvas,
         color: Color,
         shadow: Shadow?,
@@ -110,7 +115,7 @@ actual sealed interface Paragraph {
         blendMode: BlendMode,
     )
 
-    actual fun paint(
+    public actual fun paint(
         canvas: Canvas,
         brush: Brush,
         alpha: Float,
@@ -135,7 +140,7 @@ actual sealed interface Paragraph {
             "androidx.compose.ui.text.font.createFontFamilyResolver",
         ),
 )
-actual fun Paragraph(
+public actual fun Paragraph(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
@@ -158,7 +163,7 @@ actual fun Paragraph(
         "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
-actual fun Paragraph(
+public actual fun Paragraph(
     text: String,
     style: TextStyle,
     width: Float,
@@ -174,7 +179,7 @@ actual fun Paragraph(
     "Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.",
     level = DeprecationLevel.HIDDEN,
 )
-actual fun Paragraph(
+public actual fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -186,7 +191,7 @@ actual fun Paragraph(
     ellipsis: Boolean,
 ): Paragraph = implementedInJetBrainsFork()
 
-actual fun Paragraph(
+public actual fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -208,7 +213,7 @@ actual fun Paragraph(
         "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
-actual fun Paragraph(
+public actual fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     ellipsis: Boolean,
@@ -219,14 +224,14 @@ actual fun Paragraph(
     "Paragraph that takes ellipsis: Boolean is deprecated, pass TextOverflow instead.",
     level = DeprecationLevel.HIDDEN,
 )
-actual fun Paragraph(
+public actual fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int,
     ellipsis: Boolean,
 ): Paragraph = implementedInJetBrainsFork()
 
-actual fun Paragraph(
+public actual fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int,

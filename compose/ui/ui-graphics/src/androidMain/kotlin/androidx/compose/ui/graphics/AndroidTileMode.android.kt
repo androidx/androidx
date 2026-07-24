@@ -26,10 +26,10 @@ import androidx.annotation.RequiresApi
  * for devices that do not support the corresponding blend mode. Usages of [TileMode] types that are
  * not supported will fallback onto the default of [TileMode.Clamp]
  */
-actual fun TileMode.isSupported(): Boolean =
+public actual fun TileMode.isSupported(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || this != TileMode.Decal
 
-fun TileMode.toAndroidTileMode(): Shader.TileMode =
+public fun TileMode.toAndroidTileMode(): Shader.TileMode =
     when (this) {
         TileMode.Clamp -> Shader.TileMode.CLAMP
         TileMode.Repeated -> Shader.TileMode.REPEAT
@@ -45,7 +45,7 @@ fun TileMode.toAndroidTileMode(): Shader.TileMode =
         else -> Shader.TileMode.CLAMP
     }
 
-fun Shader.TileMode.toComposeTileMode(): TileMode =
+public fun Shader.TileMode.toComposeTileMode(): TileMode =
     when (this) {
         Shader.TileMode.CLAMP -> TileMode.Clamp
         Shader.TileMode.MIRROR -> TileMode.Mirror

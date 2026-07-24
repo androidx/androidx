@@ -213,7 +213,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  */
 @InternalTextApi // "Used by benchmarks"
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class PartialGapBuffer(var text: String) {
+public class PartialGapBuffer(public var text: String) {
     internal companion object {
         const val BUF_SIZE = 255
         const val SURROUNDING_SIZE = 64
@@ -225,7 +225,7 @@ class PartialGapBuffer(var text: String) {
     private var bufEnd = NOWHERE
 
     /** The text length */
-    val length: Int
+    public val length: Int
         get() {
             val buffer = buffer ?: return text.length
             return text.length - (bufEnd - bufStart) + buffer.length()
@@ -238,7 +238,7 @@ class PartialGapBuffer(var text: String) {
      * @param end an exclusive end offset for replacement
      * @param text a text to replace
      */
-    fun replace(start: Int, end: Int, text: String) {
+    public fun replace(start: Int, end: Int, text: String) {
         requirePrecondition(start <= end) {
             "start index must be less than or equal to end index: $start > $end"
         }
@@ -294,7 +294,7 @@ class PartialGapBuffer(var text: String) {
     }
 
     /** [] operator for the character at the index. */
-    operator fun get(index: Int): Char {
+    public operator fun get(index: Int): Char {
         val buffer = buffer ?: return text[index]
         if (index < bufStart) {
             return text[index]
@@ -306,7 +306,7 @@ class PartialGapBuffer(var text: String) {
         return text[index - (gapBufLength - bufEnd + bufStart)]
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         val b = buffer ?: return text
         val sb = StringBuilder()
         sb.append(text, 0, bufStart)

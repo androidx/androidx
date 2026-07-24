@@ -25,7 +25,7 @@ import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
  * Typically implemented by a test rule.
  */
 @JvmDefaultWithCompatibility
-interface SemanticsNodeInteractionsProvider {
+public interface SemanticsNodeInteractionsProvider {
     /**
      * Finds a semantics node that matches the given condition.
      *
@@ -42,7 +42,7 @@ interface SemanticsNodeInteractionsProvider {
      * @see onAllNodes to work with multiple elements
      */
     @CheckResult
-    fun onNode(
+    public fun onNode(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteraction
@@ -62,7 +62,7 @@ interface SemanticsNodeInteractionsProvider {
      * @see onNode
      */
     @CheckResult
-    fun onAllNodes(
+    public fun onAllNodes(
         matcher: SemanticsMatcher,
         useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteractionCollection

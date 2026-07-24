@@ -46,14 +46,14 @@ import androidx.compose.ui.window.PopupProperties
     message = "Replaced by a DropdownMenu function with a ScrollState parameter",
 )
 @Composable
-fun DropdownMenu(
+public fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit,
-) =
+): Unit =
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
@@ -65,7 +65,7 @@ fun DropdownMenu(
     )
 
 @Composable
-actual fun DropdownMenu(
+public actual fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier,
@@ -102,7 +102,7 @@ actual fun DropdownMenu(
 }
 
 @Composable
-actual fun DropdownMenuItem(
+public actual fun DropdownMenuItem(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,

@@ -63,7 +63,7 @@ import kotlin.math.roundToLong
  * @see InjectionScope
  */
 @Suppress("NotCloseable")
-interface TrackpadInjectionScope : InjectionScope {
+public interface TrackpadInjectionScope : InjectionScope {
     /**
      * Returns the current position of the cursor. The position is returned in the local coordinate
      * system of the node with which we're interacting. (0, 0) is the top left corner of the node.
@@ -71,7 +71,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * be (0, 0) in the Compose host's coordinate system, which will be `-[topLeft]` in the node's
      * local coordinate system.
      */
-    val currentPosition: Offset
+    public val currentPosition: Offset
 
     /**
      * Sends a move event [delayMillis] after the last sent event on the associated node, with the
@@ -85,7 +85,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
      */
-    fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis)
+    public fun moveTo(position: Offset, delayMillis: Long = eventPeriodMillis)
 
     /**
      * Sends a move event [delayMillis] after the last sent event on the associated node, with the
@@ -100,7 +100,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
      */
-    fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
+    public fun moveBy(delta: Offset, delayMillis: Long = eventPeriodMillis) {
         moveTo(currentPosition + delta, delayMillis)
     }
 
@@ -112,7 +112,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *
      * @param position The new position of the trackpad, in the node's local coordinate system
      */
-    fun updatePointerTo(position: Offset)
+    public fun updatePointerTo(position: Offset)
 
     /**
      * Updates the position of the trackpad by the given [delta], but does not send a move or hover
@@ -123,7 +123,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *   trackpad. For example, `delta = Offset(10.px, -10.px) will add 10.px to the trackpad's
      *   x-position, and subtract 10.px from the trackpad's y-position.
      */
-    fun updatePointerBy(delta: Offset) {
+    public fun updatePointerBy(delta: Offset) {
         updatePointerTo(currentPosition + delta)
     }
 
@@ -136,7 +136,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @param button The button that is pressed. By default, the primary button.
      * @throws [IllegalStateException] if the [button] is already pressed.
      */
-    fun press(button: TrackpadButton = TrackpadButton.Primary)
+    public fun press(button: TrackpadButton = TrackpadButton.Primary)
 
     /**
      * Sends a button released and up event for the given [button] on the associated node. If this
@@ -148,7 +148,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @param button The button that is released. By default, the primary button.
      * @throws [IllegalStateException] if the [button] is not pressed.
      */
-    fun release(button: TrackpadButton = TrackpadButton.Primary)
+    public fun release(button: TrackpadButton = TrackpadButton.Primary)
 
     /**
      * Sends a cancel event [delayMillis] after the last sent event to cancel a stream of trackpad
@@ -158,7 +158,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
      */
-    fun cancel(delayMillis: Long = eventPeriodMillis)
+    public fun cancel(delayMillis: Long = eventPeriodMillis)
 
     /**
      * Sends a hover enter event at the given [position], [delayMillis] after the last sent event,
@@ -179,7 +179,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *   by default.
      * @throws [IllegalStateException] if buttons are down, or if the trackpad is already hovering.
      */
-    fun enter(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
+    public fun enter(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
      * Sends a hover exit event at the given [position], [delayMillis] after the last sent event,
@@ -200,7 +200,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *   by default.
      * @throws [IllegalStateException] if the trackpad was not hovering.
      */
-    fun exit(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
+    public fun exit(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
      * Starts a pan gesture. The [androidx.compose.ui.input.pointer.PointerEventType.PanStart] will
@@ -212,7 +212,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *
      * @throws [IllegalStateException] if the trackpad was already sending a pan gesture.
      */
-    fun panStart()
+    public fun panStart()
 
     /**
      * Updates the ongoing pan gesture, by applying the given [delta] as part of the pan. The
@@ -228,7 +228,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @throws [IllegalStateException] if the trackpad is not in a pan gesture started by
      *   [panStart].
      */
-    fun panMoveBy(delta: Offset, delayMillis: Long = eventPeriodMillis)
+    public fun panMoveBy(delta: Offset, delayMillis: Long = eventPeriodMillis)
 
     /**
      * Ends a pan gesture. The [androidx.compose.ui.input.pointer.PointerEventType.PanEnd] will be
@@ -242,7 +242,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @throws [IllegalStateException] if the trackpad is not in a pan gesture started by
      *   [panStart].
      */
-    fun panEnd(delayMillis: Long = eventPeriodMillis)
+    public fun panEnd(delayMillis: Long = eventPeriodMillis)
 
     /**
      * Starts a scale gesture. The [androidx.compose.ui.input.pointer.PointerEventType.ScaleStart]
@@ -254,7 +254,7 @@ interface TrackpadInjectionScope : InjectionScope {
      *
      * @throws [IllegalStateException] if the trackpad was already sending a scale gesture.
      */
-    fun scaleStart()
+    public fun scaleStart()
 
     /**
      * Updates the ongoing scale gesture, by applying the given multiplicative [scaleFactor] as part
@@ -270,7 +270,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @throws [IllegalStateException] if the trackpad is not in a scale gesture started by
      *   [scaleStart].
      */
-    fun scaleChangeBy(
+    public fun scaleChangeBy(
         @FloatRange(from = 0.0, fromInclusive = false) scaleFactor: Float,
         delayMillis: Long = eventPeriodMillis,
     )
@@ -287,7 +287,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * @throws [IllegalStateException] if the trackpad is not in a scale gesture started by
      *   [scaleStart].
      */
-    fun scaleEnd(delayMillis: Long = eventPeriodMillis)
+    public fun scaleEnd(delayMillis: Long = eventPeriodMillis)
 }
 
 internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
@@ -376,7 +376,7 @@ internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjec
  *   current trackpad position.
  * @param button The button to click with. Uses the [primary][TrackpadButton.Primary] by default.
  */
-fun TrackpadInjectionScope.click(
+public fun TrackpadInjectionScope.click(
     position: Offset = center,
     button: TrackpadButton = TrackpadButton.Primary,
 ) {
@@ -398,7 +398,7 @@ fun TrackpadInjectionScope.click(
  *   the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks on the
  *   current trackpad position.
  */
-fun TrackpadInjectionScope.rightClick(position: Offset = center) =
+public fun TrackpadInjectionScope.rightClick(position: Offset = center): Unit =
     click(position, TrackpadButton.Secondary)
 
 // The average of min and max is a safe default
@@ -416,7 +416,7 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
  *   current trackpad position.
  * @param button The button to click with. Uses the [primary][TrackpadButton.Primary] by default.
  */
-fun TrackpadInjectionScope.doubleClick(
+public fun TrackpadInjectionScope.doubleClick(
     position: Offset = center,
     button: TrackpadButton = TrackpadButton.Primary,
 ) {
@@ -436,7 +436,7 @@ fun TrackpadInjectionScope.doubleClick(
  *   current trackpad position.
  * @param button The button to click with. Uses the [primary][TrackpadButton.Primary] by default.
  */
-fun TrackpadInjectionScope.tripleClick(
+public fun TrackpadInjectionScope.tripleClick(
     position: Offset = center,
     button: TrackpadButton = TrackpadButton.Primary,
 ) {
@@ -458,7 +458,7 @@ fun TrackpadInjectionScope.tripleClick(
  *   current trackpad position.
  * @param button The button to click with. Uses the [primary][TrackpadButton.Primary] by default.
  */
-fun TrackpadInjectionScope.longClick(
+public fun TrackpadInjectionScope.longClick(
     position: Offset = center,
     button: TrackpadButton = TrackpadButton.Primary,
 ) {
@@ -483,7 +483,7 @@ fun TrackpadInjectionScope.longClick(
  * @param position The position where to move the trackpad to, in the node's local coordinate system
  * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
-fun TrackpadInjectionScope.animateMoveTo(
+public fun TrackpadInjectionScope.animateMoveTo(
     position: Offset,
     durationMillis: Long = DefaultTrackpadGestureDurationMillis,
 ) {
@@ -505,7 +505,7 @@ fun TrackpadInjectionScope.animateMoveTo(
  *   the right and 100 pixels upwards.
  * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
-fun TrackpadInjectionScope.animateMoveBy(
+public fun TrackpadInjectionScope.animateMoveBy(
     delta: Offset,
     durationMillis: Long = DefaultTrackpadGestureDurationMillis,
 ) {
@@ -527,7 +527,7 @@ fun TrackpadInjectionScope.animateMoveBy(
  *   trackpad at that point in time
  * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
-fun TrackpadInjectionScope.animateMoveAlong(
+public fun TrackpadInjectionScope.animateMoveAlong(
     curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = DefaultTrackpadGestureDurationMillis,
 ) {
@@ -565,7 +565,7 @@ fun TrackpadInjectionScope.animateMoveAlong(
  * @param button The button to drag with. Uses the [primary][TrackpadButton.Primary] by default.
  * @param durationMillis The duration of the gesture. By default, 300 milliseconds.
  */
-fun TrackpadInjectionScope.dragAndDrop(
+public fun TrackpadInjectionScope.dragAndDrop(
     start: Offset,
     end: Offset,
     button: TrackpadButton = TrackpadButton.Primary,
@@ -586,7 +586,7 @@ fun TrackpadInjectionScope.dragAndDrop(
  * @sample androidx.compose.ui.test.samples.trackpadInputPan
  * @param offset The amount of pan
  */
-fun TrackpadInjectionScope.pan(offset: Offset) {
+public fun TrackpadInjectionScope.pan(offset: Offset) {
     panStart()
     panMoveBy(offset)
     panEnd()
@@ -607,7 +607,7 @@ fun TrackpadInjectionScope.pan(offset: Offset) {
  *   sampled
  */
 @Suppress("PrimitiveInCollection")
-fun TrackpadInjectionScope.pan(
+public fun TrackpadInjectionScope.pan(
     curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList(),
@@ -686,7 +686,7 @@ fun TrackpadInjectionScope.pan(
  *   velocity. The error message will suggest changes to the input parameters such that a pan will
  *   become feasible.
  */
-fun TrackpadInjectionScope.panWithVelocity(
+public fun TrackpadInjectionScope.panWithVelocity(
     offset: Offset,
     @FloatRange(from = 0.0) endVelocity: Float,
     durationMillis: Long =
@@ -718,7 +718,7 @@ fun TrackpadInjectionScope.panWithVelocity(
  * @sample androidx.compose.ui.test.samples.trackpadInputScale
  * @param scaleFactor The amount to scale.
  */
-fun TrackpadInjectionScope.scale(
+public fun TrackpadInjectionScope.scale(
     @FloatRange(from = 0.0, fromInclusive = false) scaleFactor: Float
 ) {
     scaleStart()

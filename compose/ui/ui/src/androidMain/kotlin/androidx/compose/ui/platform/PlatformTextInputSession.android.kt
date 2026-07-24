@@ -19,12 +19,12 @@ package androidx.compose.ui.platform
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
-actual interface PlatformTextInputSession {
+public actual interface PlatformTextInputSession {
     /**
      * The [View] this input session is bound to. This view should be used to obtain and interact
      * with the [InputMethodManager].
      */
-    val view: View
+    public val view: View
 
-    actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
+    public actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
 }

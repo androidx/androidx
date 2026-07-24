@@ -38,9 +38,11 @@ import kotlinx.coroutines.runBlocking
 // not marked as async will adversely affect dispatch behavior but not to the point of
 // incorrectness; more operations would be deferred to the choreographer frame as racing handler
 // messages would wait behind a frame barrier.
-class AndroidUiDispatcher
-private constructor(val choreographer: Choreographer, private val handler: android.os.Handler) :
-    CoroutineDispatcher() {
+public class AndroidUiDispatcher
+private constructor(
+    public val choreographer: Choreographer,
+    private val handler: android.os.Handler,
+) : CoroutineDispatcher() {
 
     // Guards all properties in this class
     private val lock = Any()
@@ -128,7 +130,7 @@ private constructor(val choreographer: Choreographer, private val handler: andro
      * A [MonotonicFrameClock] associated with this [AndroidUiDispatcher]'s [choreographer] that may
      * be used to await [Choreographer] frame dispatch.
      */
-    val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
+    public val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(lock) {
@@ -144,12 +146,12 @@ private constructor(val choreographer: Choreographer, private val handler: andro
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * The [CoroutineContext] containing the [AndroidUiDispatcher] and its [frameClock] for the
          * process's main thread.
          */
-        val Main: CoroutineContext by lazy {
+        public val Main: CoroutineContext by lazy {
             val dispatcher =
                 AndroidUiDispatcher(
                     if (isMainThread()) Choreographer.getInstance()
@@ -180,7 +182,7 @@ private constructor(val choreographer: Choreographer, private val handler: andro
          * Throws [IllegalStateException] if the calling thread does not have both a [Choreographer]
          * and an active [Looper].
          */
-        val CurrentThread: CoroutineContext
+        public val CurrentThread: CoroutineContext
             get() =
                 if (isMainThread()) Main
                 else {

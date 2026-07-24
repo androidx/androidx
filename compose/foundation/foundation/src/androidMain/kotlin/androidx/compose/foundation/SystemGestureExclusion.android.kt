@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @see View.setSystemGestureExclusionRects
  */
-fun Modifier.systemGestureExclusion() =
+public fun Modifier.systemGestureExclusion(): Modifier =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {
@@ -51,7 +51,7 @@ fun Modifier.systemGestureExclusion() =
  *
  * @see View.setSystemGestureExclusionRects
  */
-fun Modifier.systemGestureExclusion(exclusion: (LayoutCoordinates) -> Rect) =
+public fun Modifier.systemGestureExclusion(exclusion: (LayoutCoordinates) -> Rect): Modifier =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
         this
     } else {

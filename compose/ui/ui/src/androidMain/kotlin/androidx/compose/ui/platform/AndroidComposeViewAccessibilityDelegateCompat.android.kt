@@ -3759,7 +3759,7 @@ private fun AccessibilityAction<*>.accessibilityEquals(other: Any?): Boolean {
 )
 @Suppress("GetterSetterNames")
 @ExperimentalComposeUiApi
-var DisableContentCapture: Boolean
+public var DisableContentCapture: Boolean
     get() = ContentCaptureManager.isEnabled
     set(value) {
         ContentCaptureManager.isEnabled = value

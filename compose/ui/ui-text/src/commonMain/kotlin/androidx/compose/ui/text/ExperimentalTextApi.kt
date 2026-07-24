@@ -18,4 +18,4 @@ package androidx.compose.ui.text
 
 @RequiresOptIn("This API is experimental and is likely to change in the future.")
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalTextApi
+public annotation class ExperimentalTextApi

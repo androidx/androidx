@@ -62,7 +62,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /** Possible values of [BottomSheetState]. */
-enum class BottomSheetValue {
+public enum class BottomSheetValue {
     /** The bottom sheet is visible, but only showing its peek height. */
     Collapsed,
 
@@ -80,7 +80,7 @@ enum class BottomSheetValue {
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Stable
-class BottomSheetState(
+public class BottomSheetState(
     initialValue: BottomSheetValue,
     density: Density,
     animationSpec: AnimationSpec<Float> = BottomSheetScaffoldDefaults.AnimationSpec,
@@ -99,22 +99,22 @@ class BottomSheetState(
         )
 
     /** The current value of the [BottomSheetState]. */
-    val currentValue: BottomSheetValue
+    public val currentValue: BottomSheetValue
         get() = anchoredDraggableState.currentValue
 
     /**
      * The target value the state will settle at once the current interaction ends, or the
      * [currentValue] if there is no interaction in progress.
      */
-    val targetValue: BottomSheetValue
+    public val targetValue: BottomSheetValue
         get() = anchoredDraggableState.targetValue
 
     /** Whether the bottom sheet is expanded. */
-    val isExpanded: Boolean
+    public val isExpanded: Boolean
         get() = anchoredDraggableState.currentValue == Expanded
 
     /** Whether the bottom sheet is collapsed. */
-    val isCollapsed: Boolean
+    public val isCollapsed: Boolean
         get() = anchoredDraggableState.currentValue == Collapsed
 
     /**
@@ -127,7 +127,7 @@ class BottomSheetState(
     )
     @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
-    val progress: Float
+    public val progress: Float
         get() = anchoredDraggableState.progress
 
     /**
@@ -138,7 +138,7 @@ class BottomSheetState(
      * @param to The end value used to calculate the distance
      */
     @FloatRange(from = 0.0, to = 1.0)
-    fun progress(from: BottomSheetValue, to: BottomSheetValue): Float {
+    public fun progress(from: BottomSheetValue, to: BottomSheetValue): Float {
         val fromOffset = anchoredDraggableState.anchors.positionOf(from)
         val toOffset = anchoredDraggableState.anchors.positionOf(to)
         val currentOffset =
@@ -157,7 +157,7 @@ class BottomSheetState(
      *
      * This method will throw [CancellationException] if the animation is interrupted.
      */
-    suspend fun expand() {
+    public suspend fun expand() {
         val target =
             if (anchoredDraggableState.anchors.hasAnchorFor(Expanded)) {
                 Expanded
@@ -172,14 +172,14 @@ class BottomSheetState(
      * has been cancelled. This method will throw [CancellationException] if the animation is
      * interrupted.
      */
-    suspend fun collapse() = anchoredDraggableState.animateTo(Collapsed)
+    public suspend fun collapse(): Unit = anchoredDraggableState.animateTo(Collapsed)
 
     /**
      * Require the current offset.
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    fun requireOffset() = anchoredDraggableState.requireOffset()
+    public fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     internal suspend fun animateTo(
         target: BottomSheetValue,
@@ -188,10 +188,10 @@ class BottomSheetState(
 
     internal suspend fun snapTo(target: BottomSheetValue) = anchoredDraggableState.snapTo(target)
 
-    companion object {
+    public companion object {
 
         /** The default [Saver] implementation for [BottomSheetState]. */
-        fun Saver(
+        public fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (BottomSheetValue) -> Boolean,
             density: Density,
@@ -218,7 +218,7 @@ class BottomSheetState(
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
-fun rememberBottomSheetState(
+public fun rememberBottomSheetState(
     initialValue: BottomSheetValue,
     animationSpec: AnimationSpec<Float> = BottomSheetScaffoldDefaults.AnimationSpec,
     confirmStateChange: (BottomSheetValue) -> Boolean = { true },
@@ -249,9 +249,9 @@ fun rememberBottomSheetState(
  * @param snackbarHostState The [SnackbarHostState] used to show snackbars inside the scaffold.
  */
 @Stable
-class BottomSheetScaffoldState(
-    val bottomSheetState: BottomSheetState,
-    val snackbarHostState: SnackbarHostState,
+public class BottomSheetScaffoldState(
+    public val bottomSheetState: BottomSheetState,
+    public val snackbarHostState: SnackbarHostState,
 )
 
 /**
@@ -261,7 +261,7 @@ class BottomSheetScaffoldState(
  * @param snackbarHostState The [SnackbarHostState] used to show snackbars inside the scaffold.
  */
 @Composable
-fun rememberBottomSheetScaffoldState(
+public fun rememberBottomSheetScaffoldState(
     bottomSheetState: BottomSheetState = rememberBottomSheetState(Collapsed),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): BottomSheetScaffoldState {
@@ -317,7 +317,7 @@ fun rememberBottomSheetScaffoldState(
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheetScaffold(
+public fun BottomSheetScaffold(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     scaffoldState: BottomSheetScaffoldState = rememberBottomSheetScaffoldState(),
@@ -443,15 +443,15 @@ private fun BottomSheet(
 }
 
 /** Contains useful defaults for [BottomSheetScaffold]. */
-object BottomSheetScaffoldDefaults {
+public object BottomSheetScaffoldDefaults {
     /** The default elevation used by [BottomSheetScaffold]. */
-    val SheetElevation = 8.dp
+    public val SheetElevation: Dp = 8.dp
 
     /** The default peek height used by [BottomSheetScaffold]. */
-    val SheetPeekHeight = 56.dp
+    public val SheetPeekHeight: Dp = 56.dp
 
     /** The default animation spec used by [BottomSheetScaffoldState]. */
-    val AnimationSpec: AnimationSpec<Float> =
+    public val AnimationSpec: AnimationSpec<Float> =
         tween(durationMillis = 300, easing = FastOutSlowInEasing)
 }
 

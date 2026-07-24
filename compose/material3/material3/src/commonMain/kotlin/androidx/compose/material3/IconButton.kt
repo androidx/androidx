@@ -90,7 +90,7 @@ import androidx.compose.ui.semantics.semantics
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun IconButton(
+public fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -153,7 +153,7 @@ fun IconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun IconButton(
+public fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -161,7 +161,7 @@ fun IconButton(
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit,
-) =
+): Unit =
     IconButtonImpl(
         onClick = onClick,
         modifier = modifier,
@@ -205,7 +205,7 @@ fun IconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun IconButton(
+public fun IconButton(
     onClick: () -> Unit,
     shapes: IconButtonShapes,
     modifier: Modifier = Modifier,
@@ -300,7 +300,7 @@ private fun IconButtonImpl(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun IconToggleButton(
+public fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -353,7 +353,7 @@ fun IconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun IconToggleButton(
+public fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -362,7 +362,7 @@ fun IconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit,
-) =
+): Unit =
     IconToggleButtonImpl(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -406,7 +406,7 @@ fun IconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun IconToggleButton(
+public fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     shapes: IconToggleButtonShapes,
@@ -496,7 +496,7 @@ private fun IconToggleButtonImpl(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledIconButton(
+public fun FilledIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -504,7 +504,7 @@ fun FilledIconButton(
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -548,7 +548,7 @@ fun FilledIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledIconButton(
+public fun FilledIconButton(
     onClick: () -> Unit,
     shapes: IconButtonShapes,
     modifier: Modifier = Modifier,
@@ -556,7 +556,7 @@ fun FilledIconButton(
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -600,7 +600,7 @@ fun FilledIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledIconToggleButton(
+public fun FilledIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -609,7 +609,7 @@ fun FilledIconToggleButton(
     colors: IconToggleButtonColors = IconButtonDefaults.filledIconToggleButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -656,7 +656,7 @@ fun FilledIconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledIconToggleButton(
+public fun FilledIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     shapes: IconToggleButtonShapes,
@@ -665,7 +665,7 @@ fun FilledIconToggleButton(
     colors: IconToggleButtonColors = IconButtonDefaults.filledIconToggleButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -714,7 +714,7 @@ fun FilledIconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledTonalIconButton(
+public fun FilledTonalIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -722,7 +722,7 @@ fun FilledTonalIconButton(
     colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -771,7 +771,7 @@ fun FilledTonalIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledTonalIconButton(
+public fun FilledTonalIconButton(
     onClick: () -> Unit,
     shapes: IconButtonShapes,
     modifier: Modifier = Modifier,
@@ -779,7 +779,7 @@ fun FilledTonalIconButton(
     colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -829,7 +829,7 @@ fun FilledTonalIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledTonalIconToggleButton(
+public fun FilledTonalIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -838,7 +838,7 @@ fun FilledTonalIconToggleButton(
     colors: IconToggleButtonColors = IconButtonDefaults.filledTonalIconToggleButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -890,7 +890,7 @@ fun FilledTonalIconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun FilledTonalIconToggleButton(
+public fun FilledTonalIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     shapes: IconToggleButtonShapes,
@@ -899,7 +899,7 @@ fun FilledTonalIconToggleButton(
     colors: IconToggleButtonColors = IconButtonDefaults.filledTonalIconToggleButtonColors(),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -957,7 +957,7 @@ fun FilledTonalIconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun OutlinedIconButton(
+public fun OutlinedIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -966,7 +966,7 @@ fun OutlinedIconButton(
     border: BorderStroke? = IconButtonDefaults.outlinedIconButtonBorder(enabled),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -1021,7 +1021,7 @@ fun OutlinedIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun OutlinedIconButton(
+public fun OutlinedIconButton(
     onClick: () -> Unit,
     shapes: IconButtonShapes,
     modifier: Modifier = Modifier,
@@ -1030,7 +1030,7 @@ fun OutlinedIconButton(
     border: BorderStroke? = IconButtonDefaults.outlinedIconButtonBorder(enabled),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconButton(
         onClick = onClick,
         modifier = modifier,
@@ -1078,7 +1078,7 @@ fun OutlinedIconButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun OutlinedIconToggleButton(
+public fun OutlinedIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -1088,7 +1088,7 @@ fun OutlinedIconToggleButton(
     border: BorderStroke? = IconButtonDefaults.outlinedIconToggleButtonBorder(enabled, checked),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -1135,7 +1135,7 @@ fun OutlinedIconToggleButton(
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
-fun OutlinedIconToggleButton(
+public fun OutlinedIconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     shapes: IconToggleButtonShapes,
@@ -1146,7 +1146,7 @@ fun OutlinedIconToggleButton(
         IconButtonDefaults.outlinedIconToggleButtonVibrantBorder(enabled, checked),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
-) =
+): Unit =
     SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -1291,23 +1291,23 @@ private fun SurfaceIconToggleButton(
  *   [OutlinedIconButton].
  */
 @Immutable
-class IconButtonColors(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
+public class IconButtonColors(
+    public val containerColor: Color,
+    public val contentColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledContentColor: Color,
 ) {
 
     /**
      * Returns a copy of this IconButtonColors, optionally overriding some of the values. This uses
      * the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         contentColor: Color = this.contentColor,
         disabledContainerColor: Color = this.disabledContainerColor,
         disabledContentColor: Color = this.disabledContentColor,
-    ) =
+    ): IconButtonColors =
         IconButtonColors(
             containerColor.takeOrElse { this.containerColor },
             contentColor.takeOrElse { this.contentColor },
@@ -1372,27 +1372,27 @@ class IconButtonColors(
  *   toggleable [OutlinedIconButton].
  */
 @Immutable
-class IconToggleButtonColors(
-    val containerColor: Color,
-    val contentColor: Color,
-    val disabledContainerColor: Color,
-    val disabledContentColor: Color,
-    val checkedContainerColor: Color,
-    val checkedContentColor: Color,
+public class IconToggleButtonColors(
+    public val containerColor: Color,
+    public val contentColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledContentColor: Color,
+    public val checkedContainerColor: Color,
+    public val checkedContentColor: Color,
 ) {
 
     /**
      * Returns a copy of this IconToggleButtonColors, optionally overriding some of the values. This
      * uses the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         containerColor: Color = this.containerColor,
         contentColor: Color = this.contentColor,
         disabledContainerColor: Color = this.disabledContainerColor,
         disabledContentColor: Color = this.disabledContentColor,
         checkedContainerColor: Color = this.checkedContainerColor,
         checkedContentColor: Color = this.checkedContentColor,
-    ) =
+    ): IconToggleButtonColors =
         IconToggleButtonColors(
             containerColor.takeOrElse { this.containerColor },
             contentColor.takeOrElse { this.contentColor },
@@ -1470,10 +1470,13 @@ class IconToggleButtonColors(
  * @property shape is the unchecked shape.
  * @property pressedShape is the pressed shape.
  */
-class IconButtonShapes(val shape: Shape, val pressedShape: Shape = shape) {
+public class IconButtonShapes(public val shape: Shape, public val pressedShape: Shape = shape) {
 
     /** Returns a copy of this IconButtonShapes, optionally overriding some of the values. */
-    fun copy(shape: Shape? = this.shape, pressedShape: Shape? = this.pressedShape) =
+    public fun copy(
+        shape: Shape? = this.shape,
+        pressedShape: Shape? = this.pressedShape,
+    ): IconButtonShapes =
         IconButtonShapes(
             shape = shape.takeOrElse { this.shape },
             pressedShape = pressedShape.takeOrElse { this.pressedShape },
@@ -1508,18 +1511,18 @@ class IconButtonShapes(val shape: Shape, val pressedShape: Shape = shape) {
  * @property pressedShape is the pressed shape.
  * @property checkedShape is the checked shape.
  */
-class IconToggleButtonShapes(
-    val shape: Shape,
-    val pressedShape: Shape = shape,
-    val checkedShape: Shape = shape,
+public class IconToggleButtonShapes(
+    public val shape: Shape,
+    public val pressedShape: Shape = shape,
+    public val checkedShape: Shape = shape,
 ) {
 
     /** Returns a copy of this IconButtonShapes, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         shape: Shape? = this.shape,
         pressedShape: Shape? = this.pressedShape,
         checkedShape: Shape? = this.checkedShape,
-    ) =
+    ): IconToggleButtonShapes =
         IconToggleButtonShapes(
             shape = shape.takeOrElse { this.shape },
             pressedShape = pressedShape.takeOrElse { this.pressedShape },

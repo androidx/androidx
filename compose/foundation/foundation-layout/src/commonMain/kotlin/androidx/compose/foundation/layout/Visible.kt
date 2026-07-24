@@ -47,7 +47,8 @@ import androidx.compose.ui.unit.Constraints
  * @sample androidx.compose.foundation.layout.samples.VisibleModifierSample
  * @param visible `true` to make the component visible, `false` to hide it.
  */
-@Stable fun Modifier.visible(visible: Boolean): Modifier = this.then(VisibilityElement(visible))
+@Stable
+public fun Modifier.visible(visible: Boolean): Modifier = this.then(VisibilityElement(visible))
 
 private class VisibilityElement(private val visible: Boolean) :
     ModifierNodeElement<VisibilityNode>() {

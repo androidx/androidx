@@ -28,76 +28,82 @@ import androidx.compose.ui.util.unpackFloat2
 
 /** Constructs a [ScaleFactor] from the given x and y scale values */
 @Stable
-inline fun ScaleFactor(scaleX: Float, scaleY: Float) = ScaleFactor(packFloats(scaleX, scaleY))
+public inline fun ScaleFactor(scaleX: Float, scaleY: Float): ScaleFactor =
+    ScaleFactor(packFloats(scaleX, scaleY))
 
 /** Holds 2 dimensional scaling factors for horizontal and vertical axes */
 @Immutable
 @kotlin.jvm.JvmInline
-value class ScaleFactor(val packedValue: Long) {
+public value class ScaleFactor(public val packedValue: Long) {
 
     /** Returns the scale factor to apply along the horizontal axis */
     @Stable
-    inline val scaleX: Float
+    public inline val scaleX: Float
         get() = unpackFloat1(packedValue)
 
     /** Returns the scale factor to apply along the vertical axis */
     @Stable
-    inline val scaleY: Float
+    public inline val scaleY: Float
         get() = unpackFloat2(packedValue)
 
-    @Stable inline operator fun component1(): Float = scaleX
+    @Stable public inline operator fun component1(): Float = scaleX
 
-    @Stable inline operator fun component2(): Float = scaleY
+    @Stable public inline operator fun component2(): Float = scaleY
 
     /**
      * Returns a copy of this ScaleFactor instance optionally overriding the scaleX or scaleY
      * parameters
      */
-    fun copy(scaleX: Float = this.scaleX, scaleY: Float = this.scaleY) = ScaleFactor(scaleX, scaleY)
+    public fun copy(scaleX: Float = this.scaleX, scaleY: Float = this.scaleY): ScaleFactor =
+        ScaleFactor(scaleX, scaleY)
 
     /**
      * Multiplication operator.
      *
      * Returns a [ScaleFactor] with scale x and y values multiplied by the operand
      */
-    @Stable operator fun times(operand: Float) = ScaleFactor(scaleX * operand, scaleY * operand)
+    @Stable
+    public operator fun times(operand: Float): ScaleFactor =
+        ScaleFactor(scaleX * operand, scaleY * operand)
 
     /**
      * Division operator.
      *
      * Returns a [ScaleFactor] with scale x and y values divided by the operand
      */
-    @Stable operator fun div(operand: Float) = ScaleFactor(scaleX / operand, scaleY / operand)
+    @Stable
+    public operator fun div(operand: Float): ScaleFactor =
+        ScaleFactor(scaleX / operand, scaleY / operand)
 
-    override fun toString() = "ScaleFactor(${scaleX}, ${scaleY})"
+    public override fun toString(): String = "ScaleFactor(${scaleX}, ${scaleY})"
 
-    companion object {
+    public companion object {
         /**
          * A ScaleFactor whose [scaleX] and [scaleY] parameters are unspecified. This is a sentinel
          * value used to initialize a non-null parameter. Access to scaleX or scaleY on an
          * unspecified size is not allowed
          */
         @Stable
-        val Unspecified
+        public val Unspecified: ScaleFactor
             get() = ScaleFactor(Float.NaN, Float.NaN)
     }
 }
 
 /** `false` when this is [ScaleFactor.Unspecified]. */
 @Stable
-inline val ScaleFactor.isSpecified: Boolean
+public inline val ScaleFactor.isSpecified: Boolean
     get() = packedValue != ScaleFactor.Unspecified.packedValue
 
 /** `true` when this is [ScaleFactor.Unspecified]. */
 @Stable
-inline val ScaleFactor.isUnspecified: Boolean
+public inline val ScaleFactor.isUnspecified: Boolean
     get() = packedValue == ScaleFactor.Unspecified.packedValue
 
 /**
  * If this [ScaleFactor] [isSpecified] then this is returned, otherwise [block] is executed and its
  * result is returned.
  */
-inline fun ScaleFactor.takeOrElse(block: () -> ScaleFactor): ScaleFactor =
+public inline fun ScaleFactor.takeOrElse(block: () -> ScaleFactor): ScaleFactor =
     if (isSpecified) this else block()
 
 /**
@@ -107,7 +113,7 @@ inline fun ScaleFactor.takeOrElse(block: () -> ScaleFactor): ScaleFactor =
  * [ScaleFactor.scaleY] respectively
  */
 @Stable
-operator fun Size.times(scaleFactor: ScaleFactor): Size =
+public operator fun Size.times(scaleFactor: ScaleFactor): Size =
     Size(this.width * scaleFactor.scaleX, this.height * scaleFactor.scaleY)
 
 /**
@@ -117,7 +123,7 @@ operator fun Size.times(scaleFactor: ScaleFactor): Size =
  * Return a new [Size] with the width and height multiplied by the [ScaleFactor.scaleX] and
  * [ScaleFactor.scaleY] respectively
  */
-@Stable operator fun ScaleFactor.times(size: Size): Size = size * this
+@Stable public operator fun ScaleFactor.times(size: Size): Size = size * this
 
 /**
  * Division operator with [Size]
@@ -126,7 +132,7 @@ operator fun Size.times(scaleFactor: ScaleFactor): Size =
  * [ScaleFactor.scaleY] respectively
  */
 @Stable
-operator fun Size.div(scaleFactor: ScaleFactor): Size =
+public operator fun Size.div(scaleFactor: ScaleFactor): Size =
     Size(width / scaleFactor.scaleX, height / scaleFactor.scaleY)
 
 /**
@@ -143,7 +149,7 @@ operator fun Size.div(scaleFactor: ScaleFactor): Size =
  * `AnimationController`.
  */
 @Stable
-fun lerp(start: ScaleFactor, stop: ScaleFactor, fraction: Float): ScaleFactor {
+public fun lerp(start: ScaleFactor, stop: ScaleFactor, fraction: Float): ScaleFactor {
     return ScaleFactor(
         androidx.compose.ui.util.lerp(start.scaleX, stop.scaleX, fraction),
         androidx.compose.ui.util.lerp(start.scaleY, stop.scaleY, fraction),

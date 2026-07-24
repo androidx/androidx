@@ -61,7 +61,7 @@ import kotlinx.coroutines.flow.collectLatest
  */
 @ExperimentalMaterial3Api
 @Composable
-fun Label(
+public fun Label(
     label: @Composable TooltipScope.() -> Unit,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,

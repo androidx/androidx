@@ -43,7 +43,9 @@ import kotlin.math.min
  * @throws AssertionError if comparison fails.
  */
 @Deprecated(message = "Use assertWidthIsEqualTo with tolerance", level = DeprecationLevel.HIDDEN)
-fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.assertWidthIsEqualTo(
+    expectedWidth: Dp
+): SemanticsNodeInteraction {
     return assertWidthIsEqualTo(expectedWidth, 0.5.dp)
 }
 
@@ -56,7 +58,7 @@ fun SemanticsNodeInteraction.assertWidthIsEqualTo(expectedWidth: Dp): SemanticsN
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertWidthIsEqualTo(
+public fun SemanticsNodeInteraction.assertWidthIsEqualTo(
     expectedWidth: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -69,7 +71,9 @@ fun SemanticsNodeInteraction.assertWidthIsEqualTo(
  * @throws AssertionError if comparison fails.
  */
 @Deprecated(message = "Use assertHeightIsEqualTo with tolerance", level = DeprecationLevel.HIDDEN)
-fun SemanticsNodeInteraction.assertHeightIsEqualTo(expectedHeight: Dp): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.assertHeightIsEqualTo(
+    expectedHeight: Dp
+): SemanticsNodeInteraction {
     return assertHeightIsEqualTo(expectedHeight, 0.5.dp)
 }
 
@@ -82,7 +86,7 @@ fun SemanticsNodeInteraction.assertHeightIsEqualTo(expectedHeight: Dp): Semantic
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertHeightIsEqualTo(
+public fun SemanticsNodeInteraction.assertHeightIsEqualTo(
     expectedHeight: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -100,7 +104,7 @@ fun SemanticsNodeInteraction.assertHeightIsEqualTo(
     message = "Use assertTouchWidthIsEqualTo with tolerance",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
+public fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
     expectedWidth: Dp
 ): SemanticsNodeInteraction {
     return assertTouchWidthIsEqualTo(expectedWidth, 0.5.dp)
@@ -115,7 +119,7 @@ fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
+public fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
     expectedWidth: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -131,7 +135,7 @@ fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
     message = "Use assertTouchHeightIsEqualTo with tolerance",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
+public fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
     expectedHeight: Dp
 ): SemanticsNodeInteraction {
     return assertTouchHeightIsEqualTo(expectedHeight, 0.5.dp)
@@ -146,7 +150,7 @@ fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
+public fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
     expectedHeight: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -159,7 +163,9 @@ fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
  *
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertWidthIsAtLeast(expectedMinWidth: Dp): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.assertWidthIsAtLeast(
+    expectedMinWidth: Dp
+): SemanticsNodeInteraction {
     return withUnclippedBoundsInRoot { it.width.assertIsAtLeast(expectedMinWidth, "width") }
 }
 
@@ -169,7 +175,7 @@ fun SemanticsNodeInteraction.assertWidthIsAtLeast(expectedMinWidth: Dp): Semanti
  *
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertHeightIsAtLeast(
+public fun SemanticsNodeInteraction.assertHeightIsAtLeast(
     expectedMinHeight: Dp
 ): SemanticsNodeInteraction {
     return withUnclippedBoundsInRoot { it.height.assertIsAtLeast(expectedMinHeight, "height") }
@@ -187,7 +193,7 @@ fun SemanticsNodeInteraction.assertHeightIsAtLeast(
     message = "Use assertPositionInRootIsEqualTo with tolerance",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedLeft: Dp,
     expectedTop: Dp,
 ): SemanticsNodeInteraction {
@@ -204,7 +210,7 @@ fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedLeft: Dp,
     expectedTop: Dp,
     tolerance: Dp = 0.5.dp,
@@ -226,7 +232,7 @@ fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     message = "Use assertTopPositionInRootIsEqualTo with tolerance",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     expectedTop: Dp
 ): SemanticsNodeInteraction {
     return assertTopPositionInRootIsEqualTo(expectedTop, 0.5.dp)
@@ -241,7 +247,7 @@ fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     expectedTop: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -259,7 +265,7 @@ fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     message = "Use assertLeftPositionInRootIsEqualTo with tolerance",
     level = DeprecationLevel.HIDDEN,
 )
-fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
     expectedLeft: Dp
 ): SemanticsNodeInteraction {
     return assertLeftPositionInRootIsEqualTo(expectedLeft, 0.5.dp)
@@ -274,7 +280,7 @@ fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
  *   `0.5.dp`.
  * @throws AssertionError if comparison fails.
  */
-fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
+public fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
     expectedLeft: Dp,
     tolerance: Dp = 0.5.dp,
 ): SemanticsNodeInteraction {
@@ -284,7 +290,7 @@ fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
 /**
  * Returns the bounds of the layout of this node. The bounds are relative to the root composable.
  */
-fun SemanticsNodeInteraction.getUnclippedBoundsInRoot(): DpRect {
+public fun SemanticsNodeInteraction.getUnclippedBoundsInRoot(): DpRect {
     lateinit var bounds: DpRect
     withUnclippedBoundsInRoot { bounds = it }
     return bounds
@@ -294,7 +300,7 @@ fun SemanticsNodeInteraction.getUnclippedBoundsInRoot(): DpRect {
  * Returns the bounds of the layout of this node as clipped to the root. The bounds are relative to
  * the root composable.
  */
-fun SemanticsNodeInteraction.getBoundsInRoot(): DpRect {
+public fun SemanticsNodeInteraction.getBoundsInRoot(): DpRect {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
     return with(node.layoutInfo.density) {
         node.boundsInRoot.let {
@@ -307,7 +313,7 @@ fun SemanticsNodeInteraction.getBoundsInRoot(): DpRect {
  * Returns the position of an [alignment line][AlignmentLine], or [Dp.Unspecified] if the line is
  * not provided.
  */
-fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLine): Dp {
+public fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLine): Dp {
     return withDensity {
         val pos = it.getAlignmentLinePosition(alignmentLine)
         if (pos == AlignmentLine.Unspecified) {
@@ -332,7 +338,7 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLi
  * @sample androidx.compose.ui.test.samples.hoverFirstLinkInText
  * @see performFirstLinkClick
  */
-fun SemanticsNodeInteraction.getFirstLinkBounds(
+public fun SemanticsNodeInteraction.getFirstLinkBounds(
     predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
 ): Rect? = withDensity {
     val errorMessage = "Failed to retrieve bounds of the link."
@@ -455,7 +461,7 @@ private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
  * @param tolerance The tolerance within which the values should be treated as equal.
  * @throws AssertionError if comparison fails.
  */
-fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(.5f)) {
+public fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(.5f)) {
     if (!isWithinTolerance(expected, tolerance)) {
         // Comparison failed, report the error in DPs
         throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")

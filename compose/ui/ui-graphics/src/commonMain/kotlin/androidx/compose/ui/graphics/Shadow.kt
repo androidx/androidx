@@ -24,14 +24,14 @@ import androidx.compose.ui.util.lerp
 
 /** A single shadow. */
 @Immutable
-class Shadow(
-    @Stable val color: Color = Color(0xFF000000),
-    @Stable val offset: Offset = Offset.Zero,
-    @Stable val blurRadius: Float = 0.0f,
+public class Shadow(
+    @Stable public val color: Color = Color(0xFF000000),
+    @Stable public val offset: Offset = Offset.Zero,
+    @Stable public val blurRadius: Float = 0.0f,
 ) {
-    companion object {
+    public companion object {
         /** Constant for no shadow. */
-        @Stable val None = Shadow()
+        @Stable public val None: Shadow = Shadow()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,7 +56,7 @@ class Shadow(
         return "Shadow(color=$color, offset=$offset, blurRadius=$blurRadius)"
     }
 
-    fun copy(
+    public fun copy(
         color: Color = this.color,
         offset: Offset = this.offset,
         blurRadius: Float = this.blurRadius,
@@ -67,7 +67,7 @@ class Shadow(
 
 /** Linearly interpolate two [Shadow]s. */
 @Stable
-fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
+public fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(
         lerp(start.color, stop.color, fraction),
         lerp(start.offset, stop.offset, fraction),

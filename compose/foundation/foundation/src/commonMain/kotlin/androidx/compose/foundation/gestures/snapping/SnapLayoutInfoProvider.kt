@@ -32,7 +32,7 @@ package androidx.compose.foundation.gestures.snapping
  * animation if possible, otherwise the snap animation. Snapping: once the approach offset is
  * reached, snap to the offset returned by [calculateSnapOffset] using the snap animation.
  */
-interface SnapLayoutInfoProvider {
+public interface SnapLayoutInfoProvider {
 
     /**
      * Calculate the distance to navigate before settling into the next snapping bound. By default
@@ -49,7 +49,7 @@ interface SnapLayoutInfoProvider {
      * @param decayOffset A suggested offset indicating where the animation would naturally decay
      *   to.
      */
-    fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float = decayOffset
+    public fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float = decayOffset
 
     /**
      * Given a target placement in a layout, the snapping offset is the next snapping position this
@@ -58,5 +58,5 @@ interface SnapLayoutInfoProvider {
      * @param velocity The current fling movement velocity. This may change throughout the fling
      *   animation.
      */
-    fun calculateSnapOffset(velocity: Float): Float
+    public fun calculateSnapOffset(velocity: Float): Float
 }

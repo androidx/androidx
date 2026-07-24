@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.TextInputService
  * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
  */
 @Stable
-interface SoftwareKeyboardController {
+public interface SoftwareKeyboardController {
     /**
      * Request that the system show a software keyboard.
      *
@@ -52,7 +52,7 @@ interface SoftwareKeyboardController {
      *
      * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
      */
-    fun show()
+    public fun show()
 
     /**
      * Hide the software keyboard.
@@ -65,7 +65,7 @@ interface SoftwareKeyboardController {
      *
      * @sample androidx.compose.ui.samples.SoftwareKeyboardControllerSample
      */
-    fun hide()
+    public fun hide()
 }
 
 internal class DelegatingSoftwareKeyboardController(val textInputService: TextInputService) :

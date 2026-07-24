@@ -19,4 +19,4 @@ package androidx.compose.ui.viewinterop
 import android.view.View
 
 @Suppress("TypealiasDefinition")
-actual typealias InteropView = View
+public actual typealias InteropView = View

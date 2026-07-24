@@ -83,18 +83,18 @@ import java.util.UUID
  *   the back button. If true, pressing the back button will call onDismissRequest.
  */
 @Immutable
-actual class ModalWideNavigationRailProperties(
-    val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-    @get:Suppress("GetterSetterNames") actual val shouldDismissOnBackPress: Boolean = true,
+public actual class ModalWideNavigationRailProperties(
+    public val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+    @get:Suppress("GetterSetterNames") public actual val shouldDismissOnBackPress: Boolean = true,
 ) {
-    actual constructor(
+    public actual constructor(
         shouldDismissOnBackPress: Boolean
     ) : this(
         securePolicy = SecureFlagPolicy.Inherit,
         shouldDismissOnBackPress = shouldDismissOnBackPress,
     )
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ModalWideNavigationRailProperties) return false
         if (securePolicy != other.securePolicy) return false
@@ -102,7 +102,7 @@ actual class ModalWideNavigationRailProperties(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = securePolicy.hashCode()
         result = 31 * result + shouldDismissOnBackPress.hashCode()
         return result

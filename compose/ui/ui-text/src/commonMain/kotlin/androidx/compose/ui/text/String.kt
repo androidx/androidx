@@ -65,7 +65,7 @@ internal interface PlatformStringDelegate {
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.toUpperCase(locale: Locale): String = stringDelegate.toUpperCase(this, locale)
+public fun String.toUpperCase(locale: Locale): String = stringDelegate.toUpperCase(this, locale)
 
 /**
  * Returns lowercase transformed String.
@@ -73,7 +73,7 @@ fun String.toUpperCase(locale: Locale): String = stringDelegate.toUpperCase(this
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.toLowerCase(locale: Locale): String = stringDelegate.toLowerCase(this, locale)
+public fun String.toLowerCase(locale: Locale): String = stringDelegate.toLowerCase(this, locale)
 
 /**
  * Returns capitalized String.
@@ -81,7 +81,7 @@ fun String.toLowerCase(locale: Locale): String = stringDelegate.toLowerCase(this
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.capitalize(locale: Locale): String = stringDelegate.capitalize(this, locale)
+public fun String.capitalize(locale: Locale): String = stringDelegate.capitalize(this, locale)
 
 /**
  * Returns decapitalized String.
@@ -89,7 +89,7 @@ fun String.capitalize(locale: Locale): String = stringDelegate.capitalize(this, 
  * @param locale a locale object
  * @return a transformed text
  */
-fun String.decapitalize(locale: Locale): String = stringDelegate.decapitalize(this, locale)
+public fun String.decapitalize(locale: Locale): String = stringDelegate.decapitalize(this, locale)
 
 /**
  * Returns uppercase transformed String.
@@ -98,7 +98,7 @@ fun String.decapitalize(locale: Locale): String = stringDelegate.decapitalize(th
  *   instead.
  * @return a transformed text
  */
-fun String.toUpperCase(localeList: LocaleList): String =
+public fun String.toUpperCase(localeList: LocaleList): String =
     if (localeList.isEmpty()) toUpperCase(Locale.current) else toUpperCase(localeList[0])
 
 /**
@@ -108,7 +108,7 @@ fun String.toUpperCase(localeList: LocaleList): String =
  *   instead.
  * @return a transformed text
  */
-fun String.toLowerCase(localeList: LocaleList): String =
+public fun String.toLowerCase(localeList: LocaleList): String =
     if (localeList.isEmpty()) toLowerCase(Locale.current) else toLowerCase(localeList[0])
 
 /**
@@ -118,7 +118,7 @@ fun String.toLowerCase(localeList: LocaleList): String =
  *   instead.
  * @return a transformed text
  */
-fun String.capitalize(localeList: LocaleList): String =
+public fun String.capitalize(localeList: LocaleList): String =
     if (localeList.isEmpty()) capitalize(Locale.current) else capitalize(localeList[0])
 
 /**
@@ -127,7 +127,7 @@ fun String.capitalize(localeList: LocaleList): String =
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
  *   instead.
  */
-fun String.decapitalize(localeList: LocaleList): String =
+public fun String.decapitalize(localeList: LocaleList): String =
     if (localeList.isEmpty()) decapitalize(Locale.current) else decapitalize(localeList[0])
 
 private val stringDelegate = ActualStringDelegate()

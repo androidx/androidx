@@ -22,20 +22,20 @@ import android.view.View.AUTOFILL_TYPE_NONE
 import android.view.View.AUTOFILL_TYPE_TEXT
 import android.view.View.AUTOFILL_TYPE_TOGGLE
 
-actual sealed interface ContentDataType {
-    actual companion object {
-        actual val None = ContentDataType(AUTOFILL_TYPE_NONE)
-        actual val Text = ContentDataType(AUTOFILL_TYPE_TEXT)
-        actual val List = ContentDataType(AUTOFILL_TYPE_LIST)
-        actual val Date = ContentDataType(AUTOFILL_TYPE_DATE)
-        actual val Toggle = ContentDataType(AUTOFILL_TYPE_TOGGLE)
+public actual sealed interface ContentDataType {
+    public actual companion object {
+        public actual val None: ContentDataType = ContentDataType(AUTOFILL_TYPE_NONE)
+        public actual val Text: ContentDataType = ContentDataType(AUTOFILL_TYPE_TEXT)
+        public actual val List: ContentDataType = ContentDataType(AUTOFILL_TYPE_LIST)
+        public actual val Date: ContentDataType = ContentDataType(AUTOFILL_TYPE_DATE)
+        public actual val Toggle: ContentDataType = ContentDataType(AUTOFILL_TYPE_TOGGLE)
     }
 }
 
 @JvmInline
 private value class AndroidContentDataType(val androidAutofillType: Int) : ContentDataType
 
-fun ContentDataType(dataType: Int): ContentDataType = AndroidContentDataType(dataType)
+public fun ContentDataType(dataType: Int): ContentDataType = AndroidContentDataType(dataType)
 
-val ContentDataType.dataType: Int
+public val ContentDataType.dataType: Int
     get() = (this as AndroidContentDataType).androidAutofillType

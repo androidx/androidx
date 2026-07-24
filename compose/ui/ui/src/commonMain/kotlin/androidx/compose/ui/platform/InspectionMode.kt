@@ -22,4 +22,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * Inspectable mode CompositionLocal. True if the composition is composed inside a Inspectable
  * component.
  */
-val LocalInspectionMode = staticCompositionLocalOf { false }
+public val LocalInspectionMode: androidx.compose.runtime.ProvidableCompositionLocal<Boolean> =
+    staticCompositionLocalOf {
+        false
+    }

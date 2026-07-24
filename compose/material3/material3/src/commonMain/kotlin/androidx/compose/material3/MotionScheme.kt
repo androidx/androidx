@@ -41,7 +41,7 @@ import androidx.compose.runtime.Stable
  * You can customize the motion scheme for all components in the [MaterialTheme].
  */
 @Immutable
-interface MotionScheme {
+public interface MotionScheme {
     /**
      * A default spatial motion [FiniteAnimationSpec].
      *
@@ -52,7 +52,7 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T>
+    public fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T>
 
     /**
      * A fast spatial motion [FiniteAnimationSpec].
@@ -64,7 +64,7 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> fastSpatialSpec(): FiniteAnimationSpec<T>
+    public fun <T> fastSpatialSpec(): FiniteAnimationSpec<T>
 
     /**
      * A slow spatial motion [FiniteAnimationSpec].
@@ -76,7 +76,7 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> slowSpatialSpec(): FiniteAnimationSpec<T>
+    public fun <T> slowSpatialSpec(): FiniteAnimationSpec<T>
 
     /**
      * A default effects motion [FiniteAnimationSpec].
@@ -87,7 +87,7 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T>
+    public fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T>
 
     /**
      * A fast effects motion [FiniteAnimationSpec].
@@ -98,7 +98,7 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> fastEffectsSpec(): FiniteAnimationSpec<T>
+    public fun <T> fastEffectsSpec(): FiniteAnimationSpec<T>
 
     /**
      * A slow effects motion [FiniteAnimationSpec].
@@ -109,9 +109,9 @@ interface MotionScheme {
      * [T] is the generic data type that will be animated by the system, as long as the appropriate
      * [TwoWayConverter] for converting the data to and from an [AnimationVector] is supplied.
      */
-    fun <T> slowEffectsSpec(): FiniteAnimationSpec<T>
+    public fun <T> slowEffectsSpec(): FiniteAnimationSpec<T>
 
-    companion object {
+    public companion object {
 
         /**
          * Returns a standard Material motion scheme.
@@ -119,7 +119,7 @@ interface MotionScheme {
          * The standard scheme is Material's basic motion scheme for utilitarian UI elements and
          * recurring interactions. It provides a linear motion feel.
          */
-        @Suppress("UNCHECKED_CAST") fun standard(): MotionScheme = StandardMotionSchemeImpl
+        @Suppress("UNCHECKED_CAST") public fun standard(): MotionScheme = StandardMotionSchemeImpl
 
         /**
          * Returns an expressive Material motion scheme.
@@ -127,7 +127,8 @@ interface MotionScheme {
          * The expressive scheme is Material's recommended motion scheme for prominent UI elements
          * and hero interactions. It provides a visually engaging motion feel.
          */
-        @Suppress("UNCHECKED_CAST") fun expressive(): MotionScheme = ExpressiveMotionSchemeImpl
+        @Suppress("UNCHECKED_CAST")
+        public fun expressive(): MotionScheme = ExpressiveMotionSchemeImpl
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -20,28 +20,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
 /** An empty [InspectorInfo] DSL. */
-val NoInspectorInfo: InspectorInfo.() -> Unit = {}
+public val NoInspectorInfo: InspectorInfo.() -> Unit = {}
 
 /** Turn on inspector debug information. Used internally during inspection. */
-var isDebugInspectorInfoEnabled = false
+public var isDebugInspectorInfoEnabled: Boolean = false
 
 /** A compose value that is inspectable by tools. It gives access to private parts of a value. */
 @JvmDefaultWithCompatibility
-interface InspectableValue {
+public interface InspectableValue {
 
     /** The elements of a compose value. */
-    val inspectableElements: Sequence<ValueElement>
+    public val inspectableElements: Sequence<ValueElement>
         get() = emptySequence()
 
     /**
      * Use this name as the reference name shown in tools of this value if there is no explicit
      * reference name given to the value. Example: a modifier in a modifier list.
      */
-    val nameFallback: String?
+    public val nameFallback: String?
         get() = null
 
     /** Use this value as a readable representation of the value. */
-    val valueOverride: Any?
+    public val valueOverride: Any?
         get() = null
 }
 
@@ -49,34 +49,36 @@ interface InspectableValue {
  * A [ValueElement] describes an element of a compose value instance. The [name] typically refers to
  * a (possibly private) property name with its corresponding [value].
  */
-@Suppress("DataClassDefinition") data class ValueElement(val name: String, val value: Any?)
+@Suppress("DataClassDefinition")
+public data class ValueElement(public val name: String, public val value: Any?)
 
 /** A builder for an [InspectableValue]. */
-class InspectorInfo {
+public class InspectorInfo {
     /** Provides a [InspectableValue.nameFallback]. */
-    var name: String? = null
+    public var name: String? = null
 
     /** Provides a [InspectableValue.valueOverride]. */
-    var value: Any? = null
+    public var value: Any? = null
 
     /** Provides a [InspectableValue.inspectableElements]. */
-    val properties = ValueElementSequence()
+    public val properties: ValueElementSequence = ValueElementSequence()
 }
 
 /** A builder for a sequence of [ValueElement]. */
-class ValueElementSequence : Sequence<ValueElement> {
+public class ValueElementSequence : Sequence<ValueElement> {
     private val elements = mutableListOf<ValueElement>()
 
     override fun iterator(): Iterator<ValueElement> = elements.iterator()
 
     /** Specify a sub element with name and value. */
-    operator fun set(name: String, value: Any?) {
+    public operator fun set(name: String, value: Any?): Unit {
         elements.add(ValueElement(name, value))
     }
 }
 
 /** Implementation of [InspectableValue] based on a builder [InspectorInfo] DSL. */
-abstract class InspectorValueInfo(private val info: InspectorInfo.() -> Unit) : InspectableValue {
+public abstract class InspectorValueInfo(private val info: InspectorInfo.() -> Unit) :
+    InspectableValue {
     private var _values: InspectorInfo? = null
 
     private val values: InspectorInfo
@@ -104,7 +106,7 @@ abstract class InspectorValueInfo(private val info: InspectorInfo.() -> Unit) : 
  *
  * @sample androidx.compose.ui.samples.InspectableModifierSample
  */
-inline fun debugInspectorInfo(
+public inline fun debugInspectorInfo(
     crossinline definitions: InspectorInfo.() -> Unit
 ): InspectorInfo.() -> Unit =
     if (isDebugInspectorInfoEnabled) ({ definitions() }) else NoInspectorInfo
@@ -123,7 +125,7 @@ inline fun debugInspectorInfo(
         "on a Modifier to tooling.",
     level = DeprecationLevel.WARNING,
 )
-inline fun Modifier.inspectable(
+public inline fun Modifier.inspectable(
     noinline inspectorInfo: InspectorInfo.() -> Unit,
     factory: Modifier.() -> Modifier,
 ): Modifier = inspectableWrapper(inspectorInfo, factory(Modifier))
@@ -147,9 +149,9 @@ internal fun Modifier.inspectableWrapper(
     level = DeprecationLevel.WARNING,
 )
 /** Annotates a range of modifiers in a chain with inspector metadata. */
-class InspectableModifier(inspectorInfo: InspectorInfo.() -> Unit) :
+public class InspectableModifier(inspectorInfo: InspectorInfo.() -> Unit) :
     Modifier.Element, InspectorValueInfo(inspectorInfo) {
-    inner class End : Modifier.Element
+    public inner class End : Modifier.Element
 
-    val end = End()
+    public val end: End = End()
 }

@@ -25,7 +25,7 @@ import java.util.WeakHashMap
  * the input format, and more.
  */
 @Suppress("TypealiasDefinition")
-actual typealias CalendarLocale = Locale
+public actual typealias CalendarLocale = Locale
 
 /** Returns a string representation of an integer for the given Locale. */
 internal actual fun Int.toLocalString(

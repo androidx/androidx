@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.compose.foundation.samples.HandwritingDetectorSample
  */
-fun Modifier.handwritingHandler(): Modifier =
+public fun Modifier.handwritingHandler(): Modifier =
     if (isStylusHandwritingSupported) then(HandwritingHandlerElement()) else this
 
 private class HandwritingHandlerElement : ModifierNodeElement<HandwritingHandlerNode>() {

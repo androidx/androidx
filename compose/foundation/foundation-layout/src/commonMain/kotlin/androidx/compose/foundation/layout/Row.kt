@@ -91,7 +91,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @see [androidx.compose.foundation.lazy.LazyRow]
  */
 @Composable
-inline fun Row(
+public inline fun Row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
@@ -298,7 +298,7 @@ internal fun createRowConstraints(
 @LayoutScopeMarker
 @Immutable
 @JvmDefaultWithCompatibility
-interface RowScope {
+public interface RowScope {
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [Row]. The parent will divide the horizontal space remaining after measuring
@@ -312,7 +312,7 @@ interface RowScope {
      * @param fill When `true`, the element will occupy the whole width allocated.
      */
     @Stable
-    fun Modifier.weight(
+    public fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true,
     ): Modifier
@@ -325,7 +325,7 @@ interface RowScope {
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignInRow
      */
-    @Stable fun Modifier.align(alignment: Alignment.Vertical): Modifier
+    @Stable public fun Modifier.align(alignment: Alignment.Vertical): Modifier
 
     /**
      * Position the element vertically such that its [alignmentLine] aligns with sibling elements
@@ -344,7 +344,7 @@ interface RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
      * @see alignByBaseline
      */
-    @Stable fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine): Modifier
+    @Stable public fun Modifier.alignBy(alignmentLine: HorizontalAlignmentLine): Modifier
 
     /**
      * Position the element vertically such that its first baseline aligns with sibling elements
@@ -357,7 +357,7 @@ interface RowScope {
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
      * @see alignBy
      */
-    @Stable fun Modifier.alignByBaseline(): Modifier
+    @Stable public fun Modifier.alignByBaseline(): Modifier
 
     /**
      * Position the element vertically such that the alignment line for the content as determined by
@@ -374,7 +374,7 @@ interface RowScope {
      *
      * @sample androidx.compose.foundation.layout.samples.SimpleAlignByInRow
      */
-    @Stable fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
+    @Stable public fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
 @PublishedApi

@@ -152,7 +152,7 @@ import kotlinx.coroutines.launch
  *   different state. See [SliderDefaults.colors] to customize.
  */
 @Composable
-fun Slider(
+public fun Slider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -393,7 +393,7 @@ private fun Modifier.slideOnKeyEvents(
  */
 @Composable
 @ExperimentalMaterialApi
-fun RangeSlider(
+public fun RangeSlider(
     value: ClosedFloatingPointRange<Float>,
     onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
     modifier: Modifier = Modifier,
@@ -555,7 +555,7 @@ fun RangeSlider(
 }
 
 /** Object to hold defaults used by [Slider] */
-object SliderDefaults {
+public object SliderDefaults {
 
     /**
      * Creates a [SliderColors] that represents the different colors used in parts of the [Slider]
@@ -585,7 +585,7 @@ object SliderDefaults {
      *   the track when Slider is disabled and when `steps` are specified on it
      */
     @Composable
-    fun colors(
+    public fun colors(
         thumbColor: Color = MaterialTheme.colors.primary,
         disabledThumbColor: Color =
             MaterialTheme.colors.onSurface
@@ -617,19 +617,19 @@ object SliderDefaults {
         )
 
     /** Default alpha of the inactive part of the track */
-    const val InactiveTrackAlpha = 0.24f
+    public const val InactiveTrackAlpha: Float = 0.24f
 
     /** Default alpha for the track when it is disabled but active */
-    const val DisabledInactiveTrackAlpha = 0.12f
+    public const val DisabledInactiveTrackAlpha: Float = 0.12f
 
     /** Default alpha for the track when it is disabled and inactive */
-    const val DisabledActiveTrackAlpha = 0.32f
+    public const val DisabledActiveTrackAlpha: Float = 0.32f
 
     /** Default alpha of the ticks that are drawn on top of the track */
-    const val TickAlpha = 0.54f
+    public const val TickAlpha: Float = 0.54f
 
     /** Default alpha for tick marks when they are disabled */
-    const val DisabledTickAlpha = 0.12f
+    public const val DisabledTickAlpha: Float = 0.12f
 }
 
 /**
@@ -638,14 +638,14 @@ object SliderDefaults {
  * See [SliderDefaults.colors] for the default implementation that follows Material specifications.
  */
 @Stable
-interface SliderColors {
+public interface SliderColors {
 
     /**
      * Represents the color used for the sliders's thumb, depending on [enabled].
      *
      * @param enabled whether the [Slider] is enabled or not
      */
-    @Composable fun thumbColor(enabled: Boolean): State<Color>
+    @Composable public fun thumbColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the color used for the sliders's track, depending on [enabled] and [active].
@@ -656,7 +656,7 @@ interface SliderColors {
      * @param enabled whether the [Slider] is enabled or not
      * @param active whether the part of the track is active of not
      */
-    @Composable fun trackColor(enabled: Boolean, active: Boolean): State<Color>
+    @Composable public fun trackColor(enabled: Boolean, active: Boolean): State<Color>
 
     /**
      * Represents the color used for the sliders's tick which is the dot separating steps, if they
@@ -669,7 +669,7 @@ interface SliderColors {
      * @param enabled whether the [Slider] is enabled or not
      * @param active whether the part of the track this tick is in is active of not
      */
-    @Composable fun tickColor(enabled: Boolean, active: Boolean): State<Color>
+    @Composable public fun tickColor(enabled: Boolean, active: Boolean): State<Color>
 }
 
 @Composable

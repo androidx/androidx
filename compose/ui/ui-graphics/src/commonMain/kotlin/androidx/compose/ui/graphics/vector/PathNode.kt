@@ -26,7 +26,10 @@ import androidx.compose.runtime.Immutable
  * @property isQuad `true` if this command is a quadratic Bézier curve, `false` otherwise.
  */
 @Immutable
-sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false) {
+public sealed class PathNode(
+    public val isCurve: Boolean = false,
+    public val isQuad: Boolean = false,
+) {
 
     /**
      * Closes the current subpath by drawing a straight line from the current point to the initial
@@ -35,7 +38,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      *
      * Corresponds to the `Z` or `z` path data commands.
      */
-    @Immutable object Close : PathNode()
+    @Immutable public object Close : PathNode()
 
     /**
      * Starts a new subpath at a point defined by a relative offset from the current point.
@@ -46,7 +49,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeMoveTo(val dx: Float, val dy: Float) : PathNode()
+    public data class RelativeMoveTo(public val dx: Float, public val dy: Float) : PathNode()
 
     /**
      * Starts a new subpath at the given absolute (x,y) coordinate. Corresponds to the `M` path data
@@ -57,7 +60,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class MoveTo(val x: Float, val y: Float) : PathNode()
+    public data class MoveTo(public val x: Float, public val y: Float) : PathNode()
 
     /**
      * Draws a line from the current point to a new point, defined by a relative offset. Corresponds
@@ -68,7 +71,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeLineTo(val dx: Float, val dy: Float) : PathNode()
+    public data class RelativeLineTo(public val dx: Float, public val dy: Float) : PathNode()
 
     /**
      * Draws a line from the current point to the specified absolute (x,y) coordinate. Corresponds
@@ -79,7 +82,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class LineTo(val x: Float, val y: Float) : PathNode()
+    public data class LineTo(public val x: Float, public val y: Float) : PathNode()
 
     /**
      * Draws a horizontal line from the current point, offset by a relative distance `dx`.
@@ -89,7 +92,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeHorizontalTo(val dx: Float) : PathNode()
+    public data class RelativeHorizontalTo(public val dx: Float) : PathNode()
 
     /**
      * Draws a horizontal line from the current point to the specified absolute x-coordinate.
@@ -97,7 +100,9 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      *
      * @param x The absolute x-coordinate of the line's end point.
      */
-    @Immutable @Suppress("DataClassDefinition") data class HorizontalTo(val x: Float) : PathNode()
+    @Immutable
+    @Suppress("DataClassDefinition")
+    public data class HorizontalTo(public val x: Float) : PathNode()
 
     /**
      * Draws a vertical line from the current point, offset by a relative distance `dy`. Corresponds
@@ -107,7 +112,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeVerticalTo(val dy: Float) : PathNode()
+    public data class RelativeVerticalTo(public val dy: Float) : PathNode()
 
     /**
      * Draws a vertical line from the current point to the specified absolute y-coordinate.
@@ -115,7 +120,9 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      *
      * @param y The absolute y-coordinate of the line's end point.
      */
-    @Immutable @Suppress("DataClassDefinition") data class VerticalTo(val y: Float) : PathNode()
+    @Immutable
+    @Suppress("DataClassDefinition")
+    public data class VerticalTo(public val y: Float) : PathNode()
 
     /**
      * Draws a cubic Bézier curve from the current point to a new point using relative coordinates.
@@ -130,13 +137,13 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeCurveTo(
-        val dx1: Float,
-        val dy1: Float,
-        val dx2: Float,
-        val dy2: Float,
-        val dx3: Float,
-        val dy3: Float,
+    public data class RelativeCurveTo(
+        public val dx1: Float,
+        public val dy1: Float,
+        public val dx2: Float,
+        public val dy2: Float,
+        public val dx3: Float,
+        public val dy3: Float,
     ) : PathNode(isCurve = true)
 
     /**
@@ -152,13 +159,13 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class CurveTo(
-        val x1: Float,
-        val y1: Float,
-        val x2: Float,
-        val y2: Float,
-        val x3: Float,
-        val y3: Float,
+    public data class CurveTo(
+        public val x1: Float,
+        public val y1: Float,
+        public val x2: Float,
+        public val y2: Float,
+        public val x3: Float,
+        public val y3: Float,
     ) : PathNode(isCurve = true)
 
     /**
@@ -173,11 +180,11 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeReflectiveCurveTo(
-        val dx1: Float,
-        val dy1: Float,
-        val dx2: Float,
-        val dy2: Float,
+    public data class RelativeReflectiveCurveTo(
+        public val dx1: Float,
+        public val dy1: Float,
+        public val dx2: Float,
+        public val dy2: Float,
     ) : PathNode(isCurve = true)
 
     /**
@@ -192,8 +199,12 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class ReflectiveCurveTo(val x1: Float, val y1: Float, val x2: Float, val y2: Float) :
-        PathNode(isCurve = true)
+    public data class ReflectiveCurveTo(
+        public val x1: Float,
+        public val y1: Float,
+        public val x2: Float,
+        public val y2: Float,
+    ) : PathNode(isCurve = true)
 
     /**
      * Draws a quadratic Bézier curve from the current point to a new point using relative
@@ -206,8 +217,12 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeQuadTo(val dx1: Float, val dy1: Float, val dx2: Float, val dy2: Float) :
-        PathNode(isQuad = true)
+    public data class RelativeQuadTo(
+        public val dx1: Float,
+        public val dy1: Float,
+        public val dx2: Float,
+        public val dy2: Float,
+    ) : PathNode(isQuad = true)
 
     /**
      * Draws a quadratic Bézier curve from the current point to a new point using absolute
@@ -220,8 +235,12 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class QuadTo(val x1: Float, val y1: Float, val x2: Float, val y2: Float) :
-        PathNode(isQuad = true)
+    public data class QuadTo(
+        public val x1: Float,
+        public val y1: Float,
+        public val x2: Float,
+        public val y2: Float,
+    ) : PathNode(isQuad = true)
 
     /**
      * Draws a smooth quadratic Bézier curve using relative coordinates. This command ensures a
@@ -233,7 +252,8 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeReflectiveQuadTo(val dx: Float, val dy: Float) : PathNode(isQuad = true)
+    public data class RelativeReflectiveQuadTo(public val dx: Float, public val dy: Float) :
+        PathNode(isQuad = true)
 
     /**
      * Draws a smooth quadratic Bézier curve using absolute coordinates. This command ensures a
@@ -245,7 +265,8 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class ReflectiveQuadTo(val x: Float, val y: Float) : PathNode(isQuad = true)
+    public data class ReflectiveQuadTo(public val x: Float, public val y: Float) :
+        PathNode(isQuad = true)
 
     /**
      * Draws an elliptical arc from the current point to a new point using relative coordinates.
@@ -261,14 +282,14 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class RelativeArcTo(
-        val horizontalEllipseRadius: Float,
-        val verticalEllipseRadius: Float,
-        val theta: Float,
-        val isMoreThanHalf: Boolean,
-        val isPositiveArc: Boolean,
-        val arcStartDx: Float,
-        val arcStartDy: Float,
+    public data class RelativeArcTo(
+        public val horizontalEllipseRadius: Float,
+        public val verticalEllipseRadius: Float,
+        public val theta: Float,
+        public val isMoreThanHalf: Boolean,
+        public val isPositiveArc: Boolean,
+        public val arcStartDx: Float,
+        public val arcStartDy: Float,
     ) : PathNode()
 
     /**
@@ -285,14 +306,14 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
      */
     @Immutable
     @Suppress("DataClassDefinition")
-    data class ArcTo(
-        val horizontalEllipseRadius: Float,
-        val verticalEllipseRadius: Float,
-        val theta: Float,
-        val isMoreThanHalf: Boolean,
-        val isPositiveArc: Boolean,
-        val arcStartX: Float,
-        val arcStartY: Float,
+    public data class ArcTo(
+        public val horizontalEllipseRadius: Float,
+        public val verticalEllipseRadius: Float,
+        public val theta: Float,
+        public val isMoreThanHalf: Boolean,
+        public val isPositiveArc: Boolean,
+        public val arcStartX: Float,
+        public val arcStartY: Float,
     ) : PathNode()
 }
 

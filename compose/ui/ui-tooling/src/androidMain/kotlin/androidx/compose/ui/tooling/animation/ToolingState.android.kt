@@ -35,8 +35,8 @@ import androidx.compose.runtime.setValue
  *
  * @param default default value
  */
-class ToolingState<T>(default: T) : State<T> {
-    override var value by mutableStateOf(default)
+public class ToolingState<T>(default: T) : State<T> {
+    override var value: T by mutableStateOf(default)
 }
 
 /**

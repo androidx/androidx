@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.InspectorInfo
  * Note: If you want to be notified every time the internal focus state is written to (even if it
  * hasn't changed), use [onFocusEvent] instead.
  */
-fun Modifier.onFocusChanged(onFocusChanged: (FocusState) -> Unit): Modifier =
+public fun Modifier.onFocusChanged(onFocusChanged: (FocusState) -> Unit): Modifier =
     this then FocusChangedElement(onFocusChanged)
 
 private class FocusChangedElement(val onFocusChanged: (FocusState) -> Unit) :

@@ -32,47 +32,47 @@ import kotlin.math.absoluteValue
  */
 @Immutable
 @Suppress("DataClassDefinition")
-data class IntRect(
+public data class IntRect(
     /** The offset of the left edge of this rectangle from the x axis. */
-    @Stable val left: Int,
+    @Stable public val left: Int,
 
     /** The offset of the top edge of this rectangle from the y axis. */
-    @Stable val top: Int,
+    @Stable public val top: Int,
 
     /** The offset of the right edge of this rectangle from the x axis. */
-    @Stable val right: Int,
+    @Stable public val right: Int,
 
     /** The offset of the bottom edge of this rectangle from the y axis. */
-    @Stable val bottom: Int,
+    @Stable public val bottom: Int,
 ) {
-    companion object {
+    public companion object {
 
         /** A rectangle with left, top, right, and bottom edges all at zero. */
-        @Stable val Zero: IntRect = IntRect(0, 0, 0, 0)
+        @Stable public val Zero: IntRect = IntRect(0, 0, 0, 0)
     }
 
     /** The distance between the left and right edges of this rectangle. */
     @Stable
-    val width: Int
+    public val width: Int
         get() {
             return right - left
         }
 
     /** The distance between the top and bottom edges of this rectangle. */
     @Stable
-    val height: Int
+    public val height: Int
         get() {
             return bottom - top
         }
 
     /** The distance between the upper-left corner and the lower-right corner of this rectangle. */
     @Stable
-    val size: IntSize
+    public val size: IntSize
         get() = IntSize(width, height)
 
     /** Whether this rectangle encloses a non-zero area. Negative areas are considered empty. */
     @Stable
-    val isEmpty: Boolean
+    public val isEmpty: Boolean
         get() = left >= right || top >= bottom
 
     /**
@@ -82,7 +82,7 @@ data class IntRect(
      * [translate].
      */
     @Stable
-    fun translate(offset: IntOffset): IntRect {
+    public fun translate(offset: IntOffset): IntRect {
         return IntRect(left + offset.x, top + offset.y, right + offset.x, bottom + offset.y)
     }
 
@@ -91,18 +91,18 @@ data class IntRect(
      * y components.
      */
     @Stable
-    fun translate(translateX: Int, translateY: Int): IntRect {
+    public fun translate(translateX: Int, translateY: Int): IntRect {
         return IntRect(left + translateX, top + translateY, right + translateX, bottom + translateY)
     }
 
     /** Returns a new rectangle with edges moved outwards by the given delta. */
     @Stable
-    fun inflate(delta: Int): IntRect {
+    public fun inflate(delta: Int): IntRect {
         return IntRect(left - delta, top - delta, right + delta, bottom + delta)
     }
 
     /** Returns a new rectangle with edges moved inwards by the given delta. */
-    @Stable fun deflate(delta: Int): IntRect = inflate(-delta)
+    @Stable public fun deflate(delta: Int): IntRect = inflate(-delta)
 
     /**
      * Returns a new rectangle that is the intersection of the given rectangle and this rectangle.
@@ -110,7 +110,7 @@ data class IntRect(
      * overlap, then the resulting IntRect will have a negative width or height.
      */
     @Stable
-    fun intersect(other: IntRect): IntRect {
+    public fun intersect(other: IntRect): IntRect {
         return IntRect(
             kotlin.math.max(left, other.left),
             kotlin.math.max(top, other.top),
@@ -120,34 +120,34 @@ data class IntRect(
     }
 
     /** Whether `other` has a nonzero area of overlap with this rectangle. */
-    fun overlaps(other: IntRect): Boolean {
+    public fun overlaps(other: IntRect): Boolean {
         if (right <= other.left || other.right <= left) return false
         if (bottom <= other.top || other.bottom <= top) return false
         return true
     }
 
     /** The lesser of the magnitudes of the [width] and the [height] of this rectangle. */
-    val minDimension: Int
+    public val minDimension: Int
         get() = kotlin.math.min(width.absoluteValue, height.absoluteValue)
 
     /** The greater of the magnitudes of the [width] and the [height] of this rectangle. */
-    val maxDimension: Int
+    public val maxDimension: Int
         get() = kotlin.math.max(width.absoluteValue, height.absoluteValue)
 
     /** The offset to the intersection of the top and left edges of this rectangle. */
-    val topLeft: IntOffset
+    public val topLeft: IntOffset
         get() = IntOffset(left, top)
 
     /** The offset to the center of the top edge of this rectangle. */
-    val topCenter: IntOffset
+    public val topCenter: IntOffset
         get() = IntOffset(left + width / 2, top)
 
     /** The offset to the intersection of the top and right edges of this rectangle. */
-    val topRight: IntOffset
+    public val topRight: IntOffset
         get() = IntOffset(right, top)
 
     /** The offset to the center of the left edge of this rectangle. */
-    val centerLeft: IntOffset
+    public val centerLeft: IntOffset
         get() = IntOffset(left, top + height / 2)
 
     /**
@@ -156,25 +156,25 @@ data class IntRect(
      *
      * See also [IntSize.center].
      */
-    val center: IntOffset
+    public val center: IntOffset
         get() = IntOffset(left + width / 2, top + height / 2)
 
     /** The offset to the center of the right edge of this rectangle. */
-    val centerRight: IntOffset
+    public val centerRight: IntOffset
         get() = IntOffset(right, top + height / 2)
 
     /** The offset to the intersection of the bottom and left edges of this rectangle. */
-    val bottomLeft: IntOffset
+    public val bottomLeft: IntOffset
         get() = IntOffset(left, bottom)
 
     /** The offset to the center of the bottom edge of this rectangle. */
-    val bottomCenter: IntOffset
+    public val bottomCenter: IntOffset
         get() {
             return IntOffset(left + width / 2, bottom)
         }
 
     /** The offset to the intersection of the bottom and right edges of this rectangle. */
-    val bottomRight: IntOffset
+    public val bottomRight: IntOffset
         get() {
             return IntOffset(right, bottom)
         }
@@ -185,11 +185,12 @@ data class IntRect(
      *
      * Rectangles include their top and left edges but exclude their bottom and right edges.
      */
-    fun contains(offset: IntOffset): Boolean {
+    public fun contains(offset: IntOffset): Boolean {
         return offset.x >= left && offset.x < right && offset.y >= top && offset.y < bottom
     }
 
-    override fun toString() = "IntRect.fromLTRB(" + "$left, " + "$top, " + "$right, " + "$bottom)"
+    public override fun toString(): String =
+        "IntRect.fromLTRB(" + "$left, " + "$top, " + "$right, " + "$bottom)"
 }
 
 /**
@@ -202,7 +203,7 @@ data class IntRect(
  *   [IntOffset.y] + [IntSize.height] respectively
  */
 @Stable
-fun IntRect(offset: IntOffset, size: IntSize) =
+public fun IntRect(offset: IntOffset, size: IntSize): IntRect =
     IntRect(
         left = offset.x,
         top = offset.y,
@@ -218,7 +219,7 @@ fun IntRect(offset: IntOffset, size: IntSize) =
  * @param bottomRight Offset representing the bottom and right edges of the rectangle
  */
 @Stable
-fun IntRect(topLeft: IntOffset, bottomRight: IntOffset): IntRect =
+public fun IntRect(topLeft: IntOffset, bottomRight: IntOffset): IntRect =
     IntRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
 
 /**
@@ -228,7 +229,7 @@ fun IntRect(topLeft: IntOffset, bottomRight: IntOffset): IntRect =
  * @param radius Radius of the circle to enclose
  */
 @Stable
-fun IntRect(center: IntOffset, radius: Int): IntRect =
+public fun IntRect(center: IntOffset, radius: Int): IntRect =
     IntRect(center.x - radius, center.y - radius, center.x + radius, center.y + radius)
 
 /**
@@ -245,7 +246,7 @@ fun IntRect(center: IntOffset, radius: Int): IntRect =
  * `AnimationController`.
  */
 @Stable
-fun lerp(start: IntRect, stop: IntRect, fraction: Float): IntRect {
+public fun lerp(start: IntRect, stop: IntRect, fraction: Float): IntRect {
     return IntRect(
         lerp(start.left, stop.left, fraction),
         lerp(start.top, stop.top, fraction),
@@ -256,7 +257,7 @@ fun lerp(start: IntRect, stop: IntRect, fraction: Float): IntRect {
 
 /** Converts an [IntRect] to a [Rect] */
 @Stable
-fun IntRect.toRect(): Rect =
+public fun IntRect.toRect(): Rect =
     Rect(
         left = left.toFloat(),
         top = top.toFloat(),
@@ -266,7 +267,7 @@ fun IntRect.toRect(): Rect =
 
 /** Rounds a [Rect] to an [IntRect] */
 @Stable
-fun Rect.roundToIntRect(): IntRect =
+public fun Rect.roundToIntRect(): IntRect =
     IntRect(
         left = left.fastRoundToInt(),
         top = top.fastRoundToInt(),

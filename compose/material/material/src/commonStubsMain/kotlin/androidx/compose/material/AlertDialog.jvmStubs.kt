@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
-actual fun AlertDialog(
+actual public fun AlertDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier,
@@ -37,7 +37,7 @@ actual fun AlertDialog(
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
-actual fun AlertDialog(
+actual public fun AlertDialog(
     onDismissRequest: () -> Unit,
     buttons: @Composable () -> Unit,
     modifier: Modifier,

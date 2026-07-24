@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-object MathUtils {
+public object MathUtils {
     /**
      * Linearly interpolates the fraction [amount] between [start] and [stop]
      *
@@ -29,7 +29,7 @@ object MathUtils {
      * @param stop ending value
      * @param amount normalized between 0 - 1
      */
-    fun lerp(start: Float, stop: Float, amount: Float): Float {
+    public fun lerp(start: Float, stop: Float, amount: Float): Float {
         return start + (stop - start) * amount
     }
 
@@ -39,7 +39,7 @@ object MathUtils {
      *
      * If `a == b`, then this function will return 0.
      */
-    fun lerpInv(a: Float, b: Float, value: Float): Float {
+    public fun lerpInv(a: Float, b: Float, value: Float): Float {
         return if (a != b) (value - a) / (b - a) else 0.0f
     }
 
@@ -62,7 +62,7 @@ object MathUtils {
      *   resulting in a clamped value.
      * @return the mapped value, constrained to [`rangeMin`, `rangeMax`.
      */
-    fun constrainedMap(
+    public fun constrainedMap(
         rangeMin: Float,
         rangeMax: Float,
         valueMin: Float,

@@ -24,8 +24,8 @@ import androidx.compose.runtime.Immutable
 // These enum values must be kept in sync with SkCanvas::PointMode.
 @Immutable
 @kotlin.jvm.JvmInline
-value class PointMode internal constructor(@Suppress("unused") private val value: Int) {
-    companion object {
+public value class PointMode internal constructor(@Suppress("unused") private val value: Int) {
+    public companion object {
         /**
          * Draw each point separately.
          *
@@ -36,7 +36,7 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          * Otherwise, each point is drawn as an axis-aligned square with sides of length
          * [Paint.strokeWidth], filled as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Points
+        public val Points: PointMode
             get() = PointMode(0)
 
         /**
@@ -46,7 +46,7 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          *
          * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Lines
+        public val Lines: PointMode
             get() = PointMode(1)
 
         /**
@@ -54,11 +54,11 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          *
          * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
-        val Polygon
+        public val Polygon: PointMode
             get() = PointMode(2)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Points -> "Points"
             Lines -> "Lines"

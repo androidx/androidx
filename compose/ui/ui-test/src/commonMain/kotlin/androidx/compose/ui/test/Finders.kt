@@ -29,7 +29,7 @@ import androidx.annotation.CheckResult
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onNodeWithTag(
+public fun SemanticsNodeInteractionsProvider.onNodeWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction = onNode(hasTestTag(testTag), useUnmergedTree)
@@ -45,7 +45,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTag(
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
+public fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection = onAllNodes(hasTestTag(testTag), useUnmergedTree)
@@ -64,7 +64,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
+public fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -86,7 +86,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
+public fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -108,7 +108,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onNodeWithText(
+public fun SemanticsNodeInteractionsProvider.onNodeWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -129,7 +129,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithText(
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
+public fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
@@ -148,6 +148,6 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
  *   semantics tree.
  */
 @CheckResult
-fun SemanticsNodeInteractionsProvider.onRoot(
+public fun SemanticsNodeInteractionsProvider.onRoot(
     useUnmergedTree: Boolean = false
 ): SemanticsNodeInteraction = onNode(isRoot(), useUnmergedTree)

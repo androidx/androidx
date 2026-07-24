@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual fun TileMode.isSupported(): Boolean = implementedInJetBrainsFork()
+public actual fun TileMode.isSupported(): Boolean = implementedInJetBrainsFork()

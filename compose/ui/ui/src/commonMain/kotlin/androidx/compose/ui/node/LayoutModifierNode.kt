@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.IntSize
  * @sample androidx.compose.ui.samples.LayoutModifierNodeSample
  * @see androidx.compose.ui.layout.Layout
  */
-interface LayoutModifierNode : DelegatableNode {
+public interface LayoutModifierNode : DelegatableNode {
     /**
      * The function used to measure the modifier. The [measurable] corresponds to the wrapped
      * content, and it can be measured with the desired constraints according to the logic of the
@@ -63,10 +63,13 @@ interface LayoutModifierNode : DelegatableNode {
      * child. For a more detailed explanation of measurement and layout, see
      * [androidx.compose.ui.layout.MeasurePolicy].
      */
-    fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult
+    public fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult
 
     /** The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth]. */
-    fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
+    public fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int =
         NodeMeasuringIntrinsics.minWidth(
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
@@ -75,7 +78,10 @@ interface LayoutModifierNode : DelegatableNode {
         )
 
     /** The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight]. */
-    fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
+    public fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int =
         NodeMeasuringIntrinsics.minHeight(
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
@@ -84,7 +90,10 @@ interface LayoutModifierNode : DelegatableNode {
         )
 
     /** The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth]. */
-    fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int {
+    public fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int {
         return NodeMeasuringIntrinsics.maxWidth(
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
@@ -94,7 +103,10 @@ interface LayoutModifierNode : DelegatableNode {
     }
 
     /** The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight]. */
-    fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
+    public fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int =
         NodeMeasuringIntrinsics.maxHeight(
             { intrinsicMeasurable, constraints -> measure(intrinsicMeasurable, constraints) },
             this,
@@ -108,25 +120,27 @@ interface LayoutModifierNode : DelegatableNode {
  * before. Useful for cases like when during scrolling you need to re-execute the measure block to
  * consume the scroll offset and remeasure your children in a blocking way.
  */
-fun LayoutModifierNode.remeasureSync() = requireLayoutNode().forceRemeasure()
+public fun LayoutModifierNode.remeasureSync(): Unit = requireLayoutNode().forceRemeasure()
 
 /**
  * This will invalidate the current node's layer, and ensure that the layer is redrawn for the next
  * frame.
  */
-fun LayoutModifierNode.invalidateLayer() = requireCoordinator(Nodes.Layout).invalidateLayer()
+public fun LayoutModifierNode.invalidateLayer(): Unit =
+    requireCoordinator(Nodes.Layout).invalidateLayer()
 
 /**
  * This will invalidate the current node's placement result, and ensure that relayout (the placement
  * block rerun) of this node will happen for the next frame .
  */
-fun LayoutModifierNode.invalidatePlacement() = requireLayoutNode().requestRelayout()
+public fun LayoutModifierNode.invalidatePlacement(): Unit = requireLayoutNode().requestRelayout()
 
 /**
  * This invalidates the current node's measure result, and ensures that a re-measurement (the
  * measurement block rerun) of this node will happen for the next frame.
  */
-fun LayoutModifierNode.invalidateMeasurement() = requireLayoutNode().invalidateMeasurements()
+public fun LayoutModifierNode.invalidateMeasurement(): Unit =
+    requireLayoutNode().invalidateMeasurements()
 
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
@@ -409,7 +423,7 @@ internal object NodeMeasuringIntrinsics {
  *   provided it will remove the layer.
  * @see [Placeable.placeAt]
  */
-fun LayoutModifierNode.updateLayerBlock(layerBlock: (GraphicsLayerScope.() -> Unit)?) {
+public fun LayoutModifierNode.updateLayerBlock(layerBlock: (GraphicsLayerScope.() -> Unit)?) {
     if (!node.isAttached) return
     requireCoordinator(Nodes.Layout)
         .wrapped

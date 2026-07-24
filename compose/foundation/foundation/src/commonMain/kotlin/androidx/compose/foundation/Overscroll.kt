@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.Velocity
  * @sample androidx.compose.foundation.samples.OverscrollSample
  */
 @Stable
-interface OverscrollEffect {
+public interface OverscrollEffect {
     /**
      * Applies overscroll to [performScroll]. [performScroll] should represent a drag / scroll, and
      * returns the amount of delta consumed, so in simple cases the amount of overscroll to show
@@ -83,7 +83,7 @@ interface OverscrollEffect {
      * @return the delta consumed from [delta] by the operation of this function - including that
      *   consumed by [performScroll].
      */
-    fun applyToScroll(
+    public fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
         performScroll: (Offset) -> Offset,
@@ -114,14 +114,17 @@ interface OverscrollEffect {
      *   how much [Velocity] was consumed. Any [Velocity] that was not consumed should be used to
      *   show the overscroll effect.
      */
-    suspend fun applyToFling(velocity: Velocity, performFling: suspend (Velocity) -> Velocity)
+    public suspend fun applyToFling(
+        velocity: Velocity,
+        performFling: suspend (Velocity) -> Velocity,
+    )
 
     /**
      * Whether this OverscrollEffect is currently displaying overscroll.
      *
      * @return true if this OverscrollEffect is currently displaying overscroll
      */
-    val isInProgress: Boolean
+    public val isInProgress: Boolean
 
     /**
      * A [Modifier] that will draw this OverscrollEffect
@@ -135,7 +138,7 @@ interface OverscrollEffect {
         replaceWith =
             ReplaceWith("Modifier.overscroll(this)", "androidx.compose.foundation.overscroll"),
     )
-    val effectModifier: Modifier
+    public val effectModifier: Modifier
         get() = Modifier
 
     /**
@@ -149,7 +152,7 @@ interface OverscrollEffect {
      * This property should return a single instance, and can only be attached once, as with other
      * [DelegatableNode]s.
      */
-    val node: DelegatableNode
+    public val node: DelegatableNode
         get() = object : Modifier.Node() {}
 }
 
@@ -171,7 +174,7 @@ interface OverscrollEffect {
  * @see withoutEventHandling
  */
 @Stable
-fun OverscrollEffect.withoutVisualEffect(): OverscrollEffect =
+public fun OverscrollEffect.withoutVisualEffect(): OverscrollEffect =
     WrappedOverscrollEffect(
         attachNode = false,
         eventHandlingEnabled = true,
@@ -194,7 +197,7 @@ fun OverscrollEffect.withoutVisualEffect(): OverscrollEffect =
  * @see withoutVisualEffect
  */
 @Stable
-fun OverscrollEffect.withoutEventHandling(): OverscrollEffect =
+public fun OverscrollEffect.withoutEventHandling(): OverscrollEffect =
     WrappedOverscrollEffect(
         attachNode = true,
         eventHandlingEnabled = false,
@@ -273,7 +276,7 @@ private class WrappedOverscrollEffect(
  * @param overscrollEffect the [OverscrollEffect] to render
  */
 @Suppress("DEPRECATION_ERROR")
-fun Modifier.overscroll(overscrollEffect: OverscrollEffect?): Modifier {
+public fun Modifier.overscroll(overscrollEffect: OverscrollEffect?): Modifier {
     val effectModifier = overscrollEffect?.effectModifier ?: Modifier
     val modifier =
         if (effectModifier !== Modifier) effectModifier
@@ -341,7 +344,7 @@ private class OverscrollModifierNode(private var overscrollNode: DelegatableNode
  * returned. Returns `null` if `null` is provided to [LocalOverscrollFactory].
  */
 @Composable
-fun rememberOverscrollEffect(): OverscrollEffect? {
+public fun rememberOverscrollEffect(): OverscrollEffect? {
     val overscrollFactory = LocalOverscrollFactory.current ?: return null
     return remember(overscrollFactory) { overscrollFactory.createOverscrollEffect() }
 }
@@ -362,9 +365,9 @@ fun rememberOverscrollEffect(): OverscrollEffect? {
  * See [rememberOverscrollEffect] to remember an [OverscrollEffect] from the current factory
  * provided to [LocalOverscrollFactory].
  */
-interface OverscrollFactory {
+public interface OverscrollFactory {
     /** Returns a new [OverscrollEffect] instance. */
-    fun createOverscrollEffect(): OverscrollEffect
+    public fun createOverscrollEffect(): OverscrollEffect
 
     /**
      * Require hashCode() to be implemented. Using a data class is sufficient. Singletons and
@@ -387,7 +390,7 @@ interface OverscrollFactory {
  *
  * See [rememberOverscrollEffect] to remember an [OverscrollEffect] from the current provided value.
  */
-val LocalOverscrollFactory: ProvidableCompositionLocal<OverscrollFactory?> =
+public val LocalOverscrollFactory: ProvidableCompositionLocal<OverscrollFactory?> =
     compositionLocalWithComputedDefaultOf {
         defaultOverscrollFactory()
     }

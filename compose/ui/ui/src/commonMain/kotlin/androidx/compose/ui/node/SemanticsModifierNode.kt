@@ -35,7 +35,7 @@ import androidx.compose.ui.semantics.getOrNull
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
  * [androidx.compose.ui.semantics.SemanticsModifier]
  */
-interface SemanticsModifierNode : DelegatableNode {
+public interface SemanticsModifierNode : DelegatableNode {
     /**
      * Clears the semantics of all the descendant nodes and sets new semantics.
      *
@@ -49,7 +49,7 @@ interface SemanticsModifierNode : DelegatableNode {
      * of a group of tiny buttons, and setting equivalent actions on the card containing them.
      */
     @get:Suppress("GetterSetterNames")
-    val shouldClearDescendantSemantics: Boolean
+    public val shouldClearDescendantSemantics: Boolean
         get() = false
 
     /**
@@ -63,7 +63,7 @@ interface SemanticsModifierNode : DelegatableNode {
      * [SemanticsConfiguration.isMergingSemanticsOfDescendants].
      */
     @get:Suppress("GetterSetterNames")
-    val shouldMergeDescendantSemantics: Boolean
+    public val shouldMergeDescendantSemantics: Boolean
         get() = false
 
     /**
@@ -79,7 +79,7 @@ interface SemanticsModifierNode : DelegatableNode {
      * padding.
      */
     @get:Suppress("GetterSetterNames")
-    val isImportantForBounds: Boolean
+    public val isImportantForBounds: Boolean
         get() = true
 
     /**
@@ -105,7 +105,7 @@ interface SemanticsModifierNode : DelegatableNode {
      * semantic actions. Don't call applySemantics() from within applySemantics(). It will result in
      * an infinite loop.
      */
-    fun SemanticsPropertyReceiver.applySemantics()
+    public fun SemanticsPropertyReceiver.applySemantics()
 }
 
 /**
@@ -121,7 +121,8 @@ interface SemanticsModifierNode : DelegatableNode {
  * semantics to ensure that [SemanticsModifierNode.applySemantics] will be called the next time the
  * [SemanticsConfiguration] is read.
  */
-fun SemanticsModifierNode.invalidateSemantics() = requireLayoutNode().invalidateSemantics()
+public fun SemanticsModifierNode.invalidateSemantics(): Unit =
+    requireLayoutNode().invalidateSemantics()
 
 internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
     get() = getOrNull(SemanticsActions.OnClick) != null

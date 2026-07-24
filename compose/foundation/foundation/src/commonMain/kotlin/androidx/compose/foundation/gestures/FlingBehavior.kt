@@ -25,7 +25,7 @@ import androidx.compose.runtime.Stable
  * animation and update state via [ScrollScope.scrollBy]
  */
 @Stable
-interface FlingBehavior {
+public interface FlingBehavior {
     /**
      * Perform settling via fling animation with given velocity and suspend until fling has
      * finished.
@@ -40,5 +40,5 @@ interface FlingBehavior {
      *   [androidx.compose.foundation.gestures.scrollable] that invoked this method.
      * @return remaining velocity after fling operation has ended
      */
-    suspend fun ScrollScope.performFling(initialVelocity: Float): Float
+    public suspend fun ScrollScope.performFling(initialVelocity: Float): Float
 }

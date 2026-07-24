@@ -31,7 +31,7 @@ import kotlin.math.abs
  * For other platforms, the scroll behavior will move the least to bring the requested region into
  * view.
  */
-actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
+public actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     compositionLocalWithComputedDefaultOf {
         val hasTvFeature =
             LocalContext.currentValue.packageManager.hasSystemFeature(FEATURE_LEANBACK)

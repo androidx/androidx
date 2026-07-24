@@ -31,29 +31,33 @@ import kotlin.jvm.JvmInline
  * @param mode behavior when the specified line height is smaller than the system default (see
  *   [Mode]).
  */
-class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) {
+public class LineHeightStyle(
+    public val alignment: Alignment,
+    public val trim: Trim,
+    public val mode: Mode,
+) {
 
-    constructor(alignment: Alignment, trim: Trim) : this(alignment, trim, Mode.Fixed)
+    public constructor(alignment: Alignment, trim: Trim) : this(alignment, trim, Mode.Fixed)
 
-    companion object {
+    public companion object {
         /**
          * The default configuration for [LineHeightStyle]:
          * - alignment = [Alignment.Proportional]
          * - trim = [Trim.Both]
          * - mode = [Mode.Fixed]
          */
-        val Default =
+        public val Default: LineHeightStyle =
             LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.Both, mode = Mode.Fixed)
     }
 
     /** Returns a copy of this [LineHeightStyle], optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         alignment: Alignment = this.alignment,
         trim: Trim = this.trim,
         mode: Mode = this.mode,
-    ) = LineHeightStyle(alignment, trim, mode)
+    ): LineHeightStyle = LineHeightStyle(alignment, trim, mode)
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LineHeightStyle) return false
 
@@ -64,14 +68,14 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = alignment.hashCode()
         result = 31 * result + trim.hashCode()
         result = 31 * result + mode.hashCode()
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "LineHeightStyle(" + "alignment=$alignment, " + "trim=$trim," + "mode=$mode" + ")"
     }
 
@@ -91,9 +95,9 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
      * Burmese "မြန်မာဘာသာ") before using in production.
      */
     @kotlin.jvm.JvmInline
-    value class Trim internal constructor(internal val value: Int) {
+    public value class Trim internal constructor(internal val value: Int) {
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return when (value) {
                 FirstLineTop.value -> "LineHeightStyle.Trim.FirstLineTop"
                 LastLineBottom.value -> "LineHeightStyle.Trim.LastLineBottom"
@@ -103,7 +107,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
             }
         }
 
-        companion object {
+        public companion object {
             private const val FlagTrimTop = 0x00000001
             private const val FlagTrimBottom = 0x00000010
 
@@ -126,7 +130,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val FirstLineTop
+            public val FirstLineTop: Trim
                 get() = Trim(FlagTrimTop)
 
             /**
@@ -148,7 +152,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val LastLineBottom
+            public val LastLineBottom: Trim
                 get() = Trim(FlagTrimBottom)
 
             /**
@@ -169,7 +173,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Both
+            public val Both: Trim
                 get() = Trim(FlagTrimTop or FlagTrimBottom)
 
             /**
@@ -190,7 +194,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val None
+            public val None: Trim
                 get() = Trim(0)
         }
 
@@ -210,7 +214,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
      *   bottom, and -1f aligns proportionally based on font metrics (ascent/descent ratio).
      */
     @kotlin.jvm.JvmInline
-    value class Alignment constructor(internal val topRatio: Float) {
+    public value class Alignment public constructor(internal val topRatio: Float) {
 
         init {
             checkPrecondition(topRatio in 0f..1f || topRatio == -1f) {
@@ -218,7 +222,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
             }
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return when (topRatio) {
                 Top.topRatio -> "LineHeightStyle.Alignment.Top"
                 Center.topRatio -> "LineHeightStyle.Alignment.Center"
@@ -228,7 +232,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
             }
         }
 
-        companion object {
+        public companion object {
             /**
              * Align the line to the top of the space reserved for that line. This means that all
              * extra space as a result of line height is applied to the bottom of the line. When the
@@ -250,7 +254,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Top
+            public val Top: Alignment
                 get() = Alignment(topRatio = 0f)
 
             /**
@@ -271,7 +275,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Center
+            public val Center: Alignment
                 get() = Alignment(topRatio = 0.5f)
 
             /**
@@ -280,7 +284,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * units will be distributed as 8 units to top, and 2 units to the bottom of the line.
              * This is the default behavior.
              */
-            val Proportional
+            public val Proportional: Alignment
                 get() = Alignment(topRatio = -1f)
 
             /**
@@ -304,7 +308,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * +--------+
              * </pre>
              */
-            val Bottom
+            public val Bottom: Alignment
                 get() = Alignment(topRatio = 1f)
         }
     }
@@ -317,9 +321,9 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
      * clipping in languages with tall glyphs (e.g., Arabic, Burmese).
      */
     @JvmInline
-    value class Mode internal constructor(internal val value: Int) {
+    public value class Mode internal constructor(internal val value: Int) {
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return when (this) {
                 Fixed -> "LineHeightStyle.Mode.Fixed"
                 Minimum -> "LineHeightStyle.Mode.Minimum"
@@ -328,7 +332,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
             }
         }
 
-        companion object {
+        public companion object {
             /**
              * Always use the specified line height on every line but add the necessary paddings on
              * text layout's top and bottom when the system preferred line height is larger. This
@@ -336,7 +340,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * middle lines respect the specified line height at all times and tall glyphs can
              * overflow to upper or lower lines.
              */
-            val Fixed
+            public val Fixed: Mode
                 get() = Mode(0)
 
             /**
@@ -345,7 +349,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * and bottom paddings are also added. This prevents the overflow of tall glyphs in
              * middle lines.
              */
-            val Minimum
+            public val Minimum: Mode
                 get() = Mode(1)
 
             /**
@@ -354,7 +358,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
              * [Mode.Fixed]. Tall glyphs might get trimmed at top, bottom, or both when used in
              * conjunction with the corresponding [Trim] value.
              */
-            val Tight
+            public val Tight: Mode
                 get() = Mode(2)
         }
     }

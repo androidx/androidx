@@ -18,12 +18,12 @@ package androidx.compose.ui.autofill
 
 import androidx.compose.ui.implementedInJetBrainsFork
 
-actual sealed interface ContentDataType {
-    actual companion object {
-        actual val None: ContentDataType = implementedInJetBrainsFork()
-        actual val Text: ContentDataType = implementedInJetBrainsFork()
-        actual val List: ContentDataType = implementedInJetBrainsFork()
-        actual val Date: ContentDataType = implementedInJetBrainsFork()
-        actual val Toggle: ContentDataType = implementedInJetBrainsFork()
+public actual sealed interface ContentDataType {
+    public actual companion object {
+        public actual val None: ContentDataType = implementedInJetBrainsFork()
+        public actual val Text: ContentDataType = implementedInJetBrainsFork()
+        public actual val List: ContentDataType = implementedInJetBrainsFork()
+        public actual val Date: ContentDataType = implementedInJetBrainsFork()
+        public actual val Toggle: ContentDataType = implementedInJetBrainsFork()
     }
 }

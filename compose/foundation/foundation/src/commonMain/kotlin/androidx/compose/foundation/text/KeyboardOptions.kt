@@ -67,19 +67,23 @@ import androidx.compose.ui.text.intl.LocaleList
  *   keyboards automatically shift their keyboard language based on the active field's context.
  */
 @Immutable
-class KeyboardOptions(
-    val capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
-    @Suppress("AutoBoxing") @get:Suppress("AutoBoxing") val autoCorrectEnabled: Boolean? = null,
-    val keyboardType: KeyboardType = KeyboardType.Unspecified,
-    val imeAction: ImeAction = ImeAction.Unspecified,
-    val platformImeOptions: PlatformImeOptions? = null,
-    @Suppress("AutoBoxing") @get:Suppress("AutoBoxing") val showKeyboardOnFocus: Boolean? = null,
-    @get:Suppress("NullableCollection") val hintLocales: LocaleList? = null,
+public class KeyboardOptions(
+    public val capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
+    @Suppress("AutoBoxing")
+    @get:Suppress("AutoBoxing")
+    public val autoCorrectEnabled: Boolean? = null,
+    public val keyboardType: KeyboardType = KeyboardType.Unspecified,
+    public val imeAction: ImeAction = ImeAction.Unspecified,
+    public val platformImeOptions: PlatformImeOptions? = null,
+    @Suppress("AutoBoxing")
+    @get:Suppress("AutoBoxing")
+    public val showKeyboardOnFocus: Boolean? = null,
+    @get:Suppress("NullableCollection") public val hintLocales: LocaleList? = null,
 ) {
 
-    companion object {
+    public companion object {
         /** Provides default [KeyboardOptions]. See parameter descriptions for default values. */
-        @Stable val Default = KeyboardOptions()
+        @Stable public val Default: KeyboardOptions = KeyboardOptions()
 
         /** Default [KeyboardOptions] for [BasicSecureTextField]. */
         @Stable
@@ -103,7 +107,7 @@ class KeyboardOptions(
                     ")"
             ),
     )
-    constructor(
+    public constructor(
         capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
         autoCorrect: Boolean,
         keyboardType: KeyboardType = KeyboardType.Unspecified,
@@ -125,7 +129,7 @@ class KeyboardOptions(
         "Please use the new constructor that takes optional platformImeOptions parameter.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
         autoCorrect: Boolean = Default.autoCorrectOrDefault,
         keyboardType: KeyboardType = KeyboardType.Unspecified,
@@ -139,7 +143,7 @@ class KeyboardOptions(
     )
 
     @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
-    constructor(
+    public constructor(
         capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
         autoCorrect: Boolean = Default.autoCorrectOrDefault,
         keyboardType: KeyboardType = KeyboardType.Text,
@@ -155,7 +159,7 @@ class KeyboardOptions(
     )
 
     @Deprecated("Please use the autoCorrectEnabled property.", level = DeprecationLevel.WARNING)
-    val autoCorrect: Boolean
+    public val autoCorrect: Boolean
         get() = autoCorrectOrDefault
 
     // Suppress GetterSetterNames because this is how the property was named previously.
@@ -165,7 +169,7 @@ class KeyboardOptions(
         "Included for binary compatibility. Use showKeyboardOnFocus.",
         level = DeprecationLevel.HIDDEN,
     )
-    val shouldShowKeyboardOnFocus: Boolean
+    public val shouldShowKeyboardOnFocus: Boolean
         get() = showKeyboardOnFocus ?: true
 
     private val autoCorrectOrDefault: Boolean
@@ -222,7 +226,7 @@ class KeyboardOptions(
      * any actually-specified value. This differs from the behavior of [merge], which will never
      * take an unspecified value over a specified one.
      */
-    fun copy(
+    public fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         @Suppress("AutoBoxing") autoCorrectEnabled: Boolean? = this.autoCorrectEnabled,
         keyboardType: KeyboardType = this.keyboardType,
@@ -258,7 +262,7 @@ class KeyboardOptions(
                     ")"
             ),
     )
-    fun copy(
+    public fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrectOrDefault,
         keyboardType: KeyboardType = this.keyboardType,
@@ -279,7 +283,7 @@ class KeyboardOptions(
     }
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    fun copy(
+    public fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrectOrDefault,
         keyboardType: KeyboardType = this.keyboardType,
@@ -303,7 +307,7 @@ class KeyboardOptions(
         "Please use the new copy function that takes optional platformImeOptions parameter.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrectOrDefault,
         keyboardType: KeyboardType = this.keyboardType,
@@ -370,7 +374,7 @@ class KeyboardOptions(
      * If the either this or [other] is null, returns the non-null one.
      */
     // TODO(b/331222000) Rename to be more clear about precedence.
-    fun merge(other: KeyboardOptions?): KeyboardOptions =
+    public fun merge(other: KeyboardOptions?): KeyboardOptions =
         other?.fillUnspecifiedValuesWith(this) ?: this
 
     /**

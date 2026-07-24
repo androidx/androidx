@@ -274,7 +274,7 @@ private fun Velocity.scrollAxes(minFlingVelocity: Float): Int {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun rememberNestedScrollInteropConnection(
+public fun rememberNestedScrollInteropConnection(
     hostView: View = LocalView.current
 ): NestedScrollConnection {
     val viewConfiguration = LocalViewConfiguration.current

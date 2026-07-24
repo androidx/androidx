@@ -71,7 +71,7 @@ import androidx.compose.ui.unit.dp
  *   RadioButton in different states. See [RadioButtonDefaults.colors].
  */
 @Composable
-fun RadioButton(
+public fun RadioButton(
     selected: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -132,7 +132,7 @@ fun RadioButton(
  * specifications.
  */
 @Stable
-interface RadioButtonColors {
+public interface RadioButtonColors {
     /**
      * Represents the main color used to draw the outer and inner circles, depending on whether the
      * [RadioButton] is [enabled] / [selected].
@@ -140,11 +140,11 @@ interface RadioButtonColors {
      * @param enabled whether the [RadioButton] is enabled
      * @param selected whether the [RadioButton] is selected
      */
-    @Composable fun radioColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun radioColor(enabled: Boolean, selected: Boolean): State<Color>
 }
 
 /** Defaults used in [RadioButton]. */
-object RadioButtonDefaults {
+public object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] that will animate between the provided colors according to the
      * Material specification.
@@ -155,7 +155,7 @@ object RadioButtonDefaults {
      * @return the resulting [RadioButtonColors] used for the RadioButton
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedColor: Color = MaterialTheme.colors.secondary,
         unselectedColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
         disabledColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),

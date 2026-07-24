@@ -30,4 +30,4 @@ package androidx.compose.foundation.interaction
  * @see InteractionSource
  * @see MutableInteractionSource
  */
-interface Interaction
+public interface Interaction

@@ -31,18 +31,18 @@ import androidx.compose.ui.platform.debugInspectorInfo
  */
 @Stable
 @JvmDefaultWithCompatibility
-interface ModifierLocalProvider<T> : Modifier.Element {
+public interface ModifierLocalProvider<T> : Modifier.Element {
     /**
      * Each [ModifierLocalProvider] stores a [ModifierLocal] instance that can be used as a key by a
      * [ModifierLocalConsumer] to read the provided value.
      */
-    val key: ProvidableModifierLocal<T>
+    public val key: ProvidableModifierLocal<T>
 
     /**
      * The provided value, that can be read by modifiers on the right of this modifier, and
      * modifiers added to children of the composable using this modifier.
      */
-    val value: T
+    public val value: T
 }
 
 /**
@@ -50,7 +50,10 @@ interface ModifierLocalProvider<T> : Modifier.Element {
  * the right of this modifier, or modifiers that are children of the layout node that this modifier
  * is attached to.
  */
-fun <T> Modifier.modifierLocalProvider(key: ProvidableModifierLocal<T>, value: () -> T): Modifier {
+public fun <T> Modifier.modifierLocalProvider(
+    key: ProvidableModifierLocal<T>,
+    value: () -> T,
+): Modifier {
     return this.then(
         object :
             ModifierLocalProvider<T>,

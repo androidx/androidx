@@ -41,22 +41,22 @@ import androidx.compose.ui.unit.dp
  * See [Material shape specification](https://material.io/design/shape/applying-shape-to-ui.html)
  */
 @Immutable
-class Shapes(
+public class Shapes(
     /**
      * Shape used by small components like [Button] or [Snackbar]. Components like
      * [FloatingActionButton], [ExtendedFloatingActionButton] use this shape, but override the
      * corner size to be 50%. [TextField] uses this shape with overriding the bottom corners to
      * zero.
      */
-    val small: CornerBasedShape = RoundedCornerShape(4.dp),
+    public val small: CornerBasedShape = RoundedCornerShape(4.dp),
     /** Shape used by medium components like [Card] or [AlertDialog]. */
-    val medium: CornerBasedShape = RoundedCornerShape(4.dp),
+    public val medium: CornerBasedShape = RoundedCornerShape(4.dp),
     /** Shape used by large components like [ModalDrawer] or [ModalBottomSheetLayout]. */
-    val large: CornerBasedShape = RoundedCornerShape(0.dp),
+    public val large: CornerBasedShape = RoundedCornerShape(0.dp),
 ) {
 
     /** Returns a copy of this Shapes, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,

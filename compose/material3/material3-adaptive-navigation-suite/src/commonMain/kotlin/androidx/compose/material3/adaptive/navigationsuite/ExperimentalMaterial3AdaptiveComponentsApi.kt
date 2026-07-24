@@ -21,4 +21,4 @@ package androidx.compose.material3.adaptive.navigationsuite
         "change or to be removed in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalMaterial3AdaptiveNavigationSuiteApi
+public annotation class ExperimentalMaterial3AdaptiveNavigationSuiteApi

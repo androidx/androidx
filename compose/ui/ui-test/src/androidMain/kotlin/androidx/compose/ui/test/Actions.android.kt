@@ -24,7 +24,8 @@ internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeIn
 }
 
 @Suppress("DocumentExceptions") // Documented in expect fun
-actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction {
+public actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks():
+    SemanticsNodeInteraction {
     testContext.platform.composeAccessibilityValidator?.let { av ->
         testContext.testOwner
             .getRoots(true)

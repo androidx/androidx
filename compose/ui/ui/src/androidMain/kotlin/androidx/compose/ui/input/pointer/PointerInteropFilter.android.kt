@@ -63,7 +63,7 @@ import androidx.compose.ui.viewinterop.AndroidViewHolder
  * @see [View.onTouchEvent]
  * @see [ViewParent.requestDisallowInterceptTouchEvent]
  */
-fun Modifier.pointerInteropFilter(
+public fun Modifier.pointerInteropFilter(
     requestDisallowInterceptTouchEvent: (RequestDisallowInterceptTouchEvent)? = null,
     onTouchEvent: (MotionEvent) -> Boolean,
 ): Modifier =
@@ -86,10 +86,10 @@ fun Modifier.pointerInteropFilter(
  * Function that can be passed to [pointerInteropFilter] and then later invoked which provides an
  * analog to [ViewParent.requestDisallowInterceptTouchEvent].
  */
-class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
+public class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
     internal var pointerInteropFilter: PointerInteropFilter? = null
 
-    override fun invoke(disallowIntercept: Boolean) {
+    public override fun invoke(disallowIntercept: Boolean) {
         pointerInteropFilter?.disallowIntercept = disallowIntercept
     }
 }
@@ -381,7 +381,7 @@ internal class PointerInteropFilter : PointerInputModifier {
  *
  * If you need to handle and consume [MotionEvent]s, use [pointerInteropFilter].
  */
-fun Modifier.motionEventSpy(watcher: (motionEvent: MotionEvent) -> Unit): Modifier =
+public fun Modifier.motionEventSpy(watcher: (motionEvent: MotionEvent) -> Unit): Modifier =
     this.pointerInput(watcher) {
         interceptOutOfBoundsChildEvents = true
         awaitPointerEventScope {

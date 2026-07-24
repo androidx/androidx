@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-fun VertexMode.toAndroidVertexMode() =
+public fun VertexMode.toAndroidVertexMode(): android.graphics.Canvas.VertexMode =
     when (this) {
         VertexMode.Triangles -> android.graphics.Canvas.VertexMode.TRIANGLES
         VertexMode.TriangleStrip -> android.graphics.Canvas.VertexMode.TRIANGLE_STRIP

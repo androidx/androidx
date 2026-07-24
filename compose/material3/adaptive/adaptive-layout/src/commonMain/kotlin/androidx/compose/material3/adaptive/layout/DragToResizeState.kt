@@ -83,7 +83,7 @@ import kotlinx.coroutines.launch
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun rememberDragToResizeState(
+public fun rememberDragToResizeState(
     dockedEdge: DockedEdge,
     minSize: Dp = Dp.Unspecified,
     maxSize: Dp = Dp.Unspecified,
@@ -143,7 +143,7 @@ private fun DragToResizeState(
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-abstract class DragToResizeState private constructor() : DraggableState {
+public abstract class DragToResizeState private constructor() : DraggableState {
     // TODO(conradchen): To figure out a better way to expose this in the relevant APIs
     internal var coroutineScope: CoroutineScope? = null
 
@@ -226,12 +226,12 @@ abstract class DragToResizeState private constructor() : DraggableState {
         }
     }
 
-    override suspend fun drag(dragPriority: MutatePriority, block: suspend DragScope.() -> Unit) =
-        coroutineScope {
-            dragMutex.mutateWith(dragScope, dragPriority, block)
-        }
+    public override suspend fun drag(
+        dragPriority: MutatePriority,
+        block: suspend DragScope.() -> Unit,
+    ): Unit = coroutineScope { dragMutex.mutateWith(dragScope, dragPriority, block) }
 
-    override fun dispatchRawDelta(delta: Float) {
+    public override fun dispatchRawDelta(delta: Float) {
         if (Snapshot.withoutReadObservation { size.isNaN() }) {
             return
         }
@@ -313,7 +313,7 @@ abstract class DragToResizeState private constructor() : DraggableState {
         Default,
     }
 
-    companion object {
+    public companion object {
         internal fun Saver(
             dockedEdge: DockedEdge,
             layoutDirection: LayoutDirection,
@@ -355,7 +355,7 @@ abstract class DragToResizeState private constructor() : DraggableState {
  * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  */
 @ExperimentalMaterial3AdaptiveApi
-enum class DockedEdge {
+public enum class DockedEdge {
     /** The top edge of the pane is fixed, and resizing happens by moving the bottom edge. */
     Top,
     /** The bottom edge of the pane is fixed, and resizing happens by moving the top edge. */

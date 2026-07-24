@@ -60,7 +60,8 @@ import androidx.compose.ui.unit.TextUnit
  * @sample androidx.compose.foundation.samples.StyleStateKeySample
  * @see StyleScope
  */
-@ExperimentalFoundationStyleApi interface CustomStyleScope : Density, CompositionLocalAccessorScope
+@ExperimentalFoundationStyleApi
+public interface CustomStyleScope : Density, CompositionLocalAccessorScope
 
 /**
  * An interface that introduces the [state] property to a [Style] receiver scope.
@@ -68,14 +69,14 @@ import androidx.compose.ui.unit.TextUnit
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface StyleStateScope {
+public interface StyleStateScope {
     /**
      * The state of the component. applying this style. For example, if a component is pressed the
      * [StyleState.isPressed] will be `true`.
      *
      * Custom states can be read from the state using the [StyleStateKey] for the state.
      */
-    val state: StyleState
+    public val state: StyleState
 
     /**
      * A helper function to implement state reading extension functions such as
@@ -90,7 +91,7 @@ interface StyleStateScope {
      *   should be called.
      * @sample androidx.compose.foundation.samples.StyleStateKeySample
      */
-    fun <T> state(
+    public fun <T> state(
         key: StyleStateKey<T>,
         block: () -> Unit,
         active: (key: StyleStateKey<T>, state: StyleState) -> Boolean,
@@ -109,7 +110,7 @@ interface StyleStateScope {
  * @sample androidx.compose.foundation.samples.StyleStateKeySample
  */
 @ExperimentalFoundationStyleApi
-fun StyleStateScope.state(key: StyleStateKey<Boolean>, block: () -> Unit) =
+public fun StyleStateScope.state(key: StyleStateKey<Boolean>, block: () -> Unit): Unit =
     state(key, block) { key, state -> state[key] }
 
 /**
@@ -118,7 +119,7 @@ fun StyleStateScope.state(key: StyleStateKey<Boolean>, block: () -> Unit) =
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ContentPaddingScope {
+public interface ContentPaddingScope {
     /**
      * Sets the padding for the start edge of the component's content. Content padding is the space
      * between the component's border (if any) and its content. The width/height of the component
@@ -135,7 +136,7 @@ interface ContentPaddingScope {
      * @see contentPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun contentPaddingStart(value: Dp)
+    public fun contentPaddingStart(value: Dp)
 
     /**
      * Sets the padding for the end edge of the component's content. Content padding is the space
@@ -153,7 +154,7 @@ interface ContentPaddingScope {
      * @see contentPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun contentPaddingEnd(value: Dp)
+    public fun contentPaddingEnd(value: Dp)
 
     /**
      * Sets the padding for the top edge of the component's content. Content padding is the space
@@ -171,7 +172,7 @@ interface ContentPaddingScope {
      * @see contentPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun contentPaddingTop(value: Dp)
+    public fun contentPaddingTop(value: Dp)
 
     /**
      * Sets the padding for the bottom edge of the component's content. Content padding is the space
@@ -189,7 +190,7 @@ interface ContentPaddingScope {
      * @see contentPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun contentPaddingBottom(value: Dp)
+    public fun contentPaddingBottom(value: Dp)
 }
 
 /**
@@ -207,7 +208,7 @@ interface ContentPaddingScope {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ContentPaddingScope.contentPaddingHorizontal(value: Dp) {
+public fun ContentPaddingScope.contentPaddingHorizontal(value: Dp) {
     contentPaddingStart(value)
     contentPaddingEnd(value)
 }
@@ -227,7 +228,7 @@ fun ContentPaddingScope.contentPaddingHorizontal(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ContentPaddingScope.contentPaddingVertical(value: Dp) {
+public fun ContentPaddingScope.contentPaddingVertical(value: Dp) {
     contentPaddingTop(value)
     contentPaddingBottom(value)
 }
@@ -249,7 +250,7 @@ fun ContentPaddingScope.contentPaddingVertical(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ContentPaddingScope.contentPadding(value: Dp) {
+public fun ContentPaddingScope.contentPadding(value: Dp) {
     contentPaddingStart(value)
     contentPaddingEnd(value)
     contentPaddingTop(value)
@@ -274,7 +275,7 @@ fun ContentPaddingScope.contentPadding(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ContentPaddingScope.contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+public fun ContentPaddingScope.contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
     contentPaddingStart(start)
     contentPaddingTop(top)
     contentPaddingEnd(end)
@@ -295,7 +296,7 @@ fun ContentPaddingScope.contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) 
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ContentPaddingScope.contentPadding(horizontal: Dp, vertical: Dp) {
+public fun ContentPaddingScope.contentPadding(horizontal: Dp, vertical: Dp) {
     contentPaddingHorizontal(horizontal)
     contentPaddingVertical(vertical)
 }
@@ -312,7 +313,7 @@ fun ContentPaddingScope.contentPadding(horizontal: Dp, vertical: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun <T> T.contentPadding(paddingValues: PaddingValues)
+public fun <T> T.contentPadding(paddingValues: PaddingValues)
     where T : ContentPaddingScope, T : CompositionLocalAccessorScope {
     contentPadding(
         start = paddingValues.calculateStartPadding(LocalLayoutDirection.currentValue),
@@ -329,7 +330,7 @@ fun <T> T.contentPadding(paddingValues: PaddingValues)
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ExternalPaddingScope {
+public interface ExternalPaddingScope {
     /**
      * Sets the external padding for the start edge of the component. The external padding is the
      * space between the edge of the component and its border (if any). The width/height of the
@@ -346,7 +347,7 @@ interface ExternalPaddingScope {
      * @see externalPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun externalPaddingStart(value: Dp)
+    public fun externalPaddingStart(value: Dp)
 
     /**
      * Sets the external padding for the end edge of the component. The external padding is the
@@ -364,7 +365,7 @@ interface ExternalPaddingScope {
      * @see externalPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun externalPaddingEnd(value: Dp)
+    public fun externalPaddingEnd(value: Dp)
 
     /**
      * Sets the external padding for the top edge of the component. The external padding is the
@@ -382,7 +383,7 @@ interface ExternalPaddingScope {
      * @see externalPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun externalPaddingTop(value: Dp)
+    public fun externalPaddingTop(value: Dp)
 
     /**
      * Sets the external padding for the bottom edge of the component. The external padding is the
@@ -400,7 +401,7 @@ interface ExternalPaddingScope {
      * @see externalPadding
      * @see androidx.compose.foundation.layout.padding
      */
-    fun externalPaddingBottom(value: Dp)
+    public fun externalPaddingBottom(value: Dp)
 }
 
 /**
@@ -418,7 +419,7 @@ interface ExternalPaddingScope {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ExternalPaddingScope.externalPaddingHorizontal(value: Dp) {
+public fun ExternalPaddingScope.externalPaddingHorizontal(value: Dp) {
     externalPaddingStart(value)
     externalPaddingEnd(value)
 }
@@ -438,7 +439,7 @@ fun ExternalPaddingScope.externalPaddingHorizontal(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ExternalPaddingScope.externalPaddingVertical(value: Dp) {
+public fun ExternalPaddingScope.externalPaddingVertical(value: Dp) {
     externalPaddingTop(value)
     externalPaddingBottom(value)
 }
@@ -460,7 +461,7 @@ fun ExternalPaddingScope.externalPaddingVertical(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ExternalPaddingScope.externalPadding(value: Dp) {
+public fun ExternalPaddingScope.externalPadding(value: Dp) {
     externalPaddingStart(value)
     externalPaddingEnd(value)
     externalPaddingTop(value)
@@ -485,7 +486,7 @@ fun ExternalPaddingScope.externalPadding(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ExternalPaddingScope.externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+public fun ExternalPaddingScope.externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
     externalPaddingStart(start)
     externalPaddingTop(top)
     externalPaddingEnd(end)
@@ -506,7 +507,7 @@ fun ExternalPaddingScope.externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun ExternalPaddingScope.externalPadding(horizontal: Dp, vertical: Dp) {
+public fun ExternalPaddingScope.externalPadding(horizontal: Dp, vertical: Dp) {
     externalPaddingHorizontal(horizontal)
     externalPaddingVertical(vertical)
 }
@@ -523,7 +524,7 @@ fun ExternalPaddingScope.externalPadding(horizontal: Dp, vertical: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
-fun <T> T.externalPadding(paddingValues: PaddingValues)
+public fun <T> T.externalPadding(paddingValues: PaddingValues)
     where T : ExternalPaddingScope, T : CompositionLocalAccessorScope {
     externalPadding(
         start = paddingValues.calculateStartPadding(LocalLayoutDirection.currentValue),
@@ -539,7 +540,7 @@ fun <T> T.externalPadding(paddingValues: PaddingValues)
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface BorderScope {
+public interface BorderScope {
     /**
      * Sets the width of the border around the component. The border is drawn on top of the
      * background and the padded content. The border's width does not contribute to the component's
@@ -559,7 +560,7 @@ interface BorderScope {
      * @see ShapeScope.shape
      * @see androidx.compose.foundation.border
      */
-    fun borderWidth(value: Dp)
+    public fun borderWidth(value: Dp)
 
     /**
      * Sets the color of the border around the component. The border is drawn on top of the
@@ -574,7 +575,7 @@ interface BorderScope {
      * @see StyleScope.shape
      * @see androidx.compose.foundation.border
      */
-    fun borderColor(value: Color)
+    public fun borderColor(value: Color)
 
     /**
      * Sets the brush used to paint the border around the component. The border is drawn on top of
@@ -589,7 +590,7 @@ interface BorderScope {
      * @see border(Dp, Brush)
      * @see androidx.compose.foundation.border
      */
-    fun borderBrush(value: Brush)
+    public fun borderBrush(value: Brush)
 }
 
 /**
@@ -598,7 +599,7 @@ interface BorderScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface SizeScope {
+public interface SizeScope {
     /**
      * Sets the preferred width of the component. The actual size will also depend on the parent's
      * constraints and other modifiers. The specified width includes both [contentPadding] and
@@ -615,7 +616,7 @@ interface SizeScope {
      * @see MaxSizeScope.maxWidth
      * @see androidx.compose.foundation.layout.width
      */
-    fun width(value: Dp)
+    public fun width(value: Dp)
 
     /**
      * Sets the preferred height of the component. The actual size will also depend on the parent's
@@ -632,7 +633,7 @@ interface SizeScope {
      * @see MaxSizeScope.maxWidth
      * @see androidx.compose.foundation.layout.height
      */
-    fun height(value: Dp)
+    public fun height(value: Dp)
 
     /**
      * Sets the width of the component to a fraction of the parent's available width. The specified
@@ -644,7 +645,7 @@ interface SizeScope {
      * @see fillWidth
      * @see androidx.compose.foundation.layout.fillMaxWidth
      */
-    fun width(@FloatRange(from = 0.0, to = 1.0) fraction: Float)
+    public fun width(@FloatRange(from = 0.0, to = 1.0) fraction: Float)
 
     /**
      * Sets the height of the component to a fraction of the parent's available height. The
@@ -656,7 +657,7 @@ interface SizeScope {
      * @see fillHeight
      * @see androidx.compose.foundation.layout.fillMaxHeight
      */
-    fun height(@FloatRange(from = 0.0, to = 1.0) fraction: Float)
+    public fun height(@FloatRange(from = 0.0, to = 1.0) fraction: Float)
 }
 
 /**
@@ -671,7 +672,7 @@ interface SizeScope {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.size(width: Dp, height: Dp) {
+public fun SizeScope.size(width: Dp, height: Dp) {
     width(width)
     height(height)
 }
@@ -687,7 +688,7 @@ fun SizeScope.size(width: Dp, height: Dp) {
  * @see androidx.compose.foundation.layout.fillMaxHeight
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.fillHeight() {
+public fun SizeScope.fillHeight() {
     height(1.0f)
 }
 
@@ -702,7 +703,7 @@ fun SizeScope.fillHeight() {
  * @see androidx.compose.foundation.layout.fillMaxSize
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.fillSize() {
+public fun SizeScope.fillSize() {
     width(1.0f)
     height(1.0f)
 }
@@ -717,7 +718,7 @@ fun SizeScope.fillSize() {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.size(value: Dp) {
+public fun SizeScope.size(value: Dp) {
     width(value)
     height(value)
 }
@@ -733,7 +734,7 @@ fun SizeScope.size(value: Dp) {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.size(value: DpSize) {
+public fun SizeScope.size(value: DpSize) {
     width(value.width)
     height(value.height)
 }
@@ -749,7 +750,7 @@ fun SizeScope.size(value: DpSize) {
  * @see androidx.compose.foundation.layout.fillMaxWidth
  */
 @ExperimentalFoundationStyleApi
-fun SizeScope.fillWidth() {
+public fun SizeScope.fillWidth() {
     width(1.0f)
 }
 
@@ -772,7 +773,7 @@ fun SizeScope.fillWidth() {
  * @see androidx.compose.foundation.border
  */
 @ExperimentalFoundationStyleApi
-fun BorderScope.border(width: Dp, color: Color) {
+public fun BorderScope.border(width: Dp, color: Color) {
     borderWidth(width)
     borderColor(color)
 }
@@ -796,7 +797,7 @@ fun BorderScope.border(width: Dp, color: Color) {
  * @see androidx.compose.foundation.border
  */
 @ExperimentalFoundationStyleApi
-fun BorderScope.border(width: Dp, brush: Brush) {
+public fun BorderScope.border(width: Dp, brush: Brush) {
     borderWidth(width)
     borderBrush(brush)
 }
@@ -807,7 +808,7 @@ fun BorderScope.border(width: Dp, brush: Brush) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface PositionScope {
+public interface PositionScope {
     /**
      * Offsets the component horizontally from its original calculated left position. Positive
      * values shift the component to the right, negative to the left.
@@ -820,7 +821,7 @@ interface PositionScope {
      * @see bottom
      * @see androidx.compose.foundation.layout.offset
      */
-    fun left(value: Dp)
+    public fun left(value: Dp)
 
     /**
      * Offsets the component vertically from its original calculated top position. Positive values
@@ -834,7 +835,7 @@ interface PositionScope {
      * @see bottom
      * @see androidx.compose.foundation.layout.offset
      */
-    fun top(value: Dp)
+    public fun top(value: Dp)
 
     /**
      * Offsets the component horizontally from its original calculated right position. Positive
@@ -848,7 +849,7 @@ interface PositionScope {
      * @see bottom
      * @see androidx.compose.foundation.layout.offset
      */
-    fun right(value: Dp)
+    public fun right(value: Dp)
 
     /**
      * Offsets the component vertically from its original calculated bottom position. Positive
@@ -862,7 +863,7 @@ interface PositionScope {
      * @see right
      * @see androidx.compose.foundation.layout.offset
      */
-    fun bottom(value: Dp)
+    public fun bottom(value: Dp)
 }
 
 /**
@@ -871,7 +872,7 @@ interface PositionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface MinSizeScope {
+public interface MinSizeScope {
     /**
      * Constrains the minimum width of the component. The component's width, including padding, will
      * be at least this value.
@@ -884,7 +885,7 @@ interface MinSizeScope {
      * @see MaxSizeScope.maxWidth
      * @see androidx.compose.foundation.layout.widthIn
      */
-    fun minWidth(value: Dp)
+    public fun minWidth(value: Dp)
 
     /**
      * Constrains the minimum height of the component. The component's height, including padding,
@@ -898,7 +899,7 @@ interface MinSizeScope {
      * @see MaxSizeScope.maxHeight
      * @see androidx.compose.foundation.layout.heightIn
      */
-    fun minHeight(value: Dp)
+    public fun minHeight(value: Dp)
 }
 
 /**
@@ -913,7 +914,7 @@ interface MinSizeScope {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
-fun MinSizeScope.minSize(size: DpSize) {
+public fun MinSizeScope.minSize(size: DpSize) {
     minWidth(size.width)
     minHeight(size.height)
 }
@@ -931,7 +932,7 @@ fun MinSizeScope.minSize(size: DpSize) {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
-fun MinSizeScope.minSize(width: Dp, height: Dp) {
+public fun MinSizeScope.minSize(width: Dp, height: Dp) {
     minWidth(width)
     minHeight(height)
 }
@@ -942,7 +943,7 @@ fun MinSizeScope.minSize(width: Dp, height: Dp) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface MaxSizeScope {
+public interface MaxSizeScope {
     /**
      * Constrains the maximum width of the component. The component's width, including padding, will
      * be at most this value.
@@ -955,7 +956,7 @@ interface MaxSizeScope {
      * @see MinSizeScope.minWidth
      * @see androidx.compose.foundation.layout.widthIn
      */
-    fun maxWidth(value: Dp)
+    public fun maxWidth(value: Dp)
 
     /**
      * Constrains the maximum height of the component. The component's height, including padding,
@@ -969,7 +970,7 @@ interface MaxSizeScope {
      * @see MinSizeScope.minHeight
      * @see androidx.compose.foundation.layout.heightIn
      */
-    fun maxHeight(value: Dp)
+    public fun maxHeight(value: Dp)
 }
 
 /**
@@ -984,7 +985,7 @@ interface MaxSizeScope {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
-fun MaxSizeScope.maxSize(size: DpSize) {
+public fun MaxSizeScope.maxSize(size: DpSize) {
     maxWidth(size.width)
     maxHeight(size.height)
 }
@@ -1002,7 +1003,7 @@ fun MaxSizeScope.maxSize(size: DpSize) {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
-fun MaxSizeScope.maxSize(width: Dp, height: Dp) {
+public fun MaxSizeScope.maxSize(width: Dp, height: Dp) {
     maxWidth(width)
     maxHeight(height)
 }
@@ -1013,7 +1014,7 @@ fun MaxSizeScope.maxSize(width: Dp, height: Dp) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface AlphaScope {
+public interface AlphaScope {
     /**
      * Sets the opacity of the component. A value of 1.0f means fully opaque, 0.0f means fully
      * transparent.
@@ -1024,7 +1025,7 @@ interface AlphaScope {
      * @see androidx.compose.ui.draw.alpha
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun alpha(@FloatRange(from = 0.0, to = 1.0) value: Float)
+    public fun alpha(@FloatRange(from = 0.0, to = 1.0) value: Float)
 }
 
 /**
@@ -1033,7 +1034,7 @@ interface AlphaScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ScaleScope {
+public interface ScaleScope {
     /**
      * Scales the component horizontally around its center pivot point.
      *
@@ -1047,7 +1048,7 @@ interface ScaleScope {
      * @see androidx.compose.ui.draw.scale
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun scaleX(@FloatRange(from = 0.0) value: Float)
+    public fun scaleX(@FloatRange(from = 0.0) value: Float)
 
     /**
      * Scales the component vertically around its center pivot point.
@@ -1062,7 +1063,7 @@ interface ScaleScope {
      * @see androidx.compose.ui.draw.scale
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun scaleY(@FloatRange(from = 0.0) value: Float)
+    public fun scaleY(@FloatRange(from = 0.0) value: Float)
 }
 
 /**
@@ -1080,7 +1081,7 @@ interface ScaleScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
-fun ScaleScope.scale(@FloatRange(from = 0.0) value: Float) {
+public fun ScaleScope.scale(@FloatRange(from = 0.0) value: Float) {
     scaleX(value)
     scaleY(value)
 }
@@ -1101,7 +1102,7 @@ fun ScaleScope.scale(@FloatRange(from = 0.0) value: Float) {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
-fun ScaleScope.scale(@FloatRange(from = 0.0) x: Float, @FloatRange(from = 0.0) y: Float) {
+public fun ScaleScope.scale(@FloatRange(from = 0.0) x: Float, @FloatRange(from = 0.0) y: Float) {
     scaleX(x)
     scaleY(y)
 }
@@ -1112,7 +1113,7 @@ fun ScaleScope.scale(@FloatRange(from = 0.0) x: Float, @FloatRange(from = 0.0) y
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TranslationScope {
+public interface TranslationScope {
     /**
      * Translates (moves) the component horizontally. Positive values move it to the right, negative
      * values to the left.
@@ -1123,7 +1124,7 @@ interface TranslationScope {
      * @see translationY
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun translationX(@FloatRange(from = 0.0) value: Float)
+    public fun translationX(@FloatRange(from = 0.0) value: Float)
 
     /**
      * Translates (moves) the component vertically. Positive values move it down, negative values
@@ -1135,7 +1136,7 @@ interface TranslationScope {
      * @see translationX
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun translationY(@FloatRange(from = 0.0) value: Float)
+    public fun translationY(@FloatRange(from = 0.0) value: Float)
 }
 
 /**
@@ -1150,7 +1151,7 @@ interface TranslationScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
-fun TranslationScope.translation(
+public fun TranslationScope.translation(
     @FloatRange(from = 0.0) x: Float,
     @FloatRange(from = 0.0) y: Float,
 ) {
@@ -1169,7 +1170,7 @@ fun TranslationScope.translation(
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
-fun TranslationScope.translation(offset: Offset) {
+public fun TranslationScope.translation(offset: Offset) {
     translationX(offset.x)
     translationY(offset.y)
 }
@@ -1180,7 +1181,7 @@ fun TranslationScope.translation(offset: Offset) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface RotationScope {
+public interface RotationScope {
     /**
      * Rotates the component around the X-axis through its center.
      *
@@ -1191,7 +1192,7 @@ interface RotationScope {
      * @see rotationZ
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun rotationX(value: Float)
+    public fun rotationX(value: Float)
 
     /**
      * Rotates the component around the Y-axis through its center.
@@ -1203,7 +1204,7 @@ interface RotationScope {
      * @see rotationZ
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun rotationY(value: Float)
+    public fun rotationY(value: Float)
 
     /**
      * Rotates the component around the Z-axis (perpendicular to the screen) through its center.
@@ -1216,7 +1217,7 @@ interface RotationScope {
      * @see androidx.compose.ui.draw.rotate
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun rotationZ(value: Float)
+    public fun rotationZ(value: Float)
 }
 
 /**
@@ -1235,7 +1236,7 @@ interface RotationScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
-fun RotationScope.rotation(x: Float, y: Float, z: Float) {
+public fun RotationScope.rotation(x: Float, y: Float, z: Float) {
     rotationX(x)
     rotationY(y)
     rotationZ(z)
@@ -1247,7 +1248,7 @@ fun RotationScope.rotation(x: Float, y: Float, z: Float) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ColorFilterScope {
+public interface ColorFilterScope {
     /**
      * Sets the [ColorFilter] to apply to the component.
      *
@@ -1256,7 +1257,7 @@ interface ColorFilterScope {
      * @param value The color filter to apply.
      * @see androidx.compose.ui.graphics.graphicsLayer
      */
-    fun colorFilter(value: ColorFilter?)
+    public fun colorFilter(value: ColorFilter?)
 }
 
 /**
@@ -1265,7 +1266,7 @@ interface ColorFilterScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TransformOriginScope {
+public interface TransformOriginScope {
     /**
      * Offset percentage along the x-axis for which contents are rotated and scaled. The default
      * value of 0.5f indicates the pivot point will be at the midpoint of the left and right bounds
@@ -1274,7 +1275,7 @@ interface TransformOriginScope {
      * @param value The origin of the transform
      * @see [androidx.compose.ui.graphics.GraphicsLayerScope]
      */
-    fun transformOriginX(value: Float)
+    public fun transformOriginX(value: Float)
 
     /**
      * Offset percentage along the y-axis for which contents are rotated and scaled. The default
@@ -1284,7 +1285,7 @@ interface TransformOriginScope {
      * @param value The origin of the transform
      * @see [androidx.compose.ui.graphics.GraphicsLayerScope]
      */
-    fun transformOriginY(value: Float)
+    public fun transformOriginY(value: Float)
 }
 
 /**
@@ -1296,7 +1297,7 @@ interface TransformOriginScope {
  * @see [androidx.compose.ui.graphics.GraphicsLayerScope]
  */
 @ExperimentalFoundationStyleApi
-fun TransformOriginScope.transformOrigin(value: TransformOrigin) {
+public fun TransformOriginScope.transformOrigin(value: TransformOrigin) {
     transformOriginX(value.pivotFractionX)
     transformOriginY(value.pivotFractionY)
 }
@@ -1307,7 +1308,7 @@ fun TransformOriginScope.transformOrigin(value: TransformOrigin) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ClipScope {
+public interface ClipScope {
     /**
      * Clips the component to its bounds. If a [ShapeScope.shape] is also applied, it clips to the
      * shape. When clip is `true` content that overflows the component's bounds is not drawn.
@@ -1319,7 +1320,7 @@ interface ClipScope {
      * @see androidx.compose.ui.draw.clip
      * @see androidx.compose.ui.draw.clipToBounds
      */
-    fun clip(value: Boolean = true)
+    public fun clip(value: Boolean = true)
 }
 
 /**
@@ -1328,7 +1329,7 @@ interface ClipScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ZIndexScope {
+public interface ZIndexScope {
     /**
      * Sets the Z-index of the component. Higher Z-index components are drawn on top of lower
      * Z-index components within the same parent. This affects drawing order, not layout.
@@ -1338,7 +1339,7 @@ interface ZIndexScope {
      * @param value The Z-index value.
      * @see androidx.compose.ui.zIndex
      */
-    fun zIndex(@FloatRange(from = 0.0) value: Float)
+    public fun zIndex(@FloatRange(from = 0.0) value: Float)
 }
 
 /**
@@ -1347,7 +1348,7 @@ interface ZIndexScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface BackgroundScope {
+public interface BackgroundScope {
     /**
      * Sets the background color of the component. If a [ShapeScope.shape] is applied, the
      * background will fill that shape.
@@ -1360,7 +1361,7 @@ interface BackgroundScope {
      * @see ShapeScope.shape
      * @see androidx.compose.foundation.background
      */
-    fun background(color: Color)
+    public fun background(color: Color)
 
     /**
      * Sets the background of the component using a [Brush]. This allows for gradient backgrounds or
@@ -1374,7 +1375,7 @@ interface BackgroundScope {
      * @see ShapeScope.shape
      * @see androidx.compose.foundation.background
      */
-    fun background(value: Brush)
+    public fun background(value: Brush)
 }
 
 /**
@@ -1383,7 +1384,7 @@ interface BackgroundScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ForegroundScope {
+public interface ForegroundScope {
     /**
      * Sets the foreground color for the component. This can be used to overlay a color on top of
      * the component's content. It is important that this brush be partially transparent (e.g. alpha
@@ -1396,7 +1397,7 @@ interface ForegroundScope {
      * @see ContentColorScope.contentColor
      * @see ContentColorScope.contentBrush
      */
-    fun foreground(value: Color)
+    public fun foreground(value: Color)
 
     /**
      * Sets the foreground brush for the component. This can be used to overlay a color or gradient
@@ -1410,7 +1411,7 @@ interface ForegroundScope {
      * @see ContentColorScope.contentColor
      * @see ContentColorScope.contentBrush
      */
-    fun foreground(value: Brush)
+    public fun foreground(value: Brush)
 }
 
 /**
@@ -1419,7 +1420,7 @@ interface ForegroundScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ShapeScope {
+public interface ShapeScope {
     /**
      * Sets the [Shape] for the component. This shape is used for clipping ([ClipScope.clip]),
      * background rendering ([BackgroundScope.background]), and border rendering.
@@ -1436,7 +1437,7 @@ interface ShapeScope {
      * @see androidx.compose.foundation.background
      * @see androidx.compose.foundation.border
      */
-    fun shape(value: Shape)
+    public fun shape(value: Shape)
 }
 
 /**
@@ -1445,7 +1446,7 @@ interface ShapeScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ShadowScope {
+public interface ShadowScope {
     /**
      * Applies a drop shadow effect directly to the component, often used for text or specific
      * graphics. This is distinct from `shadowElevation` which is specific to platform elevation
@@ -1462,7 +1463,7 @@ interface ShadowScope {
      * @see Shadow
      * @see androidx.compose.ui.draw.dropShadow
      */
-    fun dropShadow(value: Shadow)
+    public fun dropShadow(value: Shadow)
 
     /**
      * Applies one or more drop shadow effects directly to the component. This is distinct from
@@ -1475,7 +1476,7 @@ interface ShadowScope {
      * @see Shadow
      * @see androidx.compose.ui.draw.dropShadow
      */
-    fun dropShadow(vararg value: Shadow)
+    public fun dropShadow(vararg value: Shadow)
 
     /**
      * Applies an inner shadow effect to the component. This shadow is drawn inside the bounds of
@@ -1492,7 +1493,7 @@ interface ShadowScope {
      * @see Shadow
      * @see androidx.compose.ui.draw.innerShadow
      */
-    fun innerShadow(value: Shadow)
+    public fun innerShadow(value: Shadow)
 
     /**
      * Applies one or more inner shadow effects to the component. These shadows are drawn inside the
@@ -1506,7 +1507,7 @@ interface ShadowScope {
      * @see Shadow
      * @see androidx.compose.ui.draw.innerShadow
      */
-    fun innerShadow(vararg value: Shadow)
+    public fun innerShadow(vararg value: Shadow)
 }
 
 /**
@@ -1515,7 +1516,7 @@ interface ShadowScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface AnimateStyleScope {
+public interface AnimateStyleScope {
 
     /**
      * Specifies a [Style] whose properties will be animated to when they change, using the provided
@@ -1530,7 +1531,11 @@ interface AnimateStyleScope {
      * @see Style
      * @see androidx.compose.animation.core.AnimationSpec
      */
-    fun animate(toSpec: AnimationSpec<Float>, fromSpec: AnimationSpec<Float>, block: () -> Unit)
+    public fun animate(
+        toSpec: AnimationSpec<Float>,
+        fromSpec: AnimationSpec<Float>,
+        block: () -> Unit,
+    )
 }
 
 /**
@@ -1543,7 +1548,7 @@ interface AnimateStyleScope {
  * @see Style
  */
 @ExperimentalFoundationStyleApi
-fun AnimateStyleScope.animate(block: () -> Unit) {
+public fun AnimateStyleScope.animate(block: () -> Unit) {
     animate(DefaultSpringSpec, block)
 }
 
@@ -1558,7 +1563,7 @@ fun AnimateStyleScope.animate(block: () -> Unit) {
  * @see androidx.compose.animation.core.AnimationSpec
  */
 @ExperimentalFoundationStyleApi
-fun AnimateStyleScope.animate(spec: AnimationSpec<Float>, block: () -> Unit) {
+public fun AnimateStyleScope.animate(spec: AnimationSpec<Float>, block: () -> Unit) {
     animate(spec, spec, block)
 }
 
@@ -1568,7 +1573,7 @@ fun AnimateStyleScope.animate(spec: AnimationSpec<Float>, block: () -> Unit) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextStyleScope {
+public interface TextStyleScope {
     /**
      * Applies a complete [TextStyle] object to the component. This is a convenient way to set
      * multiple text-related properties at once. Text properties are inherited by child text
@@ -1582,7 +1587,7 @@ interface TextStyleScope {
      * @see FontSizeScope.fontSize
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textStyle(value: TextStyle)
+    public fun textStyle(value: TextStyle)
 }
 
 /**
@@ -1591,7 +1596,7 @@ interface TextStyleScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface ContentColorScope {
+public interface ContentColorScope {
     /**
      * Sets the preferred content color, primarily affecting text color. This property is inherited
      * by child text components if not overridden. This affects drawing only and is often a
@@ -1604,7 +1609,7 @@ interface ContentColorScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun contentColor(value: Color)
+    public fun contentColor(value: Color)
 
     /**
      * Sets the preferred brush for rendering content, primarily affecting text. This allows for
@@ -1619,7 +1624,7 @@ interface ContentColorScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun contentBrush(value: Brush)
+    public fun contentBrush(value: Brush)
 }
 
 /**
@@ -1628,7 +1633,7 @@ interface ContentColorScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextDecorationScope {
+public interface TextDecorationScope {
     /**
      * Sets the text decoration (e.g., underline, line-through). This property is inherited by child
      * text components if not overridden. This affects drawing only and is a component of a
@@ -1640,7 +1645,7 @@ interface TextDecorationScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textDecoration(value: TextDecoration) // int enum (mask?) 2 possible values
+    public fun textDecoration(value: TextDecoration) // int enum (mask?) 2 possible values
 }
 
 /**
@@ -1649,7 +1654,7 @@ interface TextDecorationScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface FontFamilyScope {
+public interface FontFamilyScope {
     /**
      * Sets the font family for the text. This property is inherited by child text components if not
      * overridden. This affects text layout and rendering, and is a component of a [TextStyle].
@@ -1660,7 +1665,7 @@ interface FontFamilyScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun fontFamily(value: FontFamily) // reference class
+    public fun fontFamily(value: FontFamily) // reference class
 }
 
 /**
@@ -1669,7 +1674,7 @@ interface FontFamilyScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextIndentScope {
+public interface TextIndentScope {
     /**
      * Sets the text indent (e.g., for the first line or subsequent lines). This property is
      * inherited by child text components if not overridden. This affects text layout and is a
@@ -1681,7 +1686,7 @@ interface TextIndentScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textIndent(value: TextIndent) // ref class of two longs
+    public fun textIndent(value: TextIndent) // ref class of two longs
 }
 
 /**
@@ -1690,7 +1695,7 @@ interface TextIndentScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface FontSizeScope {
+public interface FontSizeScope {
     /**
      * Sets the font size for the text. This property is inherited by child text components if not
      * overridden. This affects text layout and rendering, and is a component of a [TextStyle].
@@ -1701,7 +1706,7 @@ interface FontSizeScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun fontSize(value: TextUnit)
+    public fun fontSize(value: TextUnit)
 }
 
 /**
@@ -1710,7 +1715,7 @@ interface FontSizeScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface LineHeightScope {
+public interface LineHeightScope {
     /**
      * Sets the line height for the text. This property is inherited by child text components if not
      * overridden. This affects text layout and is a component of a [TextStyle].
@@ -1721,7 +1726,7 @@ interface LineHeightScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun lineHeight(value: TextUnit)
+    public fun lineHeight(value: TextUnit)
 }
 
 /**
@@ -1730,7 +1735,7 @@ interface LineHeightScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface LetterSpacingScope {
+public interface LetterSpacingScope {
     /**
      * Sets the letter spacing for the text. This property is inherited by child text components if
      * not overridden. This affects text layout and rendering, and is a component of a [TextStyle].
@@ -1741,7 +1746,7 @@ interface LetterSpacingScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun letterSpacing(value: TextUnit)
+    public fun letterSpacing(value: TextUnit)
 }
 
 /**
@@ -1750,7 +1755,7 @@ interface LetterSpacingScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface BaselineShiftScope {
+public interface BaselineShiftScope {
     /**
      * Sets the baseline shift for the text (e.g., for superscript or subscript). This property is
      * inherited by child text components if not overridden. This affects text layout and rendering,
@@ -1762,7 +1767,7 @@ interface BaselineShiftScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun baselineShift(value: BaselineShift)
+    public fun baselineShift(value: BaselineShift)
 }
 
 /**
@@ -1771,7 +1776,7 @@ interface BaselineShiftScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface FontWeightScope {
+public interface FontWeightScope {
     /**
      * Sets the font weight for the text (e.g., bold, normal). This property is inherited by child
      * text components if not overridden. This affects text rendering and is a component of a
@@ -1783,7 +1788,7 @@ interface FontWeightScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun fontWeight(value: FontWeight) // Int enum, 9 values, 4 bits
+    public fun fontWeight(value: FontWeight) // Int enum, 9 values, 4 bits
 }
 
 /**
@@ -1792,7 +1797,7 @@ interface FontWeightScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface FontStyleScope {
+public interface FontStyleScope {
     /**
      * Sets the font style for the text (e.g., italic, normal). This property is inherited by child
      * text components if not overridden. This affects text rendering and is a component of a
@@ -1804,7 +1809,7 @@ interface FontStyleScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun fontStyle(value: FontStyle)
+    public fun fontStyle(value: FontStyle)
 }
 
 /**
@@ -1813,7 +1818,7 @@ interface FontStyleScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextDirectionScope {
+public interface TextDirectionScope {
     /**
      * Sets the text direction (e.g., LTR, RTL, content-based). This property is inherited by child
      * text components if not overridden. This affects text layout and is a component of a
@@ -1825,7 +1830,7 @@ interface TextDirectionScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textDirection(value: TextDirection) // int enum of 5 values + unspecified, 3 bits
+    public fun textDirection(value: TextDirection) // int enum of 5 values + unspecified, 3 bits
 }
 
 /**
@@ -1834,7 +1839,7 @@ interface TextDirectionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextAlignScope {
+public interface TextAlignScope {
     /**
      * Sets the text alignment (e.g., start, end, center). This property is inherited by child text
      * components if not overridden. This affects text layout and is a component of a [TextStyle].
@@ -1845,7 +1850,7 @@ interface TextAlignScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textAlign(value: TextAlign)
+    public fun textAlign(value: TextAlign)
 }
 
 /**
@@ -1854,7 +1859,7 @@ interface TextAlignScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface LineBreakScope {
+public interface LineBreakScope {
     /**
      * Sets the line breaking strategy for text. This property is inherited by child text components
      * if not overridden. This affects text layout and is a component of a [TextStyle].
@@ -1865,7 +1870,7 @@ interface LineBreakScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun lineBreak(value: LineBreak)
+    public fun lineBreak(value: LineBreak)
 }
 
 /**
@@ -1874,7 +1879,7 @@ interface LineBreakScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface HyphensScope {
+public interface HyphensScope {
     /**
      * Sets the hyphenation strategy for text. This property is inherited by child text components
      * if not overridden. This affects text layout and is a component of a [TextStyle].
@@ -1885,7 +1890,7 @@ interface HyphensScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun hyphens(value: Hyphens) // int enum of 2 values + unspecified, 2 bits
+    public fun hyphens(value: Hyphens) // int enum of 2 values + unspecified, 2 bits
 }
 
 /**
@@ -1894,7 +1899,7 @@ interface HyphensScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface FontSynthesisScope {
+public interface FontSynthesisScope {
     /**
      * Sets the font synthesis strategy, determining if and how bold/italic styles are synthesized
      * when the font family does not natively support them. This property is inherited by child text
@@ -1907,12 +1912,12 @@ interface FontSynthesisScope {
      * @see TextStyleScope.textStyle
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun fontSynthesis(value: FontSynthesis) // enum int value, 4 possible values,
+    public fun fontSynthesis(value: FontSynthesis) // enum int value, 4 possible values,
 }
 
 /** An interface that introduces the [textMotion] property to a [Style] receiver scope. */
 @ExperimentalFoundationStyleApi
-interface TextMotionScope {
+public interface TextMotionScope {
     /**
      * Sets the text motion strategy, which can be used to optimize for readability or for smooth
      * animations. This property is inherited by child text components if not overridden. This
@@ -1923,7 +1928,7 @@ interface TextMotionScope {
      * @param value The [TextMotion] strategy to apply.
      * @see androidx.compose.ui.text.TextStyle
      */
-    fun textMotion(value: TextMotion)
+    public fun textMotion(value: TextMotion)
 }
 
 /**
@@ -1932,7 +1937,7 @@ interface TextMotionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface LayoutStyleScope :
+public interface LayoutStyleScope :
     ContentPaddingScope, ExternalPaddingScope, SizeScope, PositionScope, MinSizeScope, MaxSizeScope
 
 /**
@@ -1941,7 +1946,7 @@ interface LayoutStyleScope :
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface LayerStyleScope :
+public interface LayerStyleScope :
     AlphaScope,
     ScaleScope,
     TranslationScope,
@@ -1957,7 +1962,8 @@ interface LayerStyleScope :
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface DrawStyleScope : BorderScope, BackgroundScope, ForegroundScope, ShapeScope, ShadowScope
+public interface DrawStyleScope :
+    BorderScope, BackgroundScope, ForegroundScope, ShapeScope, ShadowScope
 
 /**
  * An interface that introduces the text property to a [Style] receiver scope.
@@ -1965,7 +1971,7 @@ interface DrawStyleScope : BorderScope, BackgroundScope, ForegroundScope, ShapeS
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
-interface TextStyleStyleScope :
+public interface TextStyleStyleScope :
     TextStyleScope,
     ContentColorScope,
     TextDecorationScope,
@@ -1996,7 +2002,7 @@ interface TextStyleStyleScope :
  * @see Style
  */
 @ExperimentalFoundationStyleApi
-interface StyleScope :
+public interface StyleScope :
     CustomStyleScope,
     StyleStateScope,
     AnimateStyleScope,
@@ -2012,6 +2018,6 @@ interface StyleScope :
  * @param style the style to apply.
  */
 @ExperimentalFoundationStyleApi
-fun <ScopeT : CustomStyleScope, StyleT : CustomStyle<ScopeT>> ScopeT.apply(style: StyleT) {
+public fun <ScopeT : CustomStyleScope, StyleT : CustomStyle<ScopeT>> ScopeT.apply(style: StyleT) {
     with(style) { this@apply.applyStyle() }
 }

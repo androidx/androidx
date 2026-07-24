@@ -28,7 +28,7 @@ import kotlin.reflect.KType
 
 /** DSL for constructing a new [BottomSheetNavigator.Destination] */
 @NavDestinationDsl
-class BottomSheetNavigatorDestinationBuilder :
+public class BottomSheetNavigatorDestinationBuilder :
     NavDestinationBuilder<BottomSheetNavigator.Destination> {
 
     private val bottomSheetNavigator: BottomSheetNavigator
@@ -69,7 +69,7 @@ class BottomSheetNavigatorDestinationBuilder :
         this.content = content
     }
 
-    override fun instantiateDestination(): BottomSheetNavigator.Destination {
+    protected override fun instantiateDestination(): BottomSheetNavigator.Destination {
         return BottomSheetNavigator.Destination(bottomSheetNavigator, content)
     }
 }

@@ -95,7 +95,7 @@ import androidx.compose.ui.unit.TextUnit
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -170,7 +170,7 @@ fun Text(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun Text(
+public fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -267,7 +267,7 @@ fun Text(
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -348,7 +348,7 @@ fun Text(
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
-fun Text(
+public fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -396,7 +396,8 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
-val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
+public val LocalTextStyle: androidx.compose.runtime.ProvidableCompositionLocal<TextStyle> =
+    compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO: b/156598010 remove this and replace with fold definition on the backing CompositionLocal
 /**
@@ -407,7 +408,7 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
  * @see LocalTextStyle
  */
 @Composable
-fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
+public fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }

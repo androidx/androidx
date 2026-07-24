@@ -39,7 +39,8 @@ import androidx.compose.ui.semantics.semantics
  *   invocation inside it will result to runtime exception
  */
 @Composable
-fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) = Spacer(modifier.drawBehind(onDraw))
+public fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit): Unit =
+    Spacer(modifier.drawBehind(onDraw))
 
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this
@@ -59,5 +60,9 @@ fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) = Spacer(modifier.d
  *   invocation inside it will result to runtime exception
  */
 @Composable
-fun Canvas(modifier: Modifier, contentDescription: String, onDraw: DrawScope.() -> Unit) =
+public fun Canvas(
+    modifier: Modifier,
+    contentDescription: String,
+    onDraw: DrawScope.() -> Unit,
+): Unit =
     Spacer(modifier.drawBehind(onDraw).semantics { this.contentDescription = contentDescription })

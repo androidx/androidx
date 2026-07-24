@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
 
-actual class Shader
+public actual class Shader
 
 internal actual fun ActualLinearGradientShader(
     from: Offset,

@@ -51,30 +51,30 @@ internal const val DefaultMaxLines = Int.MAX_VALUE
  * Draw the paragraph onto a [Canvas] using [paint].
  */
 @JvmDefaultWithCompatibility
-expect sealed interface Paragraph {
+public expect sealed interface Paragraph {
     /** The amount of horizontal space this paragraph occupies. */
-    val width: Float
+    public val width: Float
 
     /** The amount of vertical space this paragraph occupies. */
-    val height: Float
+    public val height: Float
 
     /** The width for text if all soft wrap opportunities were taken. */
-    val minIntrinsicWidth: Float
+    public val minIntrinsicWidth: Float
 
     /** Returns the smallest width beyond which increasing the width never decreases the height. */
-    val maxIntrinsicWidth: Float
+    public val maxIntrinsicWidth: Float
 
     /**
      * The distance from the top of the paragraph to the alphabetic baseline of the first line, in
      * logical pixels.
      */
-    val firstBaseline: Float
+    public val firstBaseline: Float
 
     /**
      * The distance from the top of the paragraph to the alphabetic baseline of the last line, in
      * logical pixels.
      */
-    val lastBaseline: Float
+    public val lastBaseline: Float
 
     /**
      * True if there is more vertical content, but the text was truncated, either because we reached
@@ -83,10 +83,10 @@ expect sealed interface Paragraph {
      *
      * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
-    val didExceedMaxLines: Boolean
+    public val didExceedMaxLines: Boolean
 
     /** The total number of lines in the text. */
-    val lineCount: Int
+    public val lineCount: Int
 
     /**
      * The bounding boxes reserved for the input placeholders in this Paragraphs. Their locations
@@ -94,40 +94,40 @@ expect sealed interface Paragraph {
      * input placeholders. Notice that [Rect] in [placeholderRects] is nullable. When [Rect] is
      * null, it indicates that the corresponding [Placeholder] is ellipsized.
      */
-    val placeholderRects: List<Rect?>
+    public val placeholderRects: List<Rect?>
 
     /** Returns path that enclose the given text range. */
-    fun getPathForRange(start: Int, end: Int): Path
+    public fun getPathForRange(start: Int, end: Int): Path
 
     /** Returns rectangle of the cursor area. */
-    fun getCursorRect(offset: Int): Rect
+    public fun getCursorRect(offset: Int): Rect
 
     /** Returns the left x Coordinate of the given line. */
-    fun getLineLeft(lineIndex: Int): Float
+    public fun getLineLeft(lineIndex: Int): Float
 
     /** Returns the right x Coordinate of the given line. */
-    fun getLineRight(lineIndex: Int): Float
+    public fun getLineRight(lineIndex: Int): Float
 
     /** Returns the bottom y coordinate of the given line. */
-    fun getLineTop(lineIndex: Int): Float
+    public fun getLineTop(lineIndex: Int): Float
 
     /**
      * Returns the distance from the top of the paragraph to the alphabetic baseline of the given
      * line.
      */
-    fun getLineBaseline(lineIndex: Int): Float
+    public fun getLineBaseline(lineIndex: Int): Float
 
     /** Returns the bottom y coordinate of the given line. */
-    fun getLineBottom(lineIndex: Int): Float
+    public fun getLineBottom(lineIndex: Int): Float
 
     /** Returns the height of the given line. */
-    fun getLineHeight(lineIndex: Int): Float
+    public fun getLineHeight(lineIndex: Int): Float
 
     /** Returns the width of the given line. */
-    fun getLineWidth(lineIndex: Int): Float
+    public fun getLineWidth(lineIndex: Int): Float
 
     /** Returns the start offset of the given line, inclusive. */
-    fun getLineStart(lineIndex: Int): Int
+    public fun getLineStart(lineIndex: Int): Int
 
     /**
      * Returns the end offset of the given line
@@ -141,7 +141,7 @@ expect sealed interface Paragraph {
      *   it's false.
      * @return an exclusive end offset of the line.
      */
-    fun getLineEnd(lineIndex: Int, visibleEnd: Boolean = false): Int
+    public fun getLineEnd(lineIndex: Int, visibleEnd: Boolean = false): Int
 
     /**
      * Returns true if the given line is ellipsized, otherwise returns false.
@@ -149,14 +149,14 @@ expect sealed interface Paragraph {
      * @param lineIndex a 0 based line index
      * @return true if the given line is ellipsized, otherwise false
      */
-    fun isLineEllipsized(lineIndex: Int): Boolean
+    public fun isLineEllipsized(lineIndex: Int): Boolean
 
     /**
      * Returns the line number on which the specified text offset appears. If you ask for a position
      * before 0, you get 0; if you ask for a position beyond the end of the text, you get the last
      * line.
      */
-    fun getLineForOffset(offset: Int): Int
+    public fun getLineForOffset(offset: Int): Int
 
     /**
      * Compute the horizontal position where a newly inserted character at [offset] would be.
@@ -206,23 +206,23 @@ expect sealed interface Paragraph {
      *   to a BiDi transition point.
      * @return a float number representing the horizontal position in the unit of pixel.
      */
-    fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
+    public fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
 
     /** Get the text direction of the paragraph containing the given offset. */
-    fun getParagraphDirection(offset: Int): ResolvedTextDirection
+    public fun getParagraphDirection(offset: Int): ResolvedTextDirection
 
     /** Get the text direction of the character at the given offset. */
-    fun getBidiRunDirection(offset: Int): ResolvedTextDirection
+    public fun getBidiRunDirection(offset: Int): ResolvedTextDirection
 
     /**
      * Returns line number closest to the given graphical vertical position. If you ask for a
      * vertical position before 0, you get 0; if you ask for a vertical position beyond the last
      * line, you get the last line.
      */
-    fun getLineForVerticalPosition(vertical: Float): Int
+    public fun getLineForVerticalPosition(vertical: Float): Int
 
     /** Returns the character offset closest to the given graphical position. */
-    fun getOffsetForPosition(position: Offset): Int
+    public fun getOffsetForPosition(position: Offset): Int
 
     /**
      * Find the range of text which is inside the specified [rect]. This method will break text into
@@ -242,7 +242,7 @@ expect sealed interface Paragraph {
      * @return the [TextRange] that is inside the given [rect], or [TextRange.Zero] if no text is
      *   found.
      */
-    fun getRangeForRect(
+    public fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy,
@@ -252,7 +252,7 @@ expect sealed interface Paragraph {
      * Returns the bounding box as Rect of the character for given character offset. Rect includes
      * the top, bottom, left and right of a character.
      */
-    fun getBoundingBox(offset: Int): Rect
+    public fun getBoundingBox(offset: Int): Rect
 
     /**
      * Fills the bounding boxes for characters provided in the [range] into [array]. The array is
@@ -279,7 +279,11 @@ expect sealed interface Paragraph {
      * @param arrayStart the inclusive start index in the array where the function will start
      *   filling in the values from
      */
-    fun fillBoundingBoxes(range: TextRange, array: FloatArray, @IntRange(from = 0) arrayStart: Int)
+    public fun fillBoundingBoxes(
+        range: TextRange,
+        array: FloatArray,
+        @IntRange(from = 0) arrayStart: Int,
+    )
 
     /**
      * Returns the TextRange of the word at the given character offset. Characters not part of a
@@ -287,13 +291,13 @@ expect sealed interface Paragraph {
      * cases, this method will return TextRange(offset, offset). Word boundaries are defined more
      * precisely in Unicode Standard Annex #29 http://www.unicode.org/reports/tr29/#Word_Boundaries
      */
-    fun getWordBoundary(offset: Int): TextRange
+    public fun getWordBoundary(offset: Int): TextRange
 
     @Deprecated(
         "Use the new paint function that takes canvas as the only required parameter.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun paint(
+    public fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
         shadow: Shadow? = null,
@@ -318,7 +322,7 @@ expect sealed interface Paragraph {
      *   spans. null keeps the current draw style
      * @param blendMode blend mode to apply during painting
      */
-    fun paint(
+    public fun paint(
         canvas: Canvas,
         color: Color = Color.Unspecified,
         shadow: Shadow? = null,
@@ -347,7 +351,7 @@ expect sealed interface Paragraph {
      *   spans. null keeps the current draw style
      * @param blendMode blend mode to apply during painting
      */
-    fun paint(
+    public fun paint(
         canvas: Canvas,
         brush: Brush,
         alpha: Float = Float.NaN,
@@ -372,7 +376,7 @@ expect sealed interface Paragraph {
             "androidx.compose.ui.text.font.createFontFamilyResolver",
         ),
 )
-expect fun Paragraph(
+public expect fun Paragraph(
     text: String,
     style: TextStyle,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
@@ -395,7 +399,7 @@ expect fun Paragraph(
         "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
-expect fun Paragraph(
+public expect fun Paragraph(
     text: String,
     style: TextStyle,
     width: Float,
@@ -411,7 +415,7 @@ expect fun Paragraph(
     "Paragraph that takes `ellipsis: Boolean` is deprecated, pass TextOverflow instead.",
     level = DeprecationLevel.HIDDEN,
 )
-expect fun Paragraph(
+public expect fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -444,7 +448,7 @@ expect fun Paragraph(
  * @param overflow specifies how visual overflow should be handled
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
-expect fun Paragraph(
+public expect fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
@@ -466,7 +470,7 @@ expect fun Paragraph(
         "androidx.compose.ui.text.style.TextOverflow",
     ),
 )
-expect fun Paragraph(
+public expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int = DefaultMaxLines,
     ellipsis: Boolean = false,
@@ -477,7 +481,7 @@ expect fun Paragraph(
     "Paragraph that takes ellipsis: Boolean is deprecated, pass TextOverflow instead.",
     level = DeprecationLevel.HIDDEN,
 )
-expect fun Paragraph(
+public expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int = DefaultMaxLines,
@@ -495,7 +499,7 @@ expect fun Paragraph(
  * @param maxLines the maximum number of lines that the text can have
  * @param overflow specifies how visual overflow should be handled
  */
-expect fun Paragraph(
+public expect fun Paragraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     constraints: Constraints,
     maxLines: Int = DefaultMaxLines,

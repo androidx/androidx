@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
  * @param orientation orientation of the scrolling
  */
 @Stable
-fun Modifier.clipScrollableContainer(orientation: Orientation) =
+public fun Modifier.clipScrollableContainer(orientation: Orientation): Modifier =
     then(
         if (orientation == Orientation.Vertical) {
             Modifier.clip(VerticalScrollableClipShape)

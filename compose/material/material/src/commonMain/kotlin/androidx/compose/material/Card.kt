@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 @NonRestartableComposable
-fun Card(
+public fun Card(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.medium,
     backgroundColor: Color = MaterialTheme.colors.surface,
@@ -102,7 +102,7 @@ fun Card(
 @ExperimentalMaterialApi
 @Composable
 @NonRestartableComposable
-fun Card(
+public fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

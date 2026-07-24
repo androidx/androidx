@@ -88,25 +88,25 @@ private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
  * @see ParagraphStyle
  */
 @Immutable
-class SpanStyle
+public class SpanStyle
 internal constructor(
     // The fill to draw text, a unified representation of Color and Brush.
     internal val textForegroundStyle: TextForegroundStyle,
-    val fontSize: TextUnit = TextUnit.Unspecified,
-    val fontWeight: FontWeight? = null,
-    val fontStyle: FontStyle? = null,
-    val fontSynthesis: FontSynthesis? = null,
-    val fontFamily: FontFamily? = null,
-    val fontFeatureSettings: String? = null,
-    val letterSpacing: TextUnit = TextUnit.Unspecified,
-    val baselineShift: BaselineShift? = null,
-    val textGeometricTransform: TextGeometricTransform? = null,
-    val localeList: LocaleList? = null,
-    val background: Color = Color.Unspecified,
-    val textDecoration: TextDecoration? = null,
-    val shadow: Shadow? = null,
-    val platformStyle: PlatformSpanStyle? = null,
-    val drawStyle: DrawStyle? = null,
+    public val fontSize: TextUnit = TextUnit.Unspecified,
+    public val fontWeight: FontWeight? = null,
+    public val fontStyle: FontStyle? = null,
+    public val fontSynthesis: FontSynthesis? = null,
+    public val fontFamily: FontFamily? = null,
+    public val fontFeatureSettings: String? = null,
+    public val letterSpacing: TextUnit = TextUnit.Unspecified,
+    public val baselineShift: BaselineShift? = null,
+    public val textGeometricTransform: TextGeometricTransform? = null,
+    public val localeList: LocaleList? = null,
+    public val background: Color = Color.Unspecified,
+    public val textDecoration: TextDecoration? = null,
+    public val shadow: Shadow? = null,
+    public val platformStyle: PlatformSpanStyle? = null,
+    public val drawStyle: DrawStyle? = null,
 ) : AnnotatedString.Annotation {
 
     /**
@@ -144,7 +144,7 @@ internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -213,7 +213,7 @@ internal constructor(
             "constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -282,7 +282,7 @@ internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    constructor(
+    public constructor(
         color: Color = Color.Unspecified,
         fontSize: TextUnit = TextUnit.Unspecified,
         fontWeight: FontWeight? = null,
@@ -354,7 +354,7 @@ internal constructor(
      * @see TextStyle
      * @see ParagraphStyle
      */
-    constructor(
+    public constructor(
         brush: Brush?,
         alpha: Float = Float.NaN,
         fontSize: TextUnit = TextUnit.Unspecified,
@@ -392,18 +392,18 @@ internal constructor(
     )
 
     /** Color to draw text. */
-    val color: Color
+    public val color: Color
         get() = this.textForegroundStyle.color
 
     /** Brush to draw text. If not null, overrides [color]. */
-    val brush: Brush?
+    public val brush: Brush?
         get() = this.textForegroundStyle.brush
 
     /**
      * Opacity of text. This value is either provided along side Brush, or via alpha channel in
      * color.
      */
-    val alpha: Float
+    public val alpha: Float
         get() = this.textForegroundStyle.alpha
 
     /**
@@ -418,7 +418,7 @@ internal constructor(
      * @param other style to merge
      */
     @Stable
-    fun merge(other: SpanStyle? = null): SpanStyle {
+    public fun merge(other: SpanStyle? = null): SpanStyle {
         if (other == null) return this
         return fastMerge(
             color = other.textForegroundStyle.color,
@@ -443,7 +443,7 @@ internal constructor(
     }
 
     /** Plus operator overload that applies a [merge]. */
-    @Stable operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
+    @Stable public operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 
     @Deprecated(
         "SpanStyle copy constructors that do not take new stable parameters " +
@@ -451,7 +451,7 @@ internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
@@ -498,7 +498,7 @@ internal constructor(
             "copy constructor.",
         level = DeprecationLevel.HIDDEN,
     )
-    fun copy(
+    public fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
@@ -539,7 +539,7 @@ internal constructor(
         )
     }
 
-    fun copy(
+    public fun copy(
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
@@ -582,7 +582,7 @@ internal constructor(
         )
     }
 
-    fun copy(
+    public fun copy(
         brush: Brush?,
         alpha: Float = this.alpha,
         fontSize: TextUnit = this.fontSize,
@@ -621,7 +621,7 @@ internal constructor(
         )
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SpanStyle) return false
         return hasSameLayoutAffectingAttributes(other) && hasSameNonLayoutAttributes(other)
@@ -652,7 +652,7 @@ internal constructor(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + brush.hashCode()
         result = 31 * result + alpha.hashCode()
@@ -690,7 +690,7 @@ internal constructor(
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "SpanStyle(" +
             "color=$color, " +
             "brush=$brush, " +
@@ -741,7 +741,7 @@ internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
+public fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     return SpanStyle(
         textForegroundStyle = lerp(start.textForegroundStyle, stop.textForegroundStyle, fraction),
         fontFamily = lerpDiscrete(start.fontFamily, stop.fontFamily, fraction),

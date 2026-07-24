@@ -115,7 +115,7 @@ import kotlin.math.roundToInt
  * @param content the content of this navigation rail, typically 3-7 [NavigationRailItem]s
  */
 @Composable
-fun NavigationRail(
+public fun NavigationRail(
     modifier: Modifier = Modifier,
     containerColor: Color = NavigationRailDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -172,7 +172,7 @@ fun NavigationRail(
  *   happen internally.
  */
 @Composable
-fun NavigationRailItem(
+public fun NavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -305,13 +305,13 @@ fun NavigationRailItem(
 }
 
 /** Defaults used in [NavigationRail] */
-object NavigationRailDefaults {
+public object NavigationRailDefaults {
     /** Default container color of a navigation rail. */
-    val ContainerColor: Color
+    public val ContainerColor: Color
         @Composable get() = NavigationRailCollapsedTokens.ContainerColor.value
 
     /** Default window insets for navigation rail. */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(
@@ -320,12 +320,14 @@ object NavigationRailDefaults {
 }
 
 /** Defaults used in [NavigationRailItem]. */
-object NavigationRailItemDefaults {
+public object NavigationRailItemDefaults {
     /**
      * Creates a [NavigationRailItemColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultNavigationRailItemColors
+    @Composable
+    public fun colors(): NavigationRailItemColors =
+        MaterialTheme.colorScheme.defaultNavigationRailItemColors
 
     /**
      * Creates a [NavigationRailItemColors] with the provided colors according to the Material
@@ -341,7 +343,7 @@ object NavigationRailItemDefaults {
      * @return the resulting [NavigationRailItemColors] used for [NavigationRailItem]
      */
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = NavigationRailColorTokens.ItemActiveIcon.value,
         selectedTextColor: Color = NavigationRailColorTokens.ItemActiveLabelText.value,
         indicatorColor: Color = NavigationRailColorTokens.ItemActiveIndicator.value,
@@ -387,7 +389,7 @@ object NavigationRailItemDefaults {
         level = DeprecationLevel.HIDDEN,
     )
     @Composable
-    fun colors(
+    public fun colors(
         selectedIconColor: Color = NavigationRailColorTokens.ItemActiveIcon.value,
         selectedTextColor: Color = NavigationRailColorTokens.ItemActiveLabelText.value,
         indicatorColor: Color = NavigationRailColorTokens.ItemActiveIndicator.value,
@@ -418,21 +420,21 @@ object NavigationRailItemDefaults {
  * @constructor create an instance with arbitrary colors.
  */
 @Immutable
-class NavigationRailItemColors
-constructor(
-    val selectedIconColor: Color,
-    val selectedTextColor: Color,
-    val selectedIndicatorColor: Color,
-    val unselectedIconColor: Color,
-    val unselectedTextColor: Color,
-    val disabledIconColor: Color,
-    val disabledTextColor: Color,
+public class NavigationRailItemColors
+public constructor(
+    public val selectedIconColor: Color,
+    public val selectedTextColor: Color,
+    public val selectedIndicatorColor: Color,
+    public val unselectedIconColor: Color,
+    public val unselectedTextColor: Color,
+    public val disabledIconColor: Color,
+    public val disabledTextColor: Color,
 ) {
     /**
      * Returns a copy of this NavigationRailItemColors, optionally overriding some of the values.
      * This uses the Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         selectedIconColor: Color = this.selectedIconColor,
         selectedTextColor: Color = this.selectedTextColor,
         selectedIndicatorColor: Color = this.selectedIndicatorColor,
@@ -440,7 +442,7 @@ constructor(
         unselectedTextColor: Color = this.unselectedTextColor,
         disabledIconColor: Color = this.disabledIconColor,
         disabledTextColor: Color = this.disabledTextColor,
-    ) =
+    ): NavigationRailItemColors =
         NavigationRailItemColors(
             selectedIconColor.takeOrElse { this.selectedIconColor },
             selectedTextColor.takeOrElse { this.selectedTextColor },

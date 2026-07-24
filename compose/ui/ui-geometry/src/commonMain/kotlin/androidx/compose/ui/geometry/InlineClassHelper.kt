@@ -17,29 +17,29 @@
 package androidx.compose.ui.geometry
 
 // Masks everything but the sign bit
-@PublishedApi internal const val DualUnsignedFloatMask = 0x7fffffff_7fffffffL
+@PublishedApi internal const val DualUnsignedFloatMask: Long = 0x7fffffff_7fffffffL
 
 // Any value greater than this is a NaN
-@PublishedApi internal const val FloatInfinityBase = 0x7f800000
+@PublishedApi internal const val FloatInfinityBase: Int = 0x7f800000
 
 // Same as above, but for floats packed in a Long
-@PublishedApi internal const val DualFloatInfinityBase = 0x7f800000_7f800000L
+@PublishedApi internal const val DualFloatInfinityBase: Long = 0x7f800000_7f800000L
 
 // Same as Offset/Size.Unspecified.packedValue, but avoids a getstatic
-@PublishedApi internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
+@PublishedApi internal const val UnspecifiedPackedFloats: Long = 0x7fc00000_7fc00000L // NaN_NaN
 
 // 0x80000000_80000000UL.toLong() but expressed as a const value
 // Mask for the sign bit of the two floats packed in a long
-@PublishedApi internal const val DualFloatSignBit = -0x7fffffff_80000000L
+@PublishedApi internal const val DualFloatSignBit: Long = -0x7fffffff_80000000L
 
 // Set the highest bit of each 32 bit chunk in a 64 bit word
-@PublishedApi internal const val Uint64High32 = -0x7fffffff_80000000L
+@PublishedApi internal const val Uint64High32: Long = -0x7fffffff_80000000L
 
 // Set the lowest bit of each 32 bit chunk in a 64 bit word
-@PublishedApi internal const val Uint64Low32 = 0x00000001_00000001L
+@PublishedApi internal const val Uint64Low32: Long = 0x00000001_00000001L
 
 // Encodes the first valid NaN in each of the 32 bit chunk of a 64 bit word
-@PublishedApi internal const val DualFirstNaN = 0x7f800001_7f800001L
+@PublishedApi internal const val DualFirstNaN: Long = 0x7f800001_7f800001L
 
 // Set all the significand bits for each 32 bit chunk in a 64 bit word
-@PublishedApi internal const val DualLoadedSignificand = 0x007fffff_007fffffL
+@PublishedApi internal const val DualLoadedSignificand: Long = 0x007fffff_007fffffL

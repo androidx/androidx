@@ -19,9 +19,9 @@ import androidx.compose.ui.implementedInJetBrainsFork
 import kotlin.jvm.JvmInline
 
 @JvmInline
-actual value class Key(val keyCode: Long) {
-    actual companion object {
-        actual val Unknown: Key
+public actual value class Key(public val keyCode: Long) {
+    public actual companion object {
+        public actual val Unknown: Key
             get() = implementedInJetBrainsFork()
 
         @Deprecated(
@@ -30,895 +30,895 @@ actual value class Key(val keyCode: Long) {
                 "`Key.SystemHome`",
             level = DeprecationLevel.ERROR,
         )
-        actual val Home: Key
+        public actual val Home: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SystemHome: Key
+        public actual val SystemHome: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Help: Key
+        public actual val Help: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionUp: Key
+        public actual val DirectionUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionDown: Key
+        public actual val DirectionDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionLeft: Key
+        public actual val DirectionLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionRight: Key
+        public actual val DirectionRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Zero: Key
+        public actual val Zero: Key
             get() = implementedInJetBrainsFork()
 
-        actual val One: Key
+        public actual val One: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Two: Key
+        public actual val Two: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Three: Key
+        public actual val Three: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Four: Key
+        public actual val Four: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Five: Key
+        public actual val Five: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Six: Key
+        public actual val Six: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Seven: Key
+        public actual val Seven: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Eight: Key
+        public actual val Eight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Nine: Key
+        public actual val Nine: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Plus: Key
+        public actual val Plus: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Minus: Key
+        public actual val Minus: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Multiply: Key
+        public actual val Multiply: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Equals: Key
+        public actual val Equals: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Pound: Key
+        public actual val Pound: Key
             get() = implementedInJetBrainsFork()
 
-        actual val A: Key
+        public actual val A: Key
             get() = implementedInJetBrainsFork()
 
-        actual val B: Key
+        public actual val B: Key
             get() = implementedInJetBrainsFork()
 
-        actual val C: Key
+        public actual val C: Key
             get() = implementedInJetBrainsFork()
 
-        actual val D: Key
+        public actual val D: Key
             get() = implementedInJetBrainsFork()
 
-        actual val E: Key
+        public actual val E: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F: Key
+        public actual val F: Key
             get() = implementedInJetBrainsFork()
 
-        actual val G: Key
+        public actual val G: Key
             get() = implementedInJetBrainsFork()
 
-        actual val H: Key
+        public actual val H: Key
             get() = implementedInJetBrainsFork()
 
-        actual val I: Key
+        public actual val I: Key
             get() = implementedInJetBrainsFork()
 
-        actual val J: Key
+        public actual val J: Key
             get() = implementedInJetBrainsFork()
 
-        actual val K: Key
+        public actual val K: Key
             get() = implementedInJetBrainsFork()
 
-        actual val L: Key
+        public actual val L: Key
             get() = implementedInJetBrainsFork()
 
-        actual val M: Key
+        public actual val M: Key
             get() = implementedInJetBrainsFork()
 
-        actual val N: Key
+        public actual val N: Key
             get() = implementedInJetBrainsFork()
 
-        actual val O: Key
+        public actual val O: Key
             get() = implementedInJetBrainsFork()
 
-        actual val P: Key
+        public actual val P: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Q: Key
+        public actual val Q: Key
             get() = implementedInJetBrainsFork()
 
-        actual val R: Key
+        public actual val R: Key
             get() = implementedInJetBrainsFork()
 
-        actual val S: Key
+        public actual val S: Key
             get() = implementedInJetBrainsFork()
 
-        actual val T: Key
+        public actual val T: Key
             get() = implementedInJetBrainsFork()
 
-        actual val U: Key
+        public actual val U: Key
             get() = implementedInJetBrainsFork()
 
-        actual val V: Key
+        public actual val V: Key
             get() = implementedInJetBrainsFork()
 
-        actual val W: Key
+        public actual val W: Key
             get() = implementedInJetBrainsFork()
 
-        actual val X: Key
+        public actual val X: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Y: Key
+        public actual val Y: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Z: Key
+        public actual val Z: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Comma: Key
+        public actual val Comma: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Period: Key
+        public actual val Period: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AltLeft: Key
+        public actual val AltLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AltRight: Key
+        public actual val AltRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ShiftLeft: Key
+        public actual val ShiftLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ShiftRight: Key
+        public actual val ShiftRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Tab: Key
+        public actual val Tab: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Spacebar: Key
+        public actual val Spacebar: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Enter: Key
+        public actual val Enter: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Backspace: Key
+        public actual val Backspace: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Delete: Key
+        public actual val Delete: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Escape: Key
+        public actual val Escape: Key
             get() = implementedInJetBrainsFork()
 
-        actual val CtrlLeft: Key
+        public actual val CtrlLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val CtrlRight: Key
+        public actual val CtrlRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val CapsLock: Key
+        public actual val CapsLock: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ScrollLock: Key
+        public actual val ScrollLock: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MetaLeft: Key
+        public actual val MetaLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MetaRight: Key
+        public actual val MetaRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val PrintScreen: Key
+        public actual val PrintScreen: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Insert: Key
+        public actual val Insert: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Cut: Key
+        public actual val Cut: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Copy: Key
+        public actual val Copy: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Paste: Key
+        public actual val Paste: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Grave: Key
+        public actual val Grave: Key
             get() = implementedInJetBrainsFork()
 
-        actual val LeftBracket: Key
+        public actual val LeftBracket: Key
             get() = implementedInJetBrainsFork()
 
-        actual val RightBracket: Key
+        public actual val RightBracket: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Slash: Key
+        public actual val Slash: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Backslash: Key
+        public actual val Backslash: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Semicolon: Key
+        public actual val Semicolon: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Apostrophe: Key
+        public actual val Apostrophe: Key
             get() = implementedInJetBrainsFork()
 
-        actual val At: Key
+        public actual val At: Key
             get() = implementedInJetBrainsFork()
 
-        actual val PageUp: Key
+        public actual val PageUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val PageDown: Key
+        public actual val PageDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F1: Key
+        public actual val F1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F2: Key
+        public actual val F2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F3: Key
+        public actual val F3: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F4: Key
+        public actual val F4: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F5: Key
+        public actual val F5: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F6: Key
+        public actual val F6: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F7: Key
+        public actual val F7: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F8: Key
+        public actual val F8: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F9: Key
+        public actual val F9: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F10: Key
+        public actual val F10: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F11: Key
+        public actual val F11: Key
             get() = implementedInJetBrainsFork()
 
-        actual val F12: Key
+        public actual val F12: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumLock: Key
+        public actual val NumLock: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad0: Key
+        public actual val NumPad0: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad1: Key
+        public actual val NumPad1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad2: Key
+        public actual val NumPad2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad3: Key
+        public actual val NumPad3: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad4: Key
+        public actual val NumPad4: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad5: Key
+        public actual val NumPad5: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad6: Key
+        public actual val NumPad6: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad7: Key
+        public actual val NumPad7: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad8: Key
+        public actual val NumPad8: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPad9: Key
+        public actual val NumPad9: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDivide: Key
+        public actual val NumPadDivide: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadMultiply: Key
+        public actual val NumPadMultiply: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadSubtract: Key
+        public actual val NumPadSubtract: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadAdd: Key
+        public actual val NumPadAdd: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDot: Key
+        public actual val NumPadDot: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadComma: Key
+        public actual val NumPadComma: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadEnter: Key
+        public actual val NumPadEnter: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadEquals: Key
+        public actual val NumPadEquals: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadLeftParenthesis: Key
+        public actual val NumPadLeftParenthesis: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadRightParenthesis: Key
+        public actual val NumPadRightParenthesis: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDirectionUp: Key
+        public actual val NumPadDirectionUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDirectionDown: Key
+        public actual val NumPadDirectionDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDirectionLeft: Key
+        public actual val NumPadDirectionLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDirectionRight: Key
+        public actual val NumPadDirectionRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadMoveHome: Key
+        public actual val NumPadMoveHome: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadMoveEnd: Key
+        public actual val NumPadMoveEnd: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadPageUp: Key
+        public actual val NumPadPageUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadPageDown: Key
+        public actual val NumPadPageDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadInsert: Key
+        public actual val NumPadInsert: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NumPadDelete: Key
+        public actual val NumPadDelete: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MoveHome: Key
+        public actual val MoveHome: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MoveEnd: Key
+        public actual val MoveEnd: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SoftLeft: Key
+        public actual val SoftLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SoftRight: Key
+        public actual val SoftRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Back: Key
+        public actual val Back: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NavigatePrevious: Key
+        public actual val NavigatePrevious: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NavigateNext: Key
+        public actual val NavigateNext: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NavigateIn: Key
+        public actual val NavigateIn: Key
             get() = implementedInJetBrainsFork()
 
-        actual val NavigateOut: Key
+        public actual val NavigateOut: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SystemNavigationUp: Key
+        public actual val SystemNavigationUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SystemNavigationDown: Key
+        public actual val SystemNavigationDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SystemNavigationLeft: Key
+        public actual val SystemNavigationLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SystemNavigationRight: Key
+        public actual val SystemNavigationRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Call: Key
+        public actual val Call: Key
             get() = implementedInJetBrainsFork()
 
-        actual val EndCall: Key
+        public actual val EndCall: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionCenter: Key
+        public actual val DirectionCenter: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionUpLeft: Key
+        public actual val DirectionUpLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionDownLeft: Key
+        public actual val DirectionDownLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionUpRight: Key
+        public actual val DirectionUpRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val DirectionDownRight: Key
+        public actual val DirectionDownRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val VolumeUp: Key
+        public actual val VolumeUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val VolumeDown: Key
+        public actual val VolumeDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Power: Key
+        public actual val Power: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Camera: Key
+        public actual val Camera: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Clear: Key
+        public actual val Clear: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Symbol: Key
+        public actual val Symbol: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Browser: Key
+        public actual val Browser: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Envelope: Key
+        public actual val Envelope: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Function: Key
+        public actual val Function: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Break: Key
+        public actual val Break: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Number: Key
+        public actual val Number: Key
             get() = implementedInJetBrainsFork()
 
-        actual val HeadsetHook: Key
+        public actual val HeadsetHook: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Focus: Key
+        public actual val Focus: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Menu: Key
+        public actual val Menu: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Notification: Key
+        public actual val Notification: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Search: Key
+        public actual val Search: Key
             get() = implementedInJetBrainsFork()
 
-        actual val PictureSymbols: Key
+        public actual val PictureSymbols: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SwitchCharset: Key
+        public actual val SwitchCharset: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonA: Key
+        public actual val ButtonA: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonB: Key
+        public actual val ButtonB: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonC: Key
+        public actual val ButtonC: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonX: Key
+        public actual val ButtonX: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonY: Key
+        public actual val ButtonY: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonZ: Key
+        public actual val ButtonZ: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonL1: Key
+        public actual val ButtonL1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonR1: Key
+        public actual val ButtonR1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonL2: Key
+        public actual val ButtonL2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonR2: Key
+        public actual val ButtonR2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonThumbLeft: Key
+        public actual val ButtonThumbLeft: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonThumbRight: Key
+        public actual val ButtonThumbRight: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonStart: Key
+        public actual val ButtonStart: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonSelect: Key
+        public actual val ButtonSelect: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ButtonMode: Key
+        public actual val ButtonMode: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button1: Key
+        public actual val Button1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button2: Key
+        public actual val Button2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button3: Key
+        public actual val Button3: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button4: Key
+        public actual val Button4: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button5: Key
+        public actual val Button5: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button6: Key
+        public actual val Button6: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button7: Key
+        public actual val Button7: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button8: Key
+        public actual val Button8: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button9: Key
+        public actual val Button9: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button10: Key
+        public actual val Button10: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button11: Key
+        public actual val Button11: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button12: Key
+        public actual val Button12: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button13: Key
+        public actual val Button13: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button14: Key
+        public actual val Button14: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button15: Key
+        public actual val Button15: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Button16: Key
+        public actual val Button16: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Forward: Key
+        public actual val Forward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaPlay: Key
+        public actual val MediaPlay: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaPause: Key
+        public actual val MediaPause: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaPlayPause: Key
+        public actual val MediaPlayPause: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaStop: Key
+        public actual val MediaStop: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaRecord: Key
+        public actual val MediaRecord: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaNext: Key
+        public actual val MediaNext: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaPrevious: Key
+        public actual val MediaPrevious: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaRewind: Key
+        public actual val MediaRewind: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaFastForward: Key
+        public actual val MediaFastForward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaClose: Key
+        public actual val MediaClose: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaAudioTrack: Key
+        public actual val MediaAudioTrack: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaEject: Key
+        public actual val MediaEject: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaTopMenu: Key
+        public actual val MediaTopMenu: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaSkipForward: Key
+        public actual val MediaSkipForward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaSkipBackward: Key
+        public actual val MediaSkipBackward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaStepForward: Key
+        public actual val MediaStepForward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MediaStepBackward: Key
+        public actual val MediaStepBackward: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MicrophoneMute: Key
+        public actual val MicrophoneMute: Key
             get() = implementedInJetBrainsFork()
 
-        actual val VolumeMute: Key
+        public actual val VolumeMute: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Info: Key
+        public actual val Info: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ChannelUp: Key
+        public actual val ChannelUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ChannelDown: Key
+        public actual val ChannelDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ZoomIn: Key
+        public actual val ZoomIn: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ZoomOut: Key
+        public actual val ZoomOut: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Tv: Key
+        public actual val Tv: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Window: Key
+        public actual val Window: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Guide: Key
+        public actual val Guide: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Dvr: Key
+        public actual val Dvr: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Bookmark: Key
+        public actual val Bookmark: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Captions: Key
+        public actual val Captions: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Settings: Key
+        public actual val Settings: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvPower: Key
+        public actual val TvPower: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInput: Key
+        public actual val TvInput: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SetTopBoxPower: Key
+        public actual val SetTopBoxPower: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SetTopBoxInput: Key
+        public actual val SetTopBoxInput: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AvReceiverPower: Key
+        public actual val AvReceiverPower: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AvReceiverInput: Key
+        public actual val AvReceiverInput: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ProgramRed: Key
+        public actual val ProgramRed: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ProgramGreen: Key
+        public actual val ProgramGreen: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ProgramYellow: Key
+        public actual val ProgramYellow: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ProgramBlue: Key
+        public actual val ProgramBlue: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AppSwitch: Key
+        public actual val AppSwitch: Key
             get() = implementedInJetBrainsFork()
 
-        actual val LanguageSwitch: Key
+        public actual val LanguageSwitch: Key
             get() = implementedInJetBrainsFork()
 
-        actual val MannerMode: Key
+        public actual val MannerMode: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Toggle2D3D: Key
+        public actual val Toggle2D3D: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Contacts: Key
+        public actual val Contacts: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Calendar: Key
+        public actual val Calendar: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Music: Key
+        public actual val Music: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Calculator: Key
+        public actual val Calculator: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ZenkakuHankaru: Key
+        public actual val ZenkakuHankaru: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Eisu: Key
+        public actual val Eisu: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Muhenkan: Key
+        public actual val Muhenkan: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Henkan: Key
+        public actual val Henkan: Key
             get() = implementedInJetBrainsFork()
 
-        actual val KatakanaHiragana: Key
+        public actual val KatakanaHiragana: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Yen: Key
+        public actual val Yen: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Ro: Key
+        public actual val Ro: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Kana: Key
+        public actual val Kana: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Assist: Key
+        public actual val Assist: Key
             get() = implementedInJetBrainsFork()
 
-        actual val BrightnessDown: Key
+        public actual val BrightnessDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val BrightnessUp: Key
+        public actual val BrightnessUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Sleep: Key
+        public actual val Sleep: Key
             get() = implementedInJetBrainsFork()
 
-        actual val WakeUp: Key
+        public actual val WakeUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val SoftSleep: Key
+        public actual val SoftSleep: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Pairing: Key
+        public actual val Pairing: Key
             get() = implementedInJetBrainsFork()
 
-        actual val LastChannel: Key
+        public actual val LastChannel: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvDataService: Key
+        public actual val TvDataService: Key
             get() = implementedInJetBrainsFork()
 
-        actual val VoiceAssist: Key
+        public actual val VoiceAssist: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvRadioService: Key
+        public actual val TvRadioService: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvTeletext: Key
+        public actual val TvTeletext: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvNumberEntry: Key
+        public actual val TvNumberEntry: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvTerrestrialAnalog: Key
+        public actual val TvTerrestrialAnalog: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvTerrestrialDigital: Key
+        public actual val TvTerrestrialDigital: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvSatellite: Key
+        public actual val TvSatellite: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvSatelliteBs: Key
+        public actual val TvSatelliteBs: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvSatelliteCs: Key
+        public actual val TvSatelliteCs: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvSatelliteService: Key
+        public actual val TvSatelliteService: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvNetwork: Key
+        public actual val TvNetwork: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvAntennaCable: Key
+        public actual val TvAntennaCable: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputHdmi1: Key
+        public actual val TvInputHdmi1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputHdmi2: Key
+        public actual val TvInputHdmi2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputHdmi3: Key
+        public actual val TvInputHdmi3: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputHdmi4: Key
+        public actual val TvInputHdmi4: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputComposite1: Key
+        public actual val TvInputComposite1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputComposite2: Key
+        public actual val TvInputComposite2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputComponent1: Key
+        public actual val TvInputComponent1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputComponent2: Key
+        public actual val TvInputComponent2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvInputVga1: Key
+        public actual val TvInputVga1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvAudioDescription: Key
+        public actual val TvAudioDescription: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvAudioDescriptionMixingVolumeUp: Key
+        public actual val TvAudioDescriptionMixingVolumeUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvAudioDescriptionMixingVolumeDown: Key
+        public actual val TvAudioDescriptionMixingVolumeDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvZoomMode: Key
+        public actual val TvZoomMode: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvContentsMenu: Key
+        public actual val TvContentsMenu: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvMediaContextMenu: Key
+        public actual val TvMediaContextMenu: Key
             get() = implementedInJetBrainsFork()
 
-        actual val TvTimerProgramming: Key
+        public actual val TvTimerProgramming: Key
             get() = implementedInJetBrainsFork()
 
-        actual val StemPrimary: Key
+        public actual val StemPrimary: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Stem1: Key
+        public actual val Stem1: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Stem2: Key
+        public actual val Stem2: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Stem3: Key
+        public actual val Stem3: Key
             get() = implementedInJetBrainsFork()
 
-        actual val AllApps: Key
+        public actual val AllApps: Key
             get() = implementedInJetBrainsFork()
 
-        actual val Refresh: Key
+        public actual val Refresh: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ThumbsUp: Key
+        public actual val ThumbsUp: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ThumbsDown: Key
+        public actual val ThumbsDown: Key
             get() = implementedInJetBrainsFork()
 
-        actual val ProfileSwitch: Key
+        public actual val ProfileSwitch: Key
             get() = implementedInJetBrainsFork()
     }
 }

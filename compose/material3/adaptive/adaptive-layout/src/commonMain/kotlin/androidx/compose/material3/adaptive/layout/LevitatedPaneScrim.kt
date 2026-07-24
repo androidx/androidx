@@ -42,7 +42,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun LevitatedPaneScrim(
+public fun LevitatedPaneScrim(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit) = LevitatedPaneScrimDefaults.onClickAction,
     color: Color = LevitatedPaneScrimDefaults.Color,
@@ -66,9 +66,9 @@ fun LevitatedPaneScrim(
 
 /** The objet to provide default values of [LevitatedPaneScrim]. */
 @ExperimentalMaterial3AdaptiveApi
-object LevitatedPaneScrimDefaults {
+public object LevitatedPaneScrimDefaults {
     /** The default color of the scrim, which is a translucent black. */
-    val Color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.32f)
+    public val Color: Color = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.32f)
 
     internal val onClickAction: () -> Unit = {}
 }

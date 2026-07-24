@@ -49,64 +49,65 @@ import kotlin.math.min
  */
 @Immutable
 @JvmInline
-value class Dp
+public value class Dp
 /**
  * Constructs a new [Dp] value. Use [Float.dp] instead to avoid problems with comparing `-0.0.dp`
  * and `0.dp`. While the floating point values are treated the same, if the value passed to the
  * constructor is `-0f`, the [Dp] value will not be considered equal to `0.dp`. When `-0f.dp` is
  * used, the value will be constructed in a way that avoids the problem.
  */
-constructor(val value: Float) : Comparable<Dp> {
+public constructor(public val value: Float) : Comparable<Dp> {
     /** Add two [Dp]s together. */
-    @Stable inline operator fun plus(other: Dp) = Dp((this.value + other.value) + 0f)
+    @Stable public inline operator fun plus(other: Dp): Dp = Dp((this.value + other.value) + 0f)
 
     /** Subtract a Dp from another one. */
-    @Stable inline operator fun minus(other: Dp) = Dp((this.value - other.value) + 0f)
+    @Stable public inline operator fun minus(other: Dp): Dp = Dp((this.value - other.value) + 0f)
 
     /** This is the same as multiplying the Dp by -1.0. */
     // +0f to normalize -0f
-    @Stable inline operator fun unaryMinus() = Dp(-value + 0f)
+    @Stable public inline operator fun unaryMinus(): Dp = Dp(-value + 0f)
 
     /** Divide a Dp by a scalar. */
     // +0f to normalize -0f
-    @Stable inline operator fun div(other: Float): Dp = Dp((value / other) + 0f)
+    @Stable public inline operator fun div(other: Float): Dp = Dp((value / other) + 0f)
 
     // +0f to normalize -0f
-    @Stable inline operator fun div(other: Int): Dp = Dp((value / other) + 0f)
+    @Stable public inline operator fun div(other: Int): Dp = Dp((value / other) + 0f)
 
     /** Divide by another Dp to get a scalar. */
-    @Stable inline operator fun div(other: Dp): Float = value / other.value
+    @Stable public inline operator fun div(other: Dp): Float = value / other.value
 
     /** Multiply a Dp by a scalar. */
     // +0f to normalize -0f
-    @Stable inline operator fun times(other: Float): Dp = Dp((value * other) + 0f)
+    @Stable public inline operator fun times(other: Float): Dp = Dp((value * other) + 0f)
 
     // +0f to normalize -0f
-    @Stable inline operator fun times(other: Int): Dp = Dp((value * other) + 0f)
+    @Stable public inline operator fun times(other: Int): Dp = Dp((value * other) + 0f)
 
     /** Support comparing Dimensions with comparison operators. */
     @OptIn(ExperimentalUnitApi::class)
     @Stable
-    override /* TODO: inline */  operator fun compareTo(other: Dp) =
+    public override /* TODO: inline */  operator fun compareTo(other: Dp): Int =
         // Unspecified values should compare false against all other values. This always sets
         // them as comparing == 0, but the equality check fails, so Unspecified < 1.dp == false
         // and 1.dp < Unspecified == false
         if (value.isNaN() || other.value.isNaN()) 0 else value.compareTo(other.value)
 
-    @Stable override fun toString() = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
+    @Stable
+    public override fun toString(): String = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
 
-    companion object {
+    public companion object {
         /**
          * A dimension used to represent a hairline drawing element. Hairline elements take up no
          * space, but will draw a single pixel, independent of the device's resolution and density.
          */
         @Stable
-        val Hairline
+        public val Hairline: Dp
             get() = Dp(0f)
 
         /** Infinite dp dimension. */
         @Stable
-        val Infinity
+        public val Infinity: Dp
             get() = Dp(Float.POSITIVE_INFINITY)
 
         /**
@@ -114,56 +115,57 @@ constructor(val value: Float) : Comparable<Dp> {
          * consider using [isSpecified] and [isUnspecified] instead.
          */
         @Stable
-        val Unspecified
+        public val Unspecified: Dp
             get() = Dp(Float.NaN)
     }
 }
 
 /** `false` when this is [Dp.Unspecified]. */
 @Stable
-inline val Dp.isSpecified: Boolean
+public inline val Dp.isSpecified: Boolean
     get() = !value.isNaN()
 
 /** `true` when this is [Dp.Unspecified]. */
 @Stable
-inline val Dp.isUnspecified: Boolean
+public inline val Dp.isUnspecified: Boolean
     get() = value.isNaN()
 
 /**
  * If this [Dp] [isSpecified] then this is returned, otherwise [block] is executed and its result is
  * returned.
  */
-inline fun Dp.takeOrElse(block: () -> Dp): Dp = if (isSpecified) this else block()
+public inline fun Dp.takeOrElse(block: () -> Dp): Dp = if (isSpecified) this else block()
 
 /** Create a [Dp] using an [Int]: val left = 10 val x = left.dp // -- or -- val y = 10.dp */
 @Stable
-inline val Int.dp: Dp
+public inline val Int.dp: Dp
     get() = Dp(this.toFloat())
 
 /** Create a [Dp] using a [Double]: val left = 10.0 val x = left.dp // -- or -- val y = 10.0.dp */
 @Stable
-inline val Double.dp: Dp
+public inline val Double.dp: Dp
     // +0f to normalize -0f
     get() = Dp(this.toFloat() + 0f)
 
 /** Create a [Dp] using a [Float]: val left = 10f val x = left.dp // -- or -- val y = 10f.dp */
 @Stable
-inline val Float.dp: Dp
+public inline val Float.dp: Dp
     // +0f to normalize -0f
     get() = Dp(this + 0f)
 
 // +0f to normalize -0f
-@Stable inline operator fun Float.times(other: Dp) = Dp((this * other.value) + 0f)
+@Stable public inline operator fun Float.times(other: Dp): Dp = Dp((this * other.value) + 0f)
 
 // +0f to normalize -0f
-@Stable inline operator fun Double.times(other: Dp) = Dp((this.toFloat() * other.value) + 0f)
+@Stable
+public inline operator fun Double.times(other: Dp): Dp = Dp((this.toFloat() * other.value) + 0f)
 
 // +0f to normalize -0f
-@Stable inline operator fun Int.times(other: Dp) = Dp((this * other.value) + 0f)
+@Stable public inline operator fun Int.times(other: Dp): Dp = Dp((this * other.value) + 0f)
 
-@Stable inline fun min(a: Dp, b: Dp): Dp = Dp(min(a.value, b.value))
+@Stable public inline fun min(a: Dp, b: Dp): Dp = Dp(min(a.value, b.value))
 
-@Stable inline fun max(a: Dp, b: Dp): Dp = Dp(max(a.value, b.value))
+@Stable public inline fun max(a: Dp, b: Dp): Dp = Dp(max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -172,7 +174,7 @@ inline val Float.dp: Dp
  *   [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
 @Stable
-inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
+public inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
     Dp(value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
@@ -182,7 +184,8 @@ inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
  *   otherwise.
  */
 @Stable
-inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp = Dp(value.coerceAtLeast(minimumValue.value))
+public inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
+    Dp(value.coerceAtLeast(minimumValue.value))
 
 /**
  * Ensures that this value is not greater than the specified [maximumValue].
@@ -191,11 +194,11 @@ inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp = Dp(value.coerceAtLeast(minim
  *   otherwise.
  */
 @Stable
-inline fun Dp.coerceAtMost(maximumValue: Dp): Dp = Dp(value.coerceAtMost(maximumValue.value))
+public inline fun Dp.coerceAtMost(maximumValue: Dp): Dp = Dp(value.coerceAtMost(maximumValue.value))
 
 /** Return `true` when it is finite or `false` when it is [Dp.Infinity] */
 @Stable
-inline val Dp.isFinite: Boolean
+public inline val Dp.isFinite: Boolean
     get() = value.fastIsFinite()
 
 /**
@@ -209,7 +212,7 @@ inline val Dp.isFinite: Boolean
  * negative values and values greater than 1.0 are valid.
  */
 @Stable
-fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
+public fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
     // +0f to normalize -0f
     return Dp(lerp(start.value, stop.value, fraction) + 0f)
 }
@@ -219,7 +222,7 @@ fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /** Constructs a [DpOffset] from [x] and [y] position [Dp] values. */
-@Stable inline fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
+@Stable public inline fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
 
 /**
  * A two-dimensional offset using [Dp] for units.
@@ -237,41 +240,42 @@ fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
  */
 @Immutable
 @JvmInline
-value class DpOffset(val packedValue: Long) {
+public value class DpOffset(public val packedValue: Long) {
     /** The horizontal aspect of the offset in [Dp] */
     @Stable
-    val x: Dp
+    public val x: Dp
         get() = unpackFloat1(packedValue).dp
 
     /** The vertical aspect of the offset in [Dp] */
     @Stable
-    val y: Dp
+    public val y: Dp
         get() = unpackFloat2(packedValue).dp
 
     /** Returns a copy of this [DpOffset] instance optionally overriding the x or y parameter */
-    fun copy(x: Dp = this.x, y: Dp = this.y): DpOffset = DpOffset(packFloats(x.value, y.value))
+    public fun copy(x: Dp = this.x, y: Dp = this.y): DpOffset =
+        DpOffset(packFloats(x.value, y.value))
 
     /** Subtract a [DpOffset] from another one. */
     @Stable
-    operator fun minus(other: DpOffset) =
+    public operator fun minus(other: DpOffset): DpOffset =
         DpOffset(packFloats((x - other.x).value, (y - other.y).value))
 
     /** Add a [DpOffset] to another one. */
     @Stable
-    operator fun plus(other: DpOffset) =
+    public operator fun plus(other: DpOffset): DpOffset =
         DpOffset(packFloats((x + other.x).value, (y + other.y).value))
 
     @Stable
-    override fun toString(): String =
+    public override fun toString(): String =
         if (isSpecified) {
             "($x, $y)"
         } else {
             "DpOffset.Unspecified"
         }
 
-    companion object {
+    public companion object {
         /** A [DpOffset] with 0 DP [x] and 0 DP [y] values. */
-        val Zero
+        public val Zero: DpOffset
             get() = DpOffset(0x0L)
 
         /**
@@ -279,26 +283,27 @@ value class DpOffset(val packedValue: Long) {
          * `null` when a primitive value is desired. Access to [x] or [y] on an unspecified offset
          * is not allowed.
          */
-        val Unspecified
+        public val Unspecified: DpOffset
             get() = DpOffset(0x7fc00000_7fc00000L)
     }
 }
 
 /** `false` when this is [DpOffset.Unspecified]. */
 @Stable
-inline val DpOffset.isSpecified: Boolean
+public inline val DpOffset.isSpecified: Boolean
     get() = packedValue != 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /** `true` when this is [DpOffset.Unspecified]. */
 @Stable
-inline val DpOffset.isUnspecified: Boolean
+public inline val DpOffset.isUnspecified: Boolean
     get() = packedValue == 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * If this [DpOffset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed and
  * its result is returned.
  */
-inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset = if (isSpecified) this else block()
+public inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset =
+    if (isSpecified) this else block()
 
 /**
  * Linearly interpolate between two [DpOffset]s.
@@ -311,75 +316,76 @@ inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset = if (isSpecifie
  * negative values and values greater than 1.0 are valid.
  */
 @Stable
-fun lerp(start: DpOffset, stop: DpOffset, fraction: Float): DpOffset =
+public fun lerp(start: DpOffset, stop: DpOffset, fraction: Float): DpOffset =
     DpOffset(
         packFloats(lerp(start.x, stop.x, fraction).value, lerp(start.y, stop.y, fraction).value)
     )
 
 /** Constructs a [DpSize] from [width] and [height] [Dp] values. */
-@Stable fun DpSize(width: Dp, height: Dp): DpSize = DpSize(packFloats(width.value, height.value))
+@Stable
+public fun DpSize(width: Dp, height: Dp): DpSize = DpSize(packFloats(width.value, height.value))
 
 /** A two-dimensional Size using [Dp] for units */
 @Immutable
 @JvmInline
-value class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
+public value class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
     /** The horizontal aspect of the Size in [Dp] */
     @Stable
-    val width: Dp
+    public val width: Dp
         get() = unpackFloat1(packedValue).dp
 
     /** The vertical aspect of the Size in [Dp] */
     @Stable
-    val height: Dp
+    public val height: Dp
         get() = unpackFloat2(packedValue).dp
 
     /**
      * Returns a copy of this [DpSize] instance optionally overriding the width or height parameter
      */
-    fun copy(width: Dp = this.width, height: Dp = this.height): DpSize =
+    public fun copy(width: Dp = this.width, height: Dp = this.height): DpSize =
         DpSize(packFloats(width.value, height.value))
 
     /** Subtract a [DpSize] from another one. */
     @Stable
-    operator fun minus(other: DpSize) =
+    public operator fun minus(other: DpSize): DpSize =
         DpSize(packFloats((width - other.width).value, (height - other.height).value))
 
     /** Add a [DpSize] to another one. */
     @Stable
-    operator fun plus(other: DpSize) =
+    public operator fun plus(other: DpSize): DpSize =
         DpSize(packFloats((width + other.width).value, (height + other.height).value))
 
-    @Stable inline operator fun component1(): Dp = width
+    @Stable public inline operator fun component1(): Dp = width
 
-    @Stable inline operator fun component2(): Dp = height
+    @Stable public inline operator fun component2(): Dp = height
 
     @Stable
-    operator fun times(other: Int): DpSize =
+    public operator fun times(other: Int): DpSize =
         DpSize(packFloats((width * other).value, (height * other).value))
 
     @Stable
-    operator fun times(other: Float): DpSize =
+    public operator fun times(other: Float): DpSize =
         DpSize(packFloats((width * other).value, (height * other).value))
 
     @Stable
-    operator fun div(other: Int): DpSize =
+    public operator fun div(other: Int): DpSize =
         DpSize(packFloats((width / other).value, (height / other).value))
 
     @Stable
-    operator fun div(other: Float): DpSize =
+    public operator fun div(other: Float): DpSize =
         DpSize(packFloats((width / other).value, (height / other).value))
 
     @Stable
-    override fun toString(): String =
+    public override fun toString(): String =
         if (isSpecified) {
             "$width x $height"
         } else {
             "DpSize.Unspecified"
         }
 
-    companion object {
+    public companion object {
         /** A [DpSize] with 0 DP [width] and 0 DP [height] values. */
-        val Zero
+        public val Zero: DpSize
             get() = DpSize(0x0L)
 
         /**
@@ -387,35 +393,36 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
          * `null` when a primitive value is desired. Access to [width] or [height] on an unspecified
          * size is not allowed.
          */
-        val Unspecified
+        public val Unspecified: DpSize
             get() = DpSize(0x7fc00000_7fc00000L)
     }
 }
 
 /** `false` when this is [DpSize.Unspecified]. */
 @Stable
-inline val DpSize.isSpecified: Boolean
+public inline val DpSize.isSpecified: Boolean
     get() = packedValue != 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /** `true` when this is [DpSize.Unspecified]. */
 @Stable
-inline val DpSize.isUnspecified: Boolean
+public inline val DpSize.isUnspecified: Boolean
     get() = packedValue == 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * If this [DpSize]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed and its
  * result is returned.
  */
-inline fun DpSize.takeOrElse(block: () -> DpSize): DpSize = if (isSpecified) this else block()
+public inline fun DpSize.takeOrElse(block: () -> DpSize): DpSize =
+    if (isSpecified) this else block()
 
 /** Returns the [DpOffset] of the center of the rect from the point of [0, 0] with this [DpSize]. */
 @Stable
-val DpSize.center: DpOffset
+public val DpSize.center: DpOffset
     get() = DpOffset(packFloats((width / 2f).value, (height / 2f).value))
 
-@Stable inline operator fun Int.times(size: DpSize) = size * this
+@Stable public inline operator fun Int.times(size: DpSize): DpSize = size * this
 
-@Stable inline operator fun Float.times(size: DpSize) = size * this
+@Stable public inline operator fun Float.times(size: DpSize): DpSize = size * this
 
 /**
  * Linearly interpolate between two [DpSize]s.
@@ -427,7 +434,7 @@ val DpSize.center: DpOffset
  * beyond 0.0 and 1.0, so negative values and values greater than 1.0 are valid.
  */
 @Stable
-fun lerp(start: DpSize, stop: DpSize, fraction: Float): DpSize =
+public fun lerp(start: DpSize, stop: DpSize, fraction: Float): DpSize =
     DpSize(
         packFloats(
             lerp(start.width, stop.width, fraction).value,
@@ -438,32 +445,32 @@ fun lerp(start: DpSize, stop: DpSize, fraction: Float): DpSize =
 /** A four dimensional bounds using [Dp] for units */
 @Immutable
 @Suppress("DataClassDefinition")
-data class DpRect(
-    @Stable val left: Dp,
-    @Stable val top: Dp,
-    @Stable val right: Dp,
-    @Stable val bottom: Dp,
+public data class DpRect(
+    @Stable public val left: Dp,
+    @Stable public val top: Dp,
+    @Stable public val right: Dp,
+    @Stable public val bottom: Dp,
 ) {
     /** Constructs a [DpRect] from the top-left [origin] and the width and height in [size]. */
-    constructor(
+    public constructor(
         origin: DpOffset,
         size: DpSize,
     ) : this(origin.x, origin.y, origin.x + size.width, origin.y + size.height)
 
-    companion object
+    public companion object
 }
 
 /** A width of this Bounds in [Dp]. */
 @Stable
-inline val DpRect.width: Dp
+public inline val DpRect.width: Dp
     get() = right - left
 
 /** A height of this Bounds in [Dp]. */
 @Stable
-inline val DpRect.height: Dp
+public inline val DpRect.height: Dp
     get() = bottom - top
 
 /** Returns the size of the [DpRect]. */
 @Stable
-inline val DpRect.size: DpSize
+public inline val DpRect.size: DpSize
     get() = DpSize(width, height)

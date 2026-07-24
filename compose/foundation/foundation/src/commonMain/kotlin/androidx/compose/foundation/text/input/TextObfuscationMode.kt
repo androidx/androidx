@@ -31,14 +31,14 @@ import kotlin.jvm.JvmInline
  * maintaining privacy by not exposing too much information.
  */
 @JvmInline
-value class TextObfuscationMode internal constructor(val value: Int) {
-    companion object {
+public value class TextObfuscationMode internal constructor(public val value: Int) {
+    public companion object {
         /**
          * Do not obscure any content, making all the content visible.
          *
          * It can be useful when you want to briefly reveal the content by toggling a reveal icon.
          */
-        val Visible
+        public val Visible: TextObfuscationMode
             get() = TextObfuscationMode(0)
 
         /**
@@ -47,11 +47,11 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          * Forces reveal behavior regardless of platform settings. For platform-dependent behavior,
          * e.g. Androids "Show Passwords" setting, use [System].
          */
-        val RevealLastTyped
+        public val RevealLastTyped: TextObfuscationMode
             get() = TextObfuscationMode(1)
 
         /** All characters are hidden. */
-        val Hidden
+        public val Hidden: TextObfuscationMode
             get() = TextObfuscationMode(2)
 
         /**
@@ -68,7 +68,7 @@ value class TextObfuscationMode internal constructor(val value: Int) {
          * - Below SDK 37: Respects the system-wide "Show passwords" toggle
          *   (`Settings.System.TEXT_SHOW_PASSWORD`) for all input types.
          */
-        val System
+        public val System: TextObfuscationMode
             get() = TextObfuscationMode(3)
     }
 }

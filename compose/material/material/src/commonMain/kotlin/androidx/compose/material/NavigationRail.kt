@@ -98,7 +98,7 @@ import kotlin.math.roundToInt
  *   [NavigationRailItem]s
  */
 @Composable
-fun NavigationRail(
+public fun NavigationRail(
     windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.surface,
@@ -163,7 +163,7 @@ fun NavigationRail(
  *   [NavigationRailItem]s
  */
 @Composable
-fun NavigationRail(
+public fun NavigationRail(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -198,7 +198,7 @@ fun NavigationRail(
  * @param unselectedContentColor the color of the text label and icon when this item is not selected
  */
 @Composable
-fun NavigationRailItem(
+public fun NavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -252,12 +252,12 @@ fun NavigationRailItem(
 }
 
 /** Contains default values used for [NavigationRail]. */
-object NavigationRailDefaults {
+public object NavigationRailDefaults {
     /** Default elevation used for [NavigationRail]. */
-    val Elevation = 8.dp
+    public val Elevation: Dp = 8.dp
 
     /** Recommended window insets for navigation rail. */
-    val windowInsets: WindowInsets
+    public val windowInsets: WindowInsets
         @Composable
         get() =
             WindowInsets.systemBarsForVisualComponents.only(

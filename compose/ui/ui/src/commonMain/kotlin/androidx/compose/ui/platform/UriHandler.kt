@@ -17,12 +17,12 @@
 package androidx.compose.ui.platform
 
 /** An interface of providing platform specific URL handling. */
-interface UriHandler {
+public interface UriHandler {
     /**
      * Open given URL in browser
      *
      * @throws IllegalArgumentException when given [uri] is invalid and/or can't be handled by the
      *   system
      */
-    fun openUri(uri: String)
+    public fun openUri(uri: String)
 }

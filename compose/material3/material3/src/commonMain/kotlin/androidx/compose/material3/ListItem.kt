@@ -136,7 +136,7 @@ import kotlin.math.max
 )
 @Composable
 @Suppress("DEPRECATION")
-fun ListItem(
+public fun ListItem(
     headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     overlineContent: @Composable (() -> Unit)? = null,
@@ -259,7 +259,7 @@ fun ListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun ListItem(
+public fun ListItem(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     leadingContent: @Composable (() -> Unit)? = null,
@@ -338,7 +338,7 @@ fun ListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun ListItem(
+public fun ListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -416,7 +416,7 @@ fun ListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun ListItem(
+public fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -500,7 +500,7 @@ fun ListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun ListItem(
+public fun ListItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -575,7 +575,7 @@ fun ListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun SegmentedListItem(
+public fun SegmentedListItem(
     shapes: ListItemShapes,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -653,7 +653,7 @@ fun SegmentedListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun SegmentedListItem(
+public fun SegmentedListItem(
     onClick: () -> Unit,
     shapes: ListItemShapes,
     modifier: Modifier = Modifier,
@@ -733,7 +733,7 @@ fun SegmentedListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun SegmentedListItem(
+public fun SegmentedListItem(
     selected: Boolean,
     onClick: () -> Unit,
     shapes: ListItemShapes,
@@ -817,7 +817,7 @@ fun SegmentedListItem(
  * @param content the main content of this list item. Also known as the headline or label.
  */
 @Composable
-fun SegmentedListItem(
+public fun SegmentedListItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     shapes: ListItemShapes,

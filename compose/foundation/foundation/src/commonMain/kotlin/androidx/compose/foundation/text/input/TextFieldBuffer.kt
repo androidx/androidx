@@ -55,7 +55,7 @@ import kotlin.jvm.JvmName
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
-class TextFieldBuffer
+public class TextFieldBuffer
 internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
@@ -91,21 +91,21 @@ internal constructor(
         get() = backingChangeTracker ?: ChangeTracker().also { backingChangeTracker = it }
 
     /** The number of characters in the text field. */
-    val length: Int
+    public val length: Int
         get() = buffer.length
 
     /**
      * Original text content of the buffer before any changes were applied. Calling
      * [revertAllChanges] will set the contents of this buffer to this value.
      */
-    val originalText: CharSequence
+    public val originalText: CharSequence
         get() = originalValue.text
 
     /**
      * Original selection before the changes. Calling [revertAllChanges] will set the selection to
      * this value.
      */
-    val originalSelection: TextRange
+    public val originalSelection: TextRange
         get() = originalValue.selection
 
     /**
@@ -117,7 +117,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     @ExperimentalFoundationApi
-    val changes: ChangeList
+    public val changes: ChangeList
         get() = changeTracker
 
     // region selection
@@ -129,7 +129,7 @@ internal constructor(
      * @see selection
      */
     @get:JvmName("hasSelection")
-    val hasSelection: Boolean
+    public val hasSelection: Boolean
         get() = !selection.collapsed
 
     /**
@@ -151,7 +151,7 @@ internal constructor(
      * character, pass [TextFieldBuffer.length]. Passing a zero-length range is the same as calling
      * [placeCursorBeforeCharAt].
      */
-    var selection: TextRange
+    public var selection: TextRange
         get() = selectionInChars
         set(value) {
             requireValidRange(value)
@@ -302,7 +302,7 @@ internal constructor(
      * @see insert
      * @see delete
      */
-    fun replace(start: Int, end: Int, text: CharSequence) {
+    public fun replace(start: Int, end: Int, text: CharSequence) {
         replace(start, end, text, 0, text.length)
     }
 
@@ -420,7 +420,7 @@ internal constructor(
     // endregion
 
     /** Returns the [Char] at [index] in this buffer. */
-    fun charAt(index: Int): Char = buffer[index]
+    public fun charAt(index: Int): Char = buffer[index]
 
     override fun toString(): String = buffer.toString()
 
@@ -428,7 +428,7 @@ internal constructor(
      * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will be
      * visible in the returned sequence as well.
      */
-    fun asCharSequence(): CharSequence = buffer
+    public fun asCharSequence(): CharSequence = buffer
 
     private fun clearChangeList() {
         changeTracker.clearChanges()
@@ -441,7 +441,7 @@ internal constructor(
      * created, and [changes] will be empty.
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun revertAllChanges() {
+    public fun revertAllChanges() {
         replace(0, length, originalValue.toString())
         selection = originalValue.selection
         clearChangeList()
@@ -468,7 +468,7 @@ internal constructor(
      *   [TextFieldBuffer.length], inclusive.
      * @see placeCursorAfterCharAt
      */
-    fun placeCursorBeforeCharAt(index: Int) {
+    public fun placeCursorBeforeCharAt(index: Int) {
         requireValidIndex(index, startExclusive = true, endExclusive = false)
         // skip further validation
         selectionInChars = TextRange(index)
@@ -487,7 +487,7 @@ internal constructor(
      *   [TextFieldBuffer.length] (exclusive).
      * @see placeCursorBeforeCharAt
      */
-    fun placeCursorAfterCharAt(index: Int) {
+    public fun placeCursorAfterCharAt(index: Int) {
         requireValidIndex(index, startExclusive = false, endExclusive = true)
         // skip further validation
         selectionInChars = TextRange((index + 1).coerceAtMost(length))
@@ -606,7 +606,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
+    public fun addStyle(spanStyle: SpanStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
             val range = TextRange(start, end)
             requireValidStyleRange(range)
@@ -640,7 +640,7 @@ internal constructor(
      * @throws IllegalArgumentException if [start] or [end] is out of range, or if [start] > [end].
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
+    public fun addStyle(paragraphStyle: ParagraphStyle, start: Int, end: Int) {
         if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
             val range = TextRange(start, end)
             requireValidStyleRange(range)
@@ -672,7 +672,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun addStyle(
+    public fun addStyle(
         spanStyle: SpanStyle,
         range: TextRange,
         expandPolicy: ExpandPolicy,
@@ -706,7 +706,7 @@ internal constructor(
      * @throws IllegalArgumentException if [range] is out of [0, length], or if it's reversed.
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun addStyle(
+    public fun addStyle(
         paragraphStyle: ParagraphStyle,
         range: TextRange,
         expandPolicy: ExpandPolicy,
@@ -763,7 +763,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun getSpanStyles(range: TextRange): List<TrackedRange<SpanStyle>> {
+    public fun getSpanStyles(range: TextRange): List<TrackedRange<SpanStyle>> {
         return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
             val start = range.min.coerceIn(0, length)
             val end = range.max.coerceIn(0, length)
@@ -812,7 +812,7 @@ internal constructor(
      *   returned in the order they were added to the buffer.
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun getParagraphStyles(range: TextRange): List<TrackedRange<ParagraphStyle>> {
+    public fun getParagraphStyles(range: TextRange): List<TrackedRange<ParagraphStyle>> {
         return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
             val start = range.min.coerceIn(0, length)
             val end = range.max.coerceIn(0, length)
@@ -838,7 +838,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
     @OptIn(ExperimentalFoundationApi::class)
-    fun removeStyle(trackedRange: TrackedRange<*>): Boolean {
+    public fun removeStyle(trackedRange: TrackedRange<*>): Boolean {
         return if (ComposeFoundationFlags.isBasicTextFieldStyledTextEnabled) {
             textStyleBuffer?.removeStyle(trackedRange) ?: false
         } else {
@@ -858,7 +858,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
      */
-    val TrackedRange<*>.isValid: Boolean
+    public val TrackedRange<*>.isValid: Boolean
         get() = textStyleBuffer?.isValid(this) ?: false
 
     /**
@@ -880,7 +880,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
-    var TrackedRange<*>.textRange: TextRange
+    public var TrackedRange<*>.textRange: TextRange
         get() =
             if (isValid) {
                 textStyleBuffer!!.getRange(this)
@@ -914,7 +914,7 @@ internal constructor(
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeToggleBoldSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangeTextRangeSetterSample
      */
-    var TrackedRange<SpanStyle>.spanStyle: SpanStyle
+    public var TrackedRange<SpanStyle>.spanStyle: SpanStyle
         get() =
             if (isValid) {
                 textStyleBuffer!!.getItem<SpanStyle>(this) ?: SpanStyle()
@@ -940,7 +940,7 @@ internal constructor(
      * Setting this property will update the style applied to the text in-place, preserving its
      * original applying order relative to other styles in the buffer.
      */
-    var TrackedRange<ParagraphStyle>.paragraphStyle: ParagraphStyle
+    public var TrackedRange<ParagraphStyle>.paragraphStyle: ParagraphStyle
         get() =
             if (isValid) {
                 textStyleBuffer!!.getItem<ParagraphStyle>(this) ?: ParagraphStyle()
@@ -969,7 +969,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldTrackedRangePropertiesSample
      */
-    var TrackedRange<*>.expandPolicy: ExpandPolicy
+    public var TrackedRange<*>.expandPolicy: ExpandPolicy
         get() =
             if (isValid) {
                 textStyleBuffer!!.getExpandPolicy(this)
@@ -989,23 +989,23 @@ internal constructor(
      * appear in the text, not the order in which they were made. Overlapping changes are
      * represented as a single change.
      */
-    interface ChangeList {
+    public interface ChangeList {
         /** The number of changes that have been performed. */
-        val changeCount: Int
+        public val changeCount: Int
 
         /**
          * Returns the range in the [TextFieldBuffer] that was changed.
          *
          * @throws IndexOutOfBoundsException If [changeIndex] is not in [0, [changeCount]).
          */
-        fun getRange(changeIndex: Int): TextRange
+        public fun getRange(changeIndex: Int): TextRange
 
         /**
          * Returns the range in the original text that was replaced.
          *
          * @throws IndexOutOfBoundsException If [changeIndex] is not in [0, [changeCount]).
          */
-        fun getOriginalRange(changeIndex: Int): TextRange
+        public fun getOriginalRange(changeIndex: Int): TextRange
     }
 }
 
@@ -1091,7 +1091,7 @@ internal fun adjustTextRange(
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.delete
  */
-fun TextFieldBuffer.insert(index: Int, text: String) {
+public fun TextFieldBuffer.insert(index: Int, text: String) {
     replace(index, index, text)
 }
 
@@ -1105,17 +1105,17 @@ fun TextFieldBuffer.insert(index: Int, text: String) {
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.insert
  */
-fun TextFieldBuffer.delete(start: Int, end: Int) {
+public fun TextFieldBuffer.delete(start: Int, end: Int) {
     replace(start, end, "")
 }
 
 /** Places the cursor at the end of the text. */
-fun TextFieldBuffer.placeCursorAtEnd() {
+public fun TextFieldBuffer.placeCursorAtEnd() {
     placeCursorBeforeCharAt(length)
 }
 
 /** Places the selection around all the text. */
-fun TextFieldBuffer.selectAll() {
+public fun TextFieldBuffer.selectAll() {
     selection = TextRange(0, length)
 }
 
@@ -1131,7 +1131,9 @@ fun TextFieldBuffer.selectAll() {
  * @see forEachChangeReversed
  */
 @ExperimentalFoundationApi
-inline fun ChangeList.forEachChange(block: (range: TextRange, originalRange: TextRange) -> Unit) {
+public inline fun ChangeList.forEachChange(
+    block: (range: TextRange, originalRange: TextRange) -> Unit
+) {
     var i = 0
     // Check the size every iteration in case more changes were performed.
     while (i < changeCount) {
@@ -1151,7 +1153,7 @@ inline fun ChangeList.forEachChange(block: (range: TextRange, originalRange: Tex
  * @see forEachChange
  */
 @ExperimentalFoundationApi
-inline fun ChangeList.forEachChangeReversed(
+public inline fun ChangeList.forEachChangeReversed(
     block: (range: TextRange, originalRange: TextRange) -> Unit
 ) {
     var i = changeCount - 1

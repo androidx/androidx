@@ -35,18 +35,18 @@ import androidx.compose.runtime.setValue
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-sealed class ThreePaneScaffoldState {
+public sealed class ThreePaneScaffoldState {
     /**
      * Current [ThreePaneScaffoldValue] state of the transition. If there is an active transition,
      * [currentState] and [targetState] are different.
      */
-    abstract val currentState: ThreePaneScaffoldValue
+    public abstract val currentState: ThreePaneScaffoldValue
 
     /**
      * Target [ThreePaneScaffoldValue] state of the transition. If this is the same as
      * [currentState], no transition is active.
      */
-    abstract val targetState: ThreePaneScaffoldValue
+    public abstract val targetState: ThreePaneScaffoldValue
 
     /**
      * The progress of the transition from [currentState] to [targetState] as a fraction of the
@@ -54,10 +54,10 @@ sealed class ThreePaneScaffoldState {
      *
      * If [targetState] and [currentState] are the same, [progressFraction] will be 0.
      */
-    @get:FloatRange(from = 0.0, to = 1.0) abstract val progressFraction: Float
+    @get:FloatRange(from = 0.0, to = 1.0) public abstract val progressFraction: Float
 
     /** Whether a predictive back navigation is currently in progress. */
-    abstract val isPredictiveBackInProgress: Boolean
+    public abstract val isPredictiveBackInProgress: Boolean
 
     @Composable internal abstract fun rememberTransition(): Transition<ThreePaneScaffoldValue>
 }
@@ -68,21 +68,21 @@ sealed class ThreePaneScaffoldState {
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue) :
+public class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue) :
     ThreePaneScaffoldState() {
     private val transitionState = SeekableTransitionState(initialScaffoldValue)
 
-    override val currentState
+    public override val currentState: ThreePaneScaffoldValue
         get() = transitionState.currentState
 
-    override val targetState
+    public override val targetState: ThreePaneScaffoldValue
         get() = transitionState.targetState
 
     @get:FloatRange(from = 0.0, to = 1.0)
-    override val progressFraction
+    public override val progressFraction: Float
         get() = transitionState.fraction
 
-    override var isPredictiveBackInProgress by mutableStateOf(false)
+    public override var isPredictiveBackInProgress: Boolean by mutableStateOf(false)
         private set
 
     private val mutatorMutex = MutatorMutex()
@@ -104,7 +104,7 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      * @param targetState The [ThreePaneScaffoldValue] state to snap to.
      * @see SeekableTransitionState.snapTo
      */
-    suspend fun snapTo(targetState: ThreePaneScaffoldValue) {
+    public suspend fun snapTo(targetState: ThreePaneScaffoldValue) {
         mutatorMutex.mutate {
             this.isPredictiveBackInProgress = false
             transitionState.snapTo(targetState)
@@ -121,7 +121,7 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      *   gesture on the scaffold.
      * @see SeekableTransitionState.seekTo
      */
-    suspend fun seekTo(
+    public suspend fun seekTo(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float,
         targetState: ThreePaneScaffoldValue = this.targetState,
         isPredictiveBackInProgress: Boolean = false,
@@ -143,7 +143,7 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      *   gesture on the scaffold.
      * @see SeekableTransitionState.animateTo
      */
-    suspend fun animateTo(
+    public suspend fun animateTo(
         targetState: ThreePaneScaffoldValue = this.targetState,
         animationSpec: FiniteAnimationSpec<Float>? = null,
         isPredictiveBackInProgress: Boolean = false,

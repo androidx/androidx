@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext
  * create your test rule.
  */
 @Stable
-interface MotionDurationScale : CoroutineContext.Element {
+public interface MotionDurationScale : CoroutineContext.Element {
     /**
      * Defines the multiplier for the duration of the motion. This value should be non-negative.
      *
@@ -41,10 +41,10 @@ interface MotionDurationScale : CoroutineContext.Element {
      * motion/animation (i.e. slower animation). For example, a [scaleFactor] of 10f would cause an
      * animation with a duration of 100ms to finish in 1000ms.
      */
-    val scaleFactor: Float
+    public val scaleFactor: Float
 
-    override val key: CoroutineContext.Key<*>
+    public override val key: CoroutineContext.Key<*>
         get() = Key
 
-    companion object Key : CoroutineContext.Key<MotionDurationScale>
+    public companion object Key : CoroutineContext.Key<MotionDurationScale>
 }

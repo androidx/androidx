@@ -49,7 +49,7 @@ package androidx.compose.ui.text
  *      }
  */
 @ExperimentalTextApi
-object AndroidComposeUiTextFlags {
+public object AndroidComposeUiTextFlags {
 
     /**
      * When `true`, a text with non-default [TextStyle.lineHeight] will be optimized so that a
@@ -60,5 +60,5 @@ object AndroidComposeUiTextFlags {
     // TODO(b/512676269) remove the flag
     @field:Suppress("MutableBareField")
     @JvmField
-    var isSingleLineLineHeightOptimizationEnabled: Boolean = false
+    public var isSingleLineLineHeightOptimizationEnabled: Boolean = false
 }

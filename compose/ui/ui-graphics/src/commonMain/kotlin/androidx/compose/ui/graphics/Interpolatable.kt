@@ -20,7 +20,7 @@ package androidx.compose.ui.graphics
  * Represents an object which may be able to be linearly interpolated with another object. Usually
  * used during animation.
  */
-interface Interpolatable {
+public interface Interpolatable {
     // TODO: The API shape of this interface is likely to create an allocation per call. We may
     //  want to think about alternative API shapes which may allow for a "cached mutable object" or
     //  something which could avoid the allocations. In practice however, this is difficult, as most
@@ -52,9 +52,9 @@ interface Interpolatable {
      * @return The interpolated object.
      * @see Interpolatable#lerp
      */
-    fun lerp(other: Any?, t: Float): Any?
+    public fun lerp(other: Any?, t: Float): Any?
 
-    companion object {
+    public companion object {
         /**
          * Attempt to Linearly interpolates between two values. If either of the values are
          * [Interpolatable], this will attempt to use their `lerp` functions. If the interpolation
@@ -68,7 +68,7 @@ interface Interpolatable {
          *   and 1, but it is valid for it to be outside of this range.
          * @return The interpolated value.
          */
-        fun lerp(a: Any?, b: Any?, t: Float): Any? {
+        public fun lerp(a: Any?, b: Any?, t: Float): Any? {
             if (a == b) return if (t < 0.5f) a else b
             var result: Any? = null
             if (a is Interpolatable) {

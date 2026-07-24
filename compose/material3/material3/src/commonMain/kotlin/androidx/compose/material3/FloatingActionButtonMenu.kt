@@ -111,7 +111,7 @@ import kotlinx.coroutines.launch
  * @param content the content of this FAB Menu, typically a list of [FloatingActionButtonMenuItem]s
  */
 @Composable
-fun FloatingActionButtonMenu(
+public fun FloatingActionButtonMenu(
     expanded: Boolean,
     button: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -306,8 +306,8 @@ private fun FloatingActionButtonMenuItemColumn(
 }
 
 /** Scope for the children of [FloatingActionButtonMenu] */
-interface FloatingActionButtonMenuScope {
-    val horizontalAlignment: Alignment.Horizontal
+public interface FloatingActionButtonMenuScope {
+    public val horizontalAlignment: Alignment.Horizontal
 }
 
 // TODO: link to spec and image
@@ -326,7 +326,7 @@ interface FloatingActionButtonMenuScope {
  *   [containerColor] is not a color from the theme.
  */
 @Composable
-fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
+public fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
     onClick: () -> Unit,
     text: @Composable () -> Unit,
     icon: @Composable () -> Unit,
@@ -438,7 +438,7 @@ private val MenuItemRuler = HorizontalRuler()
  *   to a Close sign at 50% checked progress
  */
 @Composable
-fun ToggleFloatingActionButton(
+public fun ToggleFloatingActionButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -571,50 +571,55 @@ private fun ToggleFloatingActionButton(
 }
 
 /** Contains the default values used by [ToggleFloatingActionButton] */
-object ToggleFloatingActionButtonDefaults {
+public object ToggleFloatingActionButtonDefaults {
 
     @Composable
-    fun containerColor(
+    public fun containerColor(
         initialColor: Color = MaterialTheme.colorScheme.primaryContainer,
         finalColor: Color = MaterialTheme.colorScheme.primary,
     ): (Float) -> Color = { progress -> lerp(initialColor, finalColor, progress) }
 
-    fun containerSize(initialSize: Dp, finalSize: Dp = FabFinalSize): (Float) -> Dp = { progress ->
-        lerp(initialSize, finalSize, progress)
-    }
+    public fun containerSize(initialSize: Dp, finalSize: Dp = FabFinalSize): (Float) -> Dp =
+        { progress ->
+            lerp(initialSize, finalSize, progress)
+        }
 
-    fun containerSize() = containerSize(FabInitialSize)
+    public fun containerSize(): (Float) -> Dp = containerSize(FabInitialSize)
 
-    fun containerSizeMedium() = containerSize(FabMediumInitialSize)
+    public fun containerSizeMedium(): (Float) -> Dp = containerSize(FabMediumInitialSize)
 
-    fun containerSizeLarge() = containerSize(FabLargeInitialSize)
+    public fun containerSizeLarge(): (Float) -> Dp = containerSize(FabLargeInitialSize)
 
-    fun containerCornerRadius(
+    public fun containerCornerRadius(
         initialSize: Dp,
         finalSize: Dp = FabFinalCornerRadius,
     ): (Float) -> Dp = { progress -> lerp(initialSize, finalSize, progress) }
 
-    fun containerCornerRadius() = containerCornerRadius(FabInitialCornerRadius)
+    public fun containerCornerRadius(): (Float) -> Dp =
+        containerCornerRadius(FabInitialCornerRadius)
 
-    fun containerCornerRadiusMedium() = containerCornerRadius(FabMediumInitialCornerRadius)
+    public fun containerCornerRadiusMedium(): (Float) -> Dp =
+        containerCornerRadius(FabMediumInitialCornerRadius)
 
-    fun containerCornerRadiusLarge() = containerCornerRadius(FabLargeInitialCornerRadius)
+    public fun containerCornerRadiusLarge(): (Float) -> Dp =
+        containerCornerRadius(FabLargeInitialCornerRadius)
 
     @Composable
-    fun iconColor(
+    public fun iconColor(
         initialColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         finalColor: Color = MaterialTheme.colorScheme.onPrimary,
     ): (Float) -> Color = { progress -> lerp(initialColor, finalColor, progress) }
 
-    fun iconSize(initialSize: Dp, finalSize: Dp = FabFinalIconSize): (Float) -> Dp = { progress ->
-        lerp(initialSize, finalSize, progress)
-    }
+    public fun iconSize(initialSize: Dp, finalSize: Dp = FabFinalIconSize): (Float) -> Dp =
+        { progress ->
+            lerp(initialSize, finalSize, progress)
+        }
 
-    fun iconSize() = iconSize(FabInitialIconSize)
+    public fun iconSize(): (Float) -> Dp = iconSize(FabInitialIconSize)
 
-    fun iconSizeMedium() = iconSize(FabMediumInitialIconSize)
+    public fun iconSizeMedium(): (Float) -> Dp = iconSize(FabMediumInitialIconSize)
 
-    fun iconSizeLarge() = iconSize(FabLargeInitialIconSize)
+    public fun iconSizeLarge(): (Float) -> Dp = iconSize(FabLargeInitialIconSize)
 
     /**
      * Modifier for animating the color and size of an icon within [ToggleFloatingActionButton]
@@ -625,11 +630,11 @@ object ToggleFloatingActionButtonDefaults {
      * @param size the size of the icon, based on the checked progress value from 0-1
      */
     @Composable
-    fun Modifier.animateIcon(
+    public fun Modifier.animateIcon(
         checkedProgress: () -> Float,
         color: (Float) -> Color = iconColor(),
         size: (Float) -> Dp = iconSize(),
-    ) =
+    ): Modifier =
         this.layout { measurable, _ ->
                 val sizePx = size(checkedProgress()).roundToPx()
                 val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
@@ -647,9 +652,9 @@ object ToggleFloatingActionButtonDefaults {
 }
 
 /** Scope for the children of [ToggleFloatingActionButton] */
-interface ToggleFloatingActionButtonScope {
+public interface ToggleFloatingActionButtonScope {
 
-    val checkedProgress: Float
+    public val checkedProgress: Float
 }
 
 @Stable

@@ -31,7 +31,7 @@ import androidx.compose.ui.internal.checkPrecondition
  * @sample androidx.compose.ui.samples.DelegateInAttachSample
  * @see DelegatingNode
  */
-abstract class DelegatingNode : Modifier.Node() {
+public abstract class DelegatingNode : Modifier.Node() {
 
     /**
      * This is the kindSet of the node if it had no delegates. This will never change, but kindSet

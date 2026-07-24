@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.TextUnit
  * Call [compose] to compose items emitted in a content block for a given index.
  */
 @Stable
-sealed interface LazyLayoutMeasureScope : MeasureScope {
+public sealed interface LazyLayoutMeasureScope : MeasureScope {
 
     /**
      * Compose an item of lazy layout.
@@ -47,7 +47,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
      * @return List of [Measurable]s. Note that if you emitted multiple children into the item
      *   composable you will receive multiple measurebles.
      */
-    fun compose(@AndroidXIntRange(from = 0) index: Int): List<Measurable>
+    public fun compose(@AndroidXIntRange(from = 0) index: Int): List<Measurable>
 
     /**
      * Subcompose and measure the item of lazy layout.
@@ -64,7 +64,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
         ReplaceWith("compose(index).map { it.measure(constraints) }"),
     )
     @ExperimentalFoundationApi
-    fun measure(index: Int, constraints: Constraints): List<Placeable>
+    public fun measure(index: Int, constraints: Constraints): List<Placeable>
 }
 
 internal class LazyLayoutMeasureScopeImpl

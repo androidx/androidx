@@ -126,7 +126,7 @@ import kotlinx.coroutines.launch
  *   tagged with [ButtonGroupScope.animateWidth].
  */
 @Composable
-fun ButtonGroup(
+public fun ButtonGroup(
     overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,
     modifier: Modifier = Modifier,
     @FloatRange(0.0) expandedRatio: Float = ButtonGroupDefaults.ExpandedRatio,
@@ -176,24 +176,24 @@ fun ButtonGroup(
 }
 
 /** Default values used by [ButtonGroup] */
-object ButtonGroupDefaults {
+public object ButtonGroupDefaults {
     /**
      * The default percentage, represented as a float, of the width of the interacted child element
      * that will be used to expand the interacted child element as well as compress the neighboring
      * children. By Default, standard button group will expand the interacted child element by 15%
      * of its width and this will be propagated to its neighbors.
      */
-    val ExpandedRatio = 0.15f
+    public val ExpandedRatio: Float = 0.15f
 
     /** The default Arrangement used between children for standard button group. */
-    val HorizontalArrangement: Arrangement.Horizontal =
+    public val HorizontalArrangement: Arrangement.Horizontal =
         Arrangement.spacedBy(ButtonGroupSmallTokens.BetweenSpace)
 
     /** The default spacing used between children for connected button group */
-    val ConnectedSpaceBetween: Dp = ConnectedButtonGroupSmallTokens.BetweenSpace
+    public val ConnectedSpaceBetween: Dp = ConnectedButtonGroupSmallTokens.BetweenSpace
 
     /** Default shape for the leading button in a connected button group */
-    val connectedLeadingButtonShape: Shape
+    public val connectedLeadingButtonShape: Shape
         @Composable
         get() =
             RoundedCornerShape(
@@ -204,7 +204,7 @@ object ButtonGroupDefaults {
             )
 
     /** Default shape for the pressed state for the leading button in a connected button group. */
-    val connectedLeadingButtonPressShape: Shape
+    public val connectedLeadingButtonPressShape: Shape
         @Composable
         get() =
             RoundedCornerShape(
@@ -215,7 +215,7 @@ object ButtonGroupDefaults {
             )
 
     /** Default shape for the trailing button in a connected button group */
-    val connectedTrailingButtonShape: Shape
+    public val connectedTrailingButtonShape: Shape
         @Composable
         get() =
             RoundedCornerShape(
@@ -226,7 +226,7 @@ object ButtonGroupDefaults {
             )
 
     /** Default shape for the pressed state for the trailing button in a connected button group. */
-    val connectedTrailingButtonPressShape: Shape
+    public val connectedTrailingButtonPressShape: Shape
         @Composable
         get() =
             RoundedCornerShape(
@@ -237,16 +237,16 @@ object ButtonGroupDefaults {
             )
 
     /** Default shape for the checked state for the buttons in a connected button group */
-    val connectedButtonCheckedShape = ShapeTokens.CornerFull
+    public val connectedButtonCheckedShape: RoundedCornerShape = ShapeTokens.CornerFull
 
     /** Default shape for the pressed state for the middle buttons in a connected button group. */
-    val connectedMiddleButtonPressShape: Shape
+    public val connectedMiddleButtonPressShape: Shape
         @Composable
         get() = RoundedCornerShape(ConnectedButtonGroupSmallTokens.PressedInnerCornerCornerSize)
 
     /** Defaults button shapes for the start button in a [ConnectedButtonGroup] */
     @Composable
-    fun connectedLeadingButtonShapes(
+    public fun connectedLeadingButtonShapes(
         shape: Shape = connectedLeadingButtonShape,
         pressedShape: Shape = connectedLeadingButtonPressShape,
         checkedShape: Shape = connectedButtonCheckedShape,
@@ -258,7 +258,7 @@ object ButtonGroupDefaults {
      * button that's not the start / end button in the button group.
      */
     @Composable
-    fun connectedMiddleButtonShapes(
+    public fun connectedMiddleButtonShapes(
         shape: Shape = ShapeDefaults.Small,
         pressedShape: Shape = connectedMiddleButtonPressShape,
         checkedShape: Shape = connectedButtonCheckedShape,
@@ -267,7 +267,7 @@ object ButtonGroupDefaults {
 
     /** Defaults button shapes for the end button in a [ConnectedButtonGroup]. */
     @Composable
-    fun connectedTrailingButtonShapes(
+    public fun connectedTrailingButtonShapes(
         shape: Shape = connectedTrailingButtonShape,
         pressedShape: Shape = connectedTrailingButtonPressShape,
         checkedShape: Shape = connectedButtonCheckedShape,
@@ -293,7 +293,7 @@ object ButtonGroupDefaults {
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun OverflowIndicator(
+    public fun OverflowIndicator(
         menuState: ButtonGroupMenuState,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
@@ -334,18 +334,18 @@ object ButtonGroupDefaults {
 }
 
 /** State class for the overflow menu in [ButtonGroup]. */
-class ButtonGroupMenuState(initialIsShowing: Boolean = false) {
+public class ButtonGroupMenuState(initialIsShowing: Boolean = false) {
     /** Indicates whether the overflow menu is currently showing. */
-    var isShowing by mutableStateOf(initialIsShowing)
+    public var isShowing: Boolean by mutableStateOf(initialIsShowing)
         private set
 
     /** Closes the overflow menu. */
-    fun dismiss() {
+    public fun dismiss(): Unit {
         isShowing = false
     }
 
     /** Show the overflow menu. */
-    fun show() {
+    public fun show(): Unit {
         isShowing = true
     }
 }
@@ -814,7 +814,7 @@ private class ButtonGroupMeasurePolicy(
  * Button group scope used to indicate a [Modifier.weight] and [Modifier.animateWidth] of a child
  * element. Also defines the DSL to build the content of a [ButtonGroup]
  */
-sealed interface ButtonGroupScope {
+public sealed interface ButtonGroupScope {
     /**
      * Size the element's width proportional to its [weight] relative to other weighted sibling
      * elements in the [ButtonGroup]. The parent will divide the horizontal space remaining after
@@ -823,7 +823,9 @@ sealed interface ButtonGroupScope {
      * @param weight The proportional width to give to this element, as related to the total of all
      *   weighted siblings. Must be positive.
      */
-    fun Modifier.weight(@FloatRange(from = 0.0, fromInclusive = false) weight: Float): Modifier
+    public fun Modifier.weight(
+        @FloatRange(from = 0.0, fromInclusive = false) weight: Float
+    ): Modifier
 
     /**
      * Specifies the interaction source to use with this item. This is used to listen to events and
@@ -832,7 +834,7 @@ sealed interface ButtonGroupScope {
      * @sample androidx.compose.material3.samples.ButtonGroupWithCustomItemSample
      * @param interactionSource the [InteractionSource] that button group will observe.
      */
-    fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
+    public fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
 
     /**
      * Specifies the interaction source to use with this item. This is used to listen to events and
@@ -843,7 +845,10 @@ sealed interface ButtonGroupScope {
      * @param compressionLimit the [Dp] used to determine the maximum compression that this item
      *   will be able to squish by.
      */
-    fun Modifier.animateWidth(interactionSource: InteractionSource, compressionLimit: Dp): Modifier
+    public fun Modifier.animateWidth(
+        interactionSource: InteractionSource,
+        compressionLimit: Dp,
+    ): Modifier
 
     /**
      * Align the element vertically within the [ButtonGroup]. This alignment will have priority over
@@ -851,7 +856,7 @@ sealed interface ButtonGroupScope {
      *
      * @param alignment the vertical alignment of the element
      */
-    @Stable fun Modifier.align(alignment: Alignment.Vertical): Modifier
+    @Stable public fun Modifier.align(alignment: Alignment.Vertical): Modifier
 
     /**
      * Adds a clickable item to the [ButtonGroup].
@@ -862,13 +867,13 @@ sealed interface ButtonGroupScope {
      * @param weight the weight to be applied to this item, please see [ButtonGroupScope.weight]
      * @param enabled Whether the item is enabled.
      */
-    fun clickableItem(
+    public fun clickableItem(
         onClick: () -> Unit,
         label: String,
         icon: (@Composable () -> Unit)? = null,
         weight: Float = Float.NaN,
         enabled: Boolean = true,
-    )
+    ): Unit
 
     /**
      * Adds a toggleable item to the [ButtonGroup].
@@ -880,14 +885,14 @@ sealed interface ButtonGroupScope {
      * @param weight the weight to be applied to this item, please see [ButtonGroupScope.weight]
      * @param label The text label for the item.
      */
-    fun toggleableItem(
+    public fun toggleableItem(
         checked: Boolean,
         label: String,
         onCheckedChange: (Boolean) -> Unit,
         icon: (@Composable () -> Unit)? = null,
         weight: Float = Float.NaN,
         enabled: Boolean = true,
-    )
+    ): Unit
 
     /**
      * Adds a custom item to the [ButtonGroup].
@@ -896,10 +901,10 @@ sealed interface ButtonGroupScope {
      * @param menuContent The composable to display in the overflow menu. It receives an
      *   [ButtonGroupMenuState] instance.
      */
-    fun customItem(
+    public fun customItem(
         buttonGroupContent: @Composable () -> Unit,
         menuContent: @Composable (ButtonGroupMenuState) -> Unit,
-    )
+    ): Unit
 }
 
 internal val IntrinsicMeasurable.buttonGroupParentData: ButtonGroupParentData?

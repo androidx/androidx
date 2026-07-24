@@ -32,7 +32,7 @@ import kotlin.math.floor
  *
  * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
-interface TextAutoSize {
+public interface TextAutoSize {
     /**
      * Calculates font size and provides access to [TextAutoSizeLayoutScope], which offers
      * [TextAutoSizeLayoutScope.performLayout] to lay out the text and use the measured size.
@@ -41,7 +41,7 @@ interface TextAutoSize {
      * @return The derived optimal font size
      * @see [TextAutoSizeLayoutScope.performLayout]
      */
-    fun TextAutoSizeLayoutScope.getFontSize(
+    public fun TextAutoSizeLayoutScope.getFontSize(
         constraints: Constraints,
         text: AnnotatedString,
     ): TextUnit
@@ -63,7 +63,7 @@ interface TextAutoSize {
      */
     override fun hashCode(): Int
 
-    companion object {
+    public companion object {
         /**
          * Automatically size the text with the biggest font size that fits the available space.
          *
@@ -86,7 +86,7 @@ interface TextAutoSize {
          * @return AutoSize instance with the step-based configuration. Using this in a compatible
          *   composable will cause its text to be sized as above.
          */
-        fun StepBased(
+        public fun StepBased(
             minFontSize: TextUnit = TextAutoSizeDefaults.MinFontSize,
             maxFontSize: TextUnit = TextAutoSizeDefaults.MaxFontSize,
             stepSize: TextUnit = 0.25.sp,
@@ -100,12 +100,12 @@ interface TextAutoSize {
 }
 
 /** Contains defaults for [TextAutoSize] APIs. */
-object TextAutoSizeDefaults {
+public object TextAutoSizeDefaults {
     /** The default minimum font size for [TextAutoSize]. */
-    val MinFontSize = 12.sp
+    public val MinFontSize: TextUnit = 12.sp
 
     /** The default maximum font size for [TextAutoSize]. */
-    val MaxFontSize = 112.sp
+    public val MaxFontSize: TextUnit = 112.sp
 }
 
 private class AutoSizeStepBased(

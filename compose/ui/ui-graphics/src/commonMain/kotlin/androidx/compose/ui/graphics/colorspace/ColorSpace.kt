@@ -83,7 +83,7 @@ import kotlin.math.withSign
  * @see Connector
  * @see Adaptation
  */
-abstract class ColorSpace
+public abstract class ColorSpace
 internal constructor(
     /**
      * Returns the name of this color space. The name is never null and contains always at least 1
@@ -109,7 +109,7 @@ internal constructor(
      *
      * @return A non-null String of length >= 1
      */
-    val name: String,
+    public val name: String,
 
     /**
      * The color model of this color space.
@@ -117,7 +117,7 @@ internal constructor(
      * @see ColorModel
      * @see componentCount
      */
-    val model: ColorModel,
+    public val model: ColorModel,
 
     /**
      * The ID of this color space. Positive IDs match the color spaces enumerated in [ColorSpaces].
@@ -125,7 +125,7 @@ internal constructor(
      */
     internal val id: Int,
 ) {
-    constructor(name: String, model: ColorModel) : this(name, model, MinId)
+    public constructor(name: String, model: ColorModel) : this(name, model, MinId)
 
     /**
      * Returns the number of components that form a color value according to this color space's
@@ -135,7 +135,7 @@ internal constructor(
      * @see ColorModel
      * @see model
      */
-    val componentCount: Int
+    public val componentCount: Int
         @IntRange(from = 1, to = 4) get() = model.componentCount
 
     /**
@@ -145,7 +145,7 @@ internal constructor(
      *
      * @return True if this color space is a wide-gamut color space, false otherwise
      */
-    abstract val isWideGamut: Boolean
+    public abstract val isWideGamut: Boolean
 
     /**
      * Indicates whether this color space is the sRGB color space or equivalent to the sRGB color
@@ -165,7 +165,7 @@ internal constructor(
      * @return True if this color space is the sRGB color space (or a close approximation), false
      *   otherwise
      */
-    open val isSrgb: Boolean
+    public open val isSrgb: Boolean
         get() = false
 
     init { // ColorSpace init
@@ -190,7 +190,7 @@ internal constructor(
      * @see getMaxValue
      * @see ColorModel.componentCount
      */
-    abstract fun getMinValue(@IntRange(from = 0, to = 3) component: Int): Float
+    public abstract fun getMinValue(@IntRange(from = 0, to = 3) component: Int): Float
 
     /**
      * Returns the maximum valid value for the specified component of this color space's color
@@ -201,7 +201,7 @@ internal constructor(
      * @see getMinValue
      * @see ColorModel.componentCount
      */
-    abstract fun getMaxValue(@IntRange(from = 0, to = 3) component: Int): Float
+    public abstract fun getMaxValue(@IntRange(from = 0, to = 3) component: Int): Float
 
     /**
      * Converts a color value from this color space's model to tristimulus CIE XYZ values. If the
@@ -220,7 +220,7 @@ internal constructor(
      * @see fromXyz
      */
     @Size(3)
-    fun toXyz(r: Float, g: Float, b: Float): FloatArray {
+    public fun toXyz(r: Float, g: Float, b: Float): FloatArray {
         return toXyz(floatArrayOf(r, g, b))
     }
 
@@ -238,7 +238,7 @@ internal constructor(
      * @see toXyz
      * @see fromXyz
      */
-    @Size(min = 3) abstract fun toXyz(@Size(min = 3) v: FloatArray): FloatArray
+    @Size(min = 3) public abstract fun toXyz(@Size(min = 3) v: FloatArray): FloatArray
 
     /** Same as [toXyz], but returns only the x and y components packed into a long. */
     internal open fun toXy(v0: Float, v1: Float, v2: Float): Long {
@@ -279,7 +279,7 @@ internal constructor(
      * @see toXyz
      */
     @Size(min = 3)
-    fun fromXyz(x: Float, y: Float, z: Float): FloatArray {
+    public fun fromXyz(x: Float, y: Float, z: Float): FloatArray {
         val xyz = FloatArray(model.componentCount)
         xyz[0] = x
         xyz[1] = y
@@ -302,7 +302,7 @@ internal constructor(
      * @see fromXyz
      * @see toXyz
      */
-    @Size(min = 3) abstract fun fromXyz(@Size(min = 3) v: FloatArray): FloatArray
+    @Size(min = 3) public abstract fun fromXyz(@Size(min = 3) v: FloatArray): FloatArray
 
     /**
      * Returns a string representation of the object. This method returns a string equal to the
@@ -317,11 +317,11 @@ internal constructor(
      *
      * @return A string representation of the object
      */
-    override fun toString(): String {
+    public override fun toString(): String {
         return "$name (id=$id, model=$model)"
     }
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
@@ -337,7 +337,7 @@ internal constructor(
         return if (name != that.name) false else model == that.model
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + model.hashCode()
         result = 31 * result + id
@@ -389,7 +389,7 @@ private fun createConnector(
  * @param intent The render intent to map colors from the source to the destination
  * @return A non-null connector between the two specified color spaces
  */
-fun ColorSpace.connect(
+public fun ColorSpace.connect(
     destination: ColorSpace = ColorSpaces.Srgb,
     intent: RenderIntent = RenderIntent.Perceptual,
 ): Connector {
@@ -419,7 +419,7 @@ fun ColorSpace.connect(
  * @see Adaptation
  */
 @kotlin.jvm.JvmOverloads
-fun ColorSpace.adapt(
+public fun ColorSpace.adapt(
     whitePoint: WhitePoint,
     adaptation: Adaptation = Adaptation.Bradford,
 ): ColorSpace {

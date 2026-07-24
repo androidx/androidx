@@ -25,4 +25,4 @@ package androidx.compose.ui
         "subject to change without notice in major, minor, or patch releases."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalComposeUiApi
+public annotation class InternalComposeUiApi

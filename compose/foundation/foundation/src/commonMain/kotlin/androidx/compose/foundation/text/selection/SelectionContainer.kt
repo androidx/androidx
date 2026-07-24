@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
  * @sample androidx.compose.foundation.samples.SelectionSample
  */
 @Composable
-fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+public fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val state = rememberSelectionState()
     SelectionContainer(modifier = modifier, state = state, children = content)
 }
@@ -81,7 +81,7 @@ fun SelectionContainer(modifier: Modifier = Modifier, content: @Composable () ->
  * @sample androidx.compose.foundation.samples.SelectAllSample
  */
 @Composable
-fun SelectionContainer(
+public fun SelectionContainer(
     state: SelectionState,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -96,7 +96,7 @@ fun SelectionContainer(
  * @sample androidx.compose.foundation.samples.DisableSelectionSample
  */
 @Composable
-fun DisableSelection(content: @Composable () -> Unit) {
+public fun DisableSelection(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalSelectionRegistrar provides null, content = content)
 }
 

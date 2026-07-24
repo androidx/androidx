@@ -20,13 +20,13 @@ import android.text.style.TtsSpan
 import androidx.compose.ui.text.TtsAnnotation
 import androidx.compose.ui.text.VerbatimTtsAnnotation
 
-fun TtsAnnotation.toSpan(): TtsSpan {
+public fun TtsAnnotation.toSpan(): TtsSpan {
     return when (this) {
         is VerbatimTtsAnnotation -> toSpan()
     }
 }
 
-fun VerbatimTtsAnnotation.toSpan(): TtsSpan {
+public fun VerbatimTtsAnnotation.toSpan(): TtsSpan {
     val builder = TtsSpan.VerbatimBuilder(verbatim)
     return builder.build()
 }

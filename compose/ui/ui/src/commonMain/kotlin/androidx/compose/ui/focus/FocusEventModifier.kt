@@ -24,13 +24,13 @@ import androidx.compose.ui.platform.InspectorInfo
 /** A [modifier][Modifier.Element] that can be used to observe focus state events. */
 @Deprecated("Use FocusEventModifierNode instead")
 @JvmDefaultWithCompatibility
-interface FocusEventModifier : Modifier.Element {
+public interface FocusEventModifier : Modifier.Element {
     /** A callback that is called whenever the focus system raises events. */
-    fun onFocusEvent(focusState: FocusState)
+    public fun onFocusEvent(focusState: FocusState)
 }
 
 /** Add this modifier to a component to observe focus state events. */
-fun Modifier.onFocusEvent(onFocusEvent: (FocusState) -> Unit): Modifier =
+public fun Modifier.onFocusEvent(onFocusEvent: (FocusState) -> Unit): Modifier =
     this then FocusEventElement(onFocusEvent)
 
 private class FocusEventElement(val onFocusEvent: (FocusState) -> Unit) :

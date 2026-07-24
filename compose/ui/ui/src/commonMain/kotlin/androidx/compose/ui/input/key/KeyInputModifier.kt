@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *   false, the key event will be sent to this [onKeyEvent]'s parent.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier =
+public fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier =
     this then KeyInputElement(onKeyEvent = onKeyEvent, onPreKeyEvent = null)
 
 /**
@@ -43,7 +43,7 @@ fun Modifier.onKeyEvent(onKeyEvent: (KeyEvent) -> Boolean): Modifier =
  *   back up to the root [KeyInputModifierNode] using the onKeyEvent callback.
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-fun Modifier.onPreviewKeyEvent(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier =
+public fun Modifier.onPreviewKeyEvent(onPreviewKeyEvent: (KeyEvent) -> Boolean): Modifier =
     this then KeyInputElement(onKeyEvent = null, onPreKeyEvent = onPreviewKeyEvent)
 
 private class KeyInputElement(

@@ -37,7 +37,7 @@ import kotlinx.coroutines.coroutineScope
  * State of Draggable2D. Allows for granular control of how deltas are consumed by the user as well
  * as to write custom drag methods using [drag] suspend function.
  */
-interface Draggable2DState {
+public interface Draggable2DState {
     /**
      * Call this function to take control of drag logic.
      *
@@ -51,7 +51,7 @@ interface Draggable2DState {
      * @param dragPriority of the drag operation
      * @param block to perform drag in
      */
-    suspend fun drag(
+    public suspend fun drag(
         dragPriority: MutatePriority = MutatePriority.Default,
         block: suspend Drag2DScope.() -> Unit,
     )
@@ -70,13 +70,13 @@ interface Draggable2DState {
      *
      * @param delta amount of drag dispatched in the nested drag process
      */
-    fun dispatchRawDelta(delta: Offset)
+    public fun dispatchRawDelta(delta: Offset)
 }
 
 /** Scope used for suspending drag blocks */
-interface Drag2DScope {
+public interface Drag2DScope {
     /** Attempts to drag by [pixels] px. */
-    fun dragBy(pixels: Offset)
+    public fun dragBy(pixels: Offset)
 }
 
 /**
@@ -91,7 +91,8 @@ interface Drag2DScope {
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState = DefaultDraggable2DState(onDelta)
+public fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
+    DefaultDraggable2DState(onDelta)
 
 /**
  * Create and remember default implementation of [Draggable2DState] interface that allows to pass a
@@ -104,7 +105,7 @@ fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState = DefaultDragg
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
 @Composable
-fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
+public fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
     val onDeltaState = rememberUpdatedState(onDelta)
     return remember { Draggable2DState { onDeltaState.value.invoke(it) } }
 }
@@ -136,7 +137,7 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
  *   behave like bottom to top and left to right will behave like right to left.
  */
 @Stable
-fun Modifier.draggable2D(
+public fun Modifier.draggable2D(
     state: Draggable2DState,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,

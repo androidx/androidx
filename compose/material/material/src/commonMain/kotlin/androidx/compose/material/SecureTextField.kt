@@ -102,7 +102,7 @@ import androidx.compose.ui.text.input.VisualTransformation
  *   interactions will still happen internally.
  */
 @Composable
-fun SecureTextField(
+public fun SecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -224,7 +224,7 @@ fun SecureTextField(
  *   interactions will still happen internally.
  */
 @Composable
-fun OutlinedSecureTextField(
+public fun OutlinedSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,

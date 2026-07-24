@@ -57,9 +57,9 @@ import kotlin.math.min
  *   [copy] functions if you do not want to intentionally change the value of this field.
  */
 @Immutable
-class TextFieldValue
-constructor(
-    val annotatedString: AnnotatedString,
+public class TextFieldValue
+public constructor(
+    public val annotatedString: AnnotatedString,
     selection: TextRange = TextRange.Zero,
     composition: TextRange? = null,
 ) {
@@ -72,20 +72,20 @@ constructor(
      *   [TextFieldValue] please use [copy] functions if you do not want to intentionally change the
      *   value of this field.
      */
-    constructor(
+    public constructor(
         text: String = "",
         selection: TextRange = TextRange.Zero,
         composition: TextRange? = null,
     ) : this(AnnotatedString(text), selection, composition)
 
-    val text: String
+    public val text: String
         get() = annotatedString.text
 
     /**
      * The selection range. If the selection is collapsed, it represents cursor location. When
      * selection range is out of bounds, it is constrained with the text length.
      */
-    val selection: TextRange = selection.coerceIn(0, text.length)
+    public val selection: TextRange = selection.coerceIn(0, text.length)
 
     /**
      * Composition range created by IME. If null, there is no composition range.
@@ -99,10 +99,10 @@ constructor(
      * composition by setting the value to null. Applying a composition will accept the changes that
      * were still being composed by IME.
      */
-    val composition: TextRange? = composition?.coerceIn(0, text.length)
+    public val composition: TextRange? = composition?.coerceIn(0, text.length)
 
     /** Returns a copy of the TextFieldValue. */
-    fun copy(
+    public fun copy(
         annotatedString: AnnotatedString = this.annotatedString,
         selection: TextRange = this.selection,
         composition: TextRange? = this.composition,
@@ -111,7 +111,7 @@ constructor(
     }
 
     /** Returns a copy of the TextFieldValue. */
-    fun copy(
+    public fun copy(
         text: String,
         selection: TextRange = this.selection,
         composition: TextRange? = this.composition,
@@ -120,7 +120,7 @@ constructor(
     }
 
     // auto generated equals method
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TextFieldValue) return false
 
@@ -132,23 +132,23 @@ constructor(
     }
 
     // auto generated hashCode method
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = annotatedString.hashCode()
         result = 31 * result + selection.hashCode()
         result = 31 * result + (composition?.hashCode() ?: 0)
         return result
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "TextFieldValue(" +
             "text='$annotatedString', " +
             "selection=$selection, " +
             "composition=$composition)"
     }
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [TextFieldValue]. */
-        val Saver =
+        public val Saver: Saver<TextFieldValue, Any> =
             Saver<TextFieldValue, Any>(
                 save = {
                     arrayListOf(
@@ -174,7 +174,7 @@ constructor(
  *   [TextFieldValue.selection].
  * @see TextRange.min
  */
-fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
+public fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
     annotatedString.subSequence(
         max(0, selection.min.subtractExactOrElse(maxChars) { 0 }),
         selection.min,
@@ -187,11 +187,12 @@ fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
  *   [TextFieldValue.selection].
  * @see TextRange.max
  */
-fun TextFieldValue.getTextAfterSelection(maxChars: Int): AnnotatedString =
+public fun TextFieldValue.getTextAfterSelection(maxChars: Int): AnnotatedString =
     annotatedString.subSequence(
         selection.max,
         min(selection.max.addExactOrElse(maxChars) { text.length }, text.length),
     )
 
 /** Returns the currently selected text. */
-fun TextFieldValue.getSelectedText(): AnnotatedString = annotatedString.subSequence(selection)
+public fun TextFieldValue.getSelectedText(): AnnotatedString =
+    annotatedString.subSequence(selection)

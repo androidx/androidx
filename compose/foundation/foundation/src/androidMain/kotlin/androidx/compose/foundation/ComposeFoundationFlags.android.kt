@@ -52,7 +52,7 @@ internal actual val isNewContextMenuInitiallyEnabled: Boolean
  *      }
  */
 @ExperimentalFoundationApi
-object AndroidComposeFoundationFlags {
+public object AndroidComposeFoundationFlags {
     /**
      * This flag controls the fix where we round the maxElevation to integer pixels in
      * StretchOverscrollNode to prevent sub-pixel rendering artifacts (like horizontal text
@@ -61,5 +61,5 @@ object AndroidComposeFoundationFlags {
     // TODO: Remove this flag once it has soaked (b/532081619)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isOverscrollPixelRoundingEnabled: Boolean = true
+    public var isOverscrollPixelRoundingEnabled: Boolean = true
 }

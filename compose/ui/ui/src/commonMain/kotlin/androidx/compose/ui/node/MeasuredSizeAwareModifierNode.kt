@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.IntSize
  *
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
  */
-interface MeasuredSizeAwareModifierNode : DelegatableNode {
+public interface MeasuredSizeAwareModifierNode : DelegatableNode {
 
     /**
      * This method is called when the layout content is remeasured. The most common usage is
      * [onSizeChanged].
      */
-    fun onRemeasured(size: IntSize)
+    public fun onRemeasured(size: IntSize)
 }

@@ -23,9 +23,9 @@ import androidx.compose.runtime.Stable
  * keyboard will show the requested action.
  */
 @kotlin.jvm.JvmInline
-value class ImeAction private constructor(@Suppress("unused") private val value: Int) {
+public value class ImeAction private constructor(@Suppress("unused") private val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Unspecified -> "Unspecified"
             None -> "None"
@@ -40,14 +40,14 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * The action is not specified. This defaults to [Default], which explicitly requests the
          * platform and keyboard to make the decision, but [Default] will take precedence when
          * merging [ImeAction]s.
          */
         @Stable
-        val Unspecified: ImeAction
+        public val Unspecified: ImeAction
             get() = ImeAction(-1)
 
         /**
@@ -57,7 +57,7 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * to IME action callbacks.
          */
         @Stable
-        val Default: ImeAction
+        public val Default: ImeAction
             get() = ImeAction(1)
 
         /**
@@ -66,7 +66,7 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * performed action to IME action callbacks.
          */
         @Stable
-        val None: ImeAction
+        public val None: ImeAction
             get() = ImeAction(0)
 
         /**
@@ -74,17 +74,17 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * visiting a URL.
          */
         @Stable
-        val Go: ImeAction
+        public val Go: ImeAction
             get() = ImeAction(2)
 
         /** Represents that the user wants to execute a search, i.e. web search query. */
         @Stable
-        val Search: ImeAction
+        public val Search: ImeAction
             get() = ImeAction(3)
 
         /** Represents that the user wants to send the text in the input, i.e. an SMS. */
         @Stable
-        val Send: ImeAction
+        public val Send: ImeAction
             get() = ImeAction(4)
 
         /**
@@ -92,7 +92,7 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * previous field in a form.
          */
         @Stable
-        val Previous: ImeAction
+        public val Previous: ImeAction
             get() = ImeAction(5)
 
         /**
@@ -100,7 +100,7 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * one i.e. moving to the next field in a form.
          */
         @Stable
-        val Next: ImeAction
+        public val Next: ImeAction
             get() = ImeAction(6)
 
         /**
@@ -109,7 +109,7 @@ value class ImeAction private constructor(@Suppress("unused") private val value:
          * group and the data input is finalized.
          */
         @Stable
-        val Done: ImeAction
+        public val Done: ImeAction
             get() = ImeAction(7)
     }
 }

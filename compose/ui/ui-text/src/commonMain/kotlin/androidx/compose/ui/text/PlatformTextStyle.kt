@@ -17,12 +17,12 @@
 package androidx.compose.ui.text
 
 /** Provides platform specific [TextStyle] configuration options for styling and compatibility. */
-expect class PlatformTextStyle {
+public expect class PlatformTextStyle {
     /** Platform specific text span styling and compatibility configuration. */
-    val spanStyle: PlatformSpanStyle?
+    public val spanStyle: PlatformSpanStyle?
 
     /** Platform specific paragraph styling and compatibility configuration. */
-    val paragraphStyle: PlatformParagraphStyle?
+    public val paragraphStyle: PlatformParagraphStyle?
 }
 
 internal expect fun createPlatformTextStyle(
@@ -33,21 +33,21 @@ internal expect fun createPlatformTextStyle(
 /**
  * Provides platform specific [ParagraphStyle] configuration options for styling and compatibility.
  */
-expect class PlatformParagraphStyle {
-    companion object {
-        val Default: PlatformParagraphStyle
+public expect class PlatformParagraphStyle {
+    public companion object {
+        public val Default: PlatformParagraphStyle
     }
 
-    fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle
+    public fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle
 }
 
 /** Provides platform specific [SpanStyle] configuration options for styling and compatibility. */
-expect class PlatformSpanStyle {
-    companion object {
-        val Default: PlatformSpanStyle
+public expect class PlatformSpanStyle {
+    public companion object {
+        public val Default: PlatformSpanStyle
     }
 
-    fun merge(other: PlatformSpanStyle?): PlatformSpanStyle
+    public fun merge(other: PlatformSpanStyle?): PlatformSpanStyle
 }
 
 /**
@@ -62,7 +62,7 @@ expect class PlatformSpanStyle {
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-expect fun lerp(
+public expect fun lerp(
     start: PlatformParagraphStyle,
     stop: PlatformParagraphStyle,
     fraction: Float,
@@ -80,7 +80,7 @@ expect fun lerp(
  * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
  * negative values and values greater than 1.0 are valid.
  */
-expect fun lerp(
+public expect fun lerp(
     start: PlatformSpanStyle,
     stop: PlatformSpanStyle,
     fraction: Float,

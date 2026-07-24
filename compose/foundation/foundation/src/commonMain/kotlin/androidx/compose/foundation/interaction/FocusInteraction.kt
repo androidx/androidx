@@ -32,14 +32,14 @@ import kotlinx.coroutines.flow.collect
  * @see Focus
  * @see Unfocus
  */
-interface FocusInteraction : Interaction {
+public interface FocusInteraction : Interaction {
     /**
      * An interaction representing a focus event on a component.
      *
      * @see androidx.compose.foundation.focusable
      * @see Unfocus
      */
-    class Focus : FocusInteraction
+    public class Focus : FocusInteraction
 
     /**
      * An interaction representing a [Focus] event being released on a component.
@@ -48,7 +48,7 @@ interface FocusInteraction : Interaction {
      * @see androidx.compose.foundation.focusable
      * @see Focus
      */
-    class Unfocus(val focus: Focus) : FocusInteraction
+    public class Unfocus(public val focus: Focus) : FocusInteraction
 }
 
 /**
@@ -61,7 +61,7 @@ interface FocusInteraction : Interaction {
  * @return [State] representing whether this component is being focused or not
  */
 @Composable
-fun InteractionSource.collectIsFocusedAsState(): State<Boolean> {
+public fun InteractionSource.collectIsFocusedAsState(): State<Boolean> {
     val isFocused = remember { mutableStateOf(false) }
     LaunchedEffect(this) {
         val focusInteractions = mutableListOf<FocusInteraction.Focus>()

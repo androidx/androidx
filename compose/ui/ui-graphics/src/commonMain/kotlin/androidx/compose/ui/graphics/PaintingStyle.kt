@@ -25,15 +25,15 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class PaintingStyle internal constructor(@Suppress("unused") private val value: Int) {
+public value class PaintingStyle internal constructor(@Suppress("unused") private val value: Int) {
 
-    companion object {
+    public companion object {
 
         /**
          * Apply the [Paint] to the inside of the shape. For example, when applied to the
          * [Canvas.drawCircle] call, this results in a disc of the given size being painted.
          */
-        val Fill
+        public val Fill: PaintingStyle
             get() = PaintingStyle(0)
 
         /**
@@ -41,11 +41,11 @@ value class PaintingStyle internal constructor(@Suppress("unused") private val v
          * [Canvas.drawCircle] call, this results is a hoop of the given size being painted. The
          * line drawn on the edge will be the width given by the [Paint.strokeWidth] property.
          */
-        val Stroke
+        public val Stroke: PaintingStyle
             get() = PaintingStyle(1)
     }
 
-    override fun toString() =
+    override fun toString(): String =
         when (this) {
             Fill -> "Fill"
             Stroke -> "Stroke"

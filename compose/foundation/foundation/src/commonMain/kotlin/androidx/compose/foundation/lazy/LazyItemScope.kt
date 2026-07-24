@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 @Stable
 @LazyScopeMarker
 @JvmDefaultWithCompatibility
-interface LazyItemScope {
+public interface LazyItemScope {
     /**
      * Have the content fill the [Constraints.maxWidth] and [Constraints.maxHeight] of the parent
      * measurement constraints by setting the [minimum width][Constraints.minWidth] to be equal to
@@ -45,7 +45,9 @@ interface LazyItemScope {
      * layouts as the items are measured with [Constraints.Infinity] as the constraints for the main
      * axis.
      */
-    fun Modifier.fillParentMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier
+    public fun Modifier.fillParentMaxSize(
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
+    ): Modifier
 
     /**
      * Have the content fill the [Constraints.maxWidth] of the parent measurement constraints by
@@ -58,7 +60,7 @@ interface LazyItemScope {
      * horizontally layouts as the items are measured with [Constraints.Infinity] as the constraints
      * for the main axis.
      */
-    fun Modifier.fillParentMaxWidth(
+    public fun Modifier.fillParentMaxWidth(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
 
@@ -73,7 +75,7 @@ interface LazyItemScope {
      * vertically layouts as the items are measured with [Constraints.Infinity] as the constraints
      * for the main axis.
      */
-    fun Modifier.fillParentMaxHeight(
+    public fun Modifier.fillParentMaxHeight(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
 
@@ -93,7 +95,7 @@ interface LazyItemScope {
      * @param fadeOutSpec an animation specs to use for animating the item disappearance. When null
      *   is provided the item will be disappearance without animations.
      */
-    fun Modifier.animateItem(
+    public fun Modifier.animateItem(
         fadeInSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
         placementSpec: FiniteAnimationSpec<IntOffset>? =
             spring(

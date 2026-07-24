@@ -25,7 +25,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.coroutineScope
 
-interface Scrollable2DState {
+public interface Scrollable2DState {
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [Scroll2DScope.scrollBy]. All actions that change the logical scroll position must be
@@ -35,7 +35,7 @@ interface Scrollable2DState {
      * If [scroll] is called from elsewhere with the [scrollPriority] higher or equal to ongoing
      * scroll, ongoing scroll will be canceled.
      */
-    suspend fun scroll(
+    public suspend fun scroll(
         scrollPriority: MutatePriority = MutatePriority.Default,
         block: suspend Scroll2DScope.() -> Unit,
     )
@@ -55,13 +55,13 @@ interface Scrollable2DState {
      * @param delta amount of scroll dispatched in the nested scroll process in both coordinates
      * @return the amount of delta consumed in both coordinates
      */
-    fun dispatchRawDelta(delta: Offset): Offset
+    public fun dispatchRawDelta(delta: Offset): Offset
 
     /**
      * Whether this [Scrollable2DState] is currently scrolling by gesture, fling or programmatically
      * or not.
      */
-    val isScrollInProgress: Boolean
+    public val isScrollInProgress: Boolean
 
     /**
      * Whether this [Scrollable2DState] can scroll using [offset]. This means that this state has
@@ -74,17 +74,17 @@ interface Scrollable2DState {
      * @param offset An offset in pixels representing the 2D vector to check against.
      * @return Whether this state can scroll in the direction given by [offset].
      */
-    fun canScroll(offset: Offset): Boolean
+    public fun canScroll(offset: Offset): Boolean
 }
 
 /** Scope used for suspending scroll blocks */
-interface Scroll2DScope {
+public interface Scroll2DScope {
     /**
      * Attempts to scroll forward by [delta] px.
      *
      * @return the amount of the requested scroll that was consumed (that is, how far it scrolled)
      */
-    fun scrollBy(delta: Offset): Offset
+    public fun scrollBy(delta: Offset): Offset
 }
 
 /**
@@ -101,7 +101,7 @@ interface Scroll2DScope {
  *   receives the delta in pixels. Callers should update their state in this lambda and return the
  *   amount of delta consumed
  */
-fun Scrollable2DState(consumeScrollDelta: (Offset) -> Offset): Scrollable2DState {
+public fun Scrollable2DState(consumeScrollDelta: (Offset) -> Offset): Scrollable2DState {
     return DefaultScrollable2DState(consumeScrollDelta)
 }
 
@@ -120,7 +120,7 @@ fun Scrollable2DState(consumeScrollDelta: (Offset) -> Offset): Scrollable2DState
  *   amount of delta consumed
  */
 @Composable
-fun rememberScrollable2DState(consumeScrollDelta: (Offset) -> Offset): Scrollable2DState {
+public fun rememberScrollable2DState(consumeScrollDelta: (Offset) -> Offset): Scrollable2DState {
     val lambdaState = rememberUpdatedState(consumeScrollDelta)
     return remember { Scrollable2DState { lambdaState.value.invoke(it) } }
 }

@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.platform
 
-actual interface PlatformTextInputMethodRequest
+public actual interface PlatformTextInputMethodRequest

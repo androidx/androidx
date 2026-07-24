@@ -32,7 +32,7 @@ import androidx.core.content.res.ResourcesCompat
  */
 @Composable
 @ReadOnlyComposable
-fun colorResource(@ColorRes id: Int): Color {
+public fun colorResource(@ColorRes id: Int): Color {
     val context = LocalContext.current
     return Color(ResourcesCompat.getColor(LocalResources.current, id, context.theme))
 }

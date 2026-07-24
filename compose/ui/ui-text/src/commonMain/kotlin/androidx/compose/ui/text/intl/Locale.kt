@@ -31,10 +31,10 @@ import androidx.compose.ui.text.TextStyle
  * @see SpanStyle
  */
 @Immutable
-expect class Locale {
-    companion object {
+public expect class Locale {
+    public companion object {
         /** Returns a [Locale] object which represents current locale */
-        val current: Locale
+        public val current: Locale
     }
 
     /**
@@ -43,27 +43,27 @@ expect class Locale {
      * @param languageTag A [IETF BCP47](https://tools.ietf.org/html/bcp47) compliant language tag.
      * @return a locale object
      */
-    constructor(languageTag: String)
+    public constructor(languageTag: String)
 
     /** The ISO 639 compliant language code. */
-    val language: String
+    public val language: String
 
     /** The ISO 15924 compliant 4-letter script code. */
-    val script: String
+    public val script: String
 
     /** The ISO 3166 compliant region code. */
-    val region: String
+    public val region: String
 
     /**
      * Returns a IETF BCP47 compliant language tag representation of this Locale.
      *
      * @return A IETF BCP47 compliant language tag.
      */
-    fun toLanguageTag(): String
+    public fun toLanguageTag(): String
 
-    override fun equals(other: Any?): Boolean
+    public override fun equals(other: Any?): Boolean
 
-    override fun hashCode(): Int
+    public override fun hashCode(): Int
 
-    override fun toString(): String
+    public override fun toString(): String
 }

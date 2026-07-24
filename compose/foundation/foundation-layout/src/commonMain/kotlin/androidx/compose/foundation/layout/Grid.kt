@@ -94,7 +94,7 @@ import kotlin.math.roundToInt
  */
 @Composable
 @ExperimentalGridApi
-inline fun Grid(
+public inline fun Grid(
     noinline config: GridConfigurationScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable GridScope.() -> Unit,
@@ -121,7 +121,7 @@ inline fun Grid(
 @Immutable
 @JvmDefaultWithCompatibility
 @ExperimentalGridApi
-interface GridScope {
+public interface GridScope {
     /**
      * Configures the position, span, and alignment of an element within a [Grid] layout.
      *
@@ -159,7 +159,7 @@ interface GridScope {
      * @see MaxGridIndex
      */
     @Stable
-    fun Modifier.gridItem(
+    public fun Modifier.gridItem(
         @AndroidXIntRange(from = -MaxGridIndex.toLong(), to = MaxGridIndex.toLong())
         row: Int = GridIndexUnspecified,
         @AndroidXIntRange(from = -MaxGridIndex.toLong(), to = MaxGridIndex.toLong())
@@ -191,7 +191,7 @@ interface GridScope {
      * @see Modifier.gridItem
      */
     @Stable
-    fun Modifier.gridItem(
+    public fun Modifier.gridItem(
         rows: IntRange,
         columns: IntRange,
         alignment: Alignment = Alignment.TopStart,
@@ -228,9 +228,9 @@ interface GridScope {
      */
     @Stable
     @ExperimentalGridApi
-    fun Modifier.gridItem(areaId: Any, alignment: Alignment = Alignment.TopStart): Modifier
+    public fun Modifier.gridItem(areaId: Any, alignment: Alignment = Alignment.TopStart): Modifier
 
-    companion object {
+    public companion object {
         /**
          * The maximum allowed index for a row or column (inclusive).
          *
@@ -241,13 +241,13 @@ interface GridScope {
          * **Note:** This value MUST NOT exceed `Short.MAX_VALUE` (32767). Named Area bounds are
          * bit-packed into 16-bit segments, and larger values will silently truncate.
          */
-        @ExperimentalGridApi const val MaxGridIndex: Int = 1000
+        @ExperimentalGridApi public const val MaxGridIndex: Int = 1000
 
         /**
          * Sentinel value indicating that a grid position (row or column) is not manually specified
          * and should be determined automatically by the layout flow.
          */
-        @ExperimentalGridApi const val GridIndexUnspecified: Int = 0
+        @ExperimentalGridApi public const val GridIndexUnspecified: Int = 0
     }
 }
 
@@ -325,7 +325,7 @@ internal object GridScopeInstance : GridScope {
  */
 @LayoutScopeMarker
 @ExperimentalGridApi
-interface GridConfigurationScope : Density {
+public interface GridConfigurationScope : Density {
 
     /**
      * The layout constraints passed to this [Grid] from its parent.
@@ -336,45 +336,45 @@ interface GridConfigurationScope : Density {
      *
      * @see Constraints
      */
-    val constraints: Constraints
+    public val constraints: Constraints
 
     /**
      * The direction in which items that do not specify a position are placed. Defaults to
      * [GridFlow.Row].
      */
-    var flow: GridFlow
+    public var flow: GridFlow
 
     /** Defines a fixed-width column. Maps to [GridTrackSize.Fixed]. */
-    fun column(size: Dp)
+    public fun column(size: Dp)
 
     /** Defines a flexible column. Maps to [GridTrackSize.Flex]. */
-    fun column(weight: Fr)
+    public fun column(weight: Fr)
 
     /**
      * Defines a percentage-based column. Maps to [GridTrackSize.Percentage].
      *
      * @param percentage The percentage (0.0 to 1.0) of the available space.
      */
-    fun column(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
+    public fun column(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
 
     /** Defines a new column track with the specified [size]. */
-    fun column(size: GridTrackSize)
+    public fun column(size: GridTrackSize)
 
     /** Defines a fixed-width row. Maps to [GridTrackSize.Fixed]. */
-    fun row(size: Dp)
+    public fun row(size: Dp)
 
     /** Defines a flexible row. Maps to [GridTrackSize.Flex]. */
-    fun row(weight: Fr)
+    public fun row(weight: Fr)
 
     /**
      * Defines a percentage-based row. Maps to [GridTrackSize.Percentage].
      *
      * @param percentage The percentage (0.0 to 1.0) of the available space.
      */
-    fun row(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
+    public fun row(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
 
     /** Defines a new row track with the specified [size]. */
-    fun row(size: GridTrackSize)
+    public fun row(size: GridTrackSize)
 
     /**
      * Defines a named area or a 1-dimensional track within the grid by mapping an identifier to
@@ -403,7 +403,7 @@ interface GridConfigurationScope : Density {
      *   Defaults to 1.
      * @throws IllegalArgumentException if both [row] and [column] are [GridIndexUnspecified].
      */
-    fun area(
+    public fun area(
         areaId: Any,
         row: Int = GridIndexUnspecified,
         column: Int = GridIndexUnspecified,
@@ -428,7 +428,7 @@ interface GridConfigurationScope : Density {
      * @param columns The range of columns to occupy (e.g., `1..3`). The start determines the
      *   1-based column index, and the size of the range determines the span.
      */
-    fun area(areaId: Any, rows: IntRange, columns: IntRange) {
+    public fun area(areaId: Any, rows: IntRange, columns: IntRange) {
         require(!rows.isEmpty()) { "Row range ($rows) cannot be empty" }
         require(!columns.isEmpty()) { "Column range ($columns) cannot be empty" }
         area(
@@ -448,7 +448,7 @@ interface GridConfigurationScope : Density {
      *
      * @throws IllegalArgumentException if [all] is negative.
      */
-    fun gap(all: Dp)
+    public fun gap(all: Dp)
 
     /**
      * Sets independent gaps for rows and columns.
@@ -458,7 +458,7 @@ interface GridConfigurationScope : Density {
      *
      * @throws IllegalArgumentException if [row] or [column] is negative.
      */
-    fun gap(row: Dp, column: Dp)
+    public fun gap(row: Dp, column: Dp)
 
     /**
      * Sets the gap (gutter) size between columns.
@@ -468,7 +468,7 @@ interface GridConfigurationScope : Density {
      *
      * @throws IllegalArgumentException if [gap] is negative.
      */
-    fun columnGap(gap: Dp)
+    public fun columnGap(gap: Dp)
 
     /**
      * Sets the gap (gutter) size between rows.
@@ -478,7 +478,7 @@ interface GridConfigurationScope : Density {
      *
      * @throws IllegalArgumentException if [gap] is negative.
      */
-    fun rowGap(gap: Dp)
+    public fun rowGap(gap: Dp)
 
     /**
      * A flexible track with an explicitly defined minimum base size and a flexible maximum size.
@@ -493,30 +493,30 @@ interface GridConfigurationScope : Density {
      * @param min The explicit minimum fixed base size (e.g., `0.dp`).
      * @param max The maximum flexible distribution weight (e.g., `1.fr`).
      */
-    @Stable fun minmax(min: Dp, max: Fr): GridTrackSize = GridTrackSize.MinMax(min, max)
+    @Stable public fun minmax(min: Dp, max: Fr): GridTrackSize = GridTrackSize.MinMax(min, max)
 
     /** Creates an [Fr] unit from an [Int]. */
     @Stable
     @ExperimentalGridApi
-    val Int.fr: Fr
+    public val Int.fr: Fr
         get() = Fr(this.toFloat())
 
     /** Creates an [Fr] unit from a [Float]. */
     @Stable
     @ExperimentalGridApi
-    val Float.fr: Fr
+    public val Float.fr: Fr
         get() = Fr(this)
 
     /** Creates an [Fr] unit from a [Double]. */
     @Stable
     @ExperimentalGridApi
-    val Double.fr: Fr
+    public val Double.fr: Fr
         get() = Fr(this.toFloat())
 }
 
 /** Adds multiple columns with the specified [specs]. */
 @ExperimentalGridApi
-fun GridConfigurationScope.columns(vararg specs: GridTrackSpec) {
+public fun GridConfigurationScope.columns(vararg specs: GridTrackSpec) {
     for (spec in specs) {
         if (spec is GridTrackSize) {
             column(spec)
@@ -526,7 +526,7 @@ fun GridConfigurationScope.columns(vararg specs: GridTrackSpec) {
 
 /** Adds multiple rows with the specified [specs]. */
 @ExperimentalGridApi
-fun GridConfigurationScope.rows(vararg specs: GridTrackSpec) {
+public fun GridConfigurationScope.rows(vararg specs: GridTrackSpec) {
     for (spec in specs) {
         if (spec is GridTrackSize) {
             row(spec)
@@ -537,17 +537,17 @@ fun GridConfigurationScope.rows(vararg specs: GridTrackSpec) {
 /** Defines the direction in which auto-placed items flow within the grid. */
 @JvmInline
 @ExperimentalGridApi
-value class GridFlow @PublishedApi internal constructor(private val bits: Int) {
+public value class GridFlow @PublishedApi internal constructor(private val bits: Int) {
 
-    companion object {
+    public companion object {
         /** Items are placed filling the first row, then moving to the next row. */
         @ExperimentalGridApi
-        inline val Row
+        public inline val Row: GridFlow
             get() = GridFlow(0)
 
         /** Items are placed filling the first column, then moving to the next column. */
         @ExperimentalGridApi
-        inline val Column
+        public inline val Column: GridFlow
             get() = GridFlow(1)
     }
 
@@ -574,7 +574,7 @@ value class GridFlow @PublishedApi internal constructor(private val bits: Int) {
  */
 @JvmInline
 @ExperimentalGridApi
-value class Fr(val value: Float) {
+public value class Fr(public val value: Float) {
     override fun toString(): String = "$value.fr"
 }
 
@@ -584,7 +584,7 @@ value class Fr(val value: Float) {
  * This allows the configuration DSL to accept [GridTrackSize] items in a vararg (e.g.,
  * `columns(Fixed(10.dp), Flex(1.fr))`), bypassing the Kotlin limitation on value class varargs.
  */
-@ExperimentalGridApi sealed interface GridTrackSpec
+@ExperimentalGridApi public sealed interface GridTrackSpec
 
 /**
  * Defines the size of a track (a row or a column) in a [Grid].
@@ -594,7 +594,8 @@ value class Fr(val value: Float) {
 @Immutable
 @JvmInline
 @ExperimentalGridApi
-value class GridTrackSize internal constructor(internal val encodedValue: Long) : GridTrackSpec {
+public value class GridTrackSize internal constructor(internal val encodedValue: Long) :
+    GridTrackSpec {
 
     // 1. Unpacking the Type
     internal val type: Int
@@ -623,7 +624,7 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
             else -> "Unknown"
         }
 
-    companion object {
+    public companion object {
         internal const val TypeFixed = 1
         internal const val TypePercentage = 2
         internal const val TypeFlex = 3
@@ -639,7 +640,7 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
          * @throws IllegalArgumentException if [size] is negative or [Dp.Unspecified].
          */
         @Stable
-        fun Fixed(size: Dp): GridTrackSize {
+        public fun Fixed(size: Dp): GridTrackSize {
             require(size != Dp.Unspecified && size.value >= 0f) {
                 "Fixed size must be non-negative and specified (was $size)"
             }
@@ -658,7 +659,7 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
          * @throws IllegalArgumentException if [value] is negative.
          */
         @Stable
-        fun Percentage(@FloatRange(from = 0.0) value: Float): GridTrackSize {
+        public fun Percentage(@FloatRange(from = 0.0) value: Float): GridTrackSize {
             require(value >= 0f) { "Percentage cannot be negative" }
             return pack(TypePercentage, value)
         }
@@ -684,7 +685,7 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
          * @see MinMax
          */
         @Stable
-        fun Flex(@FloatRange(from = 0.0) weight: Fr): GridTrackSize {
+        public fun Flex(@FloatRange(from = 0.0) weight: Fr): GridTrackSize {
             require(weight.value >= 0f) { "Flex weight must be non-negative" }
             return pack(TypeFlex, weight.value)
         }
@@ -710,25 +711,25 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
          * @see Flex
          */
         @Stable
-        fun MinMax(min: Dp, @FloatRange(from = 0.0) max: Fr): GridTrackSize {
+        public fun MinMax(min: Dp, @FloatRange(from = 0.0) max: Fr): GridTrackSize {
             require(min.value >= 0f) { "MinMax minimum size cannot be negative" }
             require(max.value >= 0f) { "MinMax max weight cannot be negative" }
             return packMinMax(min.value, max.value)
         }
 
         /** A track that sizes itself to fit the minimum intrinsic size of its contents. */
-        val MinContent
+        public val MinContent: GridTrackSize
             get() = pack(TypeMinContent, 0f)
 
         /** A track that sizes itself to fit the maximum intrinsic size of its contents. */
-        val MaxContent
+        public val MaxContent: GridTrackSize
             get() = pack(TypeMaxContent, 0f)
 
         /**
          * A track that behaves as minmax(min-content, max-content). It occupies at least its
          * minimum content size, and grows to fit its maximum content size if space is available.
          */
-        val Auto
+        public val Auto: GridTrackSize
             get() = pack(TypeAuto, 0f)
 
         private fun packMinMax(min: Float, max: Float): GridTrackSize {

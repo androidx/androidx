@@ -73,7 +73,7 @@ import kotlinx.coroutines.launch
  *   [LazyListState.firstVisibleItemScrollOffset]
  */
 @Composable
-fun rememberLazyListState(
+public fun rememberLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyListState {
@@ -96,7 +96,7 @@ fun rememberLazyListState(
  */
 @ExperimentalFoundationApi
 @Composable
-fun rememberLazyListState(
+public fun rememberLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
     prefetchStrategy: LazyListPrefetchStrategy = remember { LazyListPrefetchStrategy() },
@@ -124,7 +124,7 @@ fun rememberLazyListState(
  */
 @ExperimentalFoundationApi
 @Composable
-fun rememberLazyListState(
+public fun rememberLazyListState(
     cacheWindow: LazyLayoutCacheWindow,
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
@@ -151,9 +151,9 @@ fun rememberLazyListState(
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class LazyListState
+public class LazyListState
 @ExperimentalFoundationApi
-constructor(
+public constructor(
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
     internal val prefetchStrategy: LazyListPrefetchStrategy = LazyListPrefetchStrategy(),
@@ -167,7 +167,7 @@ constructor(
      *   [LazyListState.firstVisibleItemScrollOffset]
      */
     @ExperimentalFoundationApi
-    constructor(
+    public constructor(
         cacheWindow: LazyLayoutCacheWindow,
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
@@ -182,7 +182,7 @@ constructor(
      * @param firstVisibleItemScrollOffset the initial value for
      *   [LazyListState.firstVisibleItemScrollOffset]
      */
-    constructor(
+    public constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
     ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, LazyListPrefetchStrategy())
@@ -218,7 +218,7 @@ constructor(
      *
      * @sample androidx.compose.foundation.samples.UsingListScrollPositionInCompositionSample
      */
-    val firstVisibleItemIndex: Int
+    public val firstVisibleItemIndex: Int
         @FrequentlyChangingValue get() = scrollPosition.index
 
     /**
@@ -230,7 +230,7 @@ constructor(
      *
      * @see firstVisibleItemIndex for samples with the recommended usage patterns.
      */
-    val firstVisibleItemScrollOffset: Int
+    public val firstVisibleItemScrollOffset: Int
         @FrequentlyChangingValue get() = scrollPosition.scrollOffset
 
     /** Backing state for [layoutInfo] */
@@ -250,7 +250,7 @@ constructor(
      *
      * @sample androidx.compose.foundation.samples.UsingListLayoutInfoForSideEffectSample
      */
-    val layoutInfo: LazyListLayoutInfo
+    public val layoutInfo: LazyListLayoutInfo
         @FrequentlyChangingValue get() = layoutInfoState.value
 
     /**
@@ -258,7 +258,7 @@ constructor(
      * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
      * [isScrollInProgress].
      */
-    val interactionSource: InteractionSource
+    public val interactionSource: InteractionSource
         get() = internalInteractionSource
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
@@ -395,7 +395,7 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun scrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public suspend fun scrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         scroll { snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true) }
     }
 
@@ -416,7 +416,7 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public fun requestScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         // Cancel any scroll in progress.
         if (isScrollInProgress) {
             layoutInfoState.value.coroutineScope.launch { scroll {} }
@@ -586,7 +586,10 @@ constructor(
      *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
      *   scroll the item further upward (taking it partly offscreen).
      */
-    suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
+    public suspend fun animateScrollToItem(
+        @AndroidXIntRange(from = 0) index: Int,
+        scrollOffset: Int = 0,
+    ) {
         try {
             skipItemPlacementAnimation = true
             scroll {
@@ -674,9 +677,9 @@ constructor(
         firstItemIndex: Int,
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
-    companion object {
+    public companion object {
         /** The default [Saver] implementation for [LazyListState]. */
-        val Saver: Saver<LazyListState, *> =
+        public val Saver: Saver<LazyListState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {

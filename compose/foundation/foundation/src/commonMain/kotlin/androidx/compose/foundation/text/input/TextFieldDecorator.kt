@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  */
-fun interface TextFieldDecorator {
+public fun interface TextFieldDecorator {
 
     /**
      * To allow you to control the placement of the inner text field relative to your decorations,
@@ -36,5 +36,5 @@ fun interface TextFieldDecorator {
     // with the naming.
     @Suppress("ComposableLambdaParameterNaming")
     @Composable
-    fun Decoration(innerTextField: @Composable () -> Unit)
+    public fun Decoration(innerTextField: @Composable () -> Unit)
 }

@@ -24,5 +24,5 @@ import androidx.lifecycle.LifecycleOwner
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
     ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
 )
-actual val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
+public actual val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
     get() = implementedInJetBrainsFork()

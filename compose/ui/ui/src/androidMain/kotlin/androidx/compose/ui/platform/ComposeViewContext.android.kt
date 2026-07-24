@@ -82,7 +82,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  */
 @OptIn(ExperimentalComposeUiApi::class)
-class ComposeViewContext
+public class ComposeViewContext
 private constructor(
     composeViewContext: ComposeViewContext?,
     internal val view: View,
@@ -116,7 +116,7 @@ private constructor(
      *   [RetainedValuesStore]s. If `null`, the default value is obtained from
      *   [View.findViewTreeViewModelStoreOwner].
      */
-    constructor(
+    public constructor(
         view: View,
         compositionContext: CompositionContext? = null,
         lifecycleOwner: LifecycleOwner? = null,
@@ -495,7 +495,7 @@ private constructor(
      *   [RetainedValuesStore]s. If `null`, the default value is obtained from
      *   [View.findViewTreeViewModelStoreOwner].
      */
-    fun copy(
+    public fun copy(
         view: View = this.view,
         compositionContext: CompositionContext? = this._compositionContext,
         lifecycleOwner: LifecycleOwner? = this._lifecycleOwner,

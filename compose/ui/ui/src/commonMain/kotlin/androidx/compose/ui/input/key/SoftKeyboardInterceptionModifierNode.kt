@@ -31,14 +31,14 @@ import androidx.compose.ui.node.DelegatableNode
  * event is still not consumed, [onInterceptKeyBeforeSoftKeyboard] is called on the focused item's
  * parents.
  */
-interface SoftKeyboardInterceptionModifierNode : DelegatableNode {
+public interface SoftKeyboardInterceptionModifierNode : DelegatableNode {
     /**
      * This function is called when a [KeyEvent] is received by this node during the upward pass.
      * While implementing this callback, return true to stop propagation of this event. If you
      * return false, the key event will be sent to this [SoftKeyboardInterceptionModifierNode]'s
      * parent.
      */
-    fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean
+    public fun onInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean
 
     /**
      * This function is called when a [KeyEvent] is received by this node during the downward pass.
@@ -47,5 +47,5 @@ interface SoftKeyboardInterceptionModifierNode : DelegatableNode {
      * [SoftKeyboardInterceptionModifierNode]'s child. If none of the children consume the event, it
      * will be sent back up to the root using the [onPreInterceptKeyBeforeSoftKeyboard] function.
      */
-    fun onPreInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean
+    public fun onPreInterceptKeyBeforeSoftKeyboard(event: KeyEvent): Boolean
 }

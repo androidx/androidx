@@ -55,7 +55,7 @@ import androidx.compose.ui.util.fastMap
  */
 @Stable
 @JvmDefaultWithCompatibility
-fun interface MeasurePolicy {
+public fun interface MeasurePolicy {
     /**
      * The function that defines the measurement and layout. Each [Measurable] in the [measurables]
      * list corresponds to a layout child of the layout, and children can be measured using the
@@ -85,7 +85,10 @@ fun interface MeasurePolicy {
      * takes the calculated size of this layout, its alignment lines, and a block defining the
      * positioning of the children layouts.
      */
-    fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult
+    public fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints,
+    ): MeasureResult
 
     /**
      * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth]. It represents the
@@ -93,7 +96,7 @@ fun interface MeasurePolicy {
      * layout can be painted correctly. There should be no side-effect from implementers of
      * [minIntrinsicWidth].
      */
-    fun IntrinsicMeasureScope.minIntrinsicWidth(
+    public fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
@@ -113,7 +116,7 @@ fun interface MeasurePolicy {
      * layout will be painted correctly. There should be no side-effect from implementers of
      * [minIntrinsicHeight].
      */
-    fun IntrinsicMeasureScope.minIntrinsicHeight(
+    public fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
@@ -132,7 +135,7 @@ fun interface MeasurePolicy {
      * minimum width such that increasing it further will not decrease the minimum intrinsic height.
      * There should be no side-effects from implementers of [maxIntrinsicWidth].
      */
-    fun IntrinsicMeasureScope.maxIntrinsicWidth(
+    public fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
@@ -151,7 +154,7 @@ fun interface MeasurePolicy {
      * minimum height such that increasing it further will not decrease the minimum intrinsic width.
      * There should be no side-effects from implementers of [maxIntrinsicHeight].
      */
-    fun IntrinsicMeasureScope.maxIntrinsicHeight(
+    public fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {

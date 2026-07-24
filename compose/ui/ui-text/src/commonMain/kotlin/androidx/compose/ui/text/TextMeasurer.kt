@@ -69,7 +69,7 @@ private const val DefaultCacheSize = 8
  *   layouts calculated repeatedly
  */
 @Immutable
-class TextMeasurer(
+public class TextMeasurer(
     private val defaultFontFamilyResolver: FontFamily.Resolver,
     private val defaultDensity: Density,
     private val defaultLayoutDirection: LayoutDirection,
@@ -127,7 +127,7 @@ class TextMeasurer(
      * @sample androidx.compose.ui.text.samples.measureTextAnnotatedString
      */
     @Stable
-    fun measure(
+    public fun measure(
         text: AnnotatedString,
         style: TextStyle = TextStyle.Default,
         overflow: TextOverflow = TextOverflow.Clip,
@@ -220,7 +220,7 @@ class TextMeasurer(
      * @sample androidx.compose.ui.text.samples.measureTextStringWithConstraints
      */
     @Stable
-    fun measure(
+    public fun measure(
         text: String,
         style: TextStyle = TextStyle.Default,
         overflow: TextOverflow = TextOverflow.Clip,

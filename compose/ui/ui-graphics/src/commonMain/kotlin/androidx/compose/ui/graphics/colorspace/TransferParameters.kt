@@ -33,21 +33,21 @@ package androidx.compose.ui.graphics.colorspace
  * * The function is positive and increasing
  */
 @Suppress("DataClassDefinition")
-data class TransferParameters(
+public data class TransferParameters(
     /** Value g in the equation of the EOTF described above. */
-    val gamma: Double,
+    public val gamma: Double,
     /** Value a in the equation of the EOTF described above. */
-    val a: Double,
+    public val a: Double,
     /** Value b in the equation of the EOTF described above. */
-    val b: Double,
+    public val b: Double,
     /** Value c in the equation of the EOTF described above. */
-    val c: Double,
+    public val c: Double,
     /** Value d in the equation of the EOTF described above. */
-    val d: Double,
+    public val d: Double,
     /** Value e in the equation of the EOTF described above. */
-    val e: Double = 0.0,
+    public val e: Double = 0.0,
     /** Value f in the equation of the EOTF described above. */
-    val f: Double = 0.0,
+    public val f: Double = 0.0,
 ) {
     init {
         if (

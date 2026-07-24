@@ -35,14 +35,14 @@ import androidx.compose.ui.spatial.RelativeLayoutBounds
  * @see layoutBounds
  * @see onVisibilityChanged
  */
-class LayoutBoundsHolder {
+public class LayoutBoundsHolder {
     /**
      * The bounds of the node this holder is referencing. This is backed by
      * [androidx.compose.runtime.MutableState] and might change frequently, so reading it during
      * composition directly is discouraged.
      */
     @get:FrequentlyChangingValue
-    var bounds: RelativeLayoutBounds? by mutableStateOf(null)
+    public var bounds: RelativeLayoutBounds? by mutableStateOf(null)
         internal set
 }
 
@@ -92,5 +92,5 @@ internal class LayoutBoundsNode(var holder: LayoutBoundsHolder) : Modifier.Node(
  * @see LayoutBoundsHolder
  * @see onVisibilityChanged
  */
-fun Modifier.layoutBounds(holder: LayoutBoundsHolder): Modifier =
+public fun Modifier.layoutBounds(holder: LayoutBoundsHolder): Modifier =
     this then LayoutBoundsElement(holder)

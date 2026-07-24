@@ -62,7 +62,7 @@ import kotlin.math.max
  * @param content The content of the [Box].
  */
 @Composable
-inline fun Box(
+public inline fun Box(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
@@ -230,7 +230,7 @@ private fun Placeable.PlacementScope.placeInBox(
  * @param modifier The modifier to be applied to the layout.
  */
 @Composable
-fun Box(modifier: Modifier) {
+public fun Box(modifier: Modifier) {
     Layout(measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
 }
 
@@ -241,12 +241,12 @@ internal val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
 /** A BoxScope provides a scope for the children of [Box] and [BoxWithConstraints]. */
 @LayoutScopeMarker
 @Immutable
-interface BoxScope {
+public interface BoxScope {
     /**
      * Pull the content element to a specific [Alignment] within the [Box]. This alignment will have
      * priority over the [Box]'s `alignment` parameter.
      */
-    @Stable fun Modifier.align(alignment: Alignment): Modifier
+    @Stable public fun Modifier.align(alignment: Alignment): Modifier
 
     /**
      * Size the element to match the size of the [Box] after all other content elements have been
@@ -259,7 +259,7 @@ interface BoxScope {
      * space, will take part in defining the size of the [Box]. Consequently, using it for an
      * element inside a [Box] will make the [Box] itself always fill the available space.
      */
-    @Stable fun Modifier.matchParentSize(): Modifier
+    @Stable public fun Modifier.matchParentSize(): Modifier
 }
 
 @PublishedApi

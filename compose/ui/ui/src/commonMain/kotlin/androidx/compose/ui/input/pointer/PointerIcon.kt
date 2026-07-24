@@ -39,25 +39,25 @@ import androidx.compose.ui.util.fastAny
  * Represents a pointer icon to use in [Modifier.pointerHoverIcon] or [Modifier.stylusHoverIcon].
  */
 @Stable
-interface PointerIcon {
+public interface PointerIcon {
 
     /**
      * A collection of common pointer icons used for the mouse cursor. These icons will be used to
      * assign default pointer icons for various widgets.
      */
-    companion object {
+    public companion object {
 
         /** The default arrow icon that is commonly used for cursor icons. */
-        val Default = pointerIconDefault
+        public val Default: PointerIcon = pointerIconDefault
 
         /** Commonly used when selecting precise portions of the screen. */
-        val Crosshair = pointerIconCrosshair
+        public val Crosshair: PointerIcon = pointerIconCrosshair
 
         /** Also called an I-beam cursor, this is commonly used on selectable or editable text. */
-        val Text = pointerIconText
+        public val Text: PointerIcon = pointerIconText
 
         /** Commonly used to indicate to a user that an element is clickable. */
-        val Hand = pointerIconHand
+        public val Hand: PointerIcon = pointerIconHand
     }
 }
 
@@ -88,7 +88,10 @@ internal interface PointerIconService {
  *   to the this (the parent's) icon).
  */
 @Stable
-fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = false) =
+public fun Modifier.pointerHoverIcon(
+    icon: PointerIcon,
+    overrideDescendants: Boolean = false,
+): Modifier =
     this then
         PointerHoverIconModifierElement(icon = icon, overrideDescendants = overrideDescendants)
 
@@ -148,11 +151,11 @@ internal class PointerHoverIconModifierNode(
  * @param touchBoundsExpansion amount by which the element's bounds is expanded
  * @sample androidx.compose.ui.samples.StylusHoverIconSample
  */
-fun Modifier.stylusHoverIcon(
+public fun Modifier.stylusHoverIcon(
     icon: PointerIcon,
     overrideDescendants: Boolean = false,
     touchBoundsExpansion: DpTouchBoundsExpansion? = null,
-) =
+): Modifier =
     this then
         StylusHoverIconModifierElement(
             icon = icon,

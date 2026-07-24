@@ -45,7 +45,7 @@ import kotlin.math.atan2
  *
  * @sample androidx.compose.foundation.samples.DetectTransformGestures
  */
-suspend fun PointerInputScope.detectTransformGestures(
+public suspend fun PointerInputScope.detectTransformGestures(
     panZoomLock: Boolean = false,
     onGesture: (centroid: Offset, pan: Offset, zoom: Float, rotation: Float) -> Unit,
 ) {
@@ -112,7 +112,7 @@ suspend fun PointerInputScope.detectTransformGestures(
  *
  * @sample androidx.compose.foundation.samples.CalculateRotation
  */
-fun PointerEvent.calculateRotation(): Float {
+public fun PointerEvent.calculateRotation(): Float {
     val pointerCount = changes.fastSumBy { if (it.previousPressed && it.pressed) 1 else 0 }
     if (pointerCount < 2) {
         return 0f
@@ -169,7 +169,7 @@ private fun Offset.angleDeg(): Float =
  *
  * @sample androidx.compose.foundation.samples.CalculateZoom
  */
-fun PointerEvent.calculateZoom(): Float {
+public fun PointerEvent.calculateZoom(): Float {
     val currentCentroidSize = calculateCentroidSize(useCurrent = true)
     val previousCentroidSize = calculateCentroidSize(useCurrent = false)
     if (currentCentroidSize == 0f || previousCentroidSize == 0f) {
@@ -186,7 +186,7 @@ fun PointerEvent.calculateZoom(): Float {
  *
  * @sample androidx.compose.foundation.samples.CalculatePan
  */
-fun PointerEvent.calculatePan(): Offset {
+public fun PointerEvent.calculatePan(): Offset {
     val currentCentroid = calculateCentroid(useCurrent = true)
     if (currentCentroid == Offset.Unspecified) {
         return Offset.Zero
@@ -206,7 +206,7 @@ fun PointerEvent.calculatePan(): Offset {
  *
  * @sample androidx.compose.foundation.samples.CalculateCentroidSize
  */
-fun PointerEvent.calculateCentroidSize(useCurrent: Boolean = true): Float {
+public fun PointerEvent.calculateCentroidSize(useCurrent: Boolean = true): Float {
     val centroid = calculateCentroid(useCurrent)
     if (centroid == Offset.Unspecified) {
         return 0f
@@ -235,7 +235,7 @@ fun PointerEvent.calculateCentroidSize(useCurrent: Boolean = true): Float {
  *
  * @sample androidx.compose.foundation.samples.CalculateCentroidSize
  */
-fun PointerEvent.calculateCentroid(useCurrent: Boolean = true): Offset =
+public fun PointerEvent.calculateCentroid(useCurrent: Boolean = true): Offset =
     calculateCentroid(useCurrent = useCurrent) { change ->
         change.pressed && change.previousPressed
     }

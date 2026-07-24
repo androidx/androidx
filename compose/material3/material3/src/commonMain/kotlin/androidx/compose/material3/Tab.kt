@@ -88,7 +88,7 @@ import kotlin.math.max
  * @see LeadingIconTab
  */
 @Composable
-fun Tab(
+public fun Tab(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -152,7 +152,7 @@ fun Tab(
  * @see Tab
  */
 @Composable
-fun LeadingIconTab(
+public fun LeadingIconTab(
     selected: Boolean,
     onClick: () -> Unit,
     text: @Composable () -> Unit,
@@ -226,7 +226,7 @@ fun LeadingIconTab(
  * @param content the content of this tab
  */
 @Composable
-fun Tab(
+public fun Tab(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

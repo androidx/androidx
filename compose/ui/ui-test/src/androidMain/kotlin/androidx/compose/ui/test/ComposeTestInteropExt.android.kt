@@ -36,7 +36,7 @@ import kotlin.sequences.forEach
  * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionRecyclerViewSample
  * @sample androidx.compose.ui.test.samples.onRootWithViewInteractionFragmentSample
  */
-fun ComposeUiTest.onRootWithViewInteraction(
+public fun ComposeUiTest.onRootWithViewInteraction(
     interaction: ViewInteraction
 ): SemanticsNodeInteractionsProvider {
     val matchedView = interaction.extractView()

@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.InspectorInfo
  *   the platform specific source sets.
  * @sample androidx.compose.foundation.samples.AppendComponentsToTextContextMenu
  */
-fun Modifier.appendTextContextMenuComponents(
+public fun Modifier.appendTextContextMenuComponents(
     builder: TextContextMenuBuilderScope.() -> Unit
 ): Modifier = this then AddTextContextMenuDataComponentsElement(builder)
 
@@ -61,7 +61,7 @@ fun Modifier.appendTextContextMenuComponents(
  *   be included in the context menu.
  * @sample androidx.compose.foundation.samples.AddFilterToTextContextMenu
  */
-fun Modifier.filterTextContextMenuComponents(
+public fun Modifier.filterTextContextMenuComponents(
     filter: (TextContextMenuComponent) -> Boolean
 ): Modifier = this then FilterTextContextMenuDataComponentsElement(filter)
 

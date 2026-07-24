@@ -20,4 +20,4 @@ package androidx.compose.material3.windowsizeclass
 @OptionalExpectation
 @MustBeDocumented
 @Suppress("KmpVisibilityMismatch") // internal in jvmAndAndroid
-expect annotation class TestOnly()
+public expect annotation class TestOnly()

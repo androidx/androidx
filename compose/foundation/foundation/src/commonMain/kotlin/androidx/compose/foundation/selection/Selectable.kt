@@ -64,12 +64,12 @@ import androidx.compose.ui.semantics.selected
         "Replaced with new overload that only supports IndicationNodeFactory instances inside LocalIndication, and does not use composed",
     level = DeprecationLevel.HIDDEN,
 )
-fun Modifier.selectable(
+public fun Modifier.selectable(
     selected: Boolean,
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit,
-) =
+): Modifier =
     composed(
         inspectorInfo =
             debugInspectorInfo {
@@ -135,7 +135,7 @@ fun Modifier.selectable(
  *   [MutableInteractionSource] will be created if needed.
  * @param onClick callback to invoke when this item is clicked
  */
-fun Modifier.selectable(
+public fun Modifier.selectable(
     selected: Boolean,
     enabled: Boolean = true,
     role: Role? = null,
@@ -191,14 +191,14 @@ fun Modifier.selectable(
  *   the element or do customizations
  * @param onClick callback to invoke when this item is clicked
  */
-fun Modifier.selectable(
+public fun Modifier.selectable(
     selected: Boolean,
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
     onClick: () -> Unit,
-) =
+): Modifier =
     clickableWithIndicationIfNeeded(
         interactionSource = interactionSource,
         indication = indication,

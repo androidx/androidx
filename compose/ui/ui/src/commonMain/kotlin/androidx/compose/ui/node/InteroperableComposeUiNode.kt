@@ -25,6 +25,6 @@ import androidx.compose.ui.viewinterop.InteropView
  * unsupported.
  */
 @InternalComposeUiApi
-sealed interface InteroperableComposeUiNode {
-    fun getInteropView(): InteropView?
+public sealed interface InteroperableComposeUiNode {
+    public fun getInteropView(): InteropView?
 }

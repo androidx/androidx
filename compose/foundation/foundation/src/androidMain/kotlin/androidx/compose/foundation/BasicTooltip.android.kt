@@ -51,7 +51,7 @@ internal actual object BasicTooltipStrings {
 @Composable
 @ExperimentalFoundationApi
 @JvmName("BasicTooltipBox")
-fun BasicTooltipBoxAndroid(
+public fun BasicTooltipBoxAndroid(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
     state: BasicTooltipState,

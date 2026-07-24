@@ -65,13 +65,13 @@ import androidx.compose.ui.unit.dp
  * [OutlinedTextFieldDefaults].
  */
 @Immutable
-object TextFieldDefaults {
+public object TextFieldDefaults {
     /** Default shape for a [TextField]. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = FilledTextFieldTokens.ContainerShape.value
 
     /** A rounded shape for a [TextField], as recommended by Expressive style. */
-    val roundedShape: Shape
+    public val roundedShape: Shape
         // TODO(b/448727879): reference the actual token once it is in place
         @Composable get() = ShapeKeyTokens.CornerMedium.value
 
@@ -79,19 +79,19 @@ object TextFieldDefaults {
      * The default min height applied to a [TextField]. Note that you can override it by applying
      * Modifier.heightIn directly on a text field.
      */
-    val MinHeight = 56.dp
+    public val MinHeight: Dp = 56.dp
 
     /**
      * The default min width applied to a [TextField]. Note that you can override it by applying
      * Modifier.widthIn directly on a text field.
      */
-    val MinWidth = 280.dp
+    public val MinWidth: Dp = 280.dp
 
     /** The default thickness of the indicator line in [TextField] in unfocused state. */
-    val UnfocusedIndicatorThickness = 1.dp
+    public val UnfocusedIndicatorThickness: Dp = 1.dp
 
     /** The default thickness of the indicator line in [TextField] in focused state. */
-    val FocusedIndicatorThickness = 2.dp
+    public val FocusedIndicatorThickness: Dp = 2.dp
 
     /**
      * A decorator used to create custom text fields based on
@@ -150,7 +150,7 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    fun decorator(
+    public fun decorator(
         state: TextFieldState,
         enabled: Boolean,
         lineLimits: TextFieldLineLimits,
@@ -229,7 +229,7 @@ object TextFieldDefaults {
      */
     @OptIn(ExperimentalFoundationStyleApi::class)
     @Composable
-    fun Container(
+    public fun Container(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -286,7 +286,7 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    fun Modifier.indicatorLine(
+    public fun Modifier.indicatorLine(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -294,7 +294,7 @@ object TextFieldDefaults {
         textFieldShape: Shape? = null,
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
         unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
-    ) =
+    ): Modifier =
         this then
             IndicatorLineElement(
                 enabled = enabled,
@@ -367,7 +367,7 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    fun DecorationBox(
+    public fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -439,7 +439,7 @@ object TextFieldDefaults {
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPaddingWithLabel(
+    public fun contentPaddingWithLabel(
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
@@ -453,7 +453,7 @@ object TextFieldDefaults {
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPaddingWithoutLabel(
+    public fun contentPaddingWithoutLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -491,7 +491,7 @@ object TextFieldDefaults {
      * colors (including label, placeholder, icons, etc.) used in a [TextField].
      */
     @Composable
-    fun colors() =
+    public fun colors(): TextFieldColors =
         MaterialTheme.colorScheme.defaultTextFieldColors(LocalTextSelectionColors.current)
 
     /**
@@ -502,7 +502,7 @@ object TextFieldDefaults {
      * This should be used in conjunction with [TextFieldLabelPosition.Inside].
      */
     @Composable
-    fun tonalColors() =
+    public fun tonalColors(): TextFieldColors =
         MaterialTheme.colorScheme.tonalTextFieldColors(LocalTextSelectionColors.current)
 
     /**
@@ -560,7 +560,7 @@ object TextFieldDefaults {
      * @param errorSuffixColor the suffix color for this text field when in error state
      */
     @Composable
-    fun colors(
+    public fun colors(
         focusedTextColor: Color = Color.Unspecified,
         unfocusedTextColor: Color = Color.Unspecified,
         disabledTextColor: Color = Color.Unspecified,
@@ -857,13 +857,13 @@ object TextFieldDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun ContainerBox(
+    public fun ContainerBox(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
         colors: TextFieldColors,
         shape: Shape = TextFieldDefaults.shape,
-    ) =
+    ): Unit =
         Container(
             enabled = enabled,
             isError = isError,
@@ -884,7 +884,7 @@ object TextFieldDefaults {
             ),
         level = DeprecationLevel.WARNING,
     )
-    val outlinedShape: Shape
+    public val outlinedShape: Shape
         @Composable get() = OutlinedTextFieldDefaults.shape
 
     @Deprecated(
@@ -892,7 +892,7 @@ object TextFieldDefaults {
         replaceWith = ReplaceWith("TextFieldDefaults.shape"),
         level = DeprecationLevel.WARNING,
     )
-    val filledShape: Shape
+    public val filledShape: Shape
         @Composable get() = shape
 
     @Deprecated(
@@ -902,7 +902,7 @@ object TextFieldDefaults {
         replaceWith = ReplaceWith("TextFieldDefaults.UnfocusedIndicatorThickness"),
         level = DeprecationLevel.WARNING,
     )
-    val UnfocusedBorderThickness = UnfocusedIndicatorThickness
+    public val UnfocusedBorderThickness: Dp = UnfocusedIndicatorThickness
 
     @Deprecated(
         message =
@@ -911,7 +911,7 @@ object TextFieldDefaults {
         replaceWith = ReplaceWith("TextFieldDefaults.FocusedIndicatorThickness"),
         level = DeprecationLevel.WARNING,
     )
-    val FocusedBorderThickness = FocusedIndicatorThickness
+    public val FocusedBorderThickness: Dp = FocusedIndicatorThickness
 
     @Deprecated(
         message = "Renamed to `TextFieldDefaults.contentPaddingWithLabel`",
@@ -926,7 +926,7 @@ object TextFieldDefaults {
             ),
         level = DeprecationLevel.WARNING,
     )
-    fun textFieldWithLabelPadding(
+    public fun textFieldWithLabelPadding(
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
@@ -946,7 +946,7 @@ object TextFieldDefaults {
             ),
         level = DeprecationLevel.WARNING,
     )
-    fun textFieldWithoutLabelPadding(
+    public fun textFieldWithoutLabelPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -968,7 +968,7 @@ object TextFieldDefaults {
             ),
         level = DeprecationLevel.WARNING,
     )
-    fun outlinedTextFieldPadding(
+    public fun outlinedTextFieldPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -987,13 +987,13 @@ object TextFieldDefaults {
  * [TextFieldDefaults].
  */
 @Immutable
-object OutlinedTextFieldDefaults {
+public object OutlinedTextFieldDefaults {
     /** Default shape for an [OutlinedTextField]. */
-    val shape: Shape
+    public val shape: Shape
         @Composable get() = OutlinedTextFieldTokens.ContainerShape.value
 
     /** A rounded shape for an [OutlinedTextField], as recommended by Expressive style. */
-    val roundedShape: Shape
+    public val roundedShape: Shape
         // TODO(b/448727879): reference the actual token once it is in place
         @Composable get() = ShapeKeyTokens.CornerMedium.value
 
@@ -1001,19 +1001,19 @@ object OutlinedTextFieldDefaults {
      * The default min height applied to an [OutlinedTextField]. Note that you can override it by
      * applying Modifier.heightIn directly on a text field.
      */
-    val MinHeight = 56.dp
+    public val MinHeight: Dp = 56.dp
 
     /**
      * The default min width applied to an [OutlinedTextField]. Note that you can override it by
      * applying Modifier.widthIn directly on a text field.
      */
-    val MinWidth = 280.dp
+    public val MinWidth: Dp = 280.dp
 
     /** The default thickness of the border in [OutlinedTextField] in unfocused state. */
-    val UnfocusedBorderThickness = 1.dp
+    public val UnfocusedBorderThickness: Dp = 1.dp
 
     /** The default thickness of the border in [OutlinedTextField] in focused state. */
-    val FocusedBorderThickness = 2.dp
+    public val FocusedBorderThickness: Dp = 2.dp
 
     /**
      * A decorator used to create custom text fields based on
@@ -1074,7 +1074,7 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    fun decorator(
+    public fun decorator(
         state: TextFieldState,
         enabled: Boolean,
         lineLimits: TextFieldLineLimits,
@@ -1150,7 +1150,7 @@ object OutlinedTextFieldDefaults {
      */
     @OptIn(ExperimentalFoundationStyleApi::class)
     @Composable
-    fun Container(
+    public fun Container(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -1242,7 +1242,7 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    fun DecorationBox(
+    public fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -1308,7 +1308,7 @@ object OutlinedTextFieldDefaults {
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPaddingWithLabel(
+    public fun contentPaddingWithLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
         end: Dp = TextFieldPadding,
@@ -1322,7 +1322,7 @@ object OutlinedTextFieldDefaults {
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
      */
-    fun contentPaddingWithoutLabel(
+    public fun contentPaddingWithoutLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -1339,7 +1339,7 @@ object OutlinedTextFieldDefaults {
         "Use contentPaddingWithoutLabel or contentPaddingWithLabel instead",
         replaceWith = ReplaceWith("contentPaddingWithoutLabel(start, top, end, bottom)"),
     )
-    fun contentPadding(
+    public fun contentPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -1364,7 +1364,8 @@ object OutlinedTextFieldDefaults {
      * Creates a [TextFieldColors] that represents the default input text, container, and content
      * colors (including label, placeholder, icons, etc.) used in an [OutlinedTextField].
      */
-    @Composable fun colors() = MaterialTheme.colorScheme.defaultOutlinedTextFieldColors
+    @Composable
+    public fun colors(): TextFieldColors = MaterialTheme.colorScheme.defaultOutlinedTextFieldColors
 
     /**
      * Creates a [TextFieldColors] that represents the Expressive style input text, container, and
@@ -1374,7 +1375,7 @@ object OutlinedTextFieldDefaults {
      * This should be used in conjunction with [TextFieldLabelPosition.Inside].
      */
     @Composable
-    fun tonalColors() =
+    public fun tonalColors(): TextFieldColors =
         MaterialTheme.colorScheme.tonalOutlinedTextFieldColors(LocalTextSelectionColors.current)
 
     /**
@@ -1432,7 +1433,7 @@ object OutlinedTextFieldDefaults {
      * @param errorSuffixColor the suffix color for this text field when in error state
      */
     @Composable
-    fun colors(
+    public fun colors(
         focusedTextColor: Color = Color.Unspecified,
         unfocusedTextColor: Color = Color.Unspecified,
         disabledTextColor: Color = Color.Unspecified,
@@ -1734,7 +1735,7 @@ object OutlinedTextFieldDefaults {
     )
     @ExperimentalMaterial3Api
     @Composable
-    fun ContainerBox(
+    public fun ContainerBox(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -1742,7 +1743,7 @@ object OutlinedTextFieldDefaults {
         shape: Shape = OutlinedTextFieldDefaults.shape,
         focusedBorderThickness: Dp = FocusedBorderThickness,
         unfocusedBorderThickness: Dp = UnfocusedBorderThickness,
-    ) =
+    ): Unit =
         Container(
             enabled = enabled,
             isError = isError,
@@ -1808,58 +1809,58 @@ object OutlinedTextFieldDefaults {
  *   colors used in [OutlinedTextField].
  */
 @Immutable
-class TextFieldColors
-constructor(
-    val focusedTextColor: Color,
-    val unfocusedTextColor: Color,
-    val disabledTextColor: Color,
-    val errorTextColor: Color,
-    val focusedContainerColor: Color,
-    val unfocusedContainerColor: Color,
-    val disabledContainerColor: Color,
-    val errorContainerColor: Color,
-    val cursorColor: Color,
-    val errorCursorColor: Color,
-    val textSelectionColors: TextSelectionColors,
-    val focusedIndicatorColor: Color,
-    val unfocusedIndicatorColor: Color,
-    val disabledIndicatorColor: Color,
-    val errorIndicatorColor: Color,
-    val focusedLeadingIconColor: Color,
-    val unfocusedLeadingIconColor: Color,
-    val disabledLeadingIconColor: Color,
-    val errorLeadingIconColor: Color,
-    val focusedTrailingIconColor: Color,
-    val unfocusedTrailingIconColor: Color,
-    val disabledTrailingIconColor: Color,
-    val errorTrailingIconColor: Color,
-    val focusedLabelColor: Color,
-    val unfocusedLabelColor: Color,
-    val disabledLabelColor: Color,
-    val errorLabelColor: Color,
-    val focusedPlaceholderColor: Color,
-    val unfocusedPlaceholderColor: Color,
-    val disabledPlaceholderColor: Color,
-    val errorPlaceholderColor: Color,
-    val focusedSupportingTextColor: Color,
-    val unfocusedSupportingTextColor: Color,
-    val disabledSupportingTextColor: Color,
-    val errorSupportingTextColor: Color,
-    val focusedPrefixColor: Color,
-    val unfocusedPrefixColor: Color,
-    val disabledPrefixColor: Color,
-    val errorPrefixColor: Color,
-    val focusedSuffixColor: Color,
-    val unfocusedSuffixColor: Color,
-    val disabledSuffixColor: Color,
-    val errorSuffixColor: Color,
+public class TextFieldColors
+public constructor(
+    public val focusedTextColor: Color,
+    public val unfocusedTextColor: Color,
+    public val disabledTextColor: Color,
+    public val errorTextColor: Color,
+    public val focusedContainerColor: Color,
+    public val unfocusedContainerColor: Color,
+    public val disabledContainerColor: Color,
+    public val errorContainerColor: Color,
+    public val cursorColor: Color,
+    public val errorCursorColor: Color,
+    public val textSelectionColors: TextSelectionColors,
+    public val focusedIndicatorColor: Color,
+    public val unfocusedIndicatorColor: Color,
+    public val disabledIndicatorColor: Color,
+    public val errorIndicatorColor: Color,
+    public val focusedLeadingIconColor: Color,
+    public val unfocusedLeadingIconColor: Color,
+    public val disabledLeadingIconColor: Color,
+    public val errorLeadingIconColor: Color,
+    public val focusedTrailingIconColor: Color,
+    public val unfocusedTrailingIconColor: Color,
+    public val disabledTrailingIconColor: Color,
+    public val errorTrailingIconColor: Color,
+    public val focusedLabelColor: Color,
+    public val unfocusedLabelColor: Color,
+    public val disabledLabelColor: Color,
+    public val errorLabelColor: Color,
+    public val focusedPlaceholderColor: Color,
+    public val unfocusedPlaceholderColor: Color,
+    public val disabledPlaceholderColor: Color,
+    public val errorPlaceholderColor: Color,
+    public val focusedSupportingTextColor: Color,
+    public val unfocusedSupportingTextColor: Color,
+    public val disabledSupportingTextColor: Color,
+    public val errorSupportingTextColor: Color,
+    public val focusedPrefixColor: Color,
+    public val unfocusedPrefixColor: Color,
+    public val disabledPrefixColor: Color,
+    public val errorPrefixColor: Color,
+    public val focusedSuffixColor: Color,
+    public val unfocusedSuffixColor: Color,
+    public val disabledSuffixColor: Color,
+    public val errorSuffixColor: Color,
 ) {
 
     /**
      * Returns a copy of this ChipColors, optionally overriding some of the values. This uses the
      * Color.Unspecified to mean “use the value from the source”
      */
-    fun copy(
+    public fun copy(
         focusedTextColor: Color = this.focusedTextColor,
         unfocusedTextColor: Color = this.unfocusedTextColor,
         disabledTextColor: Color = this.disabledTextColor,
@@ -1903,7 +1904,7 @@ constructor(
         unfocusedSuffixColor: Color = this.unfocusedSuffixColor,
         disabledSuffixColor: Color = this.disabledSuffixColor,
         errorSuffixColor: Color = this.errorSuffixColor,
-    ) =
+    ): TextFieldColors =
         TextFieldColors(
             focusedTextColor.takeOrElse { this.focusedTextColor },
             unfocusedTextColor.takeOrElse { this.unfocusedTextColor },
@@ -1962,7 +1963,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun leadingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun leadingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLeadingIconColor
             isError -> errorLeadingIconColor
@@ -1978,7 +1979,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun trailingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun trailingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTrailingIconColor
             isError -> errorTrailingIconColor
@@ -1994,7 +1995,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun indicatorColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun indicatorColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledIndicatorColor
             isError -> errorIndicatorColor
@@ -2010,7 +2011,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun containerColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun containerColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledContainerColor
             isError -> errorContainerColor
@@ -2026,7 +2027,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun placeholderColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun placeholderColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPlaceholderColor
             isError -> errorPlaceholderColor
@@ -2042,7 +2043,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun labelColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun labelColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLabelColor
             isError -> errorLabelColor
@@ -2058,7 +2059,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun textColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun textColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTextColor
             isError -> errorTextColor
@@ -2074,7 +2075,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun supportingTextColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun supportingTextColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSupportingTextColor
             isError -> errorSupportingTextColor
@@ -2090,7 +2091,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun prefixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun prefixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPrefixColor
             isError -> errorPrefixColor
@@ -2106,7 +2107,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    fun suffixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
+    public fun suffixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSuffixColor
             isError -> errorSuffixColor
@@ -2120,9 +2121,9 @@ constructor(
      * @param isError whether the text field's current value is in error
      */
     @Stable
-    fun cursorColor(isError: Boolean): Color = if (isError) errorCursorColor else cursorColor
+    public fun cursorColor(isError: Boolean): Color = if (isError) errorCursorColor else cursorColor
 
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is TextFieldColors) return false
 
@@ -2222,7 +2223,7 @@ constructor(
 }
 
 /** The position of the label with respect to the text field. */
-abstract class TextFieldLabelPosition private constructor() {
+public abstract class TextFieldLabelPosition private constructor() {
     /**
      * Translates to [Inside] for [TextField], and [Cutout] for [OutlinedTextField].
      *
@@ -2237,13 +2238,13 @@ abstract class TextFieldLabelPosition private constructor() {
         "Use Inside for the default filled TextField behavior, or Cutout for the " +
             "default OutlinedTextField behavior."
     )
-    class Attached(
-        @get:Suppress("GetterSetterNames") val alwaysMinimize: Boolean = false,
-        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
-        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    public class Attached(
+        @get:Suppress("GetterSetterNames") public val alwaysMinimize: Boolean = false,
+        public val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        public val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
         @Suppress("DEPRECATION")
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Attached) return false
 
@@ -2254,14 +2255,14 @@ abstract class TextFieldLabelPosition private constructor() {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = alwaysMinimize.hashCode()
             result = 31 * result + minimizedAlignment.hashCode()
             result = 31 * result + expandedAlignment.hashCode()
             return result
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "Attached(" +
                 "alwaysMinimize=$alwaysMinimize, " +
                 "minimizedAlignment=$minimizedAlignment, " +
@@ -2282,12 +2283,12 @@ abstract class TextFieldLabelPosition private constructor() {
      * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
      * @param expandedAlignment The horizontal alignment of the label when it is expanded.
      */
-    class Inside(
-        val isAlwaysMinimized: Boolean = false,
-        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
-        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    public class Inside(
+        public val isAlwaysMinimized: Boolean = false,
+        public val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        public val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Inside) return false
 
@@ -2298,14 +2299,14 @@ abstract class TextFieldLabelPosition private constructor() {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = isAlwaysMinimized.hashCode()
             result = 31 * result + minimizedAlignment.hashCode()
             result = 31 * result + expandedAlignment.hashCode()
             return result
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "Inside(" +
                 "isAlwaysMinimized=$isAlwaysMinimized, " +
                 "minimizedAlignment=$minimizedAlignment, " +
@@ -2327,12 +2328,12 @@ abstract class TextFieldLabelPosition private constructor() {
      * @param minimizedAlignment The horizontal alignment of the label when it is minimized.
      * @param expandedAlignment The horizontal alignment of the label when it is expanded.
      */
-    class Cutout(
-        val isAlwaysMinimized: Boolean = false,
-        val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
-        val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    public class Cutout(
+        public val isAlwaysMinimized: Boolean = false,
+        public val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        public val expandedAlignment: Alignment.Horizontal = Alignment.Start,
     ) : TextFieldLabelPosition() {
-        override fun equals(other: Any?): Boolean {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Cutout) return false
 
@@ -2343,14 +2344,14 @@ abstract class TextFieldLabelPosition private constructor() {
             return true
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             var result = isAlwaysMinimized.hashCode()
             result = 31 * result + minimizedAlignment.hashCode()
             result = 31 * result + expandedAlignment.hashCode()
             return result
         }
 
-        override fun toString(): String {
+        public override fun toString(): String {
             return "Cutout(" +
                 "isAlwaysMinimized=$isAlwaysMinimized, " +
                 "minimizedAlignment=$minimizedAlignment, " +
@@ -2365,25 +2366,26 @@ abstract class TextFieldLabelPosition private constructor() {
      *
      * @param alignment The horizontal alignment of the label.
      */
-    class Above(val alignment: Alignment.Horizontal = Alignment.Start) : TextFieldLabelPosition() {
-        override fun equals(other: Any?): Boolean {
+    public class Above(public val alignment: Alignment.Horizontal = Alignment.Start) :
+        TextFieldLabelPosition() {
+        public override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Above) return false
 
             return alignment == other.alignment
         }
 
-        override fun hashCode(): Int {
+        public override fun hashCode(): Int {
             return alignment.hashCode()
         }
 
-        override fun toString(): String = "Above(alignment=$alignment)"
+        public override fun toString(): String = "Above(alignment=$alignment)"
     }
 }
 
 /** Scope for the label of a [TextField] or [OutlinedTextField]. */
 @Stable
-interface TextFieldLabelScope {
+public interface TextFieldLabelScope {
     /**
      * The animation progress of a label between its expanded and minimized sizes, where 0
      * represents an expanded label and 1 represents a minimized label.
@@ -2392,5 +2394,5 @@ interface TextFieldLabelScope {
      * [LocalTextStyle], such as the default [Text]. This [labelMinimizedProgress] value can be used
      * to coordinate other animations in conjunction with the default animation.
      */
-    @get:FloatRange(from = 0.0, to = 1.0) val labelMinimizedProgress: Float
+    @get:FloatRange(from = 0.0, to = 1.0) public val labelMinimizedProgress: Float
 }

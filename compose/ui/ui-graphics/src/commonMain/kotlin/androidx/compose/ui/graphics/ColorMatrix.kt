@@ -56,8 +56,8 @@ import androidx.compose.ui.util.normalizedAngleSin
  * [Paint.colorFilter]
  */
 @kotlin.jvm.JvmInline
-value class ColorMatrix(
-    val values: FloatArray =
+public value class ColorMatrix(
+    public val values: FloatArray =
         floatArrayOf(1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 1f, 0f)
 ) {
     // NOTE: This class contains a number of tests like this:
@@ -85,7 +85,7 @@ value class ColorMatrix(
      * @param column Column index to query the ColorMatrix value. Range is from 0 to 4 as
      *   [ColorMatrix] is represented as a 4 x 5 matrix
      */
-    inline operator fun get(row: Int, column: Int) = values[(row * 5) + column]
+    public inline operator fun get(row: Int, column: Int): Float = values[(row * 5) + column]
 
     /**
      * Set the matrix value at the given [row] and [column]. [ColorMatrix] follows row major order
@@ -98,7 +98,7 @@ value class ColorMatrix(
      *   [ColorMatrix] is represented as a 4 x 5 matrix
      * @param v value to update at the given [row] and [column]
      */
-    inline operator fun set(row: Int, column: Int, v: Float) {
+    public inline operator fun set(row: Int, column: Int, v: Float) {
         values[(row * 5) + column] = v
     }
 
@@ -111,7 +111,7 @@ value class ColorMatrix(
      * 0 0 0 1 0 ] - alpha vector
      * ```
      */
-    inline fun reset() {
+    public inline fun reset() {
         this[0, 0] = 1f
         this[0, 1] = 0f
         this[0, 2] = 0f
@@ -138,7 +138,7 @@ value class ColorMatrix(
     }
 
     /** Assign the [src] colormatrix into this matrix, copying all of its values. */
-    fun set(src: ColorMatrix) {
+    public fun set(src: ColorMatrix) {
         val v1 = values
         if (v1.size < 20) return
 
@@ -180,7 +180,7 @@ value class ColorMatrix(
     }
 
     /** Multiply this matrix by [colorMatrix] and assign the result to this matrix. */
-    operator fun timesAssign(colorMatrix: ColorMatrix) {
+    public operator fun timesAssign(colorMatrix: ColorMatrix) {
         if (values.size < 20) return
 
         val v00 = dot(this, 0, colorMatrix, 0)
@@ -254,7 +254,7 @@ value class ColorMatrix(
      *
      * @param sat A value of 0 maps the color to gray-scale. 1 is identity.
      */
-    fun setToSaturation(sat: Float) {
+    public fun setToSaturation(sat: Float) {
         if (values.size < 20) return
         reset()
 
@@ -283,7 +283,7 @@ value class ColorMatrix(
      * @param blueScale Desired scale parameter for the blue channel
      * @param alphaScale Desired scale parameter for the alpha channel
      */
-    fun setToScale(redScale: Float, greenScale: Float, blueScale: Float, alphaScale: Float) {
+    public fun setToScale(redScale: Float, greenScale: Float, blueScale: Float, alphaScale: Float) {
         if (values.size < 20) return
         reset()
 
@@ -294,7 +294,7 @@ value class ColorMatrix(
     }
 
     /** Rotate by [degrees] along the red color axis */
-    fun setToRotateRed(degrees: Float) {
+    public fun setToRotateRed(degrees: Float) {
         if (values.size < 20) return
 
         rotateInternal(degrees) { cosine, sine ->
@@ -306,7 +306,7 @@ value class ColorMatrix(
     }
 
     /** Rotate by [degrees] along the green color axis */
-    fun setToRotateGreen(degrees: Float) {
+    public fun setToRotateGreen(degrees: Float) {
         if (values.size < 20) return
 
         rotateInternal(degrees) { cosine, sine ->
@@ -318,7 +318,7 @@ value class ColorMatrix(
     }
 
     /** Rotate by [degrees] along the blue color axis */
-    fun setToRotateBlue(degrees: Float) {
+    public fun setToRotateBlue(degrees: Float) {
         if (values.size < 20) return
 
         rotateInternal(degrees) { cosine, sine ->
@@ -330,7 +330,7 @@ value class ColorMatrix(
     }
 
     /** Set the matrix to convert RGB to YUV */
-    fun convertRgbToYuv() {
+    public fun convertRgbToYuv() {
         if (values.size < 20) return
         reset()
 
@@ -347,7 +347,7 @@ value class ColorMatrix(
     }
 
     /** Set the matrix to convert from YUV to RGB */
-    fun convertYuvToRgb() {
+    public fun convertYuvToRgb() {
         if (values.size < 20) return
         reset()
 

@@ -28,22 +28,22 @@ import java.util.WeakHashMap
     message = "Use android.graphics.Canvas directly instead",
     replaceWith = ReplaceWith("android.graphics.Canvas"),
 )
-actual typealias NativeCanvas = android.graphics.Canvas
+public actual typealias NativeCanvas = android.graphics.Canvas
 
 /** Create a new Canvas instance that targets its drawing commands to the provided [ImageBitmap] */
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas =
     AndroidCanvas().apply { internalCanvas = android.graphics.Canvas(image.asAndroidBitmap()) }
 
-fun Canvas(c: android.graphics.Canvas): Canvas = AndroidCanvas().apply { internalCanvas = c }
+public fun Canvas(c: android.graphics.Canvas): Canvas = AndroidCanvas().apply { internalCanvas = c }
 
 /**
  * Holder class that is used to issue scoped calls to a [Canvas] from the framework equivalent
  * canvas without having to allocate an object on each draw call
  */
-class CanvasHolder {
-    @PublishedApi internal val androidCanvas = AndroidCanvas()
+public class CanvasHolder {
+    @PublishedApi internal val androidCanvas: AndroidCanvas = AndroidCanvas()
 
-    inline fun drawInto(targetCanvas: android.graphics.Canvas, block: Canvas.() -> Unit) {
+    public inline fun drawInto(targetCanvas: android.graphics.Canvas, block: Canvas.() -> Unit) {
         val previousCanvas = androidCanvas.internalCanvas
         androidCanvas.internalCanvas = targetCanvas
         androidCanvas.block()
@@ -52,7 +52,7 @@ class CanvasHolder {
 }
 
 /** Return an instance of the native primitive that implements the Canvas interface */
-val Canvas.nativeCanvas: android.graphics.Canvas
+public val Canvas.nativeCanvas: android.graphics.Canvas
     get() = (this as AndroidCanvas).internalCanvas
 
 // Stub canvas instance used to keep the internal canvas parameter non-null during its

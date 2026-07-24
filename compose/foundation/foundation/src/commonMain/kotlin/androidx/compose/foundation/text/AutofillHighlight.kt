@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,7 @@ import androidx.compose.ui.graphics.SolidColor
 internal expect fun autofillHighlightColor(): Color
 
 /** CompositionLocal used to change the highlight [Brush] used for autofilled components. */
-val LocalAutofillHighlightBrush =
+public val LocalAutofillHighlightBrush: ProvidableCompositionLocal<Brush> =
     compositionLocalOf<Brush> {
         // The default is a solid color brush using the original color.
         SolidColor(autofillHighlightColor())
@@ -49,7 +50,9 @@ val LocalAutofillHighlightBrush =
         ),
     level = DeprecationLevel.WARNING,
 )
-val LocalAutofillHighlightColor = compositionLocalOf { autofillHighlightColor() }
+public val LocalAutofillHighlightColor: ProvidableCompositionLocal<Color> = compositionLocalOf {
+    autofillHighlightColor()
+}
 
 /**
  * Resolves the highlight brush based on the provided brush and color, giving precedence to the

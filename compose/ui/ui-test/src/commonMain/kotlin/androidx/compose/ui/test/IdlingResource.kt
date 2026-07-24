@@ -34,7 +34,7 @@ import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
  * performing it.
  */
 @JvmDefaultWithCompatibility
-interface IdlingResource {
+public interface IdlingResource {
     /**
      * Whether or not the [IdlingResource] is idle when reading this value. This should always be
      * called from the main thread, which is why it should be lightweight and fast.
@@ -42,11 +42,11 @@ interface IdlingResource {
      * If one idling resource returns `false`, the synchronization system will keep polling all
      * idling resources until they are all idle.
      */
-    val isIdleNow: Boolean
+    public val isIdleNow: Boolean
 
     /**
      * Returns diagnostics that explain why the idling resource is busy, or `null` if the resource
      * is not busy. Default implementation returns `null`.
      */
-    fun getDiagnosticMessageIfBusy(): String? = null
+    public fun getDiagnosticMessageIfBusy(): String? = null
 }

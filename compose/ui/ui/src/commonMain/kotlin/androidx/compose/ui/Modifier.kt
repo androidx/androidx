@@ -72,7 +72,7 @@ internal class ModifierNodeDetachedCancellationException :
 @Suppress("ModifierFactoryExtensionFunction")
 @Stable
 @JvmDefaultWithCompatibility
-interface Modifier {
+public interface Modifier {
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -83,7 +83,7 @@ interface Modifier {
      * elements that appear after it. [foldIn] may be used to accumulate a value starting from the
      * parent or head of the modifier chain to the final wrapped child.
      */
-    fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
+    public fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -94,37 +94,37 @@ interface Modifier {
      * elements that appear after it. [foldOut] may be used to accumulate a value starting from the
      * child or tail of the modifier chain up to the parent or head of the chain.
      */
-    fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
+    public fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
     /** Returns `true` if [predicate] returns true for any [Element] in this [Modifier]. */
-    fun any(predicate: (Element) -> Boolean): Boolean
+    public fun any(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Returns `true` if [predicate] returns true for all [Element]s in this [Modifier] or if this
      * [Modifier] contains no [Element]s.
      */
-    fun all(predicate: (Element) -> Boolean): Boolean
+    public fun all(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Concatenates this modifier with another.
      *
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
      */
-    infix fun then(other: Modifier): Modifier =
+    public infix fun then(other: Modifier): Modifier =
         if (other === Modifier) this else CombinedModifier(this, other)
 
     /** A single element contained within a [Modifier] chain. */
     @JvmDefaultWithCompatibility
-    interface Element : Modifier {
-        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
+    public interface Element : Modifier {
+        public override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
 
-        override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R =
+        public override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R =
             operation(this, initial)
 
-        override fun any(predicate: (Element) -> Boolean): Boolean = predicate(this)
+        public override fun any(predicate: (Element) -> Boolean): Boolean = predicate(this)
 
-        override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
+        public override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
     }
 
     /**
@@ -165,9 +165,9 @@ interface Modifier {
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
      * @see androidx.compose.ui.layout.ApproachLayoutModifierNode
      */
-    abstract class Node : DelegatableNode {
+    public abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
-        final override var node: Node = this
+        public final override var node: Node = this
             private set
 
         private var scope: CoroutineScope? = null
@@ -182,7 +182,7 @@ interface Modifier {
          * @sample androidx.compose.ui.samples.ModifierNodeCoroutineScopeSample
          * @throws IllegalStateException If called while the node is not attached.
          */
-        val coroutineScope: CoroutineScope
+        public val coroutineScope: CoroutineScope
             get() =
                 scope
                     ?: CoroutineScope(
@@ -219,7 +219,7 @@ interface Modifier {
          * @see onAttach
          * @see onDetach
          */
-        var isAttached: Boolean = false
+        public var isAttached: Boolean = false
             private set
 
         /**
@@ -237,7 +237,7 @@ interface Modifier {
          */
         @Suppress("GetterSetterNames")
         @get:Suppress("GetterSetterNames")
-        open val shouldAutoInvalidate: Boolean
+        public open val shouldAutoInvalidate: Boolean
             get() = true
 
         internal open fun updateCoordinator(coordinator: NodeCoordinator?) {
@@ -313,7 +313,7 @@ interface Modifier {
          * that the state of the tree is "final" for this round of changes, you should use the
          * [sideEffect] API to schedule the calculation to be done at that time.
          */
-        @EmptySuper open fun onAttach() {}
+        @EmptySuper public open fun onAttach() {}
 
         /**
          * Called when the node is not attached to a [androidx.compose.ui.layout.Layout] which is
@@ -323,7 +323,7 @@ interface Modifier {
          * still be able to traverse inside of this method. Ideally we would not allow you to
          * trigger side effects here.
          */
-        @EmptySuper open fun onDetach() {}
+        @EmptySuper public open fun onDetach() {}
 
         /**
          * Called when the node is about to be moved to a pool of layouts ready to be reused. For
@@ -340,7 +340,7 @@ interface Modifier {
          *
          * @sample androidx.compose.ui.samples.ModifierNodeResetSample
          */
-        @EmptySuper open fun onReset() {}
+        @EmptySuper public open fun onReset() {}
 
         /**
          * This can be called to register [effect] as a function to be executed after all of the
@@ -348,7 +348,7 @@ interface Modifier {
          *
          * This API can only be called if the node [isAttached].
          */
-        fun sideEffect(effect: () -> Unit) {
+        public fun sideEffect(effect: () -> Unit) {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }
 
@@ -370,18 +370,18 @@ interface Modifier {
      */
     // The companion object implements `Modifier` so that it may be used as the start of a
     // modifier extension factory expression.
-    companion object : Modifier {
-        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
+    public companion object : Modifier {
+        public override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
 
-        override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
+        public override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
 
-        override fun any(predicate: (Element) -> Boolean): Boolean = false
+        public override fun any(predicate: (Element) -> Boolean): Boolean = false
 
-        override fun all(predicate: (Element) -> Boolean): Boolean = true
+        public override fun all(predicate: (Element) -> Boolean): Boolean = true
 
-        override infix fun then(other: Modifier): Modifier = other
+        public override infix fun then(other: Modifier): Modifier = other
 
-        override fun toString() = "Modifier"
+        public override fun toString(): String = "Modifier"
     }
 }
 
@@ -389,25 +389,26 @@ interface Modifier {
  * A node in a [Modifier] chain. A CombinedModifier always contains at least two elements; a
  * Modifier [outer] that wraps around the Modifier [inner].
  */
-class CombinedModifier(internal val outer: Modifier, internal val inner: Modifier) : Modifier {
-    override fun <R> foldIn(initial: R, operation: (R, Modifier.Element) -> R): R =
+public class CombinedModifier(internal val outer: Modifier, internal val inner: Modifier) :
+    Modifier {
+    public override fun <R> foldIn(initial: R, operation: (R, Modifier.Element) -> R): R =
         inner.foldIn(outer.foldIn(initial, operation), operation)
 
-    override fun <R> foldOut(initial: R, operation: (Modifier.Element, R) -> R): R =
+    public override fun <R> foldOut(initial: R, operation: (Modifier.Element, R) -> R): R =
         outer.foldOut(inner.foldOut(initial, operation), operation)
 
-    override fun any(predicate: (Modifier.Element) -> Boolean): Boolean =
+    public override fun any(predicate: (Modifier.Element) -> Boolean): Boolean =
         outer.any(predicate) || inner.any(predicate)
 
-    override fun all(predicate: (Modifier.Element) -> Boolean): Boolean =
+    public override fun all(predicate: (Modifier.Element) -> Boolean): Boolean =
         outer.all(predicate) && inner.all(predicate)
 
-    override fun equals(other: Any?): Boolean =
+    public override fun equals(other: Any?): Boolean =
         other is CombinedModifier && outer == other.outer && inner == other.inner
 
-    override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
+    public override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
 
-    override fun toString() =
+    public override fun toString(): String =
         foldIn(
                 StringBuilder("["),
                 { acc, element ->

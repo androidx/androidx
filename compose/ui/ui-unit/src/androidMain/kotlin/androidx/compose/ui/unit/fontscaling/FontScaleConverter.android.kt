@@ -30,10 +30,10 @@ import androidx.annotation.RestrictTo
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FontScaleConverter {
+public interface FontScaleConverter {
     /** Converts a dimension in "sp" to "dp". */
-    fun convertSpToDp(sp: Float): Float
+    public fun convertSpToDp(sp: Float): Float
 
     /** Converts a dimension in "dp" back to "sp". */
-    fun convertDpToSp(dp: Float): Float
+    public fun convertDpToSp(dp: Float): Float
 }

@@ -26,9 +26,9 @@ import androidx.compose.ui.text.internal.requirePrecondition
  * @see ResolvedTextDirection
  */
 @kotlin.jvm.JvmInline
-value class TextDirection internal constructor(val value: Int) {
+public value class TextDirection internal constructor(public val value: Int) {
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (this) {
             Ltr -> "Ltr"
             Rtl -> "Rtl"
@@ -40,13 +40,13 @@ value class TextDirection internal constructor(val value: Int) {
         }
     }
 
-    companion object {
+    public companion object {
         /** Sets the text direction to Left-to-Right. */
-        val Ltr
+        public val Ltr: TextDirection
             get() = TextDirection(1)
 
         /** Sets the text direction to Right-to-Left. */
-        val Rtl
+        public val Rtl: TextDirection
             get() = TextDirection(2)
 
         /**
@@ -59,7 +59,7 @@ value class TextDirection internal constructor(val value: Int) {
          * [androidx.compose.ui.text.Paragraph] (ignoring
          * [androidx.compose.ui.unit.LayoutDirection]).
          */
-        val Content
+        public val Content: TextDirection
             get() = TextDirection(3)
 
         /**
@@ -68,7 +68,7 @@ value class TextDirection internal constructor(val value: Int) {
          *
          * Falls back to Left-to-Right if no strong directional characters are found.
          */
-        val ContentOrLtr
+        public val ContentOrLtr: TextDirection
             get() = TextDirection(4)
 
         /**
@@ -77,11 +77,11 @@ value class TextDirection internal constructor(val value: Int) {
          *
          * Falls back to Right-to-Left if no strong directional characters are found.
          */
-        val ContentOrRtl
+        public val ContentOrRtl: TextDirection
             get() = TextDirection(5)
 
         /** Represents an unset [TextDirection] value. */
-        val Unspecified
+        public val Unspecified: TextDirection
             get() = TextDirection(0)
 
         /**
@@ -93,7 +93,7 @@ value class TextDirection internal constructor(val value: Int) {
          * @throws IllegalArgumentException if [value] is invalid.
          * @see androidx.compose.ui.text.style.TextDirection.value
          */
-        fun valueOf(value: Int): TextDirection {
+        public fun valueOf(value: Int): TextDirection {
             requirePrecondition(value in 0..5) {
                 "The given value=$value is not recognized by TextDirection."
             }
@@ -107,13 +107,13 @@ value class TextDirection internal constructor(val value: Int) {
  *
  * @see TextDirection.Unspecified
  */
-inline val TextDirection.isSpecified: Boolean
+public inline val TextDirection.isSpecified: Boolean
     get() = value != 0
 
 /**
  * If [isSpecified] is true then this is returned, otherwise [block] is executed and its result is
  * returned.
  */
-inline fun TextDirection.takeOrElse(block: () -> TextDirection): TextDirection {
+public inline fun TextDirection.takeOrElse(block: () -> TextDirection): TextDirection {
     return if (isSpecified) this else block()
 }

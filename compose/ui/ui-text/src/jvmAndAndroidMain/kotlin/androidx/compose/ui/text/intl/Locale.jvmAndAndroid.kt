@@ -23,29 +23,29 @@ import java.util.Locale as JavaLocale
     message = "Use java.util.Locale directly instead",
     replaceWith = ReplaceWith("java.util.Locale"),
 )
-typealias PlatformLocale = JavaLocale
+public typealias PlatformLocale = JavaLocale
 
 @Immutable
-actual class Locale(val platformLocale: JavaLocale) {
-    actual companion object {
-        actual val current: Locale
+public actual class Locale(public val platformLocale: JavaLocale) {
+    public actual companion object {
+        public actual val current: Locale
             get() = platformLocaleDelegate.current[0]
     }
 
-    actual constructor(languageTag: String) : this(parseLanguageTag(languageTag))
+    public actual constructor(languageTag: String) : this(parseLanguageTag(languageTag))
 
-    actual val language: String
+    public actual val language: String
         get() = platformLocale.language
 
-    actual val script: String
+    public actual val script: String
         get() = platformLocale.script
 
-    actual val region: String
+    public actual val region: String
         get() = platformLocale.country
 
-    actual fun toLanguageTag(): String = platformLocale.toLanguageTag()
+    public actual fun toLanguageTag(): String = platformLocale.toLanguageTag()
 
-    actual override operator fun equals(other: Any?): Boolean {
+    public actual override operator fun equals(other: Any?): Boolean {
         if (other == null) return false
         if (other !is Locale) return false
         if (this === other) return true
@@ -53,9 +53,9 @@ actual class Locale(val platformLocale: JavaLocale) {
     }
 
     // We don't use data class since we cannot offer copy function here.
-    actual override fun hashCode(): Int = toLanguageTag().hashCode()
+    public actual override fun hashCode(): Int = toLanguageTag().hashCode()
 
-    actual override fun toString(): String = toLanguageTag()
+    public actual override fun toString(): String = toLanguageTag()
 }
 
 private fun parseLanguageTag(languageTag: String): JavaLocale {

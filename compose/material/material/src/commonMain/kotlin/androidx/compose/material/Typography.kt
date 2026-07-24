@@ -77,21 +77,21 @@ import androidx.compose.ui.unit.sp
  *   imagery or to introduce a headline.
  */
 @Immutable
-class Typography
+public class Typography
 internal constructor(
-    val h1: TextStyle,
-    val h2: TextStyle,
-    val h3: TextStyle,
-    val h4: TextStyle,
-    val h5: TextStyle,
-    val h6: TextStyle,
-    val subtitle1: TextStyle,
-    val subtitle2: TextStyle,
-    val body1: TextStyle,
-    val body2: TextStyle,
-    val button: TextStyle,
-    val caption: TextStyle,
-    val overline: TextStyle,
+    public val h1: TextStyle,
+    public val h2: TextStyle,
+    public val h3: TextStyle,
+    public val h4: TextStyle,
+    public val h5: TextStyle,
+    public val h6: TextStyle,
+    public val subtitle1: TextStyle,
+    public val subtitle2: TextStyle,
+    public val body1: TextStyle,
+    public val body2: TextStyle,
+    public val button: TextStyle,
+    public val caption: TextStyle,
+    public val overline: TextStyle,
 ) {
     /**
      * Constructor to create a [Typography]. For information on the types of style defined in this
@@ -121,7 +121,7 @@ internal constructor(
      * @param overline overline is one of the smallest font sizes. It is used sparingly to annotate
      *   imagery or to introduce a headline.
      */
-    constructor(
+    public constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
         h1: TextStyle =
             DefaultTextStyle.copy(
@@ -231,7 +231,7 @@ internal constructor(
     )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
-    fun copy(
+    public fun copy(
         h1: TextStyle = this.h1,
         h2: TextStyle = this.h2,
         h3: TextStyle = this.h3,

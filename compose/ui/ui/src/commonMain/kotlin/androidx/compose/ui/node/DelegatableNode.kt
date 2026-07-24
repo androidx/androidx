@@ -45,13 +45,13 @@ import androidx.compose.ui.unit.LayoutDirection
  * @see DelegatingNode.delegate
  */
 // TODO(lmr): this interface needs a better name
-interface DelegatableNode {
+public interface DelegatableNode {
     /**
      * A reference of the [Modifier.Node] that holds this node's position in the node hierarchy. If
      * the node is a delegate of another node, this will point to the root delegating node that is
      * actually part of the node tree. Otherwise, this will point to itself.
      */
-    val node: Modifier.Node
+    public val node: Modifier.Node
 
     /**
      * Invoked when the density changes for this node. This affects Dp to pixel conversions, and can
@@ -62,7 +62,7 @@ interface DelegatableNode {
      * state that depends on density, outside of these phases. Density can be retrieved inside a
      * node by using [androidx.compose.ui.node.requireDensity].
      */
-    @EmptySuper fun onDensityChange() {}
+    @EmptySuper public fun onDensityChange(): Unit {}
 
     /**
      * Invoked when the layout direction changes for this node. This can affect the layout and
@@ -73,10 +73,10 @@ interface DelegatableNode {
      * other node state that depends on layout direction, outside of these phases. Layout direction
      * can be retrieved inside a node by using [androidx.compose.ui.node.requireLayoutDirection].
      */
-    @EmptySuper fun onLayoutDirectionChange() {}
+    @EmptySuper public fun onLayoutDirectionChange(): Unit {}
 
-    fun interface RegistrationHandle {
-        fun unregister()
+    public fun interface RegistrationHandle {
+        public fun unregister(): Unit
     }
 }
 
@@ -379,22 +379,24 @@ internal fun DelegatableNode.requireOwner(): Owner =
  * not have any autofill semantic properties set, then the request still may be sent to the Autofill
  * service, but no response is expected.
  */
-fun DelegatableNode.requestAutofill() = requireLayoutNode().requestAutofill()
+public fun DelegatableNode.requestAutofill(): Unit = requireLayoutNode().requestAutofill()
 
 /**
  * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to. If
  * the node is not attached, this function will throw an [IllegalStateException].
  */
-fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
+public fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
 
 /** Returns the current [GraphicsContext] of the [Owner] */
-fun DelegatableNode.requireGraphicsContext(): GraphicsContext = requireOwner().graphicsContext
+public fun DelegatableNode.requireGraphicsContext(): GraphicsContext =
+    requireOwner().graphicsContext
 
 /**
  * Returns the current [LayoutDirection] of the LayoutNode that this [DelegatableNode] is attached
  * to. If the node is not attached, this function will throw an [IllegalStateException].
  */
-fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNode().layoutDirection
+public fun DelegatableNode.requireLayoutDirection(): LayoutDirection =
+    requireLayoutNode().layoutDirection
 
 /**
  * Returns the [LayoutCoordinates] of this node.
@@ -405,7 +407,7 @@ fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNod
  * @throws IllegalStateException When either this node is not attached, or the [LayoutCoordinates]
  *   object is not attached.
  */
-fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
+public fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
     checkPrecondition(node.isAttached) {
         "Cannot get LayoutCoordinates, Modifier.Node is not attached."
     }
@@ -423,7 +425,7 @@ fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
  * updating some data which you know descendant nodes use, but you are not relaying on automatic
  * snapshot observation through [androidx.compose.runtime.MutableState].
  */
-fun DelegatableNode.invalidateSubtree() {
+public fun DelegatableNode.invalidateSubtree() {
     if (node.isAttached) {
         requireLayoutNode().invalidateSubtree()
     }
@@ -444,7 +446,7 @@ fun DelegatableNode.invalidateSubtree() {
  * to relayout instead of just parts that are otherwise invalidated. [invalidateMeasurement] is
  * preferable in most cases, and this should only be used when absolutely necessary.
  */
-fun DelegatableNode.invalidateMeasurementForSubtree() {
+public fun DelegatableNode.invalidateMeasurementForSubtree() {
     if (node.isAttached) {
         requireLayoutNode().invalidateMeasurementForSubtree()
     }
@@ -464,7 +466,7 @@ fun DelegatableNode.invalidateMeasurementForSubtree() {
  * to redraw instead of just parts that are otherwise invalidated. [invalidateDraw] is preferable in
  * most cases, and this should only be used when absolutely necessary.
  */
-fun DelegatableNode.invalidateDrawForSubtree() {
+public fun DelegatableNode.invalidateDrawForSubtree() {
     if (node.isAttached) {
         requireLayoutNode().invalidateDrawForSubtree()
     }
@@ -479,12 +481,12 @@ fun DelegatableNode.invalidateDrawForSubtree() {
  *
  * @param delta The scroll delta that was consumed by this node.
  */
-fun DelegatableNode.dispatchOnScrollChanged(delta: Offset) =
+public fun DelegatableNode.dispatchOnScrollChanged(delta: Offset): Unit =
     requireOwner().dispatchOnScrollChanged(delta)
 
 /** Call this function to find the nearest [BeyondBoundsLayout] to the current node. */
 @Suppress("DEPRECATION")
-fun DelegatableNode.findNearestBeyondBoundsLayoutAncestor(): BeyondBoundsLayout? {
+public fun DelegatableNode.findNearestBeyondBoundsLayoutAncestor(): BeyondBoundsLayout? {
     visitAncestors(Nodes.BeyondBoundsLayout or Nodes.Locals) {
         if (it.isKind(Nodes.BeyondBoundsLayout)) {
             var beyondBoundsNode: BeyondBoundsLayoutProviderModifierNode? = null

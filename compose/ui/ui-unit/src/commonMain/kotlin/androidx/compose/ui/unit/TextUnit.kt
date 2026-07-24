@@ -44,8 +44,8 @@ private const val UNIT_TYPE_EM = 0x02L shl 32 // 0x02_0000_0000
 
 /** An enum class defining for type of [TextUnit]. */
 @kotlin.jvm.JvmInline
-value class TextUnitType(internal val type: Long) {
-    override fun toString(): String {
+public value class TextUnitType(internal val type: Long) {
+    public override fun toString(): String {
         return when (this) {
             Unspecified -> "Unspecified"
             Sp -> "Sp"
@@ -54,14 +54,14 @@ value class TextUnitType(internal val type: Long) {
         }
     }
 
-    companion object {
-        val Unspecified
+    public companion object {
+        public val Unspecified: TextUnitType
             get() = TextUnitType(UNIT_TYPE_UNSPECIFIED)
 
-        val Sp
+        public val Sp: TextUnitType
             get() = TextUnitType(UNIT_TYPE_SP)
 
-        val Em
+        public val Em: TextUnitType
             get() = TextUnitType(UNIT_TYPE_EM)
     }
 }
@@ -72,7 +72,7 @@ value class TextUnitType(internal val type: Long) {
  * @param value of the dimension
  * @param type dimension
  */
-fun TextUnit(value: Float, type: TextUnitType): TextUnit = pack(type.type, value)
+public fun TextUnit(value: Float, type: TextUnitType): TextUnit = pack(type.type, value)
 
 /**
  * The unit used for text related dimension value.
@@ -87,7 +87,7 @@ fun TextUnit(value: Float, type: TextUnitType): TextUnit = pack(type.type, value
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class TextUnit internal constructor(internal val packedValue: Long) {
+public value class TextUnit internal constructor(internal val packedValue: Long) {
     /**
      * This is the same as multiplying the [TextUnit] by -1.0.
      *
@@ -96,7 +96,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun unaryMinus(): TextUnit {
+    public inline operator fun unaryMinus(): TextUnit {
         checkArithmetic(this)
         return pack(rawType, -value)
     }
@@ -109,7 +109,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun div(other: Float): TextUnit {
+    public inline operator fun div(other: Float): TextUnit {
         checkArithmetic(this)
         return pack(rawType, value / other)
     }
@@ -122,7 +122,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun div(other: Double): TextUnit {
+    public inline operator fun div(other: Double): TextUnit {
         checkArithmetic(this)
         return pack(rawType, (value / other).toFloat())
     }
@@ -135,7 +135,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun div(other: Int): TextUnit {
+    public inline operator fun div(other: Int): TextUnit {
         checkArithmetic(this)
         return pack(rawType, value / other)
     }
@@ -148,7 +148,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun times(other: Float): TextUnit {
+    public inline operator fun times(other: Float): TextUnit {
         checkArithmetic(this)
         return pack(rawType, value * other)
     }
@@ -161,7 +161,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun times(other: Double): TextUnit {
+    public inline operator fun times(other: Double): TextUnit {
         checkArithmetic(this)
         return pack(rawType, (value * other).toFloat())
     }
@@ -174,7 +174,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *
      * @throws IllegalArgumentException if this [TextUnit]'s type is [TextUnitType.Unspecified].
      */
-    inline operator fun times(other: Int): TextUnit {
+    public inline operator fun times(other: Int): TextUnit {
         checkArithmetic(this)
         return pack(rawType, value * other)
     }
@@ -188,12 +188,12 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      *   [TextUnitType]s or either of the two has the [TextUnitType] equals to
      *   [TextUnitType.Unspecified].
      */
-    inline operator fun compareTo(other: TextUnit): Int {
+    public inline operator fun compareTo(other: TextUnit): Int {
         checkArithmetic(this, other)
         return value.compareTo(other.value)
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return when (type) {
             TextUnitType.Unspecified -> "Unspecified"
             TextUnitType.Sp -> "$value.sp"
@@ -202,7 +202,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
         }
     }
 
-    companion object {
+    public companion object {
         internal val TextUnitTypes =
             arrayOf(TextUnitType.Unspecified, TextUnitType.Sp, TextUnitType.Em)
 
@@ -213,7 +213,7 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
          * [IllegalArgumentException].
          */
         @Stable
-        val Unspecified
+        public val Unspecified: TextUnit
             get() = pack(UNIT_TYPE_UNSPECIFIED, Float.NaN)
     }
 
@@ -227,15 +227,15 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
         get() = packedValue and UNIT_MASK
 
     /** A type information of this TextUnit. */
-    val type: TextUnitType
+    public val type: TextUnitType
         get() = TextUnitTypes[(rawType ushr 32).toInt()]
 
     /** True if this is a SP unit type. */
-    val isSp
+    public val isSp: Boolean
         get() = rawType == UNIT_TYPE_SP
 
     /** True if this is a EM unit type. */
-    val isEm
+    public val isEm: Boolean
         get() = rawType == UNIT_TYPE_EM
 
     /**
@@ -244,54 +244,55 @@ value class TextUnit internal constructor(internal val packedValue: Long) {
      * For example, the value of 3.sp equals to 3, and value of 5.em equals to 5. The value of
      * [TextUnit]s whose [TextUnitType] is [TextUnitType.Unspecified] is undefined.
      */
-    val value
+    public val value: Float
         get() = floatFromBits((packedValue and 0xFFFF_FFFFL).toInt())
 }
 
 /** `false` when this is [TextUnit.Unspecified]. */
 @Stable
-inline val TextUnit.isSpecified: Boolean
+public inline val TextUnit.isSpecified: Boolean
     get() = !isUnspecified
 
 /** `true` when this is [TextUnit.Unspecified]. */
 @Stable
-inline val TextUnit.isUnspecified: Boolean
+public inline val TextUnit.isUnspecified: Boolean
     get() = rawType == 0x0L // UNIT_TYPE_UNSPECIFIED
 
 /**
  * If this [TextUnit] [isSpecified] then this is returned, otherwise [block] is executed and its
  * result is returned.
  */
-inline fun TextUnit.takeOrElse(block: () -> TextUnit): TextUnit = if (isSpecified) this else block()
+public inline fun TextUnit.takeOrElse(block: () -> TextUnit): TextUnit =
+    if (isSpecified) this else block()
 
 /** Creates a SP unit [TextUnit] */
 @Stable
-val Float.sp: TextUnit
+public val Float.sp: TextUnit
     get() = pack(UNIT_TYPE_SP, this)
 
 /** Creates an EM unit [TextUnit] */
 @Stable
-val Float.em: TextUnit
+public val Float.em: TextUnit
     get() = pack(UNIT_TYPE_EM, this)
 
 /** Creates a SP unit [TextUnit] */
 @Stable
-val Double.sp: TextUnit
+public val Double.sp: TextUnit
     get() = pack(UNIT_TYPE_SP, this.toFloat())
 
 /** Creates an EM unit [TextUnit] */
 @Stable
-val Double.em: TextUnit
+public val Double.em: TextUnit
     get() = pack(UNIT_TYPE_EM, this.toFloat())
 
 /** Creates a SP unit [TextUnit] */
 @Stable
-val Int.sp: TextUnit
+public val Int.sp: TextUnit
     get() = pack(UNIT_TYPE_SP, this.toFloat())
 
 /** Creates an EM unit [TextUnit] */
 @Stable
-val Int.em: TextUnit
+public val Int.em: TextUnit
     get() = pack(UNIT_TYPE_EM, this.toFloat())
 
 /**
@@ -301,7 +302,7 @@ val Int.em: TextUnit
  * of this operation is the same unit type of the given one.
  */
 @Stable
-inline operator fun Float.times(other: TextUnit): TextUnit {
+public inline operator fun Float.times(other: TextUnit): TextUnit {
     checkArithmetic(other)
     return pack(other.rawType, this * other.value)
 }
@@ -313,7 +314,7 @@ inline operator fun Float.times(other: TextUnit): TextUnit {
  * of this operation is the same unit type of the given one.
  */
 @Stable
-inline operator fun Double.times(other: TextUnit): TextUnit {
+public inline operator fun Double.times(other: TextUnit): TextUnit {
     checkArithmetic(other)
     return pack(other.rawType, this.toFloat() * other.value)
 }
@@ -325,7 +326,7 @@ inline operator fun Double.times(other: TextUnit): TextUnit {
  * of this operation is the same unit type of the given one.
  */
 @Stable
-inline operator fun Int.times(other: TextUnit): TextUnit {
+public inline operator fun Int.times(other: TextUnit): TextUnit {
     checkArithmetic(other)
     return pack(other.rawType, this * other.value)
 }
@@ -371,7 +372,7 @@ internal fun checkArithmetic(a: TextUnit, b: TextUnit, c: TextUnit) {
  *   of the two has its [TextUnitType] equal to [TextUnitType.Unspecified].
  */
 @Stable
-fun lerp(start: TextUnit, stop: TextUnit, fraction: Float): TextUnit {
+public fun lerp(start: TextUnit, stop: TextUnit, fraction: Float): TextUnit {
     checkArithmetic(start, stop)
     return pack(start.rawType, lerp(start.value, stop.value, fraction))
 }

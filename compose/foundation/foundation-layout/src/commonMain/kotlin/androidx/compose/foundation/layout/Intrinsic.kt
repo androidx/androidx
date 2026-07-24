@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.constrain
  * @sample androidx.compose.foundation.layout.samples.SameWidthTextBoxes
  */
 @Stable
-fun Modifier.width(intrinsicSize: IntrinsicSize) =
+public fun Modifier.width(intrinsicSize: IntrinsicSize): Modifier =
     this then
         IntrinsicWidthElement(
             width = intrinsicSize,
@@ -77,7 +77,7 @@ fun Modifier.width(intrinsicSize: IntrinsicSize) =
  * @sample androidx.compose.foundation.layout.samples.MatchParentDividerForAspectRatio
  */
 @Stable
-fun Modifier.height(intrinsicSize: IntrinsicSize) =
+public fun Modifier.height(intrinsicSize: IntrinsicSize): Modifier =
     this then
         IntrinsicHeightElement(
             height = intrinsicSize,
@@ -102,7 +102,7 @@ fun Modifier.height(intrinsicSize: IntrinsicSize) =
  * required width.
  */
 @Stable
-fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize) =
+public fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize): Modifier =
     this then
         IntrinsicWidthElement(
             width = intrinsicSize,
@@ -127,7 +127,7 @@ fun Modifier.requiredWidth(intrinsicSize: IntrinsicSize) =
  * the required height.
  */
 @Stable
-fun Modifier.requiredHeight(intrinsicSize: IntrinsicSize) =
+public fun Modifier.requiredHeight(intrinsicSize: IntrinsicSize): Modifier =
     this then
         IntrinsicHeightElement(
             height = intrinsicSize,
@@ -140,7 +140,7 @@ fun Modifier.requiredHeight(intrinsicSize: IntrinsicSize) =
         )
 
 /** Intrinsic size used in [width] or [height] which can refer to width or height. */
-enum class IntrinsicSize {
+public enum class IntrinsicSize {
     Min,
     Max,
 }

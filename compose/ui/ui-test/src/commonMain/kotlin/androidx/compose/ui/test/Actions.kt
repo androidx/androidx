@@ -55,7 +55,7 @@ internal expect fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeIn
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
-fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
     // invokeGlobalAssertions() and tryPerformAccessibilityChecks() will be called from the
     // implementation that uses performTouchInput or performMouseInput
     return performClickImpl()
@@ -75,7 +75,7 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
-fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
     do {
         val shouldContinueScroll =
@@ -156,7 +156,7 @@ private fun SemanticsNode.scrollToNode(testOwner: TestOwner): Boolean {
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see hasScrollToIndexAction
  */
-fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
     fetchSemanticsNode("Failed: performScrollToIndex($index)").scrollToIndex(index, this)
     return this
@@ -185,7 +185,7 @@ private fun SemanticsNode.scrollToIndex(index: Int, nodeInteraction: SemanticsNo
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see hasScrollToKeyAction
  */
-fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteraction {
+public fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed: performScrollToKey(\"$key\")")
     requireSemantics(node, IndexForKey, ScrollToIndex) {
@@ -230,7 +230,7 @@ fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteract
  *   _not_ an interaction for the node that is identified by the [matcher].
  * @see hasScrollToNodeAction
  */
-fun SemanticsNodeInteraction.performScrollToNode(
+public fun SemanticsNodeInteraction.performScrollToNode(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -340,7 +340,7 @@ private fun SemanticsMatcher.matchNodeOrDescendant(root: SemanticsNode?): Semant
         ReplaceWith("performTouchInput(block)", "import androidx.compose.ui.test.performGesture"),
 )
 @Suppress("DEPRECATION")
-fun SemanticsNodeInteraction.performGesture(
+public fun SemanticsNodeInteraction.performGesture(
     block: GestureScope.() -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to perform a gesture.")
@@ -396,7 +396,7 @@ fun SemanticsNodeInteraction.performGesture(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see TouchInjectionScope
  */
-fun SemanticsNodeInteraction.performTouchInput(
+public fun SemanticsNodeInteraction.performTouchInput(
     block: TouchInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -445,7 +445,7 @@ fun SemanticsNodeInteraction.performTouchInput(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see MouseInjectionScope
  */
-fun SemanticsNodeInteraction.performMouseInput(
+public fun SemanticsNodeInteraction.performMouseInput(
     block: MouseInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -490,7 +490,7 @@ fun SemanticsNodeInteraction.performMouseInput(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see TrackpadInjectionScope
  */
-fun SemanticsNodeInteraction.performTrackpadInput(
+public fun SemanticsNodeInteraction.performTrackpadInput(
     block: TrackpadInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -529,7 +529,7 @@ fun SemanticsNodeInteraction.performTrackpadInput(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see KeyInjectionScope
  */
-fun SemanticsNodeInteraction.performKeyInput(
+public fun SemanticsNodeInteraction.performKeyInput(
     block: KeyInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -579,7 +579,7 @@ fun SemanticsNodeInteraction.performKeyInput(
  */
 // TODO(fresen): add example of multi-modal input when key input is added (touch and mouse
 //  don't work together, so an example with those two doesn't make sense)
-fun SemanticsNodeInteraction.performMultiModalInput(
+public fun SemanticsNodeInteraction.performMultiModalInput(
     block: MultiModalInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to inject multi-modal input.")
@@ -597,7 +597,7 @@ fun SemanticsNodeInteraction.performMultiModalInput(
  * Requests the focus system to give focus to this node by invoking the
  * [RequestFocus][SemanticsActions.RequestFocus] semantics action.
  */
-fun SemanticsNodeInteraction.requestFocus(): SemanticsNodeInteraction =
+public fun SemanticsNodeInteraction.requestFocus(): SemanticsNodeInteraction =
     performSemanticsAction(SemanticsActions.RequestFocus)
 
 @Deprecated(
@@ -606,7 +606,7 @@ fun SemanticsNodeInteraction.requestFocus(): SemanticsNodeInteraction =
 )
 @Suppress("unused")
 @JvmName("performSemanticsAction")
-fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsActionUnit(
+public fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsActionUnit(
     key: SemanticsPropertyKey<AccessibilityAction<T>>,
     invocation: (T) -> Unit,
 ) {
@@ -628,7 +628,7 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsActionUnit(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
+public fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<T>>,
     invocation: (T) -> Unit,
 ): SemanticsNodeInteraction {
@@ -646,7 +646,7 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
 )
 @Suppress("unused")
 @JvmName("performSemanticsAction")
-fun SemanticsNodeInteraction.performSemanticsActionUnit(
+public fun SemanticsNodeInteraction.performSemanticsActionUnit(
     key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) {
     performSemanticsAction(key)
@@ -665,7 +665,7 @@ fun SemanticsNodeInteraction.performSemanticsActionUnit(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun SemanticsNodeInteraction.performSemanticsAction(
+public fun SemanticsNodeInteraction.performSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ): SemanticsNodeInteraction {
     return performSemanticsAction(key) { it.invoke() }
@@ -691,7 +691,7 @@ fun SemanticsNodeInteraction.performSemanticsAction(
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  * @see RotaryInjectionScope
  */
-fun SemanticsNodeInteraction.performRotaryScrollInput(
+public fun SemanticsNodeInteraction.performRotaryScrollInput(
     block: RotaryInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -719,7 +719,7 @@ fun SemanticsNodeInteraction.performRotaryScrollInput(
  * @see performCustomAccessibilityActionWithLabelMatching
  */
 @ExperimentalTestApi
-fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabel(
+public fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabel(
     label: String
 ): SemanticsNodeInteraction =
     performCustomAccessibilityActionWithLabelMatching("label is \"$label\"") { it == label }
@@ -737,7 +737,7 @@ fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabel(
  * @see performCustomAccessibilityActionWithLabel
  */
 @ExperimentalTestApi
-fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
+public fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
     predicateDescription: String? = null,
     labelPredicate: (label: String) -> Boolean,
 ): SemanticsNodeInteraction {
@@ -774,7 +774,7 @@ fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
  * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
  * @see getFirstLinkBounds
  */
-fun SemanticsNodeInteraction.performFirstLinkClick(
+public fun SemanticsNodeInteraction.performFirstLinkClick(
     predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
 ): SemanticsNodeInteraction {
     tryPerformAccessibilityChecks()
@@ -859,7 +859,7 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
  *   exception. Note: This is not related to the screen coordinates.
  * @param block Block of code/events to execute in indirect scope.
  */
-fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
+public fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
     indirectPointerEventPrimaryDirectionalMotionAxis:
         IndirectPointerEventPrimaryDirectionalMotionAxis,
     inputDeviceSize: IntSize,
@@ -881,7 +881,7 @@ fun SemanticsNodeInteractionsProvider.sendIndirectPointerInput(
  *
  * @throws [AssertionError] if accessibility problems are found
  */
-expect fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction
+public expect fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction
 
 /**
  * Tries to perform accessibility checks on the current screen. This will only actually do something
@@ -890,7 +890,7 @@ expect fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNo
  *
  * @throws [AssertionError] if accessibility problems are found
  */
-fun SemanticsNodeInteractionCollection.tryPerformAccessibilityChecks():
+public fun SemanticsNodeInteractionCollection.tryPerformAccessibilityChecks():
     SemanticsNodeInteractionCollection {
     // Accessibility checks don't run on one node only, they run on the whole hierarchy. It doesn't
     // matter where we start, so just run them on the first node.

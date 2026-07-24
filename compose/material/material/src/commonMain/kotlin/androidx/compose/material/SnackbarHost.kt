@@ -61,7 +61,7 @@ import kotlinx.coroutines.sync.withLock
  * automatically, but can be decoupled from it and live separately when desired.
  */
 @Stable
-class SnackbarHostState {
+public class SnackbarHostState {
 
     /**
      * Only one [Snackbar] can be shown at a time. Since a suspending Mutex is a fair queue, this
@@ -70,7 +70,7 @@ class SnackbarHostState {
     private val mutex = Mutex()
 
     /** The current [SnackbarData] being shown by the [SnackbarHost], of `null` if none. */
-    var currentSnackbarData by mutableStateOf<SnackbarData?>(null)
+    public var currentSnackbarData: SnackbarData? by mutableStateOf<SnackbarData?>(null)
         private set
 
     /**
@@ -95,7 +95,7 @@ class SnackbarHostState {
      * @return [SnackbarResult.ActionPerformed] if option action has been clicked or
      *   [SnackbarResult.Dismissed] if snackbar has been dismissed via timeout or by the user
      */
-    suspend fun showSnackbar(
+    public suspend fun showSnackbar(
         message: String,
         actionLabel: String? = null,
         duration: SnackbarDuration = SnackbarDuration.Short,
@@ -149,7 +149,7 @@ class SnackbarHostState {
  *   appearance based on the [SnackbarData] provided as a param
  */
 @Composable
-fun SnackbarHost(
+public fun SnackbarHost(
     hostState: SnackbarHostState,
     modifier: Modifier = Modifier,
     snackbar: @Composable (SnackbarData) -> Unit = { Snackbar(it) },
@@ -181,20 +181,20 @@ fun SnackbarHost(
  * @property actionLabel optional action label to show as button in the Snackbar
  * @property duration duration of the snackbar
  */
-interface SnackbarData {
-    val message: String
-    val actionLabel: String?
-    val duration: SnackbarDuration
+public interface SnackbarData {
+    public val message: String
+    public val actionLabel: String?
+    public val duration: SnackbarDuration
 
     /** Function to be called when Snackbar action has been performed to notify the listeners */
-    fun performAction()
+    public fun performAction()
 
     /** Function to be called when Snackbar is dismissed either by timeout or by the user */
-    fun dismiss()
+    public fun dismiss()
 }
 
 /** Possible results of the [SnackbarHostState.showSnackbar] call */
-enum class SnackbarResult {
+public enum class SnackbarResult {
     /** [Snackbar] that is shown has been dismissed either by timeout of by user */
     Dismissed,
 
@@ -203,7 +203,7 @@ enum class SnackbarResult {
 }
 
 /** Possible durations of the [Snackbar] in [SnackbarHost] */
-enum class SnackbarDuration {
+public enum class SnackbarDuration {
     /** Show the Snackbar for a short period of time */
     Short,
 

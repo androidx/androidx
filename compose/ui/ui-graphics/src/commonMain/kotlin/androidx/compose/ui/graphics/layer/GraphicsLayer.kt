@@ -48,12 +48,12 @@ import androidx.compose.ui.unit.LayoutDirection
  * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationX
  * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
  */
-fun DrawScope.drawLayer(graphicsLayer: GraphicsLayer) {
+public fun DrawScope.drawLayer(graphicsLayer: GraphicsLayer) {
     drawIntoCanvas { canvas -> graphicsLayer.draw(canvas, drawContext.graphicsLayer) }
 }
 
 /** Default camera distance for all layers */
-const val DefaultCameraDistance = 8.0f
+public const val DefaultCameraDistance: Float = 8.0f
 
 /**
  * Drawing layer used to record drawing commands in a displaylist as well as additional properties
@@ -76,7 +76,7 @@ const val DefaultCameraDistance = 8.0f
  * [GraphicsLayer.blendMode], [GraphicsLayer.colorFilter], [GraphicsLayer.alpha] or
  * [GraphicsLayer.renderEffect]
  */
-expect class GraphicsLayer {
+public expect class GraphicsLayer {
 
     /**
      * [CompositingStrategy] determines whether or not the contents of this layer are rendered into
@@ -91,7 +91,7 @@ expect class GraphicsLayer {
      * [compositingStrategy]'s value will be overridden and is forced to
      * [CompositingStrategy.Offscreen].
      */
-    var compositingStrategy: CompositingStrategy
+    public var compositingStrategy: CompositingStrategy
 
     /**
      * Offset in pixels where this [GraphicsLayer] will render within a provided canvas when
@@ -99,7 +99,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTopLeftSample
      */
-    var topLeft: IntOffset
+    public var topLeft: IntOffset
 
     /**
      * Size in pixels of the [GraphicsLayer]. By default [GraphicsLayer] contents can draw outside
@@ -109,7 +109,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
-    var size: IntSize
+    public var size: IntSize
         private set
 
     /**
@@ -119,7 +119,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    var pivotOffset: Offset
+    public var pivotOffset: Offset
 
     /**
      * Alpha of the content of the [GraphicsLayer] between 0f and 1f. Any value between 0f and 1f
@@ -128,35 +128,35 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerAlphaSample
      */
-    var alpha: Float
+    public var alpha: Float
 
     /**
      * The horizontal scale of the drawn area. Default value is `1`.
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    var scaleX: Float
+    public var scaleX: Float
 
     /**
      * The vertical scale of the drawn area. Default value is `1`.
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerScaleAndPivotSample
      */
-    var scaleY: Float
+    public var scaleY: Float
 
     /**
      * Horizontal pixel offset of the layer relative to [topLeft].x. Default value is `0`.
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    var translationX: Float
+    public var translationX: Float
 
     /**
      * Vertical pixel offset of the layer relative to [topLeft].y. Default value is `0`
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    var translationY: Float
+    public var translationY: Float
 
     /**
      * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and [Outline]
@@ -168,7 +168,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerShadowSample
      */
-    var shadowElevation: Float
+    public var shadowElevation: Float
 
     /**
      * Sets the color of the ambient shadow that is drawn when [shadowElevation] > 0f.
@@ -185,7 +185,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerShadowSample
      */
-    var ambientShadowColor: Color
+    public var ambientShadowColor: Color
 
     /**
      * Sets the color of the spot shadow that is drawn when [shadowElevation] > 0f.
@@ -202,7 +202,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerShadowSample
      */
-    var spotShadowColor: Color
+    public var spotShadowColor: Color
 
     /**
      * BlendMode to use when drawing this layer to the destination in [drawLayer]. The default is
@@ -212,7 +212,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      */
-    var blendMode: BlendMode
+    public var blendMode: BlendMode
 
     /**
      * ColorFilter applied when drawing this layer to the destination in [drawLayer]. Setting of
@@ -221,14 +221,14 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerColorFilterSample
      */
-    var colorFilter: ColorFilter?
+    public var colorFilter: ColorFilter?
 
     /**
      * Returns the outline specified by either [setPathOutline] or [setRoundRectOutline]. By default
      * this will return [Outline.Rectangle] with the size of the [GraphicsLayer] specified by
      * [record] or [IntSize.Zero] if [record] was not previously invoked.
      */
-    val outline: Outline
+    public val outline: Outline
 
     /**
      * Configures the outsets for this [GraphicsLayer]. GraphicsLayer implicitly clips to its bounds
@@ -245,7 +245,7 @@ expect class GraphicsLayer {
      * @param bottom The number of pixels to extend the layer to the bottom
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutsetsSample
      */
-    fun setOutsets(
+    public fun setOutsets(
         @IntRange(from = 0) left: Int,
         @IntRange(from = 0) top: Int,
         @IntRange(from = 0) right: Int,
@@ -261,7 +261,7 @@ expect class GraphicsLayer {
      * @param path Path to be used as the Outline for the [GraphicsLayer]
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerOutlineSample
      */
-    fun setPathOutline(path: Path)
+    public fun setPathOutline(path: Path)
 
     /**
      * Configures a rounded rect outline for this [GraphicsLayer]. By default, [topLeft] is set to
@@ -275,7 +275,7 @@ expect class GraphicsLayer {
      * @param cornerRadius The corner radius of the rounded rect outline
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
-    fun setRoundRectOutline(
+    public fun setRoundRectOutline(
         topLeft: Offset = Offset.Zero,
         size: Size = Size.Unspecified,
         cornerRadius: Float = 0f,
@@ -292,7 +292,7 @@ expect class GraphicsLayer {
      * @param size The size of the rounded rect outline
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
-    fun setRectOutline(topLeft: Offset = Offset.Zero, size: Size = Size.Unspecified)
+    public fun setRectOutline(topLeft: Offset = Offset.Zero, size: Size = Size.Unspecified)
 
     /**
      * The rotation, in degrees, of the contents around the horizontal axis in degrees. Default
@@ -300,7 +300,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationX
      */
-    var rotationX: Float
+    public var rotationX: Float
 
     /**
      * The rotation, in degrees, of the contents around the vertical axis in degrees. Default value
@@ -308,12 +308,12 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
      */
-    var rotationY: Float
+    public var rotationY: Float
 
     /**
      * The rotation, in degrees, of the contents around the Z axis in degrees. Default value is `0`.
      */
-    var rotationZ: Float
+    public var rotationZ: Float
 
     /**
      * Sets the distance along the Z axis (orthogonal to the X/Y plane on which layers are drawn)
@@ -336,7 +336,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRotationYWithCameraDistance
      */
-    var cameraDistance: Float
+    public var cameraDistance: Float
 
     /**
      * Determines if the [GraphicsLayer] should be clipped to the rectangular bounds specified by
@@ -345,7 +345,7 @@ expect class GraphicsLayer {
      * CompositingStrategy.Offscreen is used, a non-null ColorFilter, RenderEffect is applied or if
      * the BlendMode is not equivalent to BlendMode.SrcOver
      */
-    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") var clip: Boolean
+    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") public var clip: Boolean
 
     /**
      * Configure the [RenderEffect] to apply to this [GraphicsLayer]. This will apply a visual
@@ -358,13 +358,13 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRenderEffectSample
      */
-    var renderEffect: RenderEffect?
+    public var renderEffect: RenderEffect?
 
     /**
      * Determines if this [GraphicsLayer] has been released. Any attempts to use a [GraphicsLayer]
      * after it has been released is an error.
      */
-    var isReleased: Boolean
+    public var isReleased: Boolean
         private set
 
     /**
@@ -380,7 +380,7 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerBlendModeSample
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerTranslateSample
      */
-    fun record(
+    public fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
@@ -394,7 +394,7 @@ expect class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerToImageBitmap
      */
-    suspend fun toImageBitmap(): ImageBitmap
+    public suspend fun toImageBitmap(): ImageBitmap
 
     /** Draw the contents of this [GraphicsLayer] into the specified [Canvas] */
     internal fun draw(canvas: Canvas, parentLayer: GraphicsLayer?)
@@ -409,7 +409,7 @@ expect class GraphicsLayer {
  *
  * @param outline an [Outline] to apply for the layer.
  */
-fun GraphicsLayer.setOutline(outline: Outline) {
+public fun GraphicsLayer.setOutline(outline: Outline) {
     when (outline) {
         is Outline.Rectangle ->
             setRectOutline(

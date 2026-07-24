@@ -55,27 +55,27 @@ import androidx.compose.ui.unit.dp
  * [TextFieldDefaults.outlinedTextFieldColors] for the default colors used in [OutlinedTextField].
  */
 @Stable
-interface TextFieldColors {
+public interface TextFieldColors {
     /**
      * Represents the color used for the input text of this text field.
      *
      * @param enabled whether the text field is enabled
      */
-    @Composable fun textColor(enabled: Boolean): State<Color>
+    @Composable public fun textColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the background color for this text field.
      *
      * @param enabled whether the text field is enabled
      */
-    @Composable fun backgroundColor(enabled: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the color used for the placeholder of this text field.
      *
      * @param enabled whether the text field is enabled
      */
-    @Composable fun placeholderColor(enabled: Boolean): State<Color>
+    @Composable public fun placeholderColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the color used for the label of this text field.
@@ -88,7 +88,7 @@ interface TextFieldColors {
      *   the text field is in focus or not
      */
     @Composable
-    fun labelColor(
+    public fun labelColor(
         enabled: Boolean,
         error: Boolean,
         interactionSource: InteractionSource,
@@ -106,7 +106,7 @@ interface TextFieldColors {
         level = DeprecationLevel.WARNING,
     )
     @Composable
-    fun leadingIconColor(enabled: Boolean, isError: Boolean): State<Color>
+    public fun leadingIconColor(enabled: Boolean, isError: Boolean): State<Color>
 
     /**
      * Represents the color used for the leading icon of this text field.
@@ -117,7 +117,7 @@ interface TextFieldColors {
      *   the text field is in focus or not
      */
     @Composable
-    fun leadingIconColor(
+    public fun leadingIconColor(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -138,7 +138,7 @@ interface TextFieldColors {
         level = DeprecationLevel.WARNING,
     )
     @Composable
-    fun trailingIconColor(enabled: Boolean, isError: Boolean): State<Color>
+    public fun trailingIconColor(enabled: Boolean, isError: Boolean): State<Color>
 
     /**
      * Represents the color used for the trailing icon of this text field.
@@ -149,7 +149,7 @@ interface TextFieldColors {
      *   the text field is in focus or not
      */
     @Composable
-    fun trailingIconColor(
+    public fun trailingIconColor(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -167,7 +167,7 @@ interface TextFieldColors {
      *   the text field is in focus or not
      */
     @Composable
-    fun indicatorColor(
+    public fun indicatorColor(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -178,7 +178,7 @@ interface TextFieldColors {
      *
      * @param isError whether the text field's current value is in error
      */
-    @Composable fun cursorColor(isError: Boolean): State<Color>
+    @Composable public fun cursorColor(isError: Boolean): State<Color>
 }
 
 /**
@@ -191,31 +191,31 @@ interface TextFieldColors {
         ReplaceWith("TextFieldColors", imports = ["androidx.compose.material.TextFieldColors"]),
 )
 @ExperimentalMaterialApi
-interface TextFieldColorsWithIcons : TextFieldColors
+public interface TextFieldColorsWithIcons : TextFieldColors
 
 /** Contains the default values used by [TextField] and [OutlinedTextField]. */
 @Immutable
-object TextFieldDefaults {
+public object TextFieldDefaults {
     /**
      * The default min height applied to a [TextField] and [OutlinedTextField]. Note that you can
      * override it by applying Modifier.heightIn directly on a text field.
      */
-    val MinHeight = 56.dp
+    public val MinHeight: Dp = 56.dp
 
     /**
      * The default min width applied to a [TextField] and [OutlinedTextField]. Note that you can
      * override it by applying Modifier.widthIn directly on a text field.
      */
-    val MinWidth = 280.dp
+    public val MinWidth: Dp = 280.dp
 
     /**
      * The default opacity used for a [TextField]'s and [OutlinedTextField]'s leading and trailing
      * icons color.
      */
-    const val IconOpacity = 0.54f
+    public const val IconOpacity: Float = 0.54f
 
     /** The default shape used for a [TextField]'s background */
-    val TextFieldShape: Shape
+    public val TextFieldShape: Shape
         @Composable
         @ReadOnlyComposable
         get() =
@@ -225,23 +225,23 @@ object TextFieldDefaults {
             )
 
     /** The default shape used for a [OutlinedTextField]'s background and border */
-    val OutlinedTextFieldShape: Shape
+    public val OutlinedTextFieldShape: Shape
         @Composable @ReadOnlyComposable get() = MaterialTheme.shapes.small
 
     /**
      * The default thickness of the border in [OutlinedTextField] or indicator line in [TextField]
      * in unfocused state.
      */
-    val UnfocusedBorderThickness = 1.dp
+    public val UnfocusedBorderThickness: Dp = 1.dp
 
     /**
      * The default thickness of the border in [OutlinedTextField] or indicator line in [TextField]
      * in focused state.
      */
-    val FocusedBorderThickness = 2.dp
+    public val FocusedBorderThickness: Dp = 2.dp
 
     /** The default opacity used for a [TextField]'s background color. */
-    const val BackgroundOpacity = 0.12f
+    public const val BackgroundOpacity: Float = 0.12f
 
     // Filled text field uses 42% opacity to meet the contrast requirements for accessibility
     // reasons
@@ -249,7 +249,7 @@ object TextFieldDefaults {
      * The default opacity used for a [TextField]'s indicator line color when text field is not
      * focused.
      */
-    const val UnfocusedIndicatorLineOpacity = 0.42f
+    public const val UnfocusedIndicatorLineOpacity: Float = 0.42f
 
     /**
      * A modifier to draw a default bottom indicator line for [TextField]. You can use this modifier
@@ -266,14 +266,14 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when text field is not
      *   focused.
      */
-    fun Modifier.indicatorLine(
+    public fun Modifier.indicatorLine(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
         colors: TextFieldColors,
         focusedIndicatorLineThickness: Dp = FocusedBorderThickness,
         unfocusedIndicatorLineThickness: Dp = UnfocusedBorderThickness,
-    ) =
+    ): Modifier =
         composed(
             inspectorInfo =
                 debugInspectorInfo {
@@ -314,7 +314,7 @@ object TextFieldDefaults {
      *   in focused state.
      */
     @Composable
-    fun BorderBox(
+    public fun BorderBox(
         enabled: Boolean,
         isError: Boolean,
         interactionSource: InteractionSource,
@@ -343,7 +343,7 @@ object TextFieldDefaults {
      * value is smaller than the last baseline of the label, then there will be no space between the
      * label and top edge of the [TextField].
      */
-    fun textFieldWithLabelPadding(
+    public fun textFieldWithLabelPadding(
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = FirstBaselineOffset,
@@ -351,7 +351,7 @@ object TextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /** Default content padding applied to [TextField] when the label is null. */
-    fun textFieldWithoutLabelPadding(
+    public fun textFieldWithoutLabelPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -359,7 +359,7 @@ object TextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /** Default content padding applied to [OutlinedTextField]. */
-    fun outlinedTextFieldPadding(
+    public fun outlinedTextFieldPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
@@ -371,7 +371,7 @@ object TextFieldDefaults {
      * (including label, placeholder, leading and trailing icons) colors used in a [TextField].
      */
     @Composable
-    fun textFieldColors(
+    public fun textFieldColors(
         textColor: Color = LocalContentColor.current.copy(LocalContentAlpha.current),
         disabledTextColor: Color = textColor.copy(ContentAlpha.disabled),
         backgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = BackgroundOpacity),
@@ -425,7 +425,7 @@ object TextFieldDefaults {
      * [OutlinedTextField].
      */
     @Composable
-    fun outlinedTextFieldColors(
+    public fun outlinedTextFieldColors(
         textColor: Color = LocalContentColor.current.copy(LocalContentAlpha.current),
         disabledTextColor: Color = textColor.copy(ContentAlpha.disabled),
         backgroundColor: Color = Color.Transparent,
@@ -528,7 +528,7 @@ object TextFieldDefaults {
      *   [TextFieldDefaults.textFieldWithoutLabelPadding].
      */
     @Composable
-    fun TextFieldDecorationBox(
+    public fun TextFieldDecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -626,7 +626,7 @@ object TextFieldDefaults {
      *   [TextFieldDefaults.outlinedTextFieldPadding].
      */
     @Composable
-    fun OutlinedTextFieldDecorationBox(
+    public fun OutlinedTextFieldDecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -671,7 +671,7 @@ object TextFieldDefaults {
     )
     @Composable
     @ExperimentalMaterialApi
-    fun TextFieldDecorationBox(
+    public fun TextFieldDecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -690,7 +690,7 @@ object TextFieldDefaults {
             } else {
                 textFieldWithLabelPadding()
             },
-    ) =
+    ): Unit =
         TextFieldDecorationBox(
             value = value,
             innerTextField = innerTextField,
@@ -714,7 +714,7 @@ object TextFieldDefaults {
     )
     @Composable
     @ExperimentalMaterialApi
-    fun OutlinedTextFieldDecorationBox(
+    public fun OutlinedTextFieldDecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
         enabled: Boolean,
@@ -729,7 +729,7 @@ object TextFieldDefaults {
         colors: TextFieldColors = outlinedTextFieldColors(),
         contentPadding: PaddingValues = outlinedTextFieldPadding(),
         border: @Composable () -> Unit = { BorderBox(enabled, isError, interactionSource, colors) },
-    ) =
+    ): Unit =
         OutlinedTextFieldDecorationBox(
             value = value,
             innerTextField = innerTextField,

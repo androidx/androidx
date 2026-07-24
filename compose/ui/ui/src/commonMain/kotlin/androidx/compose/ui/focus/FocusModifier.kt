@@ -31,11 +31,11 @@ import androidx.compose.ui.Modifier
  *
  * @sample androidx.compose.ui.samples.FocusableSampleUsingLowerLevelFocusTarget
  */
-fun Modifier.focusTarget(): Modifier = this then FocusTargetNode.FocusTargetElement
+public fun Modifier.focusTarget(): Modifier = this then FocusTargetNode.FocusTargetElement
 
 /** Add this modifier to a component to make it focusable. */
 @Deprecated(
     "Replaced by focusTarget",
     ReplaceWith("focusTarget()", "androidx.compose.ui.focus.focusTarget"),
 )
-fun Modifier.focusModifier(): Modifier = focusTarget()
+public fun Modifier.focusModifier(): Modifier = focusTarget()
