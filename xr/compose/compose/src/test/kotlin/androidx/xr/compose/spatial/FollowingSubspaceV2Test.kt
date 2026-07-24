@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -42,13 +41,13 @@ import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.subspace.AnchorTarget
-import androidx.xr.compose.subspace.ArDeviceTarget
-import androidx.xr.compose.subspace.FollowBehavior
-import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.TrackedDimensions
+import androidx.xr.compose.subspace.animation.follow.AnchorTarget
+import androidx.xr.compose.subspace.animation.follow.ArDeviceTarget
+import androidx.xr.compose.subspace.animation.follow.FollowBehavior
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
+import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxSize
@@ -225,9 +224,6 @@ class FollowingSubspaceV2Test {
         )
     }
 
-    // ---------------------------------------------------------------------------------------------
-    //                                    FollowingSubspaceV2 Tests
-    // ---------------------------------------------------------------------------------------------
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspaceV2_whenNoDeviceTracking_DoNotRender() {
