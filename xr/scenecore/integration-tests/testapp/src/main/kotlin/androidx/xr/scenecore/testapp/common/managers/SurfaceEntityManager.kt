@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.common.managers
 
+import android.graphics.Color
 import android.widget.Button
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -98,6 +99,12 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
                     stereoMode = SurfaceEntity.StereoMode.MONO,
                     parent = session.scene.activitySpace,
                 )
+
+            // Draw a bright pink color on the surface entity
+            val canvas = surfaceEntity!!.getSurface().lockHardwareCanvas()
+            canvas.drawColor(Color.argb(255, 255, 192, 192))
+            surfaceEntity!!.getSurface().unlockCanvasAndPost(canvas)
+
             // Make the video player movable (to make it easier to look at it from
             // different angles and distances)
             mMovableComponent = MovableComponent.createSystemMovable(session)
