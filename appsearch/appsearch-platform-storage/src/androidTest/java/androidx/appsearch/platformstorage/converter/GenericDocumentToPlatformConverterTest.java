@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.os.Build;
@@ -47,8 +46,6 @@ public class GenericDocumentToPlatformConverterTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
     public void testConvertEmbeddingVector() {
-        assumeTrue(PlatformStorage.getFeatures(mContext).isFeatureSupported(
-                Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
         EmbeddingVector.QuantizedData quantizedData =
                 new EmbeddingVector.QuantizedData(0f, 1f, new byte[]{1, 2, 3});
         EmbeddingVector jetpackEmbeddingVector =
@@ -61,9 +58,38 @@ public class GenericDocumentToPlatformConverterTest {
 
         TestPlatformConversionAdapter adapter = new TestPlatformConversionAdapter();
 
-        GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDoc, adapter);
+        android.app.appsearch.GenericDocument platformDoc =
+                GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDoc, adapter);
 
         assertThat(adapter.getCapturedEmbeddingVector()).isEqualTo(jetpackEmbeddingVector);
+
+        GenericDocument convertedBackDoc =
+                GenericDocumentToPlatformConverter.toJetpackGenericDocument(platformDoc, adapter);
+
+        assertThat(convertedBackDoc.getPropertyEmbeddingArray("embeddingProp")).asList()
+                .containsExactly(jetpackEmbeddingVector);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    public void testToJetpackEmbeddingVector_unquantized() {
+        EmbeddingVector jetpackEmbeddingVector =
+                new EmbeddingVector(new float[]{1.0f, 2.0f}, "model");
+
+        GenericDocument jetpackDoc =
+                new GenericDocument.Builder<>("namespace", "id", "schema")
+                        .setPropertyEmbedding("embeddingProp", jetpackEmbeddingVector)
+                        .build();
+
+        UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
+
+        android.app.appsearch.GenericDocument platformDoc =
+                GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDoc, adapter);
+        GenericDocument convertedBackDoc =
+                GenericDocumentToPlatformConverter.toJetpackGenericDocument(platformDoc, adapter);
+
+        assertThat(convertedBackDoc.getPropertyEmbeddingArray("embeddingProp")).asList()
+                .containsExactly(jetpackEmbeddingVector);
     }
 
     @Test

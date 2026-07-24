@@ -97,7 +97,8 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
         mPlatformSession.getByDocumentId(packageName, databaseName,
                 RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request), mExecutor,
                 new BatchResultCallbackAdapter<>(future,
-                        GenericDocumentToPlatformConverter::toJetpackGenericDocument,
+                        doc -> GenericDocumentToPlatformConverter.toJetpackGenericDocument(
+                                doc, mAdapter),
                         result -> {
                             // Due to b/349805579, when the enterprise user is missing, the batch
                             // result returned may be empty when it should instead contain NOT_FOUND
@@ -130,7 +131,8 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(
                                 mContext, searchSpec, mAdapter));
-        return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor, mContext);
+        return new SearchResultsImpl(
+                platformSearchResults, searchSpec, mExecutor, mContext, mAdapter);
     }
 
     @Override
