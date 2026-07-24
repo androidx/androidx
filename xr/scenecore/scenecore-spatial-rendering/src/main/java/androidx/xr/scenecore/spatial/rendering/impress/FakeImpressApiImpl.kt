@@ -193,7 +193,6 @@ public class FakeImpressApiImpl : ImpressApi {
         val exrImage: ExrImage =
             ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
         imageBasedLightingAssets[token] = exrImage
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return exrImage
     }
 
@@ -203,7 +202,6 @@ public class FakeImpressApiImpl : ImpressApi {
         val exrImage: ExrImage =
             ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
         imageBasedLightingAssets[token] = exrImage
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return exrImage
     }
 
@@ -213,7 +211,6 @@ public class FakeImpressApiImpl : ImpressApi {
         gltfModels[token] = ArrayList()
         val gltfModel: GltfModel =
             GltfModel.Builder().setImpressApi(this).setNativeGltfModel(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return gltfModel
     }
 
@@ -223,7 +220,6 @@ public class FakeImpressApiImpl : ImpressApi {
         gltfModels[token] = ArrayList()
         val gltfModel: GltfModel =
             GltfModel.Builder().setImpressApi(this).setNativeGltfModel(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return gltfModel
     }
 

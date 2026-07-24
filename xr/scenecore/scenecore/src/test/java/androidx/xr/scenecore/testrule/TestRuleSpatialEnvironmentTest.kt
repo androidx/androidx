@@ -18,7 +18,6 @@
 
 package androidx.xr.scenecore.testrule
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.LifecycleOwner
@@ -56,7 +55,6 @@ import org.robolectric.shadows.ShadowLooper
  * TODO(b/329902726): Add a TestRuntime and verify CPM Integration.
  */
 @RunWith(RobolectricTestRunner::class)
-@SuppressLint("NewApi")
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @Config(sdk = [Config.TARGET_SDK])
 class TestRuleSpatialEnvironmentTest {

@@ -36,10 +36,7 @@ import java.util.concurrent.ScheduledExecutorService
  *
  * This entity creates trackable anchors in space.
  */
-@SuppressLint(
-    "NewApi",
-    "WrongConstant",
-) // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
+@SuppressLint("WrongConstant")
 internal class AnchorEntityImpl(
     context: Context,
     node: Node,

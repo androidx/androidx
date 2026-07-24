@@ -16,13 +16,13 @@
 
 package androidx.xr.scenecore
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.GltfModelResource as RtGltfModel
 import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.runtime.requiresApiLevel
 import java.nio.file.Path
 
 /**
@@ -89,9 +89,8 @@ internal constructor(
          */
         @MainThread
         @JvmStatic
-        @SuppressLint("NewApi")
         public suspend fun create(session: Session, path: Path): GltfModel {
-            require(!path.isAbsolute) {
+            require(requiresApiLevel(26) { !path.isAbsolute }) {
                 "GltfModel.create() expects a path relative to `assets/`, received absolute path $path."
             }
             return create(session.renderingRuntime, path.toString())
