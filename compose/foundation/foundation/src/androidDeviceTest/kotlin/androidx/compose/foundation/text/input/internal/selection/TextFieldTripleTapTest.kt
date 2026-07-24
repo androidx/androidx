@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -192,6 +193,7 @@ class TextFieldTripleTapTest : FocusedWindowTest {
         assertThat(state.selection).isEqualTo(TextRange(0, 11))
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538602770
     @Test
     fun tripleTapThen_dragDown_selectsFromCurrentToTargetParagraph_ltr() {
         assumeFalse(

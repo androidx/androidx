@@ -125,7 +125,7 @@ public class EditTextPreferenceDialogFragmentCompatTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // b/452703671
+    @SdkSuppress(minSdkVersion = 25) // b/452703671
     @Test
     public void testImeVisibilityAfterPressedPreference() throws Throwable {
         // Make sure EditTextPreferenceDialogFragment is showing a dialog, and clicking

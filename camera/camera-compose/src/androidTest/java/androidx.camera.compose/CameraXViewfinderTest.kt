@@ -124,6 +124,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         ensureCameraIsStreaming()
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538633901
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun changingImplementation_sendsNewSurfaceRequest() = runViewfinderTest {

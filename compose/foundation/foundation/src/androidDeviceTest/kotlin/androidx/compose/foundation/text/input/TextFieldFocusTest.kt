@@ -739,21 +739,25 @@ internal class TextFieldFocusTest {
         checkFocusNavigationDown(SOURCE_DPAD)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538602207
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard() {
         checkFocusNavigationLeft(SOURCE_KEYBOARD)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538602207
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard() {
         checkFocusNavigationRight(SOURCE_KEYBOARD)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538602207
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard() {
         checkFocusNavigationUp(SOURCE_KEYBOARD)
     }
 
+    @SdkSuppress(minSdkVersion = 25) // b/538602207
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard() {
         checkFocusNavigationDown(SOURCE_DPAD)
