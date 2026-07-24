@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore
 
-import android.annotation.SuppressLint
 import android.os.SystemClock
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
@@ -30,10 +29,13 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
 import androidx.xr.scenecore.runtime.HandlerExecutor
+import androidx.xr.scenecore.runtime.requiresApiLevel
 import java.lang.ref.WeakReference
 import java.time.Duration
 import java.util.concurrent.Executor
 import java.util.function.Consumer
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -51,7 +53,6 @@ import kotlinx.coroutines.launch
  * strong references to anchor instance in client code, anchor instance may become phantom
  * reachable, and it will be garbage collected.
  */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 @RestrictTo(Scope.LIBRARY_GROUP)
 @Deprecated("Use AnchorSpace", replaceWith = ReplaceWith("AnchorSpace"))
 public class AnchorEntity
@@ -172,10 +173,13 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
         private fun getAnchorDeadline(anchorSearchTimeout: Duration?): Long? {
             // If the timeout is zero or null then we return null here and the anchor search will
             // continue indefinitely.
-            if (anchorSearchTimeout == null || anchorSearchTimeout.isZero) {
-                return null
+            return requiresApiLevel<Long?>(26) {
+                return if (anchorSearchTimeout == null || anchorSearchTimeout.isZero) {
+                    null
+                } else {
+                    SystemClock.uptimeMillis() + anchorSearchTimeout.toMillis()
+                }
             }
-            return SystemClock.uptimeMillis() + anchorSearchTimeout.toMillis()
         }
 
         @Suppress("DEPRECATION")
@@ -246,7 +250,7 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
             minimumPlaneExtents: FloatSize2d,
             planeOrientations: Set<PlaneOrientation>,
             planeSemanticTypes: Set<PlaneSemanticType>,
-            timeout: Duration = Duration.ZERO,
+            timeout: Duration,
         ): AnchorEntity {
             check(session.config.planeTracking != PlaneTrackingMode.DISABLED) {
                 "Config.PlaneTrackingMode is set to Disabled."
@@ -323,7 +327,7 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
             minimumPlaneExtents: FloatSize2d,
             planeOrientation: PlaneOrientation,
             planeSemanticType: PlaneSemanticType,
-            timeout: Duration = Duration.ZERO,
+            timeout: Duration = 0.seconds.toJavaDuration(),
         ): AnchorEntity {
             return create(
                 session,
@@ -362,7 +366,7 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
             minimumPlaneExtents: FloatSize2d,
             planeOrientations: Set<PlaneOrientation>,
             planeSemanticTypes: Set<PlaneSemanticType>,
-            timeout: Duration = Duration.ZERO,
+            timeout: Duration = 0.seconds.toJavaDuration(),
         ): AnchorEntity {
             return create(
                 session,

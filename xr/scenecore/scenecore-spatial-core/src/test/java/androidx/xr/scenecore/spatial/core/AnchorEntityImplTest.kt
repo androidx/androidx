@@ -15,7 +15,6 @@
  */
 package androidx.xr.scenecore.spatial.core
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.SystemClock
 import androidx.lifecycle.Lifecycle
@@ -58,7 +57,6 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 class AnchorEntityImplTest : SystemSpaceEntityImplTest() {
     override val xrExtensions = SpatialCoreXrExtensionsHolderProvider.extensionsLegacy
     private val anchorStateListener = mock<AnchorEntity.OnStateChangedListener>()

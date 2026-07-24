@@ -44,7 +44,10 @@ import kotlin.concurrent.Volatile
  * Fake implementation of [ScheduledExecutorService] that lets tests control when tasks are
  * executed.
  */
-@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
+@SuppressLint(
+    "NewApi"
+) // TODO: b/413661481 - Find an alternative to the `Duration` and `Instant` methods or enforce
+// `RequiresApi(26)`.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class FakeScheduledExecutorService public constructor() :
     AbstractExecutorService(), ScheduledExecutorService, AutoCloseable {
