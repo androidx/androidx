@@ -16,13 +16,13 @@
 
 package androidx.xr.scenecore
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.runtime.ExrImageResource as RtImageBasedLightingAsset
 import androidx.xr.scenecore.runtime.RenderingRuntime
+import androidx.xr.scenecore.runtime.requiresApiLevel
 import java.nio.file.Path
 
 /**
@@ -124,10 +124,8 @@ internal constructor(
          */
         @MainThread
         @JvmStatic
-        // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
-        @SuppressLint("NewApi")
         public suspend fun createFromZip(session: Session, path: Path): ImageBasedLightingAsset {
-            require(!path.isAbsolute) {
+            require(requiresApiLevel(26) { !path.isAbsolute }) {
                 "ImageBasedLightingAsset.createFromZip() expects a path relative to `assets/`, received absolute path $path."
             }
             return createFromZip(session, session.renderingRuntime, path.toString())
