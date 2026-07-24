@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.onehandedgesture
 
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -315,7 +314,7 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
         }
     }
 
-    internal lateinit var gestureManager: GestureManager
+    internal lateinit var gestureManager: OneHandedGestureManager
     internal lateinit var gestureConfiguration: OneHandedGestureConfiguration
     private val mutex = Mutex()
 
@@ -343,7 +342,7 @@ private fun GestureScrollIndicator(
     positionAnimationSpec: AnimationSpec<Float>,
     scrollIndicatorColors: ScrollIndicatorColors,
 ) {
-    val gestureManager = LocalGestureManager.current
+    val gestureManager = LocalOneHandedGestureManager.current
     val avd = gestureConfiguration.action.animatedImageVector()
     val duration = avd.totalDuration.milliseconds
 

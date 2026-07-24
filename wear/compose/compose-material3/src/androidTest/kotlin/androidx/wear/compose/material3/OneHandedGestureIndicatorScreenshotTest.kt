@@ -42,15 +42,15 @@ import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.LocalWristOrientation
 import androidx.wear.compose.material3.internal.WristOrientation
-import androidx.wear.compose.material3.onehandedgesture.GestureAction
-import androidx.wear.compose.material3.onehandedgesture.GestureIndicatorSize
-import androidx.wear.compose.material3.onehandedgesture.GestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
-import androidx.wear.compose.material3.onehandedgesture.LocalGestureManager
+import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureManager
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureConfiguration
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureIndicatorSize
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureManagerImpl
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
@@ -101,7 +101,7 @@ class OneHandedGestureIndicatorScreenshotTest {
                     Icon(
                         imageVector = Icons.Check,
                         contentDescription = "",
-                        modifier = Modifier.size(GestureIndicatorSize.Medium.size),
+                        modifier = Modifier.size(OneHandedGestureIndicatorSize.Medium.size),
                     )
                 }
             }
@@ -236,12 +236,12 @@ class OneHandedGestureIndicatorScreenshotTest {
         rule.setContentWithTheme {
             scope = rememberCoroutineScope()
             val gestureManager =
-                remember(scope) { GestureManagerImpl(scope, SdkGestureInputManagerMock()) }
+                remember(scope) { OneHandedGestureManagerImpl(scope, SdkGestureInputManagerMock()) }
 
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
                 LocalWristOrientation provides wrist.toWristOrientation(),
-                LocalGestureManager provides gestureManager,
+                LocalOneHandedGestureManager provides gestureManager,
                 content = { Box(modifier = Modifier.fillMaxSize()) { content() } },
             )
         }
@@ -290,8 +290,8 @@ class OneHandedGestureIndicatorScreenshotTest {
         RIGHT_WRIST,
     }
 
-    enum class GestureActions(val action: GestureAction) {
-        Primary(GestureAction.Primary),
-        Dismiss(GestureAction.Dismiss),
+    enum class GestureActions(val action: OneHandedGestureAction) {
+        Primary(OneHandedGestureAction.Primary),
+        Dismiss(OneHandedGestureAction.Dismiss),
     }
 }

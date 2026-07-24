@@ -55,14 +55,14 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.VerticalPagerScaffold
-import androidx.wear.compose.material3.onehandedgesture.GestureAction
-import androidx.wear.compose.material3.onehandedgesture.GesturePriority
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureDefaults
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureHorizontalPageIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePageIndicatorState
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGesturePriority
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureScrollIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureVerticalPageIndicator
@@ -76,7 +76,8 @@ fun OneHandedGestureButtonSample() {
     var label by remember { mutableStateOf("Gesturable Button") }
     val onClick = { label = "Clicked/Gestured" }
     val interactionSource = remember { MutableInteractionSource() }
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGestureClickIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -119,7 +120,7 @@ fun OneHandedGestureDisableButtonSample() {
             Spacer(modifier = Modifier.height(6.dp))
             CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
                 val gestureConfig =
-                    rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+                    rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
                 val indicatorState = remember { OneHandedGestureClickIndicatorState() }
                 Button(
                     onClick = {},
@@ -156,15 +157,15 @@ fun OneHandedGestureTransformingLazyColumnSample() {
     val buttonInteractionSource = remember { MutableInteractionSource() }
     val buttonGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Clickable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Clickable,
         )
     val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
 
     val scrollGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Scrollable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
         )
     val scrollIndicatorState =
         remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
@@ -243,15 +244,15 @@ fun OneHandedGestureScalingLazyColumnSample() {
     val buttonInteractionSource = remember { MutableInteractionSource() }
     val buttonGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Clickable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Clickable,
         )
     val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
 
     val scrollGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Scrollable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
         )
     val scrollIndicatorState =
         remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
@@ -331,15 +332,15 @@ fun OneHandedGestureTransformingLazyColumnScrollToNextItemSample() {
     val buttonInteractionSource = remember { MutableInteractionSource() }
     val buttonGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Clickable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Clickable,
         )
     val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
 
     val scrollGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Scrollable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
         )
     val scrollIndicatorState =
         remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
@@ -418,15 +419,15 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
     val buttonInteractionSource = remember { MutableInteractionSource() }
     val buttonGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Clickable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Clickable,
         )
     val buttonIndicatorState = remember { OneHandedGestureClickIndicatorState() }
 
     val scrollGestureConfig =
         rememberOneHandedGestureConfiguration(
-            action = GestureAction.Primary,
-            priority = GesturePriority.Scrollable,
+            action = OneHandedGestureAction.Primary,
+            priority = OneHandedGesturePriority.Scrollable,
         )
     val scrollIndicatorState =
         remember(scrollGestureConfig) { OneHandedGestureScrollIndicatorState() }
@@ -498,7 +499,8 @@ fun OneHandedGestureScalingLazyColumnScrollToNextItemSample() {
 @Composable
 fun OneHandedGestureHorizontalPagerSample() {
     val pagerState = rememberPagerState(pageCount = { 10 })
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGesturePageIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -546,7 +548,8 @@ fun OneHandedGestureHorizontalPagerSample() {
 @Composable
 fun OneHandedGestureVerticalPagerSample() {
     val pagerState = rememberPagerState(pageCount = { 10 })
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGesturePageIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 

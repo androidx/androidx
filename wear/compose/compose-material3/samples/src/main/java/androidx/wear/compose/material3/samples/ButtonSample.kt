@@ -59,7 +59,7 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicator
 import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureClickIndicatorState
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
@@ -402,7 +402,8 @@ fun ButtonContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("Filled Button") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGestureClickIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -450,7 +451,8 @@ fun CompactButtonContentWithOneHandedGestureSample() {
     var label by remember { mutableStateOf("Compact Button") }
     val onClick = remember { { label = "Gestured" } }
     val interactionSource = remember { MutableInteractionSource() }
-    val gestureConfig = rememberOneHandedGestureConfiguration(action = GestureAction.Primary)
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
     val indicatorState = remember { OneHandedGestureClickIndicatorState() }
     val coroutineScope = rememberCoroutineScope()
 

@@ -71,11 +71,11 @@ public fun OneHandedGestureClickIndicator(
     gestureConfiguration: OneHandedGestureConfiguration,
     state: OneHandedGestureClickIndicatorState,
     modifier: Modifier = Modifier,
-    gestureIndicatorSize: GestureIndicatorSize = OneHandedGestureDefaults.indicatorSize,
+    gestureIndicatorSize: OneHandedGestureIndicatorSize = OneHandedGestureDefaults.indicatorSize,
     gestureIndicatorTint: Color = OneHandedGestureDefaults.indicatorTint,
     content: @Composable () -> Unit,
 ) {
-    val gestureManager = LocalGestureManager.current
+    val gestureManager = LocalOneHandedGestureManager.current
     val avd = gestureConfiguration.action.animatedImageVector()
     val duration = avd.totalDuration.milliseconds
 
@@ -132,8 +132,8 @@ public fun OneHandedGestureClickIndicator(
 }
 
 /**
- * A state object used to coordinate visual feedback between a [oneHandedGesture] modifier and a
- * gesture indicator.
+ * A state object used to coordinate visual feedback between a [oneHandedGesture] modifier and the
+ * [OneHandedGestureClickIndicator].
  *
  * Developers should call [showIndicator] within the `onGestureAvailable` callback provided by
  * [oneHandedGesture] modifier to signal that an indication event has occurred. The associated
@@ -147,7 +147,7 @@ public fun OneHandedGestureClickIndicator(
 public class OneHandedGestureClickIndicatorState @RememberInComposition constructor() {
 
     /**
-     * Initiate showing the `OneHandedClickIndicator` associated with this
+     * Initiate showing the `OneHandedGestureClickIndicator` associated with this
      * `OneHandedGestureClickIndicatorState`
      */
     public suspend fun showIndicator() {
@@ -198,7 +198,7 @@ public class OneHandedGestureClickIndicatorState @RememberInComposition construc
         }
     }
 
-    internal lateinit var gestureManager: GestureManager
+    internal lateinit var gestureManager: OneHandedGestureManager
     internal lateinit var gestureConfiguration: OneHandedGestureConfiguration
     private val mutex = Mutex()
 
