@@ -59,9 +59,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -99,21 +102,21 @@ fun ModalNavigationDrawerSample() {
             Icons.Default.QrCode,
             Icons.Default.Radio,
         )
-    val selectedItem = remember { mutableStateOf(items[0]) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(drawerState) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.height(12.dp))
-                    items.forEach { item ->
+                    items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
                             label = { Text(item.name.substringAfterLast(".")) },
-                            selected = item == selectedItem.value,
+                            selected = index == selectedIndex,
                             onClick = {
                                 scope.launch { drawerState.close() }
-                                selectedItem.value = item
+                                selectedIndex = index
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         )
@@ -172,18 +175,18 @@ fun PermanentNavigationDrawerSample() {
             Icons.Default.QrCode,
             Icons.Default.Radio,
         )
-    val selectedItem = remember { mutableStateOf(items[0]) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     PermanentNavigationDrawer(
         drawerContent = {
             PermanentDrawerSheet(Modifier.width(240.dp)) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.height(12.dp))
-                    items.forEach { item ->
+                    items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
                             label = { Text(item.name.substringAfterLast(".")) },
-                            selected = item == selectedItem.value,
-                            onClick = { selectedItem.value = item },
+                            selected = index == selectedIndex,
+                            onClick = { selectedIndex = index },
                             modifier = Modifier.padding(horizontal = 12.dp),
                         )
                     }
@@ -230,7 +233,7 @@ fun DismissibleNavigationDrawerSample() {
             Icons.Default.QrCode,
             Icons.Default.Radio,
         )
-    val selectedItem = remember { mutableStateOf(items[0]) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     DismissibleNavigationDrawer(
         drawerState = drawerState,
@@ -238,14 +241,14 @@ fun DismissibleNavigationDrawerSample() {
             DismissibleDrawerSheet(drawerState) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.height(12.dp))
-                    items.forEach { item ->
+                    items.forEachIndexed { index, item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
                             label = { Text(item.name.substringAfterLast(".")) },
-                            selected = item == selectedItem.value,
+                            selected = index == selectedIndex,
                             onClick = {
                                 scope.launch { drawerState.close() }
-                                selectedItem.value = item
+                                selectedIndex = index
                             },
                             modifier = Modifier.padding(horizontal = 12.dp),
                         )
