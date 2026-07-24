@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"Siyahı qutusu"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"Mətn sahəsi"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"İmza"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"Dəyişikliklər ləğv edilsin?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"Dəyişikliklər yadda saxlanmadı."</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"Redaktəyə davam edin"</string>
+    <string name="discard_button" msgid="345675813790884187">"Ləğv edin"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"Qələm"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"Fosforlu qələm"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"Pozan"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"Rəng palitrası"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"Geri qaytarın"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"Təkrar edin"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"Annotasiyanı aktiv/deaktiv edin"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"Tünd-mavi"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"Qırmızı"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"Yaşıl"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"Qızılı"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"Zeytun yaşılı"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"Qəhvəyi"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"Boz"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"Mavi"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"Mərcan qırmızısı"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"Laym yaşılı"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"Sarı"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"Solğun laym yaşılı"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"Bronz"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"Açıq-boz"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"Bənövşəyi"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"Çəhrayı"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"Nanə yaşılı"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"Narıncı"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"Polad mavisi"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"Tünd-qırmızı"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"Ağ"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"Lavanda bənövşəyisi"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"Solğun çəhrayı"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"Solğun yaşıl"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"Şaftalı rəngi"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"Açıq-mavi"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"Çəhrayı çalarlı narıncı"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"Ağ"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"Mərcan qırmızısı"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"Laym yaşılı"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"Bənövşəyi çalarlı mavi"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"Narıncı"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"Sarı"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"Solğun çəhrayı"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"Açıq-mavi"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"Solğun yaşıl"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"Parlaq sarı"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"Şaftalı rəngi"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"Solğun qızılgül rəngi"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"Zeytun yaşılı"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"Orta tonlu bənövşəyi"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"Orta tonlu yaşıl"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"Qızılgül çəhrayısı"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"Polad mavisi"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"Yasəmən bənövşəyisi"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"Adaçayı yaşılı"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"Bej"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>
