@@ -124,11 +124,6 @@ public class SwipeToDismissBoxState {
      *
      * @throws IllegalStateException If the offset has not been initialized yet
      */
-    /**
-     * Require the current offset.
-     *
-     * @throws IllegalStateException If the offset has not been initialized yet
-     */
     public fun requireOffset(): Float = anchoredDraggableState.requireOffset()
 
     /** The current state value of the [SwipeToDismissBoxState]. */

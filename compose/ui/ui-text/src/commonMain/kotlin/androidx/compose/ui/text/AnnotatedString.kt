@@ -400,16 +400,6 @@ internal constructor(
      *   data. And [Range]s with same tag can be queried with functions such as
      *   [getStringAnnotations].
      */
-    /**
-     * The information attached on the text such as a [SpanStyle].
-     *
-     * @param item The object attached to [AnnotatedString]s.
-     * @param start The start of the range where [item] takes effect. It's inclusive
-     * @param end The end of the range where [item] takes effect. It's exclusive
-     * @param tag The tag used to distinguish the different ranges. It is useful to store custom
-     *   data. And [Range]s with same tag can be queried with functions such as
-     *   [getStringAnnotations].
-     */
     @Immutable
     @Suppress("DataClassDefinition")
     public data class Range<T>(
@@ -807,20 +797,6 @@ internal constructor(
 
         private val bulletScope = BulletScope(this)
 
-        /**
-         * Creates a bullet list which allows to define a common [indentation] and a [bullet] for
-         * evey bullet list item created inside the list.
-         *
-         * Note that when nesting the [withBulletList] calls, the indentation inside the nested list
-         * will be a combination of all indentations in the nested chain. For example,
-         * ```kotlin
-         * withBulletList(10.sp) {
-         *   withBulletList(15.sp) {
-         *     // items indentation 25.sp
-         *   }
-         * }
-         * ```
-         */
         /**
          * Creates a bullet list which allows to define a common [indentation] and a [bullet] for
          * evey bullet list item created inside the list.
