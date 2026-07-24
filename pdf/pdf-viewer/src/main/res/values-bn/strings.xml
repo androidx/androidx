@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"তালিকা বক্স"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"টেক্সট ফিল্ড"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"স্বাক্ষর"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"পরিবর্তন বাতিল করতে চান?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"আপনার করা পরিবর্তন সেভ করা হয়নি।"</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"এডিট করতে থাকুন"</string>
+    <string name="discard_button" msgid="345675813790884187">"বাতিল করুন"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"পেন"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"হাইলাইটার"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"ইরেজার"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"রঙের প্যালেট"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"আগের অবস্থায় ফিরুন"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"আবার করুন"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"অ্যানোটেশন টগল করুন"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"গাঢ় নীল"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"লাল"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"সবুজ"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"গোল্ড"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"জলপাই সবুজ"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"খয়েরি"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"ধূসর"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"নীল"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"প্রবালের লাল"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"লাইম গ্রিন"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"হলুদ"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"ফ্যাকাশে লাইম"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"ট্যান"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"হালকা ধূসর"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"বেগুনি"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"গোলাপি"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"মিন্ট সবুজ"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"কমলা"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"ইস্পাত নীল"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"গাঢ় লাল"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"সাদা"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"ল্যাভেন্ডার"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"ফ্যাকাশে গোলাপি"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"ফ্যাকাশে সবুজ"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"পিচ"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"হালকা নীল"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"স্যামন"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"সাদা"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"প্রবালের লাল"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"লাইম গ্রিন"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"পেরিউইঙ্কেল নীল"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"কমলা"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"হলুদ"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"ফ্যাকাশে গোলাপি"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"হালকা নীল"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"ফ্যাকাশে সবুজ"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"উজ্জ্বল হলুদ"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"পিচ"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"ধূসর গোলাপি"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"জলপাই সবুজ"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"মাঝারি বেগুনি"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"মাঝারি সবুজ"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"গোলাপের গোলাপি"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"ইস্পাত নীল"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"লাইল্যাক"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"সেজ গ্রিন"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"বেজ"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>
