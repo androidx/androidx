@@ -231,7 +231,7 @@ public abstract class DemosCreation {
                     get("-0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
                     get("-0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
                     get("-0/020/gamePaddleBattle", DslGamePaddleBattleKt::dslGamePaddleBattle),
-                    get("-0/023/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
+                    get("-0/019/gameFlappyDroid", DslGameFlappyDroidKt::dslGameFlappyDroid),
                     get("-0/025/gameCannonShoot", DslGameCannonShootKt::dslGameCannonShoot),
                     get("-0/026/gameSideScroller", DslGameSideScrollerKt::dslGameSideScroller)));
 
