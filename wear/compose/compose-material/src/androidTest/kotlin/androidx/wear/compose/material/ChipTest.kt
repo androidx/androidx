@@ -61,13 +61,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class ChipBehaviourTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
@@ -277,7 +276,7 @@ class ChipBehaviourTest {
 }
 
 class ChipSizeTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test fun gives_base_chip_correct_height() = verifyHeight(ChipDefaults.Height)
 
@@ -444,7 +443,7 @@ class ChipSizeTest {
 
 @Suppress("DEPRECATION")
 class ChipColorTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_primary_enabled_colors() =
@@ -997,7 +996,7 @@ class ChipColorTest {
 }
 
 class ChipFontTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun gives_correct_text_style_base() {
@@ -1041,7 +1040,7 @@ class ChipFontTest {
 }
 
 class ChipShapeTest {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun default_chip_shape_is_circle() {

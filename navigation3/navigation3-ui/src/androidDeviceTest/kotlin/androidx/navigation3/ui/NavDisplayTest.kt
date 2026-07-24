@@ -62,7 +62,6 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.serialization.Serializable
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -70,7 +69,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavDisplayTest {
-    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun testContentShown() {

@@ -26,7 +26,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -34,7 +36,6 @@ import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -44,7 +45,11 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusRestorerConfigurationChangeTest {
-    @get:Rule val rule = createAndroidComposeRule<OrientationChangeActivity>()
+    @get:Rule
+    val rule =
+        createAndroidComposeRule<OrientationChangeActivity>(
+            ComposeUiTestConfig(inputMode = InputMode.Keyboard)
+        )
 
     @Test
     fun restoreFocus_activityRecreation() {
@@ -64,7 +69,6 @@ class FocusRestorerConfigurationChangeTest {
     fun setup() {
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
         ComposeUiFlags.isFocusRestorationEnabled = true
-        InstrumentationRegistry.getInstrumentation().setInTouchModeCompat(false)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -72,7 +76,6 @@ class FocusRestorerConfigurationChangeTest {
     fun teardown() {
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = false
         ComposeUiFlags.isFocusRestorationEnabled = false
-        InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
     }
 }
 

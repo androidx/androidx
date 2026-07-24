@@ -49,7 +49,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,7 +81,7 @@ class LongClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition = config.position ?: Offset(defaultSize / 2, defaultSize / 2)

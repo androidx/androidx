@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -60,7 +59,7 @@ import org.junit.runners.model.Statement
 @SdkSuppress(minSdkVersion = 28)
 @OptIn(ExperimentalFoundationApi::class)
 abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
     @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
     internal val TAG = "SelectableText"
 

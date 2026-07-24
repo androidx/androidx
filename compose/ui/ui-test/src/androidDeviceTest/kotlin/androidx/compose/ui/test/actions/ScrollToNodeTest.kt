@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -165,7 +164,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
             }
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun scrollToTarget() {

@@ -53,7 +53,6 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -62,7 +61,7 @@ internal const val CHILD_TEST_TAG = "childTestTag"
 // TODO(b/201009199) Some of these tests may need specific values adjusted when swipeableV2
 // supports property nested scrolling, but the tests should all still be valid.
 class SwipeableV2Test {
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun hasHorizontalScrollSemantics_atMaxValue_whenUnswiped() {

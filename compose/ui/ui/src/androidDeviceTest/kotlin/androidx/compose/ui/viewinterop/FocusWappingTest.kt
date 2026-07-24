@@ -35,7 +35,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +42,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FocusWappingTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun focusForwardWraps() {

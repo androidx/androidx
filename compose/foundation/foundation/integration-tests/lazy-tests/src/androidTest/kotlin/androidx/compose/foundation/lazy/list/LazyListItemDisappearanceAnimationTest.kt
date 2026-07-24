@@ -57,7 +57,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,7 +65,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class LazyListItemDisappearanceAnimationTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     // the numbers should be divisible by 8 to avoid the rounding issues as we run 4 or 8 frames
     // of the animation.

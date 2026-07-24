@@ -30,7 +30,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -39,7 +38,7 @@ import org.junit.runner.RunWith
 /** Base class for all [scrollable2D] tests. */
 @RunWith(AndroidJUnit4::class)
 abstract class AbstractScrollable2DTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     protected val scrollable2DBoxTag = "scrollableBox"
 

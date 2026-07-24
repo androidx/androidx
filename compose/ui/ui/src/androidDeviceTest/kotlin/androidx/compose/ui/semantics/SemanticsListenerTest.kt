@@ -50,13 +50,12 @@ import androidx.compose.ui.util.fastJoinToString
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 
 @MediumTest
 class SemanticsListenerTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var semanticsOwner: SemanticsOwner
 

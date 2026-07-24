@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +52,7 @@ class CancelFocusMoveTest(param: Param) {
         fun init() = listOf(Left, Right, Up, Down, Enter, Exit, Previous, Next).map { Param(it) }
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
     private val focusDirection = param.focusDirection
     private lateinit var focusManager: FocusManager
     private val focusRequester = List(11) { FocusRequester() }

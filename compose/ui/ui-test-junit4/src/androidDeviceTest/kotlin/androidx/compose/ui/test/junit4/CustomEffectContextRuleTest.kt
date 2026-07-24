@@ -19,6 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -30,7 +31,6 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
@@ -65,7 +65,7 @@ class CustomEffectContextRuleTest {
     fun effectContextPropagatedToComposition_createComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
-        val rule = createComposeRule(testElement + StandardTestDispatcher())
+        val rule = createComposeRule(ComposeUiTestConfig(testElement))
         val baseStatement =
             object : Statement() {
                 override fun evaluate() {
@@ -84,7 +84,9 @@ class CustomEffectContextRuleTest {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
         val rule =
-            createAndroidComposeRule<ComponentActivity>(testElement + StandardTestDispatcher())
+            createAndroidComposeRule<ComponentActivity>(
+                ComposeUiTestConfig(effectContext = testElement)
+            )
         val baseStatement =
             object : Statement() {
                 override fun evaluate() {
@@ -102,7 +104,7 @@ class CustomEffectContextRuleTest {
     fun effectContextPropagatedToComposition_createEmptyComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
-        val composeRule = createEmptyComposeRule(testElement + StandardTestDispatcher())
+        val composeRule = createEmptyComposeRule(ComposeUiTestConfig(testElement))
         val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
         val baseStatement =
             object : Statement() {

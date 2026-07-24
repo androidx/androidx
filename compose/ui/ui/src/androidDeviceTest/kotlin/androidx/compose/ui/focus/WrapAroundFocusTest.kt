@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.Row
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -32,11 +34,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -44,17 +42,13 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class WrapAroundFocusTest(private val touchMode: Boolean, private val shouldWrapAround: Boolean) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule
+    val rule =
+        createComposeRule(
+            ComposeUiTestConfig(inputMode = if (touchMode) InputMode.Touch else InputMode.Keyboard)
+        )
 
     private lateinit var focusOwner: FocusOwner
-
-    @Before
-    fun setTouchMode() {
-        InstrumentationRegistry.getInstrumentation().setInTouchModeCompat(touchMode)
-    }
-
-    @After
-    fun resetTouchMode() = InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
 
     @Test
     fun noFocusableItem_next() {

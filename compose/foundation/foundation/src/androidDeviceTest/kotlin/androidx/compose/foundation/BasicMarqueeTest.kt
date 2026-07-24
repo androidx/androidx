@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
@@ -64,7 +65,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,8 +87,7 @@ class BasicMarqueeTest {
             override var scaleFactor: Float by mutableStateOf(1f)
         }
 
-    @get:Rule
-    val rule = createComposeRule(effectContext = motionDurationScale + StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(effectContext = motionDurationScale))
 
     /**
      * Converts pxPerFrame to dps per second. The frame delay is 16ms, which means there are

@@ -28,7 +28,6 @@ import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.unit.IntSize
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,7 +43,7 @@ class MoveTest {
         private val inputDeviceSize = IntSize(3082, 616)
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {

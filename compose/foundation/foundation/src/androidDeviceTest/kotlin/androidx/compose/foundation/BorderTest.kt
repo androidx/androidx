@@ -61,7 +61,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.floor
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -88,7 +87,7 @@ class BorderTest(val shape: Shape) {
             }
     }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     val testTag = "BorderParent"
 

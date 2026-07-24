@@ -24,7 +24,6 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -37,9 +36,7 @@ import org.junit.runner.RunWith
 class ConfigChangeActivityLocaleTest {
     lateinit var defaultLocaleListCompat: LocaleListCompat
 
-    @get:Rule
-    val composeTestRule =
-        createAndroidComposeRule<ConfigChangeActivity>(effectContext = StandardTestDispatcher())
+    @get:Rule val composeTestRule = createAndroidComposeRule<ConfigChangeActivity>()
 
     @Before
     fun setup() {

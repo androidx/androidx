@@ -37,7 +37,6 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesResponse
@@ -289,7 +288,7 @@ private const val UNFOLDED_TRACE_ANOTHER_ITEM =
 
 @LargeTest
 class RecompositionTest {
-    private val rule = createAndroidComposeRule<RecompositionTestActivity>(StandardTestDispatcher())
+    private val rule = createAndroidComposeRule<RecompositionTestActivity>()
 
     @get:Rule val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 

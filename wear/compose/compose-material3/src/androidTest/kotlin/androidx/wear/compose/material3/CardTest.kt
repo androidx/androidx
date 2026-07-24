@@ -52,13 +52,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class CardTest {
-    @get:Rule val rule: ComposeContentTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule: ComposeContentTestRule = createComposeRule()
 
     @Test
     fun supports_test_tag() {

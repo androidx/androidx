@@ -79,7 +79,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -100,8 +99,7 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
         fun initParameters() = arrayOf(arrayOf(Vertical), arrayOf(Horizontal))
     }
 
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(testDispatcher)
+    @get:Rule val rule = createComposeRule()
 
     private val scrollableAreaTag = "scrollableArea"
     private val focusableTag = "focusable"

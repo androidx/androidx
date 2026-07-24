@@ -95,7 +95,6 @@ import com.google.common.truth.Truth
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -109,7 +108,7 @@ private fun assertFloatPrecision(a: Float, b: Float) =
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SurfaceTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private fun Int.toDp(): Dp = with(rule.density) { toDp() }
 

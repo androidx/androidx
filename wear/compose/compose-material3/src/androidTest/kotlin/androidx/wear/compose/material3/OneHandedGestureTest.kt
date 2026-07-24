@@ -111,7 +111,6 @@ import kotlin.test.assertNotNull
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.Matchers.startsWith
 import org.junit.Ignore
 import org.junit.Rule
@@ -121,7 +120,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(TestParameterInjector::class)
 class OneHandedGestureTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     /** Verifies simple primary gesture */
     @Test

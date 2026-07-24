@@ -87,7 +87,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Ignore
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -98,7 +97,7 @@ import org.junit.runner.RunWith
 // TODO(MNUZEN): split into filling / saving etc. when more of Autofill goes live and more
 // data types are supported.
 class PerformAndroidAutofillManagerTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
     private val height = 200.dp
     private val width = 200.dp
 

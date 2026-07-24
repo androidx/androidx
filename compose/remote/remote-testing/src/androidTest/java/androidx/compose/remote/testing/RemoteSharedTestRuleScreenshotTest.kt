@@ -38,7 +38,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -52,8 +51,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 class RemoteSharedTestRuleScreenshotTest {
-    private val composeTestRule: ComposeContentTestRule =
-        createComposeRule(StandardTestDispatcher())
+    private val composeTestRule: ComposeContentTestRule = createComposeRule()
     private val remoteContentTestRule = RemoteContentTestRule(composeTestRule)
     private val remoteDocContentTestRule = RemoteDocContentTestRule(composeTestRule)
 

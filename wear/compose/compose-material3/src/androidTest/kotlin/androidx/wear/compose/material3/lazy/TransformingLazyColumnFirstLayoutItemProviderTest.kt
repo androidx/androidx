@@ -37,7 +37,6 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
@@ -47,7 +46,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class TransformingLazyColumnFirstLayoutItemProviderTest {
 
-    @get:Rule val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val itemsCount = 10
     private lateinit var state: TransformingLazyColumnState

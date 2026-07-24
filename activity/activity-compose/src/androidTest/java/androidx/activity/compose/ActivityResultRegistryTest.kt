@@ -47,7 +47,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -56,7 +55,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ActivityResultRegistryTest {
-    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule()
 
     var launchCount = 0
     val registryOwner =

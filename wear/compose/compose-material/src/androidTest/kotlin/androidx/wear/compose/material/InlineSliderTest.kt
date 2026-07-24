@@ -41,12 +41,11 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 public class InlineSliderTest {
-    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun supports_testtag() {
@@ -380,7 +379,7 @@ public class InlineSliderTest {
 }
 
 public class IntegerInlineSliderTest {
-    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun supports_testtag() {

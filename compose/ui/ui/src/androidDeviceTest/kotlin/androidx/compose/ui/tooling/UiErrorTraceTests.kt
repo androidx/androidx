@@ -42,6 +42,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -52,7 +53,6 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -76,8 +76,7 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
     @get:Rule
     val rule =
         createAndroidComposeRule<ComponentActivity>(
-            CoroutineExceptionHandler { _, e -> exceptionHandler.invoke(e) } +
-                StandardTestDispatcher()
+            ComposeUiTestConfig(CoroutineExceptionHandler { _, e -> exceptionHandler.invoke(e) })
         )
 
     @Before
