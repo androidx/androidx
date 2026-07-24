@@ -27,6 +27,8 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
+import com.intellij.psi.PsiWildcardType
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtStringTemplateEntry
 import org.jetbrains.uast.UBinaryExpression
@@ -48,6 +50,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         object : UElementHandler() {
             override fun visitCallExpression(node: UCallExpression) {
                 checkForConfigurationToConfigurableFileCollection(node)
+                checkForBuildServiceRegistrationsAccess(node)
                 val methodName = node.methodName
                 val potentialReplacements = REPLACEMENTS[methodName] ?: return
                 val method = node.resolve() ?: return
@@ -117,6 +120,69 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                                 "configuration.incoming.artifactView {}.files to wrap the " +
                                 "configuration making it lazy."
                         )
+                        .scope(node)
+                context.report(incident)
+            }
+
+            /**
+             * Checks for calls on `BuildServiceRegistry.getRegistrations()`. When Isolated Projects
+             * is enabled Gradle reports a violation for every method called on the registrations
+             * collection except `findByName(String)`.
+             */
+            private fun checkForBuildServiceRegistrationsAccess(node: UCallExpression) {
+                val methodName = node.methodName ?: return
+                if (methodName == "findByName") return
+                val receiverType = node.receiverType as? PsiClassType ?: return
+                val receiverClass = receiverType.resolve() ?: return
+                if (!receiverClass.isInstanceOf(NAMED_DOMAIN_OBJECT_COLLECTION)) return
+                // Resolves the collection's element type: the type argument substituted for the
+                // T in NamedDomainObjectCollection<T>, computed through the receiver's type
+                // hierarchy (e.g. BuildServiceRegistration<?, ?> for a receiver typed as
+                // NamedDomainObjectSet<BuildServiceRegistration<?, ?>>). eraseTypeParameter is
+                // false because erasure only applies when substitution returns null (raw types);
+                // wildcard type arguments are returned as-is either way and unwrapped below.
+                val elementType =
+                    PsiUtil.substituteTypeParameter(
+                        receiverType,
+                        NAMED_DOMAIN_OBJECT_COLLECTION,
+                        0,
+                        false,
+                    )
+                val elementClass =
+                    when (elementType) {
+                        is PsiWildcardType -> (elementType.bound as? PsiClassType)?.resolve()
+                        is PsiClassType -> elementType.resolve()
+                        else -> null
+                    } ?: return
+                if (!elementClass.isInstanceOf(BUILD_SERVICE_REGISTRATION)) return
+                // Only flag methods of the collection itself, not unrelated extension functions
+                // such as Kotlin scope functions.
+                val containingClassName = node.resolve()?.containingClass?.qualifiedName ?: return
+                if (!receiverClass.isInstanceOf(containingClassName)) return
+
+                val recommendedReplacement =
+                    if (methodName in REGISTRATIONS_NAME_LOOKUP_METHODS) "findByName" else null
+                val fix =
+                    recommendedReplacement?.let {
+                        fix()
+                            .replace()
+                            .with(it)
+                            .reformat(true)
+                            // Don't auto-fix from the command line because findByName has a
+                            // nullable return type, so the fixed code likely won't compile.
+                            .autoFix(robot = false, independent = false)
+                            .build()
+                    }
+                val target = "on the build service registrations collection"
+                val message =
+                    recommendedReplacement?.let { "Use $it instead of $methodName $target" }
+                        ?: "Avoid using method $methodName $target"
+                val incident =
+                    Incident(context)
+                        .issue(PROJECT_ISOLATION_ISSUE)
+                        .location(context.getNameLocation(node))
+                        .message(message)
+                        .fix(fix)
                         .scope(node)
                 context.report(incident)
             }
@@ -197,6 +263,8 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         private const val TASK_PROVIDER = "org.gradle.api.tasks.TaskProvider"
         private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
         private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
+        private const val BUILD_SERVICE_REGISTRATION =
+            "org.gradle.api.services.BuildServiceRegistration"
         private const val NAMED_DOMAIN_OBJECT_COLLECTION =
             "org.gradle.api.NamedDomainObjectCollection"
         private const val PROVIDER = "org.gradle.api.provider.Provider"
@@ -276,6 +344,10 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 Severity.ERROR,
                 Implementation(DiscouragedGradleMethodDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
+
+        // Name-based lookup methods on BuildServiceRegistry.getRegistrations() that have
+        // findByName as a direct replacement.
+        private val REGISTRATIONS_NAME_LOOKUP_METHODS = setOf("getAt", "getByName", "named")
 
         // A map from eager method name to the containing class of the method and the name of the
         // replacement method, if there is a direct equivalent.
