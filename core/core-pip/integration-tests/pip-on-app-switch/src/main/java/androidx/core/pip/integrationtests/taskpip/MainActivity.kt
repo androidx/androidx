@@ -17,29 +17,38 @@
 package androidx.core.pip.integrationtests.taskpip
 
 import android.app.PendingIntent
+import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.Bundle
 import android.util.Rational
 import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.pip.PictureInPictureDelegate
 import androidx.core.pip.VideoPlaybackPictureInPicture
+import androidx.core.pip.contentpip.ContentPipCallback
+import androidx.core.pip.contentpip.enablePipOnAppSwitch
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.Player
 import androidx.media3.ui.PlayerView
 import java.util.concurrent.Executors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Main activity for the Task PIP demo.
  *
  * It hosts a [PlayerView] and uses [PlaybackServiceManager] to manage media playback.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ContentPipCallback {
 
     private lateinit var playerView: PlayerView
     private lateinit var playbackManager: PlaybackServiceManager
@@ -91,6 +100,9 @@ class MainActivity : AppCompatActivity() {
 
         updatePipActions(playbackManager.player.isPlaying)
         pipImplementation.commit()
+
+        // Enable Task PiP fallback (Synchronous trigger + Lifecycle Pullback)
+        enablePipOnAppSwitch(this)
 
         val descriptionText = findViewById<View>(R.id.description_text)
 
@@ -189,6 +201,55 @@ class MainActivity : AppCompatActivity() {
         // If we want to release the player when the activity is finished
         if (isFinishing) {
             playbackManager.release()
+        }
+    }
+
+    override fun onInitContentPip(): Boolean {
+        return playbackManager.player.isPlaying
+    }
+
+    override fun onPrepareContentPip(): Boolean {
+        playbackManager.detachPlayerView(playerView)
+        return true
+    }
+
+    override fun onAttachContentPip(pipActivity: ComponentActivity) {
+        val pipPlayerView = PlayerView(pipActivity)
+        pipPlayerView.useController = false
+
+        // --- Essential Polish: Visibility Hack ---
+        // Initially invisible and transparent to prevent full-screen flash
+        pipPlayerView.visibility = View.INVISIBLE
+        pipPlayerView.setBackgroundColor(Color.TRANSPARENT)
+        pipActivity.setContentView(pipPlayerView)
+        playbackManager.attachPlayerView(pipPlayerView)
+
+        // Show after a short delay once PiP mode is likely active
+        pipActivity.lifecycleScope.launch {
+            delay(200L)
+            pipPlayerView.visibility = View.VISIBLE
+        }
+
+        // --- Essential Polish: Set the params ---
+        val paramsBuilder = PictureInPictureParams.Builder().setAspectRatio(Rational(16, 9))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            paramsBuilder.setSeamlessResizeEnabled(true)
+        }
+        pipActivity.setPictureInPictureParams(paramsBuilder.build())
+    }
+
+    override fun onFinishContentPip(isDismissed: Boolean) {
+        // isStopping=true suggests the PiP is dismissed, stop the playback.
+        if (isDismissed) {
+            playbackManager.player.stop()
+        } else {
+            playbackManager.player.play()
+            // Bring MainActivity back to the front smoothly
+            val intent =
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+            startActivity(intent)
         }
     }
 }
