@@ -68,6 +68,10 @@ package androidx.a2ui.compose.runtime {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.engine.model.A2uiCoreSurfaceModel, androidx.compose.runtime.Composer?, int);
   }
 
+  public final class A2uiMessageParserKt {
+    method public static androidx.a2ui.model.processor.A2uiMessageParser<java.lang.String> A2uiMessageParser();
+  }
+
   @androidx.compose.runtime.Immutable public abstract sealed exhaustive class A2uiProperty<T> {
     method @InaccessibleFromKotlin public abstract String getKey();
     method @InaccessibleFromKotlin public abstract androidx.a2ui.model.schema.A2uiSchema getSchema();
