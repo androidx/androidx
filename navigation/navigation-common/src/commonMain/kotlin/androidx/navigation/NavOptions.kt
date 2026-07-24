@@ -159,7 +159,6 @@ public expect class NavOptions {
          * @see NavOptions.popUpToRoute
          * @see NavOptions.isPopUpToInclusive
          */
-        @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,

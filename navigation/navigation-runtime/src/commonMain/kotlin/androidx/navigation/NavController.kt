@@ -200,7 +200,6 @@ public expect open class NavController {
      *   destination, false otherwise
      */
     @MainThread
-    @JvmOverloads
     public inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
         saveState: Boolean = false,
