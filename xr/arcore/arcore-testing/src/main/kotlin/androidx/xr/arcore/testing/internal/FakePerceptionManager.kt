@@ -39,7 +39,6 @@ import androidx.xr.runtime.math.Vector3
 import java.util.UUID
 
 internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
-    private val nativeAnchorPointer: Long = 1234567890L
     private val nativeAnchorToken: IBinder = Binder()
     private val fakeArDevice = FakeRuntimeArDevice()
     private val fakeLeftEye = FakeRuntimeEye()
@@ -113,8 +112,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
                 pose,
                 anchorHolder = this,
                 isTrackingAvailable = isCameraTracking,
-                nativePointer = nativeAnchorPointer,
-                nativeAnchorToken,
+                anchorToken = nativeAnchorToken,
             )
         anchors.add(anchor)
         return anchor
@@ -155,8 +153,7 @@ internal class FakePerceptionManager() : PerceptionManager, AnchorHolder {
                 persistedAnchorUUIDs[uuid]!!,
                 anchorHolder = this,
                 isTrackingAvailable = isCameraTracking,
-                nativePointer = nativeAnchorPointer,
-                nativeAnchorToken,
+                anchorToken = nativeAnchorToken,
             )
         return anchor
     }

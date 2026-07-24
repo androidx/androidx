@@ -60,6 +60,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -150,6 +151,12 @@ class TestRuleMovableComponentTest {
     private lateinit var testDispatcher: TestDispatcher
     private val currentTimeMillis: Long = 1000000000L
     private var anchorSpaceToDispose: AnchorSpace? = null
+
+    @Before
+    fun setup() {
+        // TODO: b/537470420 Remove once Anchors are properly detached in unit tests.
+        androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
+    }
 
     @Suppress("DEPRECATION")
     // TODO: b/494308962 Remove references to arcore-testing Fakes
