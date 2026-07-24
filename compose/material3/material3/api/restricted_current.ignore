@@ -9,12 +9,8 @@ AddedAbstractProperty: androidx.compose.material3.SearchBarScrollBehavior#conten
     Source breaking change: Added property androidx.compose.material3.SearchBarScrollBehavior#contentOffset
 
 
-BecameUnchecked: androidx.compose.material3.AlertDialogKt:
-    Removed class androidx.compose.material3.AlertDialogKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.BottomSheetScaffoldKt:
     Removed class androidx.compose.material3.BottomSheetScaffoldKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.ExposedDropdownMenuKt:
-    Removed class androidx.compose.material3.ExposedDropdownMenuKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.LabelKt:
     Removed class androidx.compose.material3.LabelKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.ModalBottomSheetKt:
