@@ -206,7 +206,7 @@
     <string name="odometer" msgid="3925174645651546591">"Οδόμετρο"</string>
     <string name="ev_connected" msgid="2277845607662494696">"Η θύρα φόρτισης ΗΟ συνδέθηκε"</string>
     <string name="ev_open" msgid="4916704450914519643">"Ανοιχτή θύρα φόρτισης ΕΟ"</string>
-    <string name="accelerometer" msgid="2084026313768299185">"Επιταχύμετρο"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"Επιταχυνσιόμετρο"</string>
     <string name="gyroscope" msgid="3428075828014504651">"Γυροσκόπιο"</string>
     <string name="compass" msgid="7037367764762441245">"Πυξίδα"</string>
     <string name="car_hardware_location" msgid="5826128477363068617">"Τοποθεσία εξοπλισμού αυτοκινήτου"</string>
