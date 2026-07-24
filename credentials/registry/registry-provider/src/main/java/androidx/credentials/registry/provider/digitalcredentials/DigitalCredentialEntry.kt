@@ -16,6 +16,9 @@
 
 package androidx.credentials.registry.provider.digitalcredentials
 
+import androidx.credentials.registry.provider.DelegationType
+import androidx.credentials.registry.provider.DelegationTypeAnnotation
+
 /**
  * A digital credential entry to be registered.
  *
@@ -34,11 +37,16 @@ package androidx.credentials.registry.provider.digitalcredentials
  * @property id the provider unique identifier of this credential entry, which can be used to
  *   identify the exact credential that the user has chosen
  * @property entryDisplayPropertySet the display properties associated with the given entry
+ * @property delegationType the delegation type the provider is opting into for this specific
+ *   credential entry
  * @throws IllegalArgumentException if [id] length is greater than 64 characters
  */
-public abstract class DigitalCredentialEntry(
+public abstract class DigitalCredentialEntry
+@JvmOverloads
+constructor(
     public val id: String,
     public val entryDisplayPropertySet: Set<EntryDisplayProperties>,
+    @param:DelegationTypeAnnotation public val delegationType: Int = DelegationType.NONE,
 ) {
     init {
         require(id.length <= 64) { "`id` length must be less than 64" }
