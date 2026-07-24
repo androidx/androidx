@@ -848,22 +848,33 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             if (AndroidComposeUiFlags.isDelayAndroidViewsHandlerCreationEnabled) {
                 return _androidViewsHandler
             } else {
-                if (_androidViewsHandler == null) {
-                    _androidViewsHandler =
-                        AndroidViewsHandler(context).also {
-                            addView(it)
-                            // Ensure that AndroidViewsHandler is measured and laid out after
-                            // creation, so that
-                            // it can report correct bounds on screen (for semantics, etc).
-                            // Normally this is done by addView, but here we disabled it for
-                            // optimization
-                            // purposes.
-                            requestLayout()
-                        }
-                }
-                return _androidViewsHandler
+                return getOrCreateAndroidViewsHandler()
             }
         }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun getOrCreateAndroidViewsHandler(): AndroidViewsHandler {
+        val handler = _androidViewsHandler
+        if (handler != null) return handler
+        return AndroidViewsHandler(context).also { newHandler ->
+            _androidViewsHandler = newHandler
+            addView(newHandler)
+            if (isLaidOut || width != 0 || height != 0) {
+                newHandler.measure(
+                    MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
+                )
+                newHandler.layout(0, 0, width, height)
+            }
+            // Ensure that AndroidViewsHandler is measured and laid out after
+            // creation, so that
+            // it can report correct bounds on screen (for semantics, etc).
+            // Normally this is done by addView, but here we disabled it for
+            // optimization
+            // purposes.
+            requestLayout()
+        }
+    }
 
     private var viewLayersContainer: DrawChildContainer? = null
 
@@ -1910,12 +1921,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     fun addAndroidView(view: AndroidViewHolder, layoutNode: LayoutNode) {
         val androidViewsHandler =
             if (AndroidComposeUiFlags.isDelayAndroidViewsHandlerCreationEnabled) {
-                _androidViewsHandler
-                    ?: AndroidViewsHandler(context).also {
-                        _androidViewsHandler = it
-                        addView(it)
-                        requestLayout()
-                    }
+                getOrCreateAndroidViewsHandler()
             } else {
                 this.androidViewsHandler!!
             }
