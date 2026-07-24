@@ -19,6 +19,7 @@ package androidx.xr.projected.testing
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.app.PendingIntent
 import android.companion.virtual.VirtualDeviceManager
 import android.content.ComponentName
 import android.content.Context
@@ -51,9 +52,11 @@ import androidx.xr.projected.platform.IEngagementModeCallback
 import androidx.xr.projected.platform.IEngagementModeService
 import androidx.xr.projected.platform.IProjectedDeviceStateListener
 import androidx.xr.projected.platform.IProjectedInputEventListener
+import androidx.xr.projected.platform.IProjectedPermissionRequestCallback
 import androidx.xr.projected.platform.IProjectedService
 import androidx.xr.projected.platform.ProjectedDeviceState
 import androidx.xr.projected.platform.ProjectedInputEvent
+import androidx.xr.projected.platform.ProjectedPermissionRequestState
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.util.Collections
@@ -264,6 +267,23 @@ public class ProjectedTestRule : TestRule {
                     batteryStateListeners.remove(listener)
                     null
                 }
+            on { launchProjectedPermissionRequest(any(), any()) } doAnswer
+                { invocation ->
+                    val callback = invocation.arguments[1] as IProjectedPermissionRequestCallback
+                    val pendingIntent =
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            Intent(),
+                            PendingIntent.FLAG_IMMUTABLE,
+                        )
+                    callback.onProjectedPermissionRequestStateChanged(
+                        ProjectedPermissionRequestState.ALLOWED,
+                        pendingIntent,
+                    )
+                    null
+                }
+            on { finishProjectedPermissionRequest() } doAnswer { null }
         }
     private val mockProjectedServiceStub =
         mock<IProjectedService.Stub> {
