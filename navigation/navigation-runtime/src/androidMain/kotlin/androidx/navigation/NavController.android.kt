@@ -245,7 +245,6 @@ public actual open class NavController(
     }
 
     @MainThread
-    @JvmOverloads
     public actual inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
         saveState: Boolean,

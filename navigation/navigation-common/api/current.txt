@@ -422,7 +422,6 @@ package androidx.navigation {
     method public androidx.navigation.NavOptions.Builder setLaunchSingleTop(boolean singleTop);
     method public androidx.navigation.NavOptions.Builder setPopEnterAnim(@AnimRes @AnimatorRes int popEnterAnim);
     method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim);
-    method @BytecodeOnly public <T> androidx.navigation.NavOptions.Builder! setPopUpTo(boolean);
     method @KotlinOnly public inline <reified T> androidx.navigation.NavOptions.Builder setPopUpTo(boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive, optional boolean saveState);
