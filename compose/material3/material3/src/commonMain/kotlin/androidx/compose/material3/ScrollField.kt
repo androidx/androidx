@@ -238,7 +238,7 @@ public fun ScrollField(
                         }
                     }
                 },
-        pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3f),
+        pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3),
         horizontalAlignment = Alignment.CenterHorizontally,
         snapPosition = SnapPosition.Center,
     ) { page ->

@@ -912,7 +912,7 @@ public class DatePickerColors(
         dayInSelectionRangeContainerColor: Color = this.dayInSelectionRangeContainerColor,
         dayInSelectionRangeContentColor: Color = this.dayInSelectionRangeContentColor,
         dividerColor: Color = this.dividerColor,
-        dateTextFieldColors: TextFieldColors? = null,
+        dateTextFieldColors: TextFieldColors? = this.dateTextFieldColors,
     ): DatePickerColors =
         DatePickerColors(
             containerColor.takeOrElse { this.containerColor },
