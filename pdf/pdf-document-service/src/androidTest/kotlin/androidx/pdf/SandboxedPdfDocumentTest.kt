@@ -30,7 +30,7 @@ import android.os.RemoteException
 import android.util.Size
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.content.ImagePdfObject
-import androidx.pdf.annotation.content.PdfObject
+import androidx.pdf.annotation.content.PathPdfObject
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.parcelSizeInBytes
 import androidx.pdf.content.PdfPageTextContent
@@ -895,7 +895,17 @@ class SandboxedPdfDocumentTest {
         if (!isSignatureFeatureAvailable()) return@runTest
         withEditableDocument(PDF_DOCUMENT) { document ->
             val pageNumber = 0
-            val unsupportedObject = org.mockito.Mockito.mock(PdfObject::class.java)
+            val unsupportedObject =
+                PathPdfObject(
+                    brushColor = 0xFF000000.toInt(),
+                    brushWidth = 8.5f,
+                    inputs =
+                        listOf(
+                            PathPdfObject.PathInput(10f, 20f, PathPdfObject.PathInput.MOVE_TO),
+                            PathPdfObject.PathInput(30f, 40f, PathPdfObject.PathInput.LINE_TO),
+                            PathPdfObject.PathInput(50f, 60f, PathPdfObject.PathInput.LINE_TO),
+                        ),
+                )
 
             val exception =
                 assertFailsWith<UnsupportedOperationException> {
