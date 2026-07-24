@@ -245,7 +245,7 @@ public final class SetSchemaRequest {
     public static final int PRIVATE_COMPUTE_CORE_UID_ACCESS = 12;
 
     /**
-     * The {@link android.Manifest.permission#DISCOVER_APP_FUNCTIONS} AppSearch supported in
+     * The {@code android.Manifest.permission#DISCOVER_APP_FUNCTIONS} AppSearch supported in
      * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
      */
     @HideInPlatform
@@ -253,7 +253,7 @@ public final class SetSchemaRequest {
     public static final int DISCOVER_APP_FUNCTIONS = 13;
 
     /**
-     * The {@link android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM} AppSearch supported in
+     * The {@code android.Manifest.permission#EXECUTE_APP_FUNCTIONS_SYSTEM} AppSearch supported in
      * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
      */
     @HideInPlatform
