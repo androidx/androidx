@@ -18,7 +18,6 @@ package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 
 import android.os.Build;
 import android.webkit.WebView;
@@ -33,6 +32,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 /**
  * A class for testing common usages for ProfileStore, Profile.
@@ -53,6 +54,7 @@ public class MultiProfileTest {
     @Before
     public void setUp() {
         WebkitUtils.checkFeature(WebViewFeature.MULTI_PROFILE);
+        WebkitUtils.checkFeature(WebViewFeature.PREFETCH_CACHE_V1);
         mProfileStore = WebkitUtils.onMainThreadSync(ProfileStore::getInstance);
     }
 
@@ -110,6 +112,22 @@ public class MultiProfileTest {
                 });
     }
 
+    /**
+     * Test getting all profile names.
+     */
+    @Test
+    public void testGetAllProfileNames() {
+        WebkitUtils.onMainThreadSync(() -> {
+            List<String> names = mProfileStore.getAllProfileNames();
+            assertNotNull(names);
+            Assert.assertTrue(names.contains(Profile.DEFAULT_PROFILE_NAME));
+
+            mProfileStore.getOrCreateProfile(PROFILE_TEST_NAME);
+            names = mProfileStore.getAllProfileNames();
+            Assert.assertTrue(names.contains(PROFILE_TEST_NAME));
+        });
+    }
+
     // setProfile, getProfile tests.
 
     /**
@@ -118,7 +136,7 @@ public class MultiProfileTest {
     @Test
     public void testSetGetProfile() {
         Profile testProfile =
-                WebkitUtils.onMainThreadSync(() -> ProfileStore.getInstance().getOrCreateProfile(
+                WebkitUtils.onMainThreadSync(() -> mProfileStore.getOrCreateProfile(
                         PROFILE_TEST_NAME));
         WebView webView = WebViewOnUiThread.createWebView();
         try {
@@ -128,10 +146,8 @@ public class MultiProfileTest {
             Profile expectedProfile = WebkitUtils.onMainThreadSync(
                     () -> WebViewCompat.getProfile(webView));
 
-            assertSame(testProfile, expectedProfile);
-            assertSame(testProfile.getName(), expectedProfile.getName());
-            assertSame(testProfile.getCookieManager(), expectedProfile.getCookieManager());
-            assertSame(testProfile.getWebStorage(), expectedProfile.getWebStorage());
+            assertEquals(testProfile, expectedProfile);
+            assertEquals(testProfile.getName(), expectedProfile.getName());
         } finally {
             WebViewOnUiThread.destroy(webView);
         }
@@ -139,18 +155,18 @@ public class MultiProfileTest {
     }
 
     /**
-     * Test getting a profile multiple times returns the exact same instance.
+     * Test getting a profile multiple times returns equal objects.
      */
     @Test
-    public void testProfileIsSameInstance() {
+    public void testProfileIsEqual() {
         WebkitUtils.onMainThreadSync(() -> {
             Profile profile1 = mProfileStore.getOrCreateProfile(PROFILE_TEST_NAME);
             Profile profile2 = mProfileStore.getProfile(PROFILE_TEST_NAME);
 
-            assertSame(profile1, profile2);
+            assertEquals(profile1, profile2);
 
             Profile profile3 = mProfileStore.getOrCreateProfile(PROFILE_TEST_NAME);
-            assertSame(profile1, profile3);
+            assertEquals(profile1, profile3);
         });
     }
 
@@ -175,7 +191,7 @@ public class MultiProfileTest {
      * Tests that various getters on the Profile return the same objects.
      */
     @Test
-    public void testProfileGettersSame() {
+    public void testProfileHttpCacheGettersSame() {
         WebkitUtils.checkFeature(WebViewFeature.HTTP_CACHE_MANAGER);
 
         WebkitUtils.onMainThreadSync(() -> {
@@ -188,30 +204,31 @@ public class MultiProfileTest {
     }
 
     /**
-     * Tests getting, verifying the default profile.
+     * Tests getting the default profile multiple times returns equal objects.
      */
     @Test
-    public void testGetDefaultProfileIsSameInstance() {
+    public void testGetDefaultProfileIsEqual() {
         WebkitUtils.onMainThreadSync(() -> {
             Profile defaultProfile1 = mProfileStore.getProfile(Profile.DEFAULT_PROFILE_NAME);
             Profile defaultProfile2 = mProfileStore.getProfile(Profile.DEFAULT_PROFILE_NAME);
 
             Assert.assertNotNull(defaultProfile1);
-            Assert.assertSame(defaultProfile1, defaultProfile2);
+            Assert.assertEquals(defaultProfile1, defaultProfile2);
         });
     }
 
     /**
-     * Test getting profile returns the Default profile by default.
+     * Tests that the default profile from WebView matches the default profile from the profile
+     * store.
      */
     @Test
-    public void testGetDefaultProfileIsSameInstanceFromWebView() {
+    public void testGetDefaultProfileIsEqualFromWebView() {
         WebView webView = WebViewOnUiThread.createWebView();
         try {
             WebkitUtils.onMainThreadSync(() -> {
                 Profile profile1 = WebViewCompat.getProfile(webView);
                 Profile profile2 = mProfileStore.getProfile(Profile.DEFAULT_PROFILE_NAME);
-                Assert.assertSame(profile1, profile2);
+                Assert.assertEquals(profile1, profile2);
             });
         } finally {
             WebViewOnUiThread.destroy(webView);

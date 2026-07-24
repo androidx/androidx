@@ -44,6 +44,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.InvocationHandler;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -54,6 +55,7 @@ import java.util.concurrent.Executor;
 public class ProfileImpl implements Profile {
 
     private final @NonNull ProfileBoundaryInterface mProfileImpl;
+    private final @NonNull String mName;
 
     @OptIn(markerClass = ExperimentalUrlPrefetch.class)
     private final PrefetchCache mPrefetchCache;
@@ -62,17 +64,20 @@ public class ProfileImpl implements Profile {
     // WebView feature support.
     private @Nullable HttpCache mHttpCache;
 
+    // We need to add equals and hashCode overrides to all new members of the Profile.
+
     @OptIn(markerClass = ExperimentalUrlPrefetch.class)
     ProfileImpl(@NonNull ProfileBoundaryInterface profileImpl) {
         mProfileImpl = profileImpl;
-        mPrefetchCache = new PrefetchCache(profileImpl);
+        mName = profileImpl.getName();
+        mPrefetchCache = new PrefetchCache(mName, profileImpl);
     }
 
     @Override
     public @NonNull String getName() {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
         if (feature.isSupportedByWebView()) {
-            return mProfileImpl.getName();
+            return mName;
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -391,11 +396,41 @@ public class ProfileImpl implements Profile {
 
         if (mHttpCache == null) {
             InvocationHandler httpCache = mProfileImpl.getHttpCache();
-            mHttpCache = new HttpCache(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                    HttpCacheBoundaryInterface.class, httpCache));
+            mHttpCache = new HttpCache(mName, Objects.requireNonNull(
+                    BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                            HttpCacheBoundaryInterface.class, httpCache)));
         }
 
         return mHttpCache;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ProfileImpl)) {
+            return false;
+        }
+        ProfileImpl other = (ProfileImpl) obj;
+        return this.mName.equals(other.mName);
+    }
+
+    @Override
+    public int hashCode() {
+        return mName.hashCode();
+    }
+
+
+    /**
+     * Factory method that returns the Profile associated with the given invocationHandler.
+     */
+    static @NonNull Profile forInvocationHandler(
+            @NonNull InvocationHandler invocationHandler) {
+        ProfileBoundaryInterface profile = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ProfileBoundaryInterface.class, invocationHandler);
+        assert profile != null;
+        return new ProfileImpl(profile);
     }
 
 }
