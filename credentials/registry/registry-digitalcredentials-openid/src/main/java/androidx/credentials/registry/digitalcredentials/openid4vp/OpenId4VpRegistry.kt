@@ -24,6 +24,8 @@ import androidx.credentials.registry.digitalcredentials.mdoc.MdocInlineIssuanceE
 import androidx.credentials.registry.digitalcredentials.openid4vp.OpenId4VpDefaults.DEFAULT_MATCHER
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtEntry
 import androidx.credentials.registry.digitalcredentials.sdjwt.SdJwtInlineIssuanceEntry
+import androidx.credentials.registry.provider.DelegationType
+import androidx.credentials.registry.provider.DelegationTypeAnnotation
 import androidx.credentials.registry.provider.RegistryManager
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialEntry
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistry
@@ -69,6 +71,8 @@ import org.json.JSONObject
  *   sequentially, stopping immediately on the first successful match. Any protocol not included in
  *   this list is strictly ignored. Defaults to [PROTOCOL_OPENID4VP_1_0_SIGNED],
  *   [PROTOCOL_OPENID4VP_1_0_UNSIGNED], and [PROTOCOL_OPENID4VP_1_0_MULTISIGNED]
+ * @param serviceAction the intent action that will be used to bind to your background fulfillment
+ *   service (silent / FULL delegation), defaults to [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]
  * @throws IllegalArgumentException if [id] or [intentAction] length is greater than 64 characters
  */
 public class OpenId4VpRegistry
@@ -84,6 +88,7 @@ public constructor(
             PROTOCOL_OPENID4VP_1_0_UNSIGNED,
             PROTOCOL_OPENID4VP_1_0_MULTISIGNED,
         ),
+    serviceAction: String = RegistryManager.ACTION_GET_CREDENTIAL_SERVICE,
 ) :
     DigitalCredentialRegistry(
         id = id,
@@ -91,6 +96,7 @@ public constructor(
             toCredentialBytes(credentialEntries, inlineIssuanceEntries, supportedProtocols),
         matcher = DEFAULT_MATCHER,
         intentAction = intentAction,
+        serviceAction = serviceAction,
     ) {
 
     /** Protocol type for OpenID4VP registration. */
@@ -137,6 +143,7 @@ public constructor(
         private const val ISSUANCE = "issuance"
         private const val SUPPORTED = "supported"
         private const val METADATA_DISPLAY_TEXT = "metadata_display_text"
+        private const val DELEGATION_TYPE = "delegation_type"
 
         private fun getIconBytes(icon: Bitmap): ByteArray {
             val currWidth = icon.width
@@ -163,8 +170,10 @@ public constructor(
             itemId: String,
             displays: Set<EntryDisplayProperties>,
             iconMap: Map<String, Map<@DisplayType Int, RegistryIcon>>,
+            @DelegationTypeAnnotation delegationType: Int = DelegationType.NONE,
         ) {
             put(ID, itemId)
+            put(DELEGATION_TYPE, delegationType)
 
             val displayJson = JSONObject()
             for (display in displays) {
@@ -329,6 +338,7 @@ public constructor(
                             item.id,
                             item.entryDisplayPropertySet,
                             iconMap,
+                            item.delegationType,
                         )
                         val pathJson = JSONObject()
                         for (claim in item.claims) {
@@ -346,6 +356,7 @@ public constructor(
                             item.id,
                             item.entryDisplayPropertySet,
                             iconMap,
+                            item.delegationType,
                         )
                         val pathJson = JSONObject()
                         for (field in item.fields) {

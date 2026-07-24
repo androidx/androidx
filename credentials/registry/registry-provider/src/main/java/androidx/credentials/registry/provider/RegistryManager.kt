@@ -72,6 +72,16 @@ public abstract class RegistryManager internal constructor() {
          */
         public const val ACTION_CREATE_CREDENTIAL: String =
             "androidx.credentials.registry.provider.action.CREATE_CREDENTIAL"
+
+        /**
+         * The intent action name that the Credential Manager uses to bind to your background
+         * fulfillment service when silent fulfillment (FULL delegation) is requested.
+         */
+        // Suppressed to meet the length requirement of the action string enforced during
+        // registration.
+        @field:Suppress("ActionValue")
+        public const val ACTION_GET_CREDENTIAL_SERVICE: String =
+            "androidx.credentials.action.GET_CREDENTIAL_SERVICE"
     }
 
     /**

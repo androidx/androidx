@@ -119,7 +119,7 @@ private constructor(
          * @throws IllegalArgumentException If [packageName] is empty
          */
         @RequiresApi(28)
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         fun create(packageName: String, signingInfo: SigningInfo, origin: String? = null) =
             CallingAppInfo(packageName, signingInfo, origin)
 
@@ -137,7 +137,7 @@ private constructor(
          * @throws IllegalArgumentException If [packageName] is empty
          */
         @DeprecatedSinceApi(28, "Use the SigningInfo based constructor instead")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         fun create(packageName: String, signatures: List<Signature>, origin: String? = null) =
             CallingAppInfo(packageName, signatures, origin)
 
