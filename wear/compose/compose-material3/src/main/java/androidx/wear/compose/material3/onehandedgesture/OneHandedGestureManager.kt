@@ -51,18 +51,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * A [androidx.compose.runtime.CompositionLocal] used to provide the [GestureManager] instance
- * throughout the Composable hierarchy.
+ * A [androidx.compose.runtime.CompositionLocal] used to provide the [OneHandedGestureManager]
+ * instance throughout the Composable hierarchy.
  */
-internal val LocalGestureManager: ProvidableCompositionLocal<GestureManager> =
+internal val LocalOneHandedGestureManager: ProvidableCompositionLocal<OneHandedGestureManager> =
     compositionLocalWithComputedDefaultOf {
         if (cachedGestureManager == null) {
-            cachedGestureManager = GestureManagerImpl()
+            cachedGestureManager = OneHandedGestureManagerImpl()
         }
         cachedGestureManager!!
     }
 
-internal interface GestureManager {
+internal interface OneHandedGestureManager {
     /**
      * Registers a one-handed gesture.
      *
@@ -171,10 +171,10 @@ internal interface GestureManager {
     ): RegisteredIndicator?
 }
 
-internal class GestureManagerImpl(
+internal class OneHandedGestureManagerImpl(
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + AndroidUiDispatcher.Main),
     val gestureInputManager: SdkGestureInputManager = SdkGestureInputManagerImpl(),
-) : GestureManager {
+) : OneHandedGestureManager {
 
     /** Map of registered gestures per View */
     private val gestureRegistries = mutableMapOf<View, GestureRegistry>()
@@ -459,7 +459,7 @@ internal class GestureRegistry(
      * If there are multiple gestures with the same priority, check if any of them are enabled in
      * ambient
      */
-    private fun isEnabledInAmbient(action: GestureAction): Boolean {
+    private fun isEnabledInAmbient(action: OneHandedGestureAction): Boolean {
         val priority =
             registeredGestures
                 .fastFirstOrNull { gesture ->
@@ -540,7 +540,7 @@ internal class GestureRegistry(
     }
 
     /** Returns true if there are visible [action] gestures */
-    private fun shouldListenToGesture(action: GestureAction): Boolean {
+    private fun shouldListenToGesture(action: OneHandedGestureAction): Boolean {
         return registeredGestures.fastFirstOrNull { gesture ->
             gesture.gestureConfiguration.action == action && gesture.isActive()
         } != null
@@ -697,25 +697,25 @@ internal class SdkGestureInputManagerImpl : SdkGestureInputManager {
     }
 }
 
-private fun toSdkGestureAction(gestureAction: GestureAction): Int {
+private fun toSdkGestureAction(gestureAction: OneHandedGestureAction): Int {
     return when (gestureAction) {
-        GestureAction.Dismiss -> GestureEvent.ACTION_DISMISS
+        OneHandedGestureAction.Dismiss -> GestureEvent.ACTION_DISMISS
         else -> GestureEvent.ACTION_PRIMARY
     }
 }
 
-private fun fromSdkGestureAction(sdkGestureAction: Int): GestureAction {
+private fun fromSdkGestureAction(sdkGestureAction: Int): OneHandedGestureAction {
     return when (sdkGestureAction) {
-        GestureEvent.ACTION_DISMISS -> GestureAction.Dismiss
-        else -> GestureAction.Primary
+        GestureEvent.ACTION_DISMISS -> OneHandedGestureAction.Dismiss
+        else -> OneHandedGestureAction.Primary
     }
 }
 
 /**
  * Responsible for managing accessibility announcements for gestures. This class is designed as a
- * singleton per [GestureManager]. It manages the lifecycle of multiple accessibility "anchor" views
- * (one per [GestureAction]), ensuring that views are added to the hierarchy only when needed and
- * removed when no longer in use.
+ * singleton per [OneHandedGestureManager]. It manages the lifecycle of multiple accessibility
+ * "anchor" views (one per [OneHandedGestureAction]), ensuring that views are added to the hierarchy
+ * only when needed and removed when no longer in use.
  *
  * @property container The host view where accessibility announcer views are added; typically an
  *   AndroidComposeView
@@ -724,14 +724,14 @@ private class GestureAccessibilityAnnouncer(val container: View) {
     private val gestureAnnouncers = mutableIntObjectMapOf<ViewRefCount>()
 
     /**
-     * Registers a [GestureAction] and creates a hidden accessibility view if one does not already
-     * exist.
+     * Registers a [OneHandedGestureAction] and creates a hidden accessibility view if one does not
+     * already exist.
      * * If an announcer view for this action is already registered, its reference count is
      *   incremented.
      *
-     * @param action The [GestureAction] to attach
+     * @param action The [OneHandedGestureAction] to attach
      */
-    fun attach(action: GestureAction) {
+    fun attach(action: OneHandedGestureAction) {
         val host = container as? ViewGroup ?: return
 
         if (gestureAnnouncers.contains(action.value)) {
@@ -751,13 +751,13 @@ private class GestureAccessibilityAnnouncer(val container: View) {
     }
 
     /**
-     * Unregisters a [GestureAction].
+     * Unregisters a [OneHandedGestureAction].
      * * The associated accessibility view is removed from the [container] only when the reference
      *   count drops to zero
      *
-     * @param action The [GestureAction] to release
+     * @param action The [OneHandedGestureAction] to release
      */
-    fun detach(action: GestureAction) {
+    fun detach(action: OneHandedGestureAction) {
         val viewRefCount = gestureAnnouncers[action.value] ?: return
 
         viewRefCount.refCount--
@@ -789,10 +789,12 @@ private class GestureAccessibilityAnnouncer(val container: View) {
         }
     }
 
-    private fun getGestureLabelStringId(action: GestureAction): Int? {
+    private fun getGestureLabelStringId(action: OneHandedGestureAction): Int? {
         return when (action) {
-            GestureAction.Primary -> R.string.one_handed_gesture_primary_action_accessibility_text
-            GestureAction.Dismiss -> R.string.one_handed_gesture_dismiss_action_accessibility_text
+            OneHandedGestureAction.Primary ->
+                R.string.one_handed_gesture_primary_action_accessibility_text
+            OneHandedGestureAction.Dismiss ->
+                R.string.one_handed_gesture_dismiss_action_accessibility_text
             else -> null
         }
     }
@@ -800,4 +802,4 @@ private class GestureAccessibilityAnnouncer(val container: View) {
     private data class ViewRefCount(val view: View, var refCount: Int = 1)
 }
 
-private var cachedGestureManager: GestureManager? = null
+private var cachedGestureManager: OneHandedGestureManager? = null

@@ -198,7 +198,7 @@ private class GestureNode(
     ObserverModifierNode,
     LayoutAwareModifierNode {
 
-    private var gestureManager: GestureManager? = null
+    private var gestureManager: OneHandedGestureManager? = null
     private var localScreenIsActive = false
     private var currentView: View? = null
     private var hapticFeedback: HapticFeedback? = null
@@ -278,7 +278,7 @@ private class GestureNode(
         currentView = currentValueOf(LocalView)
         hapticFeedback = currentValueOf(LocalHapticFeedback)
         isEnabled = currentValueOf(LocalOneHandedGestureEnabled)
-        val newGestureManager = currentValueOf(LocalGestureManager)
+        val newGestureManager = currentValueOf(LocalOneHandedGestureManager)
         if (reregister) {
             unregisterGesture(gestureManager, currentView!!, gestureConfiguration)
             registerGesture(
@@ -296,7 +296,7 @@ private class GestureNode(
     }
 
     private fun registerGesture(
-        manager: GestureManager?,
+        manager: OneHandedGestureManager?,
         view: View,
         haptic: HapticFeedback,
         gestureConfiguration: OneHandedGestureConfiguration,
@@ -321,7 +321,7 @@ private class GestureNode(
     }
 
     private fun unregisterGesture(
-        manager: GestureManager?,
+        manager: OneHandedGestureManager?,
         view: View,
         gestureConfiguration: OneHandedGestureConfiguration,
     ) {

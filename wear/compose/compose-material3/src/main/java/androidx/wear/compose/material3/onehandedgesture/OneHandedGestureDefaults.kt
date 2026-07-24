@@ -29,7 +29,7 @@ import androidx.wear.compose.material3.MaterialTheme
 
 public object OneHandedGestureDefaults {
     /** The default size constraints for the gesture indicator icon. */
-    public val indicatorSize: GestureIndicatorSize = GestureIndicatorSize.Medium
+    public val indicatorSize: OneHandedGestureIndicatorSize = OneHandedGestureIndicatorSize.Medium
 
     /** The tint color used for the gesture animation. */
     public val indicatorTint: Color

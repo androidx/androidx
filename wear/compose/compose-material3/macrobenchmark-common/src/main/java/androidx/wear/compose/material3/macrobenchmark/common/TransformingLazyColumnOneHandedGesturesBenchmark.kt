@@ -38,7 +38,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
-import androidx.wear.compose.material3.onehandedgesture.GestureAction
+import androidx.wear.compose.material3.onehandedgesture.OneHandedGestureAction
 import androidx.wear.compose.material3.onehandedgesture.oneHandedGesture
 import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGestureConfiguration
 import kotlinx.coroutines.launch
@@ -87,7 +87,7 @@ val TransformingLazyColumnOneHandedGesturesBenchmark =
                                             }
                                             .oneHandedGesture(
                                                 rememberOneHandedGestureConfiguration(
-                                                    action = GestureAction.Primary
+                                                    action = OneHandedGestureAction.Primary
                                                 ),
                                                 onGestureLabel = "item $it",
                                             ) {}

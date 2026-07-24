@@ -66,10 +66,11 @@ internal fun GestureIndicatorImage(
 }
 
 @Composable
-internal fun GestureAction.animatedImageVector(): AnimatedImageVector {
+internal fun OneHandedGestureAction.animatedImageVector(): AnimatedImageVector {
     val resourceId =
         when (this) {
-            GestureAction.Primary -> R.drawable.wear_one_handed_gesture_primary_indicator_animation
+            OneHandedGestureAction.Primary ->
+                R.drawable.wear_one_handed_gesture_primary_indicator_animation
             else -> R.drawable.wear_one_handed_gesture_dismiss_indicator_animation
         }
     return AnimatedImageVector.animatedVectorResource(resourceId)
