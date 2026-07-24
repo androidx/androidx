@@ -1283,13 +1283,13 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                 @SuppressLint("ObsoleteSdkInt")
                 @Override
                 public void setBlendMode(int mode) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // REMOVE IN PLATFORM
                         Api29Impl.setBlendMode(mPaint, mode);
-                    } else {
-                        mPaint.setXfermode(
-                                new android.graphics.PorterDuffXfermode(
-                                        remoteToAndroidPorterDuffMode(mode)));
-                    }
+                    } else { // REMOVE IN PLATFORM
+                        mPaint.setXfermode(// REMOVE IN PLATFORM
+                                new android.graphics.PorterDuffXfermode(// REMOVE IN PLATFORM
+                                        remoteToAndroidPorterDuffMode(mode))); // REMOVE IN PLATFORM
+                    } // REMOVE IN PLATFORM
                 }
 
                 @Override
@@ -1374,7 +1374,7 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                         float endY,
                         float endRadius,
                         int tileMode) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // REMOVE IN PLATFORM
                         // unavoidable short term allocation for now but little used API.
                         // Long term could cache the data
                         long[] colorLong = new long[colors.length];
@@ -1386,14 +1386,14 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                                         startX, startY, startRadius,
                                         endX, endY, endRadius,
                                         colorLong, stops, mTileModes[tileMode]));
-                    } else {
+                    } else { // REMOVE IN PLATFORM
                         // The two-circle (focal) form needs API 31. Degrade to the end circle
                         // so the document still renders something sensible.
-                        mPaint.setShader(
-                                new RadialGradient(
-                                        endX, endY, endRadius,
-                                        colors, stops, mTileModes[tileMode]));
-                    }
+                        mPaint.setShader(// REMOVE IN PLATFORM
+                                new RadialGradient(// REMOVE IN PLATFORM
+                                        endX, endY, endRadius, // REMOVE IN PLATFORM
+                                        colors, stops, mTileModes[tileMode])); // REMOVE IN PLATFORM
+                    } // REMOVE IN PLATFORM
                 }
 
                 @Override

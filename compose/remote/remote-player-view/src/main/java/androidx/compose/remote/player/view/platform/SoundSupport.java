@@ -74,7 +74,7 @@ public class SoundSupport {
      * subsequent sound loads use the correct rate for fast-mixer eligibility.
      */
     public void init(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // REMOVE IN PLATFORM
             try {
                 mAttributionContext = context
                         .getApplicationContext()
@@ -82,7 +82,7 @@ public class SoundSupport {
             } catch (Exception e) {
                 Log.w(TAG, "Failed to create attribution context", e);
             }
-        }
+        } // REMOVE IN PLATFORM
         AudioManager am = context.getSystemService(AudioManager.class);
         if (am != null) {
             String rateStr = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE);
@@ -215,10 +215,11 @@ public class SoundSupport {
                         .build())
                 .setBufferSizeInBytes(bufSize)
                 .setTransferMode(AudioTrack.MODE_STATIC);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                && mAttributionContext != null) {
-            builder.setContext(mAttributionContext);
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // REMOVE IN PLATFORM
+            if (mAttributionContext != null) {
+                builder.setContext(mAttributionContext);
+            }
+        } // REMOVE IN PLATFORM
         builder.setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
 
         AudioTrack track = builder.build();
