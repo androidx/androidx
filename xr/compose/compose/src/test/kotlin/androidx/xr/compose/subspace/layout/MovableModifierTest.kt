@@ -73,6 +73,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,6 +93,12 @@ class MovableModifierTest {
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @get:Rule val permissionRule = GrantPermissionRule.grant(SCENE_UNDERSTANDING_COARSE)
+
+    @Before
+    fun setup() {
+        // TODO: b/537470420 Remove once Anchors are properly detached in unit tests.
+        androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
+    }
 
     // ========================================================================
     // TESTS FOR MOVE POLICY (NEW API)

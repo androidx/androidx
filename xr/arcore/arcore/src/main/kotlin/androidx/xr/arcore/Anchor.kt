@@ -24,7 +24,6 @@ import androidx.xr.arcore.runtime.AnchorNotAuthorizedException as RtAnchorNotAut
 import androidx.xr.arcore.runtime.AnchorNotTrackingException as RtAnchorNotTrackingException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException as RtAnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.AnchorRuntimeFailureException as RtAnchorRuntimeFailureException
-import androidx.xr.arcore.runtime.ExportableAnchor
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -49,7 +48,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @SuppressWarnings("HiddenSuperclass")
 public class Anchor
 internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val runtimeAnchor: RuntimeAnchor,
+    internal val runtimeAnchor: RuntimeAnchor,
     private val xrResourceManager: XrResourcesManager,
 ) : Trackable<Anchor.State>, Updatable() {
     public companion object {
@@ -290,12 +289,8 @@ internal constructor(
     }
 
     /**
-     * If this anchor instance derives from [ExportableAnchor], an [IBinder] reference that
-     * represents the anchor.
+     * An [IBinder] reference that represents the anchor, or null if the anchor is not exportable.
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public val anchorToken: IBinder?
-        get() {
-            return if (runtimeAnchor is ExportableAnchor) runtimeAnchor.anchorToken else null
-        }
+    public val anchorToken: IBinder? = runtimeAnchor.anchorToken
 }
