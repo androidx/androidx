@@ -53,8 +53,7 @@ fun NestedSnapScrollDemo() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, horizontalScroll, rememberRemoteScrollState,
-// verticalScroll
+) // Referring to RemoteText, horizontalScroll, rememberRemoteScrollState, verticalScroll
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

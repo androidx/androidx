@@ -51,8 +51,7 @@ fun VerticalScrollDemo() {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteComponentPreview, RemoteText, background, rememberRemoteScrollState,
-// verticalScroll
+) // Referring to RemoteText, background, rememberRemoteScrollState, verticalScroll
 @RemoteComponentPreview
 @Composable
 @RemoteComposable

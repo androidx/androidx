@@ -101,16 +101,10 @@ class MyWidget : RemoteComposeWidget() {
     }
 }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComposeWidget, RemoteText, background, onClick
 @Preview
 @Composable
 private fun ButtonPreview() = RemoteContentPreview { MyWidget().Button("Click me") {} }
 
-@Suppress(
-    "RestrictedApiAndroidX"
-) // Referring to RemoteComposeWidget, RemoteText, background, onClick
 @Preview
 @Composable
 private fun ContentPreview() = RemoteContentPreview { MyWidget().Content(LocalContext.current, 0) }

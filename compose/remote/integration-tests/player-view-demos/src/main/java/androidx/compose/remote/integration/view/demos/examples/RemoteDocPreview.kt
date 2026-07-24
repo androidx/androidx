@@ -34,8 +34,8 @@ import androidx.compose.ui.platform.LocalResources
 /**
  * Build a [RemoteDocument] from a [RemoteComposeContext] display it in the Android Studio Preview.
  */
-@Composable
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteText, remote-creation, remote-player-core
+@Composable
 internal fun RemoteDocumentPreview(remoteComposeContext: RemoteComposeContext) {
     val doc = remoteComposeContext.writer
     RemoteDocumentPreview(doc)
@@ -44,8 +44,8 @@ internal fun RemoteDocumentPreview(remoteComposeContext: RemoteComposeContext) {
 /**
  * Build a [RemoteDocument] from a [RemoteComposeWriter] display it in the Android Studio Preview.
  */
-@Composable
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteText, remote-creation, remote-player-core
+@Composable
 internal fun RemoteDocumentPreview(remoteComposeWriter: RemoteComposeWriter) {
     val buffer = remoteComposeWriter.buffer.buffer.cloneBytes()
     val remoteDocument = RemoteDocument(buffer)
@@ -55,7 +55,7 @@ internal fun RemoteDocumentPreview(remoteComposeWriter: RemoteComposeWriter) {
 
 /** Build a [RemoteDocument] from a raw resource id and display it in the Android Studio Preview. */
 @Composable
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteText, remote-creation, remote-player-core
+@Suppress("RestrictedApiAndroidX") // Referring to RemoteText, remote-player-core, remote-creation
 internal fun RemoteDocumentPreview(@RawRes resId: Int) {
     val resources = LocalResources.current
     val result by

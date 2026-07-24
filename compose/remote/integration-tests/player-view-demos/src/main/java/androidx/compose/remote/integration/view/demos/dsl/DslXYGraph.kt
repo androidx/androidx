@@ -99,7 +99,7 @@ interface PlotBase {
     fun calcRange(scope: RcScope): Range
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class FunctionPlot(
     val function: RcFloat,
     val startX: RcFloat,
@@ -138,7 +138,7 @@ class FunctionPlot(
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class DataPlot(val data: RcFloat) : PlotBase {
     override fun calcRange(scope: RcScope): Range {
         return Range(
@@ -189,7 +189,7 @@ fun RcCanvasScope.rcPlotXY(
     rcPlotXY(left, top, right, bottom, Plot(plot), prop)
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX")
 fun RcCanvasScope.rcPlotXY(
     left: RcFloat,
     top: RcFloat,
@@ -207,7 +207,7 @@ fun RcCanvasScope.rcPlotXY(
     }
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawLine, remote-creation
 private fun RcCanvasScope.drawAxis(params: PlotParams) {
     val w = params.right - params.left
     val h = params.bottom - params.top
@@ -227,7 +227,7 @@ private fun RcCanvasScope.drawAxis(params: PlotParams) {
     drawLine(params.left, params.top + params.offsetY, params.left + w, params.top + params.offsetY)
 }
 
-@Suppress("RestrictedApiAndroidX") // Referring to drawLine, drawPath, remote-creation
+@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 class Plot(val data: RcFloat) : PlotBase {
 
     override fun plot(scope: RcCanvasScope, params: PlotParams) {

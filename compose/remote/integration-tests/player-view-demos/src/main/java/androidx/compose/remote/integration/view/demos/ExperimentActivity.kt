@@ -210,11 +210,11 @@ fun getRemoteComposables(context: Context, list: ArrayList<RCDoc>) {
 class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
     private var buildTime: Float = 0f
 
-    @Composable
     @Suppress(
         "RestrictedApiAndroidX"
     ) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core,
     // remote-creation, remote-creation-core, remote-player-core, remote-player-view
+    @Composable
     override fun getDoc(): MutableState<CoreDocument?> {
         val time = System.nanoTime()
         val doc = RemoteDocument(ByteArrayInputStream(data, 0, data.size))
@@ -240,8 +240,8 @@ class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-player-core, remote-player-view,
+// remote-creation, remote-creation-core
 fun getComposeDoc(
     context: Context,
     name: String,
@@ -337,8 +337,8 @@ fun getComposeDoc(
 /** Display a list of samples and run them */
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-player-core, remote-player-view,
+// remote-creation, remote-creation-core
 class ExperimentActivity : ComponentActivity() {
     val composeKey = "USE_COMPOSE"
     val showComposeKey = "SHOW_COMPOSE"
@@ -832,11 +832,11 @@ class ExperimentActivity : ComponentActivity() {
     }
 }
 
-// ===============================end activity===================================
 @Suppress(
     "RestrictedApiAndroidX"
 ) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
 // remote-creation-core, remote-player-core, remote-player-view
+// ===============================end activity===================================
 @Composable
 fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, context: Context) {
     val orientation = LocalConfiguration.current.orientation
@@ -1032,11 +1032,11 @@ private fun DocumentView(
     }
 }
 
-@SuppressLint("AutoboxingStateValueProperty")
 @Suppress(
     "RestrictedApiAndroidX"
 ) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
 // remote-creation-core, remote-player-core, remote-player-view
+@SuppressLint("AutoboxingStateValueProperty")
 @Composable
 fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
     if (fileReady) {
@@ -1216,8 +1216,8 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
 
 @Suppress(
     "RestrictedApiAndroidX"
-) // Referring to RemoteCreationDisplayInfo, rememberRemoteDocument, remote-core, remote-creation,
-// remote-creation-core, remote-player-core, remote-player-view
+) // Referring to rememberRemoteDocument, remote-core, remote-creation, remote-creation-core,
+// remote-player-core, remote-player-view
 @Composable
 fun DisplayMain(
     fileReady: Boolean,
