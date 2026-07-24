@@ -3065,8 +3065,10 @@ package androidx.compose.material3 {
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors! colors-dgg9oW8(long, long, androidx.compose.runtime.Composer!, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors containedColors(androidx.compose.material3.SearchBarState state);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors containedColors(androidx.compose.material3.SearchBarState, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(optional float initialOffset, optional float initialOffsetLimit, optional float initialContentOffset, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec, optional boolean reverseLayout);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(float, float, float, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(optional androidx.compose.material3.SearchBarScrollState scrollState, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec, optional boolean reverseLayout);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(androidx.compose.material3.SearchBarScrollState?, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(optional float initialOffset, optional float initialOffsetLimit, optional float initialContentOffset, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec, optional boolean reverseLayout);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior enterAlwaysSearchBarScrollBehavior(float, float, float, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, boolean, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarScrollBehavior! enterAlwaysSearchBarScrollBehavior(float, float, kotlin.jvm.functions.Function0!, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.DecayAnimationSpec!, boolean, androidx.compose.runtime.Composer!, int, int);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getAppBarContentPadding();
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getCollapsedContainedSearchBarColor(androidx.compose.runtime.Composer?, int);
@@ -3130,6 +3132,8 @@ package androidx.compose.material3 {
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TopSearchBar-qKj4JfE(androidx.compose.material3.SearchBarState, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.compose.ui.graphics.Shape?, androidx.compose.material3.SearchBarColors?, float, float, androidx.compose.foundation.layout.WindowInsets?, androidx.compose.material3.SearchBarScrollBehavior?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarState rememberContainedSearchBarState(optional androidx.compose.material3.SearchBarValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForExpand, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForCollapse, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForContentFadeIn, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForContentFadeOut);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarState rememberContainedSearchBarState(androidx.compose.material3.SearchBarValue?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarScrollState rememberSearchBarScrollState(optional float initialScrollOffsetLimit, optional float initialScrollOffset, optional float initialContentOffset);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarScrollState rememberSearchBarScrollState(float, float, float, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarState rememberSearchBarState(optional androidx.compose.material3.SearchBarValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForExpand, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForCollapse);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarState rememberSearchBarState(androidx.compose.material3.SearchBarValue?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.SearchBarState rememberSearchBarWithGapState(optional androidx.compose.material3.SearchBarValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForExpand, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForCollapse, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForContentFadeIn, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpecForContentFadeOut);
@@ -3137,18 +3141,32 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Stable public interface SearchBarScrollBehavior {
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getContentOffset();
     method @InaccessibleFromKotlin public androidx.compose.ui.input.nestedscroll.NestedScrollConnection getNestedScrollConnection();
+    method @InaccessibleFromKotlin public androidx.compose.material3.SearchBarScrollState getScrollState();
+    method @InaccessibleFromKotlin public androidx.compose.ui.Modifier getSearchBarScrollBehaviorModifier();
+    method @Deprecated public default androidx.compose.ui.Modifier searchBarScrollBehavior(androidx.compose.ui.Modifier);
+    property public abstract androidx.compose.ui.input.nestedscroll.NestedScrollConnection nestedScrollConnection;
+    property public abstract androidx.compose.material3.SearchBarScrollState scrollState;
+    property public abstract androidx.compose.ui.Modifier searchBarScrollBehaviorModifier;
+  }
+
+  @androidx.compose.runtime.Stable public final class SearchBarScrollState {
+    ctor public SearchBarScrollState(float initialScrollOffsetLimit, float initialScrollOffset, float initialContentOffset);
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getContentOffset();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getScrollOffset();
     method @InaccessibleFromKotlin public float getScrollOffsetLimit();
-    method public androidx.compose.ui.Modifier searchBarScrollBehavior(androidx.compose.ui.Modifier);
     method @InaccessibleFromKotlin public void setContentOffset(float);
     method @InaccessibleFromKotlin public void setScrollOffset(float);
     method @InaccessibleFromKotlin public void setScrollOffsetLimit(float);
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float contentOffset;
-    property public abstract androidx.compose.ui.input.nestedscroll.NestedScrollConnection nestedScrollConnection;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float scrollOffset;
-    property public abstract float scrollOffsetLimit;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float contentOffset;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public float scrollOffset;
+    property public float scrollOffsetLimit;
+    field public static final androidx.compose.material3.SearchBarScrollState.Companion Companion;
+  }
+
+  public static final class SearchBarScrollState.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SearchBarScrollState,? extends java.lang.Object?> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.SearchBarScrollState,? extends java.lang.Object?> Saver;
   }
 
   @androidx.compose.runtime.Stable public final class SearchBarState {
@@ -3157,13 +3175,13 @@ package androidx.compose.material3 {
     method public suspend Object? animateToCollapsed(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? animateToExpanded(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public androidx.compose.material3.SearchBarValue getCurrentValue();
-    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getProgress();
     method @InaccessibleFromKotlin public androidx.compose.material3.SearchBarValue getTargetValue();
     method @InaccessibleFromKotlin public boolean isAnimating();
     method public suspend Object? snapTo(float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.compose.material3.SearchBarValue currentValue;
     property public boolean isAnimating;
-    property @FloatRange(from=0.0, to=1.0) public float progress;
+    property @FloatRange(from=0.0, to=1.0) @androidx.compose.runtime.annotation.FrequentlyChangingValue public float progress;
     property public androidx.compose.material3.SearchBarValue targetValue;
     field public static final androidx.compose.material3.SearchBarState.Companion Companion;
   }
