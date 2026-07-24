@@ -43,13 +43,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 public class SliderTest {
-    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun slider_button_supports_testtag() {

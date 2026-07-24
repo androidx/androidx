@@ -29,7 +29,6 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -39,7 +38,7 @@ import org.junit.runners.Parameterized
 class SemanticsActionTest(
     private val action: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     companion object {
         @JvmStatic

@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.DpSize
 import com.google.common.truth.Correspondence
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,7 +53,7 @@ private const val TargetTag = "TargetLayout"
 @RunWith(JUnit4::class)
 class PointerMoveDetectorTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val actualMoves = mutableListOf<Offset>()
 

@@ -51,7 +51,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -64,7 +63,7 @@ import org.junit.runner.RunWith
 @MediumTest
 class TextFieldLayoutStateCacheTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private var textFieldState = TextFieldState("abc")
     private var transformedTextFieldState =

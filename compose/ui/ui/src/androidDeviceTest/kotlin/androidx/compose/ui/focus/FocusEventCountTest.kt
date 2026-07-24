@@ -33,7 +33,6 @@ import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +51,7 @@ class FocusEventCountTest(private val focusEventType: String) {
             FocusEventModifierCall
         }
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     companion object {
         val OnFocusEventCall: Modifier.((FocusState) -> Unit) -> Modifier = { onFocusEvent(it) }

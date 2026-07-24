@@ -33,14 +33,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.tooling.PreviewActivity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class NavHostPreviewTest {
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<PreviewActivity>(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createAndroidComposeRule<PreviewActivity>()
 
     @Test
     fun navHostPreviewTest() {

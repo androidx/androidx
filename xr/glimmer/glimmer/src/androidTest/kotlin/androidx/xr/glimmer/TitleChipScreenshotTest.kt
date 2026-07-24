@@ -23,7 +23,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.xr.glimmer.samples.TitleChipSample
 import androidx.xr.glimmer.samples.TitleChipWithCardSample
 import androidx.xr.glimmer.samples.TitleChipWithLeadingIconSample
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +32,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TitleChipScreenshotTest() {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 

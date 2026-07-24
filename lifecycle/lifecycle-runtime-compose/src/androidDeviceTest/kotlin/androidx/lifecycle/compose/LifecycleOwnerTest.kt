@@ -27,7 +27,6 @@ import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +36,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class LifecycleOwnerTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun rememberLifecycleOwner_whenComposed_thenReturnsNewLifecycleOwner() = runTest {

@@ -35,11 +35,13 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusableComponent
 import androidx.compose.ui.focus.FocusableView
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -50,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Boolean) {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule(ComposeUiTestConfig(inputMode = InputMode.Keyboard))
 
     private lateinit var focusManager: FocusManager
     private lateinit var view: View

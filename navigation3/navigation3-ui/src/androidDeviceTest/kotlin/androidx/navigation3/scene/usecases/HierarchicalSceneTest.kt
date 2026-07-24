@@ -46,7 +46,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -107,7 +106,7 @@ private class HierarchicalSceneStrategy<T : Any>(private val columns: Int) : Sce
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class HierarchicalSceneTest {
-    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun testContentShown() {

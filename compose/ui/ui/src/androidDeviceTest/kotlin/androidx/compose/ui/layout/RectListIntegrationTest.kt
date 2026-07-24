@@ -75,7 +75,6 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.ComparisonFailure
 import org.junit.Rule
 import org.junit.Test
@@ -85,7 +84,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RectListIntegrationTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Test
     @SmallTest

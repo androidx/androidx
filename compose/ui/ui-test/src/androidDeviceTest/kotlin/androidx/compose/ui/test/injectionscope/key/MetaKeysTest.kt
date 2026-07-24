@@ -35,7 +35,6 @@ import androidx.compose.ui.test.util.TestTextField.Tag
 import androidx.compose.ui.test.withKeyDown
 import androidx.compose.ui.test.withKeysDown
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -46,7 +45,7 @@ import org.junit.Test
 @MediumTest
 class MetaKeysTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {

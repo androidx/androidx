@@ -30,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -40,10 +42,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -53,7 +53,11 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 class InitialFocusTest(private val initialFocusEnabled: Boolean, private val touchMode: Boolean) {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule
+    val rule =
+        createComposeRule(
+            ComposeUiTestConfig(inputMode = if (touchMode) InputMode.Touch else InputMode.Keyboard)
+        )
 
     lateinit var owner: View
     lateinit var layoutDirection: LayoutDirection
@@ -65,12 +69,10 @@ class InitialFocusTest(private val initialFocusEnabled: Boolean, private val tou
         previousFlagValue = ComposeUiFlags.isInitialFocusOnFocusableAvailable
         @OptIn(ExperimentalComposeUiApi::class)
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = initialFocusEnabled
-        InstrumentationRegistry.getInstrumentation().setInTouchModeCompat(touchMode)
     }
 
     @After
     fun resetTouchMode() {
-        InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
         @OptIn(ExperimentalComposeUiApi::class)
         ComposeUiFlags.isInitialFocusOnFocusableAvailable = previousFlagValue
     }

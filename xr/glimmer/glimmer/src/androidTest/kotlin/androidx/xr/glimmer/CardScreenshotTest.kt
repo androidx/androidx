@@ -29,7 +29,6 @@ import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconAndTrai
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconLongText
 import androidx.xr.glimmer.samples.CardWithTitleAndSubtitleAndLeadingIconSample
 import androidx.xr.glimmer.samples.CardWithTrailingIconSample
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +38,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CardScreenshotTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 

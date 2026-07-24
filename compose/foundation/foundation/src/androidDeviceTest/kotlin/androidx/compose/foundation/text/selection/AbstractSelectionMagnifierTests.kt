@@ -57,7 +57,6 @@ import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.sign
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
@@ -69,7 +68,7 @@ import org.junit.Test
  */
 internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
     @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     protected val defaultMagnifierSize = IntSize.Zero

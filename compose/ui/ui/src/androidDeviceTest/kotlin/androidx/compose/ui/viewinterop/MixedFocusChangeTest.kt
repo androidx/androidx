@@ -55,14 +55,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MixedFocusChangeTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity2>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity2>()
 
     @Before
     fun checkPreconditions() {

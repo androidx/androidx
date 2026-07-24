@@ -33,7 +33,6 @@ import androidx.wear.compose.integration.demos.WearComposeDemos
 import androidx.wear.compose.integration.demos.common.Demo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -51,8 +50,7 @@ private val ignoredDemos =
 @RunWith(AndroidJUnit4::class)
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
-    @get:Rule
-    val rule = createAndroidComposeRule<DemoActivity>(effectContext = StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<DemoActivity>()
 
     @Test
     fun demoApp_builds() {

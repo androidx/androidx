@@ -85,7 +85,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
@@ -100,8 +99,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DraggableTest {
 
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createComposeRule(testDispatcher)
+    @get:Rule val rule = createComposeRule()
 
     private val draggableBoxTag = "dragTag"
 
@@ -910,7 +908,7 @@ class DraggableTest {
 
     @Test
     fun draggable_resumesNormally_whenInterruptedWithHigherPriority() =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             var total = 0f
             var dragStopped = 0f
             val state = DraggableState { total += it }
@@ -949,7 +947,7 @@ class DraggableTest {
 
     @Test
     fun draggable_resumesNormally_whenInterruptedWithHigherPriority_indirectPointer() =
-        runTest(testDispatcher) {
+        runTest(rule.mainClock.scheduler) {
             var total = 0f
             var dragStopped = 0f
             val state = DraggableState { total += it }

@@ -21,7 +21,6 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +28,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class LocalActivityTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun testLocalActivityResolved() {

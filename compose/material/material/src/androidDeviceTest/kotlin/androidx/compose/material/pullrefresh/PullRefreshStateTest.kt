@@ -43,7 +43,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +52,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterialApi::class)
 class PullRefreshStateTest {
 
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
     private val pullRefreshNode = rule.onNodeWithTag(PullRefreshTag)
 

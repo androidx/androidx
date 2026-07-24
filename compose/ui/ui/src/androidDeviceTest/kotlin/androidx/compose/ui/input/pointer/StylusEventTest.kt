@@ -35,13 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.InputDeviceCompat
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 @MediumTest
 class StylusEventTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
     private val tag = "Stylus Event Test Tag"
 
     /**

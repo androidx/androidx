@@ -29,7 +29,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Rule
@@ -45,7 +44,7 @@ class EmbeddedPhotoPickerStateImplTest {
     private val TestEmbeddedPhotoPickerProvider.lastTestSession: TestEmbeddedPhotoPickerSession
         get() = sessions.last() as TestEmbeddedPhotoPickerSession
 
-    @get:Rule val composeTestRule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     @ExperimentalPhotoPickerComposeApi

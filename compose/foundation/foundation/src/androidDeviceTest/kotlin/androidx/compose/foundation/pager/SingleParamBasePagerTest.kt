@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 
 /**
@@ -68,8 +67,7 @@ import org.junit.Rule
  */
 open class SingleParamBasePagerTest {
 
-    val testDispatcher = StandardTestDispatcher()
-    @get:Rule val rule = createParameterizedComposeTestRule<SingleParamConfig>(testDispatcher)
+    @get:Rule val rule = createParameterizedComposeTestRule<SingleParamConfig>()
 
     lateinit var scope: CoroutineScope
     var pagerSize: Int = 0

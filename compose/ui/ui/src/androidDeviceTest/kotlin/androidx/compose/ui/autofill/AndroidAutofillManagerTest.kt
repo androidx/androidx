@@ -81,7 +81,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.Ignore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -103,7 +102,7 @@ import org.mockito.kotlin.verifyZeroInteractions
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4::class)
 class AndroidAutofillManagerTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val height = 200.dp
     private val width = 200.dp

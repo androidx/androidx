@@ -48,13 +48,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 public class StepperTest {
-    @get:Rule public val rule = createComposeRule(effectContext = StandardTestDispatcher())
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun supports_testtag() {
