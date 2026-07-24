@@ -320,6 +320,7 @@ public final class Preview extends UseCase {
     /**
      * Creates previously allocated {@link DeferrableSurface} include those allocated by nodes.
      */
+    @MainThread
     private void clearPipeline() {
         // Closes the old error listener
         if (mCloseableErrorListener != null) {
@@ -377,9 +378,9 @@ public final class Preview extends UseCase {
                     if (getCamera() == null) {
                         return;
                     }
-
+                    Logger.w(TAG, "SessionConfig onError: error = " + error);
                     updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
-                            getAttachedStreamSpec());
+                            requireNonNull(getAttachedStreamSpec()));
                     notifyReset();
                 });
 
@@ -435,7 +436,7 @@ public final class Preview extends UseCase {
                 return;
             }
             // When attached to VirtualCamera (e.g. under StreamSharing), skip creating a temporary
-            // SurfaceRequest that StreamSharing.resetPipeline() would immediately recreate.
+            // SurfaceRequest that StreamSharing.updateConfigAndOutput() would immediately recreate.
             if (camera.getHasTransform()) {
                 updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
                         requireNonNull(getAttachedStreamSpec()));
@@ -563,6 +564,7 @@ public final class Preview extends UseCase {
         setSurfaceProvider(DEFAULT_SURFACE_PROVIDER_EXECUTOR, surfaceProvider);
     }
 
+    @MainThread
     private void updateConfigAndOutput(@NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         mSessionConfigBuilder = createPipeline(config, streamSpec);
