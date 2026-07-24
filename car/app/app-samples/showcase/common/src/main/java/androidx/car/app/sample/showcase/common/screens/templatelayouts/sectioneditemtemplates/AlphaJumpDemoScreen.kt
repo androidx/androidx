@@ -25,6 +25,7 @@ import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
+import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.GridItem
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
@@ -233,7 +234,7 @@ class AlphaJumpDemoScreen(carContext: CarContext) : Screen(carContext) {
                                     imageResources[i % imageResources.size],
                                 )
                             )
-                            .setTint(CarColor.PRIMARY)
+                            .setStyle(CarIconStyle.Builder().setTint(CarColor.PRIMARY).build())
                             .build()
                     )
             gridBuilderAugment?.invoke(gridBuilder, i)

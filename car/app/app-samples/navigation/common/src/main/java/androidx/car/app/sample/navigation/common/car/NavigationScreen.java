@@ -27,6 +27,7 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.Destination;
@@ -170,9 +171,9 @@ public final class NavigationScreen extends Screen {
                 new Action.Builder()
                         .setTitle("Voice")
                         .setIcon(new CarIcon.Builder(
-                            IconCompat.createWithResource(getCarContext(),
-                                    R.drawable.ic_mic)).build()).setOnClickListener(
-                            mMicrophoneRecorder::record)
+                                IconCompat.createWithResource(getCarContext(),
+                                        R.drawable.ic_mic)).build()).setOnClickListener(
+                                mMicrophoneRecorder::record)
                         .build());
         if (mIsNavigating) {
             actionStripBuilder.addAction(
@@ -212,7 +213,7 @@ public final class NavigationScreen extends Screen {
                         getCarContext(),
                         R.drawable.ic_pan_24));
         if (mIsInPanMode) {
-            panIconBuilder.setTint(CarColor.BLUE);
+            panIconBuilder.setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build());
         }
 
         builder.setMapActionStrip(new ActionStrip.Builder()
@@ -384,8 +385,8 @@ public final class NavigationScreen extends Screen {
                 .setAction(
                         CarPendingIntent.getCarApp(getCarContext(), 0,
                                 new Intent().setComponent(
-                                        new ComponentName(getCarContext(),
-                                                NavigationCarAppService.class))
+                                                new ComponentName(getCarContext(),
+                                                        NavigationCarAppService.class))
                                         .setAction(NavigationSession.EXECUTE_SCRIPT),
                                 0))
                 .build();

@@ -33,6 +33,7 @@ import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarIconSpan;
+import androidx.car.app.model.CarIconStyle;
 import androidx.car.app.model.CarLocation;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
@@ -111,7 +112,8 @@ public class SamplePlaces {
                                                 IconCompat.createWithResource(
                                                         carContext,
                                                         R.drawable.ic_commute_24px))
-                                                .setTint(iconTintColor)
+                                                .setStyle(new CarIconStyle.Builder().setTint(
+                                                        iconTintColor).build())
                                                 .build(),
                                         PlaceMarker.TYPE_ICON)
                                 .build()));
