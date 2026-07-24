@@ -18,7 +18,6 @@
 
 package androidx.xr.scenecore.spatial.core
 
-import android.util.Log
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.BoundsComponent
 import androidx.xr.scenecore.runtime.Entity
@@ -68,7 +67,6 @@ internal class BoundsComponentImpl : BoundsComponent {
             return false
         }
         if (entity !is GltfEntity) {
-            Log.w(TAG, "BoundsComponent can be attached to GltfEntity only.")
             return false
         }
         this.entity = entity
@@ -92,9 +90,5 @@ internal class BoundsComponentImpl : BoundsComponent {
         }
 
         this.entity = null
-    }
-
-    private companion object {
-        const val TAG = "BoundsComponentImpl"
     }
 }

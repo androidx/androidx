@@ -17,7 +17,6 @@
 
 package androidx.xr.scenecore
 
-import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.PlaneLabel
 import androidx.xr.arcore.PlaneType
@@ -541,14 +540,12 @@ public fun RtPerceivedResolutionResult.toPerceivedResolutionResult(): PerceivedR
 
 internal suspend fun <T> ListenableFuture<T>.awaitSuspending(): T {
     val deferred = CompletableDeferred<T>(coroutineContext[Job])
-    val futureBeingAwaited = this
 
     this.addListener(
         Runnable {
             try {
                 deferred.complete(this.get())
             } catch (e: Throwable) {
-                Log.e("AwaitSuspending", "ListenableFuture failed: $futureBeingAwaited", e)
                 deferred.completeExceptionally(e)
             }
         },
