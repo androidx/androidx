@@ -21,18 +21,18 @@ import androidx.compose.runtime.Immutable
 /**
  * Defines the fixed precedence levels for one-handed gesture interception.
  *
- * This priority system is used by the [GestureManager] to resolve conflicts when multiple
- * components in a UI hierarchy are eligible to handle a gesture. Because the system cannot
- * automatically determine intent in overlapping areas, developers should assign one of these
- * predefined priority levels to their components to establish a functional gesture hierarchy.
+ * This priority system is used to resolve conflicts when multiple components in a UI hierarchy are
+ * eligible to handle a gesture action. Because the system cannot automatically determine intent in
+ * overlapping areas, developers should assign one of these predefined priority levels to their
+ * components to establish a functional gesture hierarchy.
  *
- * Higher priority values take precedence over lower ones.
- *
- * This class wraps an internal integer value used to resolve gesture conflicts.
+ * For gestures with the same action, higher priority values take precedence over lower ones, so
+ * that [Clickable] takes priority over [Scrollable]. It is not recommended to register multiple
+ * gestures for the same action and priority (but if that is the case, all of them will be actioned)
  */
 @Immutable
 @JvmInline
-public value class GesturePriority private constructor(internal val value: Int) {
+public value class OneHandedGesturePriority private constructor(internal val value: Int) {
     public companion object {
         /**
          * Default priority level.
@@ -40,7 +40,7 @@ public value class GesturePriority private constructor(internal val value: Int) 
          * Used when no specific priority is defined. This level typically yields to any other
          * specified gesture priority.
          */
-        public val Unspecified: GesturePriority = GesturePriority(0)
+        public val Unspecified: OneHandedGesturePriority = OneHandedGesturePriority(0)
 
         /**
          * Priority for general scrollable areas, such as lists, pagers or containers.
@@ -48,7 +48,7 @@ public value class GesturePriority private constructor(internal val value: Int) 
          * This level but yields to [Clickable] elements to ensure interactive controls remain
          * accessible within a scrollable parent.
          */
-        public val Scrollable: GesturePriority = GesturePriority(100)
+        public val Scrollable: OneHandedGesturePriority = OneHandedGesturePriority(100)
 
         /**
          * Priority for interactive components like buttons, switches, or chips.
@@ -56,6 +56,6 @@ public value class GesturePriority private constructor(internal val value: Int) 
          * This is the highest priority tier. It must be used on individual controls to ensure they
          * capture gestures before their containing scrollable or pageable parents.
          */
-        public val Clickable: GesturePriority = GesturePriority(200)
+        public val Clickable: OneHandedGesturePriority = OneHandedGesturePriority(200)
     }
 }

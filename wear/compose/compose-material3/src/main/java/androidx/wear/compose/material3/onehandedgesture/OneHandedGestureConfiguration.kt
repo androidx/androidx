@@ -42,9 +42,9 @@ import androidx.compose.runtime.remember
  */
 @Composable
 public fun rememberOneHandedGestureConfiguration(
-    action: GestureAction,
+    action: OneHandedGestureAction,
     gestureId: String? = null,
-    priority: GesturePriority = GesturePriority.Unspecified,
+    priority: OneHandedGesturePriority = OneHandedGesturePriority.Unspecified,
 ): OneHandedGestureConfiguration {
     val compositeKey = currentCompositeKeyHashCode
     val finalGestureId =
@@ -70,7 +70,7 @@ public fun rememberOneHandedGestureConfiguration(
  * If multiple gestures are registered with identical actions and priorities, all of them will be
  * actioned simultaneously.
  *
- * @property action The [GestureAction] associated with this gesture specification.
+ * @property action The [OneHandedGestureAction] associated with this gesture specification.
  * @property gestureId A unique identifier for this gesture instance. This ID allows the system to
  *   track user interactions - for example, to mute gesture indicators that have been frequently
  *   shown or successfully performed, in accordance with user preferences. If the same ID is reused
@@ -83,9 +83,9 @@ public fun rememberOneHandedGestureConfiguration(
  */
 @Immutable
 public class OneHandedGestureConfiguration(
-    public val action: GestureAction,
+    public val action: OneHandedGestureAction,
     public val gestureId: String,
-    public val priority: GesturePriority = GesturePriority.Unspecified,
+    public val priority: OneHandedGesturePriority = OneHandedGesturePriority.Unspecified,
 ) {
 
     override fun equals(other: Any?): Boolean {

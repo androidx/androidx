@@ -26,15 +26,15 @@ import androidx.compose.ui.unit.dp
  * (e.g., standard vs. compact buttons).
  */
 @JvmInline
-public value class GestureIndicatorSize internal constructor(internal val size: Dp) {
+public value class OneHandedGestureIndicatorSize internal constructor(internal val size: Dp) {
     public companion object {
         /**
          * The recommended default size for indicators when used inside a content of size 48dp or
          * greater
          */
-        public val Medium: GestureIndicatorSize = GestureIndicatorSize(36.dp)
+        public val Medium: OneHandedGestureIndicatorSize = OneHandedGestureIndicatorSize(36.dp)
 
         /** The recommended size for indicators when used inside a content of size less than 48dp */
-        public val Small: GestureIndicatorSize = GestureIndicatorSize(28.dp)
+        public val Small: OneHandedGestureIndicatorSize = OneHandedGestureIndicatorSize(28.dp)
     }
 }
