@@ -20,7 +20,6 @@ package androidx.appsearch.flags;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
 import java.util.Collection;
 
@@ -241,13 +240,6 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_OPTIMIZE_IMPROVEMENTS =
             FLAG_PREFIX + "enable_optimize_improvements";
-
-    /**
-     * Controls whether repeated fields may set joinable value type to
-     * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
-     */
-    public static final String FLAG_ENABLE_REPEATED_FIELD_JOINS =
-            FLAG_PREFIX + "enable_repeated_field_joins";
 
     /** Enables delete propagation API. */
     public static final String FLAG_ENABLE_DELETE_PROPAGATION_RW =
@@ -577,14 +569,6 @@ public final class Flags {
     public static boolean enableOptimizeImprovements() {
         // TODO(b/455903084): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
-    }
-
-    /**
-     * Controls whether repeated fields may set joinable value type to
-     * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
-     */
-    public static boolean enableRepeatedFieldJoins() {
-        return true;
     }
 
     /**

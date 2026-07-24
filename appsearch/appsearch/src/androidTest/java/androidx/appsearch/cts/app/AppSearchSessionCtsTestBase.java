@@ -1407,7 +1407,6 @@ public abstract class AppSearchSessionCtsTestBase {
                                 + "not supported on this AppSearch implementation.");
     }
 
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_REPEATED_FIELD_JOINS)
     @Test
     public void testGetSchema_joinableValueTypeQualifiedIdRepeatedProperty() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
@@ -1466,7 +1465,7 @@ public abstract class AppSearchSessionCtsTestBase {
             //   platform schema, platform SDK AppSearchSchema.StringPropertyConfig.Builder#build
             //   will throw this exception.
             // - New behavior in platform SDK does not throw IllegalStateException. If this test
-            //   runs against newer builds on Android C+ devices (with enableRepeatedFieldJoins()
+            //   runs against newer builds on Android C+ devices (with getAllowRepeatedFieldJoins()
             //   ON), then:
             //   - AppSearch and Icing WON't throw exception or return an error anymore.
             //   - Normally, this test should've been skipped since the feature is enabled, but

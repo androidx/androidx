@@ -214,12 +214,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableRepeatedFieldJoins() {
-        assertThat(Flags.FLAG_ENABLE_REPEATED_FIELD_JOINS).isEqualTo(
-                "com.android.appsearch.flags.enable_repeated_field_joins");
-    }
-
-    @Test
     public void testFlagValue_enableDeletePropagationRw() {
         assertThat(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
                 .isEqualTo("com.android.appsearch.flags.enable_delete_propagation_rw");

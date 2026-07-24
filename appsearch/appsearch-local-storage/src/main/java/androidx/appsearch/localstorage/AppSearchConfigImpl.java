@@ -202,8 +202,8 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
-    public boolean enableRepeatedFieldJoins() {
-        return mIcingOptionsConfig.enableRepeatedFieldJoins();
+    public boolean getAllowRepeatedFieldJoins() {
+        return mIcingOptionsConfig.getAllowRepeatedFieldJoins();
     }
 
     @Override
