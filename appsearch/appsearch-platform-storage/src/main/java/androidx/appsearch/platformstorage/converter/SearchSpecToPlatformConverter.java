@@ -168,7 +168,7 @@ public final class SearchSpecToPlatformConverter {
                         + " is not available on this AppSearch implementation.");
             }
             ApiHelperForB.addEmbeddingParameters(platformBuilder,
-                    jetpackSearchSpec.getEmbeddingParameters());
+                    jetpackSearchSpec.getEmbeddingParameters(), adapter);
             ApiHelperForB.setDefaultEmbeddingSearchMetricType(platformBuilder,
                     jetpackSearchSpec.getDefaultEmbeddingSearchMetricType());
         }
@@ -371,15 +371,26 @@ public final class SearchSpecToPlatformConverter {
         }
 
         @DoNotInline
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         static void addEmbeddingParameters(
                 android.app.appsearch.SearchSpec.@NonNull Builder platformBuilder,
-                @NonNull List<EmbeddingVector> embeddingVectors) {
+                @NonNull List<EmbeddingVector> embeddingVectors,
+                @NonNull PlatformConversionAdapter adapter) {
+            Preconditions.checkNotNull(adapter);
             android.app.appsearch.EmbeddingVector[] platformEmbeddingVectors =
                     new android.app.appsearch.EmbeddingVector[embeddingVectors.size()];
             for (int i = 0; i < embeddingVectors.size(); i++) {
-                platformEmbeddingVectors[i] = new android.app.appsearch.EmbeddingVector(
-                        embeddingVectors.get(i).getValues(),
-                        embeddingVectors.get(i).getModelSignature());
+                EmbeddingVector jetpackEmbeddingVector = embeddingVectors.get(i);
+                // TODO(b/390450012): Update this once pre-quantized embedding vectors are
+                //  supported.
+                if (jetpackEmbeddingVector.getQuantizedData() != null) {
+                    platformEmbeddingVectors[i] =
+                            adapter.convertQuantizedEmbeddingVector(jetpackEmbeddingVector);
+                } else {
+                    platformEmbeddingVectors[i] = new android.app.appsearch.EmbeddingVector(
+                            jetpackEmbeddingVector.getValues(),
+                            jetpackEmbeddingVector.getModelSignature());
+                }
             }
             platformBuilder.addEmbeddingParameters(platformEmbeddingVectors);
         }
