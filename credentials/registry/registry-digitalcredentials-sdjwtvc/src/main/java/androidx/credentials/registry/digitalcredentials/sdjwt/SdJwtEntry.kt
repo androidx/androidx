@@ -16,6 +16,8 @@
 
 package androidx.credentials.registry.digitalcredentials.sdjwt
 
+import androidx.credentials.registry.provider.DelegationType
+import androidx.credentials.registry.provider.DelegationTypeAnnotation
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialEntry
 import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayProperties
 
@@ -34,12 +36,20 @@ import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayPro
  * @constructor
  * @throws IllegalArgumentException if [id] length is greater than 64 characters
  */
-public class SdJwtEntry(
+public class SdJwtEntry
+@JvmOverloads
+constructor(
     public val verifiableCredentialType: String,
     public val claims: List<SdJwtClaim>,
     entryDisplayPropertySet: Set<EntryDisplayProperties>,
     id: String,
-) : DigitalCredentialEntry(id = id, entryDisplayPropertySet = entryDisplayPropertySet) {
+    @DelegationTypeAnnotation delegationType: Int = DelegationType.NONE,
+) :
+    DigitalCredentialEntry(
+        id = id,
+        entryDisplayPropertySet = entryDisplayPropertySet,
+        delegationType = delegationType,
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SdJwtEntry) return false
@@ -47,7 +57,7 @@ public class SdJwtEntry(
             this.entryDisplayPropertySet == other.entryDisplayPropertySet &&
             this.verifiableCredentialType == other.verifiableCredentialType &&
             this.claims == other.claims &&
-            this.entryDisplayPropertySet == other.entryDisplayPropertySet
+            this.delegationType == other.delegationType
     }
 
     override fun hashCode(): Int {
@@ -55,6 +65,7 @@ public class SdJwtEntry(
         result = 31 * result + entryDisplayPropertySet.hashCode()
         result = 31 * result + verifiableCredentialType.hashCode()
         result = 31 * result + claims.hashCode()
+        result = 31 * result + delegationType
         return result
     }
 }

@@ -44,13 +44,13 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  *   [androidx.credentials.CredentialManager] to handle the authentication flow
  */
 class ProviderGetCredentialRequest
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo,
     val biometricPromptResult: BiometricPromptResult?,
     // The source Bundle used to construct this request, if applicable
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val sourceBundle: Bundle?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) val sourceBundle: Bundle?,
 ) {
 
     /**
