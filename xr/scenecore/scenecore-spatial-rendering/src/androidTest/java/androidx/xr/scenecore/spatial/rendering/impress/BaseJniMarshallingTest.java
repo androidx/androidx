@@ -18,8 +18,6 @@ package androidx.xr.scenecore.spatial.rendering.impress;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Log;
-
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
@@ -35,14 +33,7 @@ public abstract class BaseJniMarshallingTest {
     // It is safe to suppress this warning because this is a test class. There is no risk of
     // external callers causing deadlocks by synchronizing on this.
     protected static synchronized void loadLibraryAsync(@NonNull String nativeLibraryName) {
-        try {
-            System.loadLibrary(nativeLibraryName);
-        } catch (UnsatisfiedLinkError e) {
-            Log.e(
-                    "BaseJniMarshallingTest",
-                    "Unable to load " + nativeLibraryName + " " + e.getMessage());
-            return;
-        }
+        System.loadLibrary(nativeLibraryName);
     }
 
     @Before
