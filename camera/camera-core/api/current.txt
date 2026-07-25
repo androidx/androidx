@@ -193,6 +193,15 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig getCameraXConfig();
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface CameraXDsl {
+  }
+
+  public final class CameraXDslKt {
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static androidx.camera.core.ImageAnalysis imageAnalysis(kotlin.jvm.functions.Function1<androidx.camera.core.ImageAnalysisScope,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static androidx.camera.core.ImageCapture imageCapture(kotlin.jvm.functions.Function1<androidx.camera.core.ImageCaptureScope,kotlin.Unit> block);
+    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static androidx.camera.core.Preview preview(kotlin.jvm.functions.Function1<androidx.camera.core.PreviewScope,kotlin.Unit> block);
+  }
+
   public class CompositionSettings {
     method public float getAlpha();
     method @ColorInt public int getBorderColor();
@@ -377,6 +386,33 @@ package androidx.camera.core {
     method public boolean isOutputFormatSupported(int);
   }
 
+  @androidx.camera.core.CameraXDsl public final class ImageAnalysisScope {
+    method @BytecodeOnly @Deprecated public java.util.concurrent.Executor getBackgroundExecutor();
+    method @BytecodeOnly @Deprecated public int getBackpressureStrategy();
+    method @BytecodeOnly @Deprecated public int getImageQueueDepth();
+    method @BytecodeOnly @Deprecated public int getOutputImageFormat();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.resolutionselector.ResolutionSelector getResolutionSelector();
+    method @BytecodeOnly @Deprecated public String getTargetName();
+    method @BytecodeOnly @Deprecated public int getTargetRotation();
+    method @BytecodeOnly @Deprecated public boolean isOutputImageRotationEnabled();
+    method @BytecodeOnly public void setBackgroundExecutor(java.util.concurrent.Executor);
+    method @BytecodeOnly public void setBackpressureStrategy(int);
+    method @BytecodeOnly public void setImageQueueDepth(int);
+    method @BytecodeOnly public void setOutputImageFormat(int);
+    method @BytecodeOnly public void setOutputImageRotationEnabled(boolean);
+    method @BytecodeOnly public void setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
+    method @BytecodeOnly public void setTargetName(String);
+    method @BytecodeOnly public void setTargetRotation(int);
+    property @Deprecated @kotlin.jvm.JvmSynthetic public java.util.concurrent.Executor backgroundExecutor;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int backpressureStrategy;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int imageQueueDepth;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isOutputImageRotationEnabled;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int outputImageFormat;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.resolutionselector.ResolutionSelector resolutionSelector;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public String targetName;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int targetRotation;
+  }
+
   public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
@@ -513,6 +549,42 @@ package androidx.camera.core {
     field public static final long UNDEFINED_PROCESSING_LATENCY = -1L; // 0xffffffffffffffffL
   }
 
+  @androidx.camera.core.CameraXDsl public final class ImageCaptureScope {
+    method @BytecodeOnly @Deprecated public int getCaptureMode();
+    method @BytecodeOnly @Deprecated public int getFlashMode();
+    method @BytecodeOnly @Deprecated public java.util.concurrent.Executor getIoExecutor();
+    method @BytecodeOnly @Deprecated @IntRange(from=1L, to=100L) public int getJpegQuality();
+    method @BytecodeOnly @Deprecated public int getOutputFormat();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.resolutionselector.ResolutionSelector getPostviewResolutionSelector();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.resolutionselector.ResolutionSelector getResolutionSelector();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.ImageCapture.ScreenFlash getScreenFlash();
+    method @BytecodeOnly @Deprecated public String getTargetName();
+    method @BytecodeOnly @Deprecated public int getTargetRotation();
+    method @BytecodeOnly @Deprecated public boolean isPostviewEnabled();
+    method @BytecodeOnly public void setCaptureMode(int);
+    method @BytecodeOnly public void setFlashMode(int);
+    method @BytecodeOnly public void setIoExecutor(java.util.concurrent.Executor);
+    method @BytecodeOnly @IntRange(from=1L, to=100L) public void setJpegQuality(int);
+    method @BytecodeOnly public void setOutputFormat(int);
+    method @BytecodeOnly public void setPostviewEnabled(boolean);
+    method @BytecodeOnly public void setPostviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
+    method @BytecodeOnly public void setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
+    method @BytecodeOnly public void setScreenFlash(androidx.camera.core.ImageCapture.ScreenFlash);
+    method @BytecodeOnly public void setTargetName(String);
+    method @BytecodeOnly public void setTargetRotation(int);
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int captureMode;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int flashMode;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public java.util.concurrent.Executor ioExecutor;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isPostviewEnabled;
+    property @Deprecated @IntRange(from=1L, to=100L) @kotlin.jvm.JvmSynthetic public int jpegQuality;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int outputFormat;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.resolutionselector.ResolutionSelector postviewResolutionSelector;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.resolutionselector.ResolutionSelector resolutionSelector;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.ImageCapture.ScreenFlash screenFlash;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public String targetName;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int targetRotation;
+  }
+
   public interface ImageInfo {
     method public default int getFlashState();
     method public int getRotationDegrees();
@@ -618,6 +690,30 @@ package androidx.camera.core {
 
   public interface PreviewCapabilities {
     method public boolean isStabilizationSupported();
+  }
+
+  @androidx.camera.core.CameraXDsl public final class PreviewScope {
+    method @BytecodeOnly @Deprecated public androidx.camera.core.DynamicRange getDynamicRange();
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public int getMirrorMode();
+    method @BytecodeOnly @Deprecated public androidx.camera.core.resolutionselector.ResolutionSelector getResolutionSelector();
+    method @BytecodeOnly @Deprecated public android.util.Range getTargetFrameRate();
+    method @BytecodeOnly @Deprecated public String getTargetName();
+    method @BytecodeOnly @Deprecated public int getTargetRotation();
+    method @BytecodeOnly @Deprecated public boolean isPreviewStabilizationEnabled();
+    method @BytecodeOnly public void setDynamicRange(androidx.camera.core.DynamicRange);
+    method @BytecodeOnly @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public void setMirrorMode(int);
+    method @BytecodeOnly public void setPreviewStabilizationEnabled(boolean);
+    method @BytecodeOnly public void setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
+    method @BytecodeOnly public void setTargetFrameRate(android.util.Range);
+    method @BytecodeOnly public void setTargetName(String);
+    method @BytecodeOnly public void setTargetRotation(int);
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.DynamicRange dynamicRange;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isPreviewStabilizationEnabled;
+    property @Deprecated @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode @kotlin.jvm.JvmSynthetic public int mirrorMode;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.resolutionselector.ResolutionSelector resolutionSelector;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public android.util.Range<java.lang.Integer> targetFrameRate;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public String targetName;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int targetRotation;
   }
 
   public class ProcessingException extends java.lang.Exception {
