@@ -117,6 +117,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
@@ -4502,6 +4503,60 @@ class AndroidPointerInputTest {
     }
 
     @Test
+    fun mousePress_afterHoverExit_doesNotReadPreviousMotionEventAfterRecycle() {
+        lateinit var layoutCoordinates: LayoutCoordinates
+        val latch = CountDownLatch(1)
+        val events = mutableListOf<PointerEvent>()
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier.fillMaxSize()
+                        .onGloballyPositioned {
+                            layoutCoordinates = it
+                            latch.countDown()
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    events += awaitPointerEvent()
+                                }
+                            }
+                        }
+                )
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            val root = layoutCoordinates.findRootCoordinates()
+            val pos = root.localPositionOf(layoutCoordinates, Offset.Zero)
+            val pointerProperties = PointerProperties(0).apply { toolType = TOOL_TYPE_MOUSE }
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+
+            // Real MotionEvent allows reads after recycle(), so use a spy to enforce the
+            // ownership contract while keeping the event data real.
+            androidComposeView.setPreviousMotionEventForTest(
+                recycleCheckingHoverExitMotionEvent(pos)
+            )
+
+            androidComposeView.dispatchTouchEvent(
+                MotionEvent(
+                    eventTime = 0,
+                    action = ACTION_DOWN,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties = arrayOf(pointerProperties),
+                    pointerCoords = arrayOf(PointerCoords(pos.x, pos.y)),
+                )
+            )
+        }
+
+        rule.runOnUiThread {
+            assertThat(events.map { it.type }).containsExactly(PointerEventType.Press)
+        }
+    }
+
+    @Test
     fun hoverEnterPressExitEnterExitRelease() {
         var outerCoordinates: LayoutCoordinates? = null
         var innerCoordinates: LayoutCoordinates? = null
@@ -7253,6 +7308,43 @@ private fun countDown(block: (CountDownLatch) -> Unit) {
     val countDownLatch = CountDownLatch(1)
     block(countDownLatch)
     assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
+}
+
+private fun AndroidComposeView.setPreviousMotionEventForTest(motionEvent: MotionEvent) {
+    val field = AndroidComposeView::class.java.getDeclaredField("previousMotionEvent")
+    field.isAccessible = true
+    field.set(this, motionEvent)
+}
+
+private fun recycleCheckingHoverExitMotionEvent(position: Offset): MotionEvent {
+    var recycled = false
+
+    fun checkNotRecycled() {
+        check(!recycled) { "previousMotionEvent should not be read after recycle()" }
+    }
+
+    val event =
+        spy(
+            MotionEvent(
+                eventTime = 0,
+                action = ACTION_HOVER_EXIT,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties =
+                    arrayOf(PointerProperties(0).apply { toolType = TOOL_TYPE_MOUSE }),
+                pointerCoords = arrayOf(PointerCoords(position.x, position.y)),
+                buttonState = 0,
+            )
+        )
+    doAnswer {
+        checkNotRecycled()
+        ACTION_HOVER_EXIT
+    }.whenever(event).action
+    doAnswer {
+        recycled = true
+        null
+    }.whenever(event).recycle()
+    return event
 }
 
 private fun MotionEvent(
