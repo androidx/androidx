@@ -151,6 +151,166 @@ public interface Metadata {
 }
 
 /**
+ * An interface that provides compatibility-focused, read-only query access to
+ * [CameraCharacteristics].
+ *
+ * Use this interface to query camera capabilities, physical properties, and supported
+ * configurations. Implementing classes can abstract OS version differences and cache
+ * expensive-to-retrieve properties to ensure efficient access across all API levels.
+ *
+ * `CameraCharacteristicsMetadata` extends [Metadata], supporting type-safe retrieval of custom
+ * library-defined metadata keys via [Metadata.Key] in addition to native
+ * [CameraCharacteristics.Key] keys.
+ *
+ * NOTE: This interface is not stable for inheritance. Do not implement this interface directly. For
+ * testing, use the fakes in the `androidx.camera.common.testing` package.
+ *
+ * ### Example
+ *
+ * Querying native and custom keys:
+ * ```kotlin
+ * val characteristics: CameraCharacteristicsMetadata = ...
+ *
+ * // Query a native CameraCharacteristics key:
+ * val lensFacing: Int? = characteristics[CameraCharacteristics.LENS_FACING]
+ *
+ * // Query a custom Metadata key:
+ * val customValue: String? = characteristics[MY_CUSTOM_METADATA_KEY]
+ * ```
+ */
+public interface CameraCharacteristicsMetadata : Metadata, UnsafeWrapper {
+    /**
+     * Retrieves the value of the specified [CameraCharacteristics.Key].
+     *
+     * @param key The key to query.
+     * @return The value of the key, or `null` if the key is not present or unsupported.
+     */
+    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+
+    /**
+     * Retrieves the value of the specified [CameraCharacteristics.Key], or returns [default] if the
+     * value is `null` or the key is unsupported.
+     *
+     * @param key The key to query.
+     * @param default The value to return if the key is not present or unsupported.
+     * @return The value of the key, or [default] if null.
+     */
+    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
+        return get(key) ?: default
+    }
+}
+
+/**
+ * An interface that provides compatibility-focused, read-only query access to the settings applied
+ * to a camera capture request.
+ *
+ * Use this interface to inspect the configuration parameters sent to the camera device during a
+ * capture session. Implementing classes can abstract OS version differences and cache
+ * expensive-to-retrieve properties to ensure efficient access across all API levels.
+ *
+ * `CaptureRequestMetadata` extends [Metadata], supporting type-safe retrieval of custom
+ * library-defined metadata keys via [Metadata.Key] in addition to native [CaptureRequest.Key] keys
+ * (using [get] and [getOrDefault]).
+ *
+ * `CaptureRequestMetadata` is a superinterface of [CaptureRequestWrapper].
+ *
+ * NOTE: This interface is not stable for inheritance. Do not implement this interface directly. For
+ * testing, use the fakes in the `androidx.camera.common.testing` package.
+ *
+ * ### Example
+ *
+ * Querying native and custom keys:
+ * ```kotlin
+ * val request: CaptureRequestMetadata = ...
+ *
+ * // Query a native CaptureRequest key:
+ * val exposureTime: Long? = request[CaptureRequest.SENSOR_EXPOSURE_TIME]
+ *
+ * // Query a custom Metadata key:
+ * val customKey = Metadata.Key<Int>("androidx.camera.custom_key")
+ * val customValue: Int? = request[customKey]
+ * ```
+ *
+ * @see Metadata
+ */
+public interface CaptureRequestMetadata : Metadata, UnsafeWrapper {
+    /**
+     * Retrieves the value of the specified [CaptureRequest.Key].
+     *
+     * @param key The key to query.
+     * @return The value of the key, or `null` if the key is not present or unsupported.
+     */
+    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+
+    /**
+     * Retrieves the value of the specified [CaptureRequest.Key], or returns [default] if the key is
+     * not present or its value is `null`.
+     *
+     * @param key The key to query.
+     * @param default The value to return if the key is not present or is `null`.
+     * @return The value of the key, or [default] if the key is not present or its value is `null`.
+     */
+    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
+        return get(key) ?: default
+    }
+}
+
+/**
+ * An interface that provides compatibility-focused, read-only query access to the results of a
+ * single image capture.
+ *
+ * Use this interface to query the results of a single image capture, including sensor exposure,
+ * lens status, and 3A states. Implementing classes can abstract OS version differences and cache
+ * expensive-to-retrieve properties to ensure efficient access across all API levels.
+ *
+ * `CaptureResultMetadata` extends [Metadata], supporting type-safe retrieval of custom
+ * library-defined metadata keys via [Metadata.Key] in addition to native [CaptureResult.Key] keys
+ * (using [get] and [getOrDefault]).
+ *
+ * `CaptureResultMetadata` is a superinterface of [CaptureResultWrapper].
+ *
+ * NOTE: This interface is not stable for inheritance. Do not implement this interface directly. For
+ * testing, use the fakes in the `androidx.camera.common.testing` package.
+ *
+ * ### Example
+ *
+ * Querying native and custom keys:
+ * ```kotlin
+ * val result: CaptureResultMetadata = ...
+ *
+ * // Query a native CaptureResult key:
+ * val lensState: Int? = result[CaptureResult.LENS_STATE]
+ *
+ * // Query a custom Metadata key:
+ * val customKey = Metadata.Key<Int>("androidx.camera.custom_key")
+ * val customValue: Int? = result[customKey]
+ * ```
+ *
+ * @see Metadata
+ */
+public interface CaptureResultMetadata : Metadata, UnsafeWrapper {
+    /**
+     * Retrieves the value of the specified [CaptureResult.Key].
+     *
+     * @param key The key to query.
+     * @return The value of the key, or `null` if the key is not present or unsupported.
+     */
+    public operator fun <T> get(key: CaptureResult.Key<T>): T?
+
+    /**
+     * Retrieves the value of the specified [CaptureResult.Key], or returns [default] if the key is
+     * not present or its value is null.
+     *
+     * @param key The key to query.
+     * @param default The value to return if the key is not present or its value is null.
+     * @return The value of the key, or [default] if null.
+     */
+    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
+        return get(key) ?: default
+    }
+}
+
+/**
  * Helper extension to perform type-safe unchecked casts from generic maps.
  *
  * This is an internal helper to retrieve a value from a map of [Metadata.Key] to generic objects,
