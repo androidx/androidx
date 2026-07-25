@@ -28,15 +28,15 @@ internal class SignatureView
 internal constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     View(context, attrs, defStyleAttr) {
 
-    private var signatureData: Signature? = null
-
-    internal fun setSignature(value: Signature) {
-        if (signatureData != value) {
-            signatureData = value
-            invalidate()
-            requestLayout()
+    internal var signatureData: Signature? = null
+        get() = field ?: error("signatureData accessed before initialization")
+        set(value) {
+            if (field != value) {
+                field = value
+                invalidate()
+                requestLayout()
+            }
         }
-    }
 
     private var currentZoom: Float = 1f
 
