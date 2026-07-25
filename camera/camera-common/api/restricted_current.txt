@@ -115,13 +115,16 @@ package androidx.camera.common {
     property public int rowStride;
   }
 
-  public interface CameraCharacteristicsWrapper extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
+  public interface CameraCharacteristicsMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
+    method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
+  }
+
+  public interface CameraCharacteristicsWrapper extends androidx.camera.common.CameraCharacteristicsMetadata {
     method @InaccessibleFromKotlin public String getCameraId();
     method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getCaptureRequestKeys();
     method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getCaptureResultKeys();
     method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getKeys();
-    method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
     method @InaccessibleFromKotlin public java.util.Set<androidx.camera.common.CameraId> getPhysicalCameraIds();
     method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getPhysicalCaptureRequestKeys();
     method @InaccessibleFromKotlin public java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> getRestrictedKeys();
@@ -273,20 +276,26 @@ package androidx.camera.common {
     field public static final androidx.camera.common.CameraMath INSTANCE;
   }
 
-  public interface CaptureRequestWrapper extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
+  public interface CaptureRequestMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CaptureRequest.Key<T> key);
-    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getKeys();
     method public default <T> T getOrDefault(android.hardware.camera2.CaptureRequest.Key<T> key, T default);
+  }
+
+  public interface CaptureRequestWrapper extends androidx.camera.common.CaptureRequestMetadata {
+    method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> getKeys();
     property public abstract java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> keys;
   }
 
-  public interface CaptureResultWrapper extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
+  public interface CaptureResultMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CaptureResult.Key<T> key);
+    method public default <T> T getOrDefault(android.hardware.camera2.CaptureResult.Key<T> key, T default);
+  }
+
+  public interface CaptureResultWrapper extends androidx.camera.common.CaptureResultMetadata {
     method @InaccessibleFromKotlin public String getCameraId();
     method @InaccessibleFromKotlin public androidx.camera.common.CaptureRequestWrapper getCaptureRequest();
     method @InaccessibleFromKotlin public long getFrameNumber();
     method @InaccessibleFromKotlin public java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> getKeys();
-    method public default <T> T getOrDefault(android.hardware.camera2.CaptureResult.Key<T> key, T default);
     property public abstract androidx.camera.common.CameraId cameraId;
     property public abstract androidx.camera.common.CaptureRequestWrapper captureRequest;
     property public abstract androidx.camera.common.CameraFrameNumber frameNumber;

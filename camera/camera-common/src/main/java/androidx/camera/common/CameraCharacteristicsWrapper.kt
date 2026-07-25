@@ -57,7 +57,7 @@ import android.hardware.camera2.CaptureResult
  * val nativeCharacteristics: CameraCharacteristics? = characteristics.unwrapAs()
  * ```
  */
-public interface CameraCharacteristicsWrapper : Metadata, UnsafeWrapper {
+public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     /**
      * The [CameraId] identifying this camera device.
      *
@@ -68,32 +68,6 @@ public interface CameraCharacteristicsWrapper : Metadata, UnsafeWrapper {
     @get:JvmName("getCameraId")
     @get:Suppress("ValueClassUsageWithoutJvmName")
     public val cameraId: CameraId
-
-    /**
-     * Retrieves the value of the specified [CameraCharacteristics.Key].
-     *
-     * Calls to this method may be cached by the implementation to avoid repeated expensive IPC/JNI
-     * queries to the camera service.
-     *
-     * Additionally, on certain API levels, the wrapper may emulate keys that are not natively
-     * supported by the platform, returning a compatible fallback value.
-     *
-     * @param key The key to query.
-     * @return The value of the key, or `null` if the key is not present or unsupported.
-     */
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-
-    /**
-     * Retrieves the value of the specified [CameraCharacteristics.Key], or returns [default] if the
-     * value is `null` or the key is unsupported.
-     *
-     * @param key The key to query.
-     * @param default The value to return if the key is not present or unsupported.
-     * @return The value of the key, or [default] if null.
-     */
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
-        return get(key) ?: default
-    }
 
     /**
      * A [Set] of all [CameraCharacteristics.Key]s supported by this camera device.

@@ -50,10 +50,9 @@ import android.hardware.camera2.CaptureResult
  * val customValue = resultMetadata[myCustomMetadataKey]
  * ```
  *
- * @see Metadata
- * @see UnsafeWrapper
+ * @see CaptureResultMetadata
  */
-public interface CaptureResultWrapper : Metadata, UnsafeWrapper {
+public interface CaptureResultWrapper : CaptureResultMetadata {
     /** The [CameraId] of the camera that produced this result. */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("getCameraId")
@@ -76,33 +75,6 @@ public interface CaptureResultWrapper : Metadata, UnsafeWrapper {
     @get:JvmName("getFrameNumber")
     @get:Suppress("ValueClassUsageWithoutJvmName")
     public val frameNumber: CameraFrameNumber
-
-    /**
-     * Retrieves the value of the specified [CaptureResult.Key].
-     *
-     * Use this to query standard Android camera keys, such as [CaptureResult.LENS_STATE] or
-     * [CaptureResult.CONTROL_AE_STATE].
-     *
-     * @param key The key to query.
-     * @return The value of the key, or `null` if the key is not present or unsupported.
-     * @see Metadata.get to query custom metadata keys.
-     */
-    public operator fun <T> get(key: CaptureResult.Key<T>): T?
-
-    /**
-     * Retrieves the value of the specified [CaptureResult.Key], or returns [default] if not found.
-     *
-     * Retrieves the value of the specified [CaptureResult.Key], or returns [default] if the key is
-     * not present or its value is null.
-     *
-     * @param key The key to query.
-     * @param default The value to return if the key is not present or its value is null.
-     * @return The value of the key, or [default] if null.
-     * @see Metadata.getOrDefault to query custom metadata keys with a default value.
-     */
-    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
-        return get(key) ?: default
-    }
 
     /**
      * List of all [CaptureResult.Key]s supported by this capture result.
