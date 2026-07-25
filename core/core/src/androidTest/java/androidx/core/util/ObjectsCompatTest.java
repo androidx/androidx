@@ -82,4 +82,52 @@ public class ObjectsCompatTest {
     public void testRequireNotNullExceptionWithMessage() {
         ObjectsCompat.requireNonNull(null, "Message");
     }
+
+    @Test
+    public void testRequireNonNullElse() {
+        String a = "aaa";
+        String b = "bbb";
+        assertEquals(ObjectsCompat.requireNonNullElse(a, b), a);
+        assertEquals(ObjectsCompat.requireNonNullElse(null, b), b);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRequireNonNullElseExceptionWhenBothNull() {
+        ObjectsCompat.requireNonNullElse(null, null);
+    }
+
+    @Test
+    public void testRequireNonNullElseGet() {
+        String a = "aaa";
+        String b = "bbb";
+        assertEquals(ObjectsCompat.requireNonNullElseGet(a, () -> b), a);
+        assertEquals(ObjectsCompat.requireNonNullElseGet(null, () -> b), b);
+    }
+
+    @Test
+    public void testRequireNonNullElseGetSupplierNotCalledWhenObjNonNull() {
+        String a = "aaa";
+        boolean[] called = new boolean[1];
+        ObjectsCompat.requireNonNullElseGet(a, () -> {
+            called[0] = true;
+            return "bbb";
+        });
+        assertFalse(called[0]);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRequireNonNullElseGetExceptionWhenSupplierNull() {
+        ObjectsCompat.requireNonNullElseGet(null, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRequireNonNullElseGetExceptionWhenSupplierGetReturnsNull() {
+        ObjectsCompat.requireNonNullElseGet(null, () -> null);
+    }
+
+    @Test
+    public void testRequireNonNullElseGetNullSupplierWithNonNullObj() {
+        String a = "aaa";
+        assertEquals(ObjectsCompat.requireNonNullElseGet(a, null), a);
+    }
 }
