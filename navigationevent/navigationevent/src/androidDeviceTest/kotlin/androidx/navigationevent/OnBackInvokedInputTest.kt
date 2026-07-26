@@ -110,6 +110,30 @@ class OnBackInvokedDefaultInputTest {
     }
 
     @Test
+    fun testInvokerAddForwardOnlyHandler() {
+        val invoker = TestOnBackInvokedDispatcher()
+
+        val dispatcher = NavigationEventDispatcher {}
+
+        val handler = TestNavigationEventHandler(isBackEnabled = false, isForwardEnabled = true)
+
+        val input = OnBackInvokedDefaultInput(invoker)
+        dispatcher.addInput(input)
+
+        dispatcher.addHandler(handler)
+
+        assertThat(invoker.registerCount).isEqualTo(0)
+
+        handler.isBackEnabled = true
+
+        assertThat(invoker.registerCount).isEqualTo(1)
+
+        handler.isBackEnabled = false
+
+        assertThat(invoker.unregisterCount).isEqualTo(1)
+    }
+
+    @Test
     fun testInvokerAddEnabledHandlerBeforeSet() {
         val invoker = TestOnBackInvokedDispatcher()
 
