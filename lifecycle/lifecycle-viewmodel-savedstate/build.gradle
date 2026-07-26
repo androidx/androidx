@@ -50,7 +50,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.9.1")
-            api("androidx.savedstate:savedstate:1.4.0")
+            api(project(":savedstate:savedstate"))
             api(project(":lifecycle:lifecycle-viewmodel"))
             implementation(project(":lifecycle:lifecycle-common"))
             implementation("androidx.collection:collection:1.5.0")
