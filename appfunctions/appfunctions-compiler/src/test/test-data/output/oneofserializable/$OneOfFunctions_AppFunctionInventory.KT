@@ -42,6 +42,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val ANDROIDX_APPFUNCTIONS_APPFUNCTIONTEXTRESOURCE_OBJECT_DATA_TYPE_PROPERTIES_MAP_MIMETYPE:
@@ -49,6 +51,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val ANDROIDX_APPFUNCTIONS_APPFUNCTIONTEXTRESOURCE_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -77,6 +81,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP_STR:
@@ -84,6 +90,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -119,6 +127,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_BSUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -175,6 +185,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP_STR:
@@ -182,6 +194,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_ASUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -217,6 +231,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_NONSEALEDONEOFSERIALIZABLE_BSUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -305,6 +321,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_1_PROPERTIES_MAP_STR:
@@ -312,6 +330,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_ASUBCLASS_ALL_OF_DATA_TYPE_MATCH_ALL_LIST_ITEM_1_PROPERTIES_MAP:
@@ -361,6 +381,8 @@ public class `$OneOfFunctions_AppFunctionInventory` : AppFunctionInventory {
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ONEOFSERIALIZABLE_ONEOFSEALEDCLASS_BSUBCLASS_OBJECT_DATA_TYPE_PROPERTIES_MAP:

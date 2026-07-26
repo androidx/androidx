@@ -53,6 +53,8 @@ public class `$SimpleEntryPoint_AppFunctionInventory` : AppFunctionInventory {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val STRING_PARAMETER_METADATA: AppFunctionParameterMetadata =
@@ -73,6 +75,8 @@ public class `$SimpleEntryPoint_AppFunctionInventory` : AppFunctionInventory {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(

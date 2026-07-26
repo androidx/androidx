@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.util.Log
@@ -315,11 +316,17 @@ private fun AppFunctionDataTypeMetadata.unsafeBuildReturnValue(
                 .build()
         }
         is AppFunctionStringTypeMetadata -> {
+            val stringValue =
+                when (result) {
+                    is Uri -> result.toString()
+                    is String -> result
+                    else ->
+                        throw AppFunctionAppUnknownException(
+                            "Expected String or Uri, got ${result::class.java.name}"
+                        )
+                }
             builder
-                .setString(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    result as String,
-                )
+                .setString(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, stringValue)
                 .build()
         }
         is AppFunctionBytesTypeMetadata -> {
@@ -414,11 +421,40 @@ private fun AppFunctionArrayTypeMetadata.unsafeBuildReturnValue(
         }
         is AppFunctionStringTypeMetadata -> {
             @Suppress("UNCHECKED_CAST")
+            val stringList =
+                (result as? List<*>)?.map { item ->
+                    when (item) {
+                        is Uri -> item.toString()
+                        is String -> item
+                        null ->
+                            throw AppFunctionAppUnknownException(
+                                "Null elements in return arrays are not supported"
+                            )
+                        else ->
+                            throw AppFunctionAppUnknownException(
+                                "Expected String or Uri in list, got ${item.javaClass.name}"
+                            )
+                    }
+                }
+                    ?: (result as? Array<*>)?.map { item ->
+                        when (item) {
+                            is Uri -> item.toString()
+                            is String -> item
+                            null ->
+                                throw AppFunctionAppUnknownException(
+                                    "Null elements in return arrays are not supported"
+                                )
+                            else ->
+                                throw AppFunctionAppUnknownException(
+                                    "Expected String or Uri in array, got ${item.javaClass.name}"
+                                )
+                        }
+                    }
+                    ?: throw AppFunctionAppUnknownException(
+                        "Expected List or Array for string list return"
+                    )
             builder
-                .setStringList(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    result as List<String>,
-                )
+                .setStringList(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, stringList)
                 .build()
         }
         is AppFunctionBytesTypeMetadata -> {

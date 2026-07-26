@@ -254,4 +254,44 @@ class AppFunctionServiceEntryPointCompilerTest {
                 "@AppFunctionUriValueConstraint can only be applied to android.net.Uri",
         )
     }
+
+    @Test
+    fun testAppFunctionStringValueConstraint_invalidPattern_throwsException() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf("entrypoints/invalid/InvalidStringValueConstraintPattern.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage =
+                "Invalid pattern regex \"[invalid_regex\" in @AppFunctionStringValueConstraint",
+        )
+    }
+
+    @Test
+    fun testAppFunctionUriValueConstraint_valid_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/ValidUriConstraintService.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "ValidUriService.kt",
+            goldenFileName = "entrypoints/ValidUriService.KT",
+        )
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report = report,
+            expectGeneratedSourceFileName = "\$ValidUriConstraintService_AppFunctionInventory.kt",
+            goldenFileName = "inventory/\$ValidUriConstraintService_AppFunctionInventory.KT",
+        )
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = report,
+            expectGeneratedResourceFileName = "valid_uri_service.xml",
+            goldenFileName = "entrypoints/valid_uri_service.xml",
+        )
+    }
 }

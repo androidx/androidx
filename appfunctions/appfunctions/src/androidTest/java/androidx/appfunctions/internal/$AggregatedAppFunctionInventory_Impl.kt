@@ -104,7 +104,12 @@ internal class AppFunctionUriGrantTestInventory : AppFunctionInventory {
             AppFunctionObjectTypeMetadata(
                 properties =
                     mapOf(
-                        "uri" to URI_OBJECT_TYPE_METADATA,
+                        "uri" to
+                            AppFunctionStringTypeMetadata(
+                                isNullable = false,
+                                description = "",
+                                format = "uri",
+                            ),
                         "modeFlags" to
                             AppFunctionIntTypeMetadata(isNullable = false, description = ""),
                     ),

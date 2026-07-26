@@ -28,6 +28,8 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionS
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_PROXY_LIST
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_PROXY_SINGULAR
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_SINGULAR
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_LIST
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_SINGULAR
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.Companion.toAppFunctionDatatype
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContextClass
@@ -54,6 +56,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
+import java.util.ArrayList
 
 /**
  * A helper class that provides methods to construct
@@ -387,6 +390,25 @@ class AppFunctionMetadataCreatorHelper(
                     description = description,
                 )
             }
+            URI_SINGULAR ->
+                buildUriStringTypeMetadata(
+                    annotations,
+                    isNullable = appFunctionTypeReference.isNullable,
+                    description = description,
+                )
+            URI_LIST ->
+                AppFunctionArrayTypeMetadata(
+                    itemType =
+                        buildUriStringTypeMetadata(
+                            annotations,
+                            isNullable =
+                                AppFunctionTypeReference(appFunctionTypeReference.itemTypeReference)
+                                    .isNullable,
+                            description = "",
+                        ),
+                    isNullable = appFunctionTypeReference.isNullable,
+                    description = description,
+                )
             PARCELABLE_SINGULAR ->
                 AppFunctionParcelableTypeMetadata(
                     qualifiedName =
@@ -484,6 +506,42 @@ class AppFunctionMetadataCreatorHelper(
             )
     }
 
+    private fun buildUriStringTypeMetadata(
+        annotations: Sequence<KSAnnotation>,
+        isNullable: Boolean,
+        description: String,
+    ): AppFunctionStringTypeMetadata {
+        val uriConstraint =
+            annotations.findAnnotation(
+                IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME
+            )
+        val allowedSchemes =
+            uriConstraint
+                ?.requirePropertyValueOfType(
+                    IntrospectionHelper.AppFunctionUriValueConstraintAnnotation
+                        .PROPERTY_ALLOWED_SCHEMES,
+                    ArrayList::class,
+                )
+                ?.filterIsInstance<String>() ?: emptyList()
+
+        val pattern = buildAllowedSchemeRegex(allowedSchemes)
+
+        return AppFunctionStringTypeMetadata(
+            isNullable = isNullable,
+            description = description,
+            pattern = pattern,
+            format = AppFunctionStringTypeMetadata.FORMAT_URI,
+        )
+    }
+
+    private fun buildAllowedSchemeRegex(allowedSchemes: List<String>): String? {
+        return when (allowedSchemes.size) {
+            0 -> null
+            1 -> "^${Regex.escape(allowedSchemes.single())}:.*"
+            else -> "^(${allowedSchemes.joinToString("|") { scheme -> Regex.escape(scheme) }}):.*"
+        }
+    }
+
     /**
      * Adds the [AppFunctionDataTypeMetadata] for a serializable/capability type to the shared data
      * type map.
@@ -529,6 +587,7 @@ class AppFunctionMetadataCreatorHelper(
             } else {
                 annotatedSerializable.jvmQualifiedName
             }
+
         // This type has already been added to the sharedDataMap.
         if (seenDataTypeQualifiers.contains(serializableTypeQualifiedName)) {
             return
@@ -563,7 +622,6 @@ class AppFunctionMetadataCreatorHelper(
             // serializable to match.
             val matchAllSuperTypesList: List<AppFunctionDataTypeMetadata> = buildList {
                 for (serializableSuperType in superTypesWithSerializableAnnotation) {
-
                     addSerializableTypeMetadataToSharedDataTypeMap(
                         AnnotatedAppFunctionSerializable(serializableSuperType),
                         unvisitedSerializableProperties,
@@ -752,11 +810,13 @@ class AppFunctionMetadataCreatorHelper(
     private fun AppFunctionTypeReference.toAppFunctionDataType(): Int {
         return when (this.typeCategory) {
             PRIMITIVE_SINGULAR -> selfTypeReference.toAppFunctionDatatype()
+            URI_SINGULAR -> AppFunctionDataTypeMetadata.TYPE_STRING
             SERIALIZABLE_INTERFACE_SINGULAR,
             SERIALIZABLE_PROXY_SINGULAR,
             SERIALIZABLE_SINGULAR -> AppFunctionObjectTypeMetadata.TYPE
             PRIMITIVE_ARRAY,
             PRIMITIVE_LIST,
+            URI_LIST,
             SERIALIZABLE_INTERFACE_LIST,
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> AppFunctionArrayTypeMetadata.TYPE
@@ -770,10 +830,12 @@ class AppFunctionMetadataCreatorHelper(
             SERIALIZABLE_INTERFACE_LIST,
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> AppFunctionObjectTypeMetadata.TYPE
+            URI_LIST -> AppFunctionDataTypeMetadata.TYPE_STRING
             PRIMITIVE_ARRAY -> selfTypeReference.toAppFunctionDatatype()
             PRIMITIVE_LIST -> itemTypeReference.toAppFunctionDatatype()
             PARCELABLE_LIST -> AppFunctionParcelableTypeMetadata.TYPE
             PRIMITIVE_SINGULAR,
+            URI_SINGULAR,
             SERIALIZABLE_INTERFACE_SINGULAR,
             SERIALIZABLE_PROXY_SINGULAR,
             SERIALIZABLE_SINGULAR,

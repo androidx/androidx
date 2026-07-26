@@ -36,6 +36,8 @@ public class `$AppFunctionWithInputFromDifferentPackage_AppFunctionInventory` : 
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ANOTHERDIFFERENTPACKAGE_ANOTHERDIFFPACKAGESERIALIZABLE_OBJECT_DATA_TYPE_PROPERTIES_MAP:
