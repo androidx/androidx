@@ -228,8 +228,7 @@ class AppFunctionServiceEntryPointCompilerTest {
     fun testAppFunctionUriValueConstraint_invalidTarget_throwsException() {
         val report =
             compilationTestHelper.compileAll(
-                sourceFileNames = listOf("entrypoints/invalid/InvalidUriConstraintTarget.KT"),
-                processorOptions = emptyMap(),
+                sourceFileNames = listOf("entrypoints/invalid/InvalidUriConstraintTarget.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -244,8 +243,7 @@ class AppFunctionServiceEntryPointCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("entrypoints/invalid/InvalidUriConstraintTargetInSerializable.KT"),
-                processorOptions = emptyMap(),
+                    listOf("entrypoints/invalid/InvalidUriConstraintTargetInSerializable.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(
@@ -260,8 +258,7 @@ class AppFunctionServiceEntryPointCompilerTest {
         val report =
             compilationTestHelper.compileAll(
                 sourceFileNames =
-                    listOf("entrypoints/invalid/InvalidStringValueConstraintPattern.KT"),
-                processorOptions = emptyMap(),
+                    listOf("entrypoints/invalid/InvalidStringValueConstraintPattern.KT")
             )
 
         compilationTestHelper.assertErrorWithMessage(

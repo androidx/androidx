@@ -42,6 +42,7 @@ import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
+import androidx.appfunctions.AppFunctionUriValueConstraint
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
@@ -299,6 +300,18 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
     @AppFunction
     internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) =
         oneOfList.map { OneOfSealedNestedSerializable(sealedInterface = it) }
+
+    // TODO: b/542935459 - Add additional integration tests for multiple allowed URI schemes
+    @AppFunction
+    internal fun echoUriWithConstraint(
+        @AppFunctionUriValueConstraint(allowedSchemes = ["content"]) uriParam: Uri
+    ): Uri = uriParam
+
+    @AppFunction
+    internal fun echoStringWithConstraint(
+        @AppFunctionStringValueConstraint(pattern = "^[a-z]+$", format = "custom")
+        stringParam: String
+    ): String = stringParam
 
     @AppFunction
     internal fun textResourceFunction(text: String): ResourceFunctionResponse =

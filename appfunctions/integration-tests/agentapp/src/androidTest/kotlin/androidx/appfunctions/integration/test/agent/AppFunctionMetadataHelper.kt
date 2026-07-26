@@ -180,10 +180,10 @@ internal object AppFunctionMetadataHelper {
                                         description = "",
                                     ),
                                 "uri" to
-                                    AppFunctionReferenceTypeMetadata(
-                                        referenceDataType = "android.net.Uri",
+                                    AppFunctionStringTypeMetadata(
                                         isNullable = false,
                                         description = "",
+                                        format = "uri",
                                     ),
                                 "instant" to
                                     AppFunctionReferenceTypeMetadata(
@@ -270,11 +270,11 @@ internal object AppFunctionMetadataHelper {
                                             "The MIME type of the attached file. Format defined in RFC 6838.",
                                     ),
                                 "uri" to
-                                    AppFunctionReferenceTypeMetadata(
-                                        referenceDataType = "android.net.Uri",
+                                    AppFunctionStringTypeMetadata(
                                         isNullable = false,
                                         description =
                                             "The URI of the attached file.\n\nWhen providing an [Uri] to another app, that app must be granted URI permission using\n[android.content.Context.grantUriPermission] to the receiving app.\n\nThe providing app should also consider revoking the URI permission by using\n[android.content.Context.revokeUriPermission] after a certain time period.",
+                                        format = "uri",
                                     ),
                             ),
                         required = listOf("uri", "displayName"),
@@ -351,21 +351,6 @@ internal object AppFunctionMetadataHelper {
                         isNullable = true,
                         description = "The response including the created note.",
                     ),
-                "android.net.Uri" to
-                    AppFunctionObjectTypeMetadata(
-                        properties =
-                            mapOf(
-                                "uri" to
-                                    AppFunctionStringTypeMetadata(
-                                        isNullable = false,
-                                        description = "",
-                                    )
-                            ),
-                        required = listOf("uri"),
-                        qualifiedName = "android.net.Uri",
-                        isNullable = true,
-                        description = "",
-                    ),
             )
 
         val SCHEMA_DATA_TYPES_LEGACY_INDEXER =
@@ -400,9 +385,9 @@ internal object AppFunctionMetadataHelper {
                                 "displayName" to AppFunctionStringTypeMetadata(isNullable = false),
                                 "mimeType" to AppFunctionStringTypeMetadata(isNullable = true),
                                 "uri" to
-                                    AppFunctionReferenceTypeMetadata(
-                                        referenceDataType = "android.net.Uri",
+                                    AppFunctionStringTypeMetadata(
                                         isNullable = false,
+                                        format = "uri",
                                     ),
                             ),
                         required = listOf("uri", "displayName"),
@@ -451,32 +436,9 @@ internal object AppFunctionMetadataHelper {
                             "androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction\$Response",
                         isNullable = true,
                     ),
-                "android.net.Uri" to
-                    AppFunctionObjectTypeMetadata(
-                        properties =
-                            mapOf("uri" to AppFunctionStringTypeMetadata(isNullable = false)),
-                        required = listOf("uri"),
-                        qualifiedName = "android.net.Uri",
-                        isNullable = true,
-                    ),
             )
         private val COMMON_DATA_TYPES =
             mapOf(
-                "android.net.Uri" to
-                    AppFunctionObjectTypeMetadata(
-                        properties =
-                            mapOf(
-                                "uri" to
-                                    AppFunctionStringTypeMetadata(
-                                        isNullable = false,
-                                        description = "",
-                                    )
-                            ),
-                        required = listOf("uri"),
-                        qualifiedName = "android.net.Uri",
-                        isNullable = true,
-                        description = "",
-                    ),
                 "androidx.appfunction.integration.test.sharedschema.ASubclass" to
                     AppFunctionObjectTypeMetadata(
                         properties =
@@ -1074,10 +1036,10 @@ internal object AppFunctionMetadataHelper {
                                         description = "",
                                     ),
                                 "uri" to
-                                    AppFunctionReferenceTypeMetadata(
-                                        referenceDataType = "android.net.Uri",
+                                    AppFunctionStringTypeMetadata(
                                         isNullable = false,
                                         description = "",
+                                        format = "uri",
                                     ),
                                 "zoneId" to
                                     AppFunctionReferenceTypeMetadata(
@@ -1340,10 +1302,10 @@ internal object AppFunctionMetadataHelper {
                             mapOf(
                                 "modeFlags" to AppFunctionIntTypeMetadata(isNullable = false),
                                 "uri" to
-                                    AppFunctionReferenceTypeMetadata(
-                                        referenceDataType = "android.net.Uri",
+                                    AppFunctionStringTypeMetadata(
                                         isNullable = false,
                                         description = "",
+                                        format = "uri",
                                     ),
                             ),
                         required = listOf("uri", "modeFlags"),
