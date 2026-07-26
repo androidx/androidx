@@ -18,9 +18,12 @@ package androidx.appfunctions.metadata
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.util.Log
 import androidx.annotation.IntDef
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appsearch.annotation.Document
 import java.util.Objects
+import java.util.regex.PatternSyntaxException
 
 @IntDef(
     AppFunctionDataTypeMetadata.TYPE_UNIT,
@@ -1214,6 +1217,19 @@ constructor(
     init {
         require(enumValues == null || enumValues.isNotEmpty()) {
             "If specified, enumValues cannot be empty."
+        }
+    }
+
+    internal val compiledPattern: Regex? by lazy {
+        try {
+            pattern?.toRegex()
+        } catch (e: PatternSyntaxException) {
+            Log.w(
+                APP_FUNCTIONS_TAG,
+                "Failed to parse pattern regex \"$pattern\"; bypassing pattern validation",
+                e,
+            )
+            null
         }
     }
 

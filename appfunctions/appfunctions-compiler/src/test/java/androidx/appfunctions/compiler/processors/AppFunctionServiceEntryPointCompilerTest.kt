@@ -223,4 +223,35 @@ class AppFunctionServiceEntryPointCompilerTest {
             goldenFileName = "entrypoints/MyHiltAppFunctionServiceEntryPoint.KT",
         )
     }
+
+    @Test
+    fun testAppFunctionUriValueConstraint_invalidTarget_throwsException() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/invalid/InvalidUriConstraintTarget.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage =
+                "@AppFunctionUriValueConstraint can only be applied to android.net.Uri",
+        )
+    }
+
+    @Test
+    fun testAppFunctionUriValueConstraint_invalidTargetInSerializable_throwsException() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames =
+                    listOf("entrypoints/invalid/InvalidUriConstraintTargetInSerializable.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(
+            report = report,
+            expectedErrorMessage =
+                "@AppFunctionUriValueConstraint can only be applied to android.net.Uri",
+        )
+    }
 }
