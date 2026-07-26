@@ -19,8 +19,8 @@ package androidx.lifecycle.viewmodel
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.SAVED_STATE_KEY
 import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
+import androidx.lifecycle.SavedStateHandleController
 import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -108,8 +108,7 @@ class ViewModelStoreOwnerFactoryTest {
 
         // Verify the side effect in the init block:
         // enableSavedStateHandles() should have registered the SAVED_STATE_KEY provider.
-        assertThat(lifecycleOwner.savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY))
-            .isNotNull()
+        assertThat(SavedStateHandleController.getOrNull(lifecycleOwner)).isNotNull()
     }
 
     @Test

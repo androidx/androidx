@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,122 +16,61 @@
 
 package androidx.lifecycle
 
-import androidx.lifecycle.Lifecycle.Event
-import androidx.lifecycle.Lifecycle.State
-import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistry.AutoRecreated
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
- * Bridges the gap between a [ViewModel]'s persistent state ([SavedStateHandle]) and the transient
- * [SavedStateRegistry] of its [LifecycleOwner].
+ * Schedules a recreation hook to automatically reconnect the [SavedStateHandleController] when the
+ * host [SavedStateRegistryOwner] is recreated.
+ *
+ * Since [SavedStateHandleController] delegates to the current [SavedStateRegistryOwner], it can
+ * directly access its host's [Lifecycle] and [SavedStateRegistry].
+ *
+ * This serves as a safety net for backwards compatibility when using legacy factories like
+ * [SavedStateViewModelFactory] or [AbstractSavedStateViewModelFactory]. If the component undergoes
+ * a configuration change and the client does not immediately retrieve the [ViewModel] (and thus
+ * does not invoke the factory/controller), the recreator hook will restore the controller and
+ * reattach it to the new registry prior to state saving, preventing data loss.
  */
-internal class SavedStateHandleController(
-    private val key: String,
-    registry: SavedStateRegistry,
-    lifecycle: Lifecycle,
-    defaultArgs: SavedState? = null,
-) : AutoCloseable {
-
-    constructor(
-        key: String,
-        owner: SavedStateRegistryOwner,
-        defaultArgs: SavedState?,
-    ) : this(key, owner.savedStateRegistry, owner.lifecycle, defaultArgs)
-
-    // Prevents redundant observer registrations if the lifecycle hasn't actually been destroyed.
-    private var isAttached: Boolean = false
-
-    val handle =
-        SavedStateHandle.createHandle(
-            restoredState = registry.consumeRestoredStateForKey(key),
-            defaultState = defaultArgs,
-        )
-
-    init {
-        attachHandleIfNeeded(registry, lifecycle)
-    }
-
-    override fun close() {
-        // This class has nothing to actually close, but all objects added via
-        // ViewModel's addCloseable(key, Closeable) must be Closeable.
-    }
-
-    /**
-     * Attaches a [SavedStateHandle] from a [ViewModel] to the current [SavedStateRegistry].
-     *
-     * This is necessary because [ViewModel]s outlive `Activity`s/`Fragment`s during configuration
-     * changes. When the `Activity` is recreated, the [ViewModel] is still alive, but its
-     * [SavedStateHandle] is holding onto a dead registry.
-     *
-     * This function:
-     * 1. Connects the handle to the *new* registry so state can be saved again.
-     * 2. Primes the [OnRecreation] hook to ensure this connection happens again on the next
-     *    rotation/process death.
-     */
-    private fun attachHandleIfNeeded(registry: SavedStateRegistry?, lifecycle: Lifecycle?) {
-        if (isAttached || registry == null || lifecycle == null) {
-            return
-        }
-
-        isAttached = true
+internal fun SavedStateHandleController.attachSavedStateHandleOnNextRecreation() {
+    val lifecycle = this.lifecycle
+    val currentState = lifecycle.currentState
+    if (
+        currentState == Lifecycle.State.INITIALIZED ||
+            currentState.isAtLeast(Lifecycle.State.STARTED)
+    ) {
+        savedStateRegistry.runOnNextRecreation(OnRecreation::class.java)
+    } else {
         lifecycle.addObserver { _, event ->
-            if (event == Event.ON_DESTROY) {
-                isAttached = false
+            if (event == Lifecycle.Event.ON_START) {
                 lifecycle.removeObserver(this)
-            }
-        }
-        registry.registerSavedStateProvider(key, handle.savedStateProvider())
-
-        val currentState = lifecycle.currentState
-        if (currentState == State.INITIALIZED || currentState.isAtLeast(State.STARTED)) {
-            registry.runOnNextRecreation(OnRecreation::class.java)
-        } else {
-            lifecycle.addObserver { _, event ->
-                if (event == Event.ON_START) {
-                    lifecycle.removeObserver(this)
-                    registry.runOnNextRecreation(OnRecreation::class.java)
-                }
+                savedStateRegistry.runOnNextRecreation(OnRecreation::class.java)
             }
         }
     }
+}
 
-    /**
-     * An [AutoRecreated] hook that re-attaches [SavedStateHandle]s to the new [SavedStateRegistry]
-     * and [Lifecycle] after a configuration change or process death.
-     *
-     * ViewModels survive configuration changes (like rotation), but the [SavedStateRegistry] (owned
-     * by the Activity/Fragment) dies and is replaced. This class bridges that gap by:
-     * 1. Iterating through the existing [ViewModelStore].
-     * 2. Finding any [SavedStateHandleController] hidden inside the ViewModels.
-     * 3. Re-wiring them to the new Registry and Lifecycle.
-     *
-     * It automatically re-registers itself to ensure this restoration logic runs again on the next
-     * recreation event.
-     */
-    private class OnRecreation : AutoRecreated {
-        override fun onRecreated(owner: SavedStateRegistryOwner) {
-            check(owner is ViewModelStoreOwner) {
-                "Internal error: OnRecreation should be registered only on components " +
-                    "that implement ViewModelStoreOwner. Received owner: $owner"
-            }
-
-            val keys = owner.viewModelStore.keys()
-
-            for (key in keys) {
-                val viewModel = owner.viewModelStore[key] ?: continue
-                val controller = viewModel.getCloseable<SavedStateHandleController>(TAG) ?: continue
-                controller.attachHandleIfNeeded(owner.savedStateRegistry, owner.lifecycle)
-            }
-
-            if (keys.isNotEmpty()) {
-                owner.savedStateRegistry.runOnNextRecreation(OnRecreation::class.java)
-            }
+/**
+ * An [AutoRecreated] hook that serves as a safety net to automatically reconnect
+ * [SavedStateHandleController] to the new [SavedStateRegistry] on host recreation.
+ *
+ * This class is instantiated via reflection by the [SavedStateRegistry] during the host's creation
+ * phase if it was previously registered.
+ */
+private class OnRecreation : AutoRecreated {
+    override fun onRecreated(owner: SavedStateRegistryOwner) {
+        check(owner is ViewModelStoreOwner) {
+            "Internal error: OnRecreation should be registered only on components " +
+                "that implement ViewModelStoreOwner. Received owner: $owner"
         }
-    }
 
-    companion object {
-        const val TAG = "androidx.lifecycle.savedstate.vm.tag"
+        // Reconnect the surviving StateHolder (and its active SavedStateHandles)
+        // to the new SavedStateRegistry of the recreated host. This ensures that
+        // the state will still be saved even if the client never accesses the ViewModels
+        // on the new host instance.
+        val controller = SavedStateHandleController.getOrCreate(owner)
+        // Prime the recreation hook again for the next configuration change.
+        controller.attachSavedStateHandleOnNextRecreation()
     }
 }
