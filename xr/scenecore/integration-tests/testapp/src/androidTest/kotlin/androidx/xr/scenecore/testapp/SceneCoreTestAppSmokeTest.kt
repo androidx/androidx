@@ -23,8 +23,10 @@ import androidx.xr.scenecore.testapp.accessibilitytest.AccessibilityTestActivity
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanel
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanelActivity
 import androidx.xr.scenecore.testapp.anchorspace.AnchorSpaceActivity
+import androidx.xr.scenecore.testapp.environment.EnvironmentActivity
 import androidx.xr.scenecore.testapp.fieldofviewvisibility.FieldOfViewVisibilityActivity
 import androidx.xr.scenecore.testapp.fsmhsmtransition.FsmHsmTransitionActivity
+import androidx.xr.scenecore.testapp.handtracking.HandTrackingTest
 import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
@@ -35,9 +37,11 @@ import androidx.xr.scenecore.testapp.model.GltfModelMaterialTextureActivity
 import androidx.xr.scenecore.testapp.movable.MovableActivity
 import androidx.xr.scenecore.testapp.panelcoordinate.PanelCoordinateActivity
 import androidx.xr.scenecore.testapp.panelroundedcorner.PanelRoundedCornerActivity
+import androidx.xr.scenecore.testapp.sceneviewer.SceneViewerActivity
 import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioActivity
 import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioComponentsActivity
 import androidx.xr.scenecore.testapp.spatialcapabilities.SpatialCapabilitiesActivity
+import androidx.xr.scenecore.testapp.spatialuser.SpatialUserActivity
 import androidx.xr.scenecore.testapp.standalone.StandaloneActivity
 import androidx.xr.scenecore.testapp.surfacecustommesh.SurfaceEntityCustomMeshActivity
 import androidx.xr.scenecore.testapp.surfaceimage.SurfaceEntityImageActivity
@@ -77,21 +81,18 @@ class SceneCoreTestAppSmokeTest(activityClass: Class<out Activity>) :
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                // TODO: b/515469049 - Fix and enable these tests.
-                // arrayOf(EnvironmentActivity::class.java),
-                // arrayOf(HandTrackingTest::class.java),
-                // arrayOf(SceneViewerActivity::class.java),
-                // arrayOf(SpatialUserActivity::class.java),
+                arrayOf(MainActivity::class.java),
                 arrayOf(AccessibilityTestActivity::class.java),
                 arrayOf(ActivityPanel::class.java),
                 arrayOf(ActivityPanelActivity::class.java),
                 arrayOf(AnchorSpaceActivity::class.java),
+                arrayOf(EnvironmentActivity::class.java),
                 arrayOf(FieldOfViewVisibilityActivity::class.java),
                 arrayOf(FsmHsmTransitionActivity::class.java),
+                arrayOf(HandTrackingTest::class.java),
                 arrayOf(HeadLockedUiActivity::class.java),
                 arrayOf(HitTestActivity::class.java),
                 arrayOf(InputMoveResizeTestActivity::class.java),
-                arrayOf(MainActivity::class.java),
                 arrayOf(MemoryLeakActivity::class.java),
                 arrayOf(MeshEntityActivity::class.java),
                 arrayOf(GltfModelAnimationActivity::class.java),
@@ -99,9 +100,11 @@ class SceneCoreTestAppSmokeTest(activityClass: Class<out Activity>) :
                 arrayOf(MovableActivity::class.java),
                 arrayOf(PanelCoordinateActivity::class.java),
                 arrayOf(PanelRoundedCornerActivity::class.java),
+                arrayOf(SceneViewerActivity::class.java),
                 arrayOf(SpatialAudioActivity::class.java),
                 arrayOf(SpatialAudioComponentsActivity::class.java),
                 arrayOf(SpatialCapabilitiesActivity::class.java),
+                arrayOf(SpatialUserActivity::class.java),
                 arrayOf(StandaloneActivity::class.java),
                 arrayOf(SurfaceEntityCustomMeshActivity::class.java),
                 arrayOf(SurfaceEntityImageActivity::class.java),
