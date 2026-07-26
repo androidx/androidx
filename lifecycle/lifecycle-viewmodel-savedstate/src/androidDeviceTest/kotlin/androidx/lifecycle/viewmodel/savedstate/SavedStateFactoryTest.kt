@@ -17,6 +17,7 @@
 package androidx.lifecycle.viewmodel.savedstate
 
 import android.app.Application
+import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
@@ -29,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -179,6 +181,67 @@ class SavedStateFactoryTest {
             absFactory.create(MyViewModel::class.java)
             fail()
         } catch (e: UnsupportedOperationException) {}
+    }
+
+    private fun testFactoryRecreation(
+        factoryProducer: (SavedStateRegistryOwner) -> ViewModelProvider.Factory
+    ) {
+        var component = TestComponent()
+        val factory = factoryProducer(component)
+
+        val vm = ViewModelProvider(component, factory)[MyViewModel::class.java]
+        vm.handle.set("key", "value1")
+
+        // Simulate host recreation (e.g. configuration change) twice to verify
+        // that the OnRecreation hook successfully re-primes itself on the first
+        // recreation and survives multiple consecutive configuration changes.
+        component = component.recreate(keepingViewModels = true)
+        component.resume()
+        component = component.recreate(keepingViewModels = true)
+        component.resume()
+
+        // Update the surviving ViewModel's SavedStateHandle while it is not active
+        // (bypassing the ViewModelProvider/factory initialization).
+        val survivingVm =
+            component.viewModelStore[
+                    "androidx.lifecycle.ViewModelProvider.DefaultKey:${MyViewModel::class.java.canonicalName}"]
+                as MyViewModel
+        survivingVm.handle.set("key", "value2")
+
+        // Simulate host destruction (e.g. process death).
+        val savedBundle = Bundle()
+        component.performSave(savedBundle)
+
+        // Restore the component and verify the updated handle value was saved and restored.
+        val finalComponent = TestComponent(bundle = savedBundle)
+        val finalFactory = factoryProducer(finalComponent)
+        val finalVM = ViewModelProvider(finalComponent, finalFactory)[MyViewModel::class.java]
+
+        assertThat(finalVM.handle.get<String>("key")).isEqualTo("value2")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSavedStateViewModelFactoryRecreation() {
+        val application = activityRule.activity.application
+        testFactoryRecreation { owner -> SavedStateViewModelFactory(application, owner) }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testAbstractSavedStateViewModelFactoryRecreation() {
+        testFactoryRecreation { owner ->
+            @Suppress("DEPRECATION")
+            object : androidx.lifecycle.AbstractSavedStateViewModelFactory(owner, null) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle,
+                ): T {
+                    return modelClass.cast(MyViewModel(handle))!!
+                }
+            }
+        }
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :

@@ -71,6 +71,37 @@ class SavedStateHandleSupportTest {
 
     @UiThreadTest
     @Test
+    fun testSavedStateHandleSupportWithDoubleConfigChange() {
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val handle = component.createSavedStateHandle("test")
+        component.resume()
+        handle.set("a", "1")
+
+        // First configuration change (rotation)
+        var interim = component.recreate(keepingViewModels = true)
+        interim.enableSavedStateHandles()
+        handle.set("b", "2")
+        interim.resume()
+
+        // Second configuration change (rotation)
+        interim = interim.recreate(keepingViewModels = true)
+        interim.enableSavedStateHandles()
+        handle.set("c", "3")
+        interim.resume()
+
+        // Process death (recreation without keeping view models)
+        val recreated = interim.recreate(keepingViewModels = false)
+        recreated.enableSavedStateHandles()
+        val restoredHandle = recreated.createSavedStateHandle("test")
+
+        assertThat(restoredHandle.get<String>("a")).isEqualTo("1")
+        assertThat(restoredHandle.get<String>("b")).isEqualTo("2")
+        assertThat(restoredHandle.get<String>("c")).isEqualTo("3")
+    }
+
+    @UiThreadTest
+    @Test
     fun testSavedStateHandleSupportWithActivityDestroyed() {
         val component = TestComponent()
         component.enableSavedStateHandles()
