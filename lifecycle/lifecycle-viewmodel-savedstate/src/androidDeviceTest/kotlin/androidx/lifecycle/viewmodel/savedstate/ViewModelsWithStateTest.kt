@@ -156,6 +156,35 @@ class ViewModelsWithStateTest(private val mode: Mode) {
         assertThat(vm.mLiveData.value).isEqualTo(newValue)
     }
 
+    @Test
+    @Throws(Throwable::class)
+    fun testRecreationWithoutAccess() {
+        val newValue = "newValue"
+        val state =
+            with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
+                withActivity {
+                    val vm = vmProvider(this).get(VM::class.java)
+                    vm.mLiveData.value = newValue
+                }
+                // Perform two recreations to verify that the OnRecreation hook
+                // successfully re-primes itself on the first rotation and survives
+                // multiple consecutive configuration changes.
+                recreate()
+                recreate()
+                moveToState(Lifecycle.State.CREATED)
+                val state = withActivity { savedState }
+                moveToState(Lifecycle.State.DESTROYED)
+                state
+            }
+
+        val intent = createIntent(state)
+        val vm =
+            ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
+                vmProvider(this).get(VM::class.java)
+            }
+        assertThat(vm.mLiveData.value).isEqualTo(newValue)
+    }
+
     private fun vmProvider(activity: FakingSavedStateActivity): ViewModelProvider {
         val owner: ViewModelStoreOwner =
             if (mode.ownerMode == FRAGMENT_MODE) {

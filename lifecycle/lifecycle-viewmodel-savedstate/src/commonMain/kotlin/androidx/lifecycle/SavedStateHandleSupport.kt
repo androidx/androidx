@@ -21,20 +21,10 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModelProvider.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedState
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.read
-import androidx.savedstate.savedState
-import androidx.savedstate.write
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
-
-internal const val VIEWMODEL_KEY = "androidx.lifecycle.internal.SavedStateHandlesVM"
-internal const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHandlesProvider"
 
 /**
  * Enables support for [SavedStateHandle] in a component.
@@ -58,27 +48,9 @@ public fun <T> T.enableSavedStateHandles()
             "`enableSavedStateHandles()` before the `Lifecycle.State` moves to `STARTED`."
     }
 
-    // Register the provider to save SavedStateHandles if it is not already registered.
-    if (savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY) == null) {
-        val provider = SavedStateHandlesProvider(savedStateRegistry, this)
-        savedStateRegistry.registerSavedStateProvider(SAVED_STATE_KEY, provider)
-        lifecycle.addObserver(SavedStateHandleAttacher(provider))
-    }
-}
-
-private fun createSavedStateHandle(
-    savedStateRegistryOwner: SavedStateRegistryOwner,
-    viewModelStoreOwner: ViewModelStoreOwner,
-    key: String,
-    defaultArgs: SavedState?,
-): SavedStateHandle {
-    val provider = savedStateRegistryOwner.savedStateHandlesProvider
-    val viewModel = viewModelStoreOwner.savedStateHandlesVM
-    // Reuse the previously created SavedStateHandle if it exists in the ViewModel.
-    // Otherwise, create a new instance with any restored state.
-    return viewModel.handles[key]
-        ?: SavedStateHandle.createHandle(provider.consumeRestoredStateForKey(key), defaultArgs)
-            .also { viewModel.handles[key] = it }
+    // Creates and registers the controller. The returned instance is discarded as we only need the
+    // registration side effect here.
+    SavedStateHandleController.getOrCreate(owner = this, viewModelStoreOwner = this)
 }
 
 /**
@@ -101,119 +73,20 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
         requireNotNull(this[SAVED_STATE_REGISTRY_OWNER_KEY]) {
             "CreationExtras must have a value by `SAVED_STATE_REGISTRY_OWNER_KEY`"
         }
-    val viewModelStateRegistryOwner =
-        requireNotNull(this[VIEW_MODEL_STORE_OWNER_KEY]) {
-            "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
-        }
     val key =
         requireNotNull(this[VIEW_MODEL_KEY]) {
             "CreationExtras must have a value by `VIEW_MODEL_KEY`"
         }
-
-    val defaultArgs = this[DEFAULT_ARGS_KEY]
-    return createSavedStateHandle(
-        savedStateRegistryOwner,
-        viewModelStateRegistryOwner,
-        key,
-        defaultArgs,
-    )
-}
-
-private val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
-    get() =
-        ViewModelProvider.create(
-                owner = this,
-                factory = viewModelFactory { initializer { SavedStateHandlesVM() } },
-            )
-            .get<SavedStateHandlesVM>(VIEWMODEL_KEY)
-
-private val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
-    get() {
-        val provider = savedStateRegistry.getSavedStateProvider(SAVED_STATE_KEY)
-        check(provider is SavedStateHandlesProvider) {
-            "enableSavedStateHandles() wasn't called prior to createSavedStateHandle() call"
-        }
-        return provider
+    requireNotNull(this[VIEW_MODEL_STORE_OWNER_KEY]) {
+        "CreationExtras must have a value by `VIEW_MODEL_STORE_OWNER_KEY`"
     }
 
-private class SavedStateHandlesVM : ViewModel() {
-    val handles = mutableMapOf<String, SavedStateHandle>()
-}
-
-/**
- * A [SavedStateProvider] responsible for saving the state of all [SavedStateHandle] instances
- * associated with the [SavedStateRegistry] and its [ViewModelStoreOwner].
- */
-private class SavedStateHandlesProvider(
-    private val savedStateRegistry: SavedStateRegistry,
-    private val viewModelStoreOwner: ViewModelStoreOwner,
-) : SavedStateProvider {
-    private var restored = false
-    private var restoredState: SavedState? = null
-
-    override fun saveState(): SavedState {
-        return savedState {
-            // Retain restored state for any ViewModels that have not been recreated yet.
-            restoredState?.let { putAll(it) }
-
-            // Prefer the state of active ViewModels over the restored state.
-            viewModelStoreOwner.savedStateHandlesVM.handles.forEach { (key, handle) ->
-                val savedState = handle.savedStateProvider().saveState()
-                if (savedState.read { !isEmpty() }) {
-                    putSavedState(key, savedState)
-                }
-            }
-
-            // Allow restoring state a second time after saving.
-            restored = false
-        }
+    val controller = SavedStateHandleController.getOrNull(savedStateRegistryOwner)
+    checkNotNull(controller) {
+        "enableSavedStateHandles() wasn't called prior to createSavedStateHandle() call"
     }
 
-    /** Restore the state from the SavedStateRegistry if it hasn't already been restored. */
-    fun performRestore() {
-        if (!restored) {
-            val newState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
-            restoredState = savedState {
-                restoredState?.let { putAll(it) }
-                newState?.let { putAll(it) }
-            }
-            restored = true
-            // Eagerly evaluate the ViewModel provider. This ensures we can still retrieve the VM
-            // during state saving even if the lifecycle reaches DESTROYED.
-            viewModelStoreOwner.savedStateHandlesVM
-        }
-    }
-
-    /** Restore the state associated with a particular SavedStateHandle, identified by its [key] */
-    fun consumeRestoredStateForKey(key: String): SavedState? {
-        performRestore()
-        val state = restoredState ?: return null
-        if (state.read { !contains(key) }) return null
-
-        val result = state.read { getSavedStateOrNull(key) ?: savedState() }
-        state.write { remove(key) }
-        if (state.read { isEmpty() }) {
-            this.restoredState = null
-        }
-
-        return result
-    }
-}
-
-/**
- * A [LifecycleEventObserver] that reconnects existing [SavedStateHandle]s to the
- * [SavedStateRegistryOwner] when it is recreated.
- */
-private class SavedStateHandleAttacher(private val provider: SavedStateHandlesProvider) :
-    LifecycleEventObserver {
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        check(event == Lifecycle.Event.ON_CREATE) { "Next event must be ON_CREATE, it was $event" }
-        source.lifecycle.removeObserver(this)
-        // Eagerly restore the state when the Lifecycle reaches CREATED to ensure it is consumed
-        // even if no ViewModels are created during this lifecycle cycle.
-        provider.performRestore()
-    }
+    return controller.getOrCreateHandle(key, defaultArgs = this[DEFAULT_ARGS_KEY])
 }
 
 /**

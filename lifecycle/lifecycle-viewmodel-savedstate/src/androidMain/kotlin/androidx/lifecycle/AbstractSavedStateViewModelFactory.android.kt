@@ -59,7 +59,7 @@ public abstract class AbstractSavedStateViewModelFactory : Factory {
      * Constructs a new [AbstractSavedStateViewModelFactory].
      *
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
-     *   [ViewModel]s
+     *   [ViewModel]s. Must implement [ViewModelStoreOwner] to support state retention.
      * @param defaultArgs default values to populate the [SavedStateHandle] if no state is restored
      */
     public constructor(owner: SavedStateRegistryOwner, defaultArgs: Bundle?) {
@@ -98,10 +98,10 @@ public abstract class AbstractSavedStateViewModelFactory : Factory {
             )
         }
 
-        val controller = SavedStateHandleController(key, owner, defaultArgs)
-        val viewModel = create(key, modelClass, controller.handle)
-        viewModel.addCloseable(SavedStateHandleController.TAG, controller)
-        return viewModel
+        val controller = SavedStateHandleController.getOrCreate(owner)
+        controller.attachSavedStateHandleOnNextRecreation()
+        val handle = controller.getOrCreateHandle(key, defaultArgs)
+        return create(key, modelClass, handle)
     }
 
     /**
