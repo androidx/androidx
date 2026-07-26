@@ -51,6 +51,50 @@ class SavedStateRegistryTest {
 
     @UiThreadTest
     @Test
+    fun consumerSaveRestoreFlow() {
+        val owner1 = FakeSavedStateRegistryOwner()
+        owner1.savedStateRegistry.registerSavedStateProvider("a") { bundleOf("foo", 42) }
+
+        val savedState = Bundle()
+        owner1.savedStateRegistryController.performSave(savedState)
+
+        val owner2 = FakeSavedStateRegistryOwner()
+        var restoredValue: Int? = null
+        val providerConsumer =
+            TestProviderConsumer(
+                onConsume = { state -> restoredValue = state.read { getInt("foo") } }
+            )
+        owner2.savedStateRegistry.registerSavedStateProvider("a", providerConsumer)
+
+        owner2.savedStateRegistryController.performRestore(savedState)
+
+        assertThat(restoredValue).isEqualTo(42)
+    }
+
+    @UiThreadTest
+    @Test
+    fun consumerLateRegistrationEagerRestoration() {
+        val owner1 = FakeSavedStateRegistryOwner()
+        owner1.savedStateRegistry.registerSavedStateProvider("a") { bundleOf("foo", 42) }
+
+        val savedState = Bundle()
+        owner1.savedStateRegistryController.performSave(savedState)
+
+        val owner2 = FakeSavedStateRegistryOwner()
+        owner2.savedStateRegistryController.performRestore(savedState)
+
+        var restoredValue: Int? = null
+        val providerConsumer =
+            TestProviderConsumer(
+                onConsume = { state -> restoredValue = state.read { getInt("foo") } }
+            )
+        owner2.savedStateRegistry.registerSavedStateProvider("a", providerConsumer)
+
+        assertThat(restoredValue).isEqualTo(42)
+    }
+
+    @UiThreadTest
+    @Test
     fun registerWithSameKey() {
         startFlow { registry ->
             registry.registerSavedStateProvider("key") { bundleOf("foo", "a") }
@@ -221,6 +265,15 @@ class SavedStateRegistryTest {
 
     private fun startFlow(block: (SavedStateRegistry) -> Unit) =
         TestFlow(null).recreateAndCheck(block)
+
+    private class TestProviderConsumer(
+        val onSave: () -> SavedState = { savedState() },
+        val onConsume: (SavedState) -> Unit = {},
+    ) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateConsumer {
+        override fun saveState(): SavedState = onSave()
+
+        override fun consumeState(state: SavedState) = onConsume(state)
+    }
 }
 
 private class ToBeRecreated : SavedStateRegistry.AutoRecreated {
