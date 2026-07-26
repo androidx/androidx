@@ -34,17 +34,17 @@
         android:theme="@style/Theme.IntegrationTestsApp">
         <activity
             android:name=".handtracking.HandTrackingTest"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".sceneviewer.SceneViewerActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".environment.EnvironmentActivity"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".spatialuser.SpatialUserActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".fsmhsmtransition.FsmHsmTransitionActivity"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
