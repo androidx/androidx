@@ -73,8 +73,8 @@ public sealed class OnBackInvokedInput(
         updateBackInvokedCallbackState(false)
     }
 
-    override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
-        updateBackInvokedCallbackState(hasEnabledHandlers)
+    override fun onHasEnabledBackHandlersChanged(hasEnabledBackHandlers: Boolean) {
+        updateBackInvokedCallbackState(hasEnabledBackHandlers)
     }
 
     private fun updateBackInvokedCallbackState(shouldBeRegistered: Boolean) {
