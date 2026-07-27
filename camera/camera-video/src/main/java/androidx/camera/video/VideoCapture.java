@@ -332,7 +332,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @param mirrorMode The mirror mode.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
         if (setMirrorModeInternal(mirrorMode)) {
             CameraInternal camera = getCamera();

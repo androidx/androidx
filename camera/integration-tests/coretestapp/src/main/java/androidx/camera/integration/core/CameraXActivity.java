@@ -126,7 +126,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalLensFacing;
-import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -2062,7 +2061,6 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Builds all use cases based on current settings and return as an array.
      */
-    @OptIn(markerClass = ExperimentalMirrorMode.class)
     @SuppressLint("RestrictedApiAndroidX")
     private List<UseCase> buildUseCases() {
         List<UseCase> useCases = new ArrayList<>();
@@ -2500,7 +2498,6 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressWarnings("RestrictedApiAndroidX")
     private void applyMirrorMode() {
         VideoCapture<Recorder> videoCapture = getVideoCapture();
         if (videoCapture != null) {
