@@ -24,9 +24,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
-import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.metadata.AppFunctionName
-import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.security.MessageDigest
 import kotlinx.coroutines.CoroutineScope
@@ -186,27 +185,15 @@ internal object TestUtil {
         executeShellCommandSync("am startservice -a $action -n $packageName/$className")
     }
 
-    /**
-     * Sets the app function with the given state.
-     *
-     * Note that the `set-enabled` shell command is only available in sdks 36.1+.
-     */
-    // TODO(b/494238381): Support remote setAppFunctionEnabled in older versions by introducing
-    //  a service in testapp which the agent binds to.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1)
-    fun UiAutomation.setAppFunctionState(appFunctionName: AppFunctionName, state: Int) {
-        val enableStateString =
-            when (state) {
-                AppFunctionManager.APP_FUNCTION_STATE_DEFAULT -> "default"
-                AppFunctionManager.APP_FUNCTION_STATE_ENABLED -> "enable"
-                AppFunctionManager.APP_FUNCTION_STATE_DISABLED -> "disable"
-                else -> throw IllegalArgumentException("Unknown state of $state")
-            }
-        val command =
-            "cmd app_function set-enabled --package ${appFunctionName.packageName} " +
-                "--function ${appFunctionName.functionIdentifier} --state $enableStateString"
-        assertThat(executeShellCommandSync(command))
-            .isEqualTo("App function enabled state updated successfully.\n")
+    /** Sets the app function with the given state. */
+    fun setAppFunctionStateRemoteAsync(appFunctionName: AppFunctionName, state: Int) = doBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent =
+            android.content.Intent("androidx.appfunctions.integration.testapp.ACTION_SET_STATE")
+        intent.setPackage(appFunctionName.packageName)
+        intent.putExtra("function_id", appFunctionName.functionIdentifier)
+        intent.putExtra("state", state)
+        context.sendBroadcast(intent)
     }
 
     private fun UiAutomation.executeShellCommandSync(command: String): String =

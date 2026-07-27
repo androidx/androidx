@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
@@ -32,7 +33,7 @@ import androidx.appfunctions.integration.test.agent.TestUtil.awaitAppFunctionsIn
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
-import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionState
+import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
@@ -60,6 +61,7 @@ class SearchAppFunctionsIntegrationTest {
     private val functionsUnderTest =
         setOf(
             CREATE_NOTE_FUNCTION_ID,
+            CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
             ADD_FUNCTION_ID,
             DEPRECATED_FUNCTION_ID,
             SENTINEL_FUNCTION_ID,
@@ -82,13 +84,11 @@ class SearchAppFunctionsIntegrationTest {
         InstallHelper.install(targetAppApkFile)
         targetContext.awaitAppFunctionsIndexed(TARGET_APP_PACKAGE)
 
-        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
-            for (functionId in functionsUnderTest) {
-                uiAutomation.setAppFunctionState(
-                    AppFunctionName(TARGET_APP_PACKAGE, functionId),
-                    AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
-                )
-            }
+        for (functionId in functionsUnderTest) {
+            setAppFunctionStateRemoteAsync(
+                AppFunctionName(TARGET_APP_PACKAGE, functionId),
+                AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
+            )
         }
     }
 
@@ -123,7 +123,7 @@ class SearchAppFunctionsIntegrationTest {
         assertThat(addMetadata).isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.ADD)
 
         // Validate schema AppFunctionMetadata.
-        val createNoteMetadata = appFunctions.single { it.schema?.name == "createNote" }
+        val createNoteMetadata = appFunctions.single { it.id == CREATE_NOTE_FUNCTION_ID }
         assertThat(createNoteMetadata)
             .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.CREATE_NOTE)
     }
@@ -148,14 +148,14 @@ class SearchAppFunctionsIntegrationTest {
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
 
         // Validate schema AppFunctionMetadata.
-        val createNoteMetadata = appFunctions.single { it.schema?.name == "createNote" }
+        val createNoteMetadata = appFunctions.single { it.id == CREATE_NOTE_FUNCTION_ID }
         assertThat(createNoteMetadata)
             .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.CREATE_NOTE_LEGACY_INDEXER)
     }
 
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
-            val aggregatedFunctionCount = 24
+            val aggregatedFunctionCount = 25
             val multiServiceFunctionCount = 6
             val dynamicFunctionsCount = 5
             if (Build.VERSION.SDK_INT >= 37) {
@@ -164,7 +164,7 @@ class SearchAppFunctionsIntegrationTest {
                 aggregatedFunctionCount
             }
         } else {
-            1
+            2
         }
     }
 }
