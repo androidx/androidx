@@ -22,6 +22,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteEnum
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -37,6 +39,40 @@ fun RemoteStateLayoutBooleanSample() {
             RemoteText("True State".rs, color = Color.Green.rc)
         } else {
             RemoteText("False State".rs, color = Color.Red.rc)
+        }
+    }
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteStateLayoutIntSample() {
+    val state = rememberMutableRemoteInt(0)
+    RemoteStateLayout(currentState = state, 0, 1, 2) { index ->
+        when (index) {
+            0 -> RemoteText("State 0".rs, color = Color.Red.rc)
+            1 -> RemoteText("State 1".rs, color = Color.Green.rc)
+            2 -> RemoteText("State 2".rs, color = Color.Blue.rc)
+        }
+    }
+}
+
+enum class SampleState {
+    Loading,
+    Success,
+    Error,
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteStateLayoutEnumSample() {
+    val state = rememberMutableRemoteEnum(SampleState.Loading)
+    RemoteStateLayout(currentState = state) { screen ->
+        when (screen) {
+            SampleState.Loading -> RemoteText("Loading...".rs, color = Color.Gray.rc)
+            SampleState.Success -> RemoteText("Success!".rs, color = Color.Green.rc)
+            SampleState.Error -> RemoteText("Error occurred".rs, color = Color.Red.rc)
         }
     }
 }

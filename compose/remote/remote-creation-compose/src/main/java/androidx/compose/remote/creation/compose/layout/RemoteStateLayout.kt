@@ -81,6 +81,7 @@ internal fun <T> StateLayout(
  * the underlying remote rendering system handles the visibility and transitions between them based
  * on the [currentState].
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutEnumSample
  * @param currentState The state machine governing the available states and the current active
  *   state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
@@ -129,6 +130,7 @@ public fun RemoteStateLayout(
  * underlying remote rendering system handles the visibility and transitions between them based on
  * the [RemoteStateMachine.currentState].
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutIntSample
  * @param currentState The state machine governing the available states and the current active
  *   state.
  * @param states The list of integer states that this layout can display.

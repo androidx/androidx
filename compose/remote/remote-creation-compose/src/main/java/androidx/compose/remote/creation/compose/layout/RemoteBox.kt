@@ -53,6 +53,7 @@ internal class RemoteBoxNode : RemoteComposeNode() {
  * Remote Compose, this layout is recorded as a Box command.
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteBoxSample
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteBoxStackingSample
  * @param modifier The modifier to be applied to this box.
  * @param contentAlignment The default alignment inside the Box.
  * @param content The content of the box.

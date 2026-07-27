@@ -18,8 +18,12 @@ package androidx.compose.remote.creation.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -36,5 +40,15 @@ fun RemoteColumnSample() {
         RemoteText("Item 1".rs, color = Color.Red.rc)
         RemoteText("Item 2".rs, color = Color.Green.rc)
         RemoteText("Item 3".rs, color = Color.Blue.rc)
+    }
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteColumnWeightSample() {
+    RemoteColumn(modifier = RemoteModifier.height(200.rdp)) {
+        RemoteBox(modifier = RemoteModifier.weight(0.3f).background(Color.Red.rc))
+        RemoteBox(modifier = RemoteModifier.weight(0.7f).background(Color.Blue.rc))
     }
 }

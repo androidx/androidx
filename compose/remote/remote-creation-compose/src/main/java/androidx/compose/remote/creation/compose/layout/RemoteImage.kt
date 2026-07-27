@@ -83,6 +83,7 @@ public fun RemoteImage(
  * of [androidx.compose.foundation.Image].
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteImageSample
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteImageFitSample
  * @param remoteBitmap the [RemoteImageBitmap] to be drawn.
  * @param contentDescription the Text used by accessibility services to describe what this image
  *   represents.
