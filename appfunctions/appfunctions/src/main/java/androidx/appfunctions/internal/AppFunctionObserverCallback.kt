@@ -58,7 +58,9 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
     }
 
     override fun onDocumentChanged(docChangeInfo: DocumentChangeInfo) {
-        if (!isAppFunctionMetadataChange(docChangeInfo)) {
+        val isStatic = isStaticDbChange(docChangeInfo)
+        val isRuntime = isRuntimeDbChange(docChangeInfo)
+        if (!isStatic && !isRuntime) {
             return
         }
         val changedFunctions =
@@ -74,7 +76,13 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
                 .distinct()
                 .toSet()
         if (changedFunctions.isNotEmpty()) {
-            changeEvents.trySend(ObserveAppFunctionsEvent.StatesChanged(changedFunctions))
+            if (isStatic) {
+                val changedPackages = changedFunctions.map { it.packageName }.toSet()
+                changeEvents.trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackages))
+            }
+            if (isRuntime) {
+                changeEvents.trySend(ObserveAppFunctionsEvent.StatesChanged(changedFunctions))
+            }
         }
     }
 
@@ -86,15 +94,11 @@ internal class AppFunctionObserverCallback : ObserverCallback, Closeable {
     }
 
     private companion object {
-
-        private fun isAppFunctionMetadataChange(changeInfo: DocumentChangeInfo): Boolean =
-            isStaticDbChange(changeInfo) || isDynamicDbChange(changeInfo)
-
         private fun isStaticDbChange(changeInfo: DocumentChangeInfo): Boolean =
             changeInfo.databaseName == APP_FUNCTIONS_STATIC_DATABASE_NAME &&
                 changeInfo.namespace == APP_FUNCTIONS_NAMESPACE
 
-        private fun isDynamicDbChange(changeInfo: DocumentChangeInfo): Boolean =
+        private fun isRuntimeDbChange(changeInfo: DocumentChangeInfo): Boolean =
             changeInfo.databaseName == APP_FUNCTIONS_RUNTIME_DATABASE_NAME &&
                 changeInfo.namespace == APP_FUNCTIONS_RUNTIME_NAMESPACE
 
