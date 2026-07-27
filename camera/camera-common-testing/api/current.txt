@@ -121,6 +121,17 @@ package androidx.camera.common.testing {
     method @BytecodeOnly public static androidx.camera.common.testing.FakeCaptureResult! invoke-pESMVW0$default(androidx.camera.common.testing.FakeCaptureResult.Companion!, String!, long, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, java.util.Map!, int, Object!);
   }
 
+  public final class FakeColorSpaceProfiles implements androidx.camera.common.ColorSpaceProfilesWrapper {
+    ctor public FakeColorSpaceProfiles();
+    ctor @BytecodeOnly public FakeColorSpaceProfiles(java.util.Map!, java.util.Map!, java.util.Map!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeColorSpaceProfiles(optional java.util.Map<java.lang.Integer,? extends java.util.Set<java.lang.String>> supportedColorSpaces, optional java.util.Map<java.lang.String,? extends java.util.Set<java.lang.Integer>> supportedImageFormats, optional java.util.Map<kotlin.Pair<java.lang.String,java.lang.Integer>,? extends java.util.Set<java.lang.Long>> supportedDynamicRangeProfiles, optional java.util.Map<kotlin.Pair<java.lang.Integer,java.lang.Long>,? extends java.util.Set<java.lang.String>> supportedColorSpacesForDynamicRange);
+    method public java.util.Set<java.lang.String> getSupportedColorSpaces(int imageFormat);
+    method public java.util.Set<java.lang.String> getSupportedColorSpacesForDynamicRange(int imageFormat, long dynamicRangeProfile);
+    method public java.util.Set<java.lang.Long> getSupportedDynamicRangeProfiles(String cameraColorSpace, int imageFormat);
+    method public java.util.Set<java.lang.Integer> getSupportedImageFormatsForColorSpace(String cameraColorSpace);
+    method public <T> T? unwrapAs(Class<T> type);
+  }
+
   public class FakeImage implements androidx.camera.common.MutableImageWrapper {
     ctor public FakeImage(int width, int height, int format, long timestamp);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer);
