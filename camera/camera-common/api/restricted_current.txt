@@ -115,6 +115,12 @@ package androidx.camera.common {
     property public int rowStride;
   }
 
+  public final class CameraCharacteristics {
+    method @InaccessibleFromKotlin public static androidx.camera.common.StreamConfigurationMapWrapper? getStreamConfigurationMap(androidx.camera.common.CameraCharacteristicsMetadata);
+    property public androidx.camera.common.StreamConfigurationMapWrapper? androidx.camera.common.CameraCharacteristicsMetadata.streamConfigurationMap;
+    field public static final androidx.camera.common.CameraCharacteristics INSTANCE;
+  }
+
   public interface CameraCharacteristicsMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
     method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
@@ -139,6 +145,12 @@ package androidx.camera.common {
     property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> restrictedKeys;
     property public abstract java.util.Set<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> sessionCaptureRequestKeys;
     property public abstract java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> sessionKeys;
+  }
+
+  public static final class CameraCharacteristicsWrapper.Keys {
+    property public androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
+    field public static final androidx.camera.common.CameraCharacteristicsWrapper.Keys INSTANCE;
+    field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
   }
 
   @kotlin.jvm.JvmInline public final value class CameraFrameNumber {
@@ -402,6 +414,27 @@ package androidx.camera.common {
     property public abstract int dataSpace;
     property public abstract android.hardware.SyncFence? syncFence;
     property public abstract long timestamp;
+  }
+
+  public interface StreamConfigurationMapWrapper extends androidx.camera.common.UnsafeWrapper {
+    method public java.util.List<android.util.Size> getHighResolutionOutputSizes(int format);
+    method public java.util.List<android.util.Range<java.lang.Integer>> getHighSpeedVideoFpsRanges();
+    method public java.util.List<android.util.Range<java.lang.Integer>> getHighSpeedVideoFpsRangesFor(android.util.Size size);
+    method public java.util.List<android.util.Size> getHighSpeedVideoSizes();
+    method public java.util.List<android.util.Size> getHighSpeedVideoSizesFor(android.util.Range<java.lang.Integer> fpsRange);
+    method public java.util.List<java.lang.Integer> getInputFormats();
+    method public java.util.List<android.util.Size> getInputSizes(int format);
+    method public java.util.List<java.lang.Integer> getOutputFormats();
+    method public long getOutputMinFrameDuration(int format, android.util.Size size);
+    method public <T> long getOutputMinFrameDuration(Class<T> klass, android.util.Size size);
+    method public java.util.List<android.util.Size> getOutputSizes(int format);
+    method public <T> java.util.List<android.util.Size> getOutputSizes(Class<T> klass);
+    method public long getOutputStallDuration(int format, android.util.Size size);
+    method public <T> long getOutputStallDuration(Class<T> klass, android.util.Size size);
+    method public java.util.List<java.lang.Integer> getValidOutputFormatsForInput(int inputFormat);
+    method public boolean isOutputSupportedFor(android.view.Surface surface);
+    method public boolean isOutputSupportedFor(int format);
+    method public <T> boolean isOutputSupportedFor(Class<T> klass);
   }
 
   public interface UnsafeWrapper {
