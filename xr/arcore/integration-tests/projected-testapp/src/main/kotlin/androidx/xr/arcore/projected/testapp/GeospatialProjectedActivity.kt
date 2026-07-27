@@ -128,16 +128,27 @@ open class GeospatialProjectedActivity : ComponentActivity() {
     }
 
     private fun onPermissionGranted() {
+        val useBgThread = intent.getBooleanExtra("debug.jxr.geo.bg_thread", false)
+        val delayMs = intent.getIntExtra("debug.jxr.geo.delay_ms", 0)
+        val dispatcher = if (useBgThread) Dispatchers.IO else Dispatchers.Main
+
+        Log.i("JetpackXR", "onPermissionGranted: useBgThread=$useBgThread, delayMs=$delayMs")
+
         // TODO: b/518877582 - switch back to lifecycleScope.launch(Dispatchers.IO)
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(dispatcher) {
+            delay(delayMs.toLong())
             tryCreateSession()
-            sessionInitialized.await()
-            Log.i("JetpackXR", "Session configured successfully!!")
-            geospatial = Geospatial.getInstance(session)
-            checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
-            while (true) {
-                update()
-                delay(100)
+            // Intentionally switch back to Main UI thread for ongoing session updates
+            // after creating and configuring the session on the background thread.
+            lifecycleScope.launch(Dispatchers.Main) {
+                sessionInitialized.await()
+                Log.i("JetpackXR", "Session configured successfully!!")
+                geospatial = Geospatial.getInstance(session)
+                checkVpsAvailability(37.422, -122.084) // Googleplex coordinates
+                while (true) {
+                    update()
+                    delay(100)
+                }
             }
         }
     }
