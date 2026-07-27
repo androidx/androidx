@@ -43,7 +43,7 @@ class AppCompatEmojiTextHelper {
     }
 
     /**
-     * Load enabled behavior based on {@link R.styleable#AppCompatTextView_emojiCompatEnabled}.
+     * Load enabled behavior based on {@link R.attr#emojiCompatEnabled}.
      * @param attrs from view
      * @param defStyleAttr from view
      */
