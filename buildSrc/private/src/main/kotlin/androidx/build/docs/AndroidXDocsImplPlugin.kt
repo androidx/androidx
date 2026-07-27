@@ -17,7 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.KonanPrebuiltsSetup
-import androidx.build.clang.KonanBuildService
+import androidx.build.clang.ClangBuildService
 import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
 import androidx.build.dackka.GenerateMetadataTask
@@ -401,7 +401,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         // Create mapping from target name to classpath for that target.
         val kmpDependencyClasspathMap = createKmpClasspaths()
 
-        private val stdLibKlibDir = KonanBuildService.obtain(project).map { it.stdlibKlibDir() }
+        private val stdLibKlibDir = ClangBuildService.obtain(project).map { it.stdlibKlibDir() }
 
         private fun createKmpClasspaths(): MapProperty<String, FileCollection> {
             val map = project.objects.mapProperty<String, FileCollection>()

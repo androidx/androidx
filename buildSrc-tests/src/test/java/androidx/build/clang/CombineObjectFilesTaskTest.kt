@@ -17,7 +17,6 @@
 package androidx.build.clang
 
 import com.google.common.truth.Truth.assertThat
-import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.junit.Test
 
@@ -27,16 +26,16 @@ class CombineObjectFilesTaskTest : BaseClangTest() {
         val multiTargetNativeCompilation =
             clangExtension.createNativeCompilation(
                 archiveName = "code",
-                outputKind = LinkerOutputKind.DYNAMIC_LIBRARY
+                outputKind = LinkerOutputKind.DYNAMIC_LIBRARY,
             ) {}
         val allTargets =
             listOf(
-                KonanTarget.LINUX_X64,
-                KonanTarget.ANDROID_X64,
-                KonanTarget.ANDROID_X86,
-                KonanTarget.ANDROID_ARM64
+                NativeTarget.LINUX_X64,
+                NativeTarget.ANDROID_X64,
+                NativeTarget.ANDROID_X86,
+                NativeTarget.ANDROID_ARM64,
             )
-        val chosenTargets = allTargets - KonanTarget.ANDROID_X64
+        val chosenTargets = allTargets - NativeTarget.ANDROID_X64
         multiTargetNativeCompilation.configureTargets(allTargets)
         val taskOutputDir = tmpFolder.newFolder()
         val taskProvider =
@@ -65,9 +64,9 @@ class CombineObjectFilesTaskTest : BaseClangTest() {
                 .toList()
         assertThat(outputContents)
             .containsExactly(
-                "natives/linux_x64/libcode.so" to KonanTarget.LINUX_X64.name,
-                "x86/libcode.so" to KonanTarget.ANDROID_X86.name,
-                "arm64-v8a/libcode.so" to KonanTarget.ANDROID_ARM64.name
+                "natives/linux_x64/libcode.so" to NativeTarget.LINUX_X64.name,
+                "x86/libcode.so" to NativeTarget.ANDROID_X86.name,
+                "arm64-v8a/libcode.so" to NativeTarget.ANDROID_ARM64.name,
             )
     }
 }
