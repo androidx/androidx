@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="true" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        activity?.window?.frameRateBoostOnTouchEnabled = false"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        activity?.window?.frameRateBoostOnTouchEnabled = false"
         errorLine2="                                                       ~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        onDispose { activity?.window?.frameRateBoostOnTouchEnabled = true }"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        onDispose { activity?.window?.frameRateBoostOnTouchEnabled = true }"
         errorLine2="                                                                   ~">
         <location
@@ -39,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        activity?.window?.frameRateBoostOnTouchEnabled = false"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +48,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        activity?.window?.frameRateBoostOnTouchEnabled = false"
         errorLine2="                                                       ~">
         <location
@@ -57,7 +57,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        onDispose { activity?.window?.frameRateBoostOnTouchEnabled = true }"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,7 +66,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 35 (current min is 23): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
+        message="Call requires API level 35 (current min is 24): `android.view.Window#setFrameRateBoostOnTouchEnabled`"
         errorLine1="        onDispose { activity?.window?.frameRateBoostOnTouchEnabled = true }"
         errorLine2="                                                                   ~">
         <location
@@ -89,15 +89,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/samples/TraverseModifierDemo.kt"/>
-    </issue>
-
-    <issue
-        id="NonObservableLocale"
-        message="Reading locale in a non-observable way in a composable function"
-        errorLine1="        val adaptiveLabel = if (isUnreachable) label.uppercase(getDefault()) else label"
-        errorLine2="                                                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/samples/MediaQuerySamples.kt"/>
     </issue>
 
     <issue

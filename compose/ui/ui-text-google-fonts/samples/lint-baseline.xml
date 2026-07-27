@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="true" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@array/com_google_android_gms_fonts_certs` which is marked as private in androidx.compose.ui:ui-text-google-fonts:1.13.0-alpha01. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;array name=&quot;com_google_android_gms_fonts_certs&quot;>"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_gms_fonts_certs.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@array/com_google_android_gms_fonts_certs_dev` is marked as private in androidx.compose.ui:ui-text-google-fonts:1.13.0-alpha01"
+        errorLine1="        &lt;item>@array/com_google_android_gms_fonts_certs_dev&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_gms_fonts_certs.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@array/com_google_android_gms_fonts_certs_prod` is marked as private in androidx.compose.ui:ui-text-google-fonts:1.13.0-alpha01"
+        errorLine1="        &lt;item>@array/com_google_android_gms_fonts_certs_prod&lt;/item>"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_gms_fonts_certs.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@array/com_google_android_gms_fonts_certs_dev` which is marked as private in androidx.compose.ui:ui-text-google-fonts:1.13.0-alpha01. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string-array name=&quot;com_google_android_gms_fonts_certs_dev&quot;>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_gms_fonts_certs.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@array/com_google_android_gms_fonts_certs_prod` which is marked as private in androidx.compose.ui:ui-text-google-fonts:1.13.0-alpha01. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string-array name=&quot;com_google_android_gms_fonts_certs_prod&quot;>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/default_gms_fonts_certs.xml"/>
+    </issue>
+
+</issues>
