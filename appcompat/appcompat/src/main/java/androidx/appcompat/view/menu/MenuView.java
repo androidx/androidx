@@ -53,8 +53,8 @@ public interface MenuView {
          * inflated.
          * @param itemData The item that this ItemView should display.
          * @param menuType The type of this menu, one of
-         *            {@link MenuBuilder#TYPE_ICON}, {@link MenuBuilder#TYPE_EXPANDED},
-         *            {@link MenuBuilder#TYPE_DIALOG}).
+         *            {@code MenuBuilder#TYPE_ICON}, {@code MenuBuilder#TYPE_EXPANDED},
+         *            {@code MenuBuilder#TYPE_DIALOG}).
          */
         void initialize(MenuItemImpl itemData, int menuType);
 
