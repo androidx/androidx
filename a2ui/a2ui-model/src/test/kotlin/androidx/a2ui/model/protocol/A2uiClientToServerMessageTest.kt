@@ -25,6 +25,7 @@ class A2uiClientToServerMessageTest {
 
     @Test
     fun a2uiClientEventMessage_allArgumentsProvided_allPropertiesAreStored() {
+        val testDataModel = A2uiClientDataModel(mapOf(TEST_SURFACE_ID to mapOf("key" to "value")))
         val full =
             A2uiClientEventMessage(
                 TEST_ACTION_TYPE,
@@ -32,6 +33,7 @@ class A2uiClientToServerMessageTest {
                 TEST_COMPONENT_ID,
                 TEST_TIMESTAMP,
                 TEST_CONTEXT,
+                testDataModel,
             )
 
         assertThat(full.type).isEqualTo(TEST_ACTION_TYPE)
@@ -39,10 +41,11 @@ class A2uiClientToServerMessageTest {
         assertThat(full.componentId).isEqualTo(TEST_COMPONENT_ID)
         assertThat(full.timestamp).isEqualTo(TEST_TIMESTAMP)
         assertThat(full.context).isEqualTo(TEST_CONTEXT)
+        assertThat(full.clientDataModel).isEqualTo(testDataModel)
     }
 
     @Test
-    fun a2uiClientEventMessage_onlyRequiredArgumentsProvided_contextIsEmpty() {
+    fun a2uiClientEventMessage_onlyRequiredArgumentsProvided_contextIsEmptyAndClientDataModelIsNull() {
         val minimal =
             A2uiClientEventMessage(
                 TEST_ACTION_TYPE,
@@ -52,6 +55,7 @@ class A2uiClientToServerMessageTest {
             )
 
         assertThat(minimal.context).isEmpty()
+        assertThat(minimal.clientDataModel).isNull()
     }
 
     @Test
@@ -141,6 +145,16 @@ class A2uiClientToServerMessageTest {
                     emptyMap(),
                 )
             )
+            .addEqualityGroup(
+                A2uiClientEventMessage(
+                    TEST_ACTION_TYPE,
+                    TEST_SURFACE_ID,
+                    TEST_COMPONENT_ID,
+                    TEST_TIMESTAMP,
+                    TEST_CONTEXT,
+                    A2uiClientDataModel(mapOf(TEST_SURFACE_ID to mapOf("key" to "value"))),
+                )
+            )
             .testEquals()
     }
 
@@ -158,7 +172,8 @@ class A2uiClientToServerMessageTest {
         assertThat(action.toString())
             .isEqualTo(
                 "A2uiClientEventMessage(type=$TEST_ACTION_TYPE, surfaceId=$TEST_SURFACE_ID, " +
-                    "componentId=$TEST_COMPONENT_ID, timestamp=$TEST_TIMESTAMP_STR, context=$TEST_CONTEXT)"
+                    "componentId=$TEST_COMPONENT_ID, timestamp=$TEST_TIMESTAMP_STR, context=$TEST_CONTEXT, " +
+                    "clientDataModel=null)"
             )
     }
 

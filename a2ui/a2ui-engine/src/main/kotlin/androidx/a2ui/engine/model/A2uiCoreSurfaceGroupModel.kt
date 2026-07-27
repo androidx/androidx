@@ -16,6 +16,8 @@
 
 package androidx.a2ui.engine.model
 
+import androidx.a2ui.model.protocol.A2uiClientDataModel
+import androidx.a2ui.model.protocol.A2uiDataPath
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -103,6 +105,30 @@ public class A2uiCoreSurfaceGroupModel internal constructor() {
             emptyList()
         }
         return removedSurfaces
+    }
+
+    /**
+     * Aggregates the data model for all active surfaces that have `sendDataModel` enabled.
+     *
+     * @return The populated [A2uiClientDataModel], or `null` if no surfaces currently require data
+     *   synchronization.
+     */
+    internal fun getClientDataModel(): A2uiClientDataModel? {
+        val activeSurfaces = _activeSurfaces.value
+        val surfacesToSend = mutableMapOf<String, Any?>()
+
+        for (surface in activeSurfaces) {
+            if (surface.shouldSendDataModel) {
+                val rootData = surface.dataModel[A2uiDataPath("/")]
+                surfacesToSend[surface.id] = rootData
+            }
+        }
+
+        if (surfacesToSend.isEmpty()) {
+            return null
+        }
+
+        return A2uiClientDataModel(surfacesToSend)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -17,32 +17,34 @@
 package androidx.a2ui.model.protocol
 
 /**
- * Represents the client capabilities advertisement sent to the agent during system initialization.
+ * Represents the client data model synchronization payload sent to the agent.
  *
- * @property supportedCatalogIds Ids of component/function catalogs supported by this client
- *   renderer.
+ * This payload captures the current state of the data tree for active surfaces with `sendDataModel
+ * = true` and is automatically attached to outbound client event messages.
+ *
+ * @property surfaces A map where keys are surface IDs and values are the complete, current data
+ *   model root for that surface.
  */
-public class A2uiClientCapabilities(public val supportedCatalogIds: List<String>) {
-    /** Converts this capability object to the A2UI JSON-compatible Map structure. */
+public class A2uiClientDataModel(public val surfaces: Map<String, Any?>) {
+    /** Converts this data model object to the A2UI JSON-compatible Map structure. */
     public fun toPayloadMap(): Map<String, Map<String, Any?>> {
-        val versionPayload = mapOf<String, Any?>("supportedCatalogIds" to supportedCatalogIds)
+        val versionPayload = buildMap<String, Any?> { put("surfaces", surfaces) }
         return mapOf(
-            "a2uiClientCapabilities" to
-                mapOf(A2uiProtocolConstants.PROTOCOL_VERSION to versionPayload)
+            "a2uiClientDataModel" to mapOf(A2uiProtocolConstants.PROTOCOL_VERSION to versionPayload)
         )
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is A2uiClientCapabilities) return false
-        return supportedCatalogIds == other.supportedCatalogIds
+        if (other !is A2uiClientDataModel) return false
+        return surfaces == other.surfaces
     }
 
     override fun hashCode(): Int {
-        return supportedCatalogIds.hashCode()
+        return surfaces.hashCode()
     }
 
     override fun toString(): String {
-        return "A2uiClientCapabilities(supportedCatalogIds=$supportedCatalogIds)"
+        return "A2uiClientDataModel(surfaces=$surfaces)"
     }
 }

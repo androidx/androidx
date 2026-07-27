@@ -26,6 +26,7 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.processor.A2uiActionInterceptor
+import androidx.a2ui.model.protocol.A2uiClientDataModel
 import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiDataPath
@@ -35,6 +36,7 @@ import androidx.a2ui.model.protocol.A2uiFunctionCallAction
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +52,7 @@ class A2uiActionHandlerTest {
         val handler =
             A2uiActionHandler(
                 actionInterceptors = emptyList(),
+                clientDataModelProvider = { null },
                 emitToServer = { emittedMessage = it },
             )
 
@@ -74,8 +77,7 @@ class A2uiActionHandlerTest {
 
         handler.handleAction(action, executionContext)
 
-        assertThat(emittedMessage).isInstanceOf(A2uiClientEventMessage::class.java)
-        val eventMessage = emittedMessage as A2uiClientEventMessage
+        val eventMessage = assertIs<A2uiClientEventMessage>(emittedMessage)
         assertThat(eventMessage.type).isEqualTo("my_event")
         assertThat(eventMessage.surfaceId).isEqualTo("surf-1")
         assertThat(eventMessage.componentId).isEqualTo("comp-1")
@@ -84,11 +86,54 @@ class A2uiActionHandlerTest {
     }
 
     @Test
+    fun handleAction_withClientDataModelProvider_populatesClientDataModelInEmittedMessage() =
+        runTest {
+            var emittedMessage: A2uiClientToServerMessage? = null
+            val expectedClientDataModel =
+                A2uiClientDataModel(surfaces = mapOf("surf-1" to mapOf("key" to "value")))
+            val handler =
+                A2uiActionHandler(
+                    actionInterceptors = emptyList(),
+                    clientDataModelProvider = { expectedClientDataModel },
+                    emitToServer = { emittedMessage = it },
+                )
+
+            val action =
+                A2uiEventAction(
+                    surfaceId = "surf-1",
+                    componentId = "comp-1",
+                    timestamp = 123L,
+                    eventName = "my_event",
+                    context = emptyMap(),
+                )
+
+            val executionContext =
+                A2uiCoreExecutionContext(
+                    componentId = "comp-1",
+                    catalog = FakeCatalog(),
+                    dispatchError = { _, _ -> },
+                    valueResolver = FakeValueResolver(),
+                    dynamicEvaluator = FakeDynamicEvaluator(emptyMap<String, Any>()),
+                    cacheProvider = FakeCacheProvider(),
+                )
+
+            handler.handleAction(action, executionContext)
+
+            val eventMessage = assertIs<A2uiClientEventMessage>(emittedMessage)
+            assertThat(eventMessage.clientDataModel).isEqualTo(expectedClientDataModel)
+        }
+
+    @Test
     fun handleAction_localFunction_resolvesArgsAndExecutes() = runTest {
         var executedFunction: String? = null
         var executedArgs: Map<String, Any>? = null
 
-        val handler = A2uiActionHandler(actionInterceptors = emptyList(), emitToServer = {})
+        val handler =
+            A2uiActionHandler(
+                actionInterceptors = emptyList(),
+                clientDataModelProvider = { null },
+                emitToServer = {},
+            )
 
         val action =
             A2uiFunctionCallAction(
@@ -144,6 +189,7 @@ class A2uiActionHandlerTest {
         val handler =
             A2uiActionHandler(
                 actionInterceptors = listOf(interceptor),
+                clientDataModelProvider = { null },
                 emitToServer = { emittedMessage = it },
             )
 
@@ -190,6 +236,7 @@ class A2uiActionHandlerTest {
         val handler =
             A2uiActionHandler(
                 actionInterceptors = listOf(interceptor),
+                clientDataModelProvider = { null },
                 emitToServer = { emittedMessage = it },
             )
 
@@ -214,8 +261,7 @@ class A2uiActionHandlerTest {
 
         handler.handleAction(action, executionContext)
 
-        assertThat(emittedMessage).isInstanceOf(A2uiClientEventMessage::class.java)
-        val eventMessage = emittedMessage as A2uiClientEventMessage
+        val eventMessage = assertIs<A2uiClientEventMessage>(emittedMessage)
         assertThat(eventMessage.type).isEqualTo("transformed_event")
     }
 
@@ -251,6 +297,7 @@ class A2uiActionHandlerTest {
         val handler =
             A2uiActionHandler(
                 actionInterceptors = listOf(interceptor1, interceptor2),
+                clientDataModelProvider = { null },
                 emitToServer = { emittedMessage = it },
             )
 
@@ -275,8 +322,7 @@ class A2uiActionHandlerTest {
 
         handler.handleAction(action, executionContext)
 
-        assertThat(emittedMessage).isInstanceOf(A2uiClientEventMessage::class.java)
-        val eventMessage = emittedMessage as A2uiClientEventMessage
+        val eventMessage = assertIs<A2uiClientEventMessage>(emittedMessage)
         assertThat(eventMessage.type).isEqualTo("base_first_second")
     }
 
@@ -292,6 +338,7 @@ class A2uiActionHandlerTest {
         val handler =
             A2uiActionHandler(
                 actionInterceptors = listOf(interceptor1, interceptor2),
+                clientDataModelProvider = { null },
                 emitToServer = { emittedMessage = it },
             )
 
