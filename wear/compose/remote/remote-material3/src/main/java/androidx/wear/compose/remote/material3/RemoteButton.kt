@@ -489,7 +489,7 @@ private fun RemoteButtonImpl(
                         containerPainter = containerPainter,
                         disabledContainerPainter = disabledContainerPainter,
                         borderColor = borderColor,
-                        borderStrokeWidth = border?.value,
+                        borderStrokeWidth = border,
                     )
                     drawContent()
                 }
@@ -868,7 +868,7 @@ internal fun RemoteDrawScope.drawShapedBackground(
     containerPainter: RemotePainter?,
     disabledContainerPainter: RemotePainter?,
     borderColor: RemoteColor?,
-    borderStrokeWidth: RemoteFloat?,
+    borderStrokeWidth: RemoteDp?,
 ) {
     if (!enabled.hasConstantValue) {
         TODO("Dynamic clickable enabled value is not supported.")
@@ -881,7 +881,7 @@ internal fun RemoteDrawScope.drawShapedBackground(
 
     // Draw border if specified
     if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth, shape, width, height)
+        drawBorder(borderColor, borderStrokeWidth.value, shape, width, height)
     }
 }
 

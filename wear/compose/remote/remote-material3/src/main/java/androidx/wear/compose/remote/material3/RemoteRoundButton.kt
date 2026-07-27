@@ -58,7 +58,7 @@ internal fun RemoteRoundButton(
                         containerPainter = null,
                         disabledContainerPainter = null,
                         borderColor = borderColor,
-                        borderStrokeWidth = border?.value,
+                        borderStrokeWidth = border,
                     )
                     drawContent()
                 }
