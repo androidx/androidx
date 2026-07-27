@@ -17,8 +17,11 @@
 package androidx.camera.common.compat
 
 import android.hardware.SyncFence
+import android.hardware.camera2.CameraCharacteristics
 import android.media.Image
 import androidx.annotation.RequiresApi
+import androidx.camera.common.CameraCharacteristicsMetadata
+import androidx.camera.common.DynamicRangeProfilesWrapper
 
 /** Compatibility wrapper for API 33 ([android.os.Build.VERSION_CODES.TIRAMISU]) APIs. */
 @RequiresApi(33)
@@ -65,5 +68,20 @@ internal object Api33Compat {
     @JvmStatic
     fun setDataSpace(image: Image, dataSpace: Int) {
         image.dataSpace = dataSpace
+    }
+
+    /**
+     * Returns the [DynamicRangeProfilesWrapper] supported by the camera device.
+     *
+     * @param wrapper The camera characteristics metadata to query.
+     * @return The dynamic range profiles wrapper, or `null` if not available.
+     */
+    @JvmStatic
+    fun getDynamicRangeProfiles(
+        wrapper: CameraCharacteristicsMetadata
+    ): DynamicRangeProfilesWrapper? {
+        return wrapper[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]?.let {
+            AndroidDynamicRangeProfiles(it)
+        }
     }
 }

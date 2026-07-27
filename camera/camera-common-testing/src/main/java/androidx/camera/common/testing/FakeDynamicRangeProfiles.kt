@@ -1,0 +1,55 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.camera.common.testing
+
+import androidx.camera.common.DynamicRangeProfile
+import androidx.camera.common.DynamicRangeProfilesWrapper
+import java.lang.Class
+
+/**
+ * A fake implementation of [DynamicRangeProfilesWrapper] for testing.
+ *
+ * This class allows setting mock values for supported profiles, capture request constraints, and
+ * extra latency profiles.
+ */
+public class FakeDynamicRangeProfiles(
+    override val supportedProfiles: Set<@DynamicRangeProfile Long> =
+        setOf(DynamicRangeProfilesWrapper.STANDARD),
+    private val compatibleProfiles: Map<@DynamicRangeProfile Long, Set<@DynamicRangeProfile Long>> =
+        emptyMap(),
+    private val extraLatencyProfiles: Set<@DynamicRangeProfile Long> = emptySet(),
+) : DynamicRangeProfilesWrapper {
+
+    override fun getCompatibleProfiles(
+        @DynamicRangeProfile profile: Long
+    ): Set<@DynamicRangeProfile Long> {
+        if (!supportedProfiles.contains(profile)) {
+            return emptySet()
+        }
+        return compatibleProfiles[profile].orEmpty() + profile
+    }
+
+    override fun hasExtraLatency(@DynamicRangeProfile profile: Long): Boolean =
+        extraLatencyProfiles.contains(profile)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        when {
+            type.isInstance(this) -> this as T
+            else -> null
+        }
+}
