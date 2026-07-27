@@ -19,6 +19,7 @@ package androidx.appfunctions.integration.test.agent
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 
 /**
@@ -37,6 +38,22 @@ object InstallHelper {
 
     /** Uninstalls an APK with the given package name. */
     fun uninstall(packageName: String) = executeCommand("pm uninstall $packageName")
+
+    /** Uninstalls an APK and waits until the package is fully removed from the device. */
+    suspend fun suspendUninstall(packageName: String) {
+        uninstall(packageName)
+        val pm = instrumentation.targetContext.packageManager
+        TestUtil.retryAssert {
+            val isInstalled =
+                try {
+                    pm.getPackageInfo(packageName, 0)
+                    true
+                } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
+                    false
+                }
+            assertThat(isInstalled).isFalse()
+        }
+    }
 
     /**
      * Installs an APK from the test resources.
