@@ -222,7 +222,12 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             // Ignore frame update if released.
             return;
         }
-        surfaceTexture.updateTexImage();
+        try {
+            surfaceTexture.updateTexImage();
+        } catch (RuntimeException e) {
+            Logger.w(TAG, "Failed to updateTexImage: " + e);
+            return;
+        }
         surfaceTexture.getTransformMatrix(mTextureMatrix);
         // Surface, size and transform matrix for JPEG Surface if exists
         Triple<Surface, Size, float[]> jpegOutput = null;

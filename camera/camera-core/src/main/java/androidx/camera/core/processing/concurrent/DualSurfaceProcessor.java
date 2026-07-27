@@ -176,8 +176,22 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         if (mPrimarySurfaceTexture == null || mSecondarySurfaceTexture == null) {
             return;
         }
-        mPrimarySurfaceTexture.updateTexImage();
-        mSecondarySurfaceTexture.updateTexImage();
+        boolean isUpdateTexImageFailed = false;
+        try {
+            mPrimarySurfaceTexture.updateTexImage();
+        } catch (RuntimeException e) {
+            isUpdateTexImageFailed = true;
+            Logger.w(TAG, "Failed to updateTexImage for primary SurfaceTexture: " + e);
+        }
+        try {
+            mSecondarySurfaceTexture.updateTexImage();
+        } catch (RuntimeException e) {
+            isUpdateTexImageFailed = true;
+            Logger.w(TAG, "Failed to updateTexImage for secondary SurfaceTexture: " + e);
+        }
+        if (isUpdateTexImageFailed) {
+            return;
+        }
         for (Map.Entry<SurfaceOutput, Surface> entry : mOutputSurfaces.entrySet()) {
             Surface surface = entry.getValue();
             SurfaceOutput surfaceOutput = entry.getKey();
