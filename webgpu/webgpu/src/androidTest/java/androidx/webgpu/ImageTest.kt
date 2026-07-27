@@ -18,6 +18,7 @@ package androidx.webgpu
 import android.graphics.BitmapFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
 import androidx.webgpu.helper.asString
@@ -37,6 +38,7 @@ class ImageTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun imageCompareGreen() {
         triangleTest(GPUColor(0.2, 0.9, 0.1, 1.0), "green.png")
@@ -44,6 +46,7 @@ class ImageTest {
 
     @Test
     @MediumTest
+    @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun imageCompareRed() {
         triangleTest(GPUColor(0.9, 0.1, 0.2, 1.0), "red.png")

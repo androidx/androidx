@@ -17,6 +17,7 @@ package androidx.webgpu
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
 import androidx.webgpu.helper.WebGpu
 import androidx.webgpu.helper.createWebGpu
@@ -180,6 +181,7 @@ class MultisampleStateTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun verifyDefaultMaskEnablesAllSamplesInMSAARender() {
         // Default mask (0xFFFFFFFF or -1) should allow drawing.
