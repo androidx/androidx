@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -577,6 +578,31 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
 
         present = true
         rule.runOnIdle { assertEquals(3, called) }
+    }
+
+    @Test
+    fun testVisibilityChangedWhenReused() {
+        var active by mutableStateOf(true)
+        var lastVisibilityState: Boolean? = null
+        val callback: (Boolean) -> Unit = { isVisible -> lastVisibilityState = isVisible }
+
+        rule.setContent {
+            ReusableContentHost(active) {
+                Box(Modifier.size(50.dp).onVisibilityChangedTestImpl(callback = callback))
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(lastVisibilityState).isTrue()
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(lastVisibilityState).isFalse()
+            active = true
+        }
+
+        rule.runOnIdle { assertThat(lastVisibilityState).isTrue() }
     }
 
     fun Modifier.onVisibilityChangedTestImpl(
