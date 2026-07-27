@@ -93,6 +93,49 @@ class DragAndDropRequestPermissionTest {
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
+    fun doesNotAskPermission_ifClipDataIsNull() {
+        // setup
+        rule.setContent { Box(Modifier.then(TestElement { testNode = it })) }
+        val event =
+            DragAndDropEvent(
+                DragAndDropTestUtils.makeDragEvent(action = DragEvent.ACTION_DROP, clipData = null)
+            )
+
+        // act
+        requireTestNode().dragAndDropRequestPermission(event)
+
+        // assert
+        Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun asksPermission_ifAnyClipDataItemHasContentUri() {
+        // setup
+        rule.setContent { Box(Modifier.then(TestElement { testNode = it })) }
+        val clipData =
+            android.content.ClipData.newPlainText("text", "hello").apply {
+                addItem(
+                    android.content.ClipData.Item(Uri.parse("content://com.example/content.png"))
+                )
+            }
+        val event =
+            DragAndDropEvent(
+                DragAndDropTestUtils.makeDragEvent(
+                    action = DragEvent.ACTION_DROP,
+                    clipData = clipData,
+                )
+            )
+
+        // act
+        requireTestNode().dragAndDropRequestPermission(event)
+
+        // assert
+        Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isNotEmpty()
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
     fun doesNotAskPermission_ifNodeIsDetached() {
         // setup
         var toggle by mutableStateOf(true)
@@ -110,6 +153,7 @@ class DragAndDropRequestPermissionTest {
             )
 
         toggle = false
+        rule.waitForIdle()
 
         // act
         requireTestNode().dragAndDropRequestPermission(event)
