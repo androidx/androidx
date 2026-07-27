@@ -54,4 +54,9 @@ public class UnlimitedLimitConfig implements LimitConfig {
     public int getMaxByteLimitForBatchPut() {
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public int getMaxAccumulatedResultBytes() {
+        return Integer.MAX_VALUE;
+    }
 }
