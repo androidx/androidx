@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage.usagereporting;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.HideInPlatform;
@@ -59,6 +60,7 @@ public class SearchActionGenericDocument extends TakenActionGenericDocument {
     }
 
     /** Builder for {@link SearchActionGenericDocument}. */
+    @OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
     public static final class Builder extends TakenActionGenericDocument.Builder<Builder> {
         /**
          * Creates a new {@link SearchActionGenericDocument.Builder}.

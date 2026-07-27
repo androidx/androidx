@@ -89,7 +89,7 @@ public class SearchAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
+            super(namespace, id, actionTimestampMillis);
         }
 
         /**
@@ -143,6 +143,23 @@ public class SearchAction extends TakenAction {
             // Default for unset fetchedResultCount. Since negative number is invalid for fetched
             // result count, -1 is used as an unset value and AppSearch will ignore it.
             mFetchedResultCount = -1;
+        }
+
+        /**
+         * Constructs {@link SearchAction.BuilderBase} with given {@code namespace}, {@code id}, and
+         * {@code actionTimestampMillis}.
+         *
+         * <p>The {@link TakenAction.ActionType} for the Document returned from
+         * {@link TakenAction#getActionType()} will be {@link ActionConstants#ACTION_TYPE_SEARCH}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis) {
+            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
         }
 
         /**

@@ -1234,6 +1234,14 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> saveDocumentsToAppSearchAsync() throws androidx.appsearch.exceptions.AppSearchException;
   }
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class ActionConstants {
+    field public static final int ACTION_TYPE_CLICK = 2; // 0x2
+    field public static final int ACTION_TYPE_DISMISS = 4; // 0x4
+    field public static final int ACTION_TYPE_IMPRESSION = 3; // 0x3
+    field public static final int ACTION_TYPE_SEARCH = 1; // 0x1
+    field public static final int ACTION_TYPE_UNKNOWN = 0; // 0x0
+  }
+
   @SuppressCompatibility @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:ClickAction") @androidx.appsearch.app.ExperimentalAppSearchApi public class ClickAction extends androidx.appsearch.usagereporting.TakenAction {
     ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public ClickAction(androidx.appsearch.usagereporting.ClickAction.BuilderBase<? extends java.lang.Object!>);
     method public String? getQuery();
@@ -1250,6 +1258,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ClickAction.BuilderBase<T extends androidx.appsearch.usagereporting.ClickAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
     ctor public ClickAction.BuilderBase(androidx.appsearch.usagereporting.ClickAction);
+    ctor public ClickAction.BuilderBase(String, String, long);
     ctor public ClickAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.ClickAction build();
     method public T setQuery(String?);
@@ -1274,6 +1283,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class DismissAction.BuilderBase<T extends androidx.appsearch.usagereporting.DismissAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
     ctor public DismissAction.BuilderBase(androidx.appsearch.usagereporting.DismissAction);
+    ctor public DismissAction.BuilderBase(String, String, long);
     ctor public DismissAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.DismissAction build();
     method public T setQuery(String?);
@@ -1297,6 +1307,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class ImpressionAction.BuilderBase<T extends androidx.appsearch.usagereporting.ImpressionAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
     ctor public ImpressionAction.BuilderBase(androidx.appsearch.usagereporting.ImpressionAction);
+    ctor public ImpressionAction.BuilderBase(String, String, long);
     ctor public ImpressionAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.ImpressionAction build();
     method public T setQuery(String?);
@@ -1318,6 +1329,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
 
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static class SearchAction.BuilderBase<T extends androidx.appsearch.usagereporting.SearchAction.BuilderBase<T>> extends androidx.appsearch.usagereporting.TakenAction.BuilderBase<T> {
     ctor public SearchAction.BuilderBase(androidx.appsearch.usagereporting.SearchAction);
+    ctor public SearchAction.BuilderBase(String, String, long);
     ctor public SearchAction.BuilderBase(String, String, long, int);
     method public androidx.appsearch.usagereporting.SearchAction build();
     method public T setFetchedResultCount(int);
@@ -1327,6 +1339,7 @@ package @SuppressCompatibility androidx.appsearch.usagereporting {
   @SuppressCompatibility @androidx.appsearch.annotation.Document(name="builtin:TakenAction") @androidx.appsearch.app.ExperimentalAppSearchApi public abstract class TakenAction {
     ctor @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public TakenAction(androidx.appsearch.usagereporting.TakenAction.BuilderBase<? extends java.lang.Object!>);
     method public long getActionTimestampMillis();
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public int getActionType();
     method public long getDocumentTtlMillis();
     method public String getId();
     method public String getNamespace();

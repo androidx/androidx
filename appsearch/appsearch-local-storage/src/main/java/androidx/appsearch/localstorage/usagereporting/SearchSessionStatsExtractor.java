@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage.usagereporting;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.GenericDocument;
@@ -38,6 +39,7 @@ import java.util.Objects;
  */
 @HideInPlatform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@OptIn(markerClass = androidx.appsearch.app.ExperimentalAppSearchApi.class)
 public final class SearchSessionStatsExtractor {
     // TODO(b/319285816): make thresholds configurable.
     /**
