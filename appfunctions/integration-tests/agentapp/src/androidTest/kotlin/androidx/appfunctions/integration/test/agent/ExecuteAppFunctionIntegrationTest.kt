@@ -639,7 +639,7 @@ class ExecuteAppFunctionIntegrationTest {
                         minSchemaVersion = 2,
                     )
                 )
-                .single()
+                .single { it.id == AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID }
         val request =
             ExecuteAppFunctionRequest(
                 functionIdentifier = createNoteMetadata.id,
@@ -693,7 +693,7 @@ class ExecuteAppFunctionIntegrationTest {
                         minSchemaVersion = 2,
                     )
                 )
-                .single()
+                .single { it.id == AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID }
         val parameters =
             CreateNoteAppFunction.Parameters(
                 title = "Test Title",
@@ -745,7 +745,7 @@ class ExecuteAppFunctionIntegrationTest {
                         minSchemaVersion = 2,
                     )
                 )
-                .single()
+                .single { it.id == AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID }
         val request =
             ExecuteAppFunctionRequest(
                 functionIdentifier = createNoteMetadata.id,
@@ -798,7 +798,7 @@ class ExecuteAppFunctionIntegrationTest {
                         minSchemaVersion = 2,
                     )
                 )
-                .single()
+                .single { it.id == AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID }
 
         val innerData =
             AppFunctionData.Builder(
@@ -834,7 +834,7 @@ class ExecuteAppFunctionIntegrationTest {
                         minSchemaVersion = 2,
                     )
                 )
-                .single()
+                .single { it.id == AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID }
 
         assertThrows(IllegalArgumentException::class.java) {
             AppFunctionData.Builder(
