@@ -16,14 +16,14 @@
 
 package androidx.appsearch.usagereporting;
 
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 
 /**
  * Wrapper class for action constants.
  */
+@ExperimentalAppSearchApi
 @HideInPlatform
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ActionConstants {
     /**
      * Unknown action type.
