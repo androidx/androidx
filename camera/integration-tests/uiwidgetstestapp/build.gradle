@@ -135,4 +135,4 @@ dependencies {
     androidTestImplementation(project(":window:window"))
 }
 
-androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630
+androidx.deviceTests.minSdkForFtlOverride = 25 // b/539514196

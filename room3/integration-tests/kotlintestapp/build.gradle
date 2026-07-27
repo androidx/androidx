@@ -110,5 +110,5 @@ room3 {
 
 androidx {
     kotlinTarget = KotlinTarget.KOTLIN_2_2
-    deviceTests.minSdkForFtlOverride = 24 // b/437944630
+    deviceTests.minSdkForFtlOverride = 25 // b/539512913
 }
