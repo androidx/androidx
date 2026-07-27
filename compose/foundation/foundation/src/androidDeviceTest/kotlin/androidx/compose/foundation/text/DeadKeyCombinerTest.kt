@@ -19,6 +19,7 @@ package androidx.compose.foundation.text
 import android.os.Build
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeFalse
@@ -93,6 +94,7 @@ class DeadKeyCombinerTest {
         test(keyEventUmlaut to null, keyEventUmlaut to null)
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537527387
     @Test
     fun testDeadKeyThenSpaceOutputsTheAccent() {
         assumeFalse(

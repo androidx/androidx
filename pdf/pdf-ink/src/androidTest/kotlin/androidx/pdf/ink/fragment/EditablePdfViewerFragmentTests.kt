@@ -62,6 +62,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -204,6 +205,7 @@ class EditablePdfViewerFragmentTests {
         onView(withId(PdfR.id.annotationToolbar)).check(matches(withDockState(DOCK_STATE_END)))
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537524951
     @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_toolbarMovement_updatesWetStrokesMaskPath() {
@@ -372,6 +374,7 @@ class EditablePdfViewerFragmentTests {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537524951
     @Test
     fun test_annotationInteractionDisabled_onSearchActive() {
         if (!isAnnotationsFeatureAvailable()) return
@@ -399,6 +402,7 @@ class EditablePdfViewerFragmentTests {
         assertNotEquals(firstVisiblePage, firstVisiblePageAfterSwipe)
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537524951
     @Test
     fun test_annotationToolbar_isHidden_forFormFilling() {
         if (!isAnnotationsFeatureAvailable()) return

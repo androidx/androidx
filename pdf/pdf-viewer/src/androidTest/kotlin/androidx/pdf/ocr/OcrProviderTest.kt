@@ -21,7 +21,6 @@ import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
-import android.os.Build
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -53,7 +52,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@SdkSuppress(minSdkVersion = 35)
 @LargeTest
 @OptIn(ExperimentalPdfApi::class)
 class OcrProviderTest {
@@ -154,6 +153,7 @@ class OcrProviderTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 36) // b/539558221
     @Test
     fun testScrollOutOfPageAfterOcrSelection_hidesMenuOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
