@@ -137,6 +137,11 @@
             android:label="FollowingSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
+            android:name=".followingsubspace.ArDeviceFollowingSubspaceV2Activity"
+            android:exported="true"
+            android:label="FollowingSubspaceV2"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
             android:name=".panelvolume.PanelVolume"
             android:exported="true"
             android:label="PanelVolume"
