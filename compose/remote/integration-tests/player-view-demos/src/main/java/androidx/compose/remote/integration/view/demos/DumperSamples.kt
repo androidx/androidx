@@ -41,6 +41,10 @@ val AllSamples =
             "NotificationListDemo",
             @Composable @RemoteComposable { NotificationListDemo() },
         ),
+        DumperSample.ComposableSample(
+            "MultiDocument",
+            @Composable @RemoteComposable { MultiDocumentDemo() },
+        ),
         DumperSample.ComposableSample("Clock", @Composable @RemoteComposable { RcSimpleClock1() }),
         DumperSample.Context("Cube") { cube3d() },
         DumperSample.Context("Timer") { RemoteComposeContext(basicTimer()) },
