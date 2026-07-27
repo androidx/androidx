@@ -596,8 +596,8 @@ class SwipeDismissableSceneStrategyTest {
         // interrupt navigation with pop
         rule.runOnIdle { backStack.removeLastOrNull() }
 
-        // run half the transitions
-        rule.mainClock.advanceTimeBy(testDuration.toLong() / 2)
+        // run a small amount of the interrupted transition (which falls back to a fast spring)
+        rule.mainClock.advanceTimeBy(testDuration.toLong() / 20)
 
         // ensure text on the left side of the screen is visible (ensure screen slides out from
         // left to right)
