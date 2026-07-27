@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -45,7 +44,6 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 
 /** An interface for connection between Pager and remote page indicators. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemotePageIndicatorState {
     /** Total number of pages. */
     public val pageCount: Int
@@ -65,7 +63,6 @@ public interface RemotePageIndicatorState {
  * @property pageOffset The current offset from the start of the selected page, as a ratio of the
  *   page width.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DefaultRemotePageIndicatorState(
     override val pageCount: Int,
     override val selectedPage: RemoteInt = 0.ri,
@@ -80,7 +77,6 @@ public class DefaultRemotePageIndicatorState(
  * @param pageOffset The current offset from the start of the selected page, as a ratio of the page
  *   width.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun rememberRemotePageIndicatorState(
     pageCount: Int,
@@ -97,7 +93,6 @@ public fun rememberRemotePageIndicatorState(
 }
 
 /** Contains default values used by remote page indicators. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemotePageIndicatorDefaults {
     /** Default color of the selected page indicator. */
     public val selectedColor: RemoteColor
@@ -128,7 +123,6 @@ public object RemotePageIndicatorDefaults {
  * @param indicatorRadius The base radius of each indicator dot.
  * @param padding The padding of the indicator from the bottom edge of the screen.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteHorizontalPageIndicator(
@@ -161,7 +155,6 @@ public fun RemoteHorizontalPageIndicator(
  * @param indicatorRadius The base radius of each indicator dot.
  * @param padding The padding of the indicator from the right edge of the screen.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteVerticalPageIndicator(
