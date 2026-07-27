@@ -40,3 +40,16 @@ fun RemoteImageSample() {
         contentScale = ContentScale.Crop,
     )
 }
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteImageFitSample() {
+    val remoteBitmap = rememberRemoteImageBitmap(url = "https://example.com/placeholder.png")
+    RemoteImage(
+        remoteBitmap = remoteBitmap,
+        contentDescription = "Fit Sample".rs,
+        modifier = RemoteModifier.size(100.rdp),
+        contentScale = ContentScale.Fit,
+    )
+}
