@@ -18,6 +18,7 @@ package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.model.A2uiCoreExecutionContext
 import androidx.a2ui.model.processor.A2uiActionInterceptor
+import androidx.a2ui.model.protocol.A2uiClientDataModel
 import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiDataPath
@@ -34,6 +35,7 @@ import androidx.a2ui.model.protocol.A2uiUserAction
  */
 internal class A2uiActionHandler(
     private val actionInterceptors: List<A2uiActionInterceptor>,
+    private val clientDataModelProvider: () -> A2uiClientDataModel?,
     private val emitToServer: (A2uiClientToServerMessage) -> Unit,
 ) {
 
@@ -54,6 +56,7 @@ internal class A2uiActionHandler(
                         componentId = currentAction.componentId,
                         timestamp = currentAction.timestamp,
                         context = resolvedContext,
+                        clientDataModel = clientDataModelProvider(),
                     )
                 emitToServer(eventMessage)
             }

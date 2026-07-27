@@ -33,6 +33,8 @@ public sealed interface A2uiClientToServerMessage
  * @property timestamp The timestamp of when the action occurred, represented as milliseconds since
  *   the epoch.
  * @property context A map containing custom properties and metadata associated with this action.
+ * @property clientDataModel An optional snapshot of active client data models to be synchronized
+ *   with the server alongside this event.
  */
 public class A2uiClientEventMessage(
     public val type: String,
@@ -40,6 +42,7 @@ public class A2uiClientEventMessage(
     public val componentId: String,
     public val timestamp: Long,
     public val context: Map<String, Any?> = emptyMap(),
+    public val clientDataModel: A2uiClientDataModel? = null,
 ) : A2uiClientToServerMessage {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -48,7 +51,8 @@ public class A2uiClientEventMessage(
             (surfaceId == other.surfaceId) &&
             (componentId == other.componentId) &&
             (timestamp == other.timestamp) &&
-            (context == other.context)
+            (context == other.context) &&
+            (clientDataModel == other.clientDataModel)
     }
 
     override fun hashCode(): Int {
@@ -57,13 +61,15 @@ public class A2uiClientEventMessage(
         result = (31 * result) + componentId.hashCode()
         result = (31 * result) + timestamp.hashCode()
         result = (31 * result) + context.hashCode()
+        result = (31 * result) + (clientDataModel?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
         val timestampStr = dateFormat.format(Date(timestamp))
         return "A2uiClientEventMessage(type=$type, surfaceId=$surfaceId, " +
-            "componentId=$componentId, timestamp=$timestampStr, context=$context)"
+            "componentId=$componentId, timestamp=$timestampStr, context=$context, " +
+            "clientDataModel=$clientDataModel)"
     }
 
     private companion object {

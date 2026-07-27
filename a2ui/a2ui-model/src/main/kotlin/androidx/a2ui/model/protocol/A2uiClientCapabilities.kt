@@ -26,7 +26,10 @@ public class A2uiClientCapabilities(public val supportedCatalogIds: List<String>
     /** Converts this capability object to the A2UI JSON-compatible Map structure. */
     public fun toPayloadMap(): Map<String, Map<String, Any?>> {
         val versionPayload = mapOf<String, Any?>("supportedCatalogIds" to supportedCatalogIds)
-        return mapOf("a2uiClientCapabilities" to mapOf(PROTOCOL_VERSION to versionPayload))
+        return mapOf(
+            "a2uiClientCapabilities" to
+                mapOf(A2uiProtocolConstants.PROTOCOL_VERSION to versionPayload)
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -41,9 +44,5 @@ public class A2uiClientCapabilities(public val supportedCatalogIds: List<String>
 
     override fun toString(): String {
         return "A2uiClientCapabilities(supportedCatalogIds=$supportedCatalogIds)"
-    }
-
-    internal companion object {
-        private const val PROTOCOL_VERSION = "v0.9"
     }
 }
