@@ -161,7 +161,7 @@ public class DismissAction extends TakenAction {
          *                              since Unix epoch.
          */
         public Builder(@NonNull String namespace, @NonNull String id, long actionTimestampMillis) {
-            super(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_DISMISS);
+            super(namespace, id, actionTimestampMillis);
         }
 
         /**
@@ -221,6 +221,23 @@ public class DismissAction extends TakenAction {
             // -1 is used as an unset value and AppSearch will ignore it.
             mResultRankInBlock = -1;
             mResultRankGlobal = -1;
+        }
+
+        /**
+         * Constructs {@link DismissAction.BuilderBase} with given {@code namespace}, {@code id},
+         * and {@code actionTimestampMillis}.
+         *
+         * <p>The {@link TakenAction.ActionType} for the Document returned from
+         * {@link TakenAction#getActionType()} will be {@link ActionConstants#ACTION_TYPE_DISMISS}.
+         *
+         * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
+         * @param id                    Unique identifier for the Document. See {@link Document.Id}.
+         * @param actionTimestampMillis The timestamp when the user took the action, in milliseconds
+         *                              since Unix epoch.
+         */
+        public BuilderBase(@NonNull String namespace, @NonNull String id,
+                long actionTimestampMillis) {
+            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_DISMISS);
         }
 
         /**

@@ -126,7 +126,7 @@ public abstract class TakenAction {
      *
      * @see TakenAction.ActionType
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAppSearchApi
     @ActionType
     public int getActionType() {
         return mActionType;
