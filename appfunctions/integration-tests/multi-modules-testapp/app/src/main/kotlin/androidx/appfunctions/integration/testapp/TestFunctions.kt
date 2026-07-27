@@ -277,6 +277,12 @@ class TestFunctions {
     @AppFunction
     @Deprecated("deprecatedFunction is deprecated")
     fun deprecatedFunction(appFunctionContext: AppFunctionContext) {}
+
+    @AppFunction(isEnabled = false)
+    fun functionDisabledByDefault(appFunctionContext: AppFunctionContext) {}
+
+    @AppFunction(isEnabled = true)
+    fun functionEnabledByDefault(appFunctionContext: AppFunctionContext) {}
 }
 
 @Suppress("UNUSED_PARAMETER")

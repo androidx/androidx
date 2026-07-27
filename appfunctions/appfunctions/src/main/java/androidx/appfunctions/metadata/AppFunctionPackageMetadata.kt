@@ -46,7 +46,8 @@ constructor(
     //  and function metadata.
     public val appFunctions: List<AppFunctionMetadata>,
     /** Reusable components that could be shared within the function specification. */
-    internal val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
