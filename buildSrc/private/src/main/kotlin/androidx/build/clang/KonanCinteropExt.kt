@@ -24,7 +24,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 /**
  * Configures a CInterop for the given [kotlinNativeCompilation]. The cinterop will be based on the
@@ -37,17 +36,17 @@ internal fun MultiTargetNativeCompilation.configureCinterop(
     cinteropName: String = archiveName,
 ) {
     val kotlinNativeTarget = kotlinNativeCompilation.target
-    if (!canCompileOnCurrentHost(kotlinNativeTarget.konanTarget)) {
+    val target = NativeTarget.fromName(kotlinNativeTarget.konanTarget.name)
+    if (!canCompileOnCurrentHost(target)) {
         return
     }
-    val konanTarget = kotlinNativeTarget.konanTarget
-    val nativeTargetCompilation = targetProvider(konanTarget)
+    val nativeTargetCompilation = targetProvider(target)
     val taskNamePrefix = "androidXCinterop".appendCapitalized(kotlinNativeTarget.name, archiveName)
     val createDefFileTask =
         registerCreateDefFileTask(
             project = project,
             taskNamePrefix = taskNamePrefix,
-            konanTarget = konanTarget,
+            target = target,
             archiveProvider =
                 nativeTargetCompilation
                     .flatMap { it.archiveTask }
@@ -79,11 +78,12 @@ internal fun configureCinterop(
     }
     val taskNamePrefix =
         "androidXCinterop".appendCapitalized(kotlinNativeTarget.name, archiveConfiguration.name)
+    val target = NativeTarget.fromName(kotlinNativeCompilation.konanTarget.name)
     val createDefFileTask =
         registerCreateDefFileTask(
             project = project,
             taskNamePrefix = taskNamePrefix,
-            konanTarget = kotlinNativeCompilation.konanTarget,
+            target = target,
             archiveProvider =
                 project.layout.file(archiveConfiguration.elements.map { it.single().asFile }),
             cinteropName = archiveConfiguration.name,
@@ -94,18 +94,18 @@ internal fun configureCinterop(
 private fun registerCreateDefFileTask(
     project: Project,
     taskNamePrefix: String,
-    konanTarget: KonanTarget,
+    target: NativeTarget,
     archiveProvider: Provider<RegularFile>,
     cinteropName: String,
 ) =
     project.tasks.register(
-        taskNamePrefix.appendCapitalized("createDefFileFor", konanTarget.name),
+        taskNamePrefix.appendCapitalized("createDefFileFor", target.name),
         CreateDefFileWithLibraryPathTask::class.java,
     ) { task ->
         task.objectFile.set(archiveProvider)
         task.target.set(
             project.layout.buildDirectory.file(
-                "cinteropDefFiles/$taskNamePrefix/${konanTarget.name}/$cinteropName.def"
+                "cinteropDefFiles/$taskNamePrefix/${target.name}/$cinteropName.def"
             )
         )
         task.original.set(

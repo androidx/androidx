@@ -27,7 +27,7 @@ import androidx.build.ProjectLayoutType
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import androidx.build.clang.NativeTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -105,15 +105,15 @@ androidXMultiplatform {
     // Note that even if the native KMP targets are disabled, we still need to compile the C
     // code for these targets as they are used in JVM / ART tests (via JNI).
     def requiredNativeTargets = [
-            KonanTarget.ANDROID_ARM32,
-            KonanTarget.ANDROID_ARM64,
-            KonanTarget.ANDROID_X64,
-            KonanTarget.ANDROID_X86,
-            KonanTarget.MACOS_ARM64,
-            KonanTarget.MINGW_X64,
-            KonanTarget.LINUX_X64,
-            KonanTarget.LINUX_ARM64,
-    ].collect { it.INSTANCE } // Use INSTANCE to get object class instance from kotlin
+            NativeTarget.ANDROID_ARM32,
+            NativeTarget.ANDROID_ARM64,
+            NativeTarget.ANDROID_X64,
+            NativeTarget.ANDROID_X86,
+            NativeTarget.MACOS_ARM64,
+            NativeTarget.MINGW_X64,
+            NativeTarget.LINUX_X64,
+            NativeTarget.LINUX_ARM64,
+    ]
 
     // Define C compilation of SQLite (sqlite3.c)
     def sqliteCompilation = createNativeCompilation("androidXBundledSqlite") {
@@ -130,7 +130,7 @@ androidXMultiplatform {
             )
             // add SQLite compile flags
             nativeCompilation.freeArgs.addAll(SQLITE_COMPILE_FLAGS)
-            if (nativeCompilation.konanTarget.family == Family.ANDROID) {
+            if (nativeCompilation.target.family == Family.ANDROID) {
                 nativeCompilation.freeArgs.add("-Oz") // optimize for size
             } else {
                 nativeCompilation.freeArgs.add("-O3") // optimize for speed
@@ -142,7 +142,7 @@ androidXMultiplatform {
     // add SQLite compilation output as an artifact of a producer configuration
     artifacts.add(
         "linuxSharedArchive",
-        sqliteCompilation.sharedArchiveOutputFor(KonanTarget.LINUX_X64.INSTANCE)
+        sqliteCompilation.sharedArchiveOutputFor(NativeTarget.LINUX_X64)
     )
     artifacts.add(
         "sqliteSources",
@@ -164,15 +164,15 @@ androidXMultiplatform {
             )
             // statically include the output of SQLite compilation
             nativeCompilation.include(sqliteCompilation)
-            if (nativeCompilation.konanTarget.family == Family.ANDROID) {
+            if (nativeCompilation.target.family == Family.ANDROID) {
                 // b/341639198: Link to Android's Atomic lib, important for older ARM devices
                 nativeCompilation.linkerArgs.add("-latomic")
             }
-            if (nativeCompilation.konanTarget.family == Family.OSX) {
+            if (nativeCompilation.target.family == Family.OSX) {
                 // KT-57848
                 nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
             }
-            if (nativeCompilation.konanTarget.family == Family.LINUX) {
+            if (nativeCompilation.target.family == Family.LINUX) {
                 // b/444260629: Compile with no exceptions, not used and reduces linking deps
                 nativeCompilation.freeArgs.add("-fno-exceptions")
             }
@@ -201,7 +201,7 @@ androidXMultiplatform {
             // Configure this native target to the SQLite compilation.
             // This list likely only adds the iOS targets when they are enabled as the desktop
             // targets are already part of the required targets to run JVM / ART tests.
-            sqliteCompilation.configureTarget(target.konanTarget)
+            sqliteCompilation.configureTarget(NativeTarget.fromName(target.konanTarget.name))
             // Create cinterop code for this native target from the SQLite compilation.
             createCinterop(target, sqliteCompilation)
         }

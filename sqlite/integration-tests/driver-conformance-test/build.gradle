@@ -24,7 +24,7 @@
 
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import androidx.build.clang.NativeTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -49,15 +49,15 @@ dependencies {
 
 androidXMultiplatform {
     def nativeTargets = [
-            KonanTarget.ANDROID_ARM32,
-            KonanTarget.ANDROID_ARM64,
-            KonanTarget.ANDROID_X64,
-            KonanTarget.ANDROID_X86,
-            KonanTarget.MACOS_ARM64,
-            KonanTarget.MINGW_X64,
-            KonanTarget.LINUX_X64,
-            KonanTarget.LINUX_ARM64,
-    ].collect { it.INSTANCE }
+            NativeTarget.ANDROID_ARM32,
+            NativeTarget.ANDROID_ARM64,
+            NativeTarget.ANDROID_X64,
+            NativeTarget.ANDROID_X86,
+            NativeTarget.MACOS_ARM64,
+            NativeTarget.MINGW_X64,
+            NativeTarget.LINUX_X64,
+            NativeTarget.LINUX_ARM64,
+    ]
 
     // Define C compilations of a SQLite loadable extension used for testing
     // WARNING: If the name of the compilation changes, then also updates the `LoadableExtension`
@@ -73,6 +73,7 @@ androidXMultiplatform {
             nativeCompilation.sources.from(
                     file("src/commonMain/cpp/sqlite_extension.cpp")
             )
+            nativeCompilation.freeArgs.add("-fPIC")
         }
         configureTargets(nativeTargets)
     }
@@ -137,9 +138,10 @@ androidXMultiplatform {
             if (target.platformType == KotlinPlatformType.native) {
                 // Configure the native SQLite text extension,
                 // see GenerateLoadableExtensionSource.groovy impl
-                if (extensionCompilation.canCompileOnCurrentHost(target.konanTarget)) {
-                    extensionCompilation.configureTarget(target.konanTarget)
-                    project.ext.configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
+                def nativeTarget = NativeTarget.fromName(target.konanTarget.name)
+                if (extensionCompilation.canCompileOnCurrentHost(nativeTarget)) {
+                    extensionCompilation.configureTarget(nativeTarget)
+                    project.ext.configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(nativeTarget))
                 }
             }
         }

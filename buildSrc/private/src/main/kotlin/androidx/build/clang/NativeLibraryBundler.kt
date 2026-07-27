@@ -60,7 +60,7 @@ class NativeLibraryBundler(private val project: Project) {
                 )
             }
         val jniFamilies = listOf(Family.OSX, Family.MINGW, Family.LINUX)
-        combineTask.configureFrom(nativeCompilation) { it.family in jniFamilies }
+        combineTask.configureFrom(nativeCompilation) { target -> target.family in jniFamilies }
         jvmTarget.compilations[compilationName]
             .defaultSourceSet
             .resources
@@ -95,7 +95,7 @@ class NativeLibraryBundler(private val project: Project) {
                             ),
                         CombineObjectFilesTask::class.java,
                     )
-                combineTask.configureFrom(nativeCompilation) { it.family == Family.ANDROID }
+                combineTask.configureFrom(nativeCompilation) { it.isAndroid }
 
                 sources.addGeneratedSourceDirectory(
                     taskProvider = combineTask,

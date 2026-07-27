@@ -42,8 +42,8 @@ abstract class ClangArchiveTask @Inject constructor(private val workerExecutor: 
         group = "Build"
     }
 
-    @get:ServiceReference(KonanBuildService.KEY)
-    abstract val konanBuildService: Property<KonanBuildService>
+    @get:ServiceReference(ClangBuildService.KEY)
+    abstract val clangBuildService: Property<ClangBuildService>
 
     @get:Nested abstract val llvmArchiveParameters: ClangArchiveParameters
 
@@ -51,14 +51,14 @@ abstract class ClangArchiveTask @Inject constructor(private val workerExecutor: 
     fun archive() {
         workerExecutor.noIsolation().submit(ClangArchiveWorker::class.java) {
             it.llvmArchiveParameters.set(llvmArchiveParameters)
-            it.buildService.set(konanBuildService)
+            it.buildService.set(clangBuildService)
         }
     }
 }
 
 abstract class ClangArchiveParameters {
     /** The target platform for the archive file. */
-    @get:Input abstract val konanTarget: Property<SerializableKonanTarget>
+    @get:Input abstract val target: Property<SerializableNativeTarget>
 
     /** The list of object files that needs to be added to the archive. */
     @get:InputFiles
@@ -72,7 +72,7 @@ abstract class ClangArchiveParameters {
 private abstract class ClangArchiveWorker : WorkAction<ClangArchiveWorker.Params> {
     interface Params : WorkParameters {
         val llvmArchiveParameters: Property<ClangArchiveParameters>
-        val buildService: Property<KonanBuildService>
+        val buildService: Property<ClangBuildService>
     }
 
     override fun execute() {

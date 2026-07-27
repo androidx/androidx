@@ -19,7 +19,6 @@ package androidx.build.clang
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.file.ConfigurableFileCollection
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.junit.AssumptionViolatedException
 import org.junit.Test
@@ -36,21 +35,21 @@ class AndroidXClangTest : BaseClangTest() {
                 it.configureEachTarget { it.addJniHeaders() }
             }
         multiTargetNativeCompilation.configureTargets(
-            listOf(KonanTarget.LINUX_X64, KonanTarget.ANDROID_X64)
+            listOf(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
         )
         // trigger configuration
-        multiTargetNativeCompilation.targetProvider(KonanTarget.LINUX_X64).get()
-        multiTargetNativeCompilation.targetProvider(KonanTarget.ANDROID_X64).get()
+        multiTargetNativeCompilation.targetProvider(NativeTarget.LINUX_X64).get()
+        multiTargetNativeCompilation.targetProvider(NativeTarget.ANDROID_X64).get()
         val compileTasks = project.tasks.withType(ClangCompileTask::class.java).toList()
         val linuxCompileTask =
             compileTasks.first {
-                it.clangParameters.konanTarget.get().asKonanTarget == KonanTarget.LINUX_X64
+                it.clangParameters.target.get().asNativeTarget == NativeTarget.LINUX_X64
             }
         // make sure it includes linux header
         assertThat(linuxCompileTask.clangParameters.includes.regularFileNames()).contains("jni.h")
         val androidCompileTask =
             compileTasks.first {
-                it.clangParameters.konanTarget.get().asKonanTarget == KonanTarget.ANDROID_X64
+                it.clangParameters.target.get().asNativeTarget == NativeTarget.ANDROID_X64
             }
         // android has jni in sysroots, hence we shouldn't add that
         assertThat(androidCompileTask.clangParameters.includes.regularFileNames())
@@ -65,20 +64,14 @@ class AndroidXClangTest : BaseClangTest() {
                 it.resolve("src2.c").writeText("")
             }
         val commonIncludeFolders =
-            listOf(
-                tmpFolder.newFolder("include1"),
-                tmpFolder.newFolder("include2"),
-            )
+            listOf(tmpFolder.newFolder("include1"), tmpFolder.newFolder("include2"))
         val linuxSrcFolder =
             tmpFolder.newFolder("linuxOnlySrc").also {
                 it.resolve("linuxSrc1.c").writeText("")
                 it.resolve("linuxSrc2.c").writeText("")
             }
         val androidIncludeFolders =
-            listOf(
-                tmpFolder.newFolder("androidInclude1"),
-                tmpFolder.newFolder("androidInclude2"),
-            )
+            listOf(tmpFolder.newFolder("androidInclude1"), tmpFolder.newFolder("androidInclude2"))
         val multiTargetNativeCompilation =
             clangExtension.createNativeCompilation(
                 archiveName = "mylib",
@@ -88,22 +81,22 @@ class AndroidXClangTest : BaseClangTest() {
                     it.sources.from(commonSourceFolders)
                     it.includes.from(commonIncludeFolders)
                     it.freeArgs.addAll("commonArg1", "commonArg2")
-                    if (it.konanTarget == KonanTarget.LINUX_X64) {
+                    if (it.target == NativeTarget.LINUX_X64) {
                         it.freeArgs.addAll("linuxArg1")
                     }
-                    if (it.konanTarget == KonanTarget.ANDROID_X64) {
+                    if (it.target == NativeTarget.ANDROID_X64) {
                         it.freeArgs.addAll("androidArg1")
                     }
                 }
             }
-        multiTargetNativeCompilation.configureTarget(KonanTarget.LINUX_X64) {
+        multiTargetNativeCompilation.configureTarget(NativeTarget.LINUX_X64) {
             it.sources.from(linuxSrcFolder)
         }
         // multiple configure calls on the target
-        multiTargetNativeCompilation.configureTarget(KonanTarget.LINUX_X64) {
+        multiTargetNativeCompilation.configureTarget(NativeTarget.LINUX_X64) {
             it.freeArgs.addAll("linuxArg2")
         }
-        multiTargetNativeCompilation.configureTarget(KonanTarget.ANDROID_X64) {
+        multiTargetNativeCompilation.configureTarget(NativeTarget.ANDROID_X64) {
             it.includes.from(androidIncludeFolders)
             it.freeArgs.addAll("androidArg2")
         }
@@ -114,8 +107,8 @@ class AndroidXClangTest : BaseClangTest() {
         //        ).toList()).isEmpty()
 
         // trigger configuration of targets
-        multiTargetNativeCompilation.targetProvider(KonanTarget.LINUX_X64).get()
-        multiTargetNativeCompilation.targetProvider(KonanTarget.ANDROID_X64).get()
+        multiTargetNativeCompilation.targetProvider(NativeTarget.LINUX_X64).get()
+        multiTargetNativeCompilation.targetProvider(NativeTarget.ANDROID_X64).get()
 
         // make sure it created tasks for it
         project.tasks.withType(ClangCompileTask::class.java).let { compileTasks ->
@@ -123,7 +116,7 @@ class AndroidXClangTest : BaseClangTest() {
             assertThat(compileTasks).hasSize(2)
             val linuxTask =
                 compileTasks.first {
-                    it.clangParameters.konanTarget.get().asKonanTarget == KonanTarget.LINUX_X64
+                    it.clangParameters.target.get().asNativeTarget == NativeTarget.LINUX_X64
                 }
             assertThat(linuxTask.clangParameters.sources.regularFileNames())
                 .containsExactly("src1.c", "src2.c", "linuxSrc1.c", "linuxSrc2.c")
@@ -134,7 +127,7 @@ class AndroidXClangTest : BaseClangTest() {
 
             val androidTask =
                 compileTasks.first {
-                    it.clangParameters.konanTarget.get().asKonanTarget == KonanTarget.ANDROID_X64
+                    it.clangParameters.target.get().asNativeTarget == NativeTarget.ANDROID_X64
                 }
             assertThat(androidTask.clangParameters.sources.regularFileNames())
                 .containsExactly("src1.c", "src2.c")
@@ -146,10 +139,8 @@ class AndroidXClangTest : BaseClangTest() {
         // 2 archive tasks, 1 for each target
         project.tasks.withType(ClangArchiveTask::class.java).let { archiveTasks ->
             assertThat(archiveTasks).hasSize(2)
-            assertThat(
-                    archiveTasks.map { it.llvmArchiveParameters.konanTarget.get().asKonanTarget }
-                )
-                .containsExactly(KonanTarget.LINUX_X64, KonanTarget.ANDROID_X64)
+            assertThat(archiveTasks.map { it.llvmArchiveParameters.target.get().asNativeTarget })
+                .containsExactly(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
             archiveTasks.forEach { archiveTask ->
                 assertThat(archiveTask.llvmArchiveParameters.outputFile.get().asFile.name)
                     .isEqualTo("libmylib.a")
@@ -158,8 +149,8 @@ class AndroidXClangTest : BaseClangTest() {
 
         // 2 shared library tasks, 1 for each target
         project.tasks.withType(ClangLinkerTask::class.java).let { soTasks ->
-            assertThat(soTasks.map { it.clangParameters.konanTarget.get().asKonanTarget })
-                .containsExactly(KonanTarget.LINUX_X64, KonanTarget.ANDROID_X64)
+            assertThat(soTasks.map { it.clangParameters.target.get().asNativeTarget })
+                .containsExactly(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
             soTasks.forEach {
                 assertThat(it.clangParameters.outputFile.get().asFile.name).isEqualTo("libmylib.so")
             }
@@ -172,7 +163,7 @@ class AndroidXClangTest : BaseClangTest() {
             throw AssumptionViolatedException(
                 """
                 All targets are enabled on mac, hence we cannot end-to-end test disabled targets.
-            """
+                """
                     .trimIndent()
             )
         }
@@ -183,10 +174,10 @@ class AndroidXClangTest : BaseClangTest() {
             ) {
                 it.configureEachTarget { it.sources.from(tmpFolder.newFolder()) }
             }
-        multiTargetNativeCompilation.configureTarget(KonanTarget.LINUX_X64)
-        multiTargetNativeCompilation.configureTarget(KonanTarget.MACOS_ARM64)
-        assertThat(multiTargetNativeCompilation.hasTarget(KonanTarget.LINUX_X64)).isTrue()
-        assertThat(multiTargetNativeCompilation.hasTarget(KonanTarget.MACOS_ARM64)).isFalse()
+        multiTargetNativeCompilation.configureTarget(NativeTarget.LINUX_X64)
+        multiTargetNativeCompilation.configureTarget(NativeTarget.MACOS_ARM64)
+        assertThat(multiTargetNativeCompilation.hasTarget(NativeTarget.LINUX_X64)).isTrue()
+        assertThat(multiTargetNativeCompilation.hasTarget(NativeTarget.MACOS_ARM64)).isFalse()
     }
 
     @Test
@@ -200,7 +191,7 @@ class AndroidXClangTest : BaseClangTest() {
             ) {
                 it.configureEachTarget { it.sources.from(lib1Sources) }
             }
-        compilation1.configureTargets(listOf(KonanTarget.LINUX_X64, KonanTarget.ANDROID_X64))
+        compilation1.configureTargets(listOf(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64))
         val compilation2 =
             clangExtension.createNativeCompilation(
                 archiveName = "lib2",
@@ -211,10 +202,10 @@ class AndroidXClangTest : BaseClangTest() {
                     it.linkWith(compilation1)
                 }
             }
-        compilation2.configureTargets(listOf(KonanTarget.LINUX_X64, KonanTarget.ANDROID_X64))
+        compilation2.configureTargets(listOf(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64))
         // trigger configuration
-        compilation2.targetProvider(KonanTarget.LINUX_X64).get()
-        compilation2.targetProvider(KonanTarget.ANDROID_X64).get()
+        compilation2.targetProvider(NativeTarget.LINUX_X64).get()
+        compilation2.targetProvider(NativeTarget.ANDROID_X64).get()
         val sharedLibrariesTasks =
             project.tasks.withType(ClangLinkerTask::class.java).toList().filter {
                 it.name.contains("lib2", ignoreCase = true)
@@ -239,8 +230,8 @@ class AndroidXClangTest : BaseClangTest() {
             ) {
                 it.configureEachTarget { it.sources.from(sources) }
             }
-        compilation.configureTargets(listOf(KonanTarget.ANDROID_X64))
-        compilation.targetProvider(KonanTarget.ANDROID_X64).get()
+        compilation.configureTargets(listOf(NativeTarget.ANDROID_X64))
+        compilation.targetProvider(NativeTarget.ANDROID_X64).get()
 
         val tasks =
             project.tasks.withType(ClangLinkerTask::class.java).toList().filter {
