@@ -1209,8 +1209,9 @@ class StreamSharingTest {
         return det < 0
     }
 
+    // Simulate b/531986316
     @Test
-    fun updateResolutionWithActiveChildVideoCapture_doesNotCrash() {
+    fun updateRotationWithActiveChildVideoCapture_doesNotCrash() {
         // Arrange
         val preview = Preview.Builder().build()
         val videoOutput =
@@ -1226,6 +1227,7 @@ class StreamSharingTest {
         val videoCapture =
             VideoCapture.Builder(videoOutput)
                 .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
+                .setTargetRotation(Surface.ROTATION_0)
                 .build()
         streamSharing =
             StreamSharing(
@@ -1239,10 +1241,7 @@ class StreamSharingTest {
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
 
         // Initial resolution
-        streamSharing.onSuggestedStreamSpecUpdated(
-            StreamSpec.builder(Size(1920, 1080)).build(),
-            null,
-        )
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build(), null)
 
         // Start session (calls onSessionStart on children, making them active)
         streamSharing.onSessionStart()
@@ -1252,10 +1251,13 @@ class StreamSharingTest {
         val videoCaptureEdgeBefore = adapter.mChildrenEdges[videoCapture]!!
         assertThat(videoCaptureEdgeBefore.hasProvider()).isTrue()
 
-        // Act: update resolution (simulating session recreation flow)
-        streamSharing.onSuggestedStreamSpecUpdated(
-            StreamSpec.builder(Size(1080, 1920)).build(),
-            null,
+        // Act: update videoCapture rotation and trigger session error listener
+        videoCapture.targetRotation = Surface.ROTATION_90
+
+        val sessionConfig = streamSharing.sessionConfig
+        sessionConfig.errorListener!!.onError(
+            sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
         )
         shadowOf(getMainLooper()).idle()
 
