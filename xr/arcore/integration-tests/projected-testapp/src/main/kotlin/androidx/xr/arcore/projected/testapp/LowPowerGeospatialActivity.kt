@@ -76,6 +76,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 open class LowPowerGeospatialActivity : ComponentActivity() {
@@ -188,7 +189,14 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
 
     @OptIn(ExperimentalProjectedApi::class)
     private fun tryCreateAndConfigureSession() {
-        lifecycleScope.launch {
+        val useBgThread = intent.getBooleanExtra("debug.jxr.geo.bg_thread", false)
+        val delayMs = intent.getIntExtra("debug.jxr.geo.delay_ms", 0)
+        val dispatcher = if (useBgThread) Dispatchers.IO else Dispatchers.Main
+
+        Log.i(TAG, "tryCreateAndConfigureSession: useBgThread=$useBgThread, delayMs=$delayMs")
+
+        lifecycleScope.launch(dispatcher) {
+            delay(delayMs.toLong())
             try {
                 val sessionContext =
                     if (usesProjectedScreen()) {
