@@ -43,6 +43,14 @@ import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureTrackingActiv
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 
+/**
+ * Main entry point for launching projected and geospatial test activities.
+ *
+ * This activity accepts optional intent extras that are forwarded to target test activities:
+ * - "debug.jxr.geo.bg_thread" (boolean): Controls whether session creation and updates run on a
+ *   background thread.
+ * - "debug.jxr.geo.delay_ms" (int): Delay in milliseconds before attempting to create the session.
+ */
 @OptIn(ExperimentalProjectedApi::class)
 class MainActivity : ComponentActivity() {
     private val activeProjectedActivities = mutableListOf<Activity>()
@@ -164,10 +172,10 @@ class MainActivity : ComponentActivity() {
             Button(
                 onClick = {
                     activeProjectedActivities.toList().forEach { it.finish() }
+                    val intent = createIntentWithExtras(context, activityClass)
                     if (isProjected) {
-                        launchProjectedActivity(activityClass, context)
+                        launchProjectedActivity(intent, context)
                     } else {
-                        val intent = Intent(context, activityClass)
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
                     }
@@ -179,7 +187,13 @@ class MainActivity : ComponentActivity() {
         HorizontalDivider(color = Color.Gray)
     }
 
-    private fun launchProjectedActivity(activityClass: Class<*>, context: Context) {
+    private fun createIntentWithExtras(context: Context, targetClass: Class<*>): Intent {
+        return Intent(context, targetClass).apply {
+            this@MainActivity.intent.extras?.let { putExtras(it) }
+        }
+    }
+
+    private fun launchProjectedActivity(intent: Intent, context: Context) {
         val projectedContext =
             try {
                 ProjectedContext.createProjectedDeviceContext(context)
@@ -187,7 +201,6 @@ class MainActivity : ComponentActivity() {
                 Log.w("JetpackXR", "Error creating projected device", e)
                 return
             }
-        val intent = Intent(context, activityClass)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(
             intent,
@@ -207,7 +220,7 @@ class MainActivity : ComponentActivity() {
                 onClick = {
                     activeProjectedActivities.toList().forEach { it.finish() }
                     val targetClass = ConfigProjectedGeospatialActivity::class.java
-                    val intent = Intent(context, targetClass)
+                    val intent = createIntentWithExtras(context, targetClass)
                     intent.putExtra("GEOSPATIAL_MODE", mode)
                     intent.addFlags(
                         Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
