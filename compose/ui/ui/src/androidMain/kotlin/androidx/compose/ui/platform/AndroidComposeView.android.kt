@@ -3392,7 +3392,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             oldConfig.fontScale != newConfig.fontScale ||
                 oldConfig.densityDpi != newConfig.densityDpi
         ) {
-            density = Density(context)
+            density = Density(context.createConfigurationContext(newConfig))
         }
     }
 
