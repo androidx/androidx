@@ -88,6 +88,7 @@ public fun RemoteText(
  * being *created*, not the remote environment where it will be displayed. This means these values
  * are fixed at creation time based on the local density.
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteTextSample
  * @param text The text to be displayed.
  * @param modifier The [RemoteModifier] to be applied to this text.
  * @param color [RemoteColor] to apply to the text. If [color] is not specified, and it is not
