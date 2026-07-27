@@ -212,14 +212,15 @@ public final class Tab implements Content {
         }
 
         /**
-         * Sets the style of the tab.
+         * Sets the style of the tab, or {@code null} to clear the style.
          *
-         * @throws NullPointerException if {@code style} is {@code null}
+         * <p>If a style is not set or is cleared, the tab style will fall back to host
+         * defaults.
          */
         @ExperimentalCarApi
         @RequiresCarApi(9)
-        public Tab.@NonNull Builder setStyle(@NonNull TabStyle style) {
-            mStyle = requireNonNull(style);
+        public Tab.@NonNull Builder setStyle(@Nullable TabStyle style) {
+            mStyle = style;
             return this;
         }
 
