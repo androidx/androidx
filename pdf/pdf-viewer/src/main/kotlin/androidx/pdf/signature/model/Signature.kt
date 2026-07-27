@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.pdf.models
+
+package androidx.pdf.signature.model
 
 import android.graphics.Bitmap
-import android.graphics.PointF
+import android.graphics.Path
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import java.util.Objects
@@ -44,11 +45,14 @@ public abstract class Signature internal constructor() {
     public abstract val height: Float
     public abstract val isSelected: Boolean
 
+    /** Returns a copy of the current signature with the specified selection state. */
+    public abstract fun setSelection(isSelected: Boolean): Signature
+
     /**
      * A signature drawn by the user using vector paths.
      *
-     * @property drawnPath Serialized vector math and coordinates representing the user's pen
-     *   strokes, used to perfectly redraw the signature at any scale.
+     * @property drawnPath The vector path representing the user's pen strokes, allowing the
+     *   signature to be perfectly redrawn at any scale without pixelation.
      */
     public class DrawnSignature(
         override val id: String,
@@ -58,8 +62,20 @@ public abstract class Signature internal constructor() {
         override val width: Float,
         override val height: Float,
         override val isSelected: Boolean,
-        public val drawnPath: List<List<PointF>>,
+        public val drawnPath: Path,
     ) : Signature() {
+
+        override fun setSelection(isSelected: Boolean): Signature =
+            DrawnSignature(
+                id = this.id,
+                pageNum = this.pageNum,
+                xCoord = this.xCoord,
+                yCoord = this.yCoord,
+                width = this.width,
+                height = this.height,
+                isSelected = isSelected,
+                drawnPath = this.drawnPath,
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -109,6 +125,19 @@ public abstract class Signature internal constructor() {
             public const val FONT_MONOSPACE: Int = 3
         }
 
+        override fun setSelection(isSelected: Boolean): Signature =
+            TypedSignature(
+                id = this.id,
+                pageNum = this.pageNum,
+                xCoord = this.xCoord,
+                yCoord = this.yCoord,
+                width = this.width,
+                height = this.height,
+                isSelected = isSelected,
+                typedText = this.typedText,
+                typedFont = this.typedFont,
+            )
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is TypedSignature) return false
@@ -153,6 +182,18 @@ public abstract class Signature internal constructor() {
         override val isSelected: Boolean,
         public val imageBitmap: Bitmap,
     ) : Signature() {
+
+        override fun setSelection(isSelected: Boolean): Signature =
+            UploadedSignature(
+                id = this.id,
+                pageNum = this.pageNum,
+                xCoord = this.xCoord,
+                yCoord = this.yCoord,
+                width = this.width,
+                height = this.height,
+                isSelected = isSelected,
+                imageBitmap = this.imageBitmap,
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

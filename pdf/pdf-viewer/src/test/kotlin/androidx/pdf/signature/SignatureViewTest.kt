@@ -16,7 +16,8 @@
 
 package androidx.pdf.signature
 
-import androidx.pdf.models.Signature
+import android.graphics.Path
+import androidx.pdf.signature.model.Signature
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -41,7 +42,7 @@ class SignatureViewTest {
                 width = 25f,
                 height = 100f,
                 isSelected = false,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
 
         view.signatureData = initialSignature
@@ -53,7 +54,7 @@ class SignatureViewTest {
         assertThat(view.signatureData?.width).isEqualTo(25f)
         assertThat(view.signatureData?.height).isEqualTo(100f)
         assertThat(view.signatureData?.isSelected).isFalse()
-        assertThat((view.signatureData as? Signature.DrawnSignature)?.drawnPath).isEmpty()
+        assertThat((view.signatureData as? Signature.DrawnSignature)?.drawnPath?.isEmpty).isTrue()
 
         val updatedSignature =
             Signature.DrawnSignature(
@@ -64,7 +65,7 @@ class SignatureViewTest {
                 width = 75f,
                 height = 200f,
                 isSelected = true,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
 
         view.signatureData = updatedSignature
@@ -76,7 +77,7 @@ class SignatureViewTest {
         assertThat(view.signatureData?.width).isEqualTo(75f)
         assertThat(view.signatureData?.height).isEqualTo(200f)
         assertThat(view.signatureData?.isSelected).isTrue()
-        assertThat((view.signatureData as? Signature.DrawnSignature)?.drawnPath).isEmpty()
+        assertThat((view.signatureData as? Signature.DrawnSignature)?.drawnPath?.isEmpty).isTrue()
     }
 
     @Test
@@ -94,7 +95,7 @@ class SignatureViewTest {
                 width = 25f,
                 height = 100f,
                 isSelected = false,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
         view.signatureData = signature
         assertThat(shadowView.wasInvalidated()).isTrue()
@@ -114,7 +115,7 @@ class SignatureViewTest {
                 width = 25f,
                 height = 100f,
                 isSelected = false,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
 
         view.signatureData = signature
@@ -137,7 +138,7 @@ class SignatureViewTest {
                 width = 0f,
                 height = 0f,
                 isSelected = false,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
         view.signatureData = unselectedSignature
         shadowView.clearWasInvalidated()
@@ -151,7 +152,7 @@ class SignatureViewTest {
                 width = 0f,
                 height = 0f,
                 isSelected = true,
-                drawnPath = emptyList(),
+                drawnPath = Path(),
             )
         view.signatureData = selectedSignature
 
