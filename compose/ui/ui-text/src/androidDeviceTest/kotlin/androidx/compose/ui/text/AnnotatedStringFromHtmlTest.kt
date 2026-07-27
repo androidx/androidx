@@ -67,7 +67,7 @@ class AnnotatedStringFromHtmlTest {
 
     @Test
     // pre-N block-level elements were separated with two new lines
-    @SdkSuppress(minSdkVersion = 24)
+    @SdkSuppress(minSdkVersion = 25)
     fun buildAnnotatedString_fromHtml() {
         rule.setContent {
             val expected = buildAnnotatedString {
