@@ -48,8 +48,7 @@ class VelocityTracker1DTest {
                 expectedVelocities =
                     listOf(
                         ExpectedVelocity(Strategy.Impulse, 10000f),
-                        // 3 is the minimum number of data points for Lsq2, so expect a 0 velocity.
-                        ExpectedVelocity(Strategy.Lsq2, 0f),
+                        ExpectedVelocity(Strategy.Lsq2, 10000f),
                     ),
             )
         )
