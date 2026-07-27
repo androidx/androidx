@@ -19,6 +19,7 @@ package androidx.camera.common.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import androidx.camera.common.CameraCharacteristics.streamConfigurationMap
 import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
@@ -136,5 +137,23 @@ public class FakeCameraCharacteristicsTest {
         assertThat(fake.sessionCaptureRequestKeys).containsExactly(captureRequestKey)
         assertThat(fake.restrictedKeys).containsExactly(restrictedKey)
         assertThat(fake.physicalCameraIds).containsExactly(physicalCameraId)
+    }
+
+    @Test
+    public fun canGetStreamConfigurationMap() {
+        val fakeMap = FakeStreamConfigurationMap(linkedMapOf())
+        val fake =
+            FakeCameraCharacteristics(
+                cameraId = cameraId,
+                cameraMetadata =
+                    mapOf(CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP to fakeMap),
+            )
+
+        assertThat(fake.streamConfigurationMap).isSameInstanceAs(fakeMap)
+        // Querying for regular Camera2 key returns null (since we didn't populate it)
+        assertThat(fake[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]).isNull()
+        // Querying for compatibility key directly returns fakeMap
+        assertThat(fake[CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP])
+            .isSameInstanceAs(fakeMap)
     }
 }
