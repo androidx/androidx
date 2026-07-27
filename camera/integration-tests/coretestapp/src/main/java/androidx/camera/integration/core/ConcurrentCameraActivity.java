@@ -73,7 +73,6 @@ import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
@@ -382,7 +381,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         return previewView;
     }
 
-    @OptIn(markerClass = ExperimentalMirrorMode.class)
     void bindPreviewForSingle(@NonNull ProcessCameraProvider cameraProvider) {
         cameraProvider.unbindAll();
         mSideBySideLayout.setVisibility(GONE);
@@ -476,7 +474,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         return createPreview(false);
     }
 
-    @OptIn(markerClass = ExperimentalMirrorMode.class)
     private Preview createPreview(boolean is16by9preferred) {
         Preview.Builder previewBuilder = new Preview.Builder()
                 .setMirrorMode(mPreviewMirrorButton.isChecked()
@@ -510,7 +507,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
 
 
     @SuppressLint("RestrictedApiAndroidX")
-    @OptIn(markerClass = {ExperimentalCamera2Interop.class, ExperimentalMirrorMode.class})
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,

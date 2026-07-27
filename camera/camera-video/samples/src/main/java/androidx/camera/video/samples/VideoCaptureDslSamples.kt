@@ -18,10 +18,8 @@ package androidx.camera.video.samples
 
 import android.util.Range
 import android.view.Surface
-import androidx.annotation.OptIn
 import androidx.annotation.Sampled
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.ExperimentalMirrorMode
 import androidx.camera.core.MirrorMode
 import androidx.camera.video.VideoOutput
 import androidx.camera.video.videoCapture
@@ -29,7 +27,6 @@ import androidx.camera.video.videoCapture
 @Sampled
 fun videoCaptureDslSample(videoOutput: VideoOutput) {
     // Using the new Kotlin DSL to configure VideoCapture in a clean and idiomatic way
-    @OptIn(ExperimentalMirrorMode::class)
     val videoCaptureUseCase =
         videoCapture(videoOutput) {
             targetName = "video_capture_dsl"

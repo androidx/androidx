@@ -424,7 +424,6 @@ public final class Preview extends UseCase {
      *
      * @param mirrorMode The mirror mode.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
         if (Build.VERSION.SDK_INT < 33) {
             return;
@@ -451,7 +450,6 @@ public final class Preview extends UseCase {
      *
      * @return The mirror mode.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
     public int getMirrorMode() {
         int mirrorMode = getMirrorModeInternal();
@@ -1118,7 +1116,6 @@ public final class Preview extends UseCase {
          * @return The current Builder.
          * @see android.hardware.camera2.params.OutputConfiguration#setMirrorMode(int)
          */
-        @ExperimentalMirrorMode
         @Override
         public @NonNull Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
             if (Build.VERSION.SDK_INT >= 33) {

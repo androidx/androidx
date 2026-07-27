@@ -234,6 +234,7 @@ package androidx.camera.video {
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
     method public boolean isVideoStabilizationEnabled();
+    method public void setMirrorMode(int);
     method public void setTargetRotation(int);
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> withOutput(T);
   }
@@ -254,20 +255,20 @@ package androidx.camera.video {
 
   @androidx.camera.core.CameraXDsl public final class VideoCaptureScope<T extends androidx.camera.video.VideoOutput> {
     method @BytecodeOnly @Deprecated public androidx.camera.core.DynamicRange getDynamicRange();
-    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public int getMirrorMode();
+    method @BytecodeOnly @Deprecated public int getMirrorMode();
     method @BytecodeOnly @Deprecated public android.util.Range getTargetFrameRate();
     method @BytecodeOnly @Deprecated public String getTargetName();
     method @BytecodeOnly @Deprecated public int getTargetRotation();
     method @BytecodeOnly @Deprecated public boolean isVideoStabilizationEnabled();
     method @BytecodeOnly public void setDynamicRange(androidx.camera.core.DynamicRange);
-    method @BytecodeOnly @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public void setMirrorMode(int);
+    method @BytecodeOnly public void setMirrorMode(int);
     method @BytecodeOnly public void setTargetFrameRate(android.util.Range);
     method @BytecodeOnly public void setTargetName(String);
     method @BytecodeOnly public void setTargetRotation(int);
     method @BytecodeOnly public void setVideoStabilizationEnabled(boolean);
     property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.DynamicRange dynamicRange;
     property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isVideoStabilizationEnabled;
-    property @Deprecated @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode @kotlin.jvm.JvmSynthetic public int mirrorMode;
+    property @Deprecated @kotlin.jvm.JvmSynthetic public int mirrorMode;
     property @Deprecated @kotlin.jvm.JvmSynthetic public android.util.Range<java.lang.Integer> targetFrameRate;
     property @Deprecated @kotlin.jvm.JvmSynthetic public String targetName;
     property @Deprecated @kotlin.jvm.JvmSynthetic public int targetRotation;
