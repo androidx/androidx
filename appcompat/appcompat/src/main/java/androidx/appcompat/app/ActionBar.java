@@ -55,13 +55,13 @@ import java.lang.annotation.RetentionPolicy;
  * You may otherwise add the action bar by calling {@link
  * AppCompatDelegate#requestWindowFeature(int)  requestFeature(FEATURE_SUPPORT_ACTION_BAR)} or by
  * declaring it in a custom theme with the
- * {@link R.styleable#AppCompatTheme_windowActionBar windowActionBar} property.</p>
+ * {@link R.attr#windowActionBar windowActionBar} property.</p>
  *
  * <p>The action bar may be represented by any Toolbar widget within the application layout.
  * The application may signal to the Activity which Toolbar should be treated as the Activity's
  * action bar. Activities that use this feature should use one of the supplied
  * <code>.NoActionBar</code> themes, set the
- * {@link R.styleable#AppCompatTheme_windowActionBar windowActionBar} attribute to
+ * {@link R.attr#windowActionBar windowActionBar} attribute to
  * <code>false</code> or otherwise not request the window feature.</p>
  *
  * <p>If your activity has an options menu, you can make select items accessible directly from the

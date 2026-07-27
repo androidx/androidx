@@ -63,7 +63,7 @@ import org.jspecify.annotations.Nullable;
  * View.onCheckIsTextEditor()}.  Generally you want this set for a Dialog
  * without text editors, so that it will be placed on top of the current
  * input method UI.  You can modify this behavior by forcing the flag to your
- * desired mode after calling {@link #onCreate}.
+ * desired mode after calling {@link #onCreate(Bundle)}.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
