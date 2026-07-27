@@ -115,8 +115,6 @@ internal constructor(
      *
      * @see Preview.Builder.setMirrorMode
      */
-    @get:ExperimentalMirrorMode
-    @set:ExperimentalMirrorMode
     @get:MirrorMode.Mirror
     @set:MirrorMode.Mirror
     public var mirrorMode: Int
