@@ -104,4 +104,5 @@ androidx {
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
     enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 25 // b/539514196
 }
