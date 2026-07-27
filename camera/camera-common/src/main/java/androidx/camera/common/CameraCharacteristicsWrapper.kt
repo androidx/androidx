@@ -16,12 +16,12 @@
 
 package androidx.camera.common
 
-import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics as PlatformCameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 
 /**
- * Wrapper interface providing compatibility-focused access to [CameraCharacteristics].
+ * Wrapper interface providing compatibility-focused access to [PlatformCameraCharacteristics].
  *
  * Use this interface to query camera capabilities, physical properties, and supported
  * configurations. It abstracts OS version differences and caches expensive-to-retrieve properties
@@ -29,11 +29,12 @@ import android.hardware.camera2.CaptureResult
  *
  * `CameraCharacteristicsWrapper` implements [Metadata], allowing it to support type-safe retrieval
  * of custom library-defined metadata keys via [Metadata.Key] in addition to native
- * [CameraCharacteristics.Key] keys.
+ * [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key] keys.
  *
  * It also implements [UnsafeWrapper], which allows unwrapping to the underlying native
- * [CameraCharacteristics] using [UnsafeWrapper.unwrapAs] when platform-specific APIs are required.
- * Note that bypassing the wrapper by unwrapping avoids compatibility fixes and caching.
+ * [CameraCharacteristics][PlatformCameraCharacteristics] using [UnsafeWrapper.unwrapAs] when
+ * platform-specific APIs are required. Note that bypassing the wrapper by unwrapping avoids
+ * compatibility fixes and caching.
  *
  * **Note:** This interface is not stable for inheritance. Implementations should not be created
  * directly by clients. For testing, use the fakes in `androidx.camera.common.testing` package (such
@@ -70,20 +71,22 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val cameraId: CameraId
 
     /**
-     * A [Set] of all [CameraCharacteristics.Key]s supported by this camera device.
+     * A [Set] of all [PlatformCameraCharacteristics.Key]s supported by this camera device.
      *
-     * This property is equivalent to calling [CameraCharacteristics.getKeys] on the underlying
-     * camera characteristics, but may be cached for efficiency.
+     * This property is equivalent to calling
+     * [android.hardware.camera2.CameraCharacteristics.getKeys] on the underlying camera
+     * characteristics, but may be cached for efficiency.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getKeys
      */
-    public val keys: Set<CameraCharacteristics.Key<*>>
+    public val keys: Set<PlatformCameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of all [CaptureRequest.Key]s supported by this camera device for [CaptureRequest]s.
      *
      * This property is equivalent to calling
-     * [CameraCharacteristics.getAvailableCaptureRequestKeys], but may be cached for efficiency.
+     * [CameraCharacteristics.getAvailableCaptureRequestKeys][PlatformCameraCharacteristics.getAvailableCaptureRequestKeys],
+     * but may be cached for efficiency.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableCaptureRequestKeys
      */
@@ -92,7 +95,8 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     /**
      * A [Set] of all [CaptureResult.Key]s supported by this camera device for [CaptureResult]s.
      *
-     * This property is equivalent to calling [CameraCharacteristics.getAvailableCaptureResultKeys],
+     * This property is equivalent to calling
+     * [CameraCharacteristics.getAvailableCaptureResultKeys][PlatformCameraCharacteristics.getAvailableCaptureResultKeys],
      * but may be cached for efficiency.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableCaptureResultKeys
@@ -110,13 +114,14 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>>
 
     /**
-     * A [Set] of [CameraCharacteristics.Key]s whose values are capture session specific.
+     * A [Set] of [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key]s whose values are
+     * capture session specific.
      *
      * On API levels prior to 35 (Android 15), this property returns an empty set.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableSessionCharacteristicsKeys
      */
-    public val sessionKeys: Set<CameraCharacteristics.Key<*>>
+    public val sessionKeys: Set<PlatformCameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of [CaptureRequest.Key]s that the camera device can pass as part of the capture
@@ -129,14 +134,14 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
 
     /**
-     * A [Set] of [CameraCharacteristics.Key]s that require camera clients to obtain the
-     * `Manifest.permission.CAMERA` permission.
+     * A [Set] of [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key]s that require
+     * camera clients to obtain the `Manifest.permission.CAMERA` permission.
      *
      * On API levels prior to 29 (Android Q), this property returns an empty set.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getKeysNeedingPermission
      */
-    public val restrictedKeys: Set<CameraCharacteristics.Key<*>>
+    public val restrictedKeys: Set<PlatformCameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of physical camera IDs that this logical camera device is made up of.
@@ -146,4 +151,51 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
      * @see android.hardware.camera2.CameraCharacteristics.getPhysicalCameraIds
      */
     public val physicalCameraIds: Set<CameraId>
+
+    public object Keys {
+        /**
+         * Key for [StreamConfigurationMapWrapper].
+         *
+         * Use this key to query the compatibility wrapper for
+         * [android.hardware.camera2.params.StreamConfigurationMap].
+         *
+         * ### Example
+         *
+         * ```kotlin
+         * val mapWrapper = cameraCharacteristics[CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP]
+         * ```
+         *
+         * Prefer using the [CameraCharacteristics.streamConfigurationMap] property to access this
+         * value.
+         */
+        @JvmField
+        public val STREAM_CONFIGURATION_MAP: Metadata.Key<StreamConfigurationMapWrapper> =
+            Metadata.Key("androidx.camera.common.StreamConfigurationMap")
+    }
+}
+
+public object CameraCharacteristics {
+    /**
+     * Extension property to query [StreamConfigurationMapWrapper] directly.
+     *
+     * This is the preferred way to access the [StreamConfigurationMapWrapper] in Kotlin. It will
+     * fallback to creating a wrapper from the standard
+     * [PlatformCameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] if the compatibility key is
+     * not populated.
+     */
+    @get:JvmStatic
+    public val CameraCharacteristicsMetadata.streamConfigurationMap: StreamConfigurationMapWrapper?
+        get() {
+            val compatibilityMap = this[CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP]
+            if (compatibilityMap != null) {
+                return compatibilityMap
+            }
+            val camera2Map = this[PlatformCameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+            if (camera2Map != null) {
+                val cameraId =
+                    (this as? CameraCharacteristicsWrapper)?.cameraId ?: CameraId("unknown")
+                return AndroidStreamConfigurationMap(camera2Map, cameraId)
+            }
+            return null
+        }
 }
