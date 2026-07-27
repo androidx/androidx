@@ -17,8 +17,9 @@
 package androidx.a2ui.engine.model
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiDataPath
@@ -242,16 +243,12 @@ class A2uiCoreExecutionContextTest {
         }
     }
 
-    private class TestCatalog(override val functions: List<A2uiFunction> = emptyList()) :
-        A2uiCoreCatalog {
+    private class TestCatalog(functions: List<A2uiFunction> = emptyList()) : A2uiCoreCatalog {
         override val id: String = "test_catalog"
-        override val componentDefinitions: List<A2uiCoreComponentDefinition> = emptyList()
+        override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
+            A2uiCoreComponentDefinitionCollection()
+        override val functions: A2uiFunctionCollection = A2uiFunctionCollection(functions)
         override val themeSchema: A2uiSchema? = null
-
-        override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? = null
-
-        override fun getFunction(name: String): A2uiFunction? =
-            functions.find { it.definition.name == name }
     }
 
     private companion object {
