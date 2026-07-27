@@ -879,7 +879,10 @@ private constructor(
                             ImpSplitEngine.SplitEngineSetupParams().apply {
                                 jniLibraryName = SPLIT_ENGINE_LIBRARY_NAME
                             }
-                        ImpSplitEngineRenderer.create(activity, impApiSetupParams, extensions)
+                        ImpSplitEngineRenderer.Builder(activity)
+                            .setSetupParams(impApiSetupParams)
+                            .setXrExtensions(extensions)
+                            .create()
                     }
 
             val finalSubspaceManager =
