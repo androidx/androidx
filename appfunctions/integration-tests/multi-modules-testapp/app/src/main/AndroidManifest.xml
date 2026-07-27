@@ -100,5 +100,12 @@
             android:name=".DynamicRegistrationService"
             android:exported="true"
             tools:targetApi="37" />
+        <receiver
+            android:name=".AppFunctionStateReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.appfunctions.integration.testapp.ACTION_SET_STATE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
