@@ -116,7 +116,9 @@ package androidx.camera.common {
   }
 
   public final class CameraCharacteristics {
+    method @InaccessibleFromKotlin public static androidx.camera.common.ColorSpaceProfilesWrapper getAvailableColorSpaceProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
     method @InaccessibleFromKotlin public static androidx.camera.common.StreamConfigurationMapWrapper? getStreamConfigurationMap(androidx.camera.common.CameraCharacteristicsMetadata);
+    property public static androidx.camera.common.ColorSpaceProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableColorSpaceProfiles;
     property public androidx.camera.common.StreamConfigurationMapWrapper? androidx.camera.common.CameraCharacteristicsMetadata.streamConfigurationMap;
     field public static final androidx.camera.common.CameraCharacteristics INSTANCE;
   }
@@ -148,9 +150,55 @@ package androidx.camera.common {
   }
 
   public static final class CameraCharacteristicsWrapper.Keys {
+    property public androidx.camera.common.Metadata.Key<androidx.camera.common.ColorSpaceProfilesWrapper> AVAILABLE_COLOR_SPACE_PROFILES;
     property public androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
+    field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.ColorSpaceProfilesWrapper> AVAILABLE_COLOR_SPACE_PROFILES;
     field public static final androidx.camera.common.CameraCharacteristicsWrapper.Keys INSTANCE;
     field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
+  }
+
+  public final class CameraColorSpaces {
+    method @RequiresApi(26) public static String fromColorSpaceNamed(android.graphics.ColorSpace.Named colorSpaceNamed);
+    method @RequiresApi(26) public static android.graphics.ColorSpace.Named? toColorSpaceNamed(String colorSpace);
+    property public static String ACES;
+    property public static String ACESCG;
+    property public static String ADOBE_RGB;
+    property public static String BT2020;
+    property public static String BT2020_HLG;
+    property public static String BT2020_PQ;
+    property public static String BT709;
+    property public static String CIE_LAB;
+    property public static String CIE_XYZ;
+    property public static String DCI_P3;
+    property public static String DISPLAY_P3;
+    property public static String EXTENDED_SRGB;
+    property public static String LINEAR_EXTENDED_SRGB;
+    property public static String LINEAR_SRGB;
+    property public static String NTSC_1953;
+    property public static String PRO_PHOTO_RGB;
+    property public static String SMPTE_C;
+    property public static String SRGB;
+    property public static String UNKNOWN;
+    field public static final String ACES = "ACES";
+    field public static final String ACESCG = "ACESCG";
+    field public static final String ADOBE_RGB = "ADOBE_RGB";
+    field public static final String BT2020 = "BT2020";
+    field public static final String BT2020_HLG = "BT2020_HLG";
+    field public static final String BT2020_PQ = "BT2020_PQ";
+    field public static final String BT709 = "BT709";
+    field public static final String CIE_LAB = "CIE_LAB";
+    field public static final String CIE_XYZ = "CIE_XYZ";
+    field public static final String DCI_P3 = "DCI_P3";
+    field public static final String DISPLAY_P3 = "DISPLAY_P3";
+    field public static final String EXTENDED_SRGB = "EXTENDED_SRGB";
+    field public static final androidx.camera.common.CameraColorSpaces INSTANCE;
+    field public static final String LINEAR_EXTENDED_SRGB = "LINEAR_EXTENDED_SRGB";
+    field public static final String LINEAR_SRGB = "LINEAR_SRGB";
+    field public static final String NTSC_1953 = "NTSC_1953";
+    field public static final String PRO_PHOTO_RGB = "PRO_PHOTO_RGB";
+    field public static final String SMPTE_C = "SMPTE_C";
+    field public static final String SRGB = "SRGB";
+    field public static final String UNKNOWN = "UNKNOWN";
   }
 
   @kotlin.jvm.JvmInline public final value class CameraFrameNumber {
@@ -309,6 +357,13 @@ package androidx.camera.common {
     property public abstract androidx.camera.common.CaptureRequestWrapper captureRequest;
     property public abstract androidx.camera.common.CameraFrameNumber frameNumber;
     property public abstract java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> keys;
+  }
+
+  public interface ColorSpaceProfilesWrapper extends androidx.camera.common.UnsafeWrapper {
+    method public java.util.Set<java.lang.String> getSupportedColorSpaces(int imageFormat);
+    method public java.util.Set<java.lang.String> getSupportedColorSpacesForDynamicRange(int imageFormat, long dynamicRangeProfile);
+    method public java.util.Set<java.lang.Long> getSupportedDynamicRangeProfiles(String cameraColorSpace, int imageFormat);
+    method public java.util.Set<java.lang.Integer> getSupportedImageFormatsForColorSpace(String cameraColorSpace);
   }
 
   @kotlin.jvm.JvmInline public final value class DiscreteRotation {
