@@ -25,6 +25,7 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
@@ -37,7 +38,7 @@ import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
-import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionState
+import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -56,10 +57,7 @@ import org.junit.Test
 /** Integration tests for observeAppFunctions API. */
 // TODO(b/494238381): Add tests for package update scenarios which require multiple versions of the
 //  testapp.
-// TODO(b/494238381): The tests currently rely on the shell command set-enabled which is only
-//  available in 36.1+. Support remote setAppFunctionEnabled in older versions by exposing a service
-//  which the agent binds to.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA)
 @LargeTest
 class ObserveAppFunctionsIntegrationTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -73,6 +71,7 @@ class ObserveAppFunctionsIntegrationTest {
     private val functionsUnderTest =
         setOf(
             CREATE_NOTE_FUNCTION_ID,
+            CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
             ADD_FUNCTION_ID,
             DEPRECATED_FUNCTION_ID,
             SENTINEL_FUNCTION_ID,
@@ -95,13 +94,11 @@ class ObserveAppFunctionsIntegrationTest {
         InstallHelper.install(targetAppApkFile)
         targetContext.awaitAppFunctionsIndexed(TARGET_APP_PACKAGE)
 
-        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
-            for (functionId in functionsUnderTest) {
-                uiAutomation.setAppFunctionState(
-                    AppFunctionName(TARGET_APP_PACKAGE, functionId),
-                    AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
-                )
-            }
+        for (functionId in functionsUnderTest) {
+            setAppFunctionStateRemoteAsync(
+                AppFunctionName(TARGET_APP_PACKAGE, functionId),
+                AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
+            )
         }
     }
 
@@ -124,7 +121,7 @@ class ObserveAppFunctionsIntegrationTest {
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
-                uiAutomation.setAppFunctionState(
+                setAppFunctionStateRemoteAsync(
                     enabledByDefaultFunction,
                     AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
                 )
@@ -149,7 +146,52 @@ class ObserveAppFunctionsIntegrationTest {
                     assertThat(hasTargetAppFunction).isTrue()
                 }
             } finally {
-                uiAutomation.setAppFunctionState(
+                setAppFunctionStateRemoteAsync(
+                    enabledByDefaultFunction,
+                    AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun observeAppFunctions_onFunctionDisabled_emitsStateChange_withSchemaFunction() = doBlocking {
+        val enabledByDefaultFunction =
+            AppFunctionName(
+                packageName = TARGET_APP_PACKAGE,
+                functionIdentifier = CREATE_NOTE_FUNCTION_ID,
+            )
+
+        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        observeAppFunctionsWithRegisteredFlow { eventChannel ->
+            dispatchSentinelNotification(eventChannel)
+            try {
+                setAppFunctionStateRemoteAsync(
+                    enabledByDefaultFunction,
+                    AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
+                )
+                retryAssert {
+                    assertThat(
+                            appFunctionManager.isAppFunctionEnabled(
+                                TARGET_APP_PACKAGE,
+                                CREATE_NOTE_FUNCTION_ID,
+                            )
+                        )
+                        .isFalse()
+                }
+
+                retryAssert {
+                    // Drain all pending events in the channel at the time of assertion
+                    drainEvents(eventChannel, receivedEvents)
+                    val hasTargetAppFunction =
+                        receivedEvents.any { event ->
+                            event is ObserveAppFunctionsEvent.StatesChanged &&
+                                event.changedFunctionNames.contains(enabledByDefaultFunction)
+                        }
+                    assertThat(hasTargetAppFunction).isTrue()
+                }
+            } finally {
+                setAppFunctionStateRemoteAsync(
                     enabledByDefaultFunction,
                     AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
                 )
@@ -169,7 +211,7 @@ class ObserveAppFunctionsIntegrationTest {
         observeAppFunctionsWithRegisteredFlow { eventChannel ->
             dispatchSentinelNotification(eventChannel)
             try {
-                uiAutomation.setAppFunctionState(
+                setAppFunctionStateRemoteAsync(
                     disabledByDefaultFunction,
                     AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
                 )
@@ -218,7 +260,76 @@ class ObserveAppFunctionsIntegrationTest {
                     )
                 assertIs<ExecuteAppFunctionResponse.Success>(response)
             } finally {
-                uiAutomation.setAppFunctionState(
+                setAppFunctionStateRemoteAsync(
+                    disabledByDefaultFunction,
+                    AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun observeAppFunctions_onFunctionEnabled_emitsStateChange_withSchemaFunction() = doBlocking {
+        val disabledByDefaultFunction =
+            AppFunctionName(
+                packageName = TARGET_APP_PACKAGE,
+                functionIdentifier = CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
+            )
+
+        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        observeAppFunctionsWithRegisteredFlow { eventChannel ->
+            dispatchSentinelNotification(eventChannel)
+            try {
+                setAppFunctionStateRemoteAsync(
+                    disabledByDefaultFunction,
+                    AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
+                )
+
+                retryAssert {
+                    assertThat(
+                            appFunctionManager.isAppFunctionEnabled(
+                                TARGET_APP_PACKAGE,
+                                CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
+                            )
+                        )
+                        .isTrue()
+                }
+
+                retryAssert {
+                    // Drain all pending events in the channel at the time of assertion
+                    drainEvents(eventChannel, receivedEvents)
+                    val hasTargetAppFunction =
+                        receivedEvents.any { event ->
+                            event is ObserveAppFunctionsEvent.StatesChanged &&
+                                event.changedFunctionNames.contains(disabledByDefaultFunction)
+                        }
+                    assertThat(hasTargetAppFunction).isTrue()
+                }
+
+                // Execute the now enabled function
+                val searchResult =
+                    appFunctionManager.searchAppFunctions(
+                        AppFunctionSearchSpec(
+                            packageNames = setOf(TARGET_APP_PACKAGE),
+                            functionNames = setOf(disabledByDefaultFunction),
+                        )
+                    )
+                val disabledByDefaultFunctionMetadata = searchResult.single()
+                val response =
+                    appFunctionManager.executeAppFunction(
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            disabledByDefaultFunctionMetadata.id,
+                            AppFunctionData.Builder(
+                                    disabledByDefaultFunctionMetadata.parameters,
+                                    disabledByDefaultFunctionMetadata.components,
+                                )
+                                .build(),
+                        )
+                    )
+                assertIs<ExecuteAppFunctionResponse.Success>(response)
+            } finally {
+                setAppFunctionStateRemoteAsync(
                     disabledByDefaultFunction,
                     AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
                 )
@@ -292,7 +403,7 @@ class ObserveAppFunctionsIntegrationTest {
                 appFunctionManager.searchAppFunctions(
                     AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
                 )
-            assertExpectedAppFunctionsCount(searchResult.size)
+            assertThat(searchResult.size).isEqualTo(getTotalFunctionCountInPackage())
         }
     }
 
@@ -309,7 +420,7 @@ class ObserveAppFunctionsIntegrationTest {
             } finally {
                 collectJob.cancel()
                 try {
-                    uiAutomation.setAppFunctionState(
+                    setAppFunctionStateRemoteAsync(
                         AppFunctionName(TARGET_APP_PACKAGE, SENTINEL_FUNCTION_ID),
                         AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
                     )
@@ -338,7 +449,7 @@ class ObserveAppFunctionsIntegrationTest {
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED
             }
 
-        uiAutomation.setAppFunctionState(sentinelFunctionName, targetState)
+        setAppFunctionStateRemoteAsync(sentinelFunctionName, targetState)
 
         for (channel in channels) {
             val received = mutableListOf<ObserveAppFunctionsEvent>()
@@ -368,21 +479,18 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
-    private suspend fun assertExpectedAppFunctionsCount(appFunctionsCount: Int) {
-        if (isDynamicIndexerAvailable(targetContext)) {
-            val aggregatedFunctionCount = 24
+    private suspend fun getTotalFunctionCountInPackage(): Int {
+        return if (isDynamicIndexerAvailable(targetContext)) {
+            val aggregatedFunctionCount = 25
             val multiServiceFunctionCount = 6
             val dynamicFunctionsCount = 5
             if (Build.VERSION.SDK_INT >= 37) {
-                assertThat(appFunctionsCount)
-                    .isEqualTo(
-                        aggregatedFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
-                    )
+                aggregatedFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
             } else {
-                assertThat(appFunctionsCount).isEqualTo(aggregatedFunctionCount)
+                aggregatedFunctionCount
             }
         } else {
-            assertThat(appFunctionsCount).isEqualTo(1)
+            2
         }
     }
 }

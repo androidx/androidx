@@ -50,6 +50,8 @@ internal object AppFunctionMetadataHelper {
         const val ENABLED_BY_DEFAULT_FUNCTION_ID =
             "$TARGET_APP_PACKAGE.TestFunctions#functionEnabledByDefault"
         const val CREATE_NOTE_FUNCTION_ID = "$TARGET_APP_PACKAGE.NotesFunctions#createNote"
+        const val CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.NotesFunctions_disabledByDefault#createNote"
     }
 
     object Components {
