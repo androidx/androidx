@@ -1099,8 +1099,12 @@ internal class PopupLayout(
 
             type = properties.windowType
 
-            // Use windowToken if provided else get the Window token from the parent view
-            token = properties.windowToken ?: composeView.applicationWindowToken
+            token =
+                resolveWindowToken(
+                    properties.windowToken,
+                    composeView.rootView.layoutParams as? WindowManager.LayoutParams,
+                    composeView.applicationWindowToken,
+                )
 
             // Wrap the frame layout which contains composable content
             width = WindowManager.LayoutParams.WRAP_CONTENT
@@ -1259,6 +1263,31 @@ private fun PopupProperties.flagsWithSecureFlagInherited(isParentFlagSecureEnabl
             this.flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
         else -> this.flags
     }
+
+/**
+ * Resolves the window token for a Popup window.
+ *
+ * If [providedToken] is specified, it takes precedence. Otherwise, if [rootLayoutParams] indicates
+ * that the host view is embedded inside a sub-window (`FIRST_SUB_WINDOW`..`LAST_SUB_WINDOW`), the
+ * root view's window token is used to avoid attaching a sub-window to another sub-window across
+ * process boundaries. Otherwise, falls back to [applicationWindowToken].
+ */
+internal fun resolveWindowToken(
+    providedToken: IBinder?,
+    rootLayoutParams: WindowManager.LayoutParams?,
+    applicationWindowToken: IBinder?,
+): IBinder? {
+    val rootSubWindowToken =
+        rootLayoutParams
+            ?.takeIf {
+                it.type in
+                    WindowManager.LayoutParams.FIRST_SUB_WINDOW..WindowManager.LayoutParams
+                            .LAST_SUB_WINDOW
+            }
+            ?.token
+
+    return providedToken ?: rootSubWindowToken ?: applicationWindowToken
+}
 
 private fun Rect.toIntBounds() = IntRect(left = left, top = top, right = right, bottom = bottom)
 
