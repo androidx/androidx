@@ -16,6 +16,7 @@
 
 package androidx.core.telecom
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build.VERSION_CODES
@@ -535,22 +536,9 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 callAttributes.mHandle = getPhoneAccountHandleForPackage()
 
                 // create a call session based off the build version
-                @Suppress("WRONG_ANNOTATION_TARGET") // b/407926117
-                @RequiresApi(34)
                 if (!Utils.shouldUseBackwardsCompatImplementation()) {
-                    // CompletableDeferred pauses the execution of this method until the CallControl
-                    // is
-                    // returned by the Platform.
-                    val openResult =
-                        CompletableDeferred<AddCallResult>(parent = coroutineContext.job)
-                    // CallSession is responsible for handling both CallControl responses from the
-                    // Platform
-                    // and propagates CallControlCallbacks that originate in the Platform out to the
-                    // client.
-                    val callSession =
-                        CallSession(
-                            ProductionBluetoothDeviceChecker(mContext),
-                            coroutineContext,
+                    val (callSession, platformScope) =
+                        addCallPlatformSession(
                             callAttributes,
                             onAnswer,
                             onDisconnect,
@@ -562,49 +550,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                             blockingSessionExecution,
                         )
                     closableCallSession = callSession
-                    /**
-                     * The Platform [android.telecom.TelecomManager.addCall] requires a
-                     * [OutcomeReceiver]#<[CallControl], [CallException]> that will receive the
-                     * async response of whether the call can be added.
-                     */
-                    val callControlOutcomeReceiver =
-                        object : OutcomeReceiver<CallControl, CallException> {
-                            override fun onResult(control: CallControl) {
-                                callSession.setCallControl(control)
-                                openResult.complete(AddCallResult.SuccessCallSession())
-                            }
-
-                            override fun onError(reason: CallException) {
-                                callChannels.closeAllChannels()
-                                openResult.complete(AddCallResult.Error(reason.code))
-                            }
-                        }
-
-                    // leverage the platform API
-                    mTelecomManager.addCall(
-                        callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
-                        mDirectExecutor,
-                        callControlOutcomeReceiver,
-                        callSession as CallControlCallback,
-                        callSession as CallEventCallback,
-                    )
-
-                    pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution)
-
-                    /* at this point in time we have CallControl object */
-                    val s =
-                        CallSession.CallControlScopeImpl(
-                            callSession,
-                            callChannels,
-                            blockingSessionExecution,
-                            coroutineContext,
-                        )
-
-                    callSession.sendEvent(EVENT_CALL_READY)
-                    callSession.maybeSwitchStartingEndpoint(
-                        callAttributes.preferredStartingCallEndpoint
-                    )
-                    s
+                    platformScope
                 } else {
                     // CompletableDeferred pauses the execution of this method until the Connection
                     // is created in JetpackConnectionService
@@ -658,6 +604,83 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         scope.block()
         blockingSessionExecution.await()
         closableCallSession?.close()
+    }
+
+    @SuppressLint("NewApi")
+    private suspend fun addCallPlatformSession(
+        callAttributes: CallAttributesCompat,
+        onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
+        onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
+        onSetActive: suspend () -> Unit,
+        onSetInactive: suspend () -> Unit,
+        callChannels: CallChannels,
+        onCallStateEventChanged: MutableSharedFlow<CallStateEvent>,
+        onEvent: suspend (event: String, extras: Bundle) -> Unit,
+        blockingSessionExecution: CompletableDeferred<Unit>,
+    ): Pair<CallSession, CallControlScope> {
+        // CompletableDeferred pauses the execution of this method until the CallControl
+        // is
+        // returned by the Platform.
+        val openResult = CompletableDeferred<AddCallResult>(parent = coroutineContext.job)
+        // CallSession is responsible for handling both CallControl responses from the
+        // Platform
+        // and propagates CallControlCallbacks that originate in the Platform out to the
+        // client.
+        val callSession =
+            CallSession(
+                ProductionBluetoothDeviceChecker(mContext),
+                coroutineContext,
+                callAttributes,
+                onAnswer,
+                onDisconnect,
+                onSetActive,
+                onSetInactive,
+                callChannels,
+                onCallStateEventChanged,
+                onEvent,
+                blockingSessionExecution,
+            )
+        /**
+         * The Platform [android.telecom.TelecomManager.addCall] requires a
+         * [OutcomeReceiver]#<[CallControl], [CallException]> that will receive the async response
+         * of whether the call can be added.
+         */
+        val callControlOutcomeReceiver =
+            object : OutcomeReceiver<CallControl, CallException> {
+                override fun onResult(control: CallControl) {
+                    callSession.setCallControl(control)
+                    openResult.complete(AddCallResult.SuccessCallSession())
+                }
+
+                override fun onError(reason: CallException) {
+                    callChannels.closeAllChannels()
+                    openResult.complete(AddCallResult.Error(reason.code))
+                }
+            }
+
+        // leverage the platform API
+        mTelecomManager.addCall(
+            callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
+            mDirectExecutor,
+            callControlOutcomeReceiver,
+            callSession as CallControlCallback,
+            callSession as CallEventCallback,
+        )
+
+        pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution)
+
+        /* at this point in time we have CallControl object */
+        val scope =
+            CallSession.CallControlScopeImpl(
+                callSession,
+                callChannels,
+                blockingSessionExecution,
+                coroutineContext,
+            )
+
+        callSession.sendEvent(EVENT_CALL_READY)
+        callSession.maybeSwitchStartingEndpoint(callAttributes.preferredStartingCallEndpoint)
+        return Pair(callSession, scope)
     }
 
     @VisibleForTesting
