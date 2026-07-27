@@ -35,11 +35,9 @@ import androidx.compose.ui.unit.TextUnit
  */
 public class RemoteDensity(public val density: RemoteFloat, public val fontScale: RemoteFloat) {
     /** Converts a [TextUnit] to pixels using this [RemoteDensity]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun TextUnit.toPx(): RemoteFloat = asRemoteTextUnit().toPx(this@RemoteDensity)
 
     /** Converts a [Dp] to pixels using this [RemoteDensity]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun Dp.toPx(): RemoteFloat = asRdp().toPx(this@RemoteDensity)
 
     public companion object {
