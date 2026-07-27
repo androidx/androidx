@@ -80,6 +80,7 @@ import androidx.xr.compose.testapp.depthstacking.DepthStacking
 import androidx.xr.compose.testapp.focuschange.FSMFocusChangeActivity
 import androidx.xr.compose.testapp.focuschange.HSMFocusChangeActivity
 import androidx.xr.compose.testapp.followingsubspace.AnchorFollowingSubspaceActivity
+import androidx.xr.compose.testapp.followingsubspace.ArDeviceFollowingSubspaceV2Activity
 import androidx.xr.compose.testapp.followingsubspace.FollowingSubspaceActivity
 import androidx.xr.compose.testapp.fragments.FragmentCompatibilityActivity
 import androidx.xr.compose.testapp.gravityaligned.GravityAlignedActivity
@@ -311,6 +312,9 @@ class MainActivity : ComponentActivity() {
                             },
                             TestCase(getString(R.string.anchorable_test_case)) {
                                 startTest<AnchorableActivity>()
+                            },
+                            TestCase(getString(R.string.ardevice_subspace_v2_test_case)) {
+                                startTest<ArDeviceFollowingSubspaceV2Activity>()
                             },
                         ),
                     "Layout" to
