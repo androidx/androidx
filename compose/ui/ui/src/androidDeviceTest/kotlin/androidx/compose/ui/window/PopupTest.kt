@@ -1133,4 +1133,39 @@ class PopupTest {
             }
         }
     }
+
+    @Test
+    fun reactsToConfigurationChanges() {
+        var currentDensity: androidx.compose.ui.unit.Density? = null
+
+        rule.setContent {
+            Popup { currentDensity = androidx.compose.ui.platform.LocalDensity.current }
+        }
+
+        rule.runOnIdle { assertThat(currentDensity).isNotNull() }
+
+        val newConfig = android.content.res.Configuration(rule.activity.resources.configuration)
+        newConfig.fontScale = 2.5f
+        newConfig.densityDpi = newConfig.densityDpi + 120
+
+        val activityRoot =
+            rule.activity.findViewById<android.view.ViewGroup>(android.R.id.content).getChildAt(0)
+        val popupNode = rule.onNode(androidx.compose.ui.test.isPopup()).fetchSemanticsNode()
+
+        rule.runOnUiThread {
+            // Update the underlying context resources to simulate the OS framework update
+            rule.activity.resources.configuration.updateFrom(newConfig)
+
+            // Dispatch to the activity's root compose view
+            activityRoot.dispatchConfigurationChanged(newConfig)
+
+            // Dispatch to the popup's window root
+            val popupRoot =
+                (popupNode.root as? android.view.View)
+                    ?: (popupNode.root as androidx.compose.ui.platform.AndroidComposeView)
+            popupRoot.dispatchConfigurationChanged(newConfig)
+        }
+
+        rule.runOnIdle { assertThat(currentDensity!!.fontScale).isEqualTo(2.5f) }
+    }
 }
