@@ -71,6 +71,7 @@ internal class RemoteColumnNode : RemoteComposeNode() {
  * (spacing) and [horizontalAlignment].
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnSample
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteColumnWeightSample
  * @param modifier The modifier to be applied to this column.
  * @param verticalArrangement The vertical arrangement of the children.
  * @param horizontalAlignment The horizontal alignment of the children.
