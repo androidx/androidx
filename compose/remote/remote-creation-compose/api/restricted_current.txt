@@ -90,6 +90,10 @@ package androidx.compose.remote.creation.compose.capture {
     ctor public RemoteDensity(androidx.compose.remote.creation.compose.state.RemoteFloat density, androidx.compose.remote.creation.compose.state.RemoteFloat fontScale);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getDensity();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getFontScale();
+    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.Dp);
+    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.ui.unit.TextUnit);
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx--R2X_6o(long);
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteFloat toPx-0680j_4(float);
     property public androidx.compose.remote.creation.compose.state.RemoteFloat density;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat fontScale;
     field public static final androidx.compose.remote.creation.compose.capture.RemoteDensity.Companion Companion;
@@ -832,6 +836,7 @@ package androidx.compose.remote.creation.compose.state {
     method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(float other);
     method public operator androidx.compose.remote.creation.compose.state.RemoteDp times(int other);
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity density);
     method public operator androidx.compose.remote.creation.compose.state.RemoteDp unaryMinus();
     property public androidx.compose.ui.unit.Dp? constantValueOrNull;
     field public static final androidx.compose.remote.creation.compose.state.RemoteDp.Companion Companion;
@@ -846,6 +851,8 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   public final class RemoteDpKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp(androidx.compose.ui.unit.Dp);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteDp asRdp-0680j_4(float);
     method public static androidx.compose.remote.creation.compose.state.RemoteDp asRemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(float);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteDp getRdp(int);
@@ -853,6 +860,7 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteDp min(androidx.compose.remote.creation.compose.state.RemoteDp a, androidx.compose.remote.creation.compose.state.RemoteDp b);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteDp rememberNamedRemoteDp(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.remote.creation.compose.state.RemoteDp> value);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteDp rememberNamedRemoteDp(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<androidx.compose.remote.creation.compose.state.RemoteDp!>, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.remote.creation.compose.state.RemoteDp toRemoteDp(androidx.compose.remote.creation.compose.state.RemoteFloat);
     property public static androidx.compose.remote.creation.compose.state.RemoteDp int.rdp;
     property public static androidx.compose.remote.creation.compose.state.RemoteDp float.rdp;
   }
@@ -994,6 +1002,8 @@ package androidx.compose.remote.creation.compose.state {
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThan(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isLessThanOrEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean isNotEqualTo(androidx.compose.remote.creation.compose.state.RemoteInt other);
+    method public final androidx.compose.remote.creation.compose.state.RemoteFloat toRemoteFloat();
+    method public final androidx.compose.remote.creation.compose.state.RemoteLong toRemoteLong();
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(optional android.icu.text.DecimalFormat format);
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(java.text.DecimalFormat format);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteString! toRemoteString$default(androidx.compose.remote.creation.compose.state.RemoteInt!, android.icu.text.DecimalFormat!, int, Object!);
@@ -1122,12 +1132,17 @@ package androidx.compose.remote.creation.compose.state {
     method @BytecodeOnly public long getType-UIouoOA();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity density);
     property public androidx.compose.ui.unit.TextUnitType type;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat value;
   }
 
   public final class RemoteTextUnitKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit(androidx.compose.ui.unit.TextUnit);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit--R2X_6o(long);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(int);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit int.rsp;
   }
 

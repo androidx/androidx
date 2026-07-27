@@ -145,7 +145,6 @@ internal constructor(
      *
      * @return A [RemoteFloatExpression] representing this integer as a float.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteFloat(): RemoteFloat {
         constantValueOrNull?.let {
             return RemoteFloat(it.toFloat())
@@ -173,7 +172,6 @@ internal constructor(
      *
      * @return A [RemoteLong] representing this integer as a long.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteLong(): RemoteLong {
         return RemoteLong.fromLowHigh(this, selectIfLt(this, 0.ri, (-1).ri, 0.ri))
     }

@@ -68,7 +68,6 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
     }
 
     /** Converts this [RemoteTextUnit] to pixels using the provided [density]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
         val constValue = value.constantValueOrNull
@@ -117,11 +116,9 @@ public val Int.rsp: RemoteTextUnit
     get() = RemoteTextUnit(this.rf, TextUnitType.Sp)
 
 /** Extension function to convert a [TextUnit] to a [RemoteTextUnit]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun TextUnit.asRemoteTextUnit(): RemoteTextUnit = RemoteTextUnit(this.value.rf, this.type)
 
 /** Extension function to convert a [Dp] to a [RemoteTextUnit] in Sp. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Dp.toRsp(): RemoteTextUnit {
     check(isSpecified) { "Dp conversion not possible for unspecified Dp" }
     return RemoteTextUnit(
