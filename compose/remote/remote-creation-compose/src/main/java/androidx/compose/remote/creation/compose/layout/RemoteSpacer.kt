@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
  * This delegates to [RemoteBox] which handles the layout recording or foundation Box dispatching.
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteSpacerSample
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteSpacerWeightSample
  */
 @RemoteComposable
 @Composable

@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewWrapper
@@ -36,5 +37,25 @@ fun RemoteCanvasSample() {
     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
         val paint = RemotePaint().apply { color = Color.Red.rc }
         drawCircle(paint = paint, radius = 50.rf)
+    }
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteCanvasAnimationSample() {
+    // This sample uses ContinuousSec which might be restricted in some contexts,
+    // but demonstrates how to create time-based animations on the remote canvas.
+    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+        val paint = RemotePaint().apply { color = Color.Blue.rc }
+
+        val time = remote.time.ContinuousSec()
+
+        // Oscillate radius between 10 and 40
+        val sineValue = sin(time)
+        val normalizedSine = (sineValue + 1f.rf) / 2f.rf
+        val radius = 10f.rf + 30f.rf * normalizedSine
+
+        drawCircle(paint = paint, radius = radius)
     }
 }
