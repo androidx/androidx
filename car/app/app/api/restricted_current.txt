@@ -1318,11 +1318,9 @@ package androidx.car.app.model {
     ctor public Banner.Builder();
     method public androidx.car.app.model.Banner.Builder addBelowAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Banner.Builder addTrailingAction(androidx.car.app.model.Action);
-    method @Deprecated public androidx.car.app.model.Banner.Builder addTrailingIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder addTrailingImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder addTrailingImage(androidx.car.app.model.CarIcon, int);
     method public androidx.car.app.model.Banner build();
-    method @Deprecated public androidx.car.app.model.Banner.Builder setLeadingIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setLeadingImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Banner.Builder setLeadingImage(androidx.car.app.model.CarIcon, int);
     method public androidx.car.app.model.Banner.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
@@ -1335,13 +1333,11 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerElement {
     method public androidx.car.app.model.Action? getAction();
-    method @Deprecated public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public int getType();
     field public static final int TYPE_ACTION = 1; // 0x1
-    field @Deprecated public static final int TYPE_ICON = 2; // 0x2
-    field public static final int TYPE_IMAGE = 3; // 0x3
+    field public static final int TYPE_IMAGE = 2; // 0x2
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class BannerSection extends androidx.car.app.model.Section<androidx.car.app.model.Banner!> {
