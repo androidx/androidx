@@ -1805,29 +1805,6 @@ public object SearchBarDefaults {
             reverseLayout = reverseLayout,
         )
 
-    @Suppress("DEPRECATION")
-    @Deprecated(message = "Maintained for binary compatibility", level = HIDDEN)
-    @ExperimentalMaterial3Api
-    @Composable
-    public fun enterAlwaysSearchBarScrollBehavior(
-        initialOffset: Float = 0f,
-        initialOffsetLimit: Float = -Float.MAX_VALUE,
-        canScroll: () -> Boolean = { true },
-        // TODO Load the motionScheme tokens from the component tokens file
-        snapAnimationSpec: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultEffects.value(),
-        flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
-        reverseLayout: Boolean = false,
-    ): SearchBarScrollBehavior =
-        enterAlwaysSearchBarScrollBehavior(
-            initialOffset = initialOffset,
-            initialOffsetLimit = initialOffsetLimit,
-            initialContentOffset = 0f,
-            canScroll = canScroll,
-            reverseLayout = reverseLayout,
-            snapAnimationSpec = snapAnimationSpec,
-            flingAnimationSpec = flingAnimationSpec,
-        )
-
     /**
      * Creates a [SearchBarColors] that represents the different colors used in parts of the search
      * bar.
@@ -2011,56 +1988,6 @@ public object SearchBarDefaults {
             focusedContainerColor = focusedContainerColor,
             unfocusedContainerColor = unfocusedContainerColor,
             disabledContainerColor = disabledContainerColor,
-        )
-
-    @Deprecated(
-        message =
-            "Maintained for binary compatibility. Use version with keyboardOptions and lineLimits params instead.",
-        level = HIDDEN,
-    )
-    @ExperimentalMaterial3Api
-    @Composable
-    public fun InputField(
-        textFieldState: TextFieldState,
-        searchBarState: SearchBarState,
-        onSearch: (String) -> Unit,
-        modifier: Modifier = Modifier,
-        enabled: Boolean = true,
-        readOnly: Boolean = false,
-        textStyle: TextStyle = LocalTextStyle.current,
-        placeholder: @Composable (() -> Unit)? = null,
-        leadingIcon: @Composable (() -> Unit)? = null,
-        trailingIcon: @Composable (() -> Unit)? = null,
-        prefix: @Composable (() -> Unit)? = null,
-        suffix: @Composable (() -> Unit)? = null,
-        inputTransformation: InputTransformation? = null,
-        outputTransformation: OutputTransformation? = null,
-        scrollState: ScrollState = rememberScrollState(),
-        shape: Shape = inputFieldShape,
-        colors: TextFieldColors = inputFieldColors(),
-        interactionSource: MutableInteractionSource? = null,
-    ): Unit =
-        InputField(
-            textFieldState = textFieldState,
-            searchBarState = searchBarState,
-            onSearch = onSearch,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = textStyle,
-            placeholder = placeholder,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            prefix = prefix,
-            suffix = suffix,
-            inputTransformation = inputTransformation,
-            outputTransformation = outputTransformation,
-            scrollState = scrollState,
-            shape = shape,
-            colors = colors,
-            interactionSource = interactionSource,
-            keyboardOptions = KeyboardOptions.Default,
-            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
     /**
