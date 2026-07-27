@@ -76,7 +76,7 @@ data class DexInfo(
         val fullName: String = if (packageName.isEmpty()) className else "$packageName.$className"
         val startsWithLowerCase = className[0].isLowerCase()
         val classNameAppearsMinified =
-            className.length <= 2 || className.length <= 3 && hasObfuscatedPackageName()
+            className.length <= 2 || className.length <= 4 && hasObfuscatedPackageName()
 
         private fun hasObfuscatedPackageName(): Boolean {
             val parts = packageName.split("\\.".toRegex())
