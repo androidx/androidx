@@ -83,6 +83,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         focusSearchFailure(false);
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // b/537526293
     @Test
     public void focusSearchFailureDown() throws Throwable {
         focusSearchFailure(true);

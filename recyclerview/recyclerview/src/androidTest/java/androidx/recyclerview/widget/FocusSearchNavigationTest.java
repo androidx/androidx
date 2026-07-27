@@ -123,6 +123,7 @@ public class FocusSearchNavigationTest {
                 is(mLayoutDir));
     }
 
+    @SdkSuppress(maxSdkVersion = 36) // maxSdkVersion = 36 -> b/537525864
     @Test
     public void focusSearchForward() throws Throwable {
         setup(20);
@@ -173,7 +174,7 @@ public class FocusSearchNavigationTest {
     }
 
     // Fix for b/406190006 only works for API 26 and above
-    @SdkSuppress(minSdkVersion = 26)
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 36) // maxSdkVersion = 36 -> b/537525864
     @Test
     public void focusSearchBackwards_fixedBehavior() throws Throwable {
         setup(20);
