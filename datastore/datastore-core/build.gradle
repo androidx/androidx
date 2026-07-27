@@ -25,18 +25,18 @@ import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.KonanTarget
+import androidx.build.clang.NativeTarget
 
 plugins {
     id("AndroidXPlugin")
 }
 
 androidXMultiplatform {
-    def supportedKonanTargets = [
-            KonanTarget.ANDROID_ARM32,
-            KonanTarget.ANDROID_ARM64,
-            KonanTarget.ANDROID_X64,
-            KonanTarget.ANDROID_X86,
+    def supportedTargets = [
+            NativeTarget.ANDROID_ARM32,
+            NativeTarget.ANDROID_ARM64,
+            NativeTarget.ANDROID_X64,
+            NativeTarget.ANDROID_X86,
     ]
 
     // Define C++ compilation of shared_counter
@@ -50,20 +50,10 @@ androidXMultiplatform {
                 "-Werror",
                 "-std=c++17",
                 "-fstack-protector-strong",         // Stack canary
-                "-fPIC"                             // Position Independent Code
             )
             nativeCompilation.linkerArgs.add("-Wl,-s") // Strip symbols
-            // Konan target android_arm32's clang compiler triple is: arm-unknown-linux-androideabi
-            // This maps to an ARM architecture that lacks instructions for lock-free atomics causing
-            // compilation failure:
-            // error: static assertion failed due to requirement 'std::atomic<unsigned int>::is_always_lock_free': atomic<uint32_t> is not always lock-free
-            //     static_assert(std::atomic<uint32_t>::is_always_lock_free,
-            // Adding to the compiler that Android's architecture for arm_32 is armv7a fixes the compilation
-            if (nativeCompilation.konanTarget == KonanTarget.ANDROID_ARM32.INSTANCE) {
-                nativeCompilation.freeArgs.add("-march=armv7-a")
-            }
         }
-        configureTargets(supportedKonanTargets.collect { it.INSTANCE })
+        configureTargets(supportedTargets)
     }
 
 
@@ -82,11 +72,10 @@ androidXMultiplatform {
                 "-Werror",
                 "-std=c++17",
                 "-fstack-protector-strong",         // Stack canary
-                "-fPIC"                             // Position Independent Code
             )
             nativeCompilation.linkerArgs.add("-Wl,-s") // Strip symbols
         }
-        configureTargets(supportedKonanTargets.collect { it.INSTANCE })
+        configureTargets(supportedTargets)
     }
 
     androidLibrary {

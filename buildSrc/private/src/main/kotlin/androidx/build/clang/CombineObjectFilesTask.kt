@@ -33,7 +33,6 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
 
 /**
  * Combines all given [objectFiles] into a directory with a well defined directory structure.
@@ -76,8 +75,8 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             "Running CombineSharedLibrariesTask without any inputs, this is likely an error"
         }
         resolvedObjectFiles.forEach { objectFile ->
-            val konanTarget = objectFile.konanTarget.get().asKonanTarget
-            val targetFile = targetFileFor(outputDir, konanTarget, objectFile)
+            val target = objectFile.target.get().asNativeTarget
+            val targetFile = targetFileFor(outputDir, target, objectFile)
             targetFile.parentFile?.mkdirs()
             objectFile.file.get().asFile.copyTo(target = targetFile, overwrite = true)
         }
@@ -95,26 +94,25 @@ abstract class CombineObjectFilesTask : DefaultTask() {
                 Architecture.X86 to "x86",
             )
 
-        private fun targetFileFor(
-            outputDir: File,
-            konanTarget: KonanTarget,
-            objectFile: ObjectFile,
-        ) = outputDir.resolve(directoryName(konanTarget)).resolve(objectFile.file.get().asFile.name)
+        private fun targetFileFor(outputDir: File, target: NativeTarget, objectFile: ObjectFile) =
+            outputDir.resolve(directoryName(target)).resolve(objectFile.file.get().asFile.name)
 
-        private fun directoryName(konanTarget: KonanTarget): String {
-            if (konanTarget.family == Family.ANDROID) {
+        private fun directoryName(target: NativeTarget): String {
+            if (target.isAndroid) {
                 // use android's own native library directory convention
                 // https://developer.android.com/ndk/guides/abis#sa
-                return when (konanTarget.architecture) {
-                    Architecture.X86 -> "x86"
-                    Architecture.X64 -> "x86_64"
-                    Architecture.ARM32 -> "armeabi-v7a"
-                    Architecture.ARM64 -> "arm64-v8a"
+                return when (target) {
+                    NativeTarget.ANDROID_ARM32 -> "armeabi-v7a"
+                    NativeTarget.ANDROID_ARM64 -> "arm64-v8a"
+                    NativeTarget.ANDROID_X86 -> "x86"
+                    NativeTarget.ANDROID_X64 -> "x86_64"
+                    else -> error("Unknown Android target: $target")
                 }
             }
+            val konanTarget = target.toKonanTarget()
             val familyPrefix =
-                familyDirectoryPrefixes[konanTarget.family]
-                    ?: error("Unsupported family ${konanTarget.family} for $konanTarget")
+                familyDirectoryPrefixes[target.family]
+                    ?: error("Unsupported family ${target.family} for $target")
             val architectureSuffix =
                 architectureSuffixes[konanTarget.architecture]
                     ?: error(
@@ -131,7 +129,7 @@ abstract class CombineObjectFilesTask : DefaultTask() {
  */
 fun TaskProvider<CombineObjectFilesTask>.configureFrom(
     multiTargetNativeCompilation: MultiTargetNativeCompilation,
-    filter: (KonanTarget) -> Boolean,
+    filter: (NativeTarget) -> Boolean,
 ) {
     configure { task ->
         task.objectFiles.addAll(
@@ -139,7 +137,7 @@ fun TaskProvider<CombineObjectFilesTask>.configureFrom(
                 nativeTargetCompilations.map { nativeTargetCompilation ->
                     nativeTargetCompilation.linkerTask.map { linkerTask ->
                         ObjectFile(
-                            konanTarget = linkerTask.clangParameters.konanTarget,
+                            target = linkerTask.clangParameters.target,
                             file = linkerTask.clangParameters.outputFile,
                         )
                     }
@@ -149,8 +147,8 @@ fun TaskProvider<CombineObjectFilesTask>.configureFrom(
     }
 }
 
-/** Represents an object file (.o, .so) associated with its [konanTarget]. */
+/** Represents an object file (.o, .so) associated with its [target]. */
 class ObjectFile(
-    @get:Input val konanTarget: Provider<SerializableKonanTarget>,
+    @get:Input val target: Provider<SerializableNativeTarget>,
     @get:InputFile @get:PathSensitive(PathSensitivity.NAME_ONLY) val file: RegularFileProperty,
 )

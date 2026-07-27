@@ -17,8 +17,8 @@
 package androidx.build
 
 import androidx.build.clang.AndroidXClang
+import androidx.build.clang.ClangBuildService
 import androidx.build.clang.CombineObjectFilesTask
-import androidx.build.clang.KonanBuildService
 import androidx.build.clang.MultiTargetNativeCompilation
 import androidx.build.clang.NativeLibraryBundler
 import androidx.build.clang.configureCinterop
@@ -89,9 +89,9 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
      * Sets the `kotlin.stdlib.klib.dir` property which can be accessed inside the tests
      */
     fun provideKlibStdLibForTests() {
-        val konanBuildService = KonanBuildService.obtain(project)
+        val clangBuildService = ClangBuildService.obtain(project)
         // directory format of stdlib klib for use during tests
-        val stdLibKlibDir = konanBuildService.map { it.stdlibKlibDir() }
+        val stdLibKlibDir = clangBuildService.map { it.stdlibKlibDir() }
         project.tasks.withType(Test::class.java).configureEach { task ->
             task.inputs
                 .dir(stdLibKlibDir)

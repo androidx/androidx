@@ -23,18 +23,16 @@ import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.jetbrains.kotlin.konan.file.use
-import org.jetbrains.kotlin.konan.target.Family
-import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.junit.Before
 import org.junit.Test
 
-class KonanBuildServiceTest : BaseClangTest() {
-    private lateinit var buildService: KonanBuildService
+class ClangBuildServiceTest : BaseClangTest() {
+    private lateinit var buildService: ClangBuildService
 
     @Before
     fun initBuildService() {
-        buildService = KonanBuildService.obtain(project).get()
+        buildService = ClangBuildService.obtain(project).get()
     }
 
     @Test
@@ -43,13 +41,13 @@ class KonanBuildServiceTest : BaseClangTest() {
             createCompileParameters(
                 "failedCode.c",
                 """
-            #include <stdio.h>
-            int main() {
-               printf("Hello, World!");
-               return 0 // no ; :)
-            }
-        """
-                    .trimIndent()
+                #include <stdio.h>
+                int main() {
+                   printf("Hello, World!");
+                   return 0 // no ; :)
+                }
+                """
+                    .trimIndent(),
             )
         assertThrows<GradleException> { buildService.compile(compileParams) }
             .hasMessageThat()
@@ -71,26 +69,50 @@ class KonanBuildServiceTest : BaseClangTest() {
     }
 
     @Test
+    fun compileAndroid() {
+        val compileParams =
+            createCompileParameters(
+                "android_code.c",
+                """
+                #include <android/log.h>
+                void test_log() {
+                    __android_log_print(ANDROID_LOG_INFO, "JetskiTest", "Hello from NDK!");
+                }
+                """
+                    .trimIndent(),
+                target = NativeTarget.ANDROID_ARM64,
+            )
+        buildService.compile(compileParams)
+        val outputFiles = compileParams.output.getRegularFiles()
+        assertThat(outputFiles).hasSize(1)
+        val outputFile = outputFiles.single()
+        assertThat(outputFile.name).isEqualTo("android_code.o")
+        val strings = extractStrings(outputFile)
+        assertThat(strings).contains("__android_log_print")
+        assertThat(strings).contains("Hello from NDK!")
+    }
+
+    @Test
     fun compileWithInclude() {
         val compileParameters =
             createCompileParameters(
                 "code.c",
                 """
-            #include <stdio.h>
-            #include "dependency.h"
-            int my_function() {
-               return dependency_method();
-            }
-            """
-                    .trimIndent()
+                #include <stdio.h>
+                #include "dependency.h"
+                int my_function() {
+                   return dependency_method();
+                }
+                """
+                    .trimIndent(),
             )
         val dependency =
             tmpFolder.newFolder("depSrc").also {
                 it.resolve("dependency.h")
                     .writeText(
                         """
-                    int dependency_method();
-                """
+                        int dependency_method();
+                        """
                             .trimIndent()
                     )
             }
@@ -106,7 +128,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         val compileParameters = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParameters)
         val sharedLibraryParameters = project.objects.newInstance(ClangLinkerParameters::class.java)
-        sharedLibraryParameters.konanTarget.set(compileParameters.konanTarget)
+        sharedLibraryParameters.target.set(compileParameters.target)
         sharedLibraryParameters.objectFiles.from(compileParameters.output)
         sharedLibraryParameters.linkerOutputKind.set(LinkerOutputKind.DYNAMIC_LIBRARY)
         val outputFile = tmpFolder.newFile("code.so")
@@ -119,7 +141,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("libc")
 
         // verify shared lib files are aligned to 16Kb boundary for Android targets
-        if (sharedLibraryParameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
+        if (sharedLibraryParameters.target.get().asNativeTarget.isAndroid) {
             val alignment =
                 ProcessBuilder("objdump", "-p", outputFile.path)
                     .start()
@@ -140,7 +162,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParams)
         val archiveParams = project.objects.newInstance(ClangArchiveParameters::class.java)
-        archiveParams.konanTarget.set(compileParams.konanTarget)
+        archiveParams.target.set(compileParams.target)
         archiveParams.objectFiles.from(compileParams.output)
         val outputFile = tmpFolder.newFile("code.a")
         archiveParams.outputFile.set(outputFile)
@@ -152,11 +174,15 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).doesNotContain("libc")
     }
 
-    private fun createCompileParameters(fileName: String, code: String): ClangCompileParameters {
+    private fun createCompileParameters(
+        fileName: String,
+        code: String,
+        target: NativeTarget = NativeTarget.LINUX_X64,
+    ): ClangCompileParameters {
         val srcDir = tmpFolder.newFolder("src")
         srcDir.resolve(fileName).writeText(code)
         val compileParams = project.objects.newInstance(ClangCompileParameters::class.java)
-        compileParams.konanTarget.set(SerializableKonanTarget(KonanTarget.LINUX_X64))
+        compileParams.target.set(SerializableNativeTarget(target))
         compileParams.output.set(tmpFolder.newFolder())
         compileParams.sources.from(srcDir)
         return compileParams
@@ -208,7 +234,7 @@ class KonanBuildServiceTest : BaseClangTest() {
                printf("Hello, World!!");
                return 0;
             }
-        """
+            """
                 .trimIndent()
     }
 }
