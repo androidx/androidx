@@ -52,6 +52,7 @@ internal class RemoteBoxNode : RemoteComposeNode() {
  * `RemoteBox` allows you to wrap multiple children and position them using [contentAlignment]. In
  * Remote Compose, this layout is recorded as a Box command.
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteBoxSample
  * @param modifier The modifier to be applied to this box.
  * @param contentAlignment The default alignment inside the Box.
  * @param content The content of the box.
