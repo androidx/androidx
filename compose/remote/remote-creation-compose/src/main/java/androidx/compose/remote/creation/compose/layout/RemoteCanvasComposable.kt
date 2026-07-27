@@ -50,6 +50,7 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
 /**
  * A Composable that provides a [RemoteDrawScope] for drawing operations in RemoteCompose.
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasSample
  * @param modifier The [RemoteModifier] to apply to this layout.
  * @param content The drawing commands to be executed on the remote canvas via [RemoteDrawScope].
  */

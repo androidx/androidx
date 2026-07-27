@@ -105,6 +105,7 @@ public fun <T : Enum<T>> RemoteStateLayout(
  * This component ensures that both possible states are composed, while the underlying remote
  * rendering system handles the visibility and transitions between them based on the [currentState].
  *
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutBooleanSample
  * @param currentState The state machine governing the available states and the current active
  *   state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
