@@ -588,6 +588,7 @@ private fun NavigationItemLayout(
                     indicatorVerticalPadding,
                     indicatorToLabelVerticalPadding,
                     topIconItemVerticalPadding,
+                    0.dp,
                 )
             } else {
                 StartIconMeasurePolicy(
@@ -651,6 +652,7 @@ private fun AnimatedNavigationItemLayout(
                     indicatorVerticalPadding = noLabelIndicatorPadding,
                     indicatorToLabelVerticalPadding = 0.dp,
                     topIconItemVerticalPadding = 0.dp,
+                    itemHorizontalPadding = itemHorizontalPadding,
                 )
             },
     )
@@ -663,6 +665,7 @@ private class TopIconOrIconOnlyMeasurePolicy(
     val indicatorVerticalPadding: Dp,
     val indicatorToLabelVerticalPadding: Dp,
     val topIconItemVerticalPadding: Dp,
+    val itemHorizontalPadding: Dp,
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -726,7 +729,13 @@ private class TopIconOrIconOnlyMeasurePolicy(
                 topIconItemVerticalPadding,
             )
         } else {
-            placeIcon(iconPlaceable, indicatorRipplePlaceable, indicatorPlaceable, constraints)
+            placeIcon(
+                iconPlaceable,
+                indicatorRipplePlaceable,
+                indicatorPlaceable,
+                itemHorizontalPadding,
+                constraints,
+            )
         }
     }
 
@@ -969,9 +978,13 @@ private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     indicatorRipplePlaceable: Placeable,
     indicatorPlaceable: Placeable,
+    itemHorizontalPadding: Dp,
     constraints: Constraints,
 ): MeasureResult {
-    val width = constraints.constrainWidth(indicatorRipplePlaceable.width)
+    val width =
+        constraints.constrainWidth(
+            indicatorRipplePlaceable.width + (itemHorizontalPadding * 2).roundToPx()
+        )
     val height = constraints.constrainHeight(indicatorRipplePlaceable.height)
 
     val indicatorX = (width - indicatorPlaceable.width) / 2
