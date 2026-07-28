@@ -492,12 +492,17 @@ class WideNavigationRailTest {
         val iconBounds =
             rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
-        val itemSize =
+        val itemWidth =
+            WNRItemNoLabelIndicatorPadding +
+                iconBounds.width +
+                WNRItemNoLabelIndicatorPadding +
+                (WNRItemHorizontalPadding * 2)
+        val itemHeight =
             WNRItemNoLabelIndicatorPadding + iconBounds.height + WNRItemNoLabelIndicatorPadding
 
         // Assert the item has its minimal width and height values.
-        Truth.assertThat(itemBounds.width).isEqualTo(itemSize)
-        Truth.assertThat(itemBounds.height).isEqualTo(itemSize)
+        Truth.assertThat(itemBounds.width).isEqualTo(itemWidth)
+        Truth.assertThat(itemBounds.height).isEqualTo(itemHeight)
 
         // The icon should be centered in the item, as there is no text placeable provided
         rule
