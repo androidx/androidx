@@ -396,4 +396,4 @@ private const val MaxNumberOfIndicators = 7
 
 private val IndicatorItemRadius = 6.dp
 private val IndicatorCenterToCenter = 27.dp
-private val SelectedIndicatorSize = 17.dp
+private val SelectedIndicatorSize = 18.dp

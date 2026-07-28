@@ -101,7 +101,7 @@ public fun GlimmerHorizontalPager(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(GlimmerTheme.componentSpacingValues.medium),
+        verticalArrangement = Arrangement.spacedBy(GlimmerTheme.componentSpacingValues.large),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         HorizontalPager(
