@@ -30,19 +30,24 @@ import androidx.core.view.DragAndDropPermissionsCompat
 
 internal actual fun DelegatableNode.dragAndDropRequestPermission(event: DragAndDropEvent) {
     if (Build.VERSION.SDK_INT < 24) return
-    // If there is no contentUri, there's no need to request permissions
-    if (!event.toAndroidDragEvent().clipData.containsContentUri()) return
-    if (node.isAttached) {
-        val view = requireView()
-        val activity = tryGetActivity(view) ?: return
-        DragAndDropPermissionsCompat.request(activity, event.toAndroidDragEvent())
-    }
+    if (!node.isAttached) return
+
+    val dragEvent = event.toAndroidDragEvent()
+    // If there is no clip data or content URI, there's no need to request permissions
+    val clipData = dragEvent.clipData ?: return
+    if (!clipData.containsContentUri()) return
+
+    val view = requireView()
+    val activity = tryGetActivity(view) ?: return
+    DragAndDropPermissionsCompat.request(activity, dragEvent)
 }
 
 private fun ClipData.containsContentUri(): Boolean {
     for (i in 0 until itemCount) {
-        val uri = getItemAt(i).uri
-        if (uri != null && uri.scheme == ContentResolver.SCHEME_CONTENT) return true
+        val uri = getItemAt(i)?.uri
+        if (uri != null && ContentResolver.SCHEME_CONTENT.equals(uri.scheme, ignoreCase = true)) {
+            return true
+        }
     }
     return false
 }
