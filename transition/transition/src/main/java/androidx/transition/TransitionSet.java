@@ -536,6 +536,13 @@ public class TransitionSet extends Transition {
         }
     }
 
+    @Override
+    void removeSeekingAnimators() {
+        for (int i = 0; i < mTransitions.size(); ++i) {
+            mTransitions.get(i).removeSeekingAnimators();
+        }
+    }
+
     /**
      * Returns the index of the Transition that is playing at playTime. If no such transition
      * exists, either because that Transition has been canceled or the TransitionSet is empty,
