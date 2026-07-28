@@ -31,7 +31,7 @@ import androidx.compose.ui.geometry.Offset
  * This class originated from the DragAndDrop artifact with the addition of configurable offset.
  * Also it does not mock but uses Parcel to create a DragEvent.
  */
-object DragAndDropTestUtils {
+internal object DragAndDropTestUtils {
     private const val SAMPLE_TEXT = "Drag Text"
     private val SAMPLE_URI = Uri.parse("http://www.google.com")
 
@@ -42,7 +42,7 @@ object DragAndDropTestUtils {
      * @param text The text of the event
      * @param position The position of the drag event
      * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
-     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   used on API 37+. This is only relevant for multi-display environments. For technical
      *   correctness, you should obtain the correct display id, for example from the closest View's
      *   display (see [android.view.View.getDisplay]).
      */
@@ -67,7 +67,7 @@ object DragAndDropTestUtils {
      * @param item The [Uri] of the item
      * @param position The position of the drag event
      * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
-     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   used on API 37+. This is only relevant for multi-display environments. For technical
      *   correctness, you should obtain the correct display id, for example from the closest View's
      *   display (see [android.view.View.getDisplay]).
      */
@@ -99,7 +99,7 @@ object DragAndDropTestUtils {
      *   can create DragEvents that do not carry a ClipData.
      * @param position The position of the drag event
      * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
-     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   used on API 37+. This is only relevant for multi-display environments. For technical
      *   correctness, you should obtain the correct display id, for example from the closest View's
      *   display (see [android.view.View.getDisplay]).
      */
@@ -108,9 +108,7 @@ object DragAndDropTestUtils {
         clipData: ClipData?,
         position: Offset = Offset.Zero,
         displayId: Int = Display.DEFAULT_DISPLAY,
-    ): DragEvent {
-        val parcel = Parcel.obtain()
-
+    ): DragEvent = withParcel { parcel ->
         // mAction
         parcel.writeInt(action)
         // mX
@@ -123,10 +121,8 @@ object DragAndDropTestUtils {
             parcel.writeFloat(0f)
             parcel.writeFloat(0f)
         }
-        // Currently this field is only present in Cuttlefish builds which are on API 36.
-        // However postsubmit API36 builds do not have this field.
         // mDisplayId
-        if (Build.VERSION.SDK_INT >= 36 && Build.MODEL.contains("Cuttlefish")) {
+        if (Build.VERSION.SDK_INT >= 37) {
             parcel.writeInt(displayId)
         }
         // mFlags
@@ -134,7 +130,6 @@ object DragAndDropTestUtils {
             parcel.writeInt(0)
         }
         // mInputSource and mMetaState
-        // These fields were added in API 37.
         if (Build.VERSION.SDK_INT >= 37) {
             parcel.writeInt(0) // Input source
             parcel.writeInt(0) // Meta state
@@ -159,5 +154,16 @@ object DragAndDropTestUtils {
 
         parcel.setDataPosition(0)
         return DragEvent.CREATOR.createFromParcel(parcel)
+    }
+
+    private inline fun <reified T> withParcel(block: (Parcel) -> T): T {
+        val parcel = Parcel.obtain()
+        val result: T
+        try {
+            result = block(parcel)
+        } finally {
+            parcel.recycle()
+        }
+        return result
     }
 }
