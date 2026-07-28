@@ -507,7 +507,6 @@ class LazyLayoutTest {
     }
 
     @Test
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     fun changingKeyForPrefetchingItemInTheMiddleOfRequest() {
         var composed = false
         var measured = false
@@ -542,7 +541,7 @@ class LazyLayoutTest {
         }
 
         rule.runOnIdle {
-            prefetchState.prefetchHandleProvider.shouldPauseBetweenPrecompositionAndPremeasure =
+            prefetchState.prefetchHandleProvider?.shouldPauseBetweenPrecompositionAndPremeasure =
                 true
 
             prefetchState.schedulePrecompositionAndPremeasure(0, Constraints.fixed(50, 50))

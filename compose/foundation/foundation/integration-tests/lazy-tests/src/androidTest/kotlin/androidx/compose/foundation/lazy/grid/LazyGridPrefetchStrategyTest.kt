@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "INVISIBLE_MEMBER",
-    "INVISIBLE_REFERENCE",
-    "DEPRECATION",
-) // b/407927787 // b/420551535
+@file:Suppress("DEPRECATION") // b/420551535
 
 package androidx.compose.foundation.lazy.grid
 
@@ -228,7 +224,7 @@ class LazyGridPrefetchStrategyTest(val config: Config) :
         firstItem: Int = 0,
         itemOffset: Int = 0,
         numItems: MutableState<Int> = mutableStateOf(100),
-        prefetchStrategy: LazyGridPrefetchStrategy = DefaultLazyGridPrefetchStrategy(),
+        prefetchStrategy: LazyGridPrefetchStrategy = LazyGridPrefetchStrategy(),
     ) {
         rule.setContent {
             state =

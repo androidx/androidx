@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "INVISIBLE_MEMBER",
-    "INVISIBLE_REFERENCE",
-    "DEPRECATION",
-) // b/407927787 // b/420551535
+@file:Suppress("DEPRECATION") // b/420551535
 
 package androidx.compose.foundation.lazy.list
 
@@ -26,7 +22,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.lazy.DefaultLazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListPrefetchScope
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
@@ -215,7 +210,7 @@ class LazyListPrefetchStrategyTest(val config: Config) :
         firstItem: Int = 0,
         itemOffset: Int = 0,
         numItems: MutableState<Int> = mutableStateOf(100),
-        prefetchStrategy: LazyListPrefetchStrategy = DefaultLazyListPrefetchStrategy(),
+        prefetchStrategy: LazyListPrefetchStrategy = LazyListPrefetchStrategy(),
     ) {
         rule.setContent {
             state =
