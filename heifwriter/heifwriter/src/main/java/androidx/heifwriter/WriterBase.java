@@ -327,7 +327,7 @@ public class WriterBase implements AutoCloseable {
 
     private void checkStarted(boolean requiredStarted) {
         if (mStarted != requiredStarted) {
-            throw new IllegalStateException("Already started");
+            throw new IllegalStateException(requiredStarted ? "Not started" : "Already started");
         }
     }
 
