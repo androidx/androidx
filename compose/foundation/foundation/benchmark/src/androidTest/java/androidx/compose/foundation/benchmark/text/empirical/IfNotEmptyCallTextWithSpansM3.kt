@@ -19,11 +19,7 @@ package androidx.compose.foundation.benchmark.text.empirical
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.test.filters.LargeTest
 import org.junit.Assume
 import org.junit.runner.RunWith
@@ -43,16 +39,13 @@ import org.junit.runners.Parameterized
  *   frequency of spans that use the full length. This is not verified in the data set that produced
  *   this benchmark.
  */
-class IfNotEmptyCallTextWithSpans(private val text: AnnotatedString) :
-    LayeredComposeTestCase(), ToggleableTestCase {
+class IfNotEmptyCallTextWithSpansM3(private val text: AnnotatedString) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf(AnnotatedString(""))
-
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
         if (toggleText.value.text.isNotEmpty()) {
-            Subject(toggleText.value, style = style)
+            Subject(toggleText.value)
         }
     }
 
@@ -67,11 +60,11 @@ class IfNotEmptyCallTextWithSpans(private val text: AnnotatedString) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class IfNotEmptyCallTextWithSpansParent(private val size: Int, private val spanCount: Int) :
-    EmpiricalBench<IfNotEmptyCallTextWithSpans>() {
+open class IfNotEmptyCallTextWithSpansParentM3(private val size: Int, private val spanCount: Int) :
+    EmpiricalBench<IfNotEmptyCallTextWithSpansM3>() {
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
-        IfNotEmptyCallTextWithSpans(text.annotateWithSpans(spanCount))
+        IfNotEmptyCallTextWithSpansM3(text.annotateWithSpans(spanCount))
     }
 
     companion object {
@@ -83,8 +76,8 @@ open class IfNotEmptyCallTextWithSpansParent(private val size: Int, private val 
 
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
-    IfNotEmptyCallTextWithSpansParent(size, spanCount) {
+class AllAppsIfNotEmptyCallTextWithSpansM3(size: Int, spanCount: Int) :
+    IfNotEmptyCallTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -94,8 +87,8 @@ class AllAppsIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SocialAppIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
-    IfNotEmptyCallTextWithSpansParent(size, spanCount) {
+class SocialAppIfNotEmptyCallTextWithSpansM3(size: Int, spanCount: Int) :
+    IfNotEmptyCallTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -110,8 +103,8 @@ class SocialAppIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
-    IfNotEmptyCallTextWithSpansParent(size, spanCount) {
+class ChatAppIfNotEmptyCallTextWithSpansM3(size: Int, spanCount: Int) :
+    IfNotEmptyCallTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -126,8 +119,8 @@ class ChatAppIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ShoppingAppIfNotEmptyCallTextWithSpans(size: Int, spanCount: Int) :
-    IfNotEmptyCallTextWithSpansParent(size, spanCount) {
+class ShoppingAppIfNotEmptyCallTextWithSpansM3(size: Int, spanCount: Int) :
+    IfNotEmptyCallTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
