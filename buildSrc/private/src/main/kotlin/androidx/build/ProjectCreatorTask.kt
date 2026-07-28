@@ -78,7 +78,9 @@ abstract class ProjectCreatorTask : DefaultTask() {
                 userInput
                     .askUser { interaction: UserQuestions ->
                         interaction.askQuestion(
-                            "Enter group id (must start with 'androidx', e.g. androidx.core)",
+                            "Enter group id (must start with 'androidx', e.g. androidx.core or androidx.compose).\n" +
+                                "If this group already exists, the new project will be created within it, but if it doesn't exist, a new androidx group will be created.\n" +
+                                "Group id: ",
                             "none",
                         )
                     }
@@ -97,7 +99,11 @@ abstract class ProjectCreatorTask : DefaultTask() {
                 userInput
                     .askUser { interaction: UserQuestions ->
                         interaction.askQuestion(
-                            """Enter artifact id (e.g. ${if (projectType != ProjectType.TEST_APP) "core-telecom" else "testapp"})""",
+                            """Enter artifact id (e.g. ${if (projectType != ProjectType.TEST_APP) "core-telecom" else "testapp"})
+                                This should be a new artifact/library that doesn't already exist in the group you specified above.
+                                Artifact id:
+                            """
+                                .trimMargin(),
                             if (projectType != ProjectType.TEST_APP) "none" else "testapp",
                         )
                     }
@@ -108,7 +114,10 @@ abstract class ProjectCreatorTask : DefaultTask() {
             if (projectType != ProjectType.TEST_APP) {
                 userInput
                     .askUser { interaction: UserQuestions ->
-                        interaction.askQuestion("Enter project description", "none")
+                        interaction.askQuestion(
+                            "Enter project description (to be added in build.gradle):",
+                            "none",
+                        )
                     }
                     .get()
             } else {
