@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @exportToFramework:skipFile()
 package androidx.appsearch.testutil;
 
 import android.annotation.SuppressLint;
