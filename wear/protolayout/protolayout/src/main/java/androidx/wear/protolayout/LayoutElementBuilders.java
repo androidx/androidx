@@ -5687,6 +5687,7 @@ public final class LayoutElementBuilders {
         }
 
         /** Builder for {@link ArcDirectionProp} */
+        @SuppressWarnings("EmptyBuilder")
         public static final class Builder {
             private final LayoutElementProto.ArcDirectionProp.Builder mImpl =
                     LayoutElementProto.ArcDirectionProp.newBuilder();

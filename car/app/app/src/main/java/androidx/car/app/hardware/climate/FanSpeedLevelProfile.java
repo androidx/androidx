@@ -55,6 +55,7 @@ public final class FanSpeedLevelProfile {
     }
 
     /** A builder for FanSpeedLevelProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToFanSpeedLevelRanges;
 

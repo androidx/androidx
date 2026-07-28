@@ -70,7 +70,7 @@ internal constructor(
      * ImageVector before it is composed through The generated ImageVector is recommended to be
      * memoized across composition calls to avoid doing redundant work
      */
-    @Suppress("MissingGetterMatchingBuilder")
+    @Suppress("MissingGetterMatchingBuilder", "EmptyBuilder")
     public class Builder(
 
         /**

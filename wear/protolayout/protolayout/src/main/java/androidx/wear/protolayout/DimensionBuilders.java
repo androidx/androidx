@@ -1448,7 +1448,7 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link BoundingBoxRatio}. */
-        @SuppressWarnings("HiddenSuperclass")
+        @SuppressWarnings({"HiddenSuperclass", "EmptyBuilder"})
         public static final class Builder
                 implements PivotDimension.Builder, OffsetDimension.Builder {
             private final DimensionProto.BoundingBoxRatio.Builder mImpl =

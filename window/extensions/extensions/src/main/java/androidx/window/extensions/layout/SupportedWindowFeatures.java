@@ -48,6 +48,7 @@ public final class SupportedWindowFeatures {
     /**
      * A class to create a {@link SupportedWindowFeatures} instance.
      */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
 
         private final List<DisplayFoldFeature> mDisplayFoldFeatures;

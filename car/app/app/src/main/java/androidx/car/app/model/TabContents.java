@@ -95,6 +95,7 @@ public class TabContents implements Content {
     }
 
     /** A builder of {@link TabContents}. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         @NonNull Template mTemplate;
 

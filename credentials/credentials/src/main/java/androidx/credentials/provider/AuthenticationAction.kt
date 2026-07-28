@@ -73,6 +73,7 @@ class AuthenticationAction(val title: CharSequence, val pendingIntent: PendingIn
      *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
      *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      */
+    @SuppressLint("EmptyBuilder")
     class Builder
     constructor(private val title: CharSequence, private val pendingIntent: PendingIntent) {
         /** Builds an instance of [AuthenticationAction] */

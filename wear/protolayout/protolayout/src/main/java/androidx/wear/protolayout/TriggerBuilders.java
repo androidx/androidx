@@ -134,7 +134,7 @@ public final class TriggerBuilders {
         }
 
         /** Builder for {@link OnVisibleTrigger}. */
-        @SuppressWarnings("HiddenSuperclass")
+        @SuppressWarnings({"HiddenSuperclass", "EmptyBuilder"})
         public static final class Builder implements Trigger.Builder {
             private final TriggerProto.OnVisibleTrigger.Builder mImpl =
                     TriggerProto.OnVisibleTrigger.newBuilder();
@@ -218,7 +218,7 @@ public final class TriggerBuilders {
         }
 
         /** Builder for {@link OnVisibleOnceTrigger}. */
-        @SuppressWarnings("HiddenSuperclass")
+        @SuppressWarnings({"HiddenSuperclass", "EmptyBuilder"})
         public static final class Builder implements Trigger.Builder {
             private final TriggerProto.OnVisibleOnceTrigger.Builder mImpl =
                     TriggerProto.OnVisibleOnceTrigger.newBuilder();
