@@ -74,7 +74,7 @@ private constructor(
      * @param key The custom metadata key to query.
      * @return The configured mock value, or `null` if no value was configured for the key.
      */
-    override fun <T> get(key: Metadata.Key<T>): T? = requestMetadata.getUnchecked(key)
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = requestMetadata.getUnchecked(key)
 
     /**
      * Retrieves the mock value configured for the specified [CaptureRequest.Key].
@@ -82,7 +82,7 @@ private constructor(
      * @param key The native capture request key to query.
      * @return The configured mock value, or `null` if no value was configured for the key.
      */
-    override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters.getUnchecked(key)
+    override fun <T : Any> get(key: CaptureRequest.Key<T>): T? = requestParameters.getUnchecked(key)
 
     /**
      * Unwraps this object to the specified type.

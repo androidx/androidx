@@ -46,8 +46,7 @@ public constructor(
      * @param key The native capture request key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CaptureRequest.Key<T>): T? {
+    override fun <T : Any> get(key: CaptureRequest.Key<T>): T? {
         return captureRequest[key]
     }
 
@@ -73,7 +72,7 @@ public constructor(
      * @param key The custom metadata key to query.
      * @return The value associated with the key, or `null` if not found.
      */
-    override fun <T> get(key: Metadata.Key<T>): T? = metadata.getUnchecked(key)
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = metadata.getUnchecked(key)
 
     /** Set of all custom [Metadata.Key]s available in this request. */
     override val metadataKeys: Set<Metadata.Key<*>>
