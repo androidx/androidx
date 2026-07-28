@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.text.DefaultMinLines
@@ -99,10 +98,7 @@ internal class TextStringSimpleNode(
     private var _layoutCache: ParagraphLayoutCache? = null
     private val layoutCache: ParagraphLayoutCache
         get() {
-            val style =
-                if (ComposeFoundationFlags.isInheritedTextStyleEnabled)
-                    resolvedInheritedStyle ?: style
-                else style
+            val style = style
             if (_layoutCache == null) {
                 _layoutCache =
                     ParagraphLayoutCache(
@@ -118,8 +114,6 @@ internal class TextStringSimpleNode(
             return _layoutCache!!
         }
 
-    private var resolvedInheritedStyle: TextStyle? = null
-
     /**
      * Get the layout cache for the current state of the node during layout.
      *
@@ -130,31 +124,9 @@ internal class TextStringSimpleNode(
      *   the density value of the returned cache.
      */
     private fun IntrinsicMeasureScope.getLayoutCacheForMeasure(): ParagraphLayoutCache {
-        if (ComposeFoundationFlags.isInheritedTextStyleEnabled) {
-            if (resolveInheritedStyle(StylePhase.Layout)) {
-                val style = resolvedInheritedStyle ?: style
-                layoutCache.update(
-                    text = text,
-                    style = style,
-                    fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow,
-                    softWrap = softWrap,
-                    maxLines = maxLines,
-                    minLines = minLines,
-                )
-            }
-        }
         val activeCache = getLayoutCache()
         activeCache.density = this@getLayoutCacheForMeasure
         return activeCache
-    }
-
-    private fun resolveInheritedStyle(phase: StylePhase): Boolean {
-        val previousStyle = resolvedInheritedStyle
-        val newInheritedStyle = inheritedTextStyle(phase, style)
-        resolvedInheritedStyle = newInheritedStyle
-        if (previousStyle == null) return false
-        return previousStyle != newInheritedStyle
     }
 
     /**
@@ -237,10 +209,6 @@ internal class TextStringSimpleNode(
 
     /** request invalidate based on the results of [updateText] and [updateLayoutRelatedArgs] */
     fun doInvalidations(drawChanged: Boolean, textChanged: Boolean, layoutChanged: Boolean) {
-        if (drawChanged || textChanged || layoutChanged) {
-            resolvedInheritedStyle = null
-        }
-
         // bring caches up to date even if the node is detached in case it is used again later
         if (textChanged || layoutChanged) {
             layoutCache.update(
@@ -506,11 +474,7 @@ internal class TextStringSimpleNode(
                 }
             }
             try {
-                val style =
-                    if (ComposeFoundationFlags.isInheritedTextStyleEnabled) {
-                        resolveInheritedStyle(StylePhase.Draw)
-                        resolvedInheritedStyle ?: style
-                    } else style
+                val style = style
                 val textDecoration = style.textDecoration ?: TextDecoration.None
                 val shadow = style.shadow ?: Shadow.None
                 val drawStyle = style.drawStyle ?: Fill
