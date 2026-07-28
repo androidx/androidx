@@ -74,13 +74,7 @@ public object FontVariation {
          *
          * If there are duplicate axes, settings in [other] will override settings in this instance.
          *
-         * Example:
-         * ```
-         * val base = FontVariation.Settings(FontVariation.weight(400), FontVariation.width(100f))
-         * val overrides = FontVariation.Settings(FontVariation.weight(700))
-         * val merged = base.merge(overrides) // weight(700), width(100f)
-         * ```
-         *
+         * @sample androidx.compose.ui.text.samples.FontVariationSettingsMergeSettingsSample
          * @param other The settings to merge into this instance. If `null`, this instance is
          *   returned.
          */
@@ -96,16 +90,7 @@ public object FontVariation {
          * If there are duplicate axes, settings in [overrides] will override settings in this
          * instance. Note that [overrides] itself must not contain duplicate axes.
          *
-         * Example:
-         * ```
-         * val base = FontVariation.Settings(FontVariation.weight(400), FontVariation.width(100f))
-         * val merged = base.merge(FontVariation.weight(700), FontVariation.italic(1.0f))
-         * // weight(700), width(100f), italic(1.0f)
-         *
-         * // This throws IllegalArgumentException:
-         * // base.merge(FontVariation.weight(300), FontVariation.weight(500))
-         * ```
-         *
+         * @sample androidx.compose.ui.text.samples.FontVariationSettingsMergeVarargSample
          * @param overrides The individual settings to merge into this instance.
          * @throws IllegalArgumentException if [overrides] contains duplicate axes.
          */
