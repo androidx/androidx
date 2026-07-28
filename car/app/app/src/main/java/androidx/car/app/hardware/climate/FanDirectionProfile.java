@@ -51,6 +51,7 @@ public final class FanDirectionProfile {
     }
 
     /** A builder for FanDirectionProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         Map<Set<CarZone>, Set<Integer>> mCarZoneSetsToFanDirectionValues;
 

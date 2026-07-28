@@ -45,6 +45,7 @@ public final class HvacMaxAcModeProfile {
     }
 
     /** A builder for HvacMaxAcModeProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         final List<Set<CarZone>> mSupportedCarZoneSets;
 

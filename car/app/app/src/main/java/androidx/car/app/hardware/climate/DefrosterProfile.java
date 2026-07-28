@@ -45,6 +45,7 @@ public final class DefrosterProfile {
     }
 
     /** A builder for DefrosterProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         final List<Set<CarZone>> mSupportedCarZoneSets;
 

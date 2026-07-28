@@ -55,6 +55,7 @@ public final class OpenMicrophoneRequest {
     /**
      * A builder for {@link OpenMicrophoneRequest}.
      */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         final @NonNull CarAudioCallbackDelegate mCarAudioCallbackDelegate;
 
