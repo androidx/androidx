@@ -807,13 +807,12 @@ public interface ChipColors {
 /** Represents the border stroke used in a [Chip] in different states. */
 @Stable
 public interface ChipBorder {
-    @Composable
     /**
      * Represents the border stroke for this chip, depending on [enabled] or null if no border
      *
      * @param enabled Whether the chip is enabled
      */
-    public fun borderStroke(enabled: Boolean): State<BorderStroke?>
+    @Composable public fun borderStroke(enabled: Boolean): State<BorderStroke?>
 }
 
 /** Contains the default values used by [Chip] */
