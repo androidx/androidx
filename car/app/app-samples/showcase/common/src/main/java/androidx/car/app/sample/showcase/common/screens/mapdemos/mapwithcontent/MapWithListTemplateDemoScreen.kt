@@ -219,7 +219,14 @@ class MapWithListTemplateDemoScreen(carContext: CarContext) : Screen(carContext)
             makeToast("$clickedRow: $index").show()
         },
     ): Row {
-        return createRow(title, firstLine, secondLine, actions, isBrowsable, clickListener)
+        return createRow(
+            title = title,
+            firstLine = firstLine,
+            secondLineCarText = secondLine,
+            actions = actions,
+            isBrowsable = isBrowsable,
+            clickListener = clickListener,
+        )
     }
 
     /** Constructs an [Action] injected with screen-specific defaults. */
