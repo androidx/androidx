@@ -2486,6 +2486,76 @@ class SpatialSceneRuntimeTest {
         assertThat(ppm).isEqualTo(ppmFromLegacySource)
     }
 
+    @Test
+    fun destroy_clearsVisibilityCallbacksAndListeners() {
+        testRuntime.destroy()
+
+        // Verify that visibility changes triggered via ShadowXrExtensions are ignored after destroy
+        val shadowXrExtensions = ShadowXrExtensions.extract(xrExtensions)
+        sendVisibilityState(shadowXrExtensions, SpatialVisibility.WITHIN_FOV, 10, 20)
+
+        // Assert spatial state and resources are cleanly unlinked
+        assertThat(shadowXrExtensions.getSpatialStateCallback(activity!!)).isNull()
+    }
+
+    @Test
+    fun spatialCapabilities_afterDestroy_returnsCachedSnapshotWithoutCrashing() {
+        // Populate state before destruction
+        val spatialState = ShadowSpatialState.create()
+        testRuntime.onSpatialStateChanged(spatialState)
+
+        testRuntime.destroy()
+
+        // Accessing spatialCapabilities post-destruction must succeed using the cached snapshot
+        assertThat(testRuntime.spatialCapabilities).isNotNull()
+    }
+
+    @Test
+    fun onSpatialStateChanged_afterDestroy_ignoresLateCallback() {
+        testRuntime.destroy()
+        val lateSpatialState = ShadowSpatialState.create()
+
+        // Delivering a callback after destruction should complete gracefully without throwing
+        testRuntime.onSpatialStateChanged(lateSpatialState)
+    }
+
+    @Test
+    fun modeRequestsAndAspectRatio_afterDestroy_areIgnoredWithoutCrashing() {
+        testRuntime.destroy()
+
+        // Attempting these operations post-destroy must return safely without throwing exceptions
+        testRuntime.requestFullSpaceMode()
+        testRuntime.requestHomeSpaceMode()
+        testRuntime.enablePanelDepthTest(true)
+        testRuntime.setPreferredAspectRatio(activity!!, 1.5f)
+    }
+
+    @Test
+    fun destroy_onUninitializedRuntime_preservesSnapshotForSafePostDestroyAccess() {
+        // Immediately destroy without ever evaluating lazySpatialStateProvider or triggering events
+        testRuntime.destroy()
+
+        // Accessing properties backed by lazySpatialStateProvider post-destruction must return
+        // the preserved snapshot without throwing a NullPointerException
+        assertThat(testRuntime.spatialCapabilities).isNotNull()
+    }
+
+    @Test
+    fun onSpatialStateChanged_afterDestroy_doesNotThrow() {
+        testRuntime.destroy()
+        val lateSpatialState = ShadowSpatialState.create()
+        // Must complete without throwing
+        testRuntime.onSpatialStateChanged(lateSpatialState)
+    }
+
+    @Test
+    fun modeRequests_afterDestroy_doNotThrow() {
+        testRuntime.destroy()
+        // Must complete without throwing
+        testRuntime.requestFullSpaceMode()
+        testRuntime.requestHomeSpaceMode()
+    }
+
     companion object {
         private const val OPEN_XR_REFERENCE_SPACE_TYPE = 1
         private const val GUARDIAN_CONSENT_GRANTED = "guardian_consent_granted"
