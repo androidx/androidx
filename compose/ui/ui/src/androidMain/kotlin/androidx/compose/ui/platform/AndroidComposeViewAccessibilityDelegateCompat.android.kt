@@ -36,6 +36,8 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
 import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
+import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_RENDERING_INFO_KEY
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
@@ -968,6 +970,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     semanticsNode.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)
             ) {
                 extraDataKeys.add(EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY)
+            }
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN &&
+                    Api37Impl.hasExtraDataRenderingInfo(info, semanticsNode)
+            ) {
+                extraDataKeys.add(EXTRA_DATA_RENDERING_INFO_KEY)
             }
             if (semanticsNode.unmergedConfig.contains(SemanticsProperties.TestTag)) {
                 extraDataKeys.add(ExtraDataTestTagKey)
@@ -2012,6 +2020,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     .toRegion(shapeBounds.left, shapeBounds.top)
                     ?.let { region -> info.extras.putParcelable(ExtraDataShapeRegionKey, region) }
             }
+        } else if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN &&
+                extraDataKey == EXTRA_DATA_RENDERING_INFO_KEY
+        ) {
+            Api37Impl.setExtraRenderingInfo(node, info.unwrap())
         } else {
             node.unmergedConfig.accessibilityExtraKeys?.forEach { key ->
                 val extraKey = key.accessibilityExtraKey
@@ -3448,6 +3461,40 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
     private object Api37Impl {
+
+        /**
+         * Returns true if [setExtraRenderingInfo] would add ExtraRenderingInfo, false if there are
+         * no rendering properties to be populated.
+         */
+        @JvmStatic
+        fun hasExtraDataRenderingInfo(
+            info: AccessibilityNodeInfoCompat,
+            semanticsNode: SemanticsNode,
+        ): Boolean {
+            return !info.text.isNullOrEmpty() ||
+                semanticsNode.unmergedConfig.contains(SemanticsProperties.EditableText) ||
+                semanticsNode.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)
+        }
+
+        @JvmStatic
+        fun setExtraRenderingInfo(node: SemanticsNode, info: AccessibilityNodeInfo) {
+            val view = node.layoutNode.owner as? AndroidComposeView ?: return
+
+            val builder = AccessibilityNodeInfo.ExtraRenderingInfo.Builder()
+
+            val textColor = node.getPrimaryTextColor()
+            if (textColor != null) {
+                builder.setTextColor(textColor)
+            }
+
+            val linkColor = node.getLinkTextColor()
+            if (linkColor != null) {
+                builder.setLinkTextColor(linkColor)
+            }
+
+            info.extraRenderingInfo = builder.build()
+        }
+
         @JvmStatic
         fun setInputTextSuggestionTextChangeTypes(node: SemanticsNode, event: AccessibilityEvent) {
             val inputTextSuggestionState =

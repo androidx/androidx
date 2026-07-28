@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.view.View
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
+import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.semantics.AdjustedSemanticsNode
 import androidx.compose.ui.semantics.Role
@@ -27,9 +29,12 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapNotNull
 
 /**
  * A snapshot of the semantics node. The children here is fixed and are taken from the time this
@@ -61,7 +66,7 @@ internal fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLay
             ?.action
             ?.invoke(textLayoutResults) ?: return null
     return if (getLayoutResult) {
-        textLayoutResults[0]
+        textLayoutResults.firstOrNull()
     } else {
         null
     }
@@ -76,7 +81,7 @@ internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Flo
             ?.action
             ?.invoke(viewPortCalculationsResult) ?: return null
     return if (actionResult) {
-        viewPortCalculationsResult[0]
+        viewPortCalculationsResult.firstOrNull()
     } else {
         null
     }
@@ -122,3 +127,30 @@ internal fun Role.toLegacyClassName(): String? =
 /** This function retrieves the View corresponding to a semanticsId, if it exists. */
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
+
+internal fun SemanticsNode.getPrimaryTextColor(): Int? {
+    val textLayoutResult = getTextLayoutResult(unmergedConfig)
+    if (textLayoutResult != null) {
+        // You might see the [SpanStyle.alpha] property and think we need to multiply it by the
+        // color's alpha. But we don't: the code informally guarantees that if a color is specified,
+        // the alpha property just reflects the color's. They are not multiplied.
+
+        // Use paragraph style color only, since Spans' individual color styles are already
+        // conveyed separately to the accessibility framework via the Spannable text.
+        val styleColor = textLayoutResult.layoutInput.style.color
+        if (styleColor.isSpecified) {
+            return styleColor.toArgb()
+        }
+    }
+    return null
+}
+
+internal fun SemanticsNode.getLinkTextColor(): Int? {
+    val text = unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull() ?: return null
+
+    return text
+        .getLinkAnnotations(0, text.length)
+        .fastMapNotNull { it.item.styles?.style?.color }
+        .fastFirstOrNull { it.isSpecified }
+        ?.toArgb()
+}
