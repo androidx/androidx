@@ -142,7 +142,6 @@ import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -216,7 +215,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     public static <T extends VideoOutput> @NonNull VideoCapture<T> withOutput(
             @NonNull T videoOutput) {
-        return new VideoCapture.Builder<>(Preconditions.checkNotNull(videoOutput)).build();
+        return new VideoCapture.Builder<>(requireNonNull(videoOutput)).build();
     }
 
     /**
@@ -341,10 +340,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // When attached to VirtualCamera (e.g. under StreamSharing), avoid tearing down
             // VideoCapture's internal surface pipeline and rely on StreamSharing pipeline reset.
             if (camera.getHasTransform()) {
-                resetPipeline();
-            } else {
-                notifyReset();
+                updateConfigAndOutput(requireNonNull(getAttachedStreamSpec()));
             }
+            notifyReset();
         }
     }
 
@@ -452,7 +450,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return mirrorMode;
     }
 
-    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected @NonNull StreamSpec onSuggestedStreamSpecUpdated(
@@ -461,16 +458,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
                 + ", secondaryStreamSpec " + secondaryStreamSpec);
 
-        StreamSpec oldStreamSpec = getAttachedStreamSpec();
         mResolvedMediaInfo = resolveMediaInfo(primaryStreamSpec);
-        if (isInSession() && shouldResetPipeline(oldStreamSpec, primaryStreamSpec)) {
-            resetPipeline(primaryStreamSpec);
+
+        StreamSpec oldStreamSpec = getAttachedStreamSpec();
+        if (isInSession() && shouldUpdateConfigAndOutput(oldStreamSpec, primaryStreamSpec)) {
+            updateConfigAndOutput(primaryStreamSpec);
         }
 
         return primaryStreamSpec;
     }
 
-    private static boolean shouldResetPipeline(@Nullable StreamSpec oldStreamSpec,
+    private static boolean shouldUpdateConfigAndOutput(@Nullable StreamSpec oldStreamSpec,
             @NonNull StreamSpec newStreamSpec) {
         if (oldStreamSpec == null) {
             return false;
@@ -524,7 +522,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @MainThread
@@ -538,11 +535,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         if (getAttachedStreamSpec() == null || mSurfaceRequest != null) {
             return;
         }
-        setSourceState(VideoOutput.SourceState.CONFIGURING);
-        StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
+        StreamSpec attachedStreamSpec = requireNonNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        setupPipeline(attachedStreamSpec);
+        updateConfigAndOutput(attachedStreamSpec);
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
@@ -680,8 +676,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Rect adjustedCropRect = cropRect;
         if (shouldCompensateTransformation()) {
             adjustedCropRect = TransformUtils.sizeToRect(TransformUtils.getRotatedSize(
-                    Preconditions.checkNotNull(
-                            mStreamInfo.getInProgressTransformationInfo()).getCropRect(),
+                    requireNonNull(mStreamInfo.getInProgressTransformationInfo()).getCropRect(),
                     rotationDegrees));
         }
         return adjustedCropRect;
@@ -758,9 +753,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull VideoCaptureConfig<T> config,
             @NonNull StreamSpec streamSpec) {
         Threads.checkMainThread();
-        CameraInternal camera = Preconditions.checkNotNull(getCamera());
-        Size resolution = streamSpec.getResolution();
+        clearPipeline();
 
+        CameraInternal camera = requireNonNull(getCamera());
+        Size resolution = streamSpec.getResolution();
         // Currently, VideoCapture uses StreamInfo to handle requests for surface, so
         // handleInvalidate() is not used. But if a different approach is asked in the future,
         // handleInvalidate() can be used as an alternative.
@@ -803,6 +799,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 + ", isBufferRotationRequired = " + isBufferRotationRequired
                 + ", mHasCompensatingTransformation = " + mHasCompensatingTransformation
                 + ", camera timebase = " + camera.getCameraInfoInternal().getTimebase()
+                + ", hasGlProcessing = " + hasGlProcessing
                 + ", processing timebase = " + timebase
         );
         // Update the StreamSpec with new frame rate range and resolution.
@@ -867,7 +864,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             mCloseableErrorListener.close();
         }
         mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
-                (sessionConfig, error) -> resetPipeline());
+                (sessionConfig, error) -> {
+                    if (getCamera() == null) {
+                        return;
+                    }
+                    Logger.w(TAG, "SessionConfig onError: error = " + error);
+                    updateConfigAndOutput(requireNonNull(getAttachedStreamSpec()));
+                    notifyReset();
+                });
         sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
@@ -919,31 +923,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     @MainThread
     @SuppressWarnings("unchecked")
-    private void setupPipeline(@NonNull StreamSpec streamSpec) {
+    private void updateConfigAndOutput(@NonNull StreamSpec streamSpec) {
+        setSourceState(VideoOutput.SourceState.CONFIGURING);
         mSessionConfigBuilder = createPipeline(
                 (VideoCaptureConfig<T>) getCurrentConfig(), streamSpec);
+        applyStreamInfoAndUpdateSessionConfig(streamSpec);
+    }
+
+    @MainThread
+    private void applyStreamInfoAndUpdateSessionConfig(@NonNull StreamSpec streamSpec) {
         applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
                 streamSpec);
         updateSessionConfig(List.of(mSessionConfigBuilder.build()));
-    }
-
-    @MainThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void resetPipeline() {
-        resetPipeline(Preconditions.checkNotNull(getAttachedStreamSpec()));
-    }
-
-    @MainThread
-    private void resetPipeline(@NonNull StreamSpec streamSpec) {
-        // Do nothing when the use case has been unbound.
-        if (getCamera() == null) {
-            return;
-        }
-
-        setSourceState(VideoOutput.SourceState.CONFIGURING);
-        clearPipeline();
-        setupPipeline(streamSpec);
-        notifyReset();
     }
 
     /**
@@ -1021,15 +1012,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return getOutput().getEncoderProfilesResolver(cameraInfo, sessionType);
     }
 
-    private final Observer<StreamInfo> mStreamInfoObserver = new Observer<StreamInfo>() {
-        @SuppressWarnings("unchecked")
+    private final Observer<StreamInfo> mStreamInfoObserver = new Observer<>() {
         @Override
         public void onNewData(@Nullable StreamInfo streamInfo) {
             if (streamInfo == null) {
                 throw new IllegalArgumentException("StreamInfo can't be null");
             }
-            if (mSourceState == VideoOutput.SourceState.INACTIVE) {
-                // VideoCapture is unbound.
+            if (!isInSession()) {
                 return;
             }
             Logger.d(TAG, "Stream info update: old: " + mStreamInfo + " new: " + streamInfo);
@@ -1037,34 +1026,26 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             StreamInfo currentStreamInfo = mStreamInfo;
             mStreamInfo = streamInfo;
 
-            // Doing resetPipeline() includes notifyReset/notifyUpdated(). Doing NotifyReset()
-            // includes notifyUpdated(). So we just take actions on higher order item for
-            // optimization.
-            StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
+            StreamSpec attachedStreamSpec = requireNonNull(getAttachedStreamSpec());
             if (isStreamIdChanged(currentStreamInfo.getId(), streamInfo.getId())
                     || shouldResetCompensatingTransformation(currentStreamInfo, streamInfo)) {
-                // Reset pipeline if it's one of the following cases:
+                // Call updateConfigAndOutput if it's one of the following cases:
                 // 1. The stream ids are different, which means there's a new surface ready to be
                 // requested.
                 // 2. The in-progress transformation info becomes null, which means a recording
                 // has been finalized, and there's an existing compensating transformation.
-                resetPipeline();
+                updateConfigAndOutput(attachedStreamSpec);
+                notifyReset();
             } else if ((currentStreamInfo.getId() != STREAM_ID_ERROR
                     && streamInfo.getId() == STREAM_ID_ERROR)
                     || (currentStreamInfo.getId() == STREAM_ID_ERROR
                     && streamInfo.getId() != STREAM_ID_ERROR)) {
-                // If id switch to STREAM_ID_ERROR, it means VideoOutput is failed to setup video
+                // If id switch to STREAM_ID_ERROR, it means VideoOutput is failed to set up video
                 // stream. The surface should be removed from camera. Vice versa.
-                applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
-                        streamInfo,
-                        attachedStreamSpec);
-                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+                applyStreamInfoAndUpdateSessionConfig(attachedStreamSpec);
                 notifyReset();
             } else if (currentStreamInfo.getStreamState() != streamInfo.getStreamState()) {
-                applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
-                        streamInfo,
-                        attachedStreamSpec);
-                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+                applyStreamInfoAndUpdateSessionConfig(attachedStreamSpec);
                 notifyUpdated();
             }
         }
@@ -1446,13 +1427,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     private static @NonNull Timebase resolveTimebase(@NonNull CameraInternal camera,
             @Nullable SurfaceProcessorNode node) {
-        // Choose Timebase based on the whether the buffer is copied.
+        // Choose Timebase based on whether the buffer is copied.
         Timebase timebase;
         if (node != null || !camera.getHasTransform()) {
             timebase = camera.getCameraInfoInternal().getTimebase();
         } else {
             // When camera buffers from a REALTIME device are passed directly to a video encoder
-            // from the camera, automatic compensation is done to account for differing timebases
+            // from the camera, automatic compensation is done to account for differing timebase
             // of the audio and camera subsystems. See the document of
             // CameraMetadata#SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME. So the timebase is always
             // UPTIME when encoder surface is directly sent to camera.
@@ -1549,7 +1530,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     return String.format("%s[0x%x]", SURFACE_UPDATE_KEY, completer.hashCode());
                 });
 
-        Futures.addCallback(surfaceUpdateFuture, new FutureCallback<Void>() {
+        Futures.addCallback(surfaceUpdateFuture, new FutureCallback<>() {
             @Override
             public void onSuccess(@Nullable Void result) {
                 // If there is a new surface update request, we will wait to update the video
@@ -1903,7 +1884,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     /**
      * Finds the Quality with the size closest to the target size based on area.
      *
-     * @param sizeMap The map of Quality to a list of Size`s.
+     * @param sizeMap The map of Quality to a list of Size.
      * @param targetSize The target size to compare against.
      * @return The Quality with the closest size, or `null` if no match is found.
      */
@@ -1947,7 +1928,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         try {
             return future.get();
         } catch (ExecutionException | InterruptedException e) {
-            // Should not happened
+            // Should not happen
             throw new IllegalStateException(e);
         }
     }
@@ -2092,13 +2073,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return new VideoCaptureConfig<>(OptionsBundle.from(mMutableConfig));
         }
 
-        /** Sets the associated {@link VideoOutput}. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public @NonNull Builder<T> setVideoOutput(@NonNull VideoOutput videoOutput) {
-            getMutableConfig().insertOption(OPTION_VIDEO_OUTPUT, videoOutput);
-            return this;
-        }
-
         /** Sets the {@link VideoEncoderInfo.Finder} to find video encoder info. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull Builder<T> setVideoEncoderInfoFinder(
@@ -2140,7 +2114,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * <p>The name should be a value that can uniquely identify an instance of the object being
          * configured.
          *
-         * <p>If not set, the target name will default to an unique name automatically generated
+         * <p>If not set, the target name will default to a unique name automatically generated
          * with the class canonical name and random UUID.
          *
          * @param targetName A unique string identifier for the instance of the class being
@@ -2445,7 +2419,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
          * stabilized</td>  </tr>
          * </table><br>
          *
-         * @param enabled True if enable, otherwise false.
+         * @param enabled True if enabled, otherwise false.
          * @return the current Builder.
          *
          * @see VideoCapabilities#isStabilizationSupported()

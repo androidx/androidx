@@ -92,7 +92,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     // Specs for children UseCase, calculated and set by StreamSharing.
     final @NonNull Map<UseCase, SurfaceEdge> mChildrenEdges = new HashMap<>();
     private final @NonNull Map<UseCase, VirtualCamera> mChildrenVirtualCameras = new HashMap<>();
-    // Whether a children is in the active state. See: UseCase.State.ACTIVE
+    // Whether a child is in the active state. See: UseCase.State.ACTIVE
     final @NonNull Map<UseCase, Boolean> mChildrenActiveState = new HashMap<>();
     // Config factory for getting children's config.
     private final @NonNull UseCaseConfigFactory mUseCaseConfigFactory;
@@ -107,7 +107,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     private final @NonNull Map<UseCase, UseCaseConfig<?>> mChildrenBindConfigsMap;
     private final @NonNull Map<UseCase, UseCaseConfig<?>> mChildrenPipelineConfigsMap =
             new HashMap<>();
-    private boolean mPendingPipelineReset = false;
+    private boolean mPendingUpdateConfigAndOutput = false;
     private final @NonNull ResolutionsMerger mResolutionsMerger;
     private @Nullable ResolutionsMerger mSecondaryResolutionsMerger;
     private final StreamSharing.@NonNull Control mStreamSharingControl;
@@ -309,8 +309,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                 /* skipMirroring */ false);
         OutConfig secondaryOutConfig = calculateOutConfig(
                 preview, mResolutionsMerger,
-                mSecondaryParentCamera, secondaryInputSurfaceEdge, parentTargetRotation,
-                isViewportSet, /* skipMirroring */ false);
+                requireNonNull(mSecondaryParentCamera), secondaryInputSurfaceEdge,
+                parentTargetRotation, isViewportSet, /* skipMirroring */ false);
         return DualOutConfig.of(primaryoutConfig, secondaryOutConfig);
     }
 
@@ -346,7 +346,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             @NonNull UseCase useCase,
             @NonNull ResolutionsMerger resolutionsMerger,
             @NonNull CameraInternal cameraInternal,
-            @Nullable SurfaceEdge cameraInputEdge,
+            @NonNull SurfaceEdge cameraInputEdge,
             @ImageOutputConfig.RotationValue int parentTargetRotation,
             boolean isViewportSet,
             boolean skipMirroring) {
@@ -369,8 +369,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         int childParentDelta = within360(cameraInputEdge.getRotationDegrees()
                 + childRotationDegrees - parentRotationDegrees);
         // if not skipMirroring, we do the mirroring if the parent and the child disagrees.
-        boolean doMirroring = skipMirroring ? false
-                : useCase.isMirroringRequired(cameraInternal) ^ parentIsMirrored;
+        boolean doMirroring = !skipMirroring
+                && (useCase.isMirroringRequired(cameraInternal) ^ parentIsMirrored);
         return OutConfig.of(
                 getChildTargetType(useCase),
                 getChildFormat(useCase),
@@ -426,8 +426,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         }
         mChildrenActiveState.put(useCase, true);
 
-        if (isPipelineResetNeeded(useCase)) {
-            requestPipelineReset();
+        if (shouldUpdateConfigAndOutput(useCase)) {
+            requestUpdateConfigAndOutput();
             return;
         }
 
@@ -457,8 +457,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             return;
         }
 
-        if (isPipelineResetNeeded(useCase)) {
-            requestPipelineReset();
+        if (shouldUpdateConfigAndOutput(useCase)) {
+            requestUpdateConfigAndOutput();
             return;
         }
 
@@ -484,8 +484,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             return;
         }
 
-        if (isPipelineResetNeeded(useCase)) {
-            requestPipelineReset();
+        if (shouldUpdateConfigAndOutput(useCase)) {
+            requestUpdateConfigAndOutput();
             return;
         }
 
@@ -636,7 +636,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     /**
      * Resolves target frame rate from use case configs.
      *
-     * <p>Tries to return a intersected frame rate range in priority. If it can't be found, return
+     * <p>Tries to return an intersected frame rate range in priority. If it can't be found, return
      * the smallest range that includes both frame rate ranges.
      */
     private static @NonNull Range<Integer> resolveTargetFrameRate(
@@ -682,21 +682,21 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     }
 
     @MainThread
-    private void requestPipelineReset() {
+    private void requestUpdateConfigAndOutput() {
         checkMainThread();
-        if (mPendingPipelineReset) {
+        if (mPendingUpdateConfigAndOutput) {
             return;
         }
-        mPendingPipelineReset = true;
+        mPendingUpdateConfigAndOutput = true;
         CameraXExecutors.mainThreadExecutor().execute(() -> {
-            if (mPendingPipelineReset) {
-                mPendingPipelineReset = false;
-                mStreamSharingControl.resetPipeline();
+            if (mPendingUpdateConfigAndOutput) {
+                mPendingUpdateConfigAndOutput = false;
+                mStreamSharingControl.updateConfigAndOutput();
             }
         });
     }
 
-    private boolean isPipelineResetNeeded(@NonNull UseCase useCase) {
+    private boolean shouldUpdateConfigAndOutput(@NonNull UseCase useCase) {
         checkMainThread();
         UseCaseConfig<?> pipelineConfig = mChildrenPipelineConfigsMap.get(useCase);
         if (pipelineConfig == null) {

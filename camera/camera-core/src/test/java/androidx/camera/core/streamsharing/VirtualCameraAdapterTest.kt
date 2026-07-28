@@ -103,7 +103,7 @@ class VirtualCameraAdapterTest {
     private val useCaseConfigFactory = FakeUseCaseConfigFactory()
     private lateinit var adapter: VirtualCameraAdapter
     private var snapshotTriggered = false
-    private var resetPipelineTriggered = false
+    private var updateConfigAndOutputTriggered = false
 
     private enum class Event {
         PRE_CAPTURE,
@@ -131,8 +131,8 @@ class VirtualCameraAdapterTest {
                         return Futures.immediateFuture(null)
                     }
 
-                    override fun resetPipeline() {
-                        resetPipelineTriggered = true
+                    override fun updateConfigAndOutput() {
+                        updateConfigAndOutputTriggered = true
                     }
                 },
             )
@@ -423,45 +423,45 @@ class VirtualCameraAdapterTest {
     }
 
     @Test
-    fun activeChildConfigChanged_triggersResetPipelineOnUpdated() {
+    fun activeChildConfigChanged_triggersUpdateConfigAndOutputOnUpdated() {
         // Arrange.
         adapter.bindChildren()
         adapter.setChildrenEdges(childrenEdges, selectedChildSizes)
 
         // Make child2 active.
         child2.notifyActiveForTesting()
-        assertThat(resetPipelineTriggered).isFalse()
+        assertThat(updateConfigAndOutputTriggered).isFalse()
 
         // Act: Change config of active child2 and notify update.
         child2.mirrorMode = MIRROR_MODE_OFF
         child2.notifyUpdatedForTesting()
 
-        // Assert: It should have triggered a pipeline reset!
+        // Assert: It should have triggered updateConfigAndOutput!
         shadowOf(getMainLooper()).idle()
-        assertThat(resetPipelineTriggered).isTrue()
+        assertThat(updateConfigAndOutputTriggered).isTrue()
     }
 
     @Test
-    fun activeChildConfigChanged_triggersResetPipelineOnReset() {
+    fun activeChildConfigChanged_triggersUpdateConfigAndOutputOnReset() {
         // Arrange.
         adapter.bindChildren()
         adapter.setChildrenEdges(childrenEdges, selectedChildSizes)
 
         // Make child2 active.
         child2.notifyActiveForTesting()
-        assertThat(resetPipelineTriggered).isFalse()
+        assertThat(updateConfigAndOutputTriggered).isFalse()
 
         // Act: Change config of active child2 and notify reset.
         child2.mirrorMode = MIRROR_MODE_OFF
         child2.notifyResetForTesting()
 
-        // Assert: It should have triggered a pipeline reset!
+        // Assert: It should have triggered updateConfigAndOutput!
         shadowOf(getMainLooper()).idle()
-        assertThat(resetPipelineTriggered).isTrue()
+        assertThat(updateConfigAndOutputTriggered).isTrue()
     }
 
     @Test
-    fun inactiveChildConfigChanged_triggersResetPipelineOnActive() {
+    fun inactiveChildConfigChanged_triggersUpdateConfigAndOutputOnActive() {
         // Arrange.
         adapter.bindChildren()
         adapter.setChildrenEdges(childrenEdges, selectedChildSizes)
@@ -469,16 +469,18 @@ class VirtualCameraAdapterTest {
         // Act 1: Change config of inactive child2.
         child2.mirrorMode = MIRROR_MODE_OFF
         child2.notifyUpdatedForTesting()
-        // Since child2 is inactive, this should be a no-op and NOT trigger reset yet.
-        assertThat(resetPipelineTriggered).isFalse()
+        // Since child2 is inactive, this should be a no-op and NOT trigger updateConfigAndOutput
+        // yet.
+        assertThat(updateConfigAndOutputTriggered).isFalse()
 
         // Act 2: Make child2 active.
         child2.notifyActiveForTesting()
 
-        // Assert: It should have triggered a pipeline reset now because the config changed while
+        // Assert: It should have triggered updateConfigAndOutput now because the config changed
+        // while
         // inactive!
         shadowOf(getMainLooper()).idle()
-        assertThat(resetPipelineTriggered).isTrue()
+        assertThat(updateConfigAndOutputTriggered).isTrue()
     }
 
     private fun createSurfaceEdge(
