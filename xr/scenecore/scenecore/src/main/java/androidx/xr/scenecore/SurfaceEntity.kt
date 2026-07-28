@@ -677,9 +677,8 @@ private constructor(
         /**
          * Factory method for SurfaceEntity.
          *
-         * @param sceneRuntime SceneRuntime to use.
+         * @param session Session to use.
          * @param renderingRuntime RenderingRuntime to use.
-         * @param entityRegistry A SceneCore [EntityRegistry]
          * @param stereoMode An [Int] which defines how surface subregions map to eyes
          * @param mediaBlendingMode The [MediaBlendingMode] which describes the blending mode of the
          *   content.

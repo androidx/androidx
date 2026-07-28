@@ -24,11 +24,7 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MovableComponent : Component {
 
-    /**
-     * Sets the scale with distance mode.
-     *
-     * @param scaleWithDistanceMode The scale with distance mode to set
-     */
+    /** Sets the scale with distance mode. */
     @ScaleWithDistanceMode public var scaleWithDistanceMode: Int
 
     /** Sets the size of the interaction highlight extent. */
