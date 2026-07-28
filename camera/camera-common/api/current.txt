@@ -117,8 +117,10 @@ package androidx.camera.common {
 
   public final class CameraCharacteristics {
     method @InaccessibleFromKotlin public static androidx.camera.common.ColorSpaceProfilesWrapper getAvailableColorSpaceProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
+    method @InaccessibleFromKotlin public static androidx.camera.common.DynamicRangeProfilesWrapper getAvailableDynamicRangeProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
     method @InaccessibleFromKotlin public static androidx.camera.common.StreamConfigurationMapWrapper? getStreamConfigurationMap(androidx.camera.common.CameraCharacteristicsMetadata);
     property public static androidx.camera.common.ColorSpaceProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableColorSpaceProfiles;
+    property public static androidx.camera.common.DynamicRangeProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableDynamicRangeProfiles;
     property public androidx.camera.common.StreamConfigurationMapWrapper? androidx.camera.common.CameraCharacteristicsMetadata.streamConfigurationMap;
     field public static final androidx.camera.common.CameraCharacteristics INSTANCE;
   }
@@ -151,8 +153,10 @@ package androidx.camera.common {
 
   public static final class CameraCharacteristicsWrapper.Keys {
     property public androidx.camera.common.Metadata.Key<androidx.camera.common.ColorSpaceProfilesWrapper> AVAILABLE_COLOR_SPACE_PROFILES;
+    property public androidx.camera.common.Metadata.Key<androidx.camera.common.DynamicRangeProfilesWrapper> AVAILABLE_DYNAMIC_RANGE_PROFILES;
     property public androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
     field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.ColorSpaceProfilesWrapper> AVAILABLE_COLOR_SPACE_PROFILES;
+    field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.DynamicRangeProfilesWrapper> AVAILABLE_DYNAMIC_RANGE_PROFILES;
     field public static final androidx.camera.common.CameraCharacteristicsWrapper.Keys INSTANCE;
     field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
   }
@@ -403,6 +407,53 @@ package androidx.camera.common {
     property @kotlin.jvm.JvmSynthetic public androidx.camera.common.DiscreteRotation ROTATION_180;
     property @kotlin.jvm.JvmSynthetic public androidx.camera.common.DiscreteRotation ROTATION_270;
     property @kotlin.jvm.JvmSynthetic public androidx.camera.common.DiscreteRotation ROTATION_90;
+  }
+
+  public interface DynamicRangeProfilesWrapper extends androidx.camera.common.UnsafeWrapper {
+    method public java.util.Set<java.lang.Long> getCompatibleProfiles(long profile);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.Long> getSupportedProfiles();
+    method public boolean hasExtraLatency(long profile);
+    property public abstract java.util.Set<java.lang.Long> supportedProfiles;
+    field public static final androidx.camera.common.DynamicRangeProfilesWrapper.Companion Companion;
+    field public static final long DOLBY_VISION_10B_HDR_OEM = 64L; // 0x40L
+    field public static final long DOLBY_VISION_10B_HDR_OEM_PO = 128L; // 0x80L
+    field public static final long DOLBY_VISION_10B_HDR_REF = 16L; // 0x10L
+    field public static final long DOLBY_VISION_10B_HDR_REF_PO = 32L; // 0x20L
+    field public static final long DOLBY_VISION_8B_HDR_OEM = 1024L; // 0x400L
+    field public static final long DOLBY_VISION_8B_HDR_OEM_PO = 2048L; // 0x800L
+    field public static final long DOLBY_VISION_8B_HDR_REF = 256L; // 0x100L
+    field public static final long DOLBY_VISION_8B_HDR_REF_PO = 512L; // 0x200L
+    field public static final long HDR10 = 4L; // 0x4L
+    field public static final long HDR10_PLUS = 8L; // 0x8L
+    field public static final long HLG10 = 2L; // 0x2L
+    field public static final long STANDARD = 1L; // 0x1L
+  }
+
+  public static final class DynamicRangeProfilesWrapper.Companion {
+    property public static long DOLBY_VISION_10B_HDR_OEM;
+    property public static long DOLBY_VISION_10B_HDR_OEM_PO;
+    property public static long DOLBY_VISION_10B_HDR_REF;
+    property public static long DOLBY_VISION_10B_HDR_REF_PO;
+    property public static long DOLBY_VISION_8B_HDR_OEM;
+    property public static long DOLBY_VISION_8B_HDR_OEM_PO;
+    property public static long DOLBY_VISION_8B_HDR_REF;
+    property public static long DOLBY_VISION_8B_HDR_REF_PO;
+    property public static long HDR10;
+    property public static long HDR10_PLUS;
+    property public static long HLG10;
+    property public static long STANDARD;
+    field public static final long DOLBY_VISION_10B_HDR_OEM = 64L; // 0x40L
+    field public static final long DOLBY_VISION_10B_HDR_OEM_PO = 128L; // 0x80L
+    field public static final long DOLBY_VISION_10B_HDR_REF = 16L; // 0x10L
+    field public static final long DOLBY_VISION_10B_HDR_REF_PO = 32L; // 0x20L
+    field public static final long DOLBY_VISION_8B_HDR_OEM = 1024L; // 0x400L
+    field public static final long DOLBY_VISION_8B_HDR_OEM_PO = 2048L; // 0x800L
+    field public static final long DOLBY_VISION_8B_HDR_REF = 256L; // 0x100L
+    field public static final long DOLBY_VISION_8B_HDR_REF_PO = 512L; // 0x200L
+    field public static final long HDR10 = 4L; // 0x4L
+    field public static final long HDR10_PLUS = 8L; // 0x8L
+    field public static final long HLG10 = 2L; // 0x2L
+    field public static final long STANDARD = 1L; // 0x1L
   }
 
   public interface ImagePlane extends androidx.camera.common.UnsafeWrapper {
