@@ -20,7 +20,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import androidx.pdf.annotation.PdfViewportState
-import androidx.pdf.models.Signature
+import androidx.pdf.signature.model.Signature
 
 /** A custom [View] responsible for drawing a single signature onto a Canvas. */
 internal class SignatureView
