@@ -36,30 +36,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.benchmark.TextBenchmarkTestRule
-import androidx.compose.ui.text.benchmark.cartesian
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 /** The benchmark for [Text] composable with the input being a plain string. */
 @LargeTest
-@RunWith(Parameterized::class)
-class TextAutoSizeBenchmark(private val textLength: Int, private val autoSize: TextAutoSize) {
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "length={0},autoSize={1}")
-        fun initParameters() =
-            cartesian(
-                // Text Length
-                arrayOf(32, 512),
-                // AutoSize
-                arrayOf(TextAutoSize.StepBased()),
-            )
-    }
+@RunWith(AndroidJUnit4::class)
+class TextAutoSizeBenchmark {
+    private val textLength = 32
+    private val autoSize = TextAutoSize.StepBased()
 
     @get:Rule val textBenchmarkRule = TextBenchmarkTestRule()
 
