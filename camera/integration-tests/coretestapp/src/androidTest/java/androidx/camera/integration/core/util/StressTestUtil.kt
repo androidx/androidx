@@ -85,6 +85,9 @@ object StressTestUtil {
 
         val activityScenario: ActivityScenario<CameraXActivity> = ActivityScenario.launch(intent)
 
+        // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+        activityScenario.waitForViewfinderIdle()
+
         activityScenario.onActivity {
             // Checks that the camera id is correct
             if ((it.camera!!.cameraInfo as CameraInfoInternal).cameraId != cameraId) {
@@ -94,10 +97,6 @@ object StressTestUtil {
                 )
             }
         }
-
-        // Ensure ActivityScenario is cleaned up properly
-        // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
-        activityScenario.waitForViewfinderIdle()
 
         return activityScenario
     }
