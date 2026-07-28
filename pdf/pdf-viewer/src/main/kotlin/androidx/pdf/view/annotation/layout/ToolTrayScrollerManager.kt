@@ -40,7 +40,7 @@ internal class ToolTrayScrollerManager(
 ) {
 
     private val context = container.context
-    private val scrollViewId = R.id.scrollable_tool_tray_container
+    private val scrollViewId: Int = R.id.scrollable_tool_tray_container
     private val wrapContentLayoutParams =
         ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,

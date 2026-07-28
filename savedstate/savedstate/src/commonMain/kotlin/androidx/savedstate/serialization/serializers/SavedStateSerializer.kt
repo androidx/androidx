@@ -80,7 +80,8 @@ public object SavedStateSerializer : KSerializer<SavedState> {
     }
 }
 
-private val FALLBACK_SERIALIZER = MapSerializer(String.serializer(), SerializableValue.serializer())
+private val FALLBACK_SERIALIZER: KSerializer<Map<String, SerializableValue>> =
+    MapSerializer(String.serializer(), SerializableValue.serializer())
 
 /**
  * Handles the mapping between loosely typed `Any?` (from Bundles) and strictly typed
