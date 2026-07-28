@@ -18,11 +18,19 @@ package androidx.build.clang
 
 import androidx.build.OperatingSystem
 import androidx.build.getSdkPath
+import androidx.build.getNdkVersion
 import java.io.File
 import org.gradle.api.Project
 
 /** Resolves the NDK directory. */
 internal fun Project.getNdkDirectory(): File? {
+    // Try versioned NDK directory first (playground and sdkmanager install location)
+    val ndkVersion = getNdkVersion()
+    val versionedNdkDir = getSdkPath().resolve("ndk/$ndkVersion")
+    if (versionedNdkDir.exists()) {
+        return versionedNdkDir
+    }
+    // Try bundled directory as fallback, repo checkout with prebuilt.
     val ndkBundleDir = getSdkPath().resolve("ndk-bundle")
     return if (ndkBundleDir.exists()) ndkBundleDir else null
 }

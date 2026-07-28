@@ -48,6 +48,18 @@ abstract class BaseClangTest {
         // ensure that kotlin doesn't try to download prebuilts
         extension.set("kotlin.native.distribution.downloadFromMaven", "false")
         extension.set("supportRootFolder", File(projectSetup.props.rootProjectPath))
+
+        val rootProjectPath = File(projectSetup.props.rootProjectPath)
+        val gradlePropertiesFile = rootProjectPath.resolve("gradle.properties")
+        if (gradlePropertiesFile.exists()) {
+            val properties = java.util.Properties()
+            gradlePropertiesFile.inputStream().use { properties.load(it) }
+            val ndkVersion = properties.getProperty("androidx.ndkVersion")
+            if (ndkVersion != null) {
+                extension.set("androidx.ndkVersion", ndkVersion)
+            }
+        }
+
         project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
         clangExtension = AndroidXClang(project)
         KonanPrebuiltsSetup.configureKonanDirectory(project)

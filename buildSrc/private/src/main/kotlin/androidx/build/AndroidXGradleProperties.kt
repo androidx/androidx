@@ -115,6 +115,9 @@ const val FORCE_BENCHMARK_AOT_COMPILATION = "androidx.benchmark.forceaotcompilat
 
 const val ALLOW_LOCKFILE_MISMATCH = "androidx.allowLockfileMismatch"
 
+/** NDK version to use */
+const val NDK_VERSION = "androidx.ndkVersion"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -145,7 +148,15 @@ val ALL_ANDROIDX_PROPERTIES =
         YARN_OFFLINE_MODE,
         FORCE_BENCHMARK_AOT_COMPILATION,
         ALLOW_LOCKFILE_MISMATCH,
+        NDK_VERSION,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
+
+/** Returns the NDK version to use for Android native compilation. */
+fun Project.getNdkVersion(): String {
+    val ndkVersionString = project.findProperty(NDK_VERSION)?.toString()
+    check(ndkVersionString != null) { "$NDK_VERSION is unset" }
+    return ndkVersionString
+}
 
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for
