@@ -161,6 +161,11 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
+    public int getMaxAccumulatedResultBytes() {
+        return mLimitConfig.getMaxAccumulatedResultBytes();
+    }
+
+    @Override
     public boolean shouldStoreParentInfoAsSyntheticProperty() {
         return mStoreParentInfoAsSyntheticProperty;
     }
