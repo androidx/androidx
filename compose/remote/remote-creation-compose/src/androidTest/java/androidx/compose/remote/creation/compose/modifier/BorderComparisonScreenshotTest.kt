@@ -43,6 +43,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.Alignment
@@ -152,7 +153,7 @@ class BorderComparisonScreenshotTest {
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 ) {
                     RemoteText(
-                        text = "Remote",
+                        text = "Remote".rs,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.rsp,
                         color = Color.Black.rc,
@@ -162,7 +163,7 @@ class BorderComparisonScreenshotTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(80.rdp)
-                                .background(Color.Green)
+                                .background(Color.Green.rc)
                                 .border(15.rdp, Color.Red.rc)
                     )
 
@@ -171,7 +172,7 @@ class BorderComparisonScreenshotTest {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .clip(RemoteRoundedCornerShape(12.rdp))
-                                .background(Color.Green)
+                                .background(Color.Green.rc)
                                 .border(15.rdp, Color.Red.rc, RemoteRoundedCornerShape(12.rdp))
                     )
 
@@ -180,7 +181,7 @@ class BorderComparisonScreenshotTest {
                         modifier =
                             RemoteModifier.size(80.rdp)
                                 .clip(RemoteCircleShape)
-                                .background(Color.Green)
+                                .background(Color.Green.rc)
                                 .border(15.rdp, Color.Red.rc, RemoteCircleShape)
                     )
 
@@ -188,7 +189,7 @@ class BorderComparisonScreenshotTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(80.rdp)
-                                .background(Color.Green)
+                                .background(Color.Green.rc)
                                 .border(50.rdp, Color.Red.rc)
                     )
                 }

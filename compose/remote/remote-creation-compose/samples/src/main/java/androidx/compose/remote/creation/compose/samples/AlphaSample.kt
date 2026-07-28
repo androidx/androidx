@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.alpha
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -33,5 +34,5 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun AlphaSample() {
-    RemoteBox(RemoteModifier.size(100.rdp).alpha(0.5f.rf).background(Color.Red))
+    RemoteBox(RemoteModifier.size(100.rdp).alpha(0.5f.rf).background(Color.Red.rc))
 }

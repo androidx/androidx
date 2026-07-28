@@ -57,10 +57,10 @@ class HeightInModifierScreenshotTest {
                         @RemoteComposable @Composable {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.heightIn(min = 50.rdp).background(Color.Red)
+                                    RemoteModifier.heightIn(min = 50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue)
+                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
                                 )
                             }
                         },
@@ -68,10 +68,10 @@ class HeightInModifierScreenshotTest {
                         @RemoteComposable @Composable {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.heightIn(max = 50.rdp).background(Color.Red)
+                                    RemoteModifier.heightIn(max = 50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue)
+                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
                                 )
                             }
                         },
@@ -80,10 +80,10 @@ class HeightInModifierScreenshotTest {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
-                                        .background(Color.Red)
+                                        .background(Color.Red.rc)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue)
+                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
                                 )
                             }
                         },
@@ -92,10 +92,10 @@ class HeightInModifierScreenshotTest {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
-                                        .background(Color.Red)
+                                        .background(Color.Red.rc)
                             ) {
                                 RemoteBox(
-                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue)
+                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
                                 )
                             }
                         },
@@ -105,13 +105,13 @@ class HeightInModifierScreenshotTest {
                                 modifier =
                                     RemoteModifier.size(80.rdp)
                                         .border(2.rdp, Color.Red.rc)
-                                        .background(Color(0xFFCFD8DC))
+                                        .background(Color(0xFFCFD8DC).rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.heightIn(min = 100.rdp)
                                             .width(50.rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                             .border(2.rdp, Color.Cyan.rc)
                                 )
                             }

@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetProviderInfo
 import androidx.glance.wear.core.WidgetInstanceId
@@ -95,7 +96,7 @@ class GlanceWearWidgetServiceTest {
             params: WearWidgetParams,
         ): WearWidgetDocument {
             instanceId = params.instanceId
-            return WearWidgetDocument(background = WearWidgetBrush) { RemoteText("Testing...") }
+            return WearWidgetDocument(background = WearWidgetBrush) { RemoteText("Testing...".rs) }
         }
     }
 

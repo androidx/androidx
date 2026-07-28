@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
@@ -151,8 +152,10 @@ class PaddingModifierTest {
     @RemoteComposable
     @Composable
     private fun PaddingItem(padding: RemoteModifier) {
-        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red)) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().then(padding).background(Color.Blue))
+        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc)) {
+            RemoteBox(
+                modifier = RemoteModifier.fillMaxSize().then(padding).background(Color.Blue.rc)
+            )
         }
     }
 

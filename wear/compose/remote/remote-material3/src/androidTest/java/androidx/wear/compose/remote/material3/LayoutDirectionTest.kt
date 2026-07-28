@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
@@ -52,7 +53,7 @@ class LayoutDirectionTest {
     fun ltr() {
         remoteComposeTestRule.runScreenshotTest {
             RemoteRow(
-                modifier = RemoteModifier.fillMaxWidth().background(Color.Black),
+                modifier = RemoteModifier.fillMaxWidth().background(Color.Black.rc),
                 horizontalArrangement = RemoteArrangement.Start,
                 verticalAlignment = RemoteAlignment.CenterVertically,
             ) {
@@ -69,7 +70,7 @@ class LayoutDirectionTest {
             creationComposableWrapper = ComposableWrappers.rtl
         ) {
             RemoteRow(
-                modifier = RemoteModifier.fillMaxWidth().background(Color.Black),
+                modifier = RemoteModifier.fillMaxWidth().background(Color.Black.rc),
                 horizontalArrangement = RemoteArrangement.Start,
                 verticalAlignment = RemoteAlignment.CenterVertically,
             ) {
@@ -87,7 +88,7 @@ class LayoutDirectionTest {
             creationComposableWrapper = ComposableWrappers.rtl
         ) {
             RemoteRow(
-                modifier = RemoteModifier.fillMaxWidth().background(Color.Black),
+                modifier = RemoteModifier.fillMaxWidth().background(Color.Black.rc),
                 horizontalArrangement = RemoteArrangement.End,
                 verticalAlignment = RemoteAlignment.CenterVertically,
             ) {

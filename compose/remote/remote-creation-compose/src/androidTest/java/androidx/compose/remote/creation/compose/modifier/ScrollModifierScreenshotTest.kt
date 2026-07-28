@@ -69,7 +69,7 @@ class ScrollModifierScreenshotTest {
                                 .background(color),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
-                        RemoteText("Item #$index", color = Color.White.rc)
+                        RemoteText("Item #$index".rs, color = Color.White.rc)
                     }
                 }
             }
@@ -101,7 +101,7 @@ class ScrollModifierScreenshotTest {
                                 .background(color),
                         contentAlignment = RemoteAlignment.Center,
                     ) {
-                        RemoteText("Item #$index", color = Color.White.rc)
+                        RemoteText("Item #$index".rs, color = Color.White.rc)
                     }
                 }
             }
@@ -136,7 +136,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index", color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = Color.White.rc)
                         }
                     }
                 }
@@ -178,7 +178,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index", color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = Color.White.rc)
                         }
                     }
                 }
@@ -190,7 +190,7 @@ class ScrollModifierScreenshotTest {
                             .clickable(scrollState.scrollTo(200f.rf)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Scroll Button", color = Color.Black.rc)
+                    RemoteText("Scroll Button".rs, color = Color.Black.rc)
                 }
             }
         }
@@ -220,7 +220,7 @@ class ScrollModifierScreenshotTest {
                                     .background(color),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
-                            RemoteText("Item #$index", color = Color.White.rc)
+                            RemoteText("Item #$index".rs, color = Color.White.rc)
                         }
                     }
                 }
@@ -232,7 +232,7 @@ class ScrollModifierScreenshotTest {
                             .clickable(scrollState.scrollBy(200f.rf)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Scroll Button", color = Color.Black.rc)
+                    RemoteText("Scroll Button".rs, color = Color.Black.rc)
                 }
             }
         }

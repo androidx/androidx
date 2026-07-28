@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
@@ -65,7 +66,7 @@ private fun VerticalSnapScrollDemoContent() {
                 modifier = RemoteModifier.fillMaxWidth().height(200.rdp).background(color),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteText("Item #$index", color = Color.White.rc)
+                RemoteText("Item #$index".rs, color = Color.White.rc)
             }
         }
     }

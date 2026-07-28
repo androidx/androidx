@@ -59,7 +59,7 @@ class CaptureRemoteDocumentTest {
         runTest(UnconfinedTestDispatcher()) {
             val document: ByteArray =
                 captureSingleRemoteDocument(context) {
-                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red.rc))
                     }
                     .bytes
 

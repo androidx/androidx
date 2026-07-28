@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.text
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.creation.compose.state.rf
@@ -65,7 +66,7 @@ class BasicA11yTest {
                 modifier = RemoteModifier.fillMaxSize(),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteText("Hello World")
+                RemoteText("Hello World".rs)
             }
         }
 
@@ -80,16 +81,16 @@ class BasicA11yTest {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText("Item 1.1")
+                RemoteText("Item 1.1".rs)
                 RemoteColumn(
                     modifier = RemoteModifier.fillMaxWidth().semantics { text = "Item 1.2".rs },
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     verticalArrangement = RemoteArrangement.Center,
                 ) {
-                    RemoteText("Item 1.2.1", modifier = RemoteModifier.padding(10.rf))
-                    RemoteText("Item 1.2.2", modifier = RemoteModifier.padding(10.rf))
+                    RemoteText("Item 1.2.1".rs, modifier = RemoteModifier.padding(10.rf))
+                    RemoteText("Item 1.2.2".rs, modifier = RemoteModifier.padding(10.rf))
                 }
-                RemoteText("Item 1.3")
+                RemoteText("Item 1.3".rs)
             }
         }
 
@@ -125,7 +126,7 @@ class BasicA11yTest {
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .clickable(valueChange(text, "Updated".rs))
-                        .background(Color.White),
+                        .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(text)
@@ -150,7 +151,7 @@ class BasicA11yTest {
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .clickable(valueChange(remoteInt, remoteInt + 1))
-                        .background(Color.White),
+                        .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText("".rs + remoteInt.toRemoteString(decimalFormat))

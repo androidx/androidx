@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.rotate
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -33,5 +34,5 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RotateSample() {
-    RemoteBox(RemoteModifier.rotate(45f.rf).size(100.rdp, 100.rdp).background(Color.Red))
+    RemoteBox(RemoteModifier.rotate(45f.rf).size(100.rdp, 100.rdp).background(Color.Red.rc))
 }

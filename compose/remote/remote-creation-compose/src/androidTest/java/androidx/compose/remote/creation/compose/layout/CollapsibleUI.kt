@@ -21,8 +21,10 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -72,7 +74,7 @@ class CollapsibleUI(
     @RemoteComposable
     @Composable
     private fun TestSingleContentInContainerWithSizeAndBackground_displaysContentAndBackground() {
-        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red)) {
+        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red.rc)) {
             CustomBox('A')
         }
     }
@@ -80,13 +82,13 @@ class CollapsibleUI(
     @RemoteComposable
     @Composable
     private fun TestEmptyContainerWithSizeAndBackground_displaysNothing() {
-        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red)) {}
+        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red.rc)) {}
     }
 
     @RemoteComposable
     @Composable
     private fun TestContentBiggerThanContainerWithSizeAndBackground_displaysNothing() {
-        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red)) {
+        contentUnderTest(RemoteModifier.size(DefaultContainerSize).background(Color.Red.rc)) {
             CustomBox(
                 'A',
                 modifier = RemoteModifier.size(RemoteDp(DefaultContainerSize.value + 10.rf)),
@@ -105,11 +107,11 @@ class CollapsibleUI(
             modifier
                 .padding(5.rdp)
                 .size(20.rdp)
-                .background(Color.Blue)
+                .background(Color.Blue.rc)
                 .then(priorityModifier ?: RemoteModifier)
 
         RemoteBox(modifier = appliedModifier, contentAlignment = RemoteAlignment.Center) {
-            RemoteText(letter.toString())
+            RemoteText(letter.toString().rs)
         }
     }
 }

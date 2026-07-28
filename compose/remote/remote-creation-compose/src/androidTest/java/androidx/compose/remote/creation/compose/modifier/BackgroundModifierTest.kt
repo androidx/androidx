@@ -149,7 +149,7 @@ class BackgroundModifierTest {
         ) {
             val blue = Color.Blue
             DemoBox("background(0x".rs + Integer.toHexString(blue.toArgb()) + ")") {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue.rc))
             }
         }
     }

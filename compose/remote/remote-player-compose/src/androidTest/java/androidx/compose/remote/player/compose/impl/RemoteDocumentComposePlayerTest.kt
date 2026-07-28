@@ -26,6 +26,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.player.compose.test.utils.RemoteDocScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -62,9 +64,9 @@ class RemoteDocumentComposePlayerTest {
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context) {
                         RemoteBox(
-                            modifier = RemoteModifier.fillMaxSize().background(Color.DarkGray)
+                            modifier = RemoteModifier.fillMaxSize().background(Color.DarkGray.rc)
                         ) {
-                            RemoteText("Hello world!")
+                            RemoteText("Hello world!".rs)
                         }
                     }
                     .bytes
