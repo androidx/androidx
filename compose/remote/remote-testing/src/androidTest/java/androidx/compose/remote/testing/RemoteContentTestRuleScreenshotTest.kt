@@ -55,7 +55,7 @@ class RemoteContentTestRuleScreenshotTest {
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .clickable(valueChange(text, "Updated".rs))
-                        .background(Color.White),
+                        .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(text, color = Color.Black.rc)

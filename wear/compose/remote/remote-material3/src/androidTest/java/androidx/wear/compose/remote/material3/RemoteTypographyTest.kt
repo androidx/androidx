@@ -74,7 +74,7 @@ class RemoteTypographyTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = TestProfiles.androidXWithCoreText,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
                 RemoteMaterialTheme(typography = monoTypography) {
                     RemoteColumn {
                         RemoteText("Mono default".rs)
@@ -118,7 +118,7 @@ class RemoteTypographyTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = TestProfiles.androidXWithCoreText,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
                 RemoteMaterialTheme(typography = robotoFlexTypography) {
                     RemoteColumn {
                         RemoteText(
@@ -147,7 +147,7 @@ class RemoteTypographyTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
             profile = RcPlatformProfiles.WEAR_WIDGETS,
         ) {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
                 RemoteMaterialTheme(typography = myTypography) {
                     // Should use the overridden bodyLarge which is Red and 40sp
                     ProvideRemoteTextStyle(value = RemoteMaterialTheme.typography.bodyLarge) {
@@ -194,7 +194,7 @@ class RemoteTypographyTest {
             profile = RcPlatformProfiles.WEAR_WIDGETS,
         ) {
             RemoteMaterialTheme(typography = myTypography) {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black)) {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc)) {
                     RemoteText(
                         "red bodyLarge 40sp".rs,
                         style = RemoteMaterialTheme.typography.bodyLarge,

@@ -241,7 +241,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -249,9 +249,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(100.rdp)
-                            .background(Color.White)
+                            .background(Color.White.rc)
                             .padding(8.rdp)
-                            .background(Color.LightGray)
+                            .background(Color.LightGray.rc)
                 ) {
                     val blue = Color.Blue
                     val w = remote.component.width
@@ -301,7 +301,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -309,9 +309,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(100.rdp)
-                            .background(Color.White)
+                            .background(Color.White.rc)
                             .padding(8.rdp)
-                            .background(Color.LightGray)
+                            .background(Color.LightGray.rc)
                 )
             }
         }
@@ -334,7 +334,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -382,9 +382,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             RemoteColumn(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(20.rdp)
-                        .background(Color.Cyan),
+                        .background(Color.Cyan.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -392,27 +392,27 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 val white = RemoteColor(Color.White)
 
                 RemoteRow(
-                    modifier = RemoteModifier.background(Color.LightGray),
+                    modifier = RemoteModifier.background(Color.LightGray.rc),
                     verticalAlignment = RemoteAlignment.CenterVertically,
                 ) {
-                    RemoteText(text = "Hello World")
+                    RemoteText(text = "Hello World".rs)
                     RemoteText(
                         text = text,
                         modifier =
-                            RemoteModifier.background(Color.Yellow)
+                            RemoteModifier.background(Color.Yellow.rc)
                                 .padding(4.rdp)
-                                .background(Color.Red)
+                                .background(Color.Red.rc)
                                 .padding(4.rdp),
                         fontSize = 32.rsp,
                         color = white,
                     )
                 }
                 RemoteText(
-                    text = "Hola Mundo",
+                    text = "Hola Mundo".rs,
                     modifier =
-                        RemoteModifier.background(Color.Blue)
+                        RemoteModifier.background(Color.Blue.rc)
                             .padding(4.rdp)
-                            .background(Color.Black)
+                            .background(Color.Black.rc)
                             .padding(4.rdp),
                     fontSize = 18.rsp,
                     color = white,
@@ -478,9 +478,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             RemoteColumn(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(20.rdp)
-                        .background(Color.Cyan),
+                        .background(Color.Cyan.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -489,18 +489,18 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
                 )
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
@@ -508,9 +508,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 )
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
@@ -518,9 +518,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 )
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
@@ -528,9 +528,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 )
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
@@ -538,9 +538,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 )
                 RemoteText(
                     text,
-                    RemoteModifier.background(Color.Yellow)
+                    RemoteModifier.background(Color.Yellow.rc)
                         .padding(4.rdp)
-                        .background(Color.Red)
+                        .background(Color.Red.rc)
                         .padding(4.rdp),
                     white,
                     18.rsp,
@@ -568,7 +568,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -598,7 +598,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -641,7 +641,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -653,10 +653,12 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 ) { state ->
                     when (state) {
                         Checked.Off ->
-                            RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
+                            RemoteBox(
+                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
+                            )
                         Checked.On ->
                             RemoteBox(
-                                modifier = RemoteModifier.size(80.rdp).background(Color.Green)
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Green.rc)
                             )
                     }
                 }
@@ -693,7 +695,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -705,10 +707,12 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 ) { state ->
                     when (state) {
                         Checked.Off ->
-                            RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
+                            RemoteBox(
+                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
+                            )
                         Checked.On ->
                             RemoteBox(
-                                modifier = RemoteModifier.size(80.rdp).background(Color.Green)
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Green.rc)
                             )
                     }
                 }
@@ -746,7 +750,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow),
+                modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc),
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
@@ -762,11 +766,13 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 ) { state ->
                     when (state) {
                         Checked.Off -> {
-                            RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red))
+                            RemoteBox(
+                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
+                            )
                         }
                         Checked.On -> {
                             RemoteBox(
-                                modifier = RemoteModifier.size(80.rdp).background(Color.Green)
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Green.rc)
                             )
                         }
                     }
@@ -799,20 +805,23 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         PADDING = [0.0, 0.0, 11.0, 0.0]
 """
         testLayout(result) {
-            RemoteRow(modifier = RemoteModifier.background(Color.Cyan).height(IntrinsicSize.Min)) {
+            RemoteRow(
+                modifier = RemoteModifier.background(Color.Cyan.rc).height(IntrinsicSize.Min)
+            ) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.background(Color.Red)
+                        RemoteModifier.background(Color.Red.rc)
                             .weight(1f)
                             .height(30.rdp)
                             .padding(start = 4.rdp)
                 )
                 RemoteBox(
-                    modifier = RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.Green)
+                    modifier =
+                        RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.Green.rc)
                 )
                 RemoteBox(
                     modifier =
-                        RemoteModifier.background(Color.Blue)
+                        RemoteModifier.background(Color.Blue.rc)
                             .weight(1f)
                             .height(60.rdp)
                             .padding(end = 4.rdp)
@@ -853,29 +862,30 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         testLayout(result) {
             RemoteColumn {
                 RemoteRow(
-                    modifier = RemoteModifier.background(Color.Cyan).height(IntrinsicSize.Min)
+                    modifier = RemoteModifier.background(Color.Cyan.rc).height(IntrinsicSize.Min)
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.background(Color.Red)
+                            RemoteModifier.background(Color.Red.rc)
                                 .weight(1f)
                                 .height(60.rdp)
                                 .padding(start = 4.rdp)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.Green)
+                            RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.Green.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.background(Color.Blue)
+                            RemoteModifier.background(Color.Blue.rc)
                                 .weight(1f)
                                 .height(30.rdp)
                                 .padding(end = 4.rdp)
                     )
                 }
                 RemoteBox(
-                    modifier = RemoteModifier.fillMaxWidth().height(20.rdp).background(Color.Yellow)
+                    modifier =
+                        RemoteModifier.fillMaxWidth().height(20.rdp).background(Color.Yellow.rc)
                 )
             }
         }
@@ -905,7 +915,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 val green = RemoteColor(Color.Green)
-                RemoteText("Green", color = green, fontSize = 30.rsp)
+                RemoteText("Green".rs, color = green, fontSize = 30.rsp)
             }
         }
     }
@@ -950,7 +960,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                         .background(RemoteBrush.radialGradient(colors = colors)),
                 contentAlignment = RemoteAlignment.Center,
             ) {
-                RemoteRow(modifier = RemoteModifier.background(Color.Blue)) {
+                RemoteRow(modifier = RemoteModifier.background(Color.Blue.rc)) {
                     RemoteIconVector(
                         ImageVector.vectorResource(
                             androidx.compose.remote.creation.compose.R.drawable.android
@@ -1073,7 +1083,7 @@ list:
 """
         testLayoutAndPaint(layoutResult, paintResult) {
             RemoteRow(
-                modifier = RemoteModifier.background(Color.Yellow),
+                modifier = RemoteModifier.background(Color.Yellow.rc),
                 horizontalArrangement = RemoteArrangement.Center,
                 verticalAlignment = RemoteAlignment.CenterVertically,
             ) {
@@ -1092,12 +1102,12 @@ list:
                                 }
                             }
                             .size(64.rdp)
-                            .background(Color.Blue)
+                            .background(Color.Blue.rc)
                             .padding(8.rdp)
-                            .background(Color.Magenta),
+                            .background(Color.Magenta.rc),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("XYZ")
+                    RemoteText("XYZ".rs)
                 }
             }
         }
@@ -1123,7 +1133,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     modifier =
                         RemoteModifier.size(100.rdp)
                             .clip(RemoteRoundedCornerShape(10.rdp))
-                            .background(Color.Red)
+                            .background(Color.Red.rc)
                 )
             }
         }
@@ -1146,7 +1156,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         testLayout(expectedLayout) {
             CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity(1f.rf, 1f.rf)) {
                 RemoteText(
-                    text = "Test",
+                    text = "Test".rs,
                     modifier = RemoteModifier.size(100.rdp).clip(RemoteRoundedCornerShape(10.rdp)),
                 )
             }
@@ -1177,11 +1187,11 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 ) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Red)
+                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Red.rc)
                     )
                     RemoteBox(
                         modifier =
-                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Blue)
+                            RemoteModifier.width(100.rdp).fillMaxHeight().background(Color.Blue.rc)
                     )
                 }
             }
@@ -1195,9 +1205,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         // Overridden text size: 12sp * 1.0 = 12.0 pixels.
         assertDensityOverrideFontSizes(33.0f, 12.0f) {
             RemoteColumn {
-                RemoteText("Default", fontSize = 12.rsp)
+                RemoteText("Default".rs, fontSize = 12.rsp)
                 CompositionLocalProvider(LocalRemoteDensity provides RemoteDensity(1f.rf, 1f.rf)) {
-                    RemoteText("Overridden", fontSize = 12.rsp)
+                    RemoteText("Overridden".rs, fontSize = 12.rsp)
                 }
             }
         }

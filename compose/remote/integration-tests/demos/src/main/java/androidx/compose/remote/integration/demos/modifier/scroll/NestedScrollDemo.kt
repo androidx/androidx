@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
@@ -76,7 +77,7 @@ private fun HorizontalScrollersInVerticalScrollerDemoContent() {
                                     RemoteModifier.size(96.rdp).border(1.rdp, Color.Black.rc),
                                 contentAlignment = RemoteAlignment.Center,
                             ) {
-                                RemoteText("$rowIndex,$colIndex")
+                                RemoteText("$rowIndex,$colIndex".rs)
                             }
                         }
                     }

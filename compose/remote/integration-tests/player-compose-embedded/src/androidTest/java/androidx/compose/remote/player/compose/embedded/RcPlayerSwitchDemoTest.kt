@@ -145,7 +145,7 @@ class RcPlayerSwitchDemoTest {
             modifier =
                 modifier
                     .clip(RemoteRoundedCornerShape(20.rdp))
-                    .background(Color(63, 81, 181, 255))
+                    .background(Color(63, 81, 181, 255).rc)
                     .padding(2.rdp),
             contentAlignment = RemoteAlignment.CenterEnd,
         ) {
@@ -163,7 +163,7 @@ class RcPlayerSwitchDemoTest {
             modifier =
                 modifier
                     .clip(RemoteRoundedCornerShape(20.rdp))
-                    .background(Color(100, 100, 100))
+                    .background(Color(100, 100, 100).rc)
                     .padding(8.rdp)
                     .then(modifier),
             contentAlignment = RemoteAlignment.CenterStart,
@@ -229,10 +229,10 @@ class RcPlayerSwitchDemoTest {
         modifier: Modifier = Modifier,
     ) {
         Row(modifier = modifier, verticalAlignment = RemoteAlignment.CenterVertically) {
-            RemoteText(label)
+            RemoteText(label.rs)
             SwitchWidget(state, description = label)
-            RemoteText("State value is ")
-            RemoteText(state.toRemoteString { it.name.rs })
+            RemoteText("State value is ".rs)
+            RemoteText(state.toRemoteString { it.name.rs }, color = Color.White.rc)
         }
     }
 
@@ -240,8 +240,8 @@ class RcPlayerSwitchDemoTest {
     @RemoteComposable
     fun StateInfo(state: RemoteEnum<SwitchState>, label: String, modifier: Modifier = Modifier) {
         Row(modifier = modifier, verticalAlignment = RemoteAlignment.CenterVertically) {
-            RemoteText(label)
-            RemoteText(state.toRemoteString { it.name.rs })
+            RemoteText(label.rs)
+            RemoteText(state.toRemoteString { it.name.rs }, color = Color.White.rc)
         }
     }
 
@@ -253,14 +253,14 @@ class RcPlayerSwitchDemoTest {
                 modifier
                     .padding(start = 8.rdp, end = 8.rdp)
                     .size(2.rdp, 8.rdp)
-                    .background(Color.LightGray)
+                    .background(Color.LightGray.rc)
         )
     }
 
     @Composable
     @RemoteComposable
     fun SwitchWidgetDemo() {
-        RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray)) {
+        RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray.rc)) {
             val checkedA = rememberMutableRemoteEnum(SwitchState.Off)
             val checkedB = rememberMutableRemoteEnum(SwitchState.Off)
             val checkedC = rememberMutableRemoteEnum(SwitchState.On)

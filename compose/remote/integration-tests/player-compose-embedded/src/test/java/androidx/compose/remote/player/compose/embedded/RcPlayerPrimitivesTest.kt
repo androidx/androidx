@@ -139,7 +139,7 @@ class RcPlayerPrimitivesTest {
                         context = context,
                         content = {
                             androidx.compose.remote.creation.compose.layout.RemoteText(
-                                "Hello Remote"
+                                "Hello Remote".rs
                             )
                         },
                     )
@@ -171,7 +171,7 @@ class RcPlayerPrimitivesTest {
     @Test
     fun testRemoteTextWithLineHeightRenders() {
         rule.setRemoteContent(autoUpdate = false) {
-            RemoteText(text = "Hello Line Height", style = RemoteTextStyle(lineHeight = 24.rsp))
+            RemoteText(text = "Hello Line Height".rs, style = RemoteTextStyle(lineHeight = 24.rsp))
         }
 
         rule.mainClock.advanceTimeBy(100)
@@ -211,7 +211,7 @@ class RcPlayerPrimitivesTest {
                                         drawContent()
                                     }
                             ) {
-                                RemoteText("Target")
+                                RemoteText("Target".rs)
                             }
                         },
                     )
@@ -1305,7 +1305,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Content"
+                                    "Content".rs
                                 )
                             }
                         },
@@ -1347,7 +1347,7 @@ class RcPlayerPrimitivesTest {
                         content = {
                             androidx.compose.remote.creation.compose.layout.FitBox {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Fit Content"
+                                    "Fit Content".rs
                                 )
                             }
                         },
@@ -1391,7 +1391,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Row Content"
+                                    "Row Content".rs
                                 )
                             }
                         },
@@ -1435,7 +1435,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Collapsible Row Content"
+                                    "Collapsible Row Content".rs
                                 )
                             }
                         },
@@ -1480,7 +1480,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Flow Content"
+                                    "Flow Content".rs
                                 )
                             }
                         },
@@ -1524,7 +1524,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Column Content"
+                                    "Column Content".rs
                                 )
                             }
                         },
@@ -1568,7 +1568,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Collapsible Column Content"
+                                    "Collapsible Column Content".rs
                                 )
                             }
                         },
@@ -1764,7 +1764,7 @@ class RcPlayerPrimitivesTest {
                                 currentState = checked
                             ) { state ->
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "State $state"
+                                    "State $state".rs
                                 )
                             }
                         },
@@ -1858,7 +1858,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.width(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Width Content"
+                                    "Width Content".rs
                                 )
                             }
                         },
@@ -1902,7 +1902,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.height(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Height Content"
+                                    "Height Content".rs
                                 )
                             }
                         },
@@ -1946,7 +1946,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.widthIn(min = 10.rdp, max = 100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "WidthIn Content"
+                                    "WidthIn Content".rs
                                 )
                             }
                         },
@@ -1990,7 +1990,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.heightIn(min = 10.rdp, max = 100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "HeightIn Content"
+                                    "HeightIn Content".rs
                                 )
                             }
                         },
@@ -2034,7 +2034,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    text = "Priority Content",
+                                    text = "Priority Content".rs,
                                     modifier = RemoteModifier.priority(1f),
                                 )
                             }
@@ -2078,10 +2078,10 @@ class RcPlayerPrimitivesTest {
                             androidx.compose.remote.creation.compose.layout.RemoteBox(
                                 modifier =
                                     RemoteModifier.size(100.rdp)
-                                        .background(androidx.compose.ui.graphics.Color.Red)
+                                        .background(androidx.compose.ui.graphics.Color.Red.rc)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Background Content"
+                                    "Background Content".rs
                                 )
                             }
                         },
@@ -2133,7 +2133,7 @@ class RcPlayerPrimitivesTest {
                                         )
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Border Content"
+                                    "Border Content".rs
                                 )
                             }
                         },
@@ -2177,7 +2177,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).padding(10.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Padding Content"
+                                    "Padding Content".rs
                                 )
                             }
                         },
@@ -2223,7 +2223,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp).clickable(action = emptyAction)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Click Content"
+                                    "Click Content".rs
                                 )
                             }
                         },
@@ -2274,7 +2274,7 @@ class RcPlayerPrimitivesTest {
                                         .combinedClickable(onDoubleClick = emptyAction)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "MultiClick Content"
+                                    "MultiClick Content".rs
                                 )
                             }
                         },
@@ -2319,7 +2319,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).onTouchDown(emptyAction)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "TouchDown Content"
+                                    "TouchDown Content".rs
                                 )
                             }
                         },
@@ -2372,7 +2372,7 @@ class RcPlayerPrimitivesTest {
                                         .onTouchUp(emptyAction)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "TouchUp Content"
+                                    "TouchUp Content".rs
                                 )
                             }
                         },
@@ -2425,7 +2425,7 @@ class RcPlayerPrimitivesTest {
                                         .onTouchCancel(emptyAction)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "TouchCancel Content"
+                                    "TouchCancel Content".rs
                                 )
                             }
                         },
@@ -2474,7 +2474,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).visibility(visibleState)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Visibility Content"
+                                    "Visibility Content".rs
                                 )
                             }
                         },
@@ -2518,7 +2518,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).offset(10.rdp, 10.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Offset Content"
+                                    "Offset Content".rs
                                 )
                             }
                         },
@@ -2562,7 +2562,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).zIndex(1f.rf)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "ZIndex Content"
+                                    "ZIndex Content".rs
                                 )
                             }
                         },
@@ -2607,7 +2607,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp).graphicsLayer(alpha = 0.5f.rf)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "GraphicsLayer Content"
+                                    "GraphicsLayer Content".rs
                                 )
                             }
                         },
@@ -2652,7 +2652,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).verticalScroll(scrollState)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Scroll Content"
+                                    "Scroll Content".rs
                                 )
                             }
                         },
@@ -2696,7 +2696,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).basicMarquee()
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Marquee Content"
+                                    "Marquee Content".rs
                                 )
                             }
                         },
@@ -2740,7 +2740,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).rippleEffect()
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Ripple Content"
+                                    "Ripple Content".rs
                                 )
                             }
                         },
@@ -2785,7 +2785,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    text = "AlignBy Content",
+                                    text = "AlignBy Content".rs,
                                     modifier = RemoteModifier.alignByBaseline(),
                                 )
                             }
@@ -2831,7 +2831,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp).graphicsLayer(alpha = 0.7f.rf)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "DataFloat Content"
+                                    "DataFloat Content".rs
                                 )
                             }
                         },
@@ -2877,7 +2877,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp).graphicsLayer(alpha = animated)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "AnimatedFloat Content"
+                                    "AnimatedFloat Content".rs
                                 )
                             }
                         },
@@ -2923,7 +2923,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).visibility(invisibleState)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "DataInt Content"
+                                    "DataInt Content".rs
                                 )
                             }
                         },
@@ -2971,7 +2971,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).visibility(expression)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "IntegerExpression Content"
+                                    "IntegerExpression Content".rs
                                 )
                             }
                         },
@@ -3018,7 +3018,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp).graphicsLayer(alpha = floatExpr)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "DataLong Content"
+                                    "DataLong Content".rs
                                 )
                             }
                         },
@@ -3068,7 +3068,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).background(colorExpr)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "ColorExpressions Content"
+                                    "ColorExpressions Content".rs
                                 )
                             }
                         },
@@ -4379,7 +4379,7 @@ class RcPlayerPrimitivesTest {
                                 modifier = RemoteModifier.size(100.rdp).background(brush)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "Texture Content"
+                                    "Texture Content".rs
                                 )
                             }
                         },
@@ -4425,19 +4425,19 @@ class RcPlayerPrimitivesTest {
                                 androidx.compose.remote.creation.compose.layout.RemoteBox(
                                     modifier =
                                         RemoteModifier.weight(1f)
-                                            .background(androidx.compose.ui.graphics.Color.Red)
+                                            .background(androidx.compose.ui.graphics.Color.Red.rc)
                                 ) {
                                     androidx.compose.remote.creation.compose.layout.RemoteText(
-                                        "Weight 1"
+                                        "Weight 1".rs
                                     )
                                 }
                                 androidx.compose.remote.creation.compose.layout.RemoteBox(
                                     modifier =
                                         RemoteModifier.size(50.rdp)
-                                            .background(androidx.compose.ui.graphics.Color.Blue)
+                                            .background(androidx.compose.ui.graphics.Color.Blue.rc)
                                 ) {
                                     androidx.compose.remote.creation.compose.layout.RemoteText(
-                                        "Size 50"
+                                        "Size 50".rs
                                     )
                                 }
                             }
@@ -4542,7 +4542,7 @@ class RcPlayerPrimitivesTest {
                                     RemoteModifier.size(100.rdp)
                                         .clip(shape = shape)
                                         .padding(16.rdp)
-                                        .background(androidx.compose.ui.graphics.Color.LightGray)
+                                        .background(androidx.compose.ui.graphics.Color.LightGray.rc)
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
                                     "This is long text that might cut off".rs

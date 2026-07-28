@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.runtime.Composable
@@ -62,7 +63,7 @@ public fun LambdaActionDemo() {
         RemoteBox(
             modifier =
                 RemoteModifier.size(100.rdp)
-                    .background(Color.Blue)
+                    .background(Color.Blue.rc)
                     .clickable(action = lambdaAction { clickCount++ })
         )
     }

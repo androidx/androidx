@@ -123,7 +123,7 @@ class RcPlayerFrameCorrectnessTest {
                         content = {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.size(100.rdp).background(Color(0xFF0000FF))
+                                    RemoteModifier.size(100.rdp).background(Color(0xFF0000FF).rc)
                             )
                         },
                     )

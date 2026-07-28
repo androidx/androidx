@@ -101,12 +101,12 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
     }
     RemoteColumn(
         modifier =
-            modifier.clip(RemoteRoundedCornerShape(18.rdp)).background(Color(3, 169, 244, 173)),
+            modifier.clip(RemoteRoundedCornerShape(18.rdp)).background(Color(3, 169, 244, 173).rc),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
         verticalArrangement = RemoteArrangement.Center,
     ) {
         RemoteText(
-            monthNames[month],
+            monthNames[month].rs,
             fontFamily = RemoteFontFamily.Serif,
             fontWeight = FontWeight.Bold,
             fontSize = 32.rsp,
@@ -118,7 +118,9 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                 if (j == 1 || j == 6) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.fillMaxHeight().width(1.rdp).background(Color.DarkGray)
+                            RemoteModifier.fillMaxHeight()
+                                .width(1.rdp)
+                                .background(Color.DarkGray.rc)
                     )
                 }
                 var modifier = RemoteModifier.padding(start = 8.rf, end = 8.rf)

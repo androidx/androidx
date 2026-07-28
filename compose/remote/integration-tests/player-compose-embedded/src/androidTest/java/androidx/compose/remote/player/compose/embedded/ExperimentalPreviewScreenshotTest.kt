@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteDocumentPreview
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
@@ -82,20 +83,24 @@ class ExperimentalPreviewScreenshotTest {
             captureRule.captureDocument(
                 context = context,
                 content = {
-                    RemoteColumn(modifier = RemoteModifier.size(120.rdp).background(Color.White)) {
+                    RemoteColumn(
+                        modifier = RemoteModifier.size(120.rdp).background(Color.White.rc)
+                    ) {
                         RemoteRow(modifier = RemoteModifier.padding(8.rdp)) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(40.rdp).background(Color(0xFFAA2222))
+                                modifier =
+                                    RemoteModifier.size(40.rdp).background(Color(0xFFAA2222).rc)
                             )
                             RemoteBox(
-                                modifier = RemoteModifier.size(40.rdp).background(Color(0xFF22AA22))
+                                modifier =
+                                    RemoteModifier.size(40.rdp).background(Color(0xFF22AA22).rc)
                             )
                         }
                         RemoteBox(
                             modifier =
                                 RemoteModifier.padding(8.rdp)
                                     .size(88.rdp, 40.rdp)
-                                    .background(Color(0xFF2222AA))
+                                    .background(Color(0xFF2222AA).rc)
                         )
                     }
                 },

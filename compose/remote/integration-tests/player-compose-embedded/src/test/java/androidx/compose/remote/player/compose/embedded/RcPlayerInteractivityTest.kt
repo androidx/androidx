@@ -66,6 +66,7 @@ import androidx.compose.remote.creation.compose.state.mad
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.pow
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
@@ -144,7 +145,7 @@ class RcPlayerInteractivityTest {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5))
+                                            .background(Color(0xFF3F51B5).rc)
                                             .clickable(
                                                 action =
                                                     valueChange(
@@ -162,7 +163,7 @@ class RcPlayerInteractivityTest {
                                             }
                                             .visibility(visibilityState)
                                             .size(100.rdp, 40.rdp)
-                                            .background(Color(0xFFFFC107))
+                                            .background(Color(0xFFFFC107).rc)
                                 )
                             }
                         },
@@ -225,7 +226,7 @@ class RcPlayerInteractivityTest {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5))
+                                            .background(Color(0xFF3F51B5).rc)
                                             .clickable(
                                                 action =
                                                     valueChange(
@@ -242,7 +243,7 @@ class RcPlayerInteractivityTest {
                                             }
                                             .visibility(visibilityExpr)
                                             .size(100.rdp, 40.rdp)
-                                            .background(Color(0xFFFFC107))
+                                            .background(Color(0xFFFFC107).rc)
                                 )
                             }
                         },
@@ -298,7 +299,7 @@ class RcPlayerInteractivityTest {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5))
+                                            .background(Color(0xFF3F51B5).rc)
                                             .clickable(action = valueChange(n, 7.ri))
                                 )
                                 androidx.compose.remote.creation.compose.layout.RemoteText(label)
@@ -354,7 +355,7 @@ class RcPlayerInteractivityTest {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(100.rdp, 40.rdp)
-                                            .background(Color(0xFF3F51B5))
+                                            .background(Color(0xFF3F51B5).rc)
                                             .clickable(action = valueChange(n, 3.ri))
                                 )
                                 androidx.compose.remote.creation.compose.layout.RemoteText(label)

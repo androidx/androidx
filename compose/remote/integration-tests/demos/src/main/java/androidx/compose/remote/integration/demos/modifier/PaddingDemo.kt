@@ -27,7 +27,9 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.remote.tooling.preview.RemoteComponentPreview
 import androidx.compose.runtime.Composable
@@ -47,31 +49,31 @@ fun PaddingDemo() {
 @RemoteComposable
 private fun PaddingDemoContent() {
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
-        RemoteText("Padding Start: 20dp")
+        RemoteText("Padding Start: 20dp".rs)
         RemoteBox(
             modifier =
                 RemoteModifier.size(100.rdp)
-                    .background(Color.Red)
+                    .background(Color.Red.rc)
                     .padding(start = 20.rdp)
-                    .background(Color.Blue)
+                    .background(Color.Blue.rc)
         )
 
-        RemoteText("Padding End: 20dp")
+        RemoteText("Padding End: 20dp".rs)
         RemoteBox(
             modifier =
                 RemoteModifier.size(100.rdp)
-                    .background(Color.Red)
+                    .background(Color.Red.rc)
                     .padding(end = 20.rdp)
-                    .background(Color.Blue)
+                    .background(Color.Blue.rc)
         )
 
-        RemoteText("Padding Horizontal: 20dp, Vertical: 10dp")
+        RemoteText("Padding Horizontal: 20dp, Vertical: 10dp".rs)
         RemoteBox(
             modifier =
                 RemoteModifier.size(100.rdp)
-                    .background(Color.Red)
+                    .background(Color.Red.rc)
                     .padding(horizontal = 20.rdp, vertical = 10.rdp)
-                    .background(Color.Blue)
+                    .background(Color.Blue.rc)
         )
     }
 }

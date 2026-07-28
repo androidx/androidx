@@ -109,7 +109,7 @@ class TouchActionModifierTest {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText(BUTTON_LABEL)
+                RemoteText(BUTTON_LABEL.rs)
             }
         }
 
@@ -142,7 +142,7 @@ class TouchActionModifierTest {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText(BUTTON_LABEL)
+                RemoteText(BUTTON_LABEL.rs)
             }
         }
 
@@ -185,7 +185,7 @@ class TouchActionModifierTest {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText(BUTTON_LABEL)
+                RemoteText(BUTTON_LABEL.rs)
             }
         }
 

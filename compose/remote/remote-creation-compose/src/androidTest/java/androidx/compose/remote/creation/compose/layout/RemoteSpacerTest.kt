@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.graphics.Color
@@ -45,6 +46,6 @@ class RemoteSpacerTest {
     @Test
     fun spacerWithBackground() =
         composeTestRule.runScreenshotTest {
-            RemoteSpacer(modifier = RemoteModifier.size(100.rdp).background(Color.Red))
+            RemoteSpacer(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
         }
 }

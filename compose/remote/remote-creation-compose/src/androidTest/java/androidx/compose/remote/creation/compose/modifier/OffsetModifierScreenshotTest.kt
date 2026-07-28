@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
@@ -55,52 +56,52 @@ class OffsetModifierScreenshotTest {
                     "offset(0, 0)" to
                         @RemoteComposable @Composable {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red)
+                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(20.rdp)
                                             .offset(0.rdp, 0.rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                 )
                             }
                         },
                     "offset(15, 0)" to
                         @RemoteComposable @Composable {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red)
+                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(20.rdp)
                                             .offset(15.rdp, 0.rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                 )
                             }
                         },
                     "offset(0, 15)" to
                         @RemoteComposable @Composable {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red)
+                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(20.rdp)
                                             .offset(0.rdp, 15.rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                 )
                             }
                         },
                     "offset(15, 15)" to
                         @RemoteComposable @Composable {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red)
+                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(20.rdp)
                                             .offset(15.rdp, 15.rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                 )
                             }
                         },
@@ -110,13 +111,13 @@ class OffsetModifierScreenshotTest {
                                 modifier =
                                     RemoteModifier.padding(20.rdp)
                                         .size(50.rdp)
-                                        .background(Color.Red)
+                                        .background(Color.Red.rc)
                             ) {
                                 RemoteBox(
                                     modifier =
                                         RemoteModifier.size(20.rdp)
                                             .offset((-10).rdp, (-10).rdp)
-                                            .background(Color.Blue)
+                                            .background(Color.Blue.rc)
                                 )
                             }
                         },

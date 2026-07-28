@@ -22,11 +22,9 @@ import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.modifiers.DynamicSolidBackgroundModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
-import androidx.compose.ui.graphics.Color
 
 internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -43,10 +41,6 @@ internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.
         }
     }
 }
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.background(color: Color): RemoteModifier =
-    this.then(BackgroundModifier(color.rc))
 
 /**
  * Draws a solid [color] background behind the content.

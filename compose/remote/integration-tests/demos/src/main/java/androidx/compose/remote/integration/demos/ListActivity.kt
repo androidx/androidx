@@ -106,7 +106,7 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(
-                    if (it == 0) name else "Item $it",
+                    (if (it == 0) name else "Item $it").rs,
                     color = RemoteColor(Color.Black),
                     fontSize = 36.rsp,
                 )

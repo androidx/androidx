@@ -64,7 +64,7 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
         modifier =
             modifier
                 .clip(RemoteRoundedCornerShape(20.rdp))
-                .background(Color(63, 81, 181, 255))
+                .background(Color(63, 81, 181, 255).rc)
                 .padding(2.rdp),
         contentAlignment = RemoteAlignment.CenterEnd,
     ) {
@@ -87,7 +87,7 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
             modifier
                 // todo: use the animationId
                 .clip(RemoteRoundedCornerShape(20.rdp))
-                .background(Color(100, 100, 100))
+                .background(Color(100, 100, 100).rc)
                 .padding(8.rdp)
                 .then(modifier),
         contentAlignment = RemoteAlignment.CenterStart,
@@ -155,9 +155,9 @@ fun RowSwitch(
     modifier: RemoteModifier = RemoteModifier,
 ) {
     Row(modifier = modifier, verticalAlignment = RemoteAlignment.CenterVertically) {
-        RemoteText(label)
+        RemoteText(label.rs)
         SwitchWidget(state)
-        RemoteText("State value is ")
+        RemoteText("State value is ".rs)
         RemoteText(state.toRemoteString { it.name.rs })
     }
 }
@@ -170,7 +170,7 @@ fun StateInfo(
     modifier: RemoteModifier = RemoteModifier,
 ) {
     Row(modifier = modifier, verticalAlignment = RemoteAlignment.CenterVertically) {
-        RemoteText(label)
+        RemoteText(label.rs)
         RemoteText(state.toRemoteString { it.name.rs })
     }
 }
@@ -183,14 +183,14 @@ fun Divider(modifier: RemoteModifier = RemoteModifier) {
             modifier
                 .padding(start = 8.rdp, end = 8.rdp)
                 .size(2.rdp, 8.rdp)
-                .background(Color.LightGray)
+                .background(Color.LightGray.rc)
     )
 }
 
 @Composable
 @RemoteComposable
 fun SwitchWidgetDemo() {
-    RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray)) {
+    RemoteColumn(modifier = Modifier.padding(8.rdp).background(Color.LightGray.rc)) {
         val checkedA = rememberMutableRemoteEnum(Off)
         val checkedB = rememberMutableRemoteEnum(Off)
         val checkedC = rememberMutableRemoteEnum(On)

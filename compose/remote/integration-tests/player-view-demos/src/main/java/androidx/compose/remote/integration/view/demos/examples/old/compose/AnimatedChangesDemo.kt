@@ -42,7 +42,7 @@ fun AnimatedChangesDemo() {
         verticalArrangement = RemoteArrangement.Center,
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
     ) {
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize().background(Color.White)) {
+        RemoteCanvas(modifier = RemoteModifier.fillMaxSize().background(Color.White.rc)) {
             val width = remote.component.width
             val height = remote.component.height
             val centerX = width / 2f

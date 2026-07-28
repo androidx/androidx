@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
@@ -152,7 +153,7 @@ class RemoteImageTest {
         ) {
             val backgroundImage = createImage(size, size)
             RemoteImage(
-                bitmap = backgroundImage.asImageBitmap(),
+                remoteBitmap = backgroundImage.asImageBitmap().rb,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = ContentScale.Fit,
