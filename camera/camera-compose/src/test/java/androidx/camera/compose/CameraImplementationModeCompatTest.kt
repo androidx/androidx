@@ -33,7 +33,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class CameraImplementationModeCompatTest {
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M) // Run on any API level
     fun chooseCompatibleMode_returnsEmbedded_whenHardwareLevelIsLegacy() {
         val cameraInfo = fakeCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY)
         val mode = CameraImplementationModeCompat.chooseCompatibleMode(cameraInfo)

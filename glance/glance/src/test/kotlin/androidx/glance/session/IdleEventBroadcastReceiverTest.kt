@@ -37,7 +37,6 @@ class IdleEventBroadcastReceiverTest() {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     fun onReceive_idleModeChanged() {
         val pm = Shadows.shadowOf(context.getSystemService(PowerManager::class.java))
 

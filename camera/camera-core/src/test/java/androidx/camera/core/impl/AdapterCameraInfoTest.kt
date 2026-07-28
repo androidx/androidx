@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl
 
-import android.os.Build
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = 24)
 class AdapterCameraInfoTest {
 
     @Test
