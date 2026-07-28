@@ -129,6 +129,18 @@ class MainActivity : ComponentActivity() {
                         isProjected = false,
                         this@MainActivity,
                     )
+                    TestActivityRow(
+                        "Threading Stress Test",
+                        ThreadingStressTestActivity::class.java,
+                        isProjected = true,
+                        this@MainActivity,
+                    )
+                    TestActivityRow(
+                        "Threading Stress Remote",
+                        ThreadingRemoteSensorStressTestActivity::class.java,
+                        isProjected = false,
+                        this@MainActivity,
+                    )
                     GeospatialActivityRow(
                         "Config Projected: INERTIAL",
                         "INERTIAL",
