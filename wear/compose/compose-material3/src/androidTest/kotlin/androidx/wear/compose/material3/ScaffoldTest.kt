@@ -493,7 +493,9 @@ class ScaffoldTest {
         var spaceAvailable: Int = Int.MAX_VALUE
         var expectedSpace = 0f
 
-        val screenSize = 300.dp
+        // The logic for this test only works if `screenSize` <= the actual screen size on the
+        // device under test.
+        val screenSize = SMALL_SCREEN_WIDTH.dp
         rule.setContentWithTheme {
             // The available space is half the screen size minus half a Button height (converting
             // dps to pixels).
@@ -921,3 +923,4 @@ private const val CONTENT_MESSAGE = "The Content"
 private const val TIME_TEXT_MESSAGE = "The Time Text"
 private const val SCROLL_TAG = "ScrollTag"
 private const val DEFAULT_ITEMS_COUNT = 100
+private const val SMALL_SCREEN_WIDTH = 190
