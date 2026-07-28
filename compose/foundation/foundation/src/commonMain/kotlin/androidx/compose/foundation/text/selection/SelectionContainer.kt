@@ -37,6 +37,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CoroutineStart
@@ -147,7 +148,7 @@ internal fun SelectionContainer(
     @OptIn(ExperimentalFoundationApi::class)
     if (ComposeFoundationFlags.isSmartSelectionEnabled) {
         manager.platformSelectionBehaviors =
-            rememberPlatformSelectionBehaviors(SelectedTextType.StaticText, null)
+            rememberPlatformSelectionBehaviors(SelectedTextType.StaticText, LocalLocaleList.current)
     }
     @OptIn(ExperimentalFoundationApi::class)
     if (

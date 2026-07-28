@@ -663,6 +663,7 @@ class PickerTest {
     }
 
     @Test
+    @Suppress("FrequentlyChangingValue")
     fun rememberPickerState_updates_after_new_inputs() {
         val numberOfOptions = 10
         lateinit var selectedOption: MutableState<Int>

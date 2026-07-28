@@ -199,7 +199,7 @@ class SaversTest {
                 letterSpacing = 2.em,
                 baselineShift = BaselineShift.Superscript,
                 textGeometricTransform = TextGeometricTransform(2f, 3f),
-                localeList = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
+                localeList = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale("en")),
                 background = Color.Blue,
                 textDecoration = TextDecoration.LineThrough,
                 shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),
@@ -482,7 +482,7 @@ class SaversTest {
 
     @Test
     fun test_LocaleList() {
-        val original = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current)
+        val original = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale("en-US"))
         val saved = with(LocaleList.Saver) { defaultSaverScope.save(original) }
 
         assertThat(LocaleList.Saver.restore(saved!!)).isEqualTo(original)

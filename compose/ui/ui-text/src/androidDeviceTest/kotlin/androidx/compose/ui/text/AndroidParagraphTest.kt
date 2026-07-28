@@ -58,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.testutils.AsyncTestTypefaceLoader
 import androidx.compose.ui.text.font.testutils.BlockingFauxFont
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.platform.bitmap
@@ -1950,8 +1951,7 @@ class AndroidParagraphTest {
         val text = "abc"
         val paragraph = simpleParagraph(text = text, width = Float.MAX_VALUE)
 
-        assertThat(paragraph.textLocale.toLanguageTag())
-            .isEqualTo(java.util.Locale.getDefault().toLanguageTag())
+        assertThat(paragraph.textLocale.toLanguageTag()).isEqualTo("en")
     }
 
     @Test
@@ -2033,6 +2033,7 @@ class AndroidParagraphTest {
             overflow = TextOverflow.Ellipsis,
             constraints = minWidthConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
+            defaultLocale = TEST_LOCALE,
             density = defaultDensity,
         )
     }
@@ -2049,6 +2050,7 @@ class AndroidParagraphTest {
             overflow = TextOverflow.Ellipsis,
             constraints = minHeightConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
+            defaultLocale = TEST_LOCALE,
             density = defaultDensity,
         )
     }
@@ -2177,6 +2179,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    defaultLocale = TEST_LOCALE,
                     density = defaultDensity,
                 )
 
@@ -2211,6 +2214,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    defaultLocale = TEST_LOCALE,
                     density = defaultDensity,
                 )
 
@@ -2245,6 +2249,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Clip,
                     constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    defaultLocale = TEST_LOCALE,
                     density = defaultDensity,
                 )
 
@@ -2285,6 +2290,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    defaultLocale = TEST_LOCALE,
                     density = defaultDensity,
                 )
 
@@ -2331,6 +2337,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (6 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    defaultLocale = TEST_LOCALE,
                     density = defaultDensity,
                 )
 
@@ -2429,6 +2436,7 @@ class AndroidParagraphTest {
         height: Float = Float.POSITIVE_INFINITY,
         style: TextStyle? = null,
         fontFamilyResolver: FontFamily.Resolver = UncachedFontFamilyResolver(context),
+        defaultLocale: Locale = Locale("en"),
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
@@ -2440,6 +2448,7 @@ class AndroidParagraphTest {
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
         )
     }
 }

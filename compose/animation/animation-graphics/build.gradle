@@ -45,7 +45,8 @@ androidXMultiplatform {
             api(project(":compose:animation:animation"))
             api("androidx.compose.foundation:foundation-layout:1.10.0")
             api(project(":compose:runtime:runtime"))
-            api("androidx.compose.ui:ui:1.10.0")
+            // TODO: Re-pin once 1.13 is released with updated locale text APIs
+            api(project(":compose:ui:ui"))
             api("androidx.compose.ui:ui-geometry:1.10.0")
 
             implementation("androidx.compose.ui:ui-util:1.10.0")

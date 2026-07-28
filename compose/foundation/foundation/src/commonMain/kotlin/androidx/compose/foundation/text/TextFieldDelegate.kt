@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -76,9 +77,11 @@ internal fun computeSizeForDefaultText(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocale: Locale,
     lines: Int = 1,
 ): IntSize {
-    val paragraph = paragraphForDefaultText(style, density, fontFamilyResolver, lines, lines > 1)
+    val paragraph =
+        paragraphForDefaultText(style, density, fontFamilyResolver, defaultLocale, lines, lines > 1)
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
@@ -87,6 +90,7 @@ internal fun paragraphForDefaultText(
     style: TextStyle,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocale: Locale,
     lines: Int,
     softWrap: Boolean,
 ) =
@@ -95,6 +99,7 @@ internal fun paragraphForDefaultText(
             text = (0..<lines).joinToString("\n") { EmptyTextReplacement },
             style = style,
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
             annotations = emptyList(),
             placeholders = listOf(),
             density = density,
@@ -234,6 +239,7 @@ internal class TextFieldDelegate {
                             textDelegate.style,
                             textDelegate.density,
                             textDelegate.fontFamilyResolver,
+                            textDelegate.defaultLocale,
                         )
                     },
                 )

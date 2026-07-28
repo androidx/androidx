@@ -52,8 +52,10 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -250,6 +252,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
     private var textMeasurer: TextMeasurer? = null
     private var lookaheadAnimationVisualDebugHelper: LookaheadAnimationVisualDebugHelper? = null
     private var currentResolver: FontFamily.Resolver? = null
+    private var currentLocale: Locale? = null
     private var currentDensity: Density? = null
     private var currentLayoutDirection: LayoutDirection? = null
 
@@ -620,7 +623,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         }
         val strokeWeight = 2.5.dp.toPx()
         val targetData = sharedElement.state.targetData
-        updateTextMeasurer(currentValueOf(LocalFontFamilyResolver))
+        updateTextMeasurer(currentValueOf(LocalFontFamilyResolver), currentValueOf(LocalLocale))
 
         fun drawDebug(drawScope: ContentDrawScope) {
             if (!sharedElementEntry.isEnabled) return
@@ -707,11 +710,19 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         observeReads(sharedElement.observingVisibilityChange)
     }
 
-    private fun updateTextMeasurer(fontFamilyResolver: FontFamily.Resolver) {
-        if (textMeasurer == null || currentResolver != fontFamilyResolver) {
+    private fun updateTextMeasurer(fontFamilyResolver: FontFamily.Resolver, locale: Locale) {
+        if (
+            textMeasurer == null || currentResolver != fontFamilyResolver || currentLocale != locale
+        ) {
             textMeasurer =
-                TextMeasurer(fontFamilyResolver, currentDensity!!, currentLayoutDirection!!)
+                TextMeasurer(
+                    defaultFontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = locale,
+                    defaultDensity = currentDensity!!,
+                    defaultLayoutDirection = currentLayoutDirection!!,
+                )
             currentResolver = fontFamilyResolver
+            currentLocale = locale
         }
     }
 }
