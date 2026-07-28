@@ -415,6 +415,7 @@ dependencies {
     docs(project(":xr:compose:material3:material3"))
     docs(project(":xr:glimmer:glimmer"))
     docs(project(":xr:glimmer:glimmer-google-fonts"))
+    docs(project(":xr:glimmer:glimmer-remote"))
     docs(project(":xr:runtime:runtime"))
     docs(project(":xr:runtime:runtime-projected"))
     docs(project(":xr:runtime:runtime-interfaces"))
