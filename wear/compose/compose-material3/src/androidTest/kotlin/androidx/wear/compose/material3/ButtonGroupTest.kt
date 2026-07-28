@@ -22,12 +22,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -78,6 +80,14 @@ class ButtonGroupTest {
     @Test
     fun three_equal_buttons() =
         verifyWidths(3, expectedWidths = { availableSpace -> Array(3) { availableSpace / 3 } })
+
+    @Test
+    fun three_equal_buttons_density_override() =
+        verifyWidths(
+            3,
+            expectedWidths = { availableSpace -> Array(3) { availableSpace / 3 } },
+            densityOverride = 1.5f,
+        )
 
     @Test
     fun three_buttons_one_two_one() =
@@ -145,6 +155,7 @@ class ButtonGroupTest {
         size: Dp = 150.dp,
         spacing: Dp = 5.dp,
         minWidthAndWeights: Array<Pair<Dp, Float>> = Array(numItems) { 24.dp to 1f },
+        densityOverride: Float? = null,
     ) {
         val horizontalPadding = 5.dp
         val actualExpectedWidths =
@@ -154,19 +165,33 @@ class ButtonGroupTest {
         require(numItems == minWidthAndWeights.size)
 
         rule.setContentWithTheme {
-            ButtonGroup(
-                modifier = Modifier.size(size),
-                contentPadding = PaddingValues(horizontal = horizontalPadding),
-                spacing = spacing,
-            ) {
-                repeat(numItems) { ix ->
-                    Box(
-                        modifier =
-                            Modifier.testTag(TEST_TAG + (ix + 1).toString())
-                                .fillMaxSize()
-                                .weight(minWidthAndWeights[ix].second)
-                                .minWidth(minWidthAndWeights[ix].first)
-                    )
+            val currentDensity = LocalDensity.current
+            val density =
+                densityOverride?.let {
+                    object : Density {
+                        override val density: Float
+                            get() = it
+
+                        override val fontScale: Float
+                            get() = 1f
+                    }
+                } ?: currentDensity
+
+            CompositionLocalProvider(LocalDensity provides density) {
+                ButtonGroup(
+                    modifier = Modifier.size(size),
+                    contentPadding = PaddingValues(horizontal = horizontalPadding),
+                    spacing = spacing,
+                ) {
+                    repeat(numItems) { ix ->
+                        Box(
+                            modifier =
+                                Modifier.testTag(TEST_TAG + (ix + 1).toString())
+                                    .fillMaxSize()
+                                    .weight(minWidthAndWeights[ix].second)
+                                    .minWidth(minWidthAndWeights[ix].first)
+                        )
+                    }
                 }
             }
         }
@@ -174,7 +199,7 @@ class ButtonGroupTest {
         repeat(numItems) {
             rule
                 .onNodeWithTag(TEST_TAG + (it + 1).toString())
-                .assertWidthIsEqualTo(actualExpectedWidths[it])
+                .assertWidthIsEqualTo(actualExpectedWidths[it], 1.dp)
         }
     }
 }
