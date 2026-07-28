@@ -6659,6 +6659,11 @@ public class AppSearchImplTest {
                     public int getMaxOpenBlobCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
                 }, new LocalStorageIcingOptionsConfig()),
                 new AppSearchUserPlugins.Builder()
                         .setCallStatsBuilder(callStatsBuilder)
@@ -6803,6 +6808,11 @@ public class AppSearchImplTest {
                     @Override
                     public int getMaxOpenBlobCount() {
                         return 2;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
                     }
                 }, new LocalStorageIcingOptionsConfig()),
                 new AppSearchUserPlugins.Builder()
@@ -6984,6 +6994,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7051,6 +7066,76 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testLimitConfig_maxAccumulatedResultBytes() throws Exception {
+        // Create an AppSearchImpl instance with a small maxAccumulatedResultBytes threshold (e.g.
+        // 500 bytes)
+        AppSearchConfig configWithByteLimit =
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig() {
+                            @Override
+                            public int getMaxAccumulatedResultBytes() {
+                                return 500;
+                            }
+                        },
+                        new LocalStorageIcingOptionsConfig());
+        AppSearchImpl appSearchImplWithByteLimit =
+                AppSearchImpl.create(
+                        mTemporaryFolder.newFolder(),
+                        configWithByteLimit,
+                        AppSearchUserPlugins.EMPTY,
+                        ALWAYS_OPTIMIZE);
+
+        try {
+            // Set up schema and insert multiple documents
+            List<AppSearchSchema> schemas =
+                    ImmutableList.of(new AppSearchSchema.Builder("type").build());
+            appSearchImplWithByteLimit.setSchema(
+                    "package",
+                    "database",
+                    schemas,
+                    /*visibilityConfigs=*/ Collections.emptyList(),
+                    /*accountPropertyPaths=*/ ImmutableMap.of(),
+                    /*forceOverride=*/ false,
+                    /*version=*/ 1,
+                    /*setSchemaStatsBuilder=*/ null,
+                    /*callStatsBuilder=*/ null);
+
+            for (int i = 0; i < 20; i++) {
+                GenericDocument doc =
+                        new GenericDocument.Builder<>("namespace", "id" + i, "type").build();
+                appSearchImplWithByteLimit.putDocument(
+                        "package",
+                        "database",
+                        doc,
+                        /*sendChangeNotifications=*/ false,
+                        /*logger=*/ null,
+                        /*callStatsBuilder=*/ null);
+            }
+
+            // Query requesting numPerPage = 20
+            SearchSpec searchSpec =
+                    new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY).build();
+            SearchResultPage searchResultPage =
+                    appSearchImplWithByteLimit.query(
+                            "package",
+                            "database",
+                            "",
+                            searchSpec,
+                            /*logger=*/ null,
+                            /*callStatsBuilder=*/ null);
+
+            // Because getMaxAccumulatedResultBytes is 500, AppSearchImpl should stop accumulating
+            // pages early, returning fewer than 20 results with a valid nextPageToken.
+            assertThat(searchResultPage.getResults().size()).isGreaterThan(0);
+            assertThat(searchResultPage.getResults().size()).isLessThan(20);
+            assertThat(searchResultPage.getNextPageToken())
+                    .isNotEqualTo(SearchResultPage.EMPTY_PAGE_TOKEN);
+        } finally {
+            appSearchImplWithByteLimit.close();
+        }
+    }
+
+    @Test
     public void testLimitConfig_Init() throws Exception {
         // Create a new mAppSearchImpl with a lower limit
         mAppSearchImpl.close();
@@ -7079,6 +7164,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -7159,6 +7249,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7208,6 +7303,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -7351,6 +7451,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7474,6 +7579,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7545,6 +7655,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -7737,6 +7852,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7841,6 +7961,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7917,6 +8042,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -7981,6 +8111,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -8029,6 +8164,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -8103,6 +8243,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -8245,6 +8390,11 @@ public class AppSearchImplTest {
                     }
 
                     @Override
+                    public int getMaxAccumulatedResultBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
                     public int getMaxByteLimitForBatchPut() {
                         return getMaxDocumentSizeBytes();
                     }
@@ -8328,6 +8478,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -8468,6 +8623,11 @@ public class AppSearchImplTest {
 
                     @Override
                     public int getMaxOpenBlobCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxAccumulatedResultBytes() {
                         return Integer.MAX_VALUE;
                     }
 
@@ -8626,6 +8786,11 @@ public class AppSearchImplTest {
             }
 
             @Override
+            public int getMaxAccumulatedResultBytes() {
+                return Integer.MAX_VALUE;
+            }
+
+            @Override
             public int getMaxByteLimitForBatchPut() {
                 return getMaxDocumentSizeBytes();
             }
@@ -8693,6 +8858,11 @@ public class AppSearchImplTest {
             @Override
             public int getMaxOpenBlobCount() {
                 return 2;
+            }
+
+            @Override
+            public int getMaxAccumulatedResultBytes() {
+                return Integer.MAX_VALUE;
             }
 
             @Override

@@ -84,4 +84,11 @@ public interface LimitConfig {
      * #getMaxDocumentSizeBytes().
      */
     int getMaxByteLimitForBatchPut();
+
+    /**
+     * Returns the maximum number of bytes that AppSearch will accumulate across multiple native
+     * pages before returning a single response to the client. This limit is used to prevent the
+     * stitched page returned over Binder from exceeding the transaction size limit.
+     */
+    int getMaxAccumulatedResultBytes();
 }
