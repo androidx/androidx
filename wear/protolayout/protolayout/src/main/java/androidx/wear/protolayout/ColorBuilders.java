@@ -236,6 +236,7 @@ public final class ColorBuilders {
         }
 
         /** Builder for {@link ColorStop} */
+        @SuppressWarnings("EmptyBuilder")
         public static final class Builder {
             private final ColorProto.ColorStop.Builder mImpl = ColorProto.ColorStop.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-468737254);

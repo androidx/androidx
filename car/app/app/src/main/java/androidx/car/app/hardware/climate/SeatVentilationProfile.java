@@ -55,6 +55,7 @@ public final class SeatVentilationProfile {
     }
 
     /** A builder for SeatVentilationProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSeatVentilationValues;
 

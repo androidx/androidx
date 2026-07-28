@@ -1174,6 +1174,7 @@ public final class ModifiersBuilders {
         }
 
         /** Builder for {@link CornerRadius} */
+        @SuppressWarnings("EmptyBuilder")
         public static final class Builder {
             private final ModifiersProto.CornerRadius.Builder mImpl =
                     ModifiersProto.CornerRadius.newBuilder();

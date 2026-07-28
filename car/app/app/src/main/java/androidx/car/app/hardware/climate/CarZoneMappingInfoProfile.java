@@ -45,6 +45,7 @@ public final class CarZoneMappingInfoProfile {
     }
 
     /** A builder for CarZoneMappingInfoProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         final List<Set<CarZone>> mSupportedCarZoneSets;
 

@@ -55,6 +55,7 @@ public final class SteeringWheelHeatProfile {
     }
 
     /** A builder for SteeringWheelHeatProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSteeringWheelHeatValues;
 

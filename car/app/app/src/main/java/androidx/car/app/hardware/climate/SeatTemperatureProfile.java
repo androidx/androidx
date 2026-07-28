@@ -55,6 +55,7 @@ public final class SeatTemperatureProfile {
     }
 
     /** A builder for SeatTemperatureProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         Map<Set<CarZone>, Pair<Integer, Integer>> mCarZoneSetsToSeatTemperatureValues;
 
