@@ -4826,6 +4826,7 @@ package androidx.compose.ui.semantics {
 
   public final class SemanticsNode {
     method public int getAlignmentLinePosition(androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method @InaccessibleFromKotlin public float getAlpha();
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getBoundsInRoot();
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getBoundsInWindow();
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.semantics.SemanticsNode> getChildren();
@@ -4841,6 +4842,7 @@ package androidx.compose.ui.semantics {
     method @BytecodeOnly public long getSize-YbymL2g();
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getTouchBoundsInRoot();
     method @InaccessibleFromKotlin public boolean isRoot();
+    property public float alpha;
     property public androidx.compose.ui.geometry.Rect boundsInRoot;
     property public androidx.compose.ui.geometry.Rect boundsInWindow;
     property public java.util.List<androidx.compose.ui.semantics.SemanticsNode> children;

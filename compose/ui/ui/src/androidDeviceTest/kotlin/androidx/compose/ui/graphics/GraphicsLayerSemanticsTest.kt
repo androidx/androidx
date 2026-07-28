@@ -22,6 +22,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -35,12 +38,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRectCornersKey
@@ -69,6 +75,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1017,6 +1024,101 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
             }
         }
     }
+
+    @Test
+    fun compositeAlpha_resolvedAlphaSemanticsProperty() {
+        var parentAlpha by mutableStateOf(1f)
+        var childAlpha by mutableStateOf(1f)
+
+        rule.setContent {
+            Box(Modifier.graphicsLayer { alpha = parentAlpha }) {
+                Box(Modifier.size(10.dp).graphicsLayer { alpha = childAlpha }.testTag(testTag))
+            }
+        }
+
+        rule.onNodeWithTag(testTag).assert(hasAlpha(1.0f))
+
+        rule.runOnIdle { childAlpha = 0.5f }
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.5f))
+
+        rule.runOnIdle { parentAlpha = 0.5f }
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.25f))
+    }
+
+    @Test
+    fun compositeAlpha_animationMotionTest() {
+        rule.mainClock.autoAdvance = false
+        val animatableAlpha = Animatable(1f)
+
+        rule.setContent {
+            val scope = rememberCoroutineScope()
+            remember {
+                scope.launch {
+                    animatableAlpha.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
+                    )
+                }
+            }
+
+            Box(Modifier.graphicsLayer { alpha = animatableAlpha.value }) {
+                Box(Modifier.size(10.dp).graphicsLayer(alpha = 1.0f).testTag(testTag))
+            }
+        }
+
+        rule.onNodeWithTag(testTag).assert(hasAlpha(1.0f))
+
+        rule.mainClock.advanceTimeBy(250)
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.76f))
+
+        rule.mainClock.advanceTimeBy(250)
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.504f))
+
+        rule.mainClock.advanceTimeBy(500)
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.0f))
+    }
+
+    @Test
+    fun compositeAlpha_explicitGraphicsLayerTest() {
+        lateinit var explicitLayer: GraphicsLayer
+        var parentAlpha by mutableStateOf(1f)
+
+        rule.setContent {
+            explicitLayer = rememberGraphicsLayer().apply { alpha = 0.5f }
+            Box(Modifier.graphicsLayer { alpha = parentAlpha }) {
+                Box(
+                    Modifier.size(10.dp)
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeWithLayer(0, 0, explicitLayer)
+                            }
+                        }
+                        .testTag(testTag)
+                )
+            }
+        }
+
+        // Parent 1.0 * Explicit Child 0.5 = 0.5
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.5f))
+
+        // Parent 0.5 * Explicit Child 0.5 = 0.25
+        rule.runOnIdle { parentAlpha = 0.5f }
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.25f))
+
+        // Parent 0.5 * Explicit Child 0.8 = 0.40
+        rule.runOnIdle { explicitLayer.alpha = 0.8f }
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.40f))
+
+        // Parent 0.5 * Explicit Child 0.0 = 0.0
+        rule.runOnIdle { explicitLayer.alpha = 0f }
+        rule.onNodeWithTag(testTag).assert(hasAlpha(0.0f))
+    }
+
+    private fun hasAlpha(expectedAlpha: Float, tolerance: Float = 0.001f): SemanticsMatcher =
+        SemanticsMatcher("Alpha = '$expectedAlpha' (within $tolerance)") { node ->
+            kotlin.math.abs(node.alpha - expectedAlpha) <= tolerance
+        }
 
     private fun Modifier.parameterizedGraphicsLayer(
         shape: Shape,
