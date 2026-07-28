@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
@@ -104,7 +105,10 @@ public value class NavigationItemIconPosition private constructor(private val va
  * Represents the colors of the various elements of a navigation item.
  *
  * @param selectedIconColor the color to use for the icon when the item is selected.
- * @param selectedTextColor the color to use for the text label when the item is selected.
+ * @param selectedTextColorTopIconPosition the color to use for the text label when the item is
+ *   selected and is in the Top icon position configuration.
+ * @param selectedTextColorStartIconPosition the color to use for the text label when the item is
+ *   selected and is in the Start icon position configuration.
  * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
  * @param unselectedIconColor the color to use for the icon when the item is unselected.
  * @param unselectedTextColor the color to use for the text label when the item is unselected.
@@ -116,20 +120,51 @@ public value class NavigationItemIconPosition private constructor(private val va
 public class NavigationItemColors
 public constructor(
     public val selectedIconColor: Color,
-    public val selectedTextColor: Color,
+    public val selectedTextColorTopIconPosition: Color,
+    public val selectedTextColorStartIconPosition: Color,
     public val selectedIndicatorColor: Color,
     public val unselectedIconColor: Color,
     public val unselectedTextColor: Color,
     public val disabledIconColor: Color,
     public val disabledTextColor: Color,
 ) {
-    /**
-     * Returns a copy of this NavigationItemColors, optionally overriding some of the values. This
-     * uses the Color.Unspecified to mean “use the value from the source”.
-     */
+
+    @Deprecated(
+        message =
+            "Use the NavigationItemColors constructor that takes selectedTextColorTopIconPosition " +
+                "and selectedTextColorStartIconPosition",
+        replaceWith =
+            ReplaceWith(
+                "NavigationItemColors(selectedIconColor, selectedTextColorTopIconPosition, " +
+                    "selectedTextColorStartIconPosition, selectedIndicatorColor, " +
+                    "unselectedIconColor, unselectedTextColor, disabledIconColor, " +
+                    "disabledTextColor)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
+    public constructor(
+        selectedIconColor: Color,
+        selectedTextColor: Color,
+        selectedIndicatorColor: Color,
+        unselectedIconColor: Color,
+        unselectedTextColor: Color,
+        disabledIconColor: Color,
+        disabledTextColor: Color,
+    ) : this(
+        selectedIconColor = selectedIconColor,
+        selectedTextColorTopIconPosition = selectedTextColor,
+        selectedTextColorStartIconPosition = selectedTextColor,
+        selectedIndicatorColor = selectedIndicatorColor,
+        unselectedIconColor = unselectedIconColor,
+        unselectedTextColor = unselectedTextColor,
+        disabledIconColor = disabledIconColor,
+        disabledTextColor = disabledTextColor,
+    )
+
+    @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     public fun copy(
         selectedIconColor: Color = this.selectedIconColor,
-        selectedTextColor: Color = this.selectedTextColor,
+        selectedTextColor: Color = Color.Unspecified,
         selectedIndicatorColor: Color = this.selectedIndicatorColor,
         unselectedIconColor: Color = this.unselectedIconColor,
         unselectedTextColor: Color = this.unselectedTextColor,
@@ -137,14 +172,58 @@ public constructor(
         disabledTextColor: Color = this.disabledTextColor,
     ): NavigationItemColors =
         NavigationItemColors(
-            selectedIconColor.takeOrElse { this.selectedIconColor },
-            selectedTextColor.takeOrElse { this.selectedTextColor },
-            selectedIndicatorColor.takeOrElse { this.selectedIndicatorColor },
-            unselectedIconColor.takeOrElse { this.unselectedIconColor },
-            unselectedTextColor.takeOrElse { this.unselectedTextColor },
-            disabledIconColor.takeOrElse { this.disabledIconColor },
-            disabledTextColor.takeOrElse { this.disabledTextColor },
+            selectedIconColor = selectedIconColor.takeOrElse { this.selectedIconColor },
+            selectedTextColorTopIconPosition =
+                selectedTextColor.takeOrElse { this.selectedTextColorTopIconPosition },
+            selectedTextColorStartIconPosition =
+                selectedTextColor.takeOrElse { this.selectedTextColorStartIconPosition },
+            selectedIndicatorColor =
+                selectedIndicatorColor.takeOrElse { this.selectedIndicatorColor },
+            unselectedIconColor = unselectedIconColor.takeOrElse { this.unselectedIconColor },
+            unselectedTextColor = unselectedTextColor.takeOrElse { this.unselectedTextColor },
+            disabledIconColor = disabledIconColor.takeOrElse { this.disabledIconColor },
+            disabledTextColor = disabledTextColor.takeOrElse { this.disabledTextColor },
         )
+
+    /**
+     * Returns a copy of this NavigationItemColors, optionally overriding some of the values. This
+     * uses the Color.Unspecified to mean “use the value from the source”.
+     */
+    public fun copy(
+        selectedIconColor: Color = this.selectedIconColor,
+        selectedTextColorTopIconPosition: Color = this.selectedTextColorTopIconPosition,
+        selectedTextColorStartIconPosition: Color = this.selectedTextColorStartIconPosition,
+        selectedIndicatorColor: Color = this.selectedIndicatorColor,
+        unselectedIconColor: Color = this.unselectedIconColor,
+        unselectedTextColor: Color = this.unselectedTextColor,
+        disabledIconColor: Color = this.disabledIconColor,
+        disabledTextColor: Color = this.disabledTextColor,
+    ): NavigationItemColors =
+        NavigationItemColors(
+            selectedIconColor = selectedIconColor.takeOrElse { this.selectedIconColor },
+            selectedTextColorTopIconPosition =
+                selectedTextColorTopIconPosition.takeOrElse {
+                    this.selectedTextColorTopIconPosition
+                },
+            selectedTextColorStartIconPosition =
+                selectedTextColorStartIconPosition.takeOrElse {
+                    this.selectedTextColorStartIconPosition
+                },
+            selectedIndicatorColor =
+                selectedIndicatorColor.takeOrElse { this.selectedIndicatorColor },
+            unselectedIconColor = unselectedIconColor.takeOrElse { this.unselectedIconColor },
+            unselectedTextColor = unselectedTextColor.takeOrElse { this.unselectedTextColor },
+            disabledIconColor = disabledIconColor.takeOrElse { this.disabledIconColor },
+            disabledTextColor = disabledTextColor.takeOrElse { this.disabledTextColor },
+        )
+
+    @Deprecated(
+        message = "Use selectedTextColorTopIconPosition instead",
+        replaceWith = ReplaceWith("selectedTextColorTopIconPosition"),
+        level = DeprecationLevel.WARNING,
+    )
+    public val selectedTextColor: Color
+        get() = selectedTextColorTopIconPosition
 
     /**
      * Represents the icon color for this item, depending on whether it is [selected].
@@ -161,17 +240,33 @@ public constructor(
         }
     }
 
+    @Deprecated(
+        message = "Use the overload that takes isIconPositionTop instead",
+        replaceWith = ReplaceWith("textColor(selected, enabled, true)"),
+        level = DeprecationLevel.HIDDEN,
+    )
+    @Stable
+    public fun textColor(selected: Boolean, enabled: Boolean): Color {
+        return textColor(selected = selected, enabled = enabled, isIconPositionTop = true)
+    }
+
     /**
      * Represents the text color for this item, depending on whether it is [selected].
      *
      * @param selected whether the item is selected
      * @param enabled whether the item is enabled
+     * @param isIconPositionTop whether the icon is at the top position
      */
     @Stable
-    public fun textColor(selected: Boolean, enabled: Boolean): Color {
+    public fun textColor(
+        selected: Boolean,
+        enabled: Boolean,
+        isIconPositionTop: Boolean = true,
+    ): Color {
         return when {
             !enabled -> disabledTextColor
-            selected -> selectedTextColor
+            selected && !isIconPositionTop -> selectedTextColorStartIconPosition
+            selected && isIconPositionTop -> selectedTextColorTopIconPosition
             else -> unselectedTextColor
         }
     }
@@ -182,7 +277,9 @@ public constructor(
 
         if (selectedIconColor != other.selectedIconColor) return false
         if (unselectedIconColor != other.unselectedIconColor) return false
-        if (selectedTextColor != other.selectedTextColor) return false
+        if (selectedTextColorTopIconPosition != other.selectedTextColorTopIconPosition) return false
+        if (selectedTextColorStartIconPosition != other.selectedTextColorStartIconPosition)
+            return false
         if (unselectedTextColor != other.unselectedTextColor) return false
         if (selectedIndicatorColor != other.selectedIndicatorColor) return false
         if (disabledIconColor != other.disabledIconColor) return false
@@ -194,7 +291,8 @@ public constructor(
     override fun hashCode(): Int {
         var result = selectedIconColor.hashCode()
         result = 31 * result + unselectedIconColor.hashCode()
-        result = 31 * result + selectedTextColor.hashCode()
+        result = 31 * result + selectedTextColorTopIconPosition.hashCode()
+        result = 31 * result + selectedTextColorStartIconPosition.hashCode()
         result = 31 * result + unselectedTextColor.hashCode()
         result = 31 * result + selectedIndicatorColor.hashCode()
         result = 31 * result + disabledIconColor.hashCode()
@@ -260,7 +358,16 @@ internal fun NavigationItem(
         if (label == null) {
             null
         } else {
-            { StyledLabel(selected, labelTextStyle, colors, enabled, label) }
+            {
+                StyledLabel(
+                    selected = selected,
+                    labelTextStyle = labelTextStyle,
+                    colors = colors,
+                    enabled = enabled,
+                    isIconPositionTop = iconPosition == NavigationItemIconPosition.Top,
+                    content = label,
+                )
+            }
         }
 
     var itemWidth by remember { mutableIntStateOf(0) }
@@ -396,6 +503,7 @@ internal fun AnimatedNavigationItem(
                         labelTextStyle = textStyle,
                         colors = colors,
                         enabled = enabled,
+                        isIconPositionTop = isIconPositionTop,
                         content = label,
                     )
                 }
@@ -1080,9 +1188,20 @@ private fun StyledLabel(
     labelTextStyle: TextStyle,
     colors: NavigationItemColors,
     enabled: Boolean,
+    isIconPositionTop: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val textColor = colors.textColor(selected = selected, enabled = enabled)
+    val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
+    val textColor by
+        animateColorAsState(
+            targetValue =
+                colors.textColor(
+                    selected = selected,
+                    enabled = enabled,
+                    isIconPositionTop = isIconPositionTop,
+                ),
+            animationSpec = colorAnimationSpec,
+        )
     ProvideContentColorTextStyle(
         contentColor = textColor,
         textStyle = labelTextStyle,

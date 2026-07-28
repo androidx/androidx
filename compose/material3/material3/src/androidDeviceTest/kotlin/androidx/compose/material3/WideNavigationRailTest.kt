@@ -275,7 +275,8 @@ class WideNavigationRailTest {
                 WideNavigationRailItemDefaults.colors()
                     .copy(
                         selectedIconColor = Color.Red,
-                        selectedTextColor = Color.Blue,
+                        selectedTextColorTopIconPosition = Color.Blue,
+                        selectedTextColorStartIconPosition = Color.Blue,
                         unselectedIconColor = Color.Green,
                         unselectedTextColor = Color.White,
                         disabledIconColor = Color.Gray,

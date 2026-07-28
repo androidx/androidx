@@ -986,7 +986,8 @@ private fun NavigationSuiteItem(
                 if ((!isNavigationSuite && navigationItemColors == null) || isNavigationSuite) {
                     ShortNavigationBarItemDefaults.colors(
                         selectedIconColor = defaultColors.selectedIconColor,
-                        selectedTextColor = defaultColors.selectedTextColor,
+                        selectedTextColorTopIconPosition = defaultColors.selectedTextColor,
+                        selectedTextColorStartIconPosition = defaultColors.selectedTextColor,
                         selectedIndicatorColor = defaultColors.selectedIndicatorColor,
                         unselectedIconColor = defaultColors.unselectedIconColor,
                         unselectedTextColor = defaultColors.unselectedTextColor,
@@ -1019,7 +1020,8 @@ private fun NavigationSuiteItem(
                     if (navigationItemColors != null) {
                         NavigationRailItemDefaults.colors(
                             selectedIconColor = navigationItemColors.selectedIconColor,
-                            selectedTextColor = navigationItemColors.selectedTextColor,
+                            selectedTextColor =
+                                navigationItemColors.selectedTextColorTopIconPosition,
                             indicatorColor = navigationItemColors.selectedIndicatorColor,
                             unselectedIconColor = navigationItemColors.unselectedIconColor,
                             unselectedTextColor = navigationItemColors.unselectedTextColor,
@@ -1052,7 +1054,8 @@ private fun NavigationSuiteItem(
                     if (navigationItemColors != null) {
                         NavigationDrawerItemDefaults.colors(
                             selectedIconColor = navigationItemColors.selectedIconColor,
-                            selectedTextColor = navigationItemColors.selectedTextColor,
+                            selectedTextColor =
+                                navigationItemColors.selectedTextColorStartIconPosition,
                             unselectedIconColor = navigationItemColors.unselectedIconColor,
                             unselectedTextColor = navigationItemColors.unselectedTextColor,
                             selectedContainerColor = navigationItemColors.selectedIndicatorColor,
