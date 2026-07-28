@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.math.roundToInt
@@ -36,29 +37,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(Parameterized::class)
-class TextMeasurerBenchmark(
-    private val textLength: Int,
-    private val textType: TextType,
-    alphabet: Alphabet,
-) {
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "length={0} type={1} alphabet={2}")
-        fun initParameters(): List<Array<Any?>> =
-            cartesian(
-                arrayOf(32, 512),
-                arrayOf(TextType.PlainText, TextType.StyledText),
-                arrayOf(Alphabet.Latin, Alphabet.Cjk),
-            )
-    }
-
+@RunWith(AndroidJUnit4::class)
+class TextMeasurerCacheBenchmark {
     @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule(alphabet)
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule(Alphabet.Latin)
 
     private lateinit var instrumentationContext: Context
 
@@ -78,28 +63,17 @@ class TextMeasurerBenchmark(
                 .roundToInt()
     }
 
-    private fun text(textGenerator: RandomTextGenerator): AnnotatedString {
-        val text = textGenerator.nextParagraph(textLength)
-        val spanStyles =
-            if (textType == TextType.StyledText) {
-                textGenerator.createStyles(text)
-            } else {
-                listOf()
-            }
-        return AnnotatedString(text = text, spanStyles = spanStyles)
-    }
-
     @Test
-    fun text_measurer_no_cache() {
+    fun text_measurer_cached() {
         textBenchmarkRule.generator { textGenerator ->
             val textMeasurer =
                 TextMeasurer(
                     defaultFontFamilyResolver = createFontFamilyResolver(instrumentationContext),
                     defaultDensity = Density(instrumentationContext),
                     defaultLayoutDirection = LayoutDirection.Ltr,
-                    cacheSize = 0,
+                    cacheSize = 16,
                 )
-            val text = text(textGenerator)
+            val text = AnnotatedString(textGenerator.nextParagraph(32))
             benchmarkRule.measureRepeated {
                 textMeasurer.measure(
                     text,

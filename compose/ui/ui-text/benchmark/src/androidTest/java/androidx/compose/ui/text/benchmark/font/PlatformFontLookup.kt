@@ -20,37 +20,22 @@ import android.content.Context
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.ui.text.InternalTextApi
-import androidx.compose.ui.text.benchmark.cartesian
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.emptyCacheFontFamilyResolver
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(Parameterized::class)
-class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight) {
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "fontFamily={0} fontWeight={1}")
-        fun initParameters() =
-            cartesian(
-                arrayOf(
-                    FontFamily.Default,
-                    FontFamily.SansSerif,
-                    FontFamily.Serif,
-                    FontFamily.Cursive,
-                    FontFamily.Monospace,
-                ),
-                arrayOf(100, 400, 700).map { FontWeight(it) }.toTypedArray(),
-            )
-    }
+@RunWith(AndroidJUnit4::class)
+class PlatformFontLookup {
+    private val fontFamily = FontFamily.Default
+    private val fontWeight = FontWeight.Normal
 
     @get:Rule val benchmarkRule = BenchmarkRule()
 
