@@ -1,3 +1,111 @@
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
+index 89e37fae4d9..113ab2d78c0 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
+@@ -426,56 +426,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
+         }
+     }
+ 
+-    @JvmOverloads
+-    fun androidNative(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
+-        return listOfNotNull(
+-            androidNativeX86(block),
+-            androidNativeX64(block),
+-            androidNativeArm64(block),
+-            androidNativeArm32(block),
+-        )
+-    }
+-
+-    @JvmOverloads
+-    fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
+-        return if (project.enableAndroidNative()) {
+-            kotlinExtension.androidNativeX86 { block?.execute(this) }
+-        } else {
+-            null
+-        }
+-    }
+-
+-    @JvmOverloads
+-    fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
+-        return if (project.enableAndroidNative()) {
+-            kotlinExtension.androidNativeX64 { block?.execute(this) }
+-        } else {
+-            null
+-        }
+-    }
+-
+-    @JvmOverloads
+-    fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
+-        return if (project.enableAndroidNative()) {
+-            kotlinExtension.androidNativeArm64 { block?.execute(this) }
+-        } else {
+-            null
+-        }
+-    }
+-
+-    @JvmOverloads
+-    fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+-        supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
+-        return if (project.enableAndroidNative()) {
+-            kotlinExtension.androidNativeArm32 { block?.execute(this) }
+-        } else {
+-            null
+-        }
+-    }
+-
+     @JvmOverloads
+     fun androidLibrary(
+         block: Action<KotlinMultiplatformAndroidLibraryTarget>? = null
+@@ -554,23 +504,11 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
+     @JvmOverloads
+     fun watchos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
+         return listOfNotNull(
+-            watchosArm32(block),
+             watchosArm64(block),
+             watchosDeviceArm64(block),
+             watchosSimulatorArm64(block),
+         )
+     }
+-
+-    @JvmOverloads
+-    fun watchosArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_32)
+-        return if (project.enableMac()) {
+-            kotlinExtension.watchosArm32 { block?.execute(this) }
+-        } else {
+-            null
+-        }
+-    }
+-
+     @JvmOverloads
+     fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+         supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
+index a86f6ad643e..857cf08dcf6 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
+@@ -780,18 +780,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
+ 
+         multiplatformExtension.jvm()
+ 
+-        multiplatformExtension.androidNativeX64()
+-        multiplatformExtension.androidNativeX86()
+-        multiplatformExtension.androidNativeArm32()
+-        multiplatformExtension.androidNativeArm64()
+-
+         multiplatformExtension.mingwX64()
+         multiplatformExtension.macosArm64()
+ 
+         multiplatformExtension.iosArm64()
+         multiplatformExtension.iosSimulatorArm64()
+ 
+-        multiplatformExtension.watchosArm32()
+         multiplatformExtension.watchosArm64()
+         multiplatformExtension.watchosDeviceArm64()
+         multiplatformExtension.watchosSimulatorArm64()
 diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
 index 6fece502bef..f1c96195b0b 100644
 --- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
@@ -17,6 +125,29 @@ index 6fece502bef..f1c96195b0b 100644
  
      constructor(
          kotlinTarget: KotlinTarget
+diff --git a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt b/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
+index e11c8cc95af..998cea54c06 100644
+--- a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
++++ b/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
+@@ -60,10 +60,6 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
+     JS("js", PlatformGroup.JS),
+     WASM_JS("wasmJs", PlatformGroup.WASM),
+     ANDROID("android", PlatformGroup.JVM),
+-    ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
+-    ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
+-    ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
+-    ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
+     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
+     MINGW_X_64("mingwx64", PlatformGroup.WINDOWS),
+     LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
+@@ -72,7 +68,6 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
+     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
+     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
+     WATCHOS_SIMULATOR_ARM_64("watchossimulatorarm64", PlatformGroup.MAC),
+-    WATCHOS_ARM_32("watchosarm32", PlatformGroup.MAC),
+     WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
+     WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
+     TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
 diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
 index e516bf8575b..bd3400df80f 100644
 --- a/buildSrc/shared.gradle
@@ -31,16 +162,23 @@ index e516bf8575b..bd3400df80f 100644
 +        apiVersion.set(KotlinVersion.KOTLIN_2_2)
      }
  }
-diff --git a/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt b/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
-index c02d9d12b62..e862d3e3b43 100644
---- a/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
-+++ b/room3/room3-gradle-plugin/src/test/java/androidx/room3/gradle/RoomKmpGradlePluginTest.kt
-@@ -72,7 +72,7 @@ class RoomKmpGradlePluginTest {
-             |  }
-             |
-             |  compilerOptions {
--            |    languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_1
-+            |    languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
-             |  }
-             |}
-             |
+diff --git a/collection/collection/bcv/native/current.ignore b/collection/collection/bcv/native/current.ignore
+new file mode 100644
+index 00000000000..3244f11b584
+--- /dev/null
++++ b/collection/collection/bcv/native/current.ignore
+@@ -0,0 +1,2 @@
++// Baseline format: 1.0
++[watchosArm32]: Target was removed
+\ No newline at end of file
+diff --git a/collection/collection/bcv/native/current.txt b/collection/collection/bcv/native/current.txt
+index 4b44b51158a..078af7b194a 100644
+--- a/collection/collection/bcv/native/current.txt
++++ b/collection/collection/bcv/native/current.txt
+@@ -1,5 +1,5 @@
+ // Klib ABI Dump
+-// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
++// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+ // Rendering settings:
+ // - Signature version: 2
+ // - Show manifest properties: true
