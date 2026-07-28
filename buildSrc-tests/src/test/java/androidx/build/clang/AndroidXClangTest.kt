@@ -16,8 +16,11 @@
 
 package androidx.build.clang
 
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.testfixtures.ProjectBuilder
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.junit.AssumptionViolatedException
@@ -245,6 +248,34 @@ class AndroidXClangTest : BaseClangTest() {
                 assertThat(outputFile.get().asFile.name).isEqualTo("exec1")
             }
         }
+    }
+
+    @Test
+    fun ndkBundleVersionMismatches() {
+        val mockCheckoutRoot = tmpFolder.newFolder()
+        val platform = if (HostManager.hostIsMac) "darwin" else "linux"
+        val ndkBundleDir = mockCheckoutRoot.resolve("prebuilts/fullsdk-$platform/ndk-bundle")
+        ndkBundleDir.mkdirs()
+        ndkBundleDir
+            .resolve("source.properties")
+            .writeText(
+                """
+                Pkg.Revision = 26.1.10909125
+                """
+                    .trimIndent()
+            )
+
+        val mockSupportRoot = mockCheckoutRoot.resolve("frameworks/support")
+        mockSupportRoot.mkdirs()
+
+        val testProject = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
+        val extension = testProject.rootProject.property("ext") as ExtraPropertiesExtension
+        extension.set("supportRootFolder", mockSupportRoot)
+        extension.set("androidx.ndkVersion", "27.0.12077973")
+
+        assertThrows<IllegalStateException> { testProject.getNdkDirectory() }
+            .hasMessageThat()
+            .contains("does not match the expected NDK version")
     }
 
     private fun ConfigurableFileCollection.regularFileNames() = asFileTree.files.map { it.name }
