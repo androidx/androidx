@@ -53,8 +53,6 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
 
-    androidTestImplementation(libs.truth)
-
     // Hamcrest matchers:
     androidTestImplementation(libs.bundles.espressoContrib)
 }
