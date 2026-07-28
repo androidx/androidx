@@ -2218,6 +2218,8 @@ final class androidx.compose.ui.semantics/SemanticsConfiguration : androidx.comp
 }
 
 final class androidx.compose.ui.semantics/SemanticsNode { // androidx.compose.ui.semantics/SemanticsNode|null[0]
+    final val alpha // androidx.compose.ui.semantics/SemanticsNode.alpha|{}alpha[0]
+        final fun <get-alpha>(): kotlin/Float // androidx.compose.ui.semantics/SemanticsNode.alpha.<get-alpha>|<get-alpha>(){}[0]
     final val boundsInRoot // androidx.compose.ui.semantics/SemanticsNode.boundsInRoot|{}boundsInRoot[0]
         final fun <get-boundsInRoot>(): androidx.compose.ui.geometry/Rect // androidx.compose.ui.semantics/SemanticsNode.boundsInRoot.<get-boundsInRoot>|<get-boundsInRoot>(){}[0]
     final val boundsInWindow // androidx.compose.ui.semantics/SemanticsNode.boundsInWindow|{}boundsInWindow[0]

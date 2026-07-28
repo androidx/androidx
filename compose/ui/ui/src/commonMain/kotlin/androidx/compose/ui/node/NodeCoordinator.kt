@@ -150,11 +150,19 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     private var layerDensity: Density = layoutNode.density
     private var layerLayoutDirection: LayoutDirection = layoutNode.layoutDirection
 
-    private var lastLayerAlpha: Float = 0.8f
+    private var lastLayerAlpha: Float = 1f
+
+    internal val alpha: Float
+        get() {
+            val explicit = explicitLayer
+            if (explicit != null) return explicit.alpha
+            if (layer != null) return lastLayerAlpha
+            return 1f
+        }
 
     fun isTransparent(): Boolean {
-        if (layer != null && lastLayerAlpha <= 0f) return true
-        return this.wrappedBy?.isTransparent() ?: return false
+        if (alpha <= 0f) return true
+        return this.wrappedBy?.isTransparent() ?: false
     }
 
     override val alignmentLinesOwner: AlignmentLinesOwner
