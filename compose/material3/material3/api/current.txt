@@ -2586,27 +2586,37 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class NavigationItemColors {
-    ctor @KotlinOnly public NavigationItemColors(androidx.compose.ui.graphics.Color selectedIconColor, androidx.compose.ui.graphics.Color selectedTextColor, androidx.compose.ui.graphics.Color selectedIndicatorColor, androidx.compose.ui.graphics.Color unselectedIconColor, androidx.compose.ui.graphics.Color unselectedTextColor, androidx.compose.ui.graphics.Color disabledIconColor, androidx.compose.ui.graphics.Color disabledTextColor);
-    ctor @BytecodeOnly public NavigationItemColors(long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @KotlinOnly public androidx.compose.material3.NavigationItemColors copy(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColor, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
-    method @BytecodeOnly public androidx.compose.material3.NavigationItemColors copy-4JmcsL4(long, long, long, long, long, long, long);
-    method @BytecodeOnly public static androidx.compose.material3.NavigationItemColors! copy-4JmcsL4$default(androidx.compose.material3.NavigationItemColors!, long, long, long, long, long, long, long, int, Object!);
+    ctor @KotlinOnly @Deprecated public NavigationItemColors(androidx.compose.ui.graphics.Color selectedIconColor, androidx.compose.ui.graphics.Color selectedTextColor, androidx.compose.ui.graphics.Color selectedIndicatorColor, androidx.compose.ui.graphics.Color unselectedIconColor, androidx.compose.ui.graphics.Color unselectedTextColor, androidx.compose.ui.graphics.Color disabledIconColor, androidx.compose.ui.graphics.Color disabledTextColor);
+    ctor @KotlinOnly public NavigationItemColors(androidx.compose.ui.graphics.Color selectedIconColor, androidx.compose.ui.graphics.Color selectedTextColorTopIconPosition, androidx.compose.ui.graphics.Color selectedTextColorStartIconPosition, androidx.compose.ui.graphics.Color selectedIndicatorColor, androidx.compose.ui.graphics.Color unselectedIconColor, androidx.compose.ui.graphics.Color unselectedTextColor, androidx.compose.ui.graphics.Color disabledIconColor, androidx.compose.ui.graphics.Color disabledTextColor);
+    ctor @BytecodeOnly @Deprecated public NavigationItemColors(long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public NavigationItemColors(long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.compose.material3.NavigationItemColors copy(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColorTopIconPosition, optional androidx.compose.ui.graphics.Color selectedTextColorStartIconPosition, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
+    method @BytecodeOnly @Deprecated public androidx.compose.material3.NavigationItemColors! copy-4JmcsL4(long, long, long, long, long, long, long);
+    method @BytecodeOnly @Deprecated public static androidx.compose.material3.NavigationItemColors! copy-4JmcsL4$default(androidx.compose.material3.NavigationItemColors!, long, long, long, long, long, long, long, int, Object!);
+    method @BytecodeOnly public androidx.compose.material3.NavigationItemColors copy-FD3wquc(long, long, long, long, long, long, long, long);
+    method @BytecodeOnly public static androidx.compose.material3.NavigationItemColors! copy-FD3wquc$default(androidx.compose.material3.NavigationItemColors!, long, long, long, long, long, long, long, long, int, Object!);
     method @BytecodeOnly public long getDisabledIconColor-0d7_KjU();
     method @BytecodeOnly public long getDisabledTextColor-0d7_KjU();
     method @BytecodeOnly public long getSelectedIconColor-0d7_KjU();
     method @BytecodeOnly public long getSelectedIndicatorColor-0d7_KjU();
-    method @BytecodeOnly public long getSelectedTextColor-0d7_KjU();
+    method @BytecodeOnly @Deprecated public long getSelectedTextColor-0d7_KjU();
+    method @BytecodeOnly public long getSelectedTextColorStartIconPosition-0d7_KjU();
+    method @BytecodeOnly public long getSelectedTextColorTopIconPosition-0d7_KjU();
     method @BytecodeOnly public long getUnselectedIconColor-0d7_KjU();
     method @BytecodeOnly public long getUnselectedTextColor-0d7_KjU();
     method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Color iconColor(boolean selected, boolean enabled);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long iconColor-WaAFU9c(boolean, boolean);
-    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Color textColor(boolean selected, boolean enabled);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public long textColor-WaAFU9c(boolean, boolean);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.graphics.Color textColor(boolean selected, boolean enabled, optional boolean isIconPositionTop);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public long textColor-WaAFU9c(boolean, boolean);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public long textColor-XeAY9LY(boolean, boolean, boolean);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long textColor-XeAY9LY$default(androidx.compose.material3.NavigationItemColors!, boolean, boolean, boolean, int, Object!);
     property public androidx.compose.ui.graphics.Color disabledIconColor;
     property public androidx.compose.ui.graphics.Color disabledTextColor;
     property public androidx.compose.ui.graphics.Color selectedIconColor;
     property public androidx.compose.ui.graphics.Color selectedIndicatorColor;
-    property public androidx.compose.ui.graphics.Color selectedTextColor;
+    property @Deprecated public androidx.compose.ui.graphics.Color selectedTextColor;
+    property public androidx.compose.ui.graphics.Color selectedTextColorStartIconPosition;
+    property public androidx.compose.ui.graphics.Color selectedTextColorTopIconPosition;
     property public androidx.compose.ui.graphics.Color unselectedIconColor;
     property public androidx.compose.ui.graphics.Color unselectedTextColor;
   }
@@ -3446,8 +3456,9 @@ package androidx.compose.material3 {
   public final class ShortNavigationBarItemDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColor, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors-69fazGs(long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColorTopIconPosition, optional androidx.compose.ui.graphics.Color selectedTextColorStartIconPosition, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors! colors-69fazGs(long, long, long, long, long, long, long, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors-oq7We08(long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.compose.material3.ShortNavigationBarItemDefaults INSTANCE;
   }
 
@@ -4984,8 +4995,9 @@ package androidx.compose.material3 {
   public final class WideNavigationRailItemDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColor, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors-69fazGs(long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors(optional androidx.compose.ui.graphics.Color selectedIconColor, optional androidx.compose.ui.graphics.Color selectedTextColorTopIconPosition, optional androidx.compose.ui.graphics.Color selectedTextColorStartIconPosition, optional androidx.compose.ui.graphics.Color selectedIndicatorColor, optional androidx.compose.ui.graphics.Color unselectedIconColor, optional androidx.compose.ui.graphics.Color unselectedTextColor, optional androidx.compose.ui.graphics.Color disabledIconColor, optional androidx.compose.ui.graphics.Color disabledTextColor);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors! colors-69fazGs(long, long, long, long, long, long, long, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.NavigationItemColors colors-oq7We08(long, long, long, long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getIndicatorCollapsedPadding();
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getIndicatorExpandedPadding();
     method @KotlinOnly public androidx.compose.material3.NavigationItemIconPosition iconPositionFor(boolean railExpanded);
