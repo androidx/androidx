@@ -16,6 +16,7 @@
 package androidx.webgpu
 
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
 import androidx.webgpu.helper.WebGpu
@@ -119,6 +120,7 @@ class BufferTest {
     /** Verifies the data integrity of a full CPU -> GPU -> CPU round trip. */
     @MediumTest
     @Test
+    @SdkSuppress(maxSdkVersion = 36) // b/537525245
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
     fun testWriteAndReadBuffer() {
         val queue = device.getQueue()
