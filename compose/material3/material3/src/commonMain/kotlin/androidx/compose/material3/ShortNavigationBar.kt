@@ -272,7 +272,10 @@ public object ShortNavigationBarItemDefaults {
      * specification.
      *
      * @param selectedIconColor the color to use for the icon when the item is selected.
-     * @param selectedTextColor the color to use for the text label when the item is selected.
+     * @param selectedTextColorTopIconPosition the color to use for the text label when the item is
+     *   selected and is in the Top icon position configuration.
+     * @param selectedTextColorStartIconPosition the color to use for the text label when the item
+     *   is selected and is in the Start icon position configuration.
      * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
      * @param unselectedIconColor the color to use for the icon when the item is unselected.
      * @param unselectedTextColor the color to use for the text label when the item is unselected.
@@ -283,7 +286,9 @@ public object ShortNavigationBarItemDefaults {
     @Composable
     public fun colors(
         selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
-        selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
+        selectedTextColorTopIconPosition: Color =
+            NavigationBarTokens.ItemActiveLabelTextColor.value,
+        selectedTextColorStartIconPosition: Color = NavigationBarTokens.ItemActiveIconColor.value,
         selectedIndicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,
         unselectedIconColor: Color = NavigationBarTokens.ItemInactiveIconColor.value,
         unselectedTextColor: Color = NavigationBarTokens.ItemInactiveLabelTextColor.value,
@@ -292,7 +297,30 @@ public object ShortNavigationBarItemDefaults {
     ): NavigationItemColors =
         MaterialTheme.colorScheme.defaultShortNavigationBarItemColors.copy(
             selectedIconColor = selectedIconColor,
-            selectedTextColor = selectedTextColor,
+            selectedTextColorTopIconPosition = selectedTextColorTopIconPosition,
+            selectedTextColorStartIconPosition = selectedTextColorStartIconPosition,
+            selectedIndicatorColor = selectedIndicatorColor,
+            unselectedIconColor = unselectedIconColor,
+            unselectedTextColor = unselectedTextColor,
+            disabledIconColor = disabledIconColor,
+            disabledTextColor = disabledTextColor,
+        )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    @Composable
+    public fun colors(
+        selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
+        selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
+        selectedIndicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationBarTokens.ItemInactiveIconColor.value,
+        unselectedTextColor: Color = NavigationBarTokens.ItemInactiveLabelTextColor.value,
+        disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
+        disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
+    ): NavigationItemColors =
+        colors(
+            selectedIconColor = selectedIconColor,
+            selectedTextColorTopIconPosition = selectedTextColor,
+            selectedTextColorStartIconPosition = selectedTextColor,
             selectedIndicatorColor = selectedIndicatorColor,
             unselectedIconColor = unselectedIconColor,
             unselectedTextColor = unselectedTextColor,
@@ -305,7 +333,12 @@ public object ShortNavigationBarItemDefaults {
             return defaultShortNavigationBarItemColorsCached
                 ?: NavigationItemColors(
                         selectedIconColor = fromToken(NavigationBarTokens.ItemActiveIconColor),
-                        selectedTextColor = fromToken(NavigationBarTokens.ItemActiveLabelTextColor),
+                        selectedTextColorTopIconPosition =
+                            fromToken(NavigationBarTokens.ItemActiveLabelTextColor),
+                        // TODO: Replace with the correct token once it is available in
+                        // NavigationBarTokens
+                        selectedTextColorStartIconPosition =
+                            fromToken(NavigationBarTokens.ItemActiveIconColor),
                         selectedIndicatorColor =
                             fromToken(NavigationBarTokens.ItemActiveIndicatorColor),
                         unselectedIconColor = fromToken(NavigationBarTokens.ItemInactiveIconColor),

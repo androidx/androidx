@@ -1035,7 +1035,10 @@ public object WideNavigationRailItemDefaults {
      * specification.
      *
      * @param selectedIconColor the color to use for the icon when the item is selected.
-     * @param selectedTextColor the color to use for the text label when the item is selected.
+     * @param selectedTextColorTopIconPosition the color to use for the text label when the item is
+     *   selected and the icon is at the top.
+     * @param selectedTextColorStartIconPosition the color to use for the text label when the item
+     *   is selected and the icon is at the start.
      * @param selectedIndicatorColor the color to use for the indicator when the item is selected.
      * @param unselectedIconColor the color to use for the icon when the item is unselected.
      * @param unselectedTextColor the color to use for the text label when the item is unselected.
@@ -1046,7 +1049,10 @@ public object WideNavigationRailItemDefaults {
     @Composable
     public fun colors(
         selectedIconColor: Color = NavigationRailColorTokens.ItemActiveIcon.value,
-        selectedTextColor: Color = NavigationRailColorTokens.ItemActiveLabelText.value,
+        selectedTextColorTopIconPosition: Color =
+            NavigationRailColorTokens.ItemActiveLabelText.value,
+        // TODO: Replace with the correct token once it is available in NavigationRailColorTokens
+        selectedTextColorStartIconPosition: Color = NavigationRailColorTokens.ItemActiveIcon.value,
         selectedIndicatorColor: Color = NavigationRailColorTokens.ItemActiveIndicator.value,
         unselectedIconColor: Color = NavigationRailColorTokens.ItemInactiveIcon.value,
         unselectedTextColor: Color = NavigationRailColorTokens.ItemInactiveLabelText.value,
@@ -1055,7 +1061,30 @@ public object WideNavigationRailItemDefaults {
     ): NavigationItemColors =
         MaterialTheme.colorScheme.defaultWideNavigationRailItemColors.copy(
             selectedIconColor = selectedIconColor,
-            selectedTextColor = selectedTextColor,
+            selectedTextColorTopIconPosition = selectedTextColorTopIconPosition,
+            selectedTextColorStartIconPosition = selectedTextColorStartIconPosition,
+            selectedIndicatorColor = selectedIndicatorColor,
+            unselectedIconColor = unselectedIconColor,
+            unselectedTextColor = unselectedTextColor,
+            disabledIconColor = disabledIconColor,
+            disabledTextColor = disabledTextColor,
+        )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    @Composable
+    public fun colors(
+        selectedIconColor: Color = NavigationRailColorTokens.ItemActiveIcon.value,
+        selectedTextColor: Color = NavigationRailColorTokens.ItemActiveLabelText.value,
+        selectedIndicatorColor: Color = NavigationRailColorTokens.ItemActiveIndicator.value,
+        unselectedIconColor: Color = NavigationRailColorTokens.ItemInactiveIcon.value,
+        unselectedTextColor: Color = NavigationRailColorTokens.ItemInactiveLabelText.value,
+        disabledIconColor: Color = unselectedIconColor.copy(alpha = DisabledAlpha),
+        disabledTextColor: Color = unselectedTextColor.copy(alpha = DisabledAlpha),
+    ): NavigationItemColors =
+        colors(
+            selectedIconColor = selectedIconColor,
+            selectedTextColorTopIconPosition = selectedTextColor,
+            selectedTextColorStartIconPosition = selectedTextColor,
             selectedIndicatorColor = selectedIndicatorColor,
             unselectedIconColor = unselectedIconColor,
             unselectedTextColor = unselectedTextColor,
@@ -1086,8 +1115,12 @@ public object WideNavigationRailItemDefaults {
             return defaultWideNavigationRailItemColorsCached
                 ?: NavigationItemColors(
                         selectedIconColor = fromToken(NavigationRailColorTokens.ItemActiveIcon),
-                        selectedTextColor =
+                        selectedTextColorTopIconPosition =
                             fromToken(NavigationRailColorTokens.ItemActiveLabelText),
+                        // TODO: Replace with the correct token once it is available in
+                        // NavigationRailColorTokens
+                        selectedTextColorStartIconPosition =
+                            fromToken(NavigationRailColorTokens.ItemActiveIcon),
                         selectedIndicatorColor =
                             fromToken(NavigationRailColorTokens.ItemActiveIndicator),
                         unselectedIconColor = fromToken(NavigationRailColorTokens.ItemInactiveIcon),
