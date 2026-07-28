@@ -628,10 +628,7 @@ public class Operations {
                 }
                 listProfiles.add(widgets);
             }
-            if ((profiles & PROFILE_ANDROID_NATIVE) != 0) {
-                throw new UnsupportedOperationException(
-                        "Android native profiles are defined externally");
-            }
+            // Profiles defined externally (e.g. PROFILE_ANDROID_NATIVE) add no built-in profile overrides here.
 
             if (listProfiles.size() == 1) {
                 mapV7.putAll(listProfiles.get(0));
