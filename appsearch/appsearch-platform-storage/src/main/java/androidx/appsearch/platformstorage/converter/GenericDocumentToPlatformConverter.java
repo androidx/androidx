@@ -129,9 +129,12 @@ public final class GenericDocumentToPlatformConverter {
      * {@link androidx.appsearch.app.GenericDocument}.
      */
     @SuppressWarnings("deprecation")
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public static @NonNull GenericDocument toJetpackGenericDocument(
-            android.app.appsearch.@NonNull GenericDocument platformDocument) {
+            android.app.appsearch.@NonNull GenericDocument platformDocument,
+            @NonNull PlatformConversionAdapter adapter) {
         Preconditions.checkNotNull(platformDocument);
+        Preconditions.checkNotNull(adapter);
         GenericDocument.Builder<GenericDocument.Builder<?>> jetpackBuilder =
                 new GenericDocument.Builder<>(
                         platformDocument.getNamespace(),
@@ -167,7 +170,7 @@ public final class GenericDocumentToPlatformConverter {
                         (android.app.appsearch.GenericDocument[]) property;
                 GenericDocument[] jetpackSubDocuments = new GenericDocument[documentValues.length];
                 for (int j = 0; j < documentValues.length; j++) {
-                    jetpackSubDocuments[j] = toJetpackGenericDocument(documentValues[j]);
+                    jetpackSubDocuments[j] = toJetpackGenericDocument(documentValues[j], adapter);
                 }
                 jetpackBuilder.setPropertyDocument(propertyName, jetpackSubDocuments);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
@@ -175,7 +178,7 @@ public final class GenericDocumentToPlatformConverter {
                 android.app.appsearch.EmbeddingVector[] embeddingVectors =
                         (android.app.appsearch.EmbeddingVector[]) property;
                 ApiHelperForB.setJetpackPropertyEmbedding(jetpackBuilder, propertyName,
-                        embeddingVectors);
+                        embeddingVectors, adapter);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
                     && property instanceof android.app.appsearch.AppSearchBlobHandle[]) {
                 android.app.appsearch.AppSearchBlobHandle[] blobHandles =
@@ -240,18 +243,19 @@ public final class GenericDocumentToPlatformConverter {
             platformBuilder.setPropertyBlobHandle(propertyName, platformBlobHandles);
         }
 
-        @SuppressLint("NewApi") // getValues() is incorrectly flagged as needing 34-ext16
         @DoNotInline
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         static void setJetpackPropertyEmbedding(
                 GenericDocument.@NonNull Builder<GenericDocument.Builder<?>> jetpackBuilder,
                 @NonNull String propertyName,
-                android.app.appsearch.EmbeddingVector @NonNull [] platformEmbeddingVectors) {
+                android.app.appsearch.EmbeddingVector @NonNull [] platformEmbeddingVectors,
+                @NonNull PlatformConversionAdapter adapter) {
+            Preconditions.checkNotNull(adapter);
             EmbeddingVector[] jetpackEmbeddingVectors =
                     new EmbeddingVector[platformEmbeddingVectors.length];
             for (int i = 0; i < platformEmbeddingVectors.length; i++) {
-                jetpackEmbeddingVectors[i] = new EmbeddingVector(
-                        platformEmbeddingVectors[i].getValues(),
-                        platformEmbeddingVectors[i].getModelSignature());
+                jetpackEmbeddingVectors[i] =
+                        adapter.toJetpackEmbeddingVector(platformEmbeddingVectors[i]);
             }
             jetpackBuilder.setPropertyEmbedding(propertyName, jetpackEmbeddingVectors);
         }

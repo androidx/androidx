@@ -16,6 +16,7 @@
 
 package androidx.appsearch.testutil;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -129,6 +130,18 @@ public class TestPlatformConversionAdapter implements PlatformConversionAdapter 
             return ApiHelperForB.createDummyEmbeddingVector();
         }
         throw new UnsupportedOperationException("Not supported on this SDK: " + Build.VERSION.SDK_INT);
+    }
+
+    @SuppressLint("NewApi") // getValues() is incorrectly flagged as needing 34-ext16
+    @Override
+    public @NonNull EmbeddingVector toJetpackEmbeddingVector(
+            android.app.appsearch.@NonNull EmbeddingVector platformEmbeddingVector) {
+        if (mCapturedEmbeddingVector != null) {
+            return mCapturedEmbeddingVector;
+        }
+        return new EmbeddingVector(
+                platformEmbeddingVector.getValues(),
+                platformEmbeddingVector.getModelSignature());
     }
 
     @Override
