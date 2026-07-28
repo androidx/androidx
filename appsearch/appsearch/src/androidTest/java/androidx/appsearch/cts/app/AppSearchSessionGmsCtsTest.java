@@ -31,7 +31,7 @@ import org.junit.Assume;
 
 import java.util.concurrent.ExecutorService;
 
-@SdkSuppress(minSdkVersion = 24)
+@SdkSuppress(minSdkVersion = 25)
 public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
 
     private boolean mIsGmsAvailable;
