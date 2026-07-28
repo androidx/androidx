@@ -73,7 +73,6 @@ class LazyStaggeredGridCacheWindowTest(orientation: Orientation) :
         cacheWindow: LazyLayoutCacheWindow,
         itemSize: (Int) -> Dp,
     ) {
-        @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407927787
         state =
             LazyStaggeredGridState(
                 initialFirstVisibleItems = intArrayOf(firstItem),
