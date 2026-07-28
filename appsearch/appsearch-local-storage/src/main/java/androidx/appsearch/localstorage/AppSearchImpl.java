@@ -3283,24 +3283,25 @@ public final class AppSearchImpl implements Closeable {
                     searchResultProto.getQueryStats().getLatencyMs());
         }
 
-        if (!Flags.enableClientSidePagination()) {
-            long nextPageToken = searchResultProto.getNextPageToken();
-            if (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN
-                    && searchResultProto.getResultsCount() > 0
-                    && searchResultProto.getResultsCount() < resultSpec.getNumPerPage()) {
-                // Did not get a full page of results in the initial search. Do getNextPage until we
-                // get a full result page or we run out of results.
-                SearchResultProto.Builder finalSearchResultProtoBuilder =
-                        SearchResultProto.newBuilder(searchResultProto);
-                retrieveMoreResultsLocked(
-                        nextPageToken,
-                        /* remainingResultCount= */ resultSpec.getNumPerPage()
-                                - searchResultProto.getResultsCount(),
-                        finalSearchResultProtoBuilder,
-                        queryStatsBuilder,
-                        callStatsBuilder);
-                searchResultProto = finalSearchResultProtoBuilder.build();
-            }
+        long nextPageToken = searchResultProto.getNextPageToken();
+        if (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN
+                && searchResultProto.getResultsCount() > 0
+                && searchResultProto.getResultsCount() < resultSpec.getNumPerPage()) {
+            // Did not get a full page of results in the initial search. Do getNextPage until we
+            // get a full result page, hit maxAccumulatedResultBytes limit, or we run out of
+            // results.
+            SearchResultProto.Builder finalSearchResultProtoBuilder =
+                    SearchResultProto.newBuilder(searchResultProto);
+            int initialResultBytes = searchResultProto.getResponseBytes();
+            retrieveMoreResultsLocked(
+                    nextPageToken,
+                    /* remainingResultCount= */ resultSpec.getNumPerPage()
+                            - searchResultProto.getResultsCount(),
+                    initialResultBytes,
+                    finalSearchResultProtoBuilder,
+                    queryStatsBuilder,
+                    callStatsBuilder);
+            searchResultProto = finalSearchResultProtoBuilder.build();
         }
         if (queryStatsBuilder != null) {
             queryStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
@@ -3321,6 +3322,7 @@ public final class AppSearchImpl implements Closeable {
      * {@code searchResultProtoBuilder}.
      */
     private void retrieveMoreResultsLocked(long nextPageToken, int remainingResultCount,
+            int initialResultBytes,
             SearchResultProto.@NonNull Builder searchResultProtoBuilder,
             QueryStats.@Nullable Builder queryStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
@@ -3328,7 +3330,13 @@ public final class AppSearchImpl implements Closeable {
         int totalAdditionalResults = 0;
         long additionalPageRetrievalLatencyStartMillis = SystemClock.elapsedRealtime();
 
-        while (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN && remainingResultCount > 0) {
+        int accumulatedResultBytes = initialResultBytes;
+        int maxAccumulatedResultBytes = mConfig.getMaxAccumulatedResultBytes();
+
+        while (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN
+                && remainingResultCount > 0
+                && (!Flags.enableClientSidePagination()
+                        || accumulatedResultBytes < maxAccumulatedResultBytes)) {
             GetNextPageRequestProto getNextPageRequest = GetNextPageRequestProto.newBuilder()
                     .setNextPageToken(nextPageToken)
                     .setMaxResultsToRetrieveFromPage(remainingResultCount)
@@ -3351,6 +3359,7 @@ public final class AppSearchImpl implements Closeable {
                     nextResultPageProto);
             checkSuccess(nextResultPageProto.getStatus());
 
+            accumulatedResultBytes += nextResultPageProto.getResponseBytes();
             ++numAdditionalPages;
             nextPageToken = nextResultPageProto.getNextPageToken();
             mergeSearchResultProtos(nextResultPageProto, searchResultProtoBuilder);
@@ -3613,21 +3622,28 @@ public final class AppSearchImpl implements Closeable {
                     searchResultProto);
             checkSuccess(searchResultProto.getStatus());
 
-            if (!Flags.enableClientSidePagination()) {
-                int remainingResultCount = searchResultProto.getQueryStats().getRequestedPageSize()
-                        - searchResultProto.getResultsCount();
-                if (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN
-                        && searchResultProto.getResultsCount() > 0
-                        && remainingResultCount > 0) {
-                    SearchResultProto.Builder finalSearchResultsBuilder =
-                            SearchResultProto.newBuilder(searchResultProto);
-                    // Did not get a full page of results during the initial getNextPage. Do more
-                    // getNextPage calls until we get a full result page or we run out of results.
-                    retrieveMoreResultsLocked(searchResultProto.getNextPageToken(),
-                            remainingResultCount, finalSearchResultsBuilder, queryStatsBuilder,
-                            callStatsBuilder);
-                    searchResultProto = finalSearchResultsBuilder.build();
-                }
+            int remainingResultCount =
+                    Flags.enableClientSidePagination()
+                            ? maxResults - searchResultProto.getResultsCount()
+                            : searchResultProto.getQueryStats().getRequestedPageSize()
+                                    - searchResultProto.getResultsCount();
+            if (nextPageToken != SearchResultPage.EMPTY_PAGE_TOKEN
+                    && searchResultProto.getResultsCount() > 0
+                    && remainingResultCount > 0) {
+                SearchResultProto.Builder finalSearchResultsBuilder =
+                        SearchResultProto.newBuilder(searchResultProto);
+                int initialResultBytes = searchResultProto.getResponseBytes();
+                // Did not get a full page of results during the initial getNextPage. Do more
+                // getNextPage calls until we get a full result page, hit maxAccumulatedResultBytes
+                // limit, or run out of results.
+                retrieveMoreResultsLocked(
+                        searchResultProto.getNextPageToken(),
+                        remainingResultCount,
+                        initialResultBytes,
+                        finalSearchResultsBuilder,
+                        queryStatsBuilder,
+                        callStatsBuilder);
+                searchResultProto = finalSearchResultsBuilder.build();
             }
             if (queryStatsBuilder != null) {
                 queryStatsBuilder.setStatusCode(statusProtoToResultCode(
