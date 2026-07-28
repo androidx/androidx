@@ -16,6 +16,7 @@
 package androidx.webgpu
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.webgpu.GPU.createInstance
 import androidx.webgpu.WebGpuTestConstants.EMULATOR_TESTS_MIN_API_LEVEL
@@ -67,6 +68,7 @@ class AdapterTest {
 
     @Test
     @ApiRequirement(minApi = EMULATOR_TESTS_MIN_API_LEVEL, onlySkipOnEmulator = true)
+    @SdkSuppress(maxSdkVersion = 36) // b/537525245
     fun adapterBackendTest() {
         val adapterInfo = adapter.getInfo()
         assertEquals(
