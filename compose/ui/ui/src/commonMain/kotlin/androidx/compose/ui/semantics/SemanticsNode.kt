@@ -216,6 +216,13 @@ internal constructor(
         return parentCoordinatorForBounds.localBoundingBoxOf(nodeCoordinates)
     }
 
+    /**
+     * The effective composite alpha (opacity) of this node, computed by resolving the product of
+     * this node's layer alpha and all ancestor layer alphas.
+     */
+    public val alpha: Float
+        get() = computeEffectiveAlpha()
+
     /** Whether this node is transparent. */
     internal val isTransparent: Boolean
         get() = findCoordinatorToGetBounds()?.isTransparent() ?: false
@@ -253,6 +260,21 @@ internal constructor(
                 return unmergedConfig
             }
         }
+
+    private fun computeEffectiveAlpha(): Float {
+        var alpha = 1f
+        var coordinator: NodeCoordinator? = layoutNode.innerCoordinator
+        while (coordinator != null) {
+            // Checking whether coordinator.layer is non-null
+            // handles both implicit and explicit layers.
+            if (coordinator.layer != null) {
+                alpha *= coordinator.alpha
+                if (alpha == 0f) break
+            }
+            coordinator = coordinator.wrappedBy
+        }
+        return alpha
+    }
 
     private fun mergeConfig(
         unmergedChildren: MutableList<SemanticsNode>,
