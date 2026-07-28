@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.internal
 
+import android.hardware.HardwareBuffer
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -31,6 +32,7 @@ import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
@@ -364,6 +366,152 @@ class FrameDistributorTest {
         assertThat(fakeImage3.isClosed).isTrue()
         assertThat(fakeImage4.isClosed).isTrue()
         assertThat(fakeImage5.isClosed).isTrue()
+    }
+
+    @Test
+    fun selectTimestampMatcher_cameraRealtimeOutputMonotonic_fuzzyEqual() {
+        // output monotonic time
+        val imageSourceConfig =
+            ImageSourceConfig(capacity = 5, usageFlags = HardwareBuffer.USAGE_VIDEO_ENCODE)
+        val cameraStreamConfig =
+            CameraStream.Config.create(
+                Size(1920, 1080),
+                StreamFormat.YUV_420_888,
+                imageSourceConfig = imageSourceConfig,
+            )
+        val sleepTimeNs = -100_000_000L
+        val realTimeNs = 500_000_000L
+        val monoTimeNs = 400_000_000L
+
+        val matcher =
+            FrameDistributor.selectTimestampMatcher(
+                cameraStreamId = StreamId(1),
+                cameraStreamConfig = cameraStreamConfig,
+                imageSourceConfig = imageSourceConfig,
+                isCameraTimebaseRealtime = true, // camera real time
+                realtimeToMonotonicOffsetNs = sleepTimeNs,
+            )
+
+        assertThat(matcher.fuzzyEqual(realTimeNs, monoTimeNs)).isTrue()
+    }
+
+    @Test
+    fun selectTimestampMatcher_cameraMonotonicOutputRealtime_fuzzyEqual() {
+        val imageSourceConfig = ImageSourceConfig(capacity = 5)
+        // output real time
+        val outputStreamConfig =
+            OutputStream.Config.create(
+                size = Size(1920, 1080),
+                format = StreamFormat.YUV_420_888,
+                timestampBase = OutputStream.TimestampBase.TIMESTAMP_BASE_REALTIME,
+            )
+        val cameraStreamConfig =
+            CameraStream.Config.create(
+                outputs = listOf(outputStreamConfig),
+                imageSourceConfig = imageSourceConfig,
+            )
+        val sleepTimeNs = -100_000_000L
+        val realTimeNs = 500_000_000L
+        val monoTimeNs = 400_000_000L
+
+        val matcher =
+            FrameDistributor.selectTimestampMatcher(
+                cameraStreamId = StreamId(1),
+                cameraStreamConfig = cameraStreamConfig,
+                imageSourceConfig = imageSourceConfig,
+                isCameraTimebaseRealtime = false, // camera monotonic time
+                realtimeToMonotonicOffsetNs = sleepTimeNs,
+            )
+
+        assertThat(matcher.fuzzyEqual(monoTimeNs, realTimeNs)).isTrue()
+    }
+
+    @Test
+    fun frameDistributor_cameraRealtimeOutputMonotonic_positiveJitter_noFrameDrop() {
+        val imageSourceConfig =
+            ImageSourceConfig(capacity = 5, usageFlags = HardwareBuffer.USAGE_VIDEO_ENCODE)
+        val cameraStreamConfig =
+            CameraStream.Config.create(
+                Size(1920, 1080),
+                StreamFormat.YUV_420_888,
+                imageSourceConfig = imageSourceConfig,
+            )
+        val localImageSimulator = ImageSimulator(listOf(cameraStreamConfig))
+        val streamId = localImageSimulator.streamGraph[cameraStreamConfig]!!.id
+        val outputId = localImageSimulator.streamGraph[cameraStreamConfig]!!.outputs.first().id
+        val fakeRequestMetadata =
+            FakeRequestMetadata.from(
+                Request(streams = listOf(streamId)),
+                localImageSimulator.streamToSurfaceMap,
+                repeating = false,
+            )
+        val fakeFrameBuffer = FakeFrameBuffer()
+        val localFrameDistributor =
+            FrameDistributor(
+                    localImageSimulator.streamGraph,
+                    FrameCaptureQueue(),
+                    isCameraTimebaseRealtime = true,
+                    realtimeToMonotonicOffsetNs = -100_000_000L,
+                )
+                .also { it.frameStartedListener = fakeFrameBuffer }
+
+        localFrameDistributor.onStarted(
+            fakeRequestMetadata,
+            FrameNumber(420),
+            CameraTimestamp(500_000_000L),
+        )
+        val frame = fakeFrameBuffer.frames[0]
+        val unused = localImageSimulator.simulateImage(streamId, 405_000_000L)
+
+        assertThat(frame.isImageAvailable(streamId)).isTrue()
+        assertThat(frame.isImageAvailable(outputId)).isTrue()
+
+        frame.close()
+        localImageSimulator.close()
+    }
+
+    @Test
+    fun frameDistributor_cameraRealtimeOutputMonotonic_negativeJitter_noFrameDrop() {
+        val imageSourceConfig =
+            ImageSourceConfig(capacity = 5, usageFlags = HardwareBuffer.USAGE_VIDEO_ENCODE)
+        val cameraStreamConfig =
+            CameraStream.Config.create(
+                Size(1920, 1080),
+                StreamFormat.YUV_420_888,
+                imageSourceConfig = imageSourceConfig,
+            )
+        val localImageSimulator = ImageSimulator(listOf(cameraStreamConfig))
+        val streamId = localImageSimulator.streamGraph[cameraStreamConfig]!!.id
+        val outputId = localImageSimulator.streamGraph[cameraStreamConfig]!!.outputs.first().id
+        val fakeRequestMetadata =
+            FakeRequestMetadata.from(
+                Request(streams = listOf(streamId)),
+                localImageSimulator.streamToSurfaceMap,
+                repeating = false,
+            )
+        val fakeFrameBuffer = FakeFrameBuffer()
+        val localFrameDistributor =
+            FrameDistributor(
+                    localImageSimulator.streamGraph,
+                    FrameCaptureQueue(),
+                    isCameraTimebaseRealtime = true,
+                    realtimeToMonotonicOffsetNs = -100_000_000L,
+                )
+                .also { it.frameStartedListener = fakeFrameBuffer }
+
+        localFrameDistributor.onStarted(
+            fakeRequestMetadata,
+            FrameNumber(420),
+            CameraTimestamp(500_000_000L),
+        )
+        val frame = fakeFrameBuffer.frames[0]
+        val unused = localImageSimulator.simulateImage(streamId, 395_000_000L)
+
+        assertThat(frame.isImageAvailable(streamId)).isTrue()
+        assertThat(frame.isImageAvailable(outputId)).isTrue()
+
+        frame.close()
+        localImageSimulator.close()
     }
 
     @After
