@@ -145,10 +145,21 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
             return layoutInfo.visibleItemsInfo
                 .fastFirstOrNull { it.index == 1 }
                 ?.let {
-                    val startOffset = it.startOffset(ScalingLazyListAnchorType.ItemStart)
-                    if (initialStartOffset == null || startOffset > initialStartOffset!!) {
-                        initialStartOffset = startOffset
+                    val newStartOffset = it.startOffset(ScalingLazyListAnchorType.ItemStart)
+                    if (initialStartOffset == null || newStartOffset > initialStartOffset!!) {
+                        initialStartOffset = newStartOffset
+                    } else if (
+                        !state.isScrollInProgress &&
+                            !state.canScrollBackward &&
+                            lastStartOffset != null &&
+                            newStartOffset != lastStartOffset
+                    ) {
+                        // Reset the initialStartOffset if the position changes while idle
+                        // to account for layout mutations (like items shrinking) that would
+                        // otherwise cause a scroll desync.
+                        initialStartOffset = newStartOffset
                     }
+                    lastStartOffset = newStartOffset
                     -it.offset + initialStartOffset!!
                 } ?: Float.NaN
         }
@@ -186,6 +197,7 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
     }
 
     private var initialStartOffset: Float? = null
+    private var lastStartOffset: Float? = null
 }
 
 // Implementation of [ScrollInfoProvider] for [LazyColumn].
@@ -292,6 +304,7 @@ private class TransformingLazyColumnStateScrollInfoProvider(
 
     // TODO: b/3364857296 - Rework using scroll anchor item.
     private var initialStartOffset: Float = Float.NaN
+    private var lastStartOffset: Float = Float.NaN
 
     override val anchorItemOffset: Float
         get() =
@@ -299,11 +312,22 @@ private class TransformingLazyColumnStateScrollInfoProvider(
                 if (item.index != 0) {
                     return@let Float.NaN
                 }
-                val newOffset = item.offset.toFloat()
-                if (initialStartOffset.isNaN() || newOffset > initialStartOffset) {
-                    initialStartOffset = newOffset
+                val newStartOffset = item.offset.toFloat()
+                if (initialStartOffset.isNaN() || newStartOffset > initialStartOffset) {
+                    initialStartOffset = newStartOffset
+                } else if (
+                    !state.isScrollInProgress &&
+                        !state.canScrollBackward &&
+                        !lastStartOffset.isNaN() &&
+                        newStartOffset != lastStartOffset
+                ) {
+                    // Reset the initialStartOffset if the position changes while idle
+                    // to account for layout mutations (like items shrinking) that would
+                    // otherwise cause a scroll desync.
+                    initialStartOffset = newStartOffset
                 }
-                initialStartOffset - newOffset
+                lastStartOffset = newStartOffset
+                initialStartOffset - newStartOffset
             } ?: Float.NaN
 
     private var previousLastItemKey: Any? = null
