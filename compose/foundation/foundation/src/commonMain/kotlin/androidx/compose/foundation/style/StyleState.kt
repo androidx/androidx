@@ -123,7 +123,8 @@ public open class StyleStateKey<T>(internal val defaultValue: T) {
          * @see StyleState
          * @see clickable
          */
-        public val Pressed: StyleStateKey<Boolean> = BooleanPredefinedKey(PressedStateMask)
+        public val Pressed: StyleStateKey<Boolean> =
+            BooleanPredefinedKey("Pressed", PressedStateMask)
 
         /**
          * The style state key for the hovered state of a style.
@@ -132,7 +133,8 @@ public open class StyleStateKey<T>(internal val defaultValue: T) {
          * @see StyleState
          * @see androidx.compose.ui.Modifier.hoverable
          */
-        public val Hovered: StyleStateKey<Boolean> = BooleanPredefinedKey(HoveredStateMask)
+        public val Hovered: StyleStateKey<Boolean> =
+            BooleanPredefinedKey("Hovered", HoveredStateMask)
 
         /**
          * The style state key for the focused state of a style.
@@ -141,7 +143,8 @@ public open class StyleStateKey<T>(internal val defaultValue: T) {
          * @see StyleState
          * @see androidx.compose.ui.Modifier.focusable
          */
-        public val Focused: StyleStateKey<Boolean> = BooleanPredefinedKey(FocusedStateMask)
+        public val Focused: StyleStateKey<Boolean> =
+            BooleanPredefinedKey("Focused", FocusedStateMask)
 
         /**
          * The style state key for the selected state of a style.
@@ -149,7 +152,8 @@ public open class StyleStateKey<T>(internal val defaultValue: T) {
          * @see MutableStyleState
          * @see StyleState
          */
-        public val Selected: StyleStateKey<Boolean> = BooleanPredefinedKey(SelectedStateMask)
+        public val Selected: StyleStateKey<Boolean> =
+            BooleanPredefinedKey("Selected", SelectedStateMask)
 
         /**
          * The style state key for the enabled state of a style.
@@ -157,7 +161,7 @@ public open class StyleStateKey<T>(internal val defaultValue: T) {
          * @see StyleState
          */
         public val Enabled: StyleStateKey<Boolean> =
-            BooleanPredefinedKey(mask = EnabledStateMask, defaultValue = true)
+            BooleanPredefinedKey("Enabled", mask = EnabledStateMask, defaultValue = true)
 
         /**
          * The style state key for the hovered state of a style.
@@ -173,14 +177,19 @@ internal interface PredefinedKey
 
 /** [StyleStateKey] for boolean values that are stored in [MutableStyleState.predefinedState] */
 @ExperimentalFoundationStyleApi
-internal class BooleanPredefinedKey(val mask: Int, defaultValue: Boolean = false) :
-    StyleStateKey<Boolean>(defaultValue), PredefinedKey {
+internal class BooleanPredefinedKey(
+    val name: String,
+    val mask: Int,
+    defaultValue: Boolean = false,
+) : StyleStateKey<Boolean>(defaultValue), PredefinedKey {
     override fun getValueFrom(state: MutableStyleState): Boolean =
         state.predefinedState.getFlag(mask)
 
     override fun setValueTo(value: Boolean, state: MutableStyleState) {
         state.predefinedState.updateFlag(mask, value)
     }
+
+    override fun toString(): String = "$name style key"
 }
 
 /**
@@ -424,7 +433,7 @@ public fun StyleStateScope.pressed(block: () -> Unit): Unit {
  * @see StyleState.isSelected
  */
 @ExperimentalFoundationStyleApi
-public fun StyleStateScope.selected(block: () -> Unit): Unit {
+public fun StyleStateScope.selected(block: () -> Unit) {
     state(StyleStateKey.Selected, block) { _, state -> state.isSelected }
 }
 
@@ -438,7 +447,7 @@ public fun StyleStateScope.selected(block: () -> Unit): Unit {
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-public fun StyleStateScope.triStateToggleOn(block: () -> Unit): Unit {
+public fun StyleStateScope.triStateToggleOn(block: () -> Unit) {
     state(StyleStateKey.Toggle, block) { _, state -> state.triStateToggle == ToggleableState.On }
 }
 
@@ -452,7 +461,7 @@ public fun StyleStateScope.triStateToggleOn(block: () -> Unit): Unit {
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-public fun StyleStateScope.triStateToggleOff(block: () -> Unit): Unit {
+public fun StyleStateScope.triStateToggleOff(block: () -> Unit) {
     state(StyleStateKey.Toggle, block) { _, state -> state.triStateToggle == ToggleableState.Off }
 }
 
@@ -466,7 +475,7 @@ public fun StyleStateScope.triStateToggleOff(block: () -> Unit): Unit {
  * @see androidx.compose.ui.Modifier.triStateToggleable
  */
 @ExperimentalFoundationStyleApi
-public fun StyleStateScope.triStateToggleIndeterminate(block: () -> Unit): Unit {
+public fun StyleStateScope.triStateToggleIndeterminate(block: () -> Unit) {
     state(StyleStateKey.Toggle, block) { _, state ->
         state.triStateToggle == ToggleableState.Indeterminate
     }
