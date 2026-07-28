@@ -88,6 +88,7 @@ dependencies {
     kmpDocs(project(":compose:material:material"))
     kmpDocs(project(":compose:material:material-ripple"))
     kmpDocs(project(":compose:material:material-navigation"))
+    docs(project(":compose:remote:foundation:foundation"))
     docs(project(":compose:remote:remote-core"))
     kmpDocs(project(":compose:remote:remote-creation"))
     docs(project(":compose:remote:remote-creation-compose"))

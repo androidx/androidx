@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -74,7 +73,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     composeResult = Color.Red.copy(alpha = 0.5f).compositeOver(Color.Blue).rc,
                 )
 
-                RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
+                RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 2: Opaque Background: Blue + Dynamic 40% Magenta
                 val dynamicAlpha40 = rememberNamedRemoteFloat("alpha_40") { 0.4f.rf }
@@ -87,7 +86,7 @@ class RemoteColorCompositeOverScreenshotTest {
                     composeResult = Color.Magenta.copy(alpha = 0.4f).compositeOver(Color.Blue).rc,
                 )
 
-                RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
+                RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 3: Both Alphas Constant: Dynamic 50% Red + Dynamic 60% Blue
                 val dynamicRedComponent = rememberNamedRemoteFloat("red_comp") { 0.8f.rf }
@@ -117,7 +116,7 @@ class RemoteColorCompositeOverScreenshotTest {
                             .rc,
                 )
 
-                RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
+                RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 4: Fully Dynamic: 80% Cyan + 30% Yellow
                 val dynamicAlpha80 = rememberNamedRemoteFloat("alpha_80") { 0.8f.rf }
@@ -135,7 +134,7 @@ class RemoteColorCompositeOverScreenshotTest {
                             .rc,
                 )
 
-                RemoteSpacer(modifier = RemoteModifier.height(6.rdp))
+                RemoteBox(modifier = RemoteModifier.height(6.rdp))
 
                 // Case 5: Black + 70% White
                 ComparisonRow(
@@ -160,7 +159,7 @@ class RemoteColorCompositeOverScreenshotTest {
     ) {
         RemoteColumn {
             RemoteText(text = title.rs, fontSize = 9.rsp, color = Color.Black.rc)
-            RemoteSpacer(modifier = RemoteModifier.height(2.rdp))
+            RemoteBox(modifier = RemoteModifier.height(2.rdp))
 
             // Row 1: Remote Blend
             RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
@@ -172,7 +171,7 @@ class RemoteColorCompositeOverScreenshotTest {
                 RemoteText(text = " (Rem)".rs, fontSize = 7.rsp, color = Color.Gray.rc)
             }
 
-            RemoteSpacer(modifier = RemoteModifier.height(2.rdp))
+            RemoteBox(modifier = RemoteModifier.height(2.rdp))
 
             // Row 2: Compose Blend
             RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {

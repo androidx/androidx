@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.samples
+package androidx.compose.remote.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.width
-import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.foundation.layout.RemoteSpacer
+import androidx.compose.remote.tooling.preview.RemotePreviewWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 
 @Sampled
-@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@PreviewWrapper(RemotePreviewWrapper::class)
 @Composable
 fun RemoteSpacerSample() {
     RemoteColumn {
@@ -44,12 +45,12 @@ fun RemoteSpacerSample() {
 }
 
 @Sampled
-@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@PreviewWrapper(RemotePreviewWrapper::class)
 @Composable
 fun RemoteSpacerWeightSample() {
     RemoteRow(modifier = RemoteModifier.width(200.rdp)) {
         RemoteText("Left".rs, color = Color.Black.rc)
-        RemoteSpacer(modifier = RemoteModifier.weight(1f))
+        RemoteSpacer(modifier = RemoteModifier.weight(1f.rf))
         RemoteText("Right".rs, color = Color.Black.rc)
     }
 }

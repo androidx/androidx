@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.layout
+package androidx.compose.remote.foundation.layout
 
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
@@ -24,8 +26,8 @@ import androidx.compose.runtime.Composable
  *
  * This delegates to [RemoteBox] which handles the layout recording or foundation Box dispatching.
  *
- * @sample androidx.compose.remote.creation.compose.samples.RemoteSpacerSample
- * @sample androidx.compose.remote.creation.compose.samples.RemoteSpacerWeightSample
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
  */
 @RemoteComposable
 @Composable
