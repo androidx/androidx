@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics as PlatformCameraCharacter
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.common.compat.Api33Compat
 import androidx.camera.common.compat.Api34Compat
 
 /**
@@ -178,6 +179,11 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
         @JvmField
         public val AVAILABLE_COLOR_SPACE_PROFILES: Metadata.Key<ColorSpaceProfilesWrapper> =
             Metadata.Key("androidx.camera.common.availableColorSpaceProfiles")
+
+        /** Key for retrieving the [DynamicRangeProfilesWrapper] supported by the camera device. */
+        @JvmField
+        public val AVAILABLE_DYNAMIC_RANGE_PROFILES: Metadata.Key<DynamicRangeProfilesWrapper> =
+            Metadata.Key("androidx.camera.common.availableDynamicRangeProfiles")
     }
 }
 
@@ -216,5 +222,21 @@ public object CameraCharacteristics {
                     Api34Compat.getColorSpaceProfiles(this) ?: UnsupportedColorSpaceProfiles
                 } else {
                     UnsupportedColorSpaceProfiles
+                }
+
+    /**
+     * Returns the [DynamicRangeProfilesWrapper] supported by the camera device.
+     *
+     * @see android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES
+     */
+    @JvmStatic
+    public val CameraCharacteristicsMetadata.availableDynamicRangeProfiles:
+        DynamicRangeProfilesWrapper
+        get() =
+            this[CameraCharacteristicsWrapper.Keys.AVAILABLE_DYNAMIC_RANGE_PROFILES]
+                ?: if (Build.VERSION.SDK_INT >= 33) {
+                    Api33Compat.getDynamicRangeProfiles(this) ?: UnsupportedDynamicRangeProfiles
+                } else {
+                    UnsupportedDynamicRangeProfiles
                 }
 }

@@ -132,6 +132,17 @@ package androidx.camera.common.testing {
     method public <T> T? unwrapAs(Class<T> type);
   }
 
+  public final class FakeDynamicRangeProfiles implements androidx.camera.common.DynamicRangeProfilesWrapper {
+    ctor public FakeDynamicRangeProfiles();
+    ctor @BytecodeOnly public FakeDynamicRangeProfiles(java.util.Set!, java.util.Map!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeDynamicRangeProfiles(optional java.util.Set<java.lang.Long> supportedProfiles, optional java.util.Map<java.lang.Long,? extends java.util.Set<java.lang.Long>> compatibleProfiles, optional java.util.Set<java.lang.Long> extraLatencyProfiles);
+    method public java.util.Set<java.lang.Long> getCompatibleProfiles(long profile);
+    method @InaccessibleFromKotlin public java.util.Set<java.lang.Long> getSupportedProfiles();
+    method public boolean hasExtraLatency(long profile);
+    method public <T> T? unwrapAs(Class<T> type);
+    property public java.util.Set<java.lang.Long> supportedProfiles;
+  }
+
   public class FakeImage implements androidx.camera.common.MutableImageWrapper {
     ctor public FakeImage(int width, int height, int format, long timestamp);
     ctor public FakeImage(int width, int height, int format, long timestamp, optional java.nio.ByteBuffer? byteBuffer);
