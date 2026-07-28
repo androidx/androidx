@@ -146,6 +146,14 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteCurvedProgressIndicator",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteCurvedProgressIndicatorDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteAppCard",
                         onClick = { navigateToRoute(Screen.RemoteAppCardDemosScreen.route) },
                     )

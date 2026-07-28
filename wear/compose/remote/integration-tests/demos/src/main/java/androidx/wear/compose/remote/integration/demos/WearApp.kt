@@ -42,6 +42,7 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteButtonGro
 import androidx.wear.compose.remote.integration.demos.components.RemoteCardDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteCircularProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteCompactButtonDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteCurvedProgressIndicatorDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator10Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteHorizontalPageIndicator3Demo
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconButtonDemos
@@ -122,6 +123,9 @@ fun WearApp(
                 composable(route = Screen.RemoteIconDemosScreen.route) { RemoteIconDemos() }
                 composable(route = Screen.RemoteCircularProgressIndicatorDemosScreen.route) {
                     RemoteCircularProgressIndicatorDemos()
+                }
+                composable(route = Screen.RemoteCurvedProgressIndicatorDemosScreen.route) {
+                    RemoteCurvedProgressIndicatorDemos()
                 }
                 composable(route = Screen.RemoteAppCardDemosScreen.route) { RemoteAppCardDemos() }
                 composable(route = Screen.RemoteCardDemosScreen.route) { RemoteCardDemos() }
