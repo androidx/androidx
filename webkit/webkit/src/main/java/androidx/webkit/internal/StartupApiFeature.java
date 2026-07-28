@@ -76,6 +76,11 @@ public abstract class StartupApiFeature {
         return mPublicFeatureValue;
     }
 
+    @VisibleForTesting
+    public @NonNull String getInternalFeatureValueForTesting() {
+        return mInternalFeatureValue;
+    }
+
     /**
      * Return whether this feature is supported.
      */
