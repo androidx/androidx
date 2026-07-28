@@ -588,6 +588,7 @@ class ParagraphPlaceholderIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
+            defaultLocale = TEST_LOCALE,
         )
     }
 }

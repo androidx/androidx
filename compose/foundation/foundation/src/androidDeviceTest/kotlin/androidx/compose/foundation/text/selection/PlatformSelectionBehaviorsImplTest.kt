@@ -26,6 +26,7 @@ import android.view.textclassifier.TextClassifier
 import android.view.textclassifier.TextLinks
 import android.view.textclassifier.TextSelection
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -48,7 +49,7 @@ class PlatformSelectionBehaviorsImplTest {
                 coroutineContext = EmptyCoroutineContext,
                 context = context,
                 selectedTextType = SelectedTextType.EditableText,
-                localeList = null,
+                localeList = LocaleList.Empty,
             )
 
         val classification =
@@ -82,7 +83,7 @@ class PlatformSelectionBehaviorsImplTest {
                 coroutineContext = EmptyCoroutineContext,
                 context = context,
                 selectedTextType = SelectedTextType.EditableText,
-                localeList = null,
+                localeList = LocaleList.Empty,
             )
 
         // The first action's icon is always loaded (index == 0 in createTextClassificationResult).

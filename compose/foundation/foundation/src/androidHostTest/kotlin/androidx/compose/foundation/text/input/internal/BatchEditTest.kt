@@ -483,7 +483,7 @@ internal class BatchEditTest : ImeEditCommandTest() {
     @Test
     fun batchEdit_withAllCapsInputTransformation() {
         initialize("ABC", TextRange(3))
-        transformedState.update(InputTransformation.allCaps(Locale.current))
+        transformedState.update(InputTransformation.allCaps(Locale("en")))
         imeScope.beginBatchEdit()
         imeScope.commitText("d", 1)
         imeScope.commitText("e", 1)

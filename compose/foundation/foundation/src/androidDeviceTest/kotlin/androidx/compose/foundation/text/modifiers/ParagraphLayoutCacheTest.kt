@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Paragraph
@@ -45,6 +46,7 @@ class ParagraphLayoutCacheTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
+    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun minIntrinsicWidth_getter() {
@@ -56,6 +58,7 @@ class ParagraphLayoutCacheTest {
                         text = text,
                         style = createTextStyle(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
+                        defaultLocale = defaultLocale,
                     )
                     .also { it.density = this }
 
@@ -74,6 +77,7 @@ class ParagraphLayoutCacheTest {
                         text = text,
                         style = createTextStyle(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
+                        defaultLocale = defaultLocale,
                     )
                     .also { it.density = this }
 
@@ -92,6 +96,7 @@ class ParagraphLayoutCacheTest {
                         text = text,
                         style = createTextStyle(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
+                        defaultLocale = defaultLocale,
                         minLines = 1,
                     )
                     .also { it.density = this }
@@ -100,6 +105,7 @@ class ParagraphLayoutCacheTest {
                         text = text,
                         style = createTextStyle(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
+                        defaultLocale = defaultLocale,
                         minLines = 3,
                     )
                     .also { it.density = this }
@@ -117,6 +123,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World",
                     style = TextStyle.Default.copy(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
         val width = 200
@@ -150,6 +157,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World",
                     style = TextStyle.Default.copy(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -183,6 +191,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World",
                     style = TextStyle.Default.copy(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -208,6 +217,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World",
                     style = TextStyle.Default.copy(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
         val width = 200
@@ -233,6 +243,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World! Hello World! Hello World! Hello World!",
                     style = createTextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -257,6 +268,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World! Hello World! Hello World! Hello World!",
                     style = createTextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     softWrap = false,
                     overflow = TextOverflow.StartEllipsis,
                 )
@@ -281,6 +293,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World! Hello World! Hello World! Hello World!",
                     style = createTextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     softWrap = false,
                     overflow = TextOverflow.MiddleEllipsis,
                 )
@@ -306,6 +319,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World! Hello World! Hello World! Hello World!",
                     style = createTextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     overflow = TextOverflow.Ellipsis,
                 )
                 .also { it.density = density }
@@ -331,6 +345,7 @@ class ParagraphLayoutCacheTest {
                     text = "Hello World",
                     style = createTextStyle(fontSize = fontSize.sp, letterSpacing = 0.5.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     overflow = TextOverflow.Ellipsis,
                 )
                 .also { it.density = density }
@@ -351,6 +366,7 @@ class ParagraphLayoutCacheTest {
                     text = text,
                     style = createTextStyle(fontSize = 1.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 5,
                 )
@@ -365,6 +381,7 @@ class ParagraphLayoutCacheTest {
                 Constraints(),
                 density,
                 fontFamilyResolver,
+                defaultLocale,
                 emptyList(),
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
@@ -377,7 +394,9 @@ class ParagraphLayoutCacheTest {
         val text = "hello"
         val style = createTextStyle(fontSize = 1.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
 
         assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNull()
     }
@@ -387,7 +406,9 @@ class ParagraphLayoutCacheTest {
         val text = "hello"
         val style = createTextStyle(fontSize = 1.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
 
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
         assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNotNull()
@@ -398,7 +419,9 @@ class ParagraphLayoutCacheTest {
         val text = "hello"
         val style = createTextStyle(fontSize = 1.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
 
         subject.layoutWithConstraints(Constraints(minWidth = 5, minHeight = 5), LayoutDirection.Ltr)
         assertThat(subject.slowCreateTextLayoutResultOrNull(style = style)).isNotNull()
@@ -409,7 +432,9 @@ class ParagraphLayoutCacheTest {
         val text = "A".repeat(100_000)
         val style = createTextStyle(fontSize = 100.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
     }
 
@@ -421,6 +446,7 @@ class ParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontSize = 100.sp),
                     fontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -429,6 +455,7 @@ class ParagraphLayoutCacheTest {
             text = "Hello again, World",
             style = TextStyle(fontSize = 100.sp),
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
             overflow = TextOverflow.Clip,
             softWrap = true,
             maxLines = Int.MAX_VALUE,
@@ -445,7 +472,9 @@ class ParagraphLayoutCacheTest {
         val text = "hello"
         val style = createTextStyle(fontSize = 1.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
 
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
         assertThat(subject.paragraph).isNotNull()
@@ -459,7 +488,9 @@ class ParagraphLayoutCacheTest {
         val text = "hello"
         val style = createTextStyle(fontSize = 1.sp)
         val subject =
-            ParagraphLayoutCache(text, style, fontFamilyResolver).also { it.density = density }
+            ParagraphLayoutCache(text, style, fontFamilyResolver, defaultLocale).also {
+                it.density = density
+            }
 
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
         val firstParagraph = subject.paragraph

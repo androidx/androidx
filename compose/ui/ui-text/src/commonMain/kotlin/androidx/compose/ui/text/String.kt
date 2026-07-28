@@ -98,6 +98,13 @@ public fun String.decapitalize(locale: Locale): String = stringDelegate.decapita
  *   instead.
  * @return a transformed text
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call toUpperCase with an explicit locale instead. " +
+        "If you have a non-empty locale list, the correct thing to do is use the first locale in the " +
+        "list."
+)
+@Suppress("DEPRECATION")
 public fun String.toUpperCase(localeList: LocaleList): String =
     if (localeList.isEmpty()) toUpperCase(Locale.current) else toUpperCase(localeList[0])
 
@@ -108,6 +115,13 @@ public fun String.toUpperCase(localeList: LocaleList): String =
  *   instead.
  * @return a transformed text
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call toLowerCase with an explicit locale instead. " +
+        "If you have a non-empty locale list, the correct thing to do is use the first locale in the " +
+        "list."
+)
+@Suppress("DEPRECATION")
 public fun String.toLowerCase(localeList: LocaleList): String =
     if (localeList.isEmpty()) toLowerCase(Locale.current) else toLowerCase(localeList[0])
 
@@ -118,6 +132,13 @@ public fun String.toLowerCase(localeList: LocaleList): String =
  *   instead.
  * @return a transformed text
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call capitalize with an explicit locale instead. " +
+        "If you have a non-empty locale list, the correct thing to do is use the first locale in the " +
+        "list."
+)
+@Suppress("DEPRECATION")
 public fun String.capitalize(localeList: LocaleList): String =
     if (localeList.isEmpty()) capitalize(Locale.current) else capitalize(localeList[0])
 
@@ -127,6 +148,13 @@ public fun String.capitalize(localeList: LocaleList): String =
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
  *   instead.
  */
+@Deprecated(
+    "This method allows passing an empty locale list, which will pull a locale in a way " +
+        "that can't be backed by snapshot state. Call decapitalize with an explicit locale instead. " +
+        "If you have a non-empty locale list, the correct thing to do is use the first locale in the " +
+        "list."
+)
+@Suppress("DEPRECATION")
 public fun String.decapitalize(localeList: LocaleList): String =
     if (localeList.isEmpty()) decapitalize(Locale.current) else decapitalize(localeList[0])
 

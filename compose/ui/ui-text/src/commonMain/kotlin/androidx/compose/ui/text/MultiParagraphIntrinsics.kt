@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastAny
@@ -39,6 +40,7 @@ import androidx.compose.ui.util.fastMaxBy
  * @param softWrap Whether the text should break at soft line breaks. When the intention is to lay
  *   out text as a single line, setting [softWrap] to false enables optimizations that avoid certain
  *   expensive calculations
+ * @param defaultLocale the default locale to use for formatting.
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set, or any of the
  *   [placeholders] crosses paragraph boundary.
  * @see MultiParagraph
@@ -51,8 +53,34 @@ public class MultiParagraphIntrinsics(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
     softWrap: Boolean,
+    defaultLocale: Locale,
 ) : ParagraphIntrinsics {
 
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "Use an overload with `defaultLocale` instead",
+        ReplaceWith(
+            "MultiParagraphIntrinsics(annotatedString, style, placeholders, density, fontFamilyResolver, softWrap, Locale.current)"
+        ),
+    )
+    public constructor(
+        annotatedString: AnnotatedString,
+        style: TextStyle,
+        placeholders: List<AnnotatedString.Range<Placeholder>>,
+        density: Density,
+        fontFamilyResolver: FontFamily.Resolver,
+        softWrap: Boolean,
+    ) : this(
+        annotatedString,
+        style,
+        placeholders,
+        density,
+        fontFamilyResolver,
+        softWrap,
+        Locale.current,
+    )
+
+    @Suppress("DEPRECATION")
     @Deprecated(
         "Use an overload with `softWrap` instead",
         ReplaceWith(
@@ -134,6 +162,7 @@ public class MultiParagraphIntrinsics(
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
                             softWrap = softWrap,
+                            defaultLocale = defaultLocale,
                         ),
                     startIndex = paragraphStyleItem.start,
                     endIndex = paragraphStyleItem.end,

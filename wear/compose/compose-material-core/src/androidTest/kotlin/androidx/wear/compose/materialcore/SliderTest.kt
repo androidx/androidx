@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -155,7 +156,7 @@ public class SliderTest {
         rule.setContent {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                barSeparatorColor = mutableStateOf(BarSeparatorColor),
+                barSeparatorColor = remember { mutableStateOf(BarSeparatorColor) },
                 visibleSegments = 5,
             )
         }
@@ -172,7 +173,7 @@ public class SliderTest {
         rule.setContent {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                barSeparatorColor = mutableStateOf(BarSeparatorColor),
+                barSeparatorColor = remember { mutableStateOf(BarSeparatorColor) },
                 visibleSegments = 1,
             )
         }
@@ -189,8 +190,8 @@ public class SliderTest {
         rule.setContent {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                selectedBarColor = mutableStateOf(SelectedBarColor),
-                unselectedBarColor = mutableStateOf(UnselectedBarColor),
+                selectedBarColor = remember { mutableStateOf(SelectedBarColor) },
+                unselectedBarColor = remember { mutableStateOf(UnselectedBarColor) },
                 valueRatio = 0.4f,
             )
         }
@@ -206,8 +207,8 @@ public class SliderTest {
         rule.setContent {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                selectedBarColor = mutableStateOf(SelectedBarColor),
-                unselectedBarColor = mutableStateOf(UnselectedBarColor),
+                selectedBarColor = remember { mutableStateOf(SelectedBarColor) },
+                unselectedBarColor = remember { mutableStateOf(UnselectedBarColor) },
                 valueRatio = 1f,
             )
         }
@@ -223,8 +224,8 @@ public class SliderTest {
         rule.setContent {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                selectedBarColor = mutableStateOf(SelectedBarColor),
-                unselectedBarColor = mutableStateOf(UnselectedBarColor),
+                selectedBarColor = remember { mutableStateOf(SelectedBarColor) },
+                unselectedBarColor = remember { mutableStateOf(UnselectedBarColor) },
                 valueRatio = 0f,
             )
         }
@@ -274,9 +275,9 @@ public class SliderTest {
     @Composable
     internal fun ProgressBarWithDefaults(
         modifier: Modifier = Modifier,
-        selectedBarColor: State<Color> = mutableStateOf(SelectedBarColor),
-        unselectedBarColor: State<Color> = mutableStateOf(UnselectedBarColor),
-        barSeparatorColor: State<Color> = mutableStateOf(BarSeparatorColor),
+        selectedBarColor: State<Color> = remember { mutableStateOf(SelectedBarColor) },
+        unselectedBarColor: State<Color> = remember { mutableStateOf(UnselectedBarColor) },
+        barSeparatorColor: State<Color> = remember { mutableStateOf(BarSeparatorColor) },
         visibleSegments: Int = 1,
         valueRatio: Float = 0.4f,
     ) {
