@@ -308,7 +308,6 @@ class SpatialCompose : ComponentActivity() {
                     verticalArrangement = SpatialArrangement.spacedBy(40.dp),
                 ) {
                     AppPanel(modifier = sidePanelModifier, text = "Panel Top Right")
-                    AppPanel(modifier = sidePanelModifier, text = "Panel Bottom Right")
                     AspectRatioPanel()
                     RtlOrbiterPanel()
                 }
