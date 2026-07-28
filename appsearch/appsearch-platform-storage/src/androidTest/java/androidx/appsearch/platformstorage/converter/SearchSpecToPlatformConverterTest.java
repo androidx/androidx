@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.OptIn;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSpec;
@@ -106,5 +107,47 @@ public class SearchSpecToPlatformConverterTest {
 
         SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, jetpackSearchSpec, adapter);
         // Does not throw UnsupportedOperationException when embeddingQueryProbeCount is default
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    public void testConvertQuantizedEmbeddingVector() {
+        assumeTrue(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+        EmbeddingVector.QuantizedData quantizedData =
+                new EmbeddingVector.QuantizedData(0f, 1f, new byte[]{1, 2, 3});
+        EmbeddingVector jetpackEmbeddingVector =
+                new EmbeddingVector(quantizedData, "model");
+
+        SearchSpec jetpackSearchSpec = new SearchSpec.Builder()
+                .addEmbeddingParameters(jetpackEmbeddingVector)
+                .build();
+
+        TestPlatformConversionAdapter adapter = new TestPlatformConversionAdapter();
+
+        SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, jetpackSearchSpec, adapter);
+
+        assertThat(adapter.getCapturedEmbeddingVector()).isEqualTo(jetpackEmbeddingVector);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    public void testConvertQuantizedEmbeddingVector_throws() {
+        assumeFalse(PlatformStorage.getFeatures(mContext).isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA));
+        EmbeddingVector.QuantizedData quantizedData =
+                new EmbeddingVector.QuantizedData(0f, 1f, new byte[]{1, 2, 3});
+        EmbeddingVector jetpackEmbeddingVector =
+                new EmbeddingVector(quantizedData, "model");
+
+        SearchSpec jetpackSearchSpec = new SearchSpec.Builder()
+                .addEmbeddingParameters(jetpackEmbeddingVector)
+                .build();
+
+        UnsupportedPlatformConversionAdapter adapter = new UnsupportedPlatformConversionAdapter();
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> SearchSpecToPlatformConverter.toPlatformSearchSpec(
+                        mContext, jetpackSearchSpec, adapter));
     }
 }
