@@ -383,6 +383,7 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         /** Builder for {@link ClientInfo}. */
+        @SuppressLint("EmptyBuilder")
         public static final class Builder {
             private final String packageName;
 

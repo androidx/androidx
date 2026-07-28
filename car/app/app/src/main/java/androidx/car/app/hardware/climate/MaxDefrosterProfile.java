@@ -46,6 +46,7 @@ public final class MaxDefrosterProfile {
     }
 
     /** A builder for MaxDefrosterProfile. */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         final List<Set<CarZone>> mSupportedCarZoneSets;
 

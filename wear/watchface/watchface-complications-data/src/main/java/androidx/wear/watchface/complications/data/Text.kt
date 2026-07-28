@@ -150,6 +150,7 @@ public class PlainComplicationText internal constructor(delegate: WireComplicati
      *
      * @param[text] the text to be displayed.
      */
+    @SuppressLint("EmptyBuilder")
     public class Builder(private var text: CharSequence) {
         public fun build(): PlainComplicationText =
             PlainComplicationText(WireComplicationText.plainText(text))

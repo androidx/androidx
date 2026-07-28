@@ -64,6 +64,7 @@ public final class CustomContentAction {
     /**
      * Builder class for {@link CustomContentAction} objects.
      */
+    @SuppressWarnings("EmptyBuilder")
     public static final class Builder {
         private final int mId;
         private final @NonNull String mLabel;
