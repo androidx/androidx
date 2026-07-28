@@ -147,6 +147,7 @@ internal constructor(
     ) : this(context, retentionDuration.toMillis(), TimeUnit.MILLISECONDS, dbExecutor)
 
     private val lastStartTimes = Collections.synchronizedMap(mutableMapOf<String, Long>())
+    private val pendingUpdates = Collections.synchronizedMap(mutableMapOf<String, WorkInfo>())
 
     /**
      * A hot [Flow] that emits a [WorkMetricsInfo] whenever one finishes.
@@ -193,52 +194,31 @@ internal constructor(
     override suspend fun onUpdated(oldWorkInfo: WorkInfo, updatedWorkInfo: WorkInfo) {
         val id = oldWorkInfo.id.toString()
         val currentTime = clock.currentTimeMillis()
-        var finishedMetricsInfo: WorkMetricsInfo? = null
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, oldWorkInfo, "onUpdated")) {
-                return@runInTransaction
+            val spec =
+                resolveAndReconcileSpec(oldWorkInfo, finishedInfos, "onUpdated")
+                    ?: return@runInTransaction
+            val isRunning = spec.state == WorkMetricsInfo.State.RUNNING
+            if (!isRunning) {
+                lastStartTimes.remove(id)
+                pendingUpdates.remove(id)
+                markObsoleteAndInsertUpdated(spec, updatedWorkInfo, currentTime, finishedInfos)
+            } else {
+                pendingUpdates[id] = updatedWorkInfo
             }
-            lastStartTimes.remove(id)
-            dao.setFinishTime(
-                workId = spec!!.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                finishTime = currentTime,
-            )
-            dao.setState(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                state = WorkMetricsInfo.State.OBSOLETE_UPDATED,
-            )
-            finishedMetricsInfo =
-                dao.getWorkMetricsInfo(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )!!
-
-            var updatedSpec = updatedWorkInfo.toWorkMetricsSpec()
-            if (updatedWorkInfo.state == WorkInfo.State.ENQUEUED) {
-                updatedSpec.unblockTimeMillis = currentTime
-            }
-            insertWorkMetricsSpec(updatedSpec, updatedWorkInfo.tags)
         }
-        if (finishedMetricsInfo != null) {
-            finishedMetricsInfos.emit(finishedMetricsInfo)
-        }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onUnblocked(workInfo: WorkInfo) {
-        val id = workInfo.id.toString()
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onUnblocked")) {
-                return@runInTransaction
-            }
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onUnblocked")
+                    ?: return@runInTransaction
             dao.setUnblockTime(
-                workId = spec!!.workSpecId,
+                workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 unblockTime = clock.currentTimeMillis(),
@@ -250,49 +230,35 @@ internal constructor(
                 state = WorkMetricsInfo.State.ENQUEUED_PENDING,
             )
         }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onCancelled(workInfo: WorkInfo) {
         val id = workInfo.id.toString()
-        var finishedMetricsInfo: WorkMetricsInfo? = null
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onCancelled")) {
-                return@runInTransaction
-            }
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onCancelled")
+                    ?: return@runInTransaction
             lastStartTimes.remove(id)
-            dao.setFinishTime(
-                workId = spec!!.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                finishTime = clock.currentTimeMillis(),
+            finalizeSpecAndCollectInfo(
+                spec,
+                WorkMetricsInfo.State.CANCELLED,
+                clock.currentTimeMillis(),
+                finishedInfos,
             )
-            dao.setState(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                state = WorkMetricsInfo.State.CANCELLED,
-            )
-            finishedMetricsInfo =
-                dao.getWorkMetricsInfo(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )!!
         }
-        if (finishedMetricsInfo != null) {
-            finishedMetricsInfos.emit(finishedMetricsInfo)
-        }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onStarted(workInfo: WorkInfo) {
         val id = workInfo.id.toString()
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onStarted")) {
-                return@runInTransaction
-            }
-            if (workInfo.runAttemptCount != spec!!.runAttemptCount + 1) {
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onStarted")
+                    ?: return@runInTransaction
+            if (workInfo.runAttemptCount != spec.runAttemptCount + 1) {
                 Logger.get()
                     .warning(
                         TAG,
@@ -325,29 +291,41 @@ internal constructor(
                 runAttemptCount = workInfo.runAttemptCount,
             )
         }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onStopped(stopReason: Int, workInfo: WorkInfo) {
         val id = workInfo.id.toString()
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onStopped")) {
-                return@runInTransaction
-            }
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onStopped")
+                    ?: return@runInTransaction
             val currentTime = clock.currentTimeMillis()
-            val duration = calculateExecutionDuration(spec!!, currentTime)
+            val duration = calculateExecutionDuration(spec, currentTime)
+            dao.setWorkerDuration(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+                workerDuration = duration,
+            )
             dao.setTotalRuntime(
                 workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 totalRuntime = spec.totalRuntimeMillis + duration,
             )
-            dao.setState(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                state = WorkMetricsInfo.State.ENQUEUED_PENDING,
-            )
+            val pendingUpdate = pendingUpdates.remove(id)
+            if (pendingUpdate != null) {
+                markObsoleteAndInsertUpdated(spec, pendingUpdate, currentTime, finishedInfos)
+            } else {
+                dao.setState(
+                    workId = spec.workSpecId,
+                    generation = spec.generation,
+                    periodCount = spec.periodCount,
+                    state = WorkMetricsInfo.State.ENQUEUED_PENDING,
+                )
+            }
             val currentCounts = spec.stopReasonCounts
             val updatedCounts =
                 currentCounts.toMutableMap().apply {
@@ -360,101 +338,86 @@ internal constructor(
                 stopReasonCounts = updatedCounts,
             )
         }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onFinished(result: ListenableWorker.Result, workInfo: WorkInfo) {
         val id = workInfo.id.toString()
         val currentTime = clock.currentTimeMillis()
         val isPeriodic = workInfo.periodicityInfo != null
-        var finishedMetricsInfo: WorkMetricsInfo? = null
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
 
         database.runInTransaction {
-            val state =
-                when (result) {
-                    is ListenableWorker.Result.Success -> WorkMetricsInfo.State.SUCCEEDED
-                    is ListenableWorker.Result.Failure -> WorkMetricsInfo.State.FAILED
-                    is ListenableWorker.Result.Retry -> WorkMetricsInfo.State.ENQUEUED_PENDING
-                    else -> throw IllegalArgumentException("Unknown result: $result")
-                }
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onFinished")
+                    ?: return@runInTransaction
 
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onFinished")) {
-                return@runInTransaction
-            }
-
-            val duration = calculateExecutionDuration(spec!!, currentTime)
+            val duration = calculateExecutionDuration(spec, currentTime)
             dao.setTotalRuntime(
                 workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
                 totalRuntime = spec.totalRuntimeMillis + duration,
             )
+            val pendingUpdate = pendingUpdates.remove(id)
 
             if (result is ListenableWorker.Result.Retry) {
-                dao.setState(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                    state = state,
-                )
-                dao.incrementExplicitRetryCount(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )
+                if (pendingUpdate != null) {
+                    markObsoleteAndInsertUpdated(spec, pendingUpdate, currentTime, finishedInfos)
+                } else {
+                    dao.setState(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                        state = WorkMetricsInfo.State.ENQUEUED_PENDING,
+                    )
+                    dao.incrementExplicitRetryCount(
+                        workId = spec.workSpecId,
+                        generation = spec.generation,
+                        periodCount = spec.periodCount,
+                    )
+                }
             } else {
-                dao.setFinishTime(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                    finishTime = currentTime,
-                )
                 dao.setWorkerDuration(
                     workId = spec.workSpecId,
                     generation = spec.generation,
                     periodCount = spec.periodCount,
                     workerDuration = duration,
                 )
-                dao.setState(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                    state = state,
-                )
-                finishedMetricsInfo =
-                    dao.getWorkMetricsInfo(
-                        workId = spec.workSpecId,
-                        generation = spec.generation,
-                        periodCount = spec.periodCount,
-                    )!!
+                val state =
+                    when (result) {
+                        is ListenableWorker.Result.Success -> WorkMetricsInfo.State.SUCCEEDED
+                        is ListenableWorker.Result.Failure -> WorkMetricsInfo.State.FAILED
+                        else -> throw IllegalArgumentException("Unknown result: $result")
+                    }
+                finalizeSpecAndCollectInfo(spec, state, currentTime, finishedInfos)
 
                 if (isPeriodic) {
-                    var newSpec = workInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
+                    val nextWorkInfo = pendingUpdate ?: workInfo
+                    var newSpec = nextWorkInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
                     newSpec.state = WorkMetricsInfo.State.ENQUEUED_PENDING
-                    insertWorkMetricsSpec(newSpec, workInfo.tags)
+                    insertWorkMetricsSpec(newSpec, nextWorkInfo.tags)
                 }
             }
         }
-        if (finishedMetricsInfo != null) {
-            finishedMetricsInfos.emit(finishedMetricsInfo)
-        }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onException(throwable: Throwable, workInfo: WorkInfo) {
         val id = workInfo.id.toString()
-        var finishedMetricsInfo: WorkMetricsInfo? = null
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onException")) {
-                return@runInTransaction
-            }
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onException")
+                    ?: return@runInTransaction
             val currentTime = clock.currentTimeMillis()
-            val duration = calculateExecutionDuration(spec!!, currentTime)
-            dao.setFinishTime(
+            val duration = calculateExecutionDuration(spec, currentTime)
+            pendingUpdates.remove(id)
+            dao.setWorkerDuration(
                 workId = spec.workSpecId,
                 generation = spec.generation,
                 periodCount = spec.periodCount,
-                finishTime = currentTime,
+                workerDuration = duration,
             )
             dao.setTotalRuntime(
                 workId = spec.workSpecId,
@@ -462,60 +425,32 @@ internal constructor(
                 periodCount = spec.periodCount,
                 totalRuntime = spec.totalRuntimeMillis + duration,
             )
-            dao.setWorkerDuration(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                workerDuration = duration,
+            finalizeSpecAndCollectInfo(
+                spec,
+                WorkMetricsInfo.State.FAILED,
+                currentTime,
+                finishedInfos,
             )
-            dao.setState(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                state = WorkMetricsInfo.State.FAILED,
-            )
-            finishedMetricsInfo =
-                dao.getWorkMetricsInfo(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )!!
         }
-        if (finishedMetricsInfo != null) {
-            finishedMetricsInfos.emit(finishedMetricsInfo)
-        }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     override suspend fun onPrerequisiteFailed(workInfo: WorkInfo) {
         val id = workInfo.id.toString()
-        var finishedMetricsInfo: WorkMetricsInfo? = null
+        val finishedInfos = mutableListOf<WorkMetricsInfo>()
         database.runInTransaction {
-            val spec = dao.getCurrentWorkMetricsSpec(id)
-            if (!checkCurrentMetricsSpec(spec, workInfo, "onPrerequisiteFailed")) {
-                return@runInTransaction
-            }
-            dao.setFinishTime(
-                workId = spec!!.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                finishTime = clock.currentTimeMillis(),
+            val spec =
+                resolveAndReconcileSpec(workInfo, finishedInfos, "onPrerequisiteFailed")
+                    ?: return@runInTransaction
+            pendingUpdates.remove(id)
+            finalizeSpecAndCollectInfo(
+                spec,
+                WorkMetricsInfo.State.FAILED,
+                clock.currentTimeMillis(),
+                finishedInfos,
             )
-            dao.setState(
-                workId = spec.workSpecId,
-                generation = spec.generation,
-                periodCount = spec.periodCount,
-                state = WorkMetricsInfo.State.FAILED,
-            )
-            finishedMetricsInfo =
-                dao.getWorkMetricsInfo(
-                    workId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )!!
         }
-        if (finishedMetricsInfo != null) {
-            finishedMetricsInfos.emit(finishedMetricsInfo)
-        }
+        finishedInfos.forEach { finishedMetricsInfos.emit(it) }
     }
 
     private fun calculateExecutionDuration(spec: WorkMetricsSpec, currentTime: Long): Long {
@@ -525,6 +460,115 @@ internal constructor(
         } else {
             0L
         }
+    }
+
+    /**
+     * Resolves the current active [WorkMetricsSpec] for the given [workInfo], reconciling any
+     * orphaned older-generation records left in an active state after process death.
+     *
+     * Under our strict 1-active-invariant architecture, at most one record with state not in
+     * `COMPLETED_STATES` exists at any time. If an older-generation record is found (e.g., due to a
+     * crash mid-run before the updated generation was inserted), it is finalized as
+     * [WorkMetricsInfo.State.OBSOLETE_UPDATED] and a new [WorkMetricsSpec] for [workInfo] is
+     * created and inserted.
+     */
+    private fun resolveAndReconcileSpec(
+        workInfo: WorkInfo,
+        finishedInfos: MutableList<WorkMetricsInfo>,
+        hookName: String,
+    ): WorkMetricsSpec? {
+        val id = workInfo.id.toString()
+        val currentSpec = dao.getCurrentWorkMetricsSpec(id)
+        if (currentSpec != null) {
+            if (currentSpec.generation < workInfo.generation) {
+                val currentTime = clock.currentTimeMillis()
+                lastStartTimes.remove(currentSpec.workSpecId)
+                pendingUpdates.remove(currentSpec.workSpecId)
+                return markObsoleteAndInsertUpdated(
+                    currentSpec,
+                    workInfo,
+                    currentTime,
+                    finishedInfos,
+                )
+            }
+            if (currentSpec.generation > workInfo.generation) {
+                Logger.get()
+                    .warning(
+                        TAG,
+                        "Generation mismatch in $hookName for work ID $id. " +
+                            "DB generation: ${currentSpec.generation}, " +
+                            "Event generation: ${workInfo.generation}",
+                    )
+                return null
+            }
+            return currentSpec
+        }
+        Logger.get()
+            .warning(
+                TAG,
+                "Expected an active WorkMetricsSpec for work ID $id in $hookName, " +
+                    "but none was found.",
+            )
+        val spec = workInfo.toWorkMetricsSpec()
+        insertWorkMetricsSpec(spec, workInfo.tags)
+        return spec
+    }
+
+    private fun markObsoleteAndInsertUpdated(
+        spec: WorkMetricsSpec,
+        updatedWorkInfo: WorkInfo,
+        currentTime: Long,
+        finishedInfos: MutableList<WorkMetricsInfo>,
+    ): WorkMetricsSpec {
+        finalizeSpecAndCollectInfo(
+            spec,
+            WorkMetricsInfo.State.OBSOLETE_UPDATED,
+            currentTime,
+            finishedInfos,
+        )
+        return insertUpdatedSpec(updatedWorkInfo, currentTime)
+    }
+
+    private fun finalizeSpecAndCollectInfo(
+        spec: WorkMetricsSpec,
+        state: WorkMetricsInfo.State,
+        currentTime: Long,
+        finishedInfos: MutableList<WorkMetricsInfo>,
+    ) {
+        dao.setFinishTime(
+            workId = spec.workSpecId,
+            generation = spec.generation,
+            periodCount = spec.periodCount,
+            finishTime = currentTime,
+        )
+        dao.setState(
+            workId = spec.workSpecId,
+            generation = spec.generation,
+            periodCount = spec.periodCount,
+            state = state,
+        )
+        dao.getWorkMetricsInfo(
+                workId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+            )
+            ?.let { finishedInfos.add(it) }
+    }
+
+    private fun insertUpdatedSpec(updatedWorkInfo: WorkInfo, currentTime: Long): WorkMetricsSpec {
+        val updatedSpec = updatedWorkInfo.toWorkMetricsSpec()
+        if (updatedWorkInfo.state == WorkInfo.State.BLOCKED) {
+            // Preserve ENQUEUED_BLOCKED mapped by toWorkMetricsSpec()
+        } else {
+            // When work is updated mid-run, the snapshot of updatedWorkInfo received in onUpdated
+            // can retain the RUNNING state from the active generation 0 attempt. Since generation 1
+            // has not started executing yet, we reset its initial state to ENQUEUED_PENDING and
+            // record its unblock time since it is unblocked and ready to run.
+            updatedSpec.state = WorkMetricsInfo.State.ENQUEUED_PENDING
+            updatedSpec.unblockTimeMillis = currentTime
+        }
+        insertWorkMetricsSpec(updatedSpec, updatedWorkInfo.tags)
+        return updatedSpec
     }
 
     private fun insertWorkMetricsSpec(spec: WorkMetricsSpec, tags: Set<String>) {
@@ -543,38 +587,6 @@ internal constructor(
             val threshold = currentTime - retentionTimeMillis
             dao.deleteFinishedSpecsOlderThan(threshold)
         }
-    }
-
-    private fun checkCurrentMetricsSpec(
-        spec: WorkMetricsSpec?,
-        workInfo: WorkInfo,
-        hookName: String,
-    ): Boolean {
-        val id = workInfo.id.toString()
-        if (spec == null) {
-            // Although this is expected for the "update during running" case since any hook after
-            // onStarted (e.g., onFinished, onStopped, onException) will be with the later
-            // generation, we log a warning here to track unexpected missing entries.
-            // TODO (b/511074795): Properly handle update while running.
-            Logger.get()
-                .warning(
-                    TAG,
-                    "Expected an active WorkMetricsSpec for work ID $id in $hookName, " +
-                        "but none was found.",
-                )
-            return false
-        }
-        if (spec.generation != workInfo.generation) {
-            Logger.get()
-                .warning(
-                    TAG,
-                    "Generation mismatch in $hookName for work ID $id. " +
-                        "DB generation: ${spec.generation}, " +
-                        "Event generation: ${workInfo.generation}",
-                )
-            return false
-        }
-        return true
     }
 
     internal fun WorkInfo.toWorkMetricsSpec(periodCount: Int = 0): WorkMetricsSpec {
