@@ -72,6 +72,7 @@ import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.lang.ref.PhantomReference
 import java.lang.ref.ReferenceQueue
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -1567,5 +1568,29 @@ class ProcessCameraProviderTest(
     private fun Rect.aspectRatio(rotationDegrees: Int = 0): Rational {
         return if (rotationDegrees % 180 != 0) Rational(height(), width())
         else Rational(width(), height())
+    }
+
+    @Test
+    fun bindUnbind_useCaseIsGarbageCollected() = runBlocking {
+        ProcessCameraProvider.configureInstance(cameraConfig)
+
+        var useCase: Preview? = Preview.Builder().build()
+        val weakRef = WeakReference(useCase)
+
+        withContext(Dispatchers.Main) {
+            provider = ProcessCameraProvider.getInstance(context).await()
+            lifecycleOwner0.startAndResume()
+            provider.bindToLifecycle(lifecycleOwner0, cameraSelector, useCase!!)
+
+            assertThat(provider.isBound(useCase!!)).isTrue()
+
+            provider.unbindAll()
+            assertThat(provider.isBound(useCase!!)).isFalse()
+        }
+
+        useCase = null
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(weakRef.get()).isNull()
     }
 }
