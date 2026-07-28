@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("ActionHelper")
 
 package androidx.car.app.sample.showcase.common.utils
 
@@ -25,7 +24,6 @@ import androidx.car.app.model.OnClickListener
  * Constructs an [Action] using a clean, declarative Kotlin syntax.
  * * Automatically ignores `null` parameters, bypassing the need to use [Action.Builder] directly.
  */
-@JvmOverloads
 fun createAction(
     title: String? = null,
     icon: CarIcon? = null,
