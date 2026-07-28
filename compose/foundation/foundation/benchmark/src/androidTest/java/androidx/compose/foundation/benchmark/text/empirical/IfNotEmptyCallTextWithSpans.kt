@@ -51,7 +51,9 @@ class IfNotEmptyCallTextWithSpans(private val text: AnnotatedString) :
 
     @Composable
     override fun MeasuredContent() {
-        Subject(toggleText.value, style = style)
+        if (toggleText.value.text.isNotEmpty()) {
+            Subject(toggleText.value, style = style)
+        }
     }
 
     override fun toggleState() {
