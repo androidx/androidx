@@ -16,11 +16,17 @@
 
 package androidx.lifecycle.viewmodel.savedstate
 
+import android.content.Intent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -158,4 +164,30 @@ class SavedStateHandleSupportTest {
         val bundle = Bundle()
         component.performSave(bundle)
     }
+
+    @Test
+    fun testSavedStateHandleCacheClearedOnStoreClear() {
+        // Regression test for b/539581812: verify stateHolder cache is cleared when store is
+        // cleared.
+        val scenario = ActivityScenario.launch(ComponentActivity::class.java)
+        scenario.onActivity { activity ->
+            // Query ViewModel once to populate cache.
+            val initialVm = ViewModelProvider(activity)[TestViewModel::class.java]
+            assertThat(initialVm.savedStateHandle.get<String>("test_extra")).isNull()
+
+            // Mutate host intent.
+            val newIntent = Intent().putExtra("test_extra", "new_value")
+            activity.intent = newIntent
+            assertThat(activity.intent.getStringExtra("test_extra")).isEqualTo("new_value")
+
+            // Clear host VM store.
+            activity.viewModelStore.clear()
+
+            // Re-query VM. Cache must be empty and resolve new extras.
+            val viewModel = ViewModelProvider(activity)[TestViewModel::class.java]
+            assertThat(viewModel.savedStateHandle.get<String>("test_extra")).isEqualTo("new_value")
+        }
+    }
+
+    class TestViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
 }

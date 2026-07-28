@@ -91,13 +91,21 @@ private constructor(
     /** Caches the restored state bundle containing handle states before they are consumed. */
     private var restoredState: SavedState? = null
 
+    private var _stateHolder: StateHolder? = null
+
     /** Holds active [SavedStateHandle] instances. */
-    private val stateHolder: StateHolder by
-        ViewModelLazy(
-            viewModelClass = StateHolder::class,
-            storeProducer = { viewModelStore },
-            factoryProducer = { viewModelFactory { initializer { StateHolder() } } },
-        )
+    private val stateHolder: StateHolder
+        get() {
+            // Use backing field instead of lazy/ViewModelLazy to clear cache on store clear,
+            // resolving updated default args on re-query.
+            if (_stateHolder == null) {
+                val factory = viewModelFactory { initializer { StateHolder() } }
+                val provider = ViewModelProvider.create(owner = this, factory)
+                _stateHolder = provider.get<StateHolder>()
+                _stateHolder?.addCloseable(AutoCloseable { _stateHolder = null })
+            }
+            return _stateHolder!!
+        }
 
     /**
      * Saves the state of all managed [SavedStateHandle]s.
