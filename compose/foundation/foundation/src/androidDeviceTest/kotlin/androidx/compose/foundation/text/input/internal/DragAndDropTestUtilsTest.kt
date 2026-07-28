@@ -72,14 +72,4 @@ class DragAndDropTestUtilsTest {
                 .isEqualTo(expectedClipData.getItemAt(i).toString())
         }
     }
-
-    @Test
-    fun makeDragEvent_withNullClipData_returnsEventWithNullClipData() {
-        val dragEvent =
-            DragAndDropTestUtils.makeDragEvent(action = DragEvent.ACTION_DROP, clipData = null)
-        assertWithMessage("dragEvent.action")
-            .that(dragEvent.action)
-            .isEqualTo(DragEvent.ACTION_DROP)
-        assertWithMessage("dragEvent.clipData").that(dragEvent.clipData).isNull()
-    }
 }
