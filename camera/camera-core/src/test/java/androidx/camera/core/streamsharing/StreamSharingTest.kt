@@ -1135,7 +1135,7 @@ class StreamSharingTest {
 
     @Config(minSdk = 33)
     @Test
-    fun setMirrorModeOnPreview_resetPipeline() {
+    fun setMirrorModeOnPreview_updateConfigAndOutput() {
         // Arrange
         val preview = Preview.Builder().setMirrorMode(MirrorMode.MIRROR_MODE_OFF).build()
         preview.setSurfaceProvider(mainThreadExecutor()) { request ->

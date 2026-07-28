@@ -78,7 +78,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -177,15 +176,19 @@ public class StreamSharing extends UseCase {
                     }
 
                     @Override
-                    public void resetPipeline() {
+                    public void updateConfigAndOutput() {
                         checkMainThread();
-                        if (getCamera() == null || getAttachedStreamSpec() == null) {
+                        if (getCamera() == null) {
                             return;
                         }
-                        StreamSharing.this.resetPipeline(
+                        Logger.d(TAG, "StreamSharing.Control updateConfigAndOutput");
+                        StreamSharing.this.updateConfigAndOutput(
                                 getCameraId(), getSecondaryCameraId(), getCurrentConfig(),
-                                getAttachedStreamSpec(),
+                                requireNonNull(getAttachedStreamSpec()),
                                 getSecondaryAttachedStreamSpec());
+                        notifyReset();
+                        // Connect the latest {@link Surface} to newly created children edges.
+                        mVirtualCameraAdapter.resetChildren();
                     }
                 });
 
@@ -252,11 +255,11 @@ public class StreamSharing extends UseCase {
             @Nullable StreamSpec secondaryStreamSpec) {
         Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
                 + ", secondaryStreamSpec " + secondaryStreamSpec);
-        updateSessionConfig(
-                createPipelineAndUpdateChildrenSpecs(getCameraId(),
-                        getSecondaryCameraId(),
-                        getCurrentConfig(),
-                        primaryStreamSpec, secondaryStreamSpec));
+        updateConfigAndOutput(
+                getCameraId(),
+                getSecondaryCameraId(),
+                getCurrentConfig(),
+                primaryStreamSpec, secondaryStreamSpec);
         notifyActive();
         return primaryStreamSpec;
     }
@@ -270,7 +273,8 @@ public class StreamSharing extends UseCase {
             @NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
         updateSessionConfig(List.of(mSessionConfigBuilder.build()));
-        return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
+        return requireNonNull(getAttachedStreamSpec()).toBuilder()
+                .setImplementationOptions(config).build();
     }
 
     @Override
@@ -357,8 +361,8 @@ public class StreamSharing extends UseCase {
 
             // Dual sharing node
             mDualSharingNode = createDualSharingNode(
-                    getCamera(),
-                    getSecondaryCamera(),
+                    requireNonNull(getCamera()),
+                    requireNonNull(getSecondaryCamera()),
                     primaryStreamSpec, // use primary stream spec
                     mCompositionSettings,
                     mSecondaryCompositionSettings);
@@ -409,7 +413,7 @@ public class StreamSharing extends UseCase {
                     DualSurfaceProcessorNode.In.of(
                             inputSurfacePrimary,
                             inputSurfaceSecondary,
-                            Arrays.asList(dualOutConfig)));
+                            singletonList(dualOutConfig)));
 
             mDualProcessedEdge = out.values().iterator().next();
 
@@ -438,7 +442,7 @@ public class StreamSharing extends UseCase {
                             inputSurfaceSecondary,
                             getTargetRotationInternal(),
                             isViewportSet);
-            DualSurfaceProcessorNode.Out out = mDualSharingNode.transform(
+            DualSurfaceProcessorNode.Out out = requireNonNull(mDualSharingNode).transform(
                     DualSurfaceProcessorNode.In.of(
                             inputSurfacePrimary,
                             inputSurfaceSecondary,
@@ -489,7 +493,7 @@ public class StreamSharing extends UseCase {
             @Nullable String secondaryCameraId,
             @NonNull UseCaseConfig<?> config,
             @NonNull StreamSpec primaryStreamSpec,
-            @Nullable StreamSpec secondaryStreamSpec) {
+            @NonNull StreamSpec secondaryStreamSpec) {
         mSecondaryCameraEdge = new SurfaceEdge(
                 /*targets=*/PREVIEW | VIDEO_CAPTURE,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
@@ -603,7 +607,7 @@ public class StreamSharing extends UseCase {
             @NonNull CameraInternal camera) {
         // Transform the camera edge to get the input edge.
         mEffectNode = new SurfaceProcessorNode(camera,
-                getEffect().createSurfaceProcessorInternal(), TAG);
+                requireNonNull(getEffect()).createSurfaceProcessorInternal(), TAG);
         int rotationAppliedByEffect = getRotationAppliedByEffect();
         Rect cropRectAppliedByEffect = getCropRectAppliedByEffect(inputEdge);
         OutConfig outConfig = OutConfig.of(
@@ -702,13 +706,25 @@ public class StreamSharing extends UseCase {
             mCloseableErrorListener.close();
         }
         mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
-                (sessionConfig, error) -> resetPipeline(cameraId, secondaryCameraId, config,
-                        primaryStreamSpec, secondaryStreamSpec));
+                (sessionConfig, error) -> {
+                    if (getCamera() == null) {
+                        return;
+                    }
+                    Logger.w(TAG, "SessionConfig onError: error = " + error);
+                    updateConfigAndOutput(cameraId, secondaryCameraId, config,
+                            primaryStreamSpec, secondaryStreamSpec);
+                    notifyReset();
+                    // Connect the latest {@link Surface} to newly created children edges.
+                    // Currently, children UseCase does not have additional logic in SessionConfig
+                    // error listener so this is OK. If they do, we need to invoke the children's
+                    // SessionConfig error listeners instead.
+                    mVirtualCameraAdapter.resetChildren();
+                });
         sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
     }
 
     @MainThread
-    private void resetPipeline(
+    private void updateConfigAndOutput(
             @NonNull String cameraId,
             @Nullable String secondaryCameraId,
             @NonNull UseCaseConfig<?> config,
@@ -716,23 +732,13 @@ public class StreamSharing extends UseCase {
             @Nullable StreamSpec secondaryStreamSpec) {
         checkMainThread();
 
-        // Do nothing when the use case has been unbound.
-        if (getCamera() == null) {
-            return;
-        }
-
         // Clear both StreamSharing and the children.
         updateSessionConfig(
                 createPipelineAndUpdateChildrenSpecs(cameraId, secondaryCameraId,
                         config, primaryStreamSpec, secondaryStreamSpec));
-        notifyReset();
-        // Connect the latest {@link Surface} to newly created children edges.
-        // Currently children UseCase does not have additional logic in SessionConfig
-        // error listener so this is OK. If they do, we need to invoke the children's
-        // SessionConfig error listeners instead.
-        mVirtualCameraAdapter.resetChildren();
     }
 
+    @MainThread
     private void clearPipeline() {
         // Closes the old error listener
         if (mCloseableErrorListener != null) {
@@ -808,9 +814,9 @@ public class StreamSharing extends UseCase {
                 @IntRange(from = 0, to = 359) int rotationDegrees);
 
         /**
-         * Resets the StreamSharing pipeline.
+         * Updates the StreamSharing config and output.
          */
-        default void resetPipeline() {
+        default void updateConfigAndOutput() {
         }
     }
 

@@ -888,7 +888,7 @@ abstract class VideoRecordingTestBase(
         // If the test starts recording immediately after `onError` is called. There could be a
         // timing issue which causes the recording to be stopped.
         // On the main thread: trigger OnError
-        //    -> resetPipeline
+        //    -> updateConfigAndOutput
         //    -> DeferrableSurface is closed
         //    -> SurfaceRequest is complete
         // On the test thread: start recording
