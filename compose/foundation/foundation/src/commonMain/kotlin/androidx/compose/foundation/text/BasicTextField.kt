@@ -80,6 +80,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -89,7 +90,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -267,7 +267,7 @@ internal fun BasicTextField(
     @OptIn(ExperimentalFoundationApi::class)
     val platformSelectionBehaviors =
         if (ComposeFoundationFlags.isSmartSelectionEnabled) {
-            val resolvedLocaleList = textStyle.localeList ?: LocaleList.current
+            val resolvedLocaleList = textStyle.localeList ?: LocalLocaleList.current
             rememberPlatformSelectionBehaviors(SelectedTextType.EditableText, resolvedLocaleList)
         } else {
             null

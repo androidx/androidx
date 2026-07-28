@@ -31,6 +31,7 @@ import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.util.trace
 import java.util.concurrent.Executor
@@ -68,6 +69,7 @@ internal actual fun BackgroundTextMeasurement(
     text: String,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocale: Locale,
     softWrap: Boolean,
 ) {
     val executor = LocalBackgroundTextMeasurementExecutor.current
@@ -90,6 +92,7 @@ internal actual fun BackgroundTextMeasurement(
                                     emptyList<AnnotatedString.Range<AnnotatedString.Annotation>>(),
                                 placeholders = emptyList(),
                                 softWrap = softWrap,
+                                defaultLocale = defaultLocale,
                             )
                         // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
                         // because the primary role of background text measurement is to warm the
@@ -115,6 +118,7 @@ internal actual fun BackgroundTextMeasurement(
     text: AnnotatedString,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
+    defaultLocale: Locale,
     placeholders: List<AnnotatedString.Range<Placeholder>>?,
     softWrap: Boolean,
 ) {
@@ -136,6 +140,7 @@ internal actual fun BackgroundTextMeasurement(
                                 placeholders = placeholders ?: emptyList(),
                                 fontFamilyResolver = fontFamilyResolver,
                                 softWrap = softWrap,
+                                defaultLocale = defaultLocale,
                             )
                         // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
                         // because the primary role of background text measurement is to warm the

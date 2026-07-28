@@ -31,6 +31,7 @@ import androidx.compose.ui.text.UncachedFontFamilyResolver
 import androidx.compose.ui.text.ceilToInt
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.rangeOf
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
@@ -506,6 +507,7 @@ class AndroidParagraphGetRangeForRectTest {
         height: Float = Float.POSITIVE_INFINITY,
         style: TextStyle? = null,
         fontFamilyResolver: FontFamily.Resolver = UncachedFontFamilyResolver(context),
+        defaultLocale: Locale = Locale("en"),
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
@@ -523,6 +525,7 @@ class AndroidParagraphGetRangeForRectTest {
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
+            defaultLocale = defaultLocale,
         )
     }
 }

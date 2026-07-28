@@ -49,8 +49,10 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -231,6 +233,7 @@ internal class BoundsAnimationModifierNode(
     var currentResolver: FontFamily.Resolver? = null
     var currentDensity: Density? = null
     var currentLayoutDirection: LayoutDirection? = null
+    var currentLocale: Locale? = null
 
     override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
         // Update target size, it will serve to know if we expect an approach in progress
@@ -333,7 +336,10 @@ internal class BoundsAnimationModifierNode(
                 }
                 val lookaheadAnimationVisualDebugHelper =
                     boundsAnimation.lookaheadAnimationVisualDebugHelper!!
-                updateTextMeasurer(currentValueOf(LocalFontFamilyResolver))
+                updateTextMeasurer(
+                    currentValueOf(LocalFontFamilyResolver),
+                    currentValueOf(LocalLocale),
+                )
                 if (boundsAnimation.isIdle) {
                     with(lookaheadAnimationVisualDebugHelper) {
                         drawInactiveVisualizations(
@@ -363,11 +369,19 @@ internal class BoundsAnimationModifierNode(
         }
     }
 
-    private fun updateTextMeasurer(fontFamilyResolver: FontFamily.Resolver) {
-        if (textMeasurer == null || currentResolver != fontFamilyResolver) {
+    private fun updateTextMeasurer(fontFamilyResolver: FontFamily.Resolver, locale: Locale) {
+        if (
+            textMeasurer == null || currentResolver != fontFamilyResolver || currentLocale != locale
+        ) {
             textMeasurer =
-                TextMeasurer(fontFamilyResolver, currentDensity!!, currentLayoutDirection!!)
+                TextMeasurer(
+                    defaultFontFamilyResolver = fontFamilyResolver,
+                    defaultLocale = locale,
+                    defaultDensity = currentDensity!!,
+                    defaultLayoutDirection = currentLayoutDirection!!,
+                )
             currentResolver = fontFamilyResolver
+            currentLocale = locale
         }
     }
 }
