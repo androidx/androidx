@@ -22,14 +22,9 @@ import android.view.View
 import androidx.camera.integration.core.util.StressTestUtil.VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.PerformException
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.util.HumanReadables
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -40,7 +35,6 @@ import java.util.concurrent.TimeoutException
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.Matcher
 
 private const val DEFAULT_TIMEOUT_SECONDS = 30L
 
@@ -90,34 +84,6 @@ internal fun ActivityScenario<CameraXActivity>.waitUntilViewReady(
     throw TimeoutException("View $viewId ready=$isReady focus required:$requireFocus")
 }
 
-/**
- * A custom ViewAction that forces a click on the view directly, bypassing physical touch coordinate
- * issues.
- */
-fun forceClick(): ViewAction {
-    return object : ViewAction {
-        override fun getConstraints(): Matcher<View> {
-            return isAssignableFrom(View::class.java)
-        }
-
-        override fun getDescription(): String {
-            return "force click the view directly"
-        }
-
-        override fun perform(uiController: UiController, view: View) {
-            uiController.loopMainThreadUntilIdle()
-            if (!view.performClick()) {
-                throw PerformException.Builder()
-                    .withActionDescription(this.description)
-                    .withViewDescription(HumanReadables.describe(view))
-                    .withCause(RuntimeException("View.performClick() returned false"))
-                    .build()
-            }
-            uiController.loopMainThreadUntilIdle()
-        }
-    }
-}
-
 /** Waits until the viewfinder has received frames. */
 internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
     // Ensure the UI thread has processed onCreate/onResume and layout passes
@@ -138,7 +104,7 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
     waitForViewfinderIdle()
 
     // 2. Perform toggle
-    Espresso.onView(withId(R.id.direction_toggle)).perform(forceClick())
+    clickView(R.id.direction_toggle)
 
     // 3. Wait for the new camera stream
     val latch = withActivity { resetViewIdlingLatch() }
@@ -158,9 +124,7 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
     }
 
     try {
-        Espresso.onView(withId(R.id.Picture)).apply {
-            repeat(captureRequestsCount) { perform(forceClick()) }
-        }
+        repeat(captureRequestsCount) { clickView(R.id.Picture) }
 
         latch.awaitOrThrow(
             message = "Captured images failed to save within $DEFAULT_TIMEOUT_SECONDS seconds."
@@ -194,7 +158,7 @@ internal fun ActivityScenario<CameraXActivity>.recordVideoAndWaitForVideoSavedId
         resetVideoSavedIdlingLatch()
     }
 
-    Espresso.onView(withId(R.id.Video)).perform(forceClick())
+    clickView(R.id.Video)
 
     try {
         latch.awaitOrThrow(timeout = 45L, message = "Video failed to record and save.")
