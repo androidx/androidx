@@ -16,6 +16,8 @@
 
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.EmbeddingVector;
@@ -95,6 +97,21 @@ public interface PlatformConversionAdapter {
         throw new UnsupportedOperationException(
                 Features.SCHEMA_EMBEDDING_PRE_QUANTIZED_DATA
                         + " is not available on this AppSearch implementation.");
+    }
+
+    /**
+     * Handles converting a platform EmbeddingVector to a Jetpack one.
+     *
+     * <p>This default implementation does not consider pre-quantized embeddings because this API
+     * does not exist in Jetpack. This method is defined in the adapter so it can be overridden
+     * when needed and where the platform API is available.
+     */
+    @SuppressLint("NewApi") // getValues() is incorrectly flagged as needing 34-ext16
+    default @NonNull EmbeddingVector toJetpackEmbeddingVector(
+            android.app.appsearch.@NonNull EmbeddingVector platformEmbeddingVector) {
+        return new EmbeddingVector(
+                platformEmbeddingVector.getValues(),
+                platformEmbeddingVector.getModelSignature());
     }
 
     // --- SetSchemaRequestToPlatformConverter ---

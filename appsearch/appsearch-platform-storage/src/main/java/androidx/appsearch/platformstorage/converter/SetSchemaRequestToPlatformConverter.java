@@ -157,7 +157,7 @@ public final class SetSchemaRequestToPlatformConverter {
                         android.app.appsearch.@NonNull GenericDocument inPlatformDocument) {
                     GenericDocument inJetpackDocument =
                             GenericDocumentToPlatformConverter.toJetpackGenericDocument(
-                                    inPlatformDocument);
+                                    inPlatformDocument, adapter);
                     GenericDocument outJetpackDocument = jetpackMigrator.onUpgrade(
                             currentVersion, finalVersion, inJetpackDocument);
                     if (inJetpackDocument.equals(outJetpackDocument)) {
@@ -174,7 +174,7 @@ public final class SetSchemaRequestToPlatformConverter {
                         android.app.appsearch.@NonNull GenericDocument inPlatformDocument) {
                     GenericDocument inJetpackDocument =
                             GenericDocumentToPlatformConverter.toJetpackGenericDocument(
-                                    inPlatformDocument);
+                                    inPlatformDocument, adapter);
                     GenericDocument outJetpackDocument = jetpackMigrator.onDowngrade(
                             currentVersion, finalVersion, inJetpackDocument);
                     if (inJetpackDocument.equals(outJetpackDocument)) {

@@ -381,7 +381,8 @@ class SearchSessionImpl implements AppSearchSession {
                 RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request),
                 mExecutor,
                 new BatchResultCallbackAdapter<>(
-                        future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+                        future, doc -> GenericDocumentToPlatformConverter.toJetpackGenericDocument(
+                                doc, mPlatformConversionAdapter)));
         return future;
     }
 
@@ -396,7 +397,8 @@ class SearchSessionImpl implements AppSearchSession {
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(mContext, searchSpec,
                                 mPlatformConversionAdapter));
-        return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor, mContext);
+        return new SearchResultsImpl(
+                platformSearchResults, searchSpec, mExecutor, mContext, mPlatformConversionAdapter);
     }
 
     @Override

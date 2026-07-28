@@ -118,7 +118,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         ApiHelperForT.getByDocumentId(mPlatformSession, packageName, databaseName,
                 RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request), mExecutor,
                 new BatchResultCallbackAdapter<>(
-                        future, GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+                        future, doc -> GenericDocumentToPlatformConverter.toJetpackGenericDocument(
+                                doc, mAdapter)));
         return future;
     }
 
@@ -159,7 +160,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(
                                 mContext, searchSpec, mAdapter));
-        return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor, mContext);
+        return new SearchResultsImpl(
+                platformSearchResults, searchSpec, mExecutor, mContext, mAdapter);
     }
 
     @Override
