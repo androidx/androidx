@@ -542,7 +542,7 @@ class LazyLayoutTest {
         }
 
         rule.runOnIdle {
-            prefetchState.prefetchHandleProvider.shouldPauseBetweenPrecompositionAndPremeasure =
+            prefetchState.prefetchHandleProvider?.shouldPauseBetweenPrecompositionAndPremeasure =
                 true
 
             prefetchState.schedulePrecompositionAndPremeasure(0, Constraints.fixed(50, 50))
