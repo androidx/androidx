@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.internal
 
 import android.hardware.HardwareBuffer
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
@@ -351,7 +352,8 @@ internal class FrameDistributor(
     @Suppress("NOTHING_TO_INLINE")
     companion object {
         @JvmStatic
-        private fun selectTimestampMatcher(
+        @VisibleForTesting
+        internal fun selectTimestampMatcher(
             cameraStreamId: StreamId,
             cameraStreamConfig: CameraStream.Config,
             imageSourceConfig: ImageSourceConfig,
