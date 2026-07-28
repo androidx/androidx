@@ -31,6 +31,7 @@ import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.M
 import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.MapWithListTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.MapWithMessageTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.MapWithPaneTemplateDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent.MapWithSectionedItemsDemoScreen;
 import androidx.car.app.versioning.CarAppApiLevels;
 
 import org.jspecify.annotations.NonNull;
@@ -49,7 +50,7 @@ public final class MapWithContentDemoScreen extends Screen {
         List<Row> screenList = new ArrayList<>();
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_7) {
             screenList.add(buildRowForTemplate(new MapWithMessageTemplateDemoScreen(
-                    getCarContext()),
+                            getCarContext()),
                     R.string.map_with_message_demo_title));
             screenList.add(buildRowForTemplate(new MapWithGridTemplateDemoScreen(getCarContext()),
                     R.string.map_with_grid_demo_title));
@@ -63,6 +64,13 @@ public final class MapWithContentDemoScreen extends Screen {
         if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_6) {
             screenList.add(buildRowForTemplate(new MapTemplateWithToggleDemoScreen(getCarContext()),
                     R.string.map_template_toggle_demo_title));
+        }
+
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_8) {
+            screenList.add(buildRowForTemplate(
+                    new MapWithSectionedItemsDemoScreen(getCarContext()),
+                    R.string.map_with_sectioned_items_demo_title
+            ));
         }
 
         ItemList.Builder listBuilder = new ItemList.Builder();

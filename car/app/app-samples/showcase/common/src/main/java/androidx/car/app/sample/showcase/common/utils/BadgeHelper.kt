@@ -13,27 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.car.app.sample.showcase.common.utils
 
-import androidx.car.app.model.Action
+import androidx.car.app.model.Badge
+import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
-import androidx.car.app.model.OnClickListener
 
 /**
- * Constructs an [Action] using a clean, declarative Kotlin syntax.
- * * Automatically ignores `null` parameters, bypassing the need to use [Action.Builder] directly.
+ * Constructs a [Badge] using a clean, declarative Kotlin syntax. Automatically handles API
+ * constraints and ignores irrelevant parameters.
  */
-fun createAction(
-    title: String? = null,
+fun createBadge(
+    hasDot: Boolean = false,
+    dotColor: CarColor? = null,
     icon: CarIcon? = null,
-    flags: Int? = null,
-    clickListener: OnClickListener? = null,
-): Action {
-    val builder = Action.Builder()
-    title?.let { builder.setTitle(it) }
-    icon?.let { builder.setIcon(it) }
-    flags?.let { builder.setFlags(it) }
-    clickListener?.let { builder.setOnClickListener(it) }
+    iconBackgroundColor: CarColor? = null,
+): Badge {
+    val builder = Badge.Builder()
+
+    val shouldEnableDot = hasDot || icon == null
+
+    if (shouldEnableDot) {
+        builder.setHasDot(true)
+        builder.setDotColor(dotColor ?: CarColor.RED)
+    }
+
+    icon?.let {
+        builder.setIcon(it)
+        iconBackgroundColor?.let { color -> builder.setIconBackgroundColor(color) }
+    }
+
     return builder.build()
 }
