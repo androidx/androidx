@@ -18,6 +18,8 @@ package androidx.compose.foundation.text.input.internal.undo
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.allCaps
 import androidx.compose.foundation.text.input.delete
@@ -335,6 +337,89 @@ class TextUndoTest {
 
         assertThat(before).isEqualTo(after)
         assertThat(state.undoState.canUndo).isEqualTo(true)
+    }
+
+    @Test
+    fun replaceAll_withLongerAutofillTextAndFilter_undoRestoresOriginalText() {
+        val state = TextFieldState("1234", initialSelection = TextRange(2))
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                inputTransformation = {
+                    if (length > 4) {
+                        replace(0, 4, "5678")
+                        delete(4, length)
+                    }
+                },
+            )
+
+        assertThat(state.undoState.canUndo).isFalse()
+        assertThat(state.undoState.canRedo).isFalse()
+
+        transformedState.replaceAll("1234567890123456")
+        assertThat(state.text.toString()).isEqualTo("5678")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
+
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEqualTo("1234")
+        assertThat(state.selection).isEqualTo(TextRange(2))
+        assertThat(state.undoState.canUndo).isFalse()
+        assertThat(state.undoState.canRedo).isTrue()
+
+        state.undoState.redo()
+        assertThat(state.text.toString()).isEqualTo("5678")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
+    }
+
+    @Test
+    fun commitEdit_withMismatchedOriginalRange_undoRestoresOriginalText() {
+        val state = TextFieldState("1234")
+        val buffer = TextFieldBuffer(initialValue = TextFieldCharSequence("123456789012345"))
+        buffer.replace(0, 15, "abcd")
+
+        assertThat(state.undoState.canUndo).isFalse()
+        assertThat(state.undoState.canRedo).isFalse()
+
+        state.commitEdit(buffer)
+        assertThat(state.text.toString()).isEqualTo("abcd")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
+
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEqualTo("1234")
+        assertThat(state.undoState.canUndo).isFalse()
+        assertThat(state.undoState.canRedo).isTrue()
+
+        state.undoState.redo()
+        assertThat(state.text.toString()).isEqualTo("abcd")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
+    }
+
+    @Test
+    fun commitEdit_withMismatchedOriginalRange_nonZeroOffset_undoRestoresOriginalText() {
+        val state = TextFieldState("12")
+        state.placeCursorAt(2)
+
+        val buffer = TextFieldBuffer(initialValue = TextFieldCharSequence("1234567890"))
+        buffer.replace(5, 10, "xyz")
+
+        state.commitEdit(buffer)
+        assertThat(state.text.toString()).isEqualTo("12345xyz")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
+
+        state.undoState.undo()
+        assertThat(state.text.toString()).isEqualTo("12")
+        assertThat(state.undoState.canUndo).isFalse()
+        assertThat(state.undoState.canRedo).isTrue()
+
+        state.undoState.redo()
+        assertThat(state.text.toString()).isEqualTo("12345xyz")
+        assertThat(state.undoState.canUndo).isTrue()
+        assertThat(state.undoState.canRedo).isFalse()
     }
 
     companion object {
