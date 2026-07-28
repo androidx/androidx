@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/407927787 // b/420551535
+@file:Suppress("DEPRECATION") // b/420551535
 
 package androidx.compose.foundation.lazy.list
 

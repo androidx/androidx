@@ -507,7 +507,6 @@ class LazyLayoutTest {
     }
 
     @Test
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     fun changingKeyForPrefetchingItemInTheMiddleOfRequest() {
         var composed = false
         var measured = false
