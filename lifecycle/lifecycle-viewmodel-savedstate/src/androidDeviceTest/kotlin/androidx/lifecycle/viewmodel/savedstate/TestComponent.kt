@@ -28,31 +28,49 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 
-class TestComponent(val vmStore: ViewModelStore = ViewModelStore(), bundle: Bundle? = null) :
-    SavedStateRegistryOwner, LifecycleOwner, ViewModelStoreOwner {
+/**
+ * A test component that implements [SavedStateRegistryOwner] and [ViewModelStoreOwner]. Used to
+ * simulate `Activity`, `Fragment`, or `NavBackStackEntry` lifecycles.
+ */
+class TestComponent(
+    val vmStore: ViewModelStore = ViewModelStore(),
+    bundle: Bundle? = null,
+    private var isDestroyed: Boolean = false,
+) : SavedStateRegistryOwner, LifecycleOwner, ViewModelStoreOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
+
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
+
+    override val viewModelStore: ViewModelStore
+        get() {
+            // Simulate destroyed or uninitialized host.
+            check(!isDestroyed) { "Already destroyed" }
+            return vmStore
+        }
+
     private val savedStateController = SavedStateRegistryController.create(this)
+
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateController.savedStateRegistry
 
     init {
         savedStateController.performRestore(bundle)
     }
 
-    override val lifecycle: Lifecycle
-        get() = lifecycleRegistry
-
-    override val savedStateRegistry: SavedStateRegistry
-        get() = savedStateController.savedStateRegistry
-
-    override val viewModelStore: ViewModelStore = vmStore
-
     fun resume() {
         lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    }
+
+    fun destroy() {
+        lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+        isDestroyed = true
     }
 
     fun recreate(keepingViewModels: Boolean): TestComponent {
@@ -60,8 +78,13 @@ class TestComponent(val vmStore: ViewModelStore = ViewModelStore(), bundle: Bund
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
         performSave(bundle)
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
-        if (!keepingViewModels) vmStore.clear()
-        return TestComponent(vmStore.takeIf { keepingViewModels } ?: ViewModelStore(), bundle)
+        if (!keepingViewModels) {
+            vmStore.clear()
+        }
+        return TestComponent(
+            vmStore = if (keepingViewModels) vmStore else ViewModelStore(),
+            bundle = bundle,
+        )
     }
 
     fun performSave(bundle: Bundle) {
@@ -69,11 +92,12 @@ class TestComponent(val vmStore: ViewModelStore = ViewModelStore(), bundle: Bund
     }
 
     fun createSavedStateHandle(key: String, bundle: Bundle? = null): SavedStateHandle {
-        val extras = MutableCreationExtras()
-        extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-        extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
-        extras[ViewModelProvider.NewInstanceFactory.VIEW_MODEL_KEY] = key
-        if (bundle != null) extras[DEFAULT_ARGS_KEY] = bundle
+        val extras = CreationExtras {
+            this[VIEW_MODEL_STORE_OWNER_KEY] = this@TestComponent
+            this[SAVED_STATE_REGISTRY_OWNER_KEY] = this@TestComponent
+            this[ViewModelProvider.VIEW_MODEL_KEY] = key
+            bundle?.let { this[DEFAULT_ARGS_KEY] = it }
+        }
         return extras.createSavedStateHandle()
     }
 }

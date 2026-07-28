@@ -145,4 +145,17 @@ class SavedStateHandleSupportTest {
         val handle = component.createSavedStateHandle("test", bundle)
         assertThat(handle.get<String>("key")).isEqualTo("value")
     }
+
+    @UiThreadTest
+    @Test
+    fun testSavedStateHandleSupportWithDestroyedOwner() {
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        component.resume()
+        component.destroy()
+
+        // Save state when host destroyed. Must not crash.
+        val bundle = Bundle()
+        component.performSave(bundle)
+    }
 }
