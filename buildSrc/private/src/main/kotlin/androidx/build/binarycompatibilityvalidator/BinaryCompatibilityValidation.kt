@@ -363,6 +363,7 @@ private val nonPublicMarkers =
         "androidx.compose.material3.ExperimentalMaterial3Api",
         "androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi",
         "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+        "androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi",
         "androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi",
         "androidx.compose.remote.creation.ExperimentalRemoteCreationApi",
         "androidx.compose.runtime.ExperimentalComposeApi",
