@@ -18,7 +18,7 @@ package androidx.work.impl;
 
 import static androidx.work.impl.Scheduler.MAX_GREEDY_SCHEDULER_LIMIT;
 import static androidx.work.impl.WorkManagerImpl.CONTENT_URI_TRIGGER_API_LEVEL;
-import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
+import static androidx.work.impl.utils.PackageManagerHelper.setServiceEnabled;
 
 import android.content.Context;
 import android.os.Build;
@@ -254,7 +254,7 @@ public class Schedulers {
             @NonNull WorkDatabase workDatabase, Configuration configuration) {
 
         Scheduler scheduler = new SystemJobScheduler(context, workDatabase, configuration);
-        setComponentEnabled(context, SystemJobService.class, true);
+        setServiceEnabled(context, SystemJobService.class, true);
         Logger.get().debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         return scheduler;
     }

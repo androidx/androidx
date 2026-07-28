@@ -16,13 +16,13 @@
 
 package androidx.work.impl;
 
-import static androidx.work.impl.utils.PackageManagerHelper.isComponentExplicitlyEnabled;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -46,14 +46,16 @@ public class SchedulersTest {
 
     @FlakyTest(bugId = 206647994)
     @Test
-    public void testGetBackgroundScheduler_withJobSchedulerApiLevel() {
+    public void testGetBackgroundScheduler_withJobSchedulerApiLevel() throws Exception {
         Scheduler scheduler = Schedulers.createBestAvailableBackgroundScheduler(mAppContext,
                 mWorkDatabase, mConfiguration);
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
         assertServicesEnabled();
     }
     // Only one service should really be enabled at one time.
-    private void assertServicesEnabled() {
-        assertThat(isComponentExplicitlyEnabled(mAppContext, SystemJobService.class), is(true));
+    private void assertServicesEnabled() throws Exception {
+        PackageManager pm = mAppContext.getPackageManager();
+        ComponentName name = new ComponentName(mAppContext, SystemJobService.class);
+        assertThat(pm.getServiceInfo(name, /* flags= */ 0).enabled, is(true));
     }
 }
