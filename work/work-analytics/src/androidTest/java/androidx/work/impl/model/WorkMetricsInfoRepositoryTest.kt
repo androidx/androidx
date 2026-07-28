@@ -27,6 +27,7 @@ import androidx.work.ExperimentalEventsApi
 import androidx.work.ListenableWorker
 import androidx.work.WorkInfo
 import androidx.work.analytics.impl.WorkMetricsDatabase
+import androidx.work.analytics.impl.model.WorkMetricsSpec
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -620,6 +621,310 @@ class WorkMetricsInfoRepositoryTest {
         assertEquals(1, results.size)
         assertEquals(workId, results[0].workSpecId)
         assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, results[0].state)
+    }
+
+    /**
+     * Scenario: A one-time work item is updated while actively running (`onUpdated` called while
+     * generation 0 is `RUNNING`).
+     *
+     * Expected behavior under strict 1-active-invariant:
+     * 1. While running, generation 0 remains the active record (`RUNNING`) in the database. The
+     *    update to generation 1 is deferred in memory (`pendingUpdates`).
+     * 2. When `onFinished(Result.success())` arrives for generation 0, generation 0 is marked as
+     *    `SUCCEEDED`.
+     * 3. Because this is a one-time work item that completed successfully, it is permanently
+     *    finished. Therefore, generation 1 is never executed and no database record for generation
+     *    1 is created (leaving total record count at 1).
+     */
+    @Test
+    fun onUpdated_whileRunning_preservesRunningStateAndReceivesOnFinished() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        // Update work mid-execution (WorkManager calls onUpdated while worker is running)
+        testClock.currentTime = 3000L
+        val workInfoGen1 = workInfoGen0.copy(generation = 1, state = WorkInfo.State.RUNNING)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        // Verify generation 0 is preserved and still active; generation 1 insertion is deferred
+        val afterUpdateResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, afterUpdateResults.size)
+
+        val gen0RecordDuringRun = afterUpdateResults[0]
+        assertEquals(0, gen0RecordDuringRun.generation)
+        assertEquals(WorkMetricsInfo.State.RUNNING, gen0RecordDuringRun.state)
+        assertEquals(WorkMetricsSpec.TIME_NOT_SET, gen0RecordDuringRun.finishTimeMillis)
+
+        // Worker completes successfully
+        testClock.currentTime = 4000L
+        repository.onFinished(ListenableWorker.Result.success(), workInfoGen0)
+
+        // Verify generation 0 transitioned to SUCCEEDED and no generation 1 record was created
+        // since one-time work success ends the execution lifecycle completely.
+        val finalResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, finalResults.size)
+        val finalGen0 = finalResults[0]
+        assertEquals(0, finalGen0.generation)
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, finalGen0.state)
+        assertEquals(4000L, finalGen0.finishTimeMillis)
+    }
+
+    /**
+     * Scenario: A periodic work item is updated while actively running (`onUpdated` called
+     * mid-run).
+     *
+     * Expected behavior:
+     * 1. Generation 0 remains the active `RUNNING` record while the update is deferred in memory.
+     * 2. When the period completes (`onFinished(Result.success())`), generation 0 closes as
+     *    `SUCCEEDED`.
+     * 3. Because this is periodic work transitioning to its next period, the deferred generation 1
+     *    update is inserted as `ENQUEUED_PENDING` (record count becomes 2).
+     */
+    @Test
+    fun onUpdated_whileRunning_periodicWork_queuesNextGenOnFinished() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(
+                id = workId,
+                generation = 0,
+                state = WorkInfo.State.ENQUEUED,
+                isPeriodic = true,
+            )
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        testClock.currentTime = 3000L
+        val workInfoGen1 = workInfoGen0.copy(generation = 1, state = WorkInfo.State.RUNNING)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        val afterUpdateResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, afterUpdateResults.size)
+
+        testClock.currentTime = 4000L
+        repository.onFinished(ListenableWorker.Result.success(), workInfoGen0)
+
+        val finalResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, finalResults.size)
+
+        val finalGen0 = finalResults.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.SUCCEEDED, finalGen0.state)
+        assertEquals(4000L, finalGen0.finishTimeMillis)
+
+        val nextGen1 = finalResults.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, nextGen1.state)
+    }
+
+    /**
+     * Scenario: A one-time work item is updated while running, and then completes with
+     * `Result.retry()`.
+     *
+     * Expected behavior:
+     * 1. Generation 0 remains `RUNNING` during execution.
+     * 2. When `onFinished(Result.retry())` is processed while a pending update exists (`generation
+     *    1`), generation 0 is marked as `OBSOLETE_UPDATED` (since it has been replaced by the
+     *    update).
+     * 3. The deferred update (`generation 1`) is inserted into the database as `ENQUEUED_PENDING`
+     *    so that the retry run attempt will execute under the new generation.
+     */
+    @Test
+    fun onUpdated_whileRunning_oneTimeWork_retry_queuesNextGenOnRetry() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        testClock.currentTime = 3000L
+        val workInfoGen1 = workInfoGen0.copy(generation = 1, state = WorkInfo.State.RUNNING)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        val afterUpdateResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(1, afterUpdateResults.size)
+
+        testClock.currentTime = 4000L
+        repository.onFinished(ListenableWorker.Result.retry(), workInfoGen0)
+
+        val finalResults = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, finalResults.size)
+
+        val finalGen0 = finalResults.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, finalGen0.state)
+        assertEquals(4000L, finalGen0.finishTimeMillis)
+
+        val nextGen1 = finalResults.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, nextGen1.state)
+    }
+
+    /**
+     * Scenario: A worker is stopped before an update happens (`onStopped` called first, then
+     * `onUpdated`).
+     *
+     * Expected behavior: Because the worker is not running (`!isRunning`), `onUpdated` does not
+     * defer the update. Instead, generation 0 is immediately closed as `OBSOLETE_UPDATED` and
+     * generation 1 is inserted right away.
+     */
+    @Test
+    fun onUpdated_afterStopped_immediatelyClosesGen0AsObsoleteUpdated() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        // Worker is stopped (e.g., constraints unmet), state becomes ENQUEUED_PENDING
+        // but firstStartTimeMillis remains set from onStarted.
+        testClock.currentTime = 3000L
+        repository.onStopped(0, workInfoGen0)
+
+        // Now updateWork() is called while worker is stopped (not running)
+        testClock.currentTime = 4000L
+        val workInfoGen1 = workInfoGen0.copy(generation = 1, state = WorkInfo.State.ENQUEUED)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        // Gen 0 should be immediately closed as OBSOLETE_UPDATED (not deferred)
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val gen0 = results.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, gen0.state)
+        assertEquals(4000L, gen0.finishTimeMillis)
+
+        val gen1 = results.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_PENDING, gen1.state)
+    }
+
+    /**
+     * Scenario: A work item is updated (`onUpdated`) while not running, and the updated work item
+     * is blocked (`WorkInfo.State.BLOCKED`) due to unmet prerequisites.
+     *
+     * Expected behavior: `insertUpdatedSpec` preserves `ENQUEUED_BLOCKED` rather than forcing
+     * `ENQUEUED_PENDING`.
+     */
+    @Test
+    fun onUpdated_whenBlocked_preservesEnqueuedBlockedState() = runTest {
+        val workId = UUID.randomUUID()
+        val workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        val workInfoGen1 =
+            createTestWorkInfo(id = workId, generation = 1, state = WorkInfo.State.BLOCKED)
+        repository.onUpdated(workInfoGen0, workInfoGen1)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val gen0 = results.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, gen0.state)
+
+        val gen1 = results.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.ENQUEUED_BLOCKED, gen1.state)
+    }
+
+    /**
+     * Scenario: Process death occurs while generation 0 is actively `RUNNING` (so
+     * `onStopped`/`onFinished` and in-memory `pendingUpdates` are lost). After the app restarts, an
+     * execution lifecycle hook (`onStarted`) fires for a newer generation (`generation = 1`).
+     *
+     * Expected behavior (`resolveAndReconcileSpec` safety net): When `resolveAndReconcileSpec`
+     * detects `currentSpec.generation < workInfo.generation`, it automatically closes the orphaned
+     * older record (`generation = 0`) as `OBSOLETE_UPDATED` and inserts the new record.
+     */
+    @Test
+    fun processDeath_startupReconciliation_closesOrphanedRunningRecord() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        // Simulate app process death and restart at t=5000L with generation 1
+        testClock.currentTime = 5000L
+        val workInfoGen1 =
+            workInfoGen0.copy(generation = 1, state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen1)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val orphanedGen0 = results.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, orphanedGen0.state)
+        assertEquals(5000L, orphanedGen0.finishTimeMillis)
+
+        val restartedGen1 = results.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.RUNNING, restartedGen1.state)
+        assertEquals(WorkMetricsSpec.TIME_NOT_SET, restartedGen1.finishTimeMillis)
+    }
+
+    /**
+     * Scenario: Similar to startup reconciliation above, but after app restart the work item is
+     * cancelled (`onCancelled`) before `onStarted` ever runs for generation 1.
+     *
+     * Expected behavior: `resolveAndReconcileSpec` reconciles the orphaned `generation = 0` as
+     * `OBSOLETE_UPDATED` upon entry to `onCancelled`, and then marks the new `generation = 1`
+     * record as `CANCELLED`.
+     */
+    @Test
+    fun processDeath_startupReconciliation_onCancelled_closesOrphanedRunningRecord() = runTest {
+        val workId = UUID.randomUUID()
+        var workInfoGen0 =
+            createTestWorkInfo(id = workId, generation = 0, state = WorkInfo.State.ENQUEUED)
+
+        testClock.currentTime = 1000L
+        repository.onEnqueued(workInfoGen0)
+
+        testClock.currentTime = 2000L
+        workInfoGen0 = workInfoGen0.copy(state = WorkInfo.State.RUNNING, runAttemptCount = 1)
+        repository.onStarted(workInfoGen0)
+
+        // Simulate app process death and restart at t=5000L where work gets cancelled before
+        // onStarted runs!
+        testClock.currentTime = 5000L
+        val workInfoGen1 =
+            workInfoGen0.copy(generation = 1, state = WorkInfo.State.CANCELLED, runAttemptCount = 1)
+        repository.onCancelled(workInfoGen1)
+
+        val results = repository.getWorkMetricsInfoById(workId)
+        assertEquals(2, results.size)
+
+        val orphanedGen0 = results.find { it.generation == 0 }!!
+        assertEquals(WorkMetricsInfo.State.OBSOLETE_UPDATED, orphanedGen0.state)
+        assertEquals(5000L, orphanedGen0.finishTimeMillis)
+
+        val cancelledGen1 = results.find { it.generation == 1 }!!
+        assertEquals(WorkMetricsInfo.State.CANCELLED, cancelledGen1.state)
+        assertEquals(5000L, cancelledGen1.finishTimeMillis)
     }
 
     @Test

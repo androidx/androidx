@@ -67,6 +67,7 @@ import org.mockito.kotlin.verify
 class WorkUpdateTest {
     val workerFactory = TrackingWorkerFactory()
     val schedulingEventListener: ScheduleEventListener = mock()
+    val executionEventListener: ExecutionEventListener = mock()
     val testClock = TestOverrideClock()
     val configuration =
         Configuration.Builder()
@@ -74,6 +75,7 @@ class WorkUpdateTest {
             .setWorkerFactory(workerFactory)
             .setTaskExecutor(Executors.newSingleThreadExecutor())
             .setScheduleEventListener(schedulingEventListener)
+            .setExecutionEventListener(executionEventListener)
             .build()
     val env = TestEnv(configuration)
     val taskExecutor = env.taskExecutor
@@ -124,6 +126,12 @@ class WorkUpdateTest {
         assertThat(workManager.updateWork(updatedRequest).await()).isEqualTo(APPLIED_FOR_NEXT_RUN)
         worker.result.complete(Result.success())
         workManager.awaitSuccess(oneTimeWorkRequest.id)
+        // Verify that execution lifecycle hooks (onFinished) receive a WorkInfo snapshot preserving
+        // the generation that initiated the execution (0), even though the DB generation is now 1.
+        val captor = argumentCaptor<WorkInfo>()
+        verify(executionEventListener)
+            .onFinished(argumentCaptor<Result>().capture(), captor.capture())
+        assertThat(captor.firstValue.generation).isEqualTo(0)
     }
 
     @Test

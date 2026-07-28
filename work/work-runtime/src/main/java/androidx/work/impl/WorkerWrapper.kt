@@ -39,7 +39,6 @@ import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.getAllDependentWork
-import androidx.work.impl.model.getWorkInfo
 import androidx.work.impl.model.getWorkInfos
 import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
@@ -126,7 +125,7 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                         executionListener?.dispatchEvent(
                             workTaskExecutor,
                             resolution.result,
-                            workSpecDao.getWorkInfo(workSpecId)!!,
+                            getWorkInfoSnapshot(),
                             ExecutionEventListener::onFinished,
                         )
                     }
@@ -135,7 +134,7 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                         executionListener?.dispatchEvent(
                             workTaskExecutor,
                             resolution.throwable,
-                            workSpecDao.getWorkInfo(workSpecId)!!,
+                            getWorkInfoSnapshot(),
                             ExecutionEventListener::onException,
                         )
                     }
@@ -144,7 +143,7 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                         executionListener?.dispatchEvent(
                             workTaskExecutor,
                             resolution.reason,
-                            workSpecDao.getWorkInfo(workSpecId)!!,
+                            getWorkInfoSnapshot(),
                             ExecutionEventListener::onStopped,
                         )
                     }
@@ -485,7 +484,7 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                         .getExecutionEventListener()
                         ?.dispatchEvent(
                             workTaskExecutor,
-                            workSpecDao.getWorkInfo(workSpecId)!!,
+                            getWorkInfoSnapshot(),
                             ExecutionEventListener::onStarted,
                         )
                     startedWork = true
@@ -574,6 +573,22 @@ public class WorkerWrapper internal constructor(builder: Builder) {
         }
         return false
     }
+
+    /**
+     * Retrieves a snapshot of [WorkInfo] for the current execution attempt, pinning the generation
+     * to `workGenerationalId.generation`.
+     *
+     * Specifically, if `WorkManager.updateWork` is called while the worker is actively running, the
+     * database record's generation is incremented mid-execution. Overriding the generation here
+     * guarantees that all execution lifecycle event hooks (`onStarted`, `onStopped`, `onFinished`,
+     * `onException`) receive a snapshot that accurately preserves the generation that initiated
+     * this execution attempt.
+     */
+    private fun getWorkInfoSnapshot(): WorkInfo =
+        workSpecDao
+            .getWorkStatusPojoForId(workSpecId)!!
+            .copy(generation = workGenerationalId.generation)
+            .toWorkInfo()
 
     private fun createWorkDescription(tags: List<String>) =
         "Work [ id=$workSpecId, class=${workSpec.workerClassName}, " +
