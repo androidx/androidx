@@ -63,6 +63,11 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
         return mPublicFeatureValue;
     }
 
+    @VisibleForTesting
+    public @NonNull String getInternalFeatureValueForTesting() {
+        return mInternalFeatureValue;
+    }
+
     @Override
     public boolean isSupported() {
         return isSupportedByFramework() || isSupportedByWebView();
