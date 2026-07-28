@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.Grid
 import androidx.compose.foundation.layout.GridFlow
 import androidx.compose.foundation.layout.GridTrackSize
@@ -40,7 +39,6 @@ import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun SimpleGrid() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -106,7 +104,6 @@ fun SimpleGrid() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithSpanningItems() {
     Grid(
         config = {
@@ -131,7 +128,6 @@ fun GridWithSpanningItems() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithAutoPlacement() {
     Grid(
         config = {
@@ -150,7 +146,6 @@ fun GridWithAutoPlacement() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridConfigurationDslSample() {
     Grid(
         config = {
@@ -185,7 +180,6 @@ fun GridConfigurationDslSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithConstraints() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -216,7 +210,6 @@ fun GridWithConstraints() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithLazyList() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -268,7 +261,6 @@ fun GridWithLazyList() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithNamedAreas() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -323,7 +315,6 @@ fun GridWithNamedAreas() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithAreaRanges() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -346,7 +337,6 @@ fun GridWithAreaRanges() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalGridApi::class)
 fun GridWithOneDimensionalAreas() {
     Grid(
         modifier = Modifier.fillMaxSize().padding(16.dp),
