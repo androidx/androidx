@@ -47,6 +47,10 @@ class EglWindowSurface {
     private Surface mSurface;
     private int mWidth;
     private int mHeight;
+    private boolean mUseHighBitDepth;
+
+    private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
+    private static final int EGL_GL_COLORSPACE_BT2020_PQ_EXT = 0x3340;
 
     /**
      * Creates an EglWindowSurface from a Surface.
@@ -60,6 +64,7 @@ class EglWindowSurface {
             throw new NullPointerException();
         }
         mSurface = surface;
+        mUseHighBitDepth = useHighBitDepth;
 
         eglSetup(useHighBitDepth);
     }
@@ -128,13 +133,26 @@ class EglWindowSurface {
     }
 
     private void createEGLSurface() {
-        int[] surfaceAttribs = {
-                EGL14.EGL_NONE
-        };
+        int[] surfaceAttribs;
+        if (mUseHighBitDepth) {
+            surfaceAttribs = new int[] {
+                    EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_PQ_EXT,
+                    EGL14.EGL_NONE
+            };
+        } else {
+            surfaceAttribs = new int[] {
+                    EGL14.EGL_NONE
+            };
+        }
         mEGLSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mConfigs[0], mSurface,
                 surfaceAttribs, 0);
+        if (mEGLSurface == null || Objects.equals(mEGLSurface, EGL14.EGL_NO_SURFACE)) {
+            int[] fallbackAttribs = { EGL14.EGL_NONE };
+            mEGLSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, mConfigs[0], mSurface,
+                    fallbackAttribs, 0);
+        }
         checkEglError("eglCreateWindowSurface");
-        if (mEGLSurface == null) {
+        if (mEGLSurface == null || Objects.equals(mEGLSurface, EGL14.EGL_NO_SURFACE)) {
             throw new RuntimeException("surface was null");
         }
     }

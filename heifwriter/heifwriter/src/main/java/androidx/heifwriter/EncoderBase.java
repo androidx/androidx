@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * It currently supports three input modes: {@link #INPUT_MODE_BUFFER},
  * {@link #INPUT_MODE_SURFACE}, or {@link #INPUT_MODE_BITMAP}.
  *
- * Callback#onOutputFormatChanged(MediaCodec, MediaFormat)} and {@link
+ * Callback#onOutputFormatChanged(EncoderBase, MediaFormat)} and {@link
  * Callback#onDrainOutputBuffer(EncoderBase, ByteBuffer)}. If the client
  * requests to use grid, each tile will be sent back individually.
  *
@@ -431,6 +431,21 @@ public class EncoderBase implements AutoCloseable,
 
         codecFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 0);
         codecFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat);
+        if (useBitDepth10) {
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_STANDARD, MediaFormat.COLOR_STANDARD_BT2020);
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_RANGE, MediaFormat.COLOR_RANGE_FULL);
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_TRANSFER, MediaFormat.COLOR_TRANSFER_ST2084);
+        } else {
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_STANDARD, MediaFormat.COLOR_STANDARD_BT601_NTSC);
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_RANGE, MediaFormat.COLOR_RANGE_FULL);
+            codecFormat.setInteger(
+                    MediaFormat.KEY_COLOR_TRANSFER, MediaFormat.COLOR_TRANSFER_SDR_VIDEO);
+        }
         codecFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mNumTiles);
 
         // When we're doing tiles, set the operating rate higher as the size
