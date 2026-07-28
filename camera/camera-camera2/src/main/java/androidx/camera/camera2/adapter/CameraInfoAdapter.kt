@@ -461,7 +461,7 @@ constructor(
     }
 
     override fun getCameraExtensionCapabilities(extensionMode: Int): CameraExtensionCapabilities? {
-        if (Build.VERSION.SDK_INT < 31 || !supportedExtensions.contains(extensionMode)) {
+        if (Build.VERSION.SDK_INT < 31 || !isExtensionSupported(extensionMode)) {
             return null
         }
         synchronized(lock) {

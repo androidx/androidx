@@ -83,21 +83,22 @@ import androidx.camera.core.ViewPort
  * }
  * ```
  *
- * @param mode The extension mode. See [ExtensionMode] for the list of available modes.
+ * @param mode The extension mode. Use constants defined in [ExtensionMode] for standard modes, or
+ *   the integer value directly for vendor-defined hidden modes.
  * @param extensionsManager The [ExtensionsManager] instance.
  * @param useCases The [UseCase] instances to be attached to the camera and receive camera data.
  * @param viewPort The [ViewPort] to be applied on the camera session. If not set, the default is no
  *   viewport.
  * @param effects The list of [CameraEffect] to be applied on the camera session. If not set, the
  *   default is no effects.
- * @throws IllegalArgumentException if the given mode is not a valid extension mode.
+ * @throws IllegalArgumentException if the given mode is not supported by the camera.
  * @see androidx.camera.lifecycle.ProcessCameraProvider.bindToLifecycle
  * @see ExtensionsManager.getInstanceAsync
  */
 public class ExtensionSessionConfig
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
-    @param:ExtensionMode.Mode @get:ExtensionMode.Mode public val mode: Int,
+    public val mode: Int,
     public val extensionsManager: ExtensionsManager,
     useCases: List<UseCase> = emptyList(),
     viewPort: ViewPort? = null,
@@ -121,18 +122,19 @@ constructor(
     /**
      * Creates an [ExtensionSessionConfig] from the given parameters.
      *
-     * @param mode The extension mode. See [ExtensionMode] for the list of available modes.
+     * @param mode The extension mode. Use constants defined in [ExtensionMode] for standard modes,
+     *   or the integer value directly for vendor-defined hidden modes.
      * @param extensionsManager The [ExtensionsManager] instance.
      * @param useCases The [UseCase] instances to be attached to the camera and receive camera data.
      * @param viewPort The [ViewPort] to be applied on the camera session. If not set, the default
      *   is no viewport.
      * @param effects The list of [CameraEffect] to be applied on the camera session. If not set,
      *   the default is no effects.
-     * @throws IllegalArgumentException if the given mode is not a valid extension mode.
+     * @throws IllegalArgumentException if the given mode is not supported by the camera.
      */
     @JvmOverloads
     public constructor(
-        @ExtensionMode.Mode mode: Int,
+        mode: Int,
         extensionsManager: ExtensionsManager,
         useCases: List<UseCase> = emptyList(),
         viewPort: ViewPort? = null,
@@ -142,13 +144,14 @@ constructor(
     /**
      * Creates an [ExtensionSessionConfig] with a variable number of [UseCase] instances.
      *
-     * @param mode The extension mode. See [ExtensionMode] for the list of available modes.
+     * @param mode The extension mode. Use constants defined in [ExtensionMode] for standard modes,
+     *   or the integer value directly for vendor-defined hidden modes.
      * @param extensionsManager The [ExtensionsManager] instance.
      * @param useCases The [UseCase] instances to be attached to the camera and receive camera data.
-     * @throws IllegalArgumentException if the given mode is not a valid extension mode.
+     * @throws IllegalArgumentException if the given mode is not supported by the camera.
      */
     public constructor(
-        @ExtensionMode.Mode mode: Int,
+        mode: Int,
         extensionsManager: ExtensionsManager,
         vararg useCases: UseCase,
     ) : this(mode, extensionsManager, useCases.toList())
@@ -156,12 +159,13 @@ constructor(
     /**
      * Builder for [ExtensionSessionConfig].
      *
-     * @param mode The extension mode. See [ExtensionMode] for the list of available modes.
+     * @param mode The extension mode. Use constants defined in [ExtensionMode] for standard modes,
+     *   or the integer value directly for vendor-defined hidden modes.
      * @param extensionsManager The [ExtensionsManager] instance.
      * @see ExtensionsManager.getInstanceAsync
      */
     public class Builder(
-        @param:ExtensionMode.Mode private val mode: Int,
+        private val mode: Int,
         private val extensionsManager: ExtensionsManager,
     ) {
         internal val useCases: MutableList<UseCase> = mutableListOf()
@@ -220,7 +224,7 @@ constructor(
 @CameraXDsl
 public class ExtensionSessionConfigScope
 internal constructor(
-    @param:ExtensionMode.Mode private val mode: Int,
+    private val mode: Int,
     private val extensionsManager: ExtensionsManager,
     private val builder: ExtensionSessionConfig.Builder =
         ExtensionSessionConfig.Builder(mode, extensionsManager),
@@ -307,7 +311,7 @@ internal constructor(
  * @param block A lambda to configure the [ExtensionSessionConfigScope].
  */
 public fun extensionSessionConfig(
-    @ExtensionMode.Mode mode: Int,
+    mode: Int,
     extensionsManager: ExtensionsManager,
     block: ExtensionSessionConfigScope.() -> Unit,
 ): ExtensionSessionConfig =

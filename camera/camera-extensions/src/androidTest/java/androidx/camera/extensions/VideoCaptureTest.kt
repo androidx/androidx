@@ -65,7 +65,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class VideoCaptureTest(
-    @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
+    private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 

@@ -66,7 +66,7 @@ import org.mockito.Mockito
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureTest(
-    @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
+    private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 

@@ -51,7 +51,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @Suppress("DEPRECATION")
 class ExtensionsManagerTest(
-    @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
+    private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 

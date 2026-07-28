@@ -51,7 +51,7 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
     @Suppress("UNCHECKED_CAST")
     override fun isExtensionAvailable(cameraInfo: CameraInfo): Boolean {
         val cameraInfoInternal = cameraInfo as CameraInfoInternal
-        return cameraInfoInternal.supportedExtensions.contains(camera2ExtensionMode)
+        return cameraInfoInternal.isExtensionSupported(camera2ExtensionMode)
     }
 
     override fun init(cameraInfo: CameraInfo) {

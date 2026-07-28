@@ -168,7 +168,8 @@ internal constructor(
      * @param cameraSelector The base [CameraSelector] on top of which the extension config is
      *   applied. [isExtensionAvailable] can be used to check whether any camera can support the
      *   specified extension mode for the base camera selector.
-     * @param mode The target extension mode.
+     * @param mode The target extension mode. Use constants defined in [ExtensionMode] for standard
+     *   modes, or the integer value directly for vendor-defined hidden modes.
      * @return a [CameraSelector] for the specified Extensions mode.
      * @throws IllegalArgumentException If this device doesn't support extensions function, no
      *   camera can be found to support the specified extension mode, or the base [CameraSelector]
@@ -179,7 +180,7 @@ internal constructor(
     @Deprecated("Use ExtensionSessionConfig instead.", ReplaceWith("ExtensionSessionConfig"))
     public fun getExtensionEnabledCameraSelector(
         cameraSelector: CameraSelector,
-        @ExtensionMode.Mode mode: Int,
+        mode: Int,
     ): CameraSelector {
         // Directly return the input cameraSelector if the target extension mode is NONE.
         if (mode == ExtensionMode.NONE) {
@@ -197,9 +198,7 @@ internal constructor(
     }
 
     /** Obtains the [CameraFilter] to filter out the cameras for the specified extension mode. */
-    internal fun getExtensionCameraFilterAndInjectCameraConfig(
-        @ExtensionMode.Mode mode: Int
-    ): CameraFilter? {
+    internal fun getExtensionCameraFilterAndInjectCameraConfig(mode: Int): CameraFilter? {
         // Directly return null if the target extension mode is NONE.
         if (mode == ExtensionMode.NONE) {
             return null
@@ -237,13 +236,11 @@ internal constructor(
      * extensions, the dynamic range must be [DynamicRange.SDR] (the default).
      *
      * @param cameraSelector The base [CameraSelector] used to select the camera.
-     * @param mode The extension mode to verify.
+     * @param mode The extension mode to verify. Use constants defined in [ExtensionMode] for
+     *   standard modes, or the integer value directly for vendor-defined hidden modes.
      * @return `true` if the extension mode is available for the camera selector, `false` otherwise.
      */
-    public fun isExtensionAvailable(
-        cameraSelector: CameraSelector,
-        @ExtensionMode.Mode mode: Int,
-    ): Boolean {
+    public fun isExtensionAvailable(cameraSelector: CameraSelector, mode: Int): Boolean {
         if (mode == ExtensionMode.NONE) {
             return true
         }
@@ -265,14 +262,15 @@ internal constructor(
      *
      * @param cameraSelector The [CameraSelector] to find a camera which supports the specified
      *   extension mode.
-     * @param mode The extension mode to check.
+     * @param mode The extension mode to check. Use constants defined in [ExtensionMode] for
+     *   standard modes, or the integer value directly for vendor-defined hidden modes.
      * @return the range of estimated minimal and maximal capture latency in milliseconds. Returns
      *   null if no capture latency info can be provided or if the device doesn't support the
      *   extension mode on this camera.
      */
     public fun getEstimatedCaptureLatencyRange(
         cameraSelector: CameraSelector,
-        @ExtensionMode.Mode mode: Int,
+        mode: Int,
     ): Range<Long>? {
         if (
             mode == ExtensionMode.NONE ||
@@ -294,15 +292,13 @@ internal constructor(
      *
      * @param cameraSelector The [CameraSelector] to find a camera which supports the specified
      *   extension mode.
-     * @param mode The extension mode to check.
+     * @param mode The extension mode to check. Use constants defined in [ExtensionMode] for
+     *   standard modes, or the integer value directly for vendor-defined hidden modes.
      * @return true if [ImageAnalysis] can be bound when the specified extension mode is enabled on
      *   the camera specified by the given [CameraSelector]. Returns false otherwise. If the device
      *   doesn't support this extension mode on this camera, it will also return false.
      */
-    public fun isImageAnalysisSupported(
-        cameraSelector: CameraSelector,
-        @ExtensionMode.Mode mode: Int,
-    ): Boolean {
+    public fun isImageAnalysisSupported(cameraSelector: CameraSelector, mode: Int): Boolean {
         if (mode == ExtensionMode.NONE) {
             return true
         }

@@ -85,7 +85,7 @@ class ReleaseTestActivity : AppCompatActivity() {
     private lateinit var extensionsManager: ExtensionsManager
 
     private var currentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-    @ExtensionMode.Mode private var currentExtensionMode = ExtensionMode.BOKEH
+    private var currentExtensionMode = ExtensionMode.BOKEH
     private lateinit var camera: Camera
 
     private lateinit var preview: Preview
