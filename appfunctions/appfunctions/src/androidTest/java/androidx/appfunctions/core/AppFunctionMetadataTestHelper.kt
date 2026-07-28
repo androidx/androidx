@@ -166,6 +166,13 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             "com.example.android.architecture.blueprints.todoapp#NoteFunctions_createNote"
     }
 
+    object FunctionNames {
+        val NO_SCHEMA_ENABLED_BY_DEFAULT =
+            AppFunctionName(TEST_PACKAGE_NAME, FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT)
+        val NO_SCHEMA_DISABLED_BY_DEFAULT =
+            AppFunctionName(TEST_PACKAGE_NAME, FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT)
+    }
+
     object FunctionMetadata {
         private val sharedComponents =
             AppFunctionComponentsMetadata(
@@ -213,7 +220,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
                     ),
                 schema = null,
@@ -224,7 +231,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = true,
@@ -235,7 +242,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
                     ),
                 schema = null,
@@ -246,7 +253,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = false,
@@ -257,7 +264,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
                     ),
                 schema = null,
@@ -268,7 +275,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = false,
@@ -279,7 +286,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                     ),
                 schema = null,
@@ -299,7 +306,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = true,
@@ -310,7 +317,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                     ),
                 schema = null,
@@ -321,7 +328,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = false,
@@ -332,7 +339,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.MEDIA_SCHEMA2_PRINT,
                     ),
                 schema = AppFunctionSchemaMetadata(category = "media", name = "print", version = 2),
@@ -343,7 +350,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = false,
@@ -353,7 +360,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.MEDIA_SCHEMA_PRINT,
                     ),
                 schema = AppFunctionSchemaMetadata(category = "media", name = "print", version = 1),
@@ -364,7 +371,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = true,
@@ -374,7 +381,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.NOTES_SCHEMA_PRINT,
                     ),
                 schema = AppFunctionSchemaMetadata(category = "notes", name = "print", version = 1),
@@ -385,7 +392,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = true,
@@ -395,7 +402,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         functionIdentifier = FunctionIds.NO_SCHEMA_EXECUTION_FAIL,
                     ),
                 schema = null,
@@ -406,7 +413,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                     ),
                 packageMetadata =
                     AppFunctionPackageMetadata(
-                        packageName = "androidx.appfunctions.test",
+                        packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
                 isEnabled = true,
@@ -439,6 +446,8 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
     companion object {
         private const val RETRY_LIMIT = 5
         private const val RETRY_DELAY_MS = 500L
+
+        const val TEST_PACKAGE_NAME = "androidx.appfunctions.test"
 
         val TEST_APP_METADATA =
             AppFunctionAppMetadata(

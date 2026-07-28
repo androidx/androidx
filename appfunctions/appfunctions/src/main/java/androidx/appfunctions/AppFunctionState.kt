@@ -19,6 +19,7 @@ package androidx.appfunctions
 import android.os.Build
 import android.util.ArraySet
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.appfunctions.metadata.AppFunctionName
 import java.util.Objects
 
@@ -34,11 +35,11 @@ import java.util.Objects
  * [AppFunctionState] defines its current operational status.
  */
 public class AppFunctionState
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     /** The [AppFunctionName] associated with this state. */
     public val functionName: AppFunctionName,
 
-    // TODO(b/524139557): Link to Jetpack registerAppFunction API once ready.
     /**
      * Whether this app function can be executed.
      *
@@ -48,10 +49,9 @@ internal constructor(
      *   [android.app.appfunctions.AppFunctionMetadata.PROPERTY_ENABLED_BY_DEFAULT] and was never
      *   enabled.
      * - A function without an associated [AppFunctionService] has not been registered using
-     *   [android.app.appfunctions.AppFunctionManager.registerAppFunction] or has been unregistered.
-     * - The process registering the function using
-     *   [android.app.appfunctions.AppFunctionManager.registerAppFunction] is frozen, or the
-     *   [android.content.Context] used to register it has been destroyed.
+     *   [AppFunctionManager.registerAppFunction] or has been unregistered.
+     * - The process registering the function using [AppFunctionManager.registerAppFunction] is
+     *   frozen, or the [android.content.Context] used to register it has been destroyed.
      */
     public val isEnabled: Boolean,
 
