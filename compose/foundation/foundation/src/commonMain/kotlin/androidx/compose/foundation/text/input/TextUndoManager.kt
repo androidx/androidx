@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.substring
 
 /**
@@ -223,17 +224,36 @@ internal fun TextUndoManager.recordChanges(
             )
         )
     } else if (changes.changeCount == 1) {
-        val preRange = changes.getOriginalRange(0)
-        val postRange = changes.getRange(0)
-        if (!preRange.collapsed || !postRange.collapsed) {
+        val origPreRange = changes.getOriginalRange(0)
+        val origPostRange = changes.getRange(0)
+        val preRange = origPreRange.coerceIn(0, pre.length)
+        val postRange = origPostRange.coerceIn(0, post.length)
+
+        val isSingleInBoundsChange =
+            origPreRange == preRange && origPostRange == postRange && preRange.min == postRange.min
+
+        if (isSingleInBoundsChange) {
+            if (!preRange.collapsed || !postRange.collapsed) {
+                record(
+                    TextUndoOperation(
+                        index = preRange.min,
+                        preText = pre.substring(preRange),
+                        postText = post.substring(postRange),
+                        preSelection = pre.selection,
+                        postSelection = post.selection,
+                        canMerge = allowMerge,
+                    )
+                )
+            }
+        } else {
             record(
                 TextUndoOperation(
-                    index = preRange.min,
-                    preText = pre.substring(preRange),
-                    postText = post.substring(postRange),
+                    index = 0,
+                    preText = pre.toString(),
+                    postText = post.toString(),
                     preSelection = pre.selection,
                     postSelection = post.selection,
-                    canMerge = allowMerge,
+                    canMerge = false,
                 )
             )
         }
