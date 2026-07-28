@@ -17,26 +17,27 @@
 package androidx.xr.testutils
 
 import android.app.Activity
+import java.lang.ref.WeakReference
 import org.junit.Test
 
 /**
- * Abstract parameterized base test class for smoke testing XR Activities. Other libraries can
- * subclass this to automatically inherit these smoke tests.
+ * Abstract parameterized base test class for testing XR Activities for memory leaks after
+ * finishing. Other libraries can subclass this to automatically inherit these activity leak tests.
  */
-abstract class TestAppSmokeTest(activityClass: Class<out Activity>) : TestAppTest(activityClass) {
+abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
+    TestAppTest(activityClass) {
 
     @Test
     @XrDeviceTest
-    fun activity_loadsAndShowsUi() {
-        val screenshotBefore = takeScreenshotWithTimeout()
-        val activity = startActivity()
-
-        assertScreenshotChanged(screenshotBefore)
+    fun activity_doesNotLeak() {
+        val weakActivityRef = WeakReference(startActivity())
 
         // Finish the Activity to close it
-        instrumentation.runOnMainSync { activity.finish() }
+        instrumentation.runOnMainSync { weakActivityRef.get()?.finish() }
 
         // Wait for the main thread to be idle again
         instrumentation.waitForIdleSync()
+
+        assertGarbageCollected(weakActivityRef)
     }
 }
