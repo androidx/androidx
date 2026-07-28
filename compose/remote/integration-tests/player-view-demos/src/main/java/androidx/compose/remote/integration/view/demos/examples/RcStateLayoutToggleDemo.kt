@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
@@ -67,7 +68,9 @@ fun StateLayoutToggleDemo() {
                 // State 0: Row on left
                 RemoteRow(
                     modifier =
-                        RemoteModifier.fillMaxWidth().height(100.rdp).background(Color.LightGray),
+                        RemoteModifier.fillMaxWidth()
+                            .height(100.rdp)
+                            .background(Color.LightGray.rc),
                     horizontalArrangement = RemoteArrangement.Start,
                     verticalAlignment = RemoteAlignment.CenterVertically,
                 ) {
@@ -75,14 +78,16 @@ fun StateLayoutToggleDemo() {
                         modifier =
                             RemoteModifier.animationSpec(100, true)
                                 .size(50.rdp)
-                                .background(Color.Red)
+                                .background(Color.Red.rc)
                     )
                 }
             } else {
                 // State 1: Row at end
                 RemoteRow(
                     modifier =
-                        RemoteModifier.fillMaxWidth().height(100.rdp).background(Color.LightGray),
+                        RemoteModifier.fillMaxWidth()
+                            .height(100.rdp)
+                            .background(Color.LightGray.rc),
                     horizontalArrangement = RemoteArrangement.End,
                     verticalAlignment = RemoteAlignment.CenterVertically,
                 ) {
@@ -90,7 +95,7 @@ fun StateLayoutToggleDemo() {
                         modifier =
                             RemoteModifier.animationSpec(100, true)
                                 .size(50.rdp)
-                                .background(Color.Red)
+                                .background(Color.Red.rc)
                     )
                 }
             }
@@ -104,11 +109,11 @@ fun StateLayoutToggleDemo() {
                 RemoteModifier.width(160.rdp)
                     .height(48.rdp)
                     .clip(RemoteRoundedCornerShape(12.rdp))
-                    .background(Color.DarkGray)
+                    .background(Color.DarkGray.rc)
                     .clickable(valueChange(isEndState, !isEndState)),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteText("Toggle State", color = Color.White.rc, fontSize = 18.rsp)
+            RemoteText("Toggle State".rs, color = Color.White.rc, fontSize = 18.rsp)
         }
     }
 }

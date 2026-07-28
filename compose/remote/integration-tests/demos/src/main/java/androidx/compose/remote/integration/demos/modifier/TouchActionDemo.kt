@@ -82,7 +82,7 @@ private fun TouchActionDemoContent() {
                     .padding(RemoteDp(16.dp)),
             contentAlignment = RemoteAlignment.Center,
         ) {
-            RemoteText("Touch me!")
+            RemoteText("Touch me!".rs)
         }
         RemoteRow(modifier = RemoteModifier.padding(top = 24.rdp)) {
             RemoteText(

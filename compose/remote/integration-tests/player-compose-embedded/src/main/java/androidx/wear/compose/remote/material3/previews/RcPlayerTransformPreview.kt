@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.shaders.horizontalGradient
 import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteContentPreview
@@ -59,7 +60,8 @@ private fun RcRotatePreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Stage {
             RemoteBox(
-                modifier = RemoteModifier.rotate(30f.rf).size(120.rdp).background(Color(0xFF3F51B5))
+                modifier =
+                    RemoteModifier.rotate(30f.rf).size(120.rdp).background(Color(0xFF3F51B5).rc)
             )
         }
     }
@@ -73,7 +75,8 @@ private fun RcScalePreview(
     ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
         Stage {
             RemoteBox(
-                modifier = RemoteModifier.scale(0.6f.rf).size(150.rdp).background(Color(0xFF4CAF50))
+                modifier =
+                    RemoteModifier.scale(0.6f.rf).size(150.rdp).background(Color(0xFF4CAF50).rc)
             )
         }
     }
@@ -92,13 +95,13 @@ private fun RcZIndexPreview(
                         RemoteModifier.offset(20.rdp, 20.rdp)
                             .size(110.rdp)
                             .zIndex(1f.rf)
-                            .background(Color(0xFFF44336))
+                            .background(Color(0xFFF44336).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.offset(60.rdp, 60.rdp)
                             .size(110.rdp)
-                            .background(Color(0xFF2196F3))
+                            .background(Color(0xFF2196F3).rc)
                 )
             }
         }

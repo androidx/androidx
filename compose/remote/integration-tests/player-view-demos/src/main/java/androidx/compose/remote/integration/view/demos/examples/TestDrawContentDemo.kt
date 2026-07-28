@@ -39,6 +39,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -58,7 +59,7 @@ fun TestDrawContentDemo() {
                         valueChange(remoteState = visibility, updatedValue = (visibility + 1) % 2)
                     )
         ) {
-            RemoteText(text = "Hello world!")
+            RemoteText(text = "Hello world!".rs)
         }
         RemoteBox(
             modifier =
@@ -67,7 +68,7 @@ fun TestDrawContentDemo() {
                     .visibility(visibility)
                     .border(1.rdp, Color.Companion.Green.rc)
         ) {
-            RemoteText(text = "Hello world!")
+            RemoteText(text = "Hello world!".rs)
         }
         RemoteBox(
             modifier =
@@ -82,7 +83,7 @@ fun TestDrawContentDemo() {
                         rotate(30f.rf) { scale(0.5f.rf) { drawContent() } }
                     }
         ) {
-            RemoteText(text = "Hello world!")
+            RemoteText(text = "Hello world!".rs)
         }
     }
 }

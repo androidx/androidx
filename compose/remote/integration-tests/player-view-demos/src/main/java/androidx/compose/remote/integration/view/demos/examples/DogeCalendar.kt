@@ -49,9 +49,11 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.interpolateRemoteFloat
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.view.demos.R
 import androidx.compose.runtime.Composable
@@ -127,7 +129,7 @@ fun DogeCalendar(currentTimeSeconds: Float = 1000f, animate: Boolean = true) {
     val loopTime = (time + (totalDuration * 1000f).rf) % totalDuration.rf
 
     RemoteBox(
-        modifier = RemoteModifier.fillMaxSize().background(Color.Black),
+        modifier = RemoteModifier.fillMaxSize().background(Color.Black.rc),
         contentAlignment = RemoteAlignment.Center,
     ) {
         DOGE_SCHEDULE.forEachIndexed { index, entry ->
@@ -170,7 +172,7 @@ private fun DogeSlot(
     ) {
         // Large Doge Image
         RemoteImage(
-            bitmap = icon,
+            remoteBitmap = icon.rb,
             contentDescription = RemoteString("Doge Icon"),
             modifier = RemoteModifier.size(300.rdp).padding(bottom = 24.rdp),
         )
@@ -201,7 +203,7 @@ private fun DogeSlot(
             FitBox(modifier = RemoteModifier.padding(horizontal = 24.rdp)) {
                 arrayOf(fontSize, 16.rsp, 14.rsp, 12.rsp, 10.rsp).forEach { size ->
                     RemoteText(
-                        text = "${entry.time}: ${entry.task}",
+                        text = "${entry.time}: ${entry.task}".rs,
                         fontSize = size,
                         color = Color.White.rc,
                         fontWeight = FontWeight.Medium,

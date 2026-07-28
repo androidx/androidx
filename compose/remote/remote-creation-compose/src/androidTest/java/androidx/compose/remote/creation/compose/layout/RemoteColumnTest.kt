@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
@@ -184,12 +185,12 @@ class RemoteColumnTest {
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE))
+                                                    .background(Color(0xFF6200EE).rc)
                                         )
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6))
+                                                    .background(Color(0xFF03DAC6).rc)
                                         )
                                     }
                                 }
@@ -209,15 +210,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -232,15 +233,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -255,15 +256,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -278,15 +279,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -301,15 +302,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -324,15 +325,15 @@ class RemoteColumnTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC))
+                    RemoteModifier.height(20.rdp).fillMaxWidth().background(Color(0xFFBB86FC).rc)
             )
         }
     }

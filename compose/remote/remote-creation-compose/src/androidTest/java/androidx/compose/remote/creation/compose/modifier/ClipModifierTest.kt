@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
@@ -85,7 +86,7 @@ class ClipModifierTest {
                                             modifier =
                                                 RemoteModifier.size(DefaultContainerSize)
                                                     .clipFn()
-                                                    .background(Color.Red)
+                                                    .background(Color.Red.rc)
                                         )
                                     }
                             )
@@ -116,7 +117,7 @@ class ClipModifierTest {
                                 modifier =
                                     RemoteModifier.size(DefaultContainerSize)
                                         .clip(shape)
-                                        .background(Color.Red)
+                                        .background(Color.Red.rc)
                             )
                         }
                 )

@@ -107,8 +107,8 @@ class RemoteComposeTest {
                 // Using V1 components inside V2 capture
                 RemoteBox {
                     RemoteColumn {
-                        RemoteText(text = "V1 Text")
-                        RemoteRow { RemoteText(text = "Nested V1 Text") }
+                        RemoteText(text = "V1 Text".rs)
+                        RemoteRow { RemoteText(text = "Nested V1 Text".rs) }
                     }
                 }
             }
@@ -134,7 +134,7 @@ class RemoteComposeTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
-                FitBox { RemoteText(text = "Fit Content") }
+                FitBox { RemoteText(text = "Fit Content".rs) }
             }
 
         assertNotNull(document)
@@ -147,9 +147,9 @@ class RemoteComposeTest {
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteCollapsibleColumn {
-                    RemoteText(text = "Fixed")
+                    RemoteText(text = "Fixed".rs)
                     RemoteCollapsibleRow(modifier = RemoteModifier.weight(1f)) {
-                        RemoteText(text = "Weighted Row Content")
+                        RemoteText(text = "Weighted Row Content".rs)
                     }
                 }
             }

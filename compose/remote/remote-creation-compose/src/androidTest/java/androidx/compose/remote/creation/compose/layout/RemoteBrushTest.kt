@@ -223,7 +223,7 @@ class RemoteBrushTest {
             val topLeftY = 50f
             val matrix33 =
                 RemoteMatrix3x3.createTranslateXy(RemoteFloat(topLeftX), RemoteFloat(topLeftY))
-            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow)) {
+            RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow.rc)) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)

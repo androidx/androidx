@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.util.propertyName
@@ -125,12 +126,12 @@ class FitBoxTest {
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE))
+                                                    .background(Color(0xFF6200EE).rc)
                                         )
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6))
+                                                    .background(Color(0xFF03DAC6).rc)
                                         )
                                     }
                                 }

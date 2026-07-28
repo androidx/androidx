@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
@@ -309,12 +310,12 @@ class RemoteCollapsibleRowTest {
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE))
+                                                    .background(Color(0xFF6200EE).rc)
                                         )
                                         RemoteBox(
                                             modifier =
                                                 RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6))
+                                                    .background(Color(0xFF03DAC6).rc)
                                         )
                                     }
                                 }
@@ -330,7 +331,9 @@ class RemoteCollapsibleRowTest {
         modifier: RemoteModifier,
         content: @Composable @RemoteComposable () -> Unit,
     ) {
-        RemoteCollapsibleRow(modifier = modifier.fillMaxSize().background(Color.Red)) { content() }
+        RemoteCollapsibleRow(modifier = modifier.fillMaxSize().background(Color.Red.rc)) {
+            content()
+        }
     }
 
     private fun getPriorityModifier(priority: Float): RemoteModifier =
@@ -346,15 +349,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -369,15 +372,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -392,15 +395,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -415,15 +418,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -440,15 +443,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }
@@ -463,15 +466,15 @@ class RemoteCollapsibleRowTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF6200EE).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFF03DAC6).rc)
             )
             RemoteBox(
                 modifier =
-                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC))
+                    RemoteModifier.width(20.rdp).fillMaxHeight().background(Color(0xFFBB86FC).rc)
             )
         }
     }

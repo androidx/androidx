@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
@@ -46,7 +47,7 @@ class RemoteCaptureTestRuleTest {
 
         val document =
             captureRule.captureDocument(context) {
-                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red)) {}
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc)) {}
             }
 
         assertNotNull(document)

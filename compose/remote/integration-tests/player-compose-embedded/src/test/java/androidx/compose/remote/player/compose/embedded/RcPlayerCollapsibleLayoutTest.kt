@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -70,21 +71,21 @@ class RcPlayerCollapsibleLayoutTest {
                         RemoteModifier.semantics { contentDescription = "A".rs }
                             .priority(10f)
                             .size(100.rdp, 40.rdp)
-                            .background(Color(0xFFAA0000))
+                            .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
                             .priority(1f)
                             .size(100.rdp, 40.rdp)
-                            .background(Color(0xFF00AA00))
+                            .background(Color(0xFF00AA00).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "C".rs }
                             .priority(5f)
                             .size(100.rdp, 40.rdp)
-                            .background(Color(0xFF0000AA))
+                            .background(Color(0xFF0000AA).rc)
                 )
             }
         }
@@ -115,14 +116,14 @@ class RcPlayerCollapsibleLayoutTest {
                         RemoteModifier.semantics { contentDescription = "A".rs }
                             .priority(2f)
                             .size(100.rdp, 40.rdp)
-                            .background(Color(0xFFAA0000))
+                            .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
                             .priority(1f)
                             .size(100.rdp, 40.rdp)
-                            .background(Color(0xFF00AA00))
+                            .background(Color(0xFF00AA00).rc)
                 )
             }
         }
@@ -146,21 +147,21 @@ class RcPlayerCollapsibleLayoutTest {
                         RemoteModifier.semantics { contentDescription = "A".rs }
                             .priority(10f)
                             .size(40.rdp, 100.rdp)
-                            .background(Color(0xFFAA0000))
+                            .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
                             .priority(1f)
                             .size(40.rdp, 100.rdp)
-                            .background(Color(0xFF00AA00))
+                            .background(Color(0xFF00AA00).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "C".rs }
                             .priority(5f)
                             .size(40.rdp, 100.rdp)
-                            .background(Color(0xFF0000AA))
+                            .background(Color(0xFF0000AA).rc)
                 )
             }
         }
@@ -183,7 +184,7 @@ class RcPlayerCollapsibleLayoutTest {
     fun singleContentInContainerWithSizeAndBackground_displaysContent() {
         playerRule.setRemoteContent {
             RemoteCollapsibleColumn(
-                modifier = RemoteModifier.size(100.rdp, 100.rdp).background(Color.Red)
+                modifier = RemoteModifier.size(100.rdp, 100.rdp).background(Color.Red.rc)
             ) {
                 RemoteBox(
                     modifier =
@@ -203,7 +204,7 @@ class RcPlayerCollapsibleLayoutTest {
         // The second child exceeds available main-axis height and collapses.
         playerRule.setRemoteContent {
             RemoteCollapsibleColumn(
-                modifier = RemoteModifier.size(100.rdp, 50.rdp).background(Color.Red)
+                modifier = RemoteModifier.size(100.rdp, 50.rdp).background(Color.Red.rc)
             ) {
                 RemoteBox(
                     modifier =

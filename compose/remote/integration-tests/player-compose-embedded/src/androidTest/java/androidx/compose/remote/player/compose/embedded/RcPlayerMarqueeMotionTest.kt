@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.basicMarquee
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.Modifier
@@ -74,12 +75,12 @@ class RcPlayerMarqueeMotionTest {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(60.rdp, 20.rdp)
-                                        .background(Color(0xFFCC0000))
+                                        .background(Color(0xFFCC0000).rc)
                             )
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(60.rdp, 20.rdp)
-                                        .background(Color(0xFF0000CC))
+                                        .background(Color(0xFF0000CC).rc)
                             )
                         }
                     }

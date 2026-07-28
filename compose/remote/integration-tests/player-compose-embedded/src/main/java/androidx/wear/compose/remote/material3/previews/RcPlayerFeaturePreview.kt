@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteContentPreview
 import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
@@ -58,7 +59,7 @@ private fun RcRoundedCornersPreview(
                 modifier =
                     RemoteModifier.size(140.rdp)
                         .clip(RemoteRoundedCornerShape(28.rdp))
-                        .background(Color(0xFF3F51B5))
+                        .background(Color(0xFF3F51B5).rc)
             )
         }
     }
@@ -82,7 +83,7 @@ private fun RcPerCornerRoundingPreview(
                                 bottomStart = 64.rdp,
                             )
                         )
-                        .background(Color(0xFF4CAF50))
+                        .background(Color(0xFF4CAF50).rc)
             )
         }
     }
@@ -99,7 +100,7 @@ private fun RcBackgroundColorClipPreview(
                 modifier =
                     RemoteModifier.size(140.rdp)
                         .clip(RemoteRoundedCornerShape(percent = 50))
-                        .background(Color(0xFFE91E63))
+                        .background(Color(0xFFE91E63).rc)
             )
         }
     }

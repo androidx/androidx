@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.scale
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
@@ -33,12 +34,12 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun ScaleUniformSample() {
-    RemoteBox(RemoteModifier.scale(2f.rf).size(100.rdp, 100.rdp).background(Color.Red))
+    RemoteBox(RemoteModifier.scale(2f.rf).size(100.rdp, 100.rdp).background(Color.Red.rc))
 }
 
 @Sampled
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun ScaleNonUniformSample() {
-    RemoteBox(RemoteModifier.scale(2f.rf, 3f.rf).size(100.rdp, 100.rdp).background(Color.Red))
+    RemoteBox(RemoteModifier.scale(2f.rf, 3f.rf).size(100.rdp, 100.rdp).background(Color.Red.rc))
 }

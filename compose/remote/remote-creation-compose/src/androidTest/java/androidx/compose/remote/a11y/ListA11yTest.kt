@@ -155,7 +155,7 @@ class ListA11yTest {
     ) {
         val scrollState = rememberRemoteScrollState(notches)
         RemoteColumn(
-            modifier = modifier.verticalScroll(scrollState).background(Color.White),
+            modifier = modifier.verticalScroll(scrollState).background(Color.White.rc),
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
             verticalArrangement = RemoteArrangement.Center,
         ) {
@@ -170,7 +170,7 @@ class ListA11yTest {
                             .semantics(mergeDescendants = true) {},
                     contentAlignment = RemoteAlignment.Center,
                 ) {
-                    RemoteText("Item $i", color = RemoteColor(Color.Black), fontSize = 36.rsp)
+                    RemoteText("Item $i".rs, color = RemoteColor(Color.Black), fontSize = 36.rsp)
                 }
             }
         }
