@@ -128,8 +128,8 @@ private constructor(val realtimeNsToUtcMs: Long, val realtimeNsToMonotonicNs: Lo
 
                     // Since we have three measurements A, B, C, we compute the average between A
                     // and C, which gets us closer to B, then compute the difference between them to
-                    // compute the offset: offset = B - ((A + C) / 2)
-                    offsetNanos = elapsedRealTimeNanos - ((monotonicNanosA + monotonicNanosB) / 2)
+                    // compute the offset: offset = ((A + C) / 2) - B
+                    offsetNanos = ((monotonicNanosA + monotonicNanosB) / 2) - elapsedRealTimeNanos
                 }
             }
             return offsetNanos
@@ -138,7 +138,7 @@ private constructor(val realtimeNsToUtcMs: Long, val realtimeNsToMonotonicNs: Lo
         /** Convert a timestamp from "elapsedRealtimeNanos" to "uptimeMillis" * NS_PER_MS. */
         @JvmStatic
         fun SystemClockOffsets.realtimeNsToMonotonicNs(realtimeNs: Long): Long {
-            return realtimeNs - this.realtimeNsToMonotonicNs
+            return realtimeNs + this.realtimeNsToMonotonicNs
         }
 
         /** Convert a timestamp from "elapsedRealtimeNanos" to "uptimeMillis" */
@@ -156,7 +156,7 @@ private constructor(val realtimeNsToUtcMs: Long, val realtimeNsToMonotonicNs: Lo
         /** Convert a timestamp from "elapsedRealtime" to "uptimeMillis" * NS_PER_MS. */
         @JvmStatic
         fun SystemClockOffsets.realtimeMsToMonotonicNs(realtimeMs: Long): Long {
-            return realtimeMs * NS_PER_MS - this.realtimeNsToMonotonicNs
+            return realtimeMs * NS_PER_MS + this.realtimeNsToMonotonicNs
         }
 
         /** Convert a timestamp from "elapsedRealtime" to "uptimeMillis". */
@@ -174,7 +174,7 @@ private constructor(val realtimeNsToUtcMs: Long, val realtimeNsToMonotonicNs: Lo
         /** Convert a timestamp in the "uptimeMillis * NS_PER_MS" to elapsedRealtimeNanos. */
         @JvmStatic
         fun SystemClockOffsets.monotonicNsToRealtimeNs(monotonicNs: Long): Long {
-            return this.realtimeNsToMonotonicNs + monotonicNs
+            return monotonicNs - this.realtimeNsToMonotonicNs
         }
 
         /** Convert a timestamp in the "uptimeMillis * NS_PER_MS" to elapsedRealtime. */
@@ -192,7 +192,7 @@ private constructor(val realtimeNsToUtcMs: Long, val realtimeNsToMonotonicNs: Lo
         /** Convert a timestamp in the "uptimeMillis" timebase to elapsedRealtimeNanos. */
         @JvmStatic
         fun SystemClockOffsets.monotonicMsToRealtimeNs(monotonicMs: Long): Long {
-            return this.realtimeNsToMonotonicNs + (monotonicMs * NS_PER_MS)
+            return (monotonicMs * NS_PER_MS) - this.realtimeNsToMonotonicNs
         }
 
         /** Convert a timestamp in the "uptimeMillis" timebase to elapsedRealtimeNanos. */

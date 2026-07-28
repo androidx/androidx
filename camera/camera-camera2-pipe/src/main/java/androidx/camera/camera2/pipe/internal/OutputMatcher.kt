@@ -42,7 +42,7 @@ internal constructor(initialOffset: Long = 0L, private val errorDelta: Long) {
      */
     fun fuzzyEqual(cameraOutputNumber: Long, outputNumber: Long): Boolean {
         val offsetNs = currentOffset.value
-        val delta = cameraOutputNumber - outputNumber + offsetNs
+        val delta = cameraOutputNumber - (outputNumber - offsetNs)
         if (delta == 0L) {
             // Timestamps match exactly
             return true
@@ -58,7 +58,7 @@ internal constructor(initialOffset: Long = 0L, private val errorDelta: Long) {
     /** Check to see if an image timestamp is less than a sensor timestamp. */
     fun fuzzyLessThan(cameraOutputNumber: Long, outputNumber: Long): Boolean {
         // Example:
-        // img   ssr   off   error   v  <=
+        // img   ssr   off   error   v  <
         // 0   - 100 - 105 + 6 =  -199  true
         // 198 - 100 - 105 + 6 =    -1  true  // less than
         // 205 - 100 - 105 + 6 =     6  false // exact equals
