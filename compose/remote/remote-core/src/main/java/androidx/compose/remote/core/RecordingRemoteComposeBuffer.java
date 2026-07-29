@@ -1559,18 +1559,19 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public void setVersion(int documentApiLevel, int profiles) {
-        mApiLevel = documentApiLevel;
-        mProfileMask = profiles;
+    public void setVersion(
+            int documentApiLevel,
+            int operationsProfiles,
+            @Nullable Set<Integer> supportedOperations) {
+        super.setVersion(documentApiLevel, operationsProfiles, supportedOperations);
     }
 
     @Override
     public void setVersion(
             int documentApiLevel,
             int operationsProfiles,
-            @NonNull Set<Integer> supportedOperations) {
-        mApiLevel = documentApiLevel;
-        mProfileMask = operationsProfiles;
+            Operations.@NonNull UniqueIntMap<CompanionOperation> customMap) {
+        super.setVersion(documentApiLevel, operationsProfiles, customMap);
     }
 
     @Override

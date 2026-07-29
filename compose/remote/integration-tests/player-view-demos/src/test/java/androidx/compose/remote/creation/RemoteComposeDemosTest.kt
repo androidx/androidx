@@ -120,7 +120,7 @@ class RemoteComposeDemosTest {
                         "$indent    " + bodyBytes.joinToString(" ") { String.format("%02X", it) }
                     )
                     val subBuffer = RemoteComposeBuffer(7)
-                    subBuffer.setVersion(7, 513)
+                    subBuffer.setVersion(7, 513, null as Set<Int>?)
                     subBuffer.addHeader(
                         shortArrayOf(androidx.compose.remote.core.operations.Header.DOC_PROFILES),
                         arrayOf<Any>(513),
