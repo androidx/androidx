@@ -17,7 +17,6 @@
 package androidx.test.shell
 
 import androidx.kruth.assertThat
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.io.DataInputStream
 import org.junit.Test
@@ -49,7 +48,6 @@ class ShellProcessTest {
         assertThat(shellProcess.isClosed()).isTrue()
     }
 
-    @SdkSuppress(minSdkVersion = 24) // b/441558679
     @Test
     fun pipe() {
         shellServer.newProcess().use {
