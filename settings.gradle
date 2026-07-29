@@ -502,6 +502,7 @@ if (providers.gradleProperty("androidx.useMaxDepVersions").isPresent()) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
 includeProject(":camera:camera-camera2", [BuildType.CAMERA])
+includeProject(":camera:camera-camera2:camera-camera2-samples", "camera/camera-camera2/samples", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe-testing", [BuildType.CAMERA])
 includeProject(":camera:camera-common", [BuildType.CAMERA])

@@ -2544,6 +2544,11 @@ public final class ImageCapture extends UseCase {
             return mMutableConfig;
         }
 
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull MutableConfig getInteropMutableConfig() {
+            return mMutableConfig;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -2551,6 +2556,41 @@ public final class ImageCapture extends UseCase {
         @Override
         public @NonNull ImageCaptureConfig getUseCaseConfig() {
             return new ImageCaptureConfig(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
+         * Applies interoperability configuration to this builder.
+         *
+         * <p>To configure Camera2 options, use {@code Camera2Interop.forImageCapture(configurator)}
+         * (from the {@code camera-camera2} artifact) to create a configurator, then pass it to
+         * this method.
+         *
+         * <p><b>Note:</b> Using Camera2 interop options can override internal CameraX
+         * configurations. The capture request keys for one-shot still captures (e.g.
+         * {@link ImageCapture#takePicture}) are determined by copying all repeating request keys
+         * (which may include keys added via
+         * {@link androidx.camera.core.SessionConfig.Builder#setInterop} or
+         * {@link CameraControl#applyInteropAsync}) and then overriding them with the still capture
+         * request keys configured here. If an option configured via interop conflicts with
+         * options required by CameraX internally, the option from Camera2Interop will override,
+         * which may result in unexpected behavior.
+         *
+         * <p><b>Warning:</b> Callbacks configured via interop receive raw
+         * {@link android.hardware.camera2.CameraCaptureSession} instances. Directly invoking
+         * state-altering methods on these raw objects (such as
+         * {@link android.hardware.camera2.CameraCaptureSession#close()} or
+         * {@link android.hardware.camera2.CameraCaptureSession#abortCaptures()}) bypasses CameraX
+         * pipeline management and may cause state desynchronization, stream interruption, or
+         * application crashes.
+         *
+         * @param configurator the configurator that sets the interoperability options
+         * @return this builder
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public @NonNull Builder setInterop(
+                @NonNull InteropConfigurator<Builder> configurator) {
+            configurator.configure(this);
+            return this;
         }
 
         /**

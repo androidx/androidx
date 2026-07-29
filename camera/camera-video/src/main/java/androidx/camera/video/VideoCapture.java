@@ -1998,6 +1998,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @SuppressWarnings({"ObjectToString", "HiddenSuperclass"})
     public static final class Builder<T extends VideoOutput> implements
             UseCaseConfig.Builder<VideoCapture<T>, VideoCaptureConfig<T>, Builder<T>>,
+            UseCase.InteropConfigurable<Builder<T>>,
             ImageOutputConfig.Builder<Builder<T>>, ImageInputConfig.Builder<Builder<T>>,
             ThreadConfig.Builder<Builder<T>> {
         private final MutableOptionsBundle mMutableConfig;
@@ -2061,6 +2062,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public @NonNull MutableConfig getMutableConfig() {
+            return mMutableConfig;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public @NonNull MutableConfig getInteropMutableConfig() {
             return mMutableConfig;
         }
 

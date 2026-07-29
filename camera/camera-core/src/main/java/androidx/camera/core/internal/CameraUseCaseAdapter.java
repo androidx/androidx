@@ -150,6 +150,10 @@ public final class CameraUseCaseAdapter implements Camera {
     @GuardedBy("mLock")
     private Config mInteropConfig = null;
 
+    // This holds the session Interop config from public SessionConfig.
+    @GuardedBy("mLock")
+    private Config mSessionInteropConfig = null;
+
     // The placeholder UseCase created to meet combination criteria for Extensions. e.g. When
     // Extensions require both Preview and ImageCapture and app only provides one of them,
     // CameraX will create the other and track it with this variable.
@@ -296,6 +300,15 @@ public final class CameraUseCaseAdapter implements Camera {
     public void setEffects(@NonNull List<CameraEffect> effects) {
         synchronized (mLock) {
             mEffects = effects;
+        }
+    }
+
+    /**
+     * Sets the session interop config that will be merged into the {@link UseCase} configs.
+     */
+    public void setSessionInteropConfig(@Nullable Config config) {
+        synchronized (mLock) {
+            mSessionInteropConfig = config;
         }
     }
 
@@ -537,7 +550,7 @@ public final class CameraUseCaseAdapter implements Camera {
         // fails the supported stream combination rules.
         Map<UseCase, ConfigPair> configs = getConfigs(cameraUseCasesToAttach,
                 mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory,
-                mSessionType, mFrameRate);
+                mSessionType, mFrameRate, mSessionInteropConfig);
         StreamSpecQueryResult primaryStreamSpecResult;
         StreamSpecQueryResult secondaryStreamSpecResult = null;
 
@@ -1149,7 +1162,22 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull UseCaseConfigFactory cameraFactory,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate) {
+        return getConfigs(useCases, extendedFactory, cameraFactory, sessionType, targetFrameRate,
+                null);
+    }
+
+    /**
+     * Gets a map of the configs for the use cases from the respective factories.
+     */
+    static Map<UseCase, ConfigPair> getConfigs(@NonNull Collection<UseCase> useCases,
+            @NonNull UseCaseConfigFactory extendedFactory,
+            @NonNull UseCaseConfigFactory cameraFactory,
+            int sessionType,
+            @NonNull Range<Integer> targetFrameRate,
+            @Nullable Config sessionInteropConfig) {
         Map<UseCase, ConfigPair> configs = new HashMap<>();
+        boolean isFirst = true;
+
         for (UseCase useCase : useCases) {
             UseCaseConfig<?> extendedConfig;
             if (isStreamSharing(useCase)) {
@@ -1159,8 +1187,14 @@ public final class CameraUseCaseAdapter implements Camera {
                 extendedConfig = useCase.getDefaultConfig(false, extendedFactory);
             }
             UseCaseConfig<?> cameraConfig = useCase.getDefaultConfig(true, cameraFactory);
+
+            // Ensure the public SessionConfig interop config is added only
+            // in the first of the UseCase's config to avoid duplicated settings.
+            Config interopConfigToAttach = isFirst ? sessionInteropConfig : null;
+            isFirst = false;
+
             cameraConfig = attachUseCaseSharedConfigs(useCase, cameraConfig, sessionType,
-                    targetFrameRate);
+                    targetFrameRate, interopConfigToAttach);
             configs.put(useCase, new ConfigPair(extendedConfig, cameraConfig));
         }
         return configs;
@@ -1171,7 +1205,8 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull UseCase useCase,
             @Nullable UseCaseConfig<?> useCaseConfig,
             int sessionType,
-            @NonNull Range<Integer> targetFrameRate) {
+            @NonNull Range<Integer> targetFrameRate,
+            @Nullable Config sessionInteropConfig) {
         MutableOptionsBundle mutableConfig = useCaseConfig != null
                 ? MutableOptionsBundle.from(useCaseConfig) : MutableOptionsBundle.create();
 
@@ -1186,6 +1221,15 @@ public final class CameraUseCaseAdapter implements Camera {
 
             // If the frame rate is from SessionConfig, enable strict frame rate.
             mutableConfig.insertOption(OPTION_IS_STRICT_FRAME_RATE_REQUIRED, true);
+        }
+
+        if (sessionInteropConfig != null) {
+            for (Config.Option<?> option : sessionInteropConfig.listOptions()) {
+                @SuppressWarnings("unchecked")
+                Config.Option<Object> opt = (Config.Option<Object>) option;
+                mutableConfig.insertOption(opt, sessionInteropConfig.getOptionPriority(opt),
+                        sessionInteropConfig.retrieveOption(opt));
+            }
         }
 
         return useCase.getUseCaseConfigBuilder(mutableConfig).getUseCaseConfig();

@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.AnyThread
+import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.config.UseCaseCameraScope
@@ -45,6 +46,7 @@ import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import dagger.Binds
 import dagger.Module
 import java.util.concurrent.Executor
@@ -441,10 +443,45 @@ constructor(
         runIfNotClosed {
             runOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#updateCamera2ConfigAsync" }
+                val camera2Config = Camera2ImplConfig(config)
+                val listeners = mutableSetOf<Request.Listener>()
+
+                camera2Config.getSessionCaptureCallback()?.let { callback ->
+                    val wrapped = CameraUseCaseAdapter.CaptureCallbackContainer.create(callback)
+                    listeners.add(
+                        CameraCallbackMap.createFor(
+                            listOf(wrapped),
+                            CameraXExecutors.directExecutor(),
+                        )
+                    )
+                }
+                camera2Config.getSessionRepeatingCaptureCallback()?.let { callback ->
+                    val wrapped = CameraUseCaseAdapter.CaptureCallbackContainer.create(callback)
+                    listeners.add(
+                        CameraCallbackMap.createFor(
+                            listOf(wrapped),
+                            CameraXExecutors.directExecutor(),
+                        )
+                    )
+                }
+
+                val template =
+                    if (config.containsOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION)) {
+                        RequestTemplate(
+                            camera2Config.getCaptureRequestTemplate(
+                                CaptureConfig.TEMPLATE_TYPE_NONE
+                            )
+                        )
+                    } else {
+                        null
+                    }
+
                 infoBundleMap[UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL] =
                     InfoBundle(
                         options = config.extractCamera2ImplConfigBuilder(),
                         tags = tags.toMutableMap(),
+                        listeners = listeners,
+                        template = template,
                     )
                 infoBundleMap.merge().updateCameraStateAsync()
             }

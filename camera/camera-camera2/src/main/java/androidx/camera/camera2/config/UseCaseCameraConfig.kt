@@ -22,6 +22,7 @@ import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.compat.workaround.CapturePipelineTorchCorrection
+import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraGraphConfigProvider
 import androidx.camera.camera2.impl.CapturePipeline
@@ -158,14 +159,18 @@ public data class UseCaseCameraConfig(
             // preserving the identity of the StreamIds within the GraphConfig.
             val lazyGraphConfigBundle = lazy {
                 val sessionConfig = sessionConfigAdapter.getValidSessionConfigOrNull()
+                val effectiveSessionType =
+                    sessionConfig?.let {
+                        Camera2ImplConfig(it.implementationOptions).getSessionType(it.sessionType)
+                    } ?: sessionConfig?.sessionType
 
                 val operatingMode =
                     when {
                         extensionMode != null -> OperatingMode.EXTENSION
                         sessionConfig == null -> OperatingMode.NORMAL
-                        sessionConfig.sessionType == SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
-                        sessionConfig.sessionType == SESSION_REGULAR -> OperatingMode.NORMAL
-                        else -> OperatingMode.custom(sessionConfig.sessionType)
+                        effectiveSessionType == SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
+                        effectiveSessionType == SESSION_REGULAR -> OperatingMode.NORMAL
+                        else -> OperatingMode.custom(effectiveSessionType!!)
                     }
 
                 cameraGraphConfigProvider.create(
@@ -174,8 +179,7 @@ public data class UseCaseCameraConfig(
                     setOutputType = false,
                     graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
                     camera2ExtensionMode = extensionMode,
-                    surfaceToStreamUseCaseMap = sessionConfigAdapter.surfaceToStreamUseCaseMap,
-                    surfaceToStreamUseHintMap = sessionConfigAdapter.surfaceToStreamUseHintMap,
+                    surfaceConfigOptionsMap = sessionConfigAdapter.surfaceConfigOptionsMap,
                 )
             }
 

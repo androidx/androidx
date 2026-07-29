@@ -1668,4 +1668,79 @@ class CameraUseCaseAdapterTest {
         adaptersToDetach.add(adapter)
         return adapter
     }
+
+    @Test
+    fun sessionInteropConfig_callbacksNotDuplicatedAcrossMultipleUseCases() {
+        // Arrange
+        val captureCallback =
+            object : android.hardware.camera2.CameraCaptureSession.CaptureCallback() {}
+        val sessionStateCallback =
+            object : android.hardware.camera2.CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: android.hardware.camera2.CameraCaptureSession) {}
+
+                override fun onConfigureFailed(
+                    session: android.hardware.camera2.CameraCaptureSession
+                ) {}
+            }
+        val deviceStateCallback =
+            object : android.hardware.camera2.CameraDevice.StateCallback() {
+                override fun onOpened(camera: android.hardware.camera2.CameraDevice) {}
+
+                override fun onDisconnected(camera: android.hardware.camera2.CameraDevice) {}
+
+                override fun onError(camera: android.hardware.camera2.CameraDevice, error: Int) {}
+            }
+
+        val interopConfig =
+            androidx.camera.core.impl.MutableOptionsBundle.create().apply {
+                insertOption(Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION, captureCallback)
+                insertOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION, sessionStateCallback)
+                insertOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION, deviceStateCallback)
+            }
+
+        // Act: call getConfigs for preview and analysis
+        val configs =
+            CameraUseCaseAdapter.getConfigs(
+                setOf(preview, analysis),
+                useCaseConfigFactory,
+                useCaseConfigFactory,
+                androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR,
+                Range(30, 30),
+                interopConfig,
+            )
+
+        // Assert: Only preview's cameraConfig contains the interop callback options
+        val previewCameraConfig = configs[preview]!!.mCameraConfig
+        val analysisCameraConfig = configs[analysis]!!.mCameraConfig
+
+        assertThat(
+                previewCameraConfig.containsOption(
+                    Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+                )
+            )
+            .isEqualTo(true)
+        assertThat(
+                previewCameraConfig.containsOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
+            )
+            .isEqualTo(true)
+        assertThat(
+                previewCameraConfig.containsOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
+            )
+            .isEqualTo(true)
+
+        assertThat(
+                analysisCameraConfig.containsOption(
+                    Camera2ImplConfig.SESSION_CAPTURE_CALLBACK_OPTION
+                )
+            )
+            .isEqualTo(false)
+        assertThat(
+                analysisCameraConfig.containsOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
+            )
+            .isEqualTo(false)
+        assertThat(
+                analysisCameraConfig.containsOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
+            )
+            .isEqualTo(false)
+    }
 }

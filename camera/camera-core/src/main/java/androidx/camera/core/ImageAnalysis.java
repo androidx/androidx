@@ -1308,6 +1308,7 @@ public final class ImageAnalysis extends UseCase {
             implements ImageOutputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder>,
             UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder>,
+            UseCase.InteropConfigurable<Builder>,
             ImageInputConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -1508,6 +1509,13 @@ public final class ImageAnalysis extends UseCase {
         public @NonNull MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public @NonNull MutableConfig getInteropMutableConfig() {
+            return mMutableConfig;
+        }
+
 
         /**
          * {@inheritDoc}
