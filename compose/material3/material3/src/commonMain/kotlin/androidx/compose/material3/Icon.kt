@@ -56,7 +56,7 @@ import androidx.compose.ui.semantics.semantics
  * @param contentDescription text used by accessibility services to describe what this icon
  *   represents. This should always be provided unless this icon is used for decorative purposes,
  *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   such as by using `androidx.compose.ui.res.stringResource` or similar
  * @param modifier the [Modifier] to be applied to this icon
  * @param tint tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no tint
  *   is applied.
@@ -92,7 +92,7 @@ public fun Icon(
  * @param contentDescription text used by accessibility services to describe what this icon
  *   represents. This should always be provided unless this icon is used for decorative purposes,
  *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   such as by using `androidx.compose.ui.res.stringResource` or similar
  * @param modifier the [Modifier] to be applied to this icon
  * @param tint tint to be applied to [bitmap]. If [Color.Unspecified] is provided, then no tint is
  *   applied.
@@ -129,7 +129,7 @@ public fun Icon(
  * @param contentDescription text used by accessibility services to describe what this icon
  *   represents. This should always be provided unless this icon is used for decorative purposes,
  *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   such as by using `androidx.compose.ui.res.stringResource` or similar
  * @param modifier the [Modifier] to be applied to this icon
  * @param tint tint to be applied to [painter]. If [Color.Unspecified] is provided, then no tint is
  *   applied.
@@ -178,7 +178,7 @@ public fun Icon(
  * @param contentDescription text used by accessibility services to describe what this icon
  *   represents. This should always be provided unless this icon is used for decorative purposes,
  *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   such as by using `androidx.compose.ui.res.stringResource` or similar
  * @param modifier the [Modifier] to be applied to this icon
  */
 @Composable

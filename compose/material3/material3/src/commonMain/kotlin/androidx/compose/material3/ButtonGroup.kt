@@ -244,7 +244,7 @@ public object ButtonGroupDefaults {
         @Composable
         get() = RoundedCornerShape(ConnectedButtonGroupSmallTokens.PressedInnerCornerCornerSize)
 
-    /** Defaults button shapes for the start button in a [ConnectedButtonGroup] */
+    /** Defaults button shapes for the start button in a connected button group. */
     @Composable
     public fun connectedLeadingButtonShapes(
         shape: Shape = connectedLeadingButtonShape,
@@ -254,7 +254,7 @@ public object ButtonGroupDefaults {
         ToggleButtonShapes(shape = shape, pressedShape = pressedShape, checkedShape = checkedShape)
 
     /**
-     * Defaults button shapes for a middle button in a [ConnectedButtonGroup]. A middle button is a
+     * Defaults button shapes for a middle button in a connected button group. A middle button is a
      * button that's not the start / end button in the button group.
      */
     @Composable
@@ -265,7 +265,7 @@ public object ButtonGroupDefaults {
     ): ToggleButtonShapes =
         ToggleButtonShapes(shape = shape, pressedShape = pressedShape, checkedShape = checkedShape)
 
-    /** Defaults button shapes for the end button in a [ConnectedButtonGroup]. */
+    /** Defaults button shapes for the end button in a connected button group. */
     @Composable
     public fun connectedTrailingButtonShapes(
         shape: Shape = connectedTrailingButtonShape,

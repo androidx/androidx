@@ -906,9 +906,9 @@ public fun LargeFlexibleTopAppBar(
  *   to the [collapsedHeight], and the function will throw an [IllegalArgumentException] otherwise.
  *   Note that this value might be adjusted to support displaying larger fonts. In case the provided
  *   value is [Dp.Unspecified] or [Dp.Infinity], the height will default to
- *   [TopAppBarDefaults.MediumFlexibleAppBarWithSubtitleExpandedHeight] when an [expandedSubtitle]
- *   is provided, or to [TopAppBarDefaults.MediumFlexibleAppBarWithoutSubtitleExpandedHeight] when
- *   it's not.
+ *   [TopAppBarDefaults.MediumFlexibleAppBarWithSubtitleExpandedHeight] when a [subtitle] is
+ *   provided, or to [TopAppBarDefaults.MediumFlexibleAppBarWithoutSubtitleExpandedHeight] when it's
+ *   not.
  * @param windowInsets a window insets that app bar will respect.
  * @param colors [TopAppBarColors] that will be used to resolve the colors used for this top app bar
  *   in different states. See [TopAppBarDefaults.topAppBarColors].
