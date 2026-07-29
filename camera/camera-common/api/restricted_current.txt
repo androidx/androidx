@@ -1,42 +1,6 @@
 // Signature format: 4.0
 package androidx.camera.common {
 
-  public final class AndroidImage implements androidx.camera.common.MutableImageWrapper {
-    ctor public AndroidImage(android.media.Image image);
-    method public void close();
-    method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
-    method @InaccessibleFromKotlin public int getFormat();
-    method @InaccessibleFromKotlin public int getHeight();
-    method @InaccessibleFromKotlin public java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
-    method @InaccessibleFromKotlin public long getTimestamp();
-    method @InaccessibleFromKotlin public int getWidth();
-    method @InaccessibleFromKotlin public void setCropRect(android.graphics.Rect);
-    method @InaccessibleFromKotlin public void setDataSpace(int);
-    method @InaccessibleFromKotlin public void setSyncFence(android.hardware.SyncFence?);
-    method @InaccessibleFromKotlin public void setTimestamp(long);
-    method public <T> T? unwrapAs(Class<T> type);
-    property public android.graphics.Rect cropRect;
-    property public int dataSpace;
-    property public int format;
-    property public android.hardware.HardwareBuffer? hardwareBuffer;
-    property public int height;
-    property public java.util.List<androidx.camera.common.ImagePlane> imagePlanes;
-    property public android.hardware.SyncFence? syncFence;
-    property public long timestamp;
-    property public int width;
-  }
-
-  public static final class AndroidImage.Plane implements androidx.camera.common.ImagePlane {
-    ctor public AndroidImage.Plane(android.media.Image.Plane imagePlane);
-    method @InaccessibleFromKotlin public java.nio.ByteBuffer getBuffer();
-    method @InaccessibleFromKotlin public int getPixelStride();
-    method @InaccessibleFromKotlin public int getRowStride();
-    method public <T> T? unwrapAs(Class<T> type);
-    property public java.nio.ByteBuffer buffer;
-    property public int pixelStride;
-    property public int rowStride;
-  }
-
   public interface CameraCharacteristicsMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
     method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
@@ -426,6 +390,7 @@ package androidx.camera.common {
   }
 
   public interface ImageWrapper extends androidx.camera.common.UnsafeWrapper java.lang.AutoCloseable {
+    method public void close();
     method @InaccessibleFromKotlin public android.graphics.Rect getCropRect();
     method @InaccessibleFromKotlin public default int getDataSpace();
     method @InaccessibleFromKotlin public int getFormat();
@@ -444,6 +409,11 @@ package androidx.camera.common {
     property public default android.hardware.SyncFence? syncFence;
     property public abstract long timestamp;
     property public abstract int width;
+  }
+
+  public final class ImageWrappers {
+    method public static androidx.camera.common.MutableImageWrapper wrap(android.media.Image image);
+    field public static final androidx.camera.common.ImageWrappers INSTANCE;
   }
 
   public interface Metadata {

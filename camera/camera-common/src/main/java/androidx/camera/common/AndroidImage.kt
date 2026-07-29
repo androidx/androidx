@@ -24,6 +24,7 @@ import android.hardware.HardwareBuffer
 import android.hardware.SyncFence
 import android.media.Image
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.camera.common.compat.Api28Compat
 import androidx.camera.common.compat.Api33Compat
 import java.lang.Class
@@ -46,6 +47,7 @@ import java.nio.ByteBuffer
  * @param image The underlying [android.media.Image] to wrap.
  */
 @SuppressLint("AutoBoxing")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AndroidImage(private val image: Image) : MutableImageWrapper {
     private val lock = Any()
 

@@ -26,8 +26,9 @@ import android.media.Image;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-import androidx.camera.common.AndroidImage;
 import androidx.camera.common.ImagePlane;
+import androidx.camera.common.ImageWrappers;
+import androidx.camera.common.MutableImageWrapper;
 import androidx.camera.core.impl.TagBundle;
 
 import org.jspecify.annotations.NonNull;
@@ -40,7 +41,7 @@ import java.util.List;
 
 /** An {@link ImageProxy} which wraps around an {@link Image}. */
 final class AndroidImageProxy implements ImageProxy {
-    private final AndroidImage mAndroidImage;
+    private final MutableImageWrapper mAndroidImage;
 
     private final PlaneProxy[] mPlanes;
 
@@ -52,7 +53,7 @@ final class AndroidImageProxy implements ImageProxy {
      * @param image to wrap
      */
     AndroidImageProxy(@NonNull Image image) {
-        mAndroidImage = new AndroidImage(image);
+        mAndroidImage = ImageWrappers.wrap(image);
 
         List<ImagePlane> planes = mAndroidImage.getImagePlanes();
         mPlanes = new PlaneProxy[planes.size()];
