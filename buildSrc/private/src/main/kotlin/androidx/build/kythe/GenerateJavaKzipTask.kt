@@ -88,7 +88,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
 
         val dependencyClasspath =
             dependencyClasspath
-                .filter { it.extension == "jar" }
+                .filter { it.extension == "jar" || it.isDirectory }
                 .let { filteredClasspath ->
                     if (sourcePaths.asFileTree.files.any { it.extension == "kt" }) {
                         filteredClasspath + compiledSources

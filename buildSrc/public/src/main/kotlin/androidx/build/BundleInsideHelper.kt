@@ -16,19 +16,33 @@
 
 package androidx.build
 
+import com.android.build.api.artifact.MultipleArtifact
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
+import javax.inject.Inject
 import org.apache.tools.zip.ZipOutputStream
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Usage
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTreeElement
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.named
+import org.gradle.work.DisableCachingByDefault
 
 /** Allow java and Android libraries to bundle other projects inside the project jar/aar. */
 object BundleInsideHelper {
@@ -57,8 +71,21 @@ object BundleInsideHelper {
     fun Project.forInsideAar(relocations: List<Relocation>?, dropResourcesWithSuffix: String?) {
         val bundle = createBundleConfiguration()
         val repackage = configureRepackageTaskForType(relocations, bundle, dropResourcesWithSuffix)
-        // Add to AGP's configuration so this jar get packaged inside of the aar.
-        dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
+
+        val extractRepackaged =
+            tasks.register("extractRepackagedJarForLinkage", ExtractRepackagedJar::class.java) {
+                task ->
+                task.archiveFile.set(repackage.flatMap { it.archiveFile })
+                task.destinationDirectory.set(layout.buildDirectory.dir("repackaged-extracted"))
+            }
+
+        val androidComponents = extensions.getByType(LibraryAndroidComponentsExtension::class.java)
+        androidComponents.onVariants { variant ->
+            variant.artifacts
+                .use(extractRepackaged)
+                .wiredWith { it.destinationDirectory }
+                .toAppendTo(MultipleArtifact.PRE_COMPILATION_CLASSES)
+        }
     }
 
     /**
@@ -188,6 +215,33 @@ object BundleInsideHelper {
 
         override fun modifyOutputStream(zipOutputStream: ZipOutputStream?, b: Boolean) {
             // no op
+        }
+    }
+}
+
+/**
+ * Task to extract a repackaged jar into a directory. This is used to wire the repackaged jar to
+ * PRE_COMPILATION_CLASSES which expects a directory.
+ */
+@DisableCachingByDefault(because = "not worth caching")
+abstract class ExtractRepackagedJar
+@Inject
+constructor(
+    private val fileSystemOperations: FileSystemOperations,
+    private val archiveOperations: ArchiveOperations,
+) : DefaultTask() {
+
+    @get:PathSensitive(PathSensitivity.NONE)
+    @get:InputFile
+    abstract val archiveFile: RegularFileProperty
+
+    @get:OutputDirectory abstract val destinationDirectory: DirectoryProperty
+
+    @TaskAction
+    fun run() {
+        fileSystemOperations.sync {
+            it.from(archiveOperations.zipTree(archiveFile))
+            it.into(destinationDirectory)
         }
     }
 }
