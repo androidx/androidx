@@ -103,8 +103,7 @@
     <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"Geri al"</string>
     <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"Yeniden yap"</string>
     <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"Ek Açıklamayı Aç/Kapat"</string>
-    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
-    <skip />
+    <string name="pdf_pen_color_palette_item_black" msgid="2349482864795708538">"Siyah"</string>
     <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"Koyu mavi"</string>
     <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"Kırmızı"</string>
     <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"Yeşil"</string>
@@ -132,8 +131,7 @@
     <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"Şeftali"</string>
     <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"Açık mavi"</string>
     <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"Somon"</string>
-    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
-    <skip />
+    <string name="pdf_highlighter_color_palette_item_dark_gray" msgid="129747852317213657">"Koyu gri"</string>
     <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"Beyaz"</string>
     <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"Mercan kırmızısı"</string>
     <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"Misket limonu yeşili"</string>
@@ -154,6 +152,5 @@
     <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"Lila"</string>
     <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"Adaçayı yeşili"</string>
     <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"Bej"</string>
-    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
-    <skip />
+    <string name="pdf_brush_slider_content_description" msgid="7693112422816705779">"Çizgi kalınlığı"</string>
 </resources>
