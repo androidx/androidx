@@ -743,15 +743,6 @@ constructor(
         if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
-        return unlock3APostCaptureAndroidMAndAbove(cancelAf)
-    }
-
-    /**
-     * For API level 23 or newer versions, the sending a request with CONTROL_AE_PRECAPTURE_TRIGGER
-     * = CANCEL can be used to unlock the camera device's internally locked AE. REF :
-     * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER
-     */
-    private fun unlock3APostCaptureAndroidMAndAbove(cancelAf: Boolean = true): Deferred<Result3A> {
         debug { "unlock3APostCapture - sending a request to reset af and ae precapture metering." }
         val cancelParams = if (cancelAf) aePrecaptureAndAfCancelParams else aePrecaptureCancelParams
         if (!graphProcessor.trigger(cancelParams)) {
