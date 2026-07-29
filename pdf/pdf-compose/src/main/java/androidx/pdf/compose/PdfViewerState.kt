@@ -105,6 +105,7 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
     public var firstVisiblePage: Int by mutableIntStateOf(0)
         private set
 
+    /** The [Offset] of the first visible page in the viewport in view coordinates. */
     @get:FrequentlyChangingValue
     public var firstVisiblePageOffset: Offset by mutableStateOf(Offset(0F, 0F))
         private set
@@ -146,13 +147,13 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
     }
 
     /**
-     * Returns the View coordinate location of [pdfPoint], or null if that PDF content has not been
-     * laid out yet.
+     * Returns the View coordinate location of [pdfPoint], or [Offset.Unspecified] if that PDF
+     * content has not been laid out yet.
      *
      * Returns [Offset.Unspecified] if this [PdfViewerState] is not yet associated with a
      * [PdfViewer], or if the [PdfViewer] is not associated with a [androidx.pdf.PdfDocument]
      */
-    public fun pdfPointToVisibleOffset(pdfPoint: PdfPoint): Offset? {
+    public fun pdfPointToVisibleOffset(pdfPoint: PdfPoint): Offset {
         return pdfView?.pdfToViewPoint(pdfPoint)?.toOffset() ?: Offset.Unspecified
     }
 
