@@ -74,7 +74,7 @@ public abstract class AuthenticationRequest internal constructor() {
          *   is provided, or if the total number of fallbacks exceeds
          *   [Biometric.getMaxFallbackOptions].
          *
-         * **Compatibility Note:** Prior to [Build.VERSION_CODES_FULL.BAKLAVA_1] (API 36.1), only
+         * **Compatibility Note:** Prior to `Build.VERSION_CODES_FULL.BAKLAVA_1` (API 36.1), only
          * one fallback option is supported. If multiple options are provided on earlier Android
          * versions, only the first fallback will be displayed as the negative button (without an
          * icon), and the remaining fallbacks will be ignored.
@@ -170,7 +170,7 @@ public abstract class AuthenticationRequest internal constructor() {
          *   is provided, or if the total number of fallbacks exceeds
          *   [Biometric.getMaxFallbackOptions].
          *
-         * **Compatibility Note:** Prior to [Build.VERSION_CODES_FULL.BAKLAVA_1] (API 36.1), only
+         * **Compatibility Note:** Prior to `Build.VERSION_CODES_FULL.BAKLAVA_1` (API 36.1), only
          * one fallback option is supported. If multiple options are provided on earlier Android
          * versions, only the first fallback will be displayed as the negative button (without an
          * icon), and the remaining fallbacks will be ignored.
