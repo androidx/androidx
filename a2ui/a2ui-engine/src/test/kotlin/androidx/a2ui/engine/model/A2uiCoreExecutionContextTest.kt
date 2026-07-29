@@ -86,7 +86,7 @@ class A2uiCoreExecutionContextTest {
     @Test
     fun executeFunction_functionThrowsValidationException_failsAndDispatchesValidationError() {
         val validationException =
-            A2uiException.A2uiValidationException("Invalid arguments", "$.args.prop")
+            A2uiException.A2uiValidationException("Invalid arguments", "/args/prop")
         val testFunction = createTestFunction { _, _ -> throw validationException }
         val env = createTestEnvironment(catalogFunctions = listOf(testFunction))
 
