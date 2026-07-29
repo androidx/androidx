@@ -336,6 +336,42 @@
 
     <issue
         id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="    @RequiresApi(24) public fun setSurfaceGroupId(groupId: Int): T"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/interop/InteropBaseInterfaces.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="    @get:RequiresApi(24)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/interop/InteropBaseInterfaces.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="    @RequiresApi(24)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/interop/InteropBaseInterfaces.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="    @RequiresApi(24)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/interop/InteropBaseInterfaces.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="                Build.VERSION.SDK_INT &lt; 23 &amp;&amp;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
