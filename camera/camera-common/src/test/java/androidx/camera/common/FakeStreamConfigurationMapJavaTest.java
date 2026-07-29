@@ -85,7 +85,8 @@ public class FakeStreamConfigurationMapJavaTest {
             )
         );
 
-        StreamConfigurationMapWrapper map = CameraCharacteristics.getStreamConfigurationMap(fake);
+        StreamConfigurationMapWrapper map =
+                CameraCharacteristicsWrappers.getStreamConfigurationMap(fake);
 
         assertThat(map).isSameInstanceAs(fakeMap);
     }

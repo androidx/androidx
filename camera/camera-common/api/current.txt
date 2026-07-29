@@ -37,30 +37,6 @@ package androidx.camera.common {
     property public int rowStride;
   }
 
-  public final class CameraCharacteristics {
-    method @InaccessibleFromKotlin public static androidx.camera.common.ColorSpaceProfilesWrapper getAvailableColorSpaceProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
-    method @InaccessibleFromKotlin public static androidx.camera.common.DynamicRangeProfilesWrapper getAvailableDynamicRangeProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
-    method @InaccessibleFromKotlin public static androidx.camera.common.StreamConfigurationMapWrapper? getStreamConfigurationMap(androidx.camera.common.CameraCharacteristicsMetadata);
-    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, androidx.camera.common.CameraId cameraId, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, String cameraId);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, String cameraId, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, androidx.camera.common.CameraId cameraId, optional boolean isRestricted, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId, optional boolean isRestricted);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId, optional boolean isRestricted, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! loadFrom$default(android.content.Context!, String!, java.util.Set!, int, Object!);
-    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! loadFrom$default(android.hardware.camera2.CameraManager!, String!, boolean, java.util.Set!, int, Object!);
-    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper wrap(androidx.camera.common.CameraId cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted);
-    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
-    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! wrap$default(String!, android.hardware.camera2.CameraCharacteristics!, boolean, java.util.Set!, int, Object!);
-    property public static androidx.camera.common.ColorSpaceProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableColorSpaceProfiles;
-    property public static androidx.camera.common.DynamicRangeProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableDynamicRangeProfiles;
-    property public androidx.camera.common.StreamConfigurationMapWrapper? androidx.camera.common.CameraCharacteristicsMetadata.streamConfigurationMap;
-    field public static final androidx.camera.common.CameraCharacteristics INSTANCE;
-  }
-
   public interface CameraCharacteristicsMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
     method public operator <T> T? get(android.hardware.camera2.CameraCharacteristics.Key<T> key);
     method public default <T> T getOrDefault(android.hardware.camera2.CameraCharacteristics.Key<T> key, T default);
@@ -99,6 +75,30 @@ package androidx.camera.common {
     field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.DynamicRangeProfilesWrapper> AVAILABLE_DYNAMIC_RANGE_PROFILES;
     field public static final androidx.camera.common.CameraCharacteristicsWrapper.Keys INSTANCE;
     field public static final androidx.camera.common.Metadata.Key<androidx.camera.common.StreamConfigurationMapWrapper> STREAM_CONFIGURATION_MAP;
+  }
+
+  public final class CameraCharacteristicsWrappers {
+    method @InaccessibleFromKotlin public static androidx.camera.common.ColorSpaceProfilesWrapper getAvailableColorSpaceProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
+    method @InaccessibleFromKotlin public static androidx.camera.common.DynamicRangeProfilesWrapper getAvailableDynamicRangeProfiles(androidx.camera.common.CameraCharacteristicsMetadata);
+    method @InaccessibleFromKotlin public static androidx.camera.common.StreamConfigurationMapWrapper? getStreamConfigurationMap(androidx.camera.common.CameraCharacteristicsMetadata);
+    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, androidx.camera.common.CameraId cameraId, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, String cameraId);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.content.Context context, String cameraId, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, androidx.camera.common.CameraId cameraId, optional boolean isRestricted, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId, optional boolean isRestricted);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper loadFrom(android.hardware.camera2.CameraManager cameraManager, String cameraId, optional boolean isRestricted, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! loadFrom$default(android.content.Context!, String!, java.util.Set!, int, Object!);
+    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! loadFrom$default(android.hardware.camera2.CameraManager!, String!, boolean, java.util.Set!, int, Object!);
+    method @KotlinOnly public androidx.camera.common.CameraCharacteristicsWrapper wrap(androidx.camera.common.CameraId cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted, optional java.util.Set<android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted);
+    method @InaccessibleFromKotlin public static androidx.camera.common.CameraCharacteristicsWrapper wrap(String cameraId, android.hardware.camera2.CameraCharacteristics characteristics, optional boolean isRestricted, optional java.util.Set<? extends android.hardware.camera2.CameraCharacteristics.Key<? extends java.lang.Object?>> dynamicKeys);
+    method @BytecodeOnly public static androidx.camera.common.CameraCharacteristicsWrapper! wrap$default(String!, android.hardware.camera2.CameraCharacteristics!, boolean, java.util.Set!, int, Object!);
+    property public static androidx.camera.common.ColorSpaceProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableColorSpaceProfiles;
+    property public static androidx.camera.common.DynamicRangeProfilesWrapper androidx.camera.common.CameraCharacteristicsMetadata.availableDynamicRangeProfiles;
+    property public androidx.camera.common.StreamConfigurationMapWrapper? androidx.camera.common.CameraCharacteristicsMetadata.streamConfigurationMap;
+    field public static final androidx.camera.common.CameraCharacteristicsWrappers INSTANCE;
   }
 
   public final class CameraColorSpaces {
@@ -287,11 +287,11 @@ package androidx.camera.common {
     property public abstract java.util.List<android.hardware.camera2.CaptureRequest.Key<? extends java.lang.Object?>> keys;
   }
 
-  public final class CaptureRequests {
+  public final class CaptureRequestWrappers {
     method @InaccessibleFromKotlin public static androidx.camera.common.CaptureRequestWrapper wrap(android.hardware.camera2.CaptureRequest captureRequest);
     method public static androidx.camera.common.CaptureRequestWrapper wrap(android.hardware.camera2.CaptureRequest captureRequest, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> metadata);
     method @BytecodeOnly public static androidx.camera.common.CaptureRequestWrapper! wrap$default(android.hardware.camera2.CaptureRequest!, java.util.Map!, int, Object!);
-    field public static final androidx.camera.common.CaptureRequests INSTANCE;
+    field public static final androidx.camera.common.CaptureRequestWrappers INSTANCE;
   }
 
   public interface CaptureResultMetadata extends androidx.camera.common.Metadata androidx.camera.common.UnsafeWrapper {
@@ -310,12 +310,12 @@ package androidx.camera.common {
     property public abstract java.util.List<android.hardware.camera2.CaptureResult.Key<? extends java.lang.Object?>> keys;
   }
 
-  public final class CaptureResults {
+  public final class CaptureResultWrappers {
     method @KotlinOnly public androidx.camera.common.CaptureResultWrapper wrap(android.hardware.camera2.CaptureResult captureResult, androidx.camera.common.CameraId cameraId, androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,java.lang.Object?> metadata);
     method @InaccessibleFromKotlin public static androidx.camera.common.CaptureResultWrapper wrap(android.hardware.camera2.CaptureResult captureResult, String cameraId, androidx.camera.common.CaptureRequestWrapper captureRequest);
     method @InaccessibleFromKotlin public static androidx.camera.common.CaptureResultWrapper wrap(android.hardware.camera2.CaptureResult captureResult, String cameraId, androidx.camera.common.CaptureRequestWrapper captureRequest, optional java.util.Map<androidx.camera.common.Metadata.Key<? extends java.lang.Object?>,? extends java.lang.Object?> metadata);
     method @BytecodeOnly public static androidx.camera.common.CaptureResultWrapper! wrap$default(android.hardware.camera2.CaptureResult!, String!, androidx.camera.common.CaptureRequestWrapper!, java.util.Map!, int, Object!);
-    field public static final androidx.camera.common.CaptureResults INSTANCE;
+    field public static final androidx.camera.common.CaptureResultWrappers INSTANCE;
   }
 
   public interface ColorSpaceProfilesWrapper extends androidx.camera.common.UnsafeWrapper {
