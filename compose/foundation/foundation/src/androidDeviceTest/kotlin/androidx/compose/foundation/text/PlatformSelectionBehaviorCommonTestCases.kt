@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.foundation.text.input.TextFieldState
@@ -70,19 +69,16 @@ abstract class PlatformSelectionBehaviorCommonTestCases : FocusedWindowTest {
     internal abstract val testLongPress: Boolean
 
     companion object {
-        var oldFlagValue: Boolean? = null
-
         @BeforeClass
         @JvmStatic
         fun setupClass() {
-            oldFlagValue = ComposeFoundationFlags.isSmartSelectionEnabled
             ComposeFoundationFlags.isSmartSelectionEnabled = true
         }
 
         @AfterClass
         @JvmStatic
         fun afterClass() {
-            ComposeFoundationFlags.isSmartSelectionEnabled = checkPreconditionNotNull(oldFlagValue)
+            ComposeFoundationFlags.isSmartSelectionEnabled = false
         }
     }
 
