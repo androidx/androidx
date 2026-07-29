@@ -53,10 +53,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
             FLAG_PREFIX + "enable_list_filter_has_property_function";
 
-    /** Enable the "matchScoreExpression" function in list filter query expressions. */
-    public static final String FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION =
-            FLAG_PREFIX + "enable_list_filter_match_score_expression_function";
-
     /** Enable Schema Type Grouping related features. */
     public static final String FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA =
             FLAG_PREFIX + "enable_grouping_type_per_schema";
@@ -305,14 +301,6 @@ public final class Flags {
 
     /** Whether the "hasProperty" function in list filter query expressions should be enabled. */
     public static boolean enableListFilterHasPropertyFunction() {
-        return true;
-    }
-
-    /**
-     * Whether the "matchScoreExpression" function in list filter query expressions should be
-     * enabled.
-     */
-    public static boolean enableListFilterMatchScoreExpressionFunction() {
         return true;
     }
 
