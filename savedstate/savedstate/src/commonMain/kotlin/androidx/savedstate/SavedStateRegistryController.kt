@@ -27,10 +27,11 @@ import kotlin.jvm.JvmStatic
  * A [SavedStateRegistryOwner] should call [performRestore] to restore the state of the
  * [SavedStateRegistry], and [performSave] to gather the saved state from it.
  */
-public expect class SavedStateRegistryController private constructor(impl: SavedStateRegistryImpl) {
+public class SavedStateRegistryController
+private constructor(private val impl: SavedStateRegistryImpl) {
 
     /** The [SavedStateRegistry] controlled by this controller. */
-    public val savedStateRegistry: SavedStateRegistry
+    public val savedStateRegistry: SavedStateRegistry = SavedStateRegistry(impl)
 
     /**
      * Performs the initial, one-time attachment necessary to configure this [SavedStateRegistry].
@@ -38,14 +39,20 @@ public expect class SavedStateRegistryController private constructor(impl: Saved
      * Call this when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before calling
      * [performRestore].
      */
-    @MainThread public fun performAttach()
+    @MainThread
+    public fun performAttach() {
+        impl.performAttach()
+    }
 
     /**
      * Restores the saved state for the owner of this [SavedStateRegistry].
      *
      * @param savedState The restored state.
      */
-    @MainThread public fun performRestore(savedState: SavedState?)
+    @MainThread
+    public fun performRestore(savedState: SavedState?) {
+        impl.performRestore(savedState)
+    }
 
     /**
      * Saves the state for the owner of this [SavedStateRegistry].
@@ -54,7 +61,10 @@ public expect class SavedStateRegistryController private constructor(impl: Saved
      *
      * @param outBundle The [SavedState] in which to place the saved state.
      */
-    @MainThread public fun performSave(outBundle: SavedState)
+    @MainThread
+    public fun performSave(outBundle: SavedState) {
+        impl.performSave(outBundle)
+    }
 
     public companion object {
 
@@ -63,6 +73,21 @@ public expect class SavedStateRegistryController private constructor(impl: Saved
          *
          * Call this during construction of the [SavedStateRegistryOwner].
          */
-        @JvmStatic public fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController
+        @JvmStatic
+        public fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
+            return SavedStateRegistryController(
+                SavedStateRegistryImpl(
+                    owner = owner,
+                    onAttach = { onAttachSavedStateRegistryController(owner) },
+                )
+            )
+        }
     }
 }
+
+/**
+ * Platform-specific attachment logic for [SavedStateRegistryController].
+ *
+ * @param owner The owner whose lifecycle/state registry is being configured.
+ */
+internal expect fun onAttachSavedStateRegistryController(owner: SavedStateRegistryOwner)
