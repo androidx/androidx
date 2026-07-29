@@ -17,6 +17,8 @@
 package androidx.appstate.transform
 
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -32,6 +34,7 @@ import kotlinx.coroutines.launch
  *
  * TODO: Remove this once we get an implementation from compose runtime
  */
+@OptIn(ExperimentalAtomicApi::class)
 internal object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
     private val sent = AtomicBoolean(false)
@@ -41,7 +44,7 @@ internal object GlobalSnapshotManager {
             val channel = Channel<Unit>(1)
             CoroutineScope(dispatcher).launch {
                 channel.consumeEach {
-                    sent.set(false)
+                    sent.store(false)
                     Snapshot.sendApplyNotifications()
                 }
             }
