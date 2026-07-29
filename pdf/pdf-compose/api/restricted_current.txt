@@ -33,8 +33,8 @@ package androidx.pdf.compose {
     method @BytecodeOnly public androidx.compose.ui.geometry.Offset? getVisiblePageOffset-x-9fifI(@IntRange(from=0L) int);
     method @InaccessibleFromKotlin public int getVisiblePagesCount();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getZoom();
-    method @KotlinOnly public androidx.compose.ui.geometry.Offset? pdfPointToVisibleOffset(androidx.pdf.PdfPoint pdfPoint);
-    method @BytecodeOnly public androidx.compose.ui.geometry.Offset? pdfPointToVisibleOffset-x-9fifI(androidx.pdf.PdfPoint);
+    method @KotlinOnly public androidx.compose.ui.geometry.Offset pdfPointToVisibleOffset(androidx.pdf.PdfPoint pdfPoint);
+    method @BytecodeOnly public long pdfPointToVisibleOffset-tuRUvjQ(androidx.pdf.PdfPoint);
     method public suspend Object? scrollToPage(@IntRange(from=0L) int pageNum, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToPosition(androidx.pdf.PdfPoint position, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void setHighlights(java.util.List<androidx.pdf.Highlight> highlights);

@@ -48,7 +48,8 @@ import kotlin.random.Random
 /**
  * A [Composable] that presents PDF content, provided as [PdfDocument]
  *
- * @param pdfDocument the PDF content to present
+ * @param pdfDocument the PDF content to present, If no document is provided, the viewer will remain
+ *   empty
  * @param state the state object used to observe and control content position
  * @param modifier the [Modifier] to be applied to this PDF viewer
  * @param isFormFillingEnabled boolean flag to enable / disable the form-filling feature surface.
