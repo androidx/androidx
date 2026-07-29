@@ -65,7 +65,8 @@ public interface CameraSimulator {
      * or buffer production.
      */
     public fun simulateNextFrame(
-        advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
+        advanceClockByNanos: Long = 33_366_666, // (2_000_000_000 / (60  / 1.001))
+        advanceBarrier: Boolean = true,
     ): CameraGraphSimulator.FrameSimulator
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
