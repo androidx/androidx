@@ -216,7 +216,7 @@ class ToggleButtonTest {
     fun elevatedToggleButton_defaultColors() {
         rule.setMaterialContent(lightColorScheme()) {
             assertThat(
-                    ToggleButtonDefaults.elevatedToggleButtonColors(
+                    ElevatedToggleButtonDefaults.elevatedToggleButtonColors(
                         containerColor = Color.Unspecified,
                         contentColor = Color.Unspecified,
                         disabledContainerColor = Color.Unspecified,
@@ -249,7 +249,7 @@ class ToggleButtonTest {
     fun tonalToggleButton_defaultColors() {
         rule.setMaterialContent(lightColorScheme()) {
             assertThat(
-                    ToggleButtonDefaults.filledTonalToggleButtonColors(
+                    FilledTonalToggleButtonDefaults.filledTonalToggleButtonColors(
                         containerColor = Color.Unspecified,
                         contentColor = Color.Unspecified,
                         disabledContainerColor = Color.Unspecified,
@@ -281,7 +281,7 @@ class ToggleButtonTest {
     fun outlinedToggleButton_defaultColors() {
         rule.setMaterialContent(lightColorScheme()) {
             assertThat(
-                    ToggleButtonDefaults.outlinedToggleButtonColors(
+                    OutlinedToggleButtonDefaults.outlinedToggleButtonColors(
                         containerColor = Color.Unspecified,
                         contentColor = Color.Unspecified,
                         disabledContainerColor = Color.Unspecified,
