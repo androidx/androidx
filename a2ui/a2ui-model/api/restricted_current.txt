@@ -18,6 +18,10 @@ package androidx.a2ui.model.catalog {
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionReturnType returnType;
   }
 
+  public final class A2uiFunctionDefinitionKt {
+    method public static androidx.a2ui.model.schema.A2uiSchema toSchema(androidx.a2ui.model.catalog.A2uiFunctionDefinition);
+  }
+
   public enum A2uiFunctionReturnType {
     method @InaccessibleFromKotlin public String getValue();
     property public String value;
