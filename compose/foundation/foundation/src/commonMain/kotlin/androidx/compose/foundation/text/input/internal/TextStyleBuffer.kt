@@ -20,22 +20,35 @@ import androidx.compose.foundation.internal.throwIllegalStateException
 import androidx.compose.foundation.internal.throwIllegalStateExceptionForNullCheck
 import androidx.compose.foundation.text.input.ExpandPolicy
 import androidx.compose.foundation.text.input.TrackedRange
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 
 /**
  * A [TextStyleBuffer] implemented as an interval tree. It is also order-aware; styles are returned
  * in the order they were added.
- *
- * @param source The [TextStyleBuffer] to copy from.
- * @param mutable Whether this [TextStyleBuffer] is mutable.
  */
-internal class TextStyleBuffer<T>(
-    source: TextStyleBuffer<T>? = null,
-    private val mutable: Boolean = true,
+internal class TextStyleBuffer<T>
+/**
+ * Private primary constructor that initializes all state fields directly. Used internally for
+ * copying and restoration.
+ *
+ * **Note:** This constructor is not intended to be used for purposes other than
+ * deserialization/restoration. Use the secondary constructor [TextStyleBuffer] (which accepts a
+ * source buffer) for all other purposes.
+ *
+ * @param intervalTree The underlying [IntIntervalTree].
+ * @param gapStart The start index of the gap.
+ * @param gapEnd The end index of the gap.
+ * @param mutable Whether this buffer is mutable.
+ */
+private constructor(
+    internal val intervalTree: IntIntervalTree<T>,
+    var gapStart: Int,
+    var gapEnd: Int,
+    private val mutable: Boolean,
 ) {
     internal val id: Any = Any()
-    val intervalTree: IntIntervalTree<T> = source?.intervalTree?.copy() ?: IntIntervalTree()
 
     /**
      * Similar to a [GapBuffer], this buffer utilizes a "gap" to optimize performance when
@@ -43,19 +56,47 @@ internal class TextStyleBuffer<T>(
      * to simply move the gap instead of iterating over and updating the ranges of all styles
      * following the edit index.
      */
-    var gapStart: Int
-    var gapEnd: Int
     private val gapLength: Int
         get() = gapEnd - gapStart
 
-    init {
-        if (source != null) {
-            gapStart = source.gapStart
-            gapEnd = source.gapEnd
-        } else {
-            gapStart = 0
-            gapEnd = DEFAULT_GAP_LENGTH
-        }
+    /**
+     * Creates a [TextStyleBuffer].
+     *
+     * @param source The [TextStyleBuffer] to copy from, or null to create an empty buffer.
+     * @param mutable Whether this [TextStyleBuffer] is mutable.
+     */
+    constructor(
+        source: TextStyleBuffer<T>? = null,
+        mutable: Boolean = true,
+    ) : this(
+        intervalTree = source?.intervalTree?.copy() ?: IntIntervalTree(),
+        gapStart = source?.gapStart ?: 0,
+        gapEnd = source?.gapEnd ?: DEFAULT_GAP_LENGTH,
+        mutable = mutable,
+    )
+
+    companion object {
+        val Saver: Saver<TextStyleBuffer<AnnotatedString.Annotation>, Any> =
+            Saver(
+                save = { buffer ->
+                    listOf(
+                        buffer.gapStart,
+                        buffer.gapEnd,
+                        buffer.mutable,
+                        with(IntIntervalTree.Saver) { save(buffer.intervalTree) },
+                    )
+                },
+                restore = { value ->
+                    val list = value as List<*>
+                    val gapStart = list[0] as Int
+                    val gapEnd = list[1] as Int
+                    val mutable = list[2] as Boolean
+                    val savedTree = list[3]!!
+
+                    val tree = IntIntervalTree.Saver.restore(savedTree)!!
+                    TextStyleBuffer(tree, gapStart, gapEnd, mutable)
+                },
+            )
     }
 
     /**

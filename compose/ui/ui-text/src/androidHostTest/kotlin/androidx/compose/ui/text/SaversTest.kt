@@ -537,4 +537,62 @@ class SaversTest {
 
         assertThat(restored).isEqualTo(original)
     }
+
+    @Test
+    fun test_AnnotationSaver_ParagraphStyle() {
+        val original = ParagraphStyle(textAlign = TextAlign.Center)
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: ParagraphStyle? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_AnnotationSaver_SpanStyle() {
+        val original = SpanStyle(color = Color.Red)
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: SpanStyle? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_AnnotationSaver_VerbatimTtsAnnotation() {
+        val original = VerbatimTtsAnnotation("verbatim")
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: VerbatimTtsAnnotation? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun test_AnnotationSaver_UrlAnnotation() {
+        val original = UrlAnnotation("url")
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: UrlAnnotation? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_AnnotationSaver_LinkAnnotationUrl() {
+        val original = LinkAnnotation.Url("url", TextLinkStyles(SpanStyle(color = Color.Red)))
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: LinkAnnotation.Url? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_AnnotationSaver_LinkAnnotationClickable() {
+        val original =
+            LinkAnnotation.Clickable("tag", TextLinkStyles(SpanStyle(color = Color.Red)), null)
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: LinkAnnotation.Clickable? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_AnnotationSaver_StringAnnotation() {
+        val original = StringAnnotation("string")
+        val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
+        val restored: StringAnnotation? = restore(saved, AnnotatedString.Annotation.Saver)
+        assertThat(restored).isEqualTo(original)
+    }
 }

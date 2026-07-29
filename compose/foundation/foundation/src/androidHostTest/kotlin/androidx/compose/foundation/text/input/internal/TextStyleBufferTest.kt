@@ -18,8 +18,13 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.text.input.ExpandPolicy
 import androidx.compose.foundation.text.input.TrackedRange
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import kotlin.random.Random
 import kotlin.test.assertFailsWith
@@ -633,6 +638,65 @@ class TextStyleBufferTest {
 
         // Since it's InsideOnly, the inserted text should NOT expand the range.
         assertThat(buffer.getRange(trackedRange)).isEqualTo(TextRange(5, 15))
+    }
+
+    @Test
+    fun saver_savesAndRestoresCorrectly_mutable() {
+        val original = TextStyleBuffer<AnnotatedString.Annotation>()
+        original.addStyle(SpanStyle(color = Color.Red), Interval(0, 10))
+        original.addStyle(ParagraphStyle(textAlign = TextAlign.Center), Interval(10, 20))
+
+        // Move gap to trigger non-trivial gap state saving/restoration
+        original.replaceText(5, 5, 0)
+
+        val saverScope = SaverScope { true }
+        val saved = with(TextStyleBuffer.Saver) { saverScope.save(original) }
+        assertThat(saved).isNotNull()
+
+        val restored = TextStyleBuffer.Saver.restore(saved!!)
+        assertThat(restored).isNotNull()
+        val nonNullRestored = restored!!
+
+        assertThat(nonNullRestored).isEqualTo(original)
+
+        // Verify it is restored as mutable by trying to add a style
+        nonNullRestored.addStyle(SpanStyle(color = Color.Blue), Interval(20, 30))
+
+        val styles = nonNullRestored.getAllStyles()
+        assertThat(styles).hasSize(3)
+        assertThat(styles[0].item).isEqualTo(SpanStyle(color = Color.Red))
+        assertThat(styles[0].start).isEqualTo(0)
+        assertThat(styles[0].end).isEqualTo(10)
+
+        assertThat(styles[1].item).isEqualTo(ParagraphStyle(textAlign = TextAlign.Center))
+        assertThat(styles[1].start).isEqualTo(10)
+        assertThat(styles[1].end).isEqualTo(20)
+
+        assertThat(styles[2].item).isEqualTo(SpanStyle(color = Color.Blue))
+        assertThat(styles[2].start).isEqualTo(20)
+        assertThat(styles[2].end).isEqualTo(30)
+    }
+
+    @Test
+    fun saver_savesAndRestoresCorrectly_immutable() {
+        val mutableOriginal = TextStyleBuffer<AnnotatedString.Annotation>()
+        mutableOriginal.addStyle(SpanStyle(color = Color.Red), Interval(0, 10))
+        val originalImmutable = mutableOriginal.toImmutable()
+
+        val saverScope = SaverScope { true }
+        val saved = with(TextStyleBuffer.Saver) { saverScope.save(originalImmutable) }
+        assertThat(saved).isNotNull()
+
+        val restored = TextStyleBuffer.Saver.restore(saved!!)
+        assertThat(restored).isNotNull()
+        val nonNullRestored = restored!!
+
+        assertThat(nonNullRestored).isEqualTo(originalImmutable)
+
+        // Verify it is restored as immutable by trying to add a style and expecting failure
+        assertFailsWith<IllegalStateException> {
+            nonNullRestored.addStyle(SpanStyle(color = Color.Blue), Interval(10, 20))
+        }
     }
 }
 
