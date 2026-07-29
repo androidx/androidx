@@ -27,14 +27,17 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key to retrieve.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The raw argument value.
      * @throws A2uiException.A2uiValidationException if the argument is missing.
      */
     @JvmOverloads
-    public fun getArg(args: Map<String, Any>, key: String, path: String = "$"): Any {
+    public fun getArg(args: Map<String, Any>, key: String, path: String = "/"): Any {
         return args[key]
-            ?: throw A2uiException.A2uiValidationException("Missing '$key' argument", "$path.$key")
+            ?: throw A2uiException.A2uiValidationException(
+                "Missing '$key' argument",
+                concatPath(path, key),
+            )
     }
 
     /**
@@ -43,13 +46,13 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The resolved String value.
      * @throws A2uiException.A2uiValidationException if the argument is missing, invalid or violates
      *   constraints.
      */
     @JvmOverloads
-    public fun getStringArg(args: Map<String, Any>, key: String, path: String = "$"): String {
+    public fun getStringArg(args: Map<String, Any>, key: String, path: String = "/"): String {
         val raw = getArg(args, key, path)
         return parseString(raw)
     }
@@ -60,7 +63,7 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final element path will be constructed with the
-     *   index suffix, like `${path}.${key}[index]`.
+     *   index suffix, like `${path}/${key}/${index}`.
      * @return The resolved List of Strings.
      * @throws A2uiException.A2uiValidationException if the argument is missing or any element
      *   violates constraints.
@@ -69,7 +72,7 @@ public object A2uiFunctionArgParser {
     public fun getStringListArg(
         args: Map<String, Any>,
         key: String,
-        path: String = "$",
+        path: String = "/",
     ): List<String> {
         return getListInternal(args, key, path) { element, _ -> parseString(element) }
     }
@@ -80,14 +83,14 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The resolved Double value.
      * @throws A2uiException.A2uiValidationException if the argument is missing or invalid.
      */
     @JvmOverloads
-    public fun getDoubleArg(args: Map<String, Any>, key: String, path: String = "$"): Double {
+    public fun getDoubleArg(args: Map<String, Any>, key: String, path: String = "/"): Double {
         val raw = getArg(args, key, path)
-        return parseDouble(raw, "$path.$key", key)
+        return parseDouble(raw, concatPath(path, key), key)
     }
 
     /**
@@ -96,7 +99,7 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final element path will be constructed with the
-     *   index suffix, like `${path}.${key}[index]`.
+     *   index suffix, like `${path}/${key}/${index}`.
      * @return The resolved List of Doubles.
      * @throws A2uiException.A2uiValidationException if the argument is missing or any element
      *   violates constraints.
@@ -105,7 +108,7 @@ public object A2uiFunctionArgParser {
     public fun getDoubleListArg(
         args: Map<String, Any>,
         key: String,
-        path: String = "$",
+        path: String = "/",
     ): List<Double> {
         return getListInternal(args, key, path) { element, elementPath ->
             parseDouble(element, elementPath, key)
@@ -118,14 +121,14 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The resolved Int value.
      * @throws A2uiException.A2uiValidationException if the argument is missing or invalid.
      */
     @JvmOverloads
-    public fun getIntArg(args: Map<String, Any>, key: String, path: String = "$"): Int {
+    public fun getIntArg(args: Map<String, Any>, key: String, path: String = "/"): Int {
         val raw = getArg(args, key, path)
-        return parseInt(raw, "$path.$key", key)
+        return parseInt(raw, concatPath(path, key), key)
     }
 
     /**
@@ -134,13 +137,13 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final element path will be constructed with the
-     *   index suffix, like `${path}.${key}[index]`.
+     *   index suffix, like `${path}/${key}/${index}`.
      * @return The resolved List of Ints.
      * @throws A2uiException.A2uiValidationException if the argument is missing or any element
      *   violates constraints.
      */
     @JvmOverloads
-    public fun getIntListArg(args: Map<String, Any>, key: String, path: String = "$"): List<Int> {
+    public fun getIntListArg(args: Map<String, Any>, key: String, path: String = "/"): List<Int> {
         return getListInternal(args, key, path) { element, elementPath ->
             parseInt(element, elementPath, key)
         }
@@ -152,14 +155,14 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The resolved Long value.
      * @throws A2uiException.A2uiValidationException if the argument is missing or invalid.
      */
     @JvmOverloads
-    public fun getLongArg(args: Map<String, Any>, key: String, path: String = "$"): Long {
+    public fun getLongArg(args: Map<String, Any>, key: String, path: String = "/"): Long {
         val raw = getArg(args, key, path)
-        return parseLong(raw, "$path.$key", key)
+        return parseLong(raw, concatPath(path, key), key)
     }
 
     /**
@@ -168,13 +171,13 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final element path will be constructed with the
-     *   index suffix, like `${path}.${key}[index]`.
+     *   index suffix, like `${path}/${key}/${index}`.
      * @return The resolved List of Longs.
      * @throws A2uiException.A2uiValidationException if the argument is missing or any element
      *   violates constraints.
      */
     @JvmOverloads
-    public fun getLongListArg(args: Map<String, Any>, key: String, path: String = "$"): List<Long> {
+    public fun getLongListArg(args: Map<String, Any>, key: String, path: String = "/"): List<Long> {
         return getListInternal(args, key, path) { element, elementPath ->
             parseLong(element, elementPath, key)
         }
@@ -187,14 +190,14 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final error path will be constructed as
-     *   `"${path}.${key}"`.
+     *   `"${path}/${key}"`.
      * @return The resolved Boolean value.
      * @throws A2uiException.A2uiValidationException if the argument is missing or invalid.
      */
     @JvmOverloads
-    public fun getBooleanArg(args: Map<String, Any>, key: String, path: String = "$"): Boolean {
+    public fun getBooleanArg(args: Map<String, Any>, key: String, path: String = "/"): Boolean {
         val raw = getArg(args, key, path)
-        return parseBoolean(raw, "$path.$key", key)
+        return parseBoolean(raw, concatPath(path, key), key)
     }
 
     /**
@@ -204,7 +207,7 @@ public object A2uiFunctionArgParser {
      * @param args The map of arguments.
      * @param key The argument key.
      * @param path The parent context path. The final element path will be constructed with the
-     *   index suffix, like `${path}.${key}[index]`.
+     *   index suffix, like `${path}/${key}/${index}`.
      * @return The resolved List of Booleans.
      * @throws A2uiException.A2uiValidationException if the argument is missing or any element
      *   violates constraints.
@@ -213,7 +216,7 @@ public object A2uiFunctionArgParser {
     public fun getBooleanListArg(
         args: Map<String, Any>,
         key: String,
-        path: String = "$",
+        path: String = "/",
     ): List<Boolean> {
         return getListInternal(args, key, path) { element, elementPath ->
             parseBoolean(element, elementPath, key)
@@ -276,30 +279,33 @@ public object A2uiFunctionArgParser {
     private fun <T> getListInternal(
         args: Map<String, Any>,
         key: String,
-        path: String = "$",
+        path: String = "/",
         itemParser: (Any, String) -> T,
     ): List<T> {
         val raw =
             args[key]
                 ?: throw A2uiException.A2uiValidationException(
                     "Missing '$key' argument",
-                    "$path.$key",
+                    concatPath(path, key),
                 )
         val rawList =
             raw as? List<*>
                 ?: throw A2uiException.A2uiValidationException(
                     "Missing or invalid '$key' argument, expected list",
-                    "$path.$key",
+                    concatPath(path, key),
                 )
-        val finalPath = "$path.$key"
+        val finalPath = concatPath(path, key)
         return rawList.mapIndexed { index, element ->
             if (element == null) {
                 throw A2uiException.A2uiValidationException(
                     "Null item in '$key' list",
-                    "$finalPath[$index]",
+                    concatPath(finalPath, index.toString()),
                 )
             }
-            itemParser(element, "$finalPath[$index]")
+            itemParser(element, concatPath(finalPath, index.toString()))
         }
     }
+
+    private fun concatPath(path: String, segment: String): String =
+        if (path.endsWith("/")) "$path$segment" else "$path/$segment"
 }

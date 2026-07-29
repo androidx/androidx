@@ -64,12 +64,11 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
      *
      * @param payload The raw payload to validate (e.g., a component properties).
      * @param schema The schema defining the expected structure.
-     * @param basePath The base path to use for error reporting (defaults to "$").
+     * @param basePath The base path to use for error reporting (defaults to "/").
      * @throws A2uiException.A2uiValidationException if the payload violates the schema rules or
      *   JSON is malformed.
      */
-    // TODO(b/535051800): Fix validation error path format
-    internal fun validateSchema(payload: Any?, schema: A2uiSchema, basePath: String = "$") {
+    internal fun validateSchema(payload: Any?, schema: A2uiSchema, basePath: String = "/") {
         validateSchemaInternal(payload, schema, basePath)
     }
 
@@ -77,7 +76,7 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
      * Validates that the given payload conforms to the provided schema. Use [path] to track the
      * location of the subschema within the root schema for accurate errors.
      */
-    private fun validateSchemaInternal(payload: Any?, schema: A2uiSchema, path: String = "$") {
+    private fun validateSchemaInternal(payload: Any?, schema: A2uiSchema, path: String = "/") {
         when (schema) {
             is A2uiObjectSchema -> validateObject(payload, schema, path)
             is A2uiStringSchema -> validateString(payload, path)
@@ -113,7 +112,7 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
         for ((key, value) in payload) {
             val propertySchema = schema.properties[key]
             if (propertySchema != null) {
-                validateSchemaInternal(value, propertySchema, "$path.$key")
+                validateSchemaInternal(value, propertySchema, concatPath(path, key.toString()))
             } else if (!schema.isAdditionalPropertiesAllowed) {
                 throw A2uiException.A2uiValidationException(
                     "Additional property '$key' not allowed",
@@ -122,7 +121,11 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
             } else {
                 val additionalPropertiesSchema = schema.additionalPropertiesSchema
                 if (additionalPropertiesSchema != null) {
-                    validateSchemaInternal(value, additionalPropertiesSchema, "$path.$key")
+                    validateSchemaInternal(
+                        value,
+                        additionalPropertiesSchema,
+                        concatPath(path, key.toString()),
+                    )
                 }
             }
         }
@@ -165,7 +168,7 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
         val itemsSchema = schema.items
         if (itemsSchema != null) {
             payload.forEachIndexed { index, item ->
-                validateSchemaInternal(item, itemsSchema, "$path[$index]")
+                validateSchemaInternal(item, itemsSchema, concatPath(path, index.toString()))
             }
         }
     }
@@ -178,6 +181,9 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
             )
         }
     }
+
+    private fun concatPath(path: String, segment: String): String =
+        if (path.endsWith("/")) "$path$segment" else "$path/$segment"
 
     private fun validateAny() {
         // Any valid JSON element is allowed.

@@ -39,7 +39,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     // --- getStringArg Tests ---
@@ -64,7 +64,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getStringArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     @Test
@@ -89,7 +89,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getStringListArg(emptyMap(), ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -99,7 +99,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getStringListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -109,7 +109,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getStringListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     // --- getDoubleArg Tests ---
@@ -141,7 +141,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getDoubleArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     @Test
@@ -151,7 +151,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getDoubleArg(args, ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     // --- getDoubleListArg Tests ---
@@ -169,7 +169,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getDoubleListArg(emptyMap(), ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -179,7 +179,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getDoubleListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     @Test
@@ -189,7 +189,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getDoubleListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     // --- getIntArg Tests ---
@@ -221,7 +221,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getIntArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     @Test
@@ -231,7 +231,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getIntArg(args, ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     // --- getIntListArg Tests ---
@@ -249,7 +249,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getIntListArg(emptyMap(), ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -259,7 +259,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getIntListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     @Test
@@ -269,7 +269,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getIntListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     // --- getLongArg Tests ---
@@ -301,7 +301,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getLongArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     @Test
@@ -311,7 +311,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getLongArg(args, ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     // --- getLongListArg Tests ---
@@ -329,7 +329,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getLongListArg(emptyMap(), ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -339,7 +339,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getLongListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     @Test
@@ -349,7 +349,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getLongListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     // --- getBooleanArg Tests ---
@@ -381,7 +381,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getBooleanArg(emptyMap(), ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     @Test
@@ -391,7 +391,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getBooleanArg(args, ARG_VAL)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_VAL")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_VAL")
     }
 
     // --- getBooleanListArg Tests ---
@@ -409,7 +409,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getBooleanListArg(emptyMap(), ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST")
     }
 
     @Test
@@ -419,7 +419,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getBooleanListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     @Test
@@ -429,7 +429,7 @@ class A2uiFunctionArgParserTest {
             assertThrows(A2uiException.A2uiValidationException::class.java) {
                 A2uiFunctionArgParser.getBooleanListArg(args, ARG_LIST)
             }
-        assertThat(exception.context[KEY_PATH]).isEqualTo("$.$ARG_LIST[1]")
+        assertThat(exception.context[KEY_PATH]).isEqualTo("/$ARG_LIST/1")
     }
 
     private companion object {
