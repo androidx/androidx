@@ -218,6 +218,7 @@ import java.util.concurrent.Executor;
         mRegisteredProviderWatcher.start();
     }
 
+    /** See {@link MediaRouter#resetGlobalRouter()}. */
     /* package */ void reset() {
         mActiveScanThrottlingHelper.reset();
 
@@ -229,11 +230,12 @@ import java.util.concurrent.Executor;
         for (RemoteControlClientRecord record : mRemoteControlClients) {
             record.disconnect();
         }
-
-        List<MediaRouter.ProviderInfo> providers = new ArrayList<>(mProviders);
-        for (MediaRouter.ProviderInfo providerInfo : providers) {
-            removeProvider(providerInfo.mProviderInstance);
+        for (MediaRouter.ProviderInfo providerInfo : mProviders) {
+            MediaRouteProvider provider = providerInfo.mProviderInstance;
+            provider.setCallback(null);
+            provider.setDiscoveryRequest(null);
         }
+        mProviders.clear();
         mCallbackHandler.removeCallbacksAndMessages(null);
     }
 
@@ -1286,21 +1288,16 @@ import java.util.concurrent.Executor;
         }
 
         // Update selected route.
-        if (mSelectedRoute == null || !mSelectedRoute.isEnabled()) {
+        if (mSelectedRoute == null || !mSelectedRoute.isSelectable()) {
             Log.i(
                     TAG,
                     "Unselecting the current route because it "
                             + "is no longer selectable: "
                             + mSelectedRoute);
-            // TODO: b/294968421 - Consider passing a false syncMediaRoute1Provider. This could help
-            // with the prevention of setBluetoothA2dpOn(false) bugs, but it could also leave the
-            // platform MediaRouter in an inconsistent state. In order to change
-            // syncMediaRoute1Provider to false, we need to assess the impact of not calling
-            // android.media.MediaRouter.selectRoute as a result of this method call.
             selectRouteInternal(
                     chooseFallbackRoute(),
-                    UNSELECT_REASON_UNKNOWN,
-                    /* syncMediaRoute1Provider= */ true);
+                    UNSELECT_REASON_DISCONNECTED,
+                    /* syncMediaRoute1Provider= */ false);
         } else if (selectedRouteDescriptorChanged) {
             // In case the selected route is a route group, select/unselect route controllers
             // for the added/removed route members.

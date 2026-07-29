@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -253,6 +254,99 @@ public class MediaRouterTest {
 
         // Wait until active scan duration ends, active scan flag should be false.
         assertTrue(mPassiveScanCountDownLatch.await(1000 + TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void unselect_whenRouteBecomesUnselectable_reasonIsDisconnected() throws Exception {
+        String testRouteId = "route1";
+        String testRouteName = "Route 1";
+        String testCategory = "testCategory";
+        IntentFilter filter = new IntentFilter();
+        filter.addCategory(testCategory);
+        MediaRouteProviderImpl[] providerWrapper = new MediaRouteProviderImpl[1];
+        getInstrumentation()
+                .runOnMainSync(() -> providerWrapper[0] = new MediaRouteProviderImpl(mContext));
+        MediaRouteProviderImpl provider = providerWrapper[0];
+        MediaRouteDescriptor routeDescriptor =
+                new MediaRouteDescriptor.Builder(testRouteId, testRouteName)
+                        .addControlFilter(filter)
+                        .build();
+        CountDownLatch addedLatch = new CountDownLatch(1);
+        CountDownLatch selectedLatch = new CountDownLatch(1);
+        CountDownLatch unselectedLatch = new CountDownLatch(1);
+        int[] unselectReason = new int[] {MediaRouter.UNSELECT_REASON_UNKNOWN};
+        MediaRouter.Callback callback =
+                new MediaRouter.Callback() {
+                    @Override
+                    public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo route) {
+                        if (testRouteName.equals(route.getName())) {
+                            addedLatch.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onRouteSelected(
+                            MediaRouter router, MediaRouter.RouteInfo route, int reason) {
+                        if (testRouteName.equals(route.getName())) {
+                            selectedLatch.countDown();
+                        }
+                    }
+
+                    @Override
+                    public void onRouteUnselected(
+                            MediaRouter router, MediaRouter.RouteInfo route, int reason) {
+                        if (testRouteName.equals(route.getName())) {
+                            unselectReason[0] = reason;
+                            unselectedLatch.countDown();
+                        }
+                    }
+                };
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addCallback(
+                                    new MediaRouteSelector.Builder()
+                                            .addControlCategory(testCategory)
+                                            .build(),
+                                    callback);
+                            mRouter.addProvider(provider);
+                            provider.setDescriptor(
+                                    new MediaRouteProviderDescriptor.Builder()
+                                            .addRoute(routeDescriptor)
+                                            .build());
+                        });
+        assertTrue(addedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            for (MediaRouter.RouteInfo route : mRouter.getRoutes()) {
+                                if (testRouteName.equals(route.getName())) {
+                                    mRouter.selectRoute(route);
+                                    break;
+                                }
+                            }
+                        });
+        assertTrue(selectedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            IntentFilter filter2 = new IntentFilter();
+                            filter2.addCategory(testCategory);
+                            MediaRouteDescriptor unselectableRoute =
+                                    new MediaRouteDescriptor.Builder(testRouteId, testRouteName)
+                                            .addControlFilter(filter2)
+                                            .setEnabled(false)
+                                            .build();
+                            provider.setDescriptor(
+                                    new MediaRouteProviderDescriptor.Builder()
+                                            .addRoute(unselectableRoute)
+                                            .build());
+                        });
+
+        assertTrue(unselectedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(MediaRouter.UNSELECT_REASON_DISCONNECTED, unselectReason[0]);
     }
 
     @Test
