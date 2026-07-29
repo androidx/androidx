@@ -123,6 +123,21 @@ class ComposeRootRegistryTest {
                 .isEqualTo(listOf(Pair(composeRoot, true), Pair(composeRoot, false)))
         }
     }
+
+    @Test
+    fun clearRegisteredComposeRootsBeforeTearDown() {
+        activityRule.scenario.onActivity { activity ->
+            activity.setContent {}
+            val composeRoot = activity.findRootForTest()
+
+            composeRootRegistry.tearDownRegistry()
+            assertThat(composeRootRegistry.registeredComposeRootsBeforeTearDown)
+                .isEqualTo(setOf(composeRoot))
+
+            composeRootRegistry.clearRegisteredComposeRootsBeforeTearDown()
+            assertThat(composeRootRegistry.registeredComposeRootsBeforeTearDown).isEmpty()
+        }
+    }
 }
 
 private fun Activity.findRootForTest(): ViewRootForTest {
