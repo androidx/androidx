@@ -700,7 +700,6 @@ class SupportedSurfaceCombinationTest {
         }
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun checkSurfaceCombinationSupportForHighSpeed() {
         setupCamera(
@@ -4072,7 +4071,6 @@ class SupportedSurfaceCombinationTest {
             FRAME_RATE_UNLIMITED,
         )
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_returnsCorrectSizeAndFpsRange() {
         val targetFrameRate = Range.create(240, 240)
@@ -4106,7 +4104,6 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_noTargetFps_useDefaultFps() {
         val sessionType = SESSION_TYPE_HIGH_SPEED
@@ -4126,7 +4123,6 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_singleSurface_returnsCorrectSizeAndClosestFps() {
         val previewUseCase =
@@ -4144,7 +4140,6 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_multipleSurfaces_returnsCorrectSizeAndClosetMaxFps() {
         val targetFrameRate = Range.create(30, 480)
@@ -4174,7 +4169,6 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_noCommonSize_throwException() {
         val targetFrameRate = Range.create(240, 240)
@@ -4205,7 +4199,6 @@ class SupportedSurfaceCombinationTest {
         }
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSuggestedStreamSpec_highSpeed_tooManyUseCases_throwException() {
         val targetFrameRate = Range.create(240, 240)

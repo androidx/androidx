@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="MissingPermission"
@@ -39,7 +39,34 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="        @RequiresApi(24)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/impl/CameraUtil.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="        @RequiresApi(24)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/impl/CameraUtil.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="            return Build.VERSION.SDK_INT >= 24 &amp;&amp; param instanceof List"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/impl/CameraUtil.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +75,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="        return (Build.VERSION.SDK_INT == 21 &amp;&amp; hardwareLevelValue != null &amp;&amp; hardwareLevelValue"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -66,9 +93,18 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/impl/CoreAppTestUtil.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
+        errorLine1="        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/impl/CoreAppTestUtil.java"/>
     </issue>
@@ -84,7 +120,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="    private val api21Emulator = isEmulator &amp;&amp; Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +129,16 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
+        errorLine1="                Build.VERSION.SDK_INT == 23 &amp;&amp; AndroidUtil.isEmulator(),"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/impl/IgnoreVideoRecordingProblematicDeviceRule.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="        if (Build.VERSION.SDK_INT &lt; 23 || &quot;robolectric&quot;.equals(Build.FINGERPRINT)) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -102,7 +147,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

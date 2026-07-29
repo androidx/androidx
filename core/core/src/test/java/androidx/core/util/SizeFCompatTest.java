@@ -30,7 +30,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(sdk = 23)
+@Config(sdk = 24)
 public class SizeFCompatTest {
 
     @Test
@@ -69,13 +69,11 @@ public class SizeFCompatTest {
         assertThat(new SizeFCompat(10.2f, 20.4f).toString()).isEqualTo("10.2x20.4");
     }
 
-    @Config(sdk = 23)
     @Test
     public void toSizeF() {
         assertThat(new SizeFCompat(10.2f, 20.4f).toSizeF()).isEqualTo(new SizeF(10.2f, 20.4f));
     }
 
-    @Config(sdk = 23)
     @Test
     public void toSizeFCompat() {
         assertThat(SizeFCompat.toSizeFCompat(new SizeF(11.2f, 21.4f)))

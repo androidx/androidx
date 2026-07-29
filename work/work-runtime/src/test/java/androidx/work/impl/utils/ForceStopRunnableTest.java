@@ -70,7 +70,7 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(manifest = Config.NONE, minSdk = 16)
+@Config(manifest = Config.NONE, minSdk = 24)
 public class ForceStopRunnableTest {
     private Context mContext;
     private WorkManagerImpl mWorkManager;

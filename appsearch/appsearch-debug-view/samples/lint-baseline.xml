@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.1.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha02)" variant="all" version="9.1.0-alpha02">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="CheckResult"
@@ -17,6 +17,13 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/appsearch/debugview/samples/NotesAppSearchManager.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v24`) is unnecessary; `minSdkVersion` is 24. Merge all the resources in this folder into `drawable`.">
+        <location
+            file="src/main/res/drawable-v24"/>
     </issue>
 
 </issues>

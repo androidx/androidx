@@ -22,7 +22,6 @@ import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
@@ -62,10 +61,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
  * camera device fails to open for various reasons.
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(
-    minSdk = Build.VERSION_CODES.M,
-    shadows = [TestShadowCameraManager::class, TestShadowCameraDeviceImpl::class],
-)
+@Config(minSdk = 24, shadows = [TestShadowCameraManager::class, TestShadowCameraDeviceImpl::class])
 class CameraStateRobolectricTest(private val config: TestConfig) {
 
     data class TestConfig(

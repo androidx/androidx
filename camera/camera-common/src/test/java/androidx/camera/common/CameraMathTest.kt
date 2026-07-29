@@ -29,7 +29,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = 21)
+@Config(minSdk = 24)
 class CameraMathTest {
 
     @Test

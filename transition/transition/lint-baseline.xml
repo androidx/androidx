@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="ResourceType"
@@ -219,7 +219,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` is always true here (`SDK_INT` ≥ 23 and &lt; 29)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` is always true here (`SDK_INT` ≥ 24 and &lt; 29)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

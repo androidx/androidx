@@ -43,7 +43,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.M)
+@Config(minSdk = 24)
 @DoNotInstrument
 class ZslControlImplTest {
     private lateinit var zslControlImpl: ZslControlImpl

@@ -20,21 +20,22 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.ImageFormat;
 import android.util.Size;
+
+import androidx.camera.common.testing.FakeCameraCharacteristics;
 import androidx.camera.common.testing.FakeStreamConfigurationMap;
 import androidx.camera.common.testing.FakeStreamConfigurationMap.OutputKey;
 import androidx.camera.common.testing.FakeStreamConfigurationMap.OutputValues;
-import androidx.camera.common.testing.FakeCameraCharacteristics;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = {23, 26, 28, 30, 33})
+@Config(sdk = {26, 28, 30, 33})
 public class FakeStreamConfigurationMapJavaTest {
 
     @Test

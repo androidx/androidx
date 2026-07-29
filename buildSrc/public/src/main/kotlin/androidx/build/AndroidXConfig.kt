@@ -54,7 +54,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         minorString?.toInt()
     }
 
-    override val minSdk: Int = 23
+    override val minSdk: Int = 24
 
     override val targetSdk: Int by lazy {
         project.providers.gradleProperty(TARGET_SDK_VERSION).get().toInt()

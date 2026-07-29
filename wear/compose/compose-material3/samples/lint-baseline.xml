@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.2.0-alpha07" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha07)" variant="all" version="9.2.0-alpha07">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="true" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="NewApi"
@@ -400,114 +400,6 @@
     <issue
         id="ModifierParameter"
         message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="    modifier: Modifier = Modifier.fillMaxWidth(),"
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun ButtonWithImageSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun SimpleFilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun SimpleFilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun SimpleOutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun SimpleChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
-        errorLine1="fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
-        errorLine2="                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Optional Modifier parameter should have a default value of `Modifier`"
         errorLine1="fun CheckIcon(modifier: Modifier = Modifier.size(ButtonDefaults.IconSize)) {"
         errorLine2="              ~~~~~~~~">
         <location
@@ -544,7 +436,7 @@
     <issue
         id="AutoboxingStateCreation"
         message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    var value by remember { mutableStateOf(initialValue) }"
+        errorLine1="    var value by remember { mutableStateOf(5.0f) }"
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/material3/samples/SliderSample.kt"/>

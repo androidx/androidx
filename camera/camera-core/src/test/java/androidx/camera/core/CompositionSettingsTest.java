@@ -19,7 +19,6 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Color;
-import android.os.Build;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = 24)
 public class CompositionSettingsTest {
 
     @Test

@@ -95,7 +95,7 @@ class TextTranslatorTest {
         }
 
     @Test
-    @Config(sdk = [23, 29])
+    @Config(sdk = [24, 29])
     fun canTranslateText_withStyleWeightAndSize() =
         fakeCoroutineScope.runTest {
             val rv =
@@ -253,7 +253,7 @@ class TextTranslatorTest {
         }
 
     @Test
-    @Config(sdk = [23, 29])
+    @Config(sdk = [24, 29])
     fun canTranslateText_withComplexStyle() =
         fakeCoroutineScope.runTest {
             val rv =

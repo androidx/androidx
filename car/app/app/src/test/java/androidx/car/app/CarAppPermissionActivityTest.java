@@ -72,7 +72,7 @@ public class CarAppPermissionActivityTest {
     }
 
     @Test
-    @Config(sdk = 23) // Note that while the app module minSDK is 21, the minSDK for hosts is 23
+    @Config(sdk = 24)
     public void onCreate_requestPermissionAction_requestsPermissions() {
         setupActivity(CarContext.REQUEST_PERMISSIONS_ACTION);
 
