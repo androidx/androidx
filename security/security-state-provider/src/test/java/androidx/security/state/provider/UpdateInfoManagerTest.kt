@@ -23,6 +23,7 @@ import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM
 import androidx.security.state.SerializableUpdateInfo
 import androidx.security.state.UpdateInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.util.concurrent.Executor
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertTrue
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -70,7 +72,8 @@ class UpdateInfoManagerTest {
     private val mockPrefs: SharedPreferences =
         mock<SharedPreferences> {
             on { edit() } doReturn mockEditor
-            on { all } doReturn mapOf(Pair("key", expectedJson))
+            on { all } doReturn mapOf(Pair(COMPONENT_SYSTEM, expectedJson))
+            on { getString(eq(COMPONENT_SYSTEM), anyOrNull()) } doReturn expectedJson
         }
 
     private val mockMetadataPrefs: SharedPreferences =
@@ -89,7 +92,8 @@ class UpdateInfoManagerTest {
 
     @Before
     fun setUp() {
-        manager = UpdateInfoManager(mockContext, mockSecurityState)
+        `when`(mockContext.applicationContext).thenReturn(mockContext)
+        manager = UpdateInfoManager(mockContext, mockSecurityState, Executor { it.run() })
     }
 
     @Test
@@ -100,11 +104,12 @@ class UpdateInfoManagerTest {
         manager.registerUpdate(updateInfo)
 
         Mockito.verify(mockEditor).putString(Mockito.anyString(), Mockito.anyString())
-        Mockito.verify(mockEditor, times(2)).apply()
+        Mockito.verify(mockEditor, times(1)).apply()
 
         manager.unregisterUpdate(updateInfo)
 
         Mockito.verify(mockEditor).remove(Mockito.anyString())
+        Mockito.verify(mockEditor, times(2)).apply()
     }
 
     @Test
@@ -115,7 +120,7 @@ class UpdateInfoManagerTest {
         manager.registerUpdate(updateInfo)
 
         Mockito.verify(mockEditor).putString(Mockito.anyString(), Mockito.anyString())
-        Mockito.verify(mockEditor, times(2)).apply()
+        Mockito.verify(mockEditor, times(1)).apply()
 
         `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
             .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2023, 1, 1))
@@ -123,7 +128,7 @@ class UpdateInfoManagerTest {
         manager.registerUpdate(updateInfo)
 
         Mockito.verify(mockEditor).remove(Mockito.anyString())
-        Mockito.verify(mockEditor, times(4)).apply()
+        Mockito.verify(mockEditor, times(3)).apply()
     }
 
     @Test
@@ -146,6 +151,7 @@ class UpdateInfoManagerTest {
                 .trimIndent()
 
         `when`(mockPrefs.all).thenReturn(mapOf("SYSTEM" to badUpdateJson))
+        `when`(mockPrefs.getString(eq("SYSTEM"), anyOrNull())).thenReturn(badUpdateJson)
 
         // WHEN cleanup is triggered (e.g. by registering a new update)
         manager.registerUpdate(updateInfo)
@@ -211,5 +217,37 @@ class UpdateInfoManagerTest {
             results[0].securityPatchLevel is SecurityPatchState.GenericStringSecurityPatchLevel,
         )
         assertEquals("NOT_A_DATE", results[0].securityPatchLevel.toString())
+    }
+
+    @Test
+    fun testCleanupUpdateInfo_occPreventsDeletionOnConcurrentWrite() {
+        // GIVEN the device SPL is newer (so the update is outdated and candidate for cleanup)
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
+            .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2023, 1, 1))
+
+        // AND SharedPreferences has the old update in 'all'
+        `when`(mockPrefs.all).thenReturn(mapOf(COMPONENT_SYSTEM to expectedJson))
+
+        // BUT concurrently, the value in SharedPreferences is updated (getString returns new value)
+        val newUpdateInfo =
+            UpdateInfo.Builder()
+                .setComponent(COMPONENT_SYSTEM)
+                .setSecurityPatchLevel(
+                    SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2024-01-01")
+                )
+                .setPublishedDateMillis(publishedDateMillis)
+                .build()
+        val newJson =
+            Json.encodeToString(
+                SerializableUpdateInfo.serializer(),
+                newUpdateInfo.toSerializableUpdateInfo(),
+            )
+        `when`(mockPrefs.getString(eq(COMPONENT_SYSTEM), anyOrNull())).thenReturn(newJson)
+
+        // WHEN cleanup is triggered
+        manager.cleanupUpdateInfo()
+
+        // THEN editor.remove() should NOT be called because of the OCC mismatch
+        Mockito.verify(mockEditor, Mockito.never()).remove(COMPONENT_SYSTEM)
     }
 }
