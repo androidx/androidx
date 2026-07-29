@@ -41,16 +41,20 @@ import java.lang.Class
  * @param captureRequestKeys The set of [CaptureRequest.Key]s supported by this camera.
  * @param captureResultKeys The set of [CaptureResult.Key]s supported by this camera.
  * @param sessionKeys The set of [CameraCharacteristics.Key]s whose values are capture session
- *   specific. All keys in this set must also be present in [cameraCharacteristics].
+ *   specific. All keys in this set must also be present in `cameraCharacteristics`.
  * @param sessionCaptureRequestKeys The set of [CaptureRequest.Key]s that the camera device can pass
  *   as part of the capture session initialization.
  * @param physicalCameraIds The set of physical [CameraId]s that this logical camera device is made
- *   up of. Must not contain [cameraId].
+ *   up of. Must not contain `cameraId`.
  * @param physicalCaptureRequestKeys The set of physical [CaptureRequest.Key]s.
+ * @param isRestricted Indicates whether the wrapper queried camera characteristics without camera
+ *   permission.
  * @param restrictedKeys The set of [CameraCharacteristics.Key]s that require camera permissions.
- *   All keys in this set must also be present in [cameraCharacteristics].
- * @throws IllegalArgumentException If [physicalCameraIds] contains [cameraId], or if any key in
- *   [restrictedKeys] or [sessionKeys] is not present in [cameraCharacteristics].
+ *   All keys in this set must also be present in `cameraCharacteristics`.
+ * @param dynamicKeys The set of [CameraCharacteristics.Key]s whose values can change depending on
+ *   the device state.
+ * @throws IllegalArgumentException If `physicalCameraIds` contains `cameraId`, or if any key in
+ *   `restrictedKeys` or `sessionKeys` is not present in `cameraCharacteristics`.
  */
 public class FakeCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")
@@ -64,7 +68,9 @@ constructor(
     override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val physicalCameraIds: Set<CameraId> = emptySet(),
     override val physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
+    override val isRestricted: Boolean = false,
     override val restrictedKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    override val dynamicKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
 ) : CameraCharacteristicsWrapper {
 
     init {
@@ -138,16 +144,18 @@ constructor(
          * @param captureRequestKeys The set of capture request keys supported by this camera.
          * @param captureResultKeys The set of capture result keys supported by this camera.
          * @param sessionKeys The set of session characteristics keys. All keys in this set must
-         *   also be present in [cameraCharacteristics].
+         *   also be present in `cameraCharacteristics`.
          * @param sessionCaptureRequestKeys The set of session keys.
          * @param physicalCameraIds The set of physical camera ID strings. Must not contain
-         *   [cameraId].
+         *   `cameraId`.
          * @param physicalCaptureRequestKeys The set of physical capture request keys.
+         * @param isRestricted True if the camera is operating in a restricted mode.
          * @param restrictedKeys The set of keys that require camera permissions. All keys in this
-         *   set must also be present in [cameraCharacteristics].
+         *   set must also be present in `cameraCharacteristics`.
+         * @param dynamicKeys The set of keys that can change dynamically.
          * @return A configured [FakeCameraCharacteristics] instance.
-         * @throws IllegalArgumentException If [physicalCameraIds] contains [cameraId], or if any
-         *   key in [restrictedKeys] or [sessionKeys] is not present in [cameraCharacteristics].
+         * @throws IllegalArgumentException If `physicalCameraIds` contains `cameraId`, or if any
+         *   key in `restrictedKeys` or `sessionKeys` is not present in `cameraCharacteristics`.
          */
         @JvmStatic
         @JvmOverloads
@@ -161,7 +169,9 @@ constructor(
             sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
             physicalCameraIds: Set<String> = emptySet(),
             physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
+            isRestricted: Boolean = false,
             restrictedKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+            dynamicKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
         ): FakeCameraCharacteristics {
             return FakeCameraCharacteristics(
                 cameraId = CameraId(cameraId),
@@ -173,7 +183,9 @@ constructor(
                 sessionCaptureRequestKeys = sessionCaptureRequestKeys,
                 physicalCameraIds = physicalCameraIds.map { CameraId(it) }.toSet(),
                 physicalCaptureRequestKeys = physicalCaptureRequestKeys,
+                isRestricted = isRestricted,
                 restrictedKeys = restrictedKeys,
+                dynamicKeys = dynamicKeys,
             )
         }
     }

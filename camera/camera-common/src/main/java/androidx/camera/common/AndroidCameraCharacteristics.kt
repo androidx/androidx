@@ -16,38 +16,45 @@
 
 package androidx.camera.common
 
-import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics as Camera2CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import androidx.camera.common.compat.Api28Compat
 import androidx.camera.common.compat.Api29Compat
 import androidx.camera.common.compat.Api35Compat
 import java.lang.Class
 
 /**
- * An implementation of [CameraCharacteristicsWrapper] that wraps a system [CameraCharacteristics].
+ * An implementation of [CameraCharacteristicsWrapper] that wraps a system
+ * [Camera2CameraCharacteristics].
  *
- * This implementation caches the values retrieved from the underlying [CameraCharacteristics] to
- * avoid repeated expensive binder calls to the camera service.
+ * This implementation caches the values retrieved from the underlying
+ * [Camera2CameraCharacteristics] to avoid repeated expensive binder calls to the camera service.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AndroidCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")
-constructor(
-    /** The [CameraId] identifying this camera. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
+    cameraId: CameraId,
+    private val characteristics: Camera2CameraCharacteristics,
+    override val isRestricted: Boolean = false,
+    override val dynamicKeys: Set<Camera2CameraCharacteristics.Key<*>> = emptySet(),
+) : CameraCharacteristicsWrapper {
+
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("getCameraId")
     @get:Suppress("ValueClassUsageWithoutJvmName")
-    override val cameraId: CameraId,
-    private val characteristics: CameraCharacteristics,
-) : CameraCharacteristicsWrapper {
+    override val cameraId: CameraId = cameraId
 
-    @GuardedBy("values") private val values = ArrayMap<CameraCharacteristics.Key<*>, Any?>()
+    @GuardedBy("values") private val values = ArrayMap<Camera2CameraCharacteristics.Key<*>, Any?>()
 
     /**
-     * Retrieves the value of the specified [CameraCharacteristics.Key].
+     * Retrieves the value of the specified [Camera2CameraCharacteristics.Key].
      *
      * The results are cached internally to prevent repeated blocking JNI/binder calls to the camera
      * service.
@@ -56,7 +63,10 @@ constructor(
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+    override fun <T> get(key: Camera2CameraCharacteristics.Key<T>): T? {
+        if (dynamicKeys.contains(key)) {
+            return characteristics.get(key)
+        }
         // Cache the return value of calls to characteristics as the implementation performs a
         // blocking jni binder call which can be expensive when invoked frequently.
         @Suppress("UNCHECKED_CAST") var result = synchronized(values) { values[key] } as T?
@@ -81,7 +91,8 @@ constructor(
      *
      * Supported types:
      * - [AndroidCameraCharacteristics] (returns `this`)
-     * - [CameraCharacteristics] (returns the wrapped [CameraCharacteristics] instance)
+     * - [Camera2CameraCharacteristics] (returns the wrapped [Camera2CameraCharacteristics]
+     *   instance)
      *
      * @param type The class type to unwrap to.
      * @return The unwrapped instance of type [T], or `null` if the type is not supported.
@@ -90,11 +101,11 @@ constructor(
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
         when {
             type.isInstance(this) -> this as T
-            type == CameraCharacteristics::class.java -> characteristics as T
+            type == Camera2CameraCharacteristics::class.java -> characteristics as T
             else -> null
         }
 
-    override val keys: Set<CameraCharacteristics.Key<*>>
+    override val keys: Set<Camera2CameraCharacteristics.Key<*>>
         get() = _keys.value
 
     override val captureRequestKeys: Set<CaptureRequest.Key<*>>
@@ -106,19 +117,19 @@ constructor(
     override val physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>>
         get() = _physicalCaptureRequestKeys.value
 
-    override val sessionKeys: Set<CameraCharacteristics.Key<*>>
+    override val sessionKeys: Set<Camera2CameraCharacteristics.Key<*>>
         get() = _sessionKeys.value
 
     override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
         get() = _sessionCaptureRequestKeys.value
 
-    override val restrictedKeys: Set<CameraCharacteristics.Key<*>>
+    override val restrictedKeys: Set<Camera2CameraCharacteristics.Key<*>>
         get() = _restrictedKeys.value
 
     override val physicalCameraIds: Set<CameraId>
         get() = _physicalCameraIds.value
 
-    private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
+    private val _keys: Lazy<Set<Camera2CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) { characteristics.keys.orEmpty().toSet() }
 
     private val _captureRequestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
@@ -140,7 +151,7 @@ constructor(
             }
         }
 
-    private val _sessionKeys: Lazy<Set<CameraCharacteristics.Key<*>>> =
+    private val _sessionKeys: Lazy<Set<Camera2CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 emptySet()
@@ -160,7 +171,7 @@ constructor(
             }
         }
 
-    private val _restrictedKeys: Lazy<Set<CameraCharacteristics.Key<*>>> =
+    private val _restrictedKeys: Lazy<Set<Camera2CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 emptySet()
