@@ -18,6 +18,7 @@ package androidx.camera.common
 
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.camera.common.compat.Api28Compat
 import java.lang.Class
 
@@ -30,12 +31,14 @@ import java.lang.Class
  *
  * @property captureRequest The wrapped [CaptureRequestWrapper] that initiated this capture.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AndroidCaptureResult
-private constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     private val captureResult: CaptureResult,
     cameraId: CameraId,
     override val captureRequest: CaptureRequestWrapper,
-    private val metadata: Map<Metadata.Key<*>, Any?>,
+    private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
 ) : CaptureResultWrapper {
 
     /** The [CameraId] of the camera that produced this result. */
@@ -104,46 +107,4 @@ private constructor(
             type.isInstance(captureResult) -> captureResult as T
             else -> null
         }
-
-    public companion object {
-        /**
-         * Creates an [AndroidCaptureResult] instance for Kotlin clients.
-         *
-         * Allows constructor-like syntax in Kotlin: `AndroidCaptureResult(...)`.
-         *
-         * @param captureResult The native [CaptureResult] to wrap.
-         * @param cameraId The strongly typed [CameraId] associated with the result.
-         * @param captureRequest The wrapped [CaptureRequestWrapper] that produced this result.
-         * @param metadata Optional map of custom metadata key-value properties.
-         * @return A configured [AndroidCaptureResult] instance.
-         */
-        @JvmSynthetic
-        @Suppress("MissingJvmstatic", "ValueClassUsageWithoutJvmName")
-        public operator fun invoke(
-            captureResult: CaptureResult,
-            cameraId: CameraId,
-            captureRequest: CaptureRequestWrapper,
-            metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-        ): AndroidCaptureResult =
-            AndroidCaptureResult(captureResult, cameraId, captureRequest, metadata)
-
-        /**
-         * Creates an [AndroidCaptureResult] instance for Java compatibility.
-         *
-         * @param captureResult The native [CaptureResult] to wrap.
-         * @param cameraId The camera identifier string.
-         * @param captureRequest The wrapped [CaptureRequestWrapper] that produced this result.
-         * @param metadata Optional map of custom metadata key-value properties.
-         * @return A configured [AndroidCaptureResult] instance.
-         */
-        @JvmStatic
-        @JvmOverloads
-        public fun create(
-            captureResult: CaptureResult,
-            cameraId: String,
-            captureRequest: CaptureRequestWrapper,
-            metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-        ): AndroidCaptureResult =
-            AndroidCaptureResult(captureResult, CameraId(cameraId), captureRequest, metadata)
-    }
 }

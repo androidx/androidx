@@ -16,7 +16,9 @@
 
 package androidx.camera.common
 
-import android.hardware.camera2.CameraCharacteristics as PlatformCameraCharacteristics
+import android.content.Context
+import android.hardware.camera2.CameraCharacteristics as Camera2CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
@@ -24,7 +26,7 @@ import androidx.camera.common.compat.Api33Compat
 import androidx.camera.common.compat.Api34Compat
 
 /**
- * Wrapper interface providing compatibility-focused access to [PlatformCameraCharacteristics].
+ * Wrapper interface providing compatibility-focused access to [Camera2CameraCharacteristics].
  *
  * Use this interface to query camera capabilities, physical properties, and supported
  * configurations. It abstracts OS version differences and caches expensive-to-retrieve properties
@@ -32,12 +34,11 @@ import androidx.camera.common.compat.Api34Compat
  *
  * `CameraCharacteristicsWrapper` implements [Metadata], allowing it to support type-safe retrieval
  * of custom library-defined metadata keys via [Metadata.Key] in addition to native
- * [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key] keys.
+ * [Camera2CameraCharacteristics.Key] keys.
  *
  * It also implements [UnsafeWrapper], which allows unwrapping to the underlying native
- * [CameraCharacteristics][PlatformCameraCharacteristics] using [UnsafeWrapper.unwrapAs] when
- * platform-specific APIs are required. Note that bypassing the wrapper by unwrapping avoids
- * compatibility fixes and caching.
+ * [Camera2CameraCharacteristics] using [UnsafeWrapper.unwrapAs] when platform-specific APIs are
+ * required. Note that bypassing the wrapper by unwrapping avoids compatibility fixes and caching.
  *
  * **Note:** This interface is not stable for inheritance. Implementations should not be created
  * directly by clients. For testing, use the fakes in `androidx.camera.common.testing` package (such
@@ -50,7 +51,7 @@ import androidx.camera.common.compat.Api34Compat
  * val characteristics: CameraCharacteristicsWrapper = ...
  *
  * // Query a native CameraCharacteristics key:
- * val lensFacing: Int? = characteristics[CameraCharacteristics.LENS_FACING]
+ * val lensFacing: Int? = characteristics[Camera2CameraCharacteristics.LENS_FACING]
  *
  * // Query a custom Metadata key:
  * val customValue: String? = characteristics[MY_CUSTOM_METADATA_KEY]
@@ -58,7 +59,7 @@ import androidx.camera.common.compat.Api34Compat
  *
  * Unwrapping the native object (unsafe):
  * ```kotlin
- * val nativeCharacteristics: CameraCharacteristics? = characteristics.unwrapAs()
+ * val nativeCharacteristics: Camera2CameraCharacteristics? = characteristics.unwrapAs()
  * ```
  */
 public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
@@ -74,7 +75,7 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val cameraId: CameraId
 
     /**
-     * A [Set] of all [PlatformCameraCharacteristics.Key]s supported by this camera device.
+     * A [Set] of all [Camera2CameraCharacteristics.Key]s supported by this camera device.
      *
      * This property is equivalent to calling
      * [android.hardware.camera2.CameraCharacteristics.getKeys] on the underlying camera
@@ -82,13 +83,13 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
      *
      * @see android.hardware.camera2.CameraCharacteristics.getKeys
      */
-    public val keys: Set<PlatformCameraCharacteristics.Key<*>>
+    public val keys: Set<Camera2CameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of all [CaptureRequest.Key]s supported by this camera device for [CaptureRequest]s.
      *
      * This property is equivalent to calling
-     * [CameraCharacteristics.getAvailableCaptureRequestKeys][PlatformCameraCharacteristics.getAvailableCaptureRequestKeys],
+     * [CameraCharacteristics.getAvailableCaptureRequestKeys][Camera2CameraCharacteristics.getAvailableCaptureRequestKeys],
      * but may be cached for efficiency.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableCaptureRequestKeys
@@ -99,7 +100,7 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
      * A [Set] of all [CaptureResult.Key]s supported by this camera device for [CaptureResult]s.
      *
      * This property is equivalent to calling
-     * [CameraCharacteristics.getAvailableCaptureResultKeys][PlatformCameraCharacteristics.getAvailableCaptureResultKeys],
+     * [CameraCharacteristics.getAvailableCaptureResultKeys][Camera2CameraCharacteristics.getAvailableCaptureResultKeys],
      * but may be cached for efficiency.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableCaptureResultKeys
@@ -117,14 +118,14 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val physicalCaptureRequestKeys: Set<CaptureRequest.Key<*>>
 
     /**
-     * A [Set] of [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key]s whose values are
+     * A [Set] of [CameraCharacteristics.Key][Camera2CameraCharacteristics.Key]s whose values are
      * capture session specific.
      *
      * On API levels prior to 35 (Android 15), this property returns an empty set.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getAvailableSessionCharacteristicsKeys
      */
-    public val sessionKeys: Set<PlatformCameraCharacteristics.Key<*>>
+    public val sessionKeys: Set<Camera2CameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of [CaptureRequest.Key]s that the camera device can pass as part of the capture
@@ -137,14 +138,14 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     public val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
 
     /**
-     * A [Set] of [CameraCharacteristics.Key][PlatformCameraCharacteristics.Key]s that require
-     * camera clients to obtain the `Manifest.permission.CAMERA` permission.
+     * A [Set] of [CameraCharacteristics.Key][Camera2CameraCharacteristics.Key]s that require camera
+     * clients to obtain the `Manifest.permission.CAMERA` permission.
      *
      * On API levels prior to 29 (Android Q), this property returns an empty set.
      *
      * @see android.hardware.camera2.CameraCharacteristics.getKeysNeedingPermission
      */
-    public val restrictedKeys: Set<PlatformCameraCharacteristics.Key<*>>
+    public val restrictedKeys: Set<Camera2CameraCharacteristics.Key<*>>
 
     /**
      * A [Set] of physical camera IDs that this logical camera device is made up of.
@@ -154,6 +155,32 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
      * @see android.hardware.camera2.CameraCharacteristics.getPhysicalCameraIds
      */
     public val physicalCameraIds: Set<CameraId>
+
+    /**
+     * Indicates whether the wrapper queried camera characteristics without camera permission.
+     *
+     * When `true`, the application did not hold the [android.Manifest.permission.CAMERA] permission
+     * when this instance was created. In this restricted mode, querying keys listed in
+     * [restrictedKeys] may return `null` or empty values.
+     */
+    public val isRestricted: Boolean
+
+    /**
+     * A [Set] of [Camera2CameraCharacteristics.Key]s whose values can change dynamically based on
+     * the physical state of the device.
+     *
+     * Do not cache values retrieved using these keys. The values can change at runtime, for example
+     * when a foldable device changes its posture.
+     *
+     * At present, only the
+     * [SENSOR_ORIENTATION](https://developer.android.com/reference/kotlin/android/hardware/camera2/CameraCharacteristics#sensor_orientation)
+     * key on foldable devices can change based on the posture of the device, but may be expanded in
+     * the future if other camera properties change dynamically based on the posture or other
+     * physical state of the device.
+     *
+     * The primary purpose of this property is to indicate which keys should not be cached.
+     */
+    public val dynamicKeys: Set<Camera2CameraCharacteristics.Key<*>>
 
     public object Keys {
         /**
@@ -194,7 +221,7 @@ public object CameraCharacteristics {
      *
      * This is the preferred way to access the [StreamConfigurationMapWrapper] in Kotlin. It will
      * fallback to creating a wrapper from the standard
-     * [PlatformCameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] if the compatibility key is
+     * [Camera2CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] if the compatibility key is
      * not populated.
      */
     @get:JvmStatic
@@ -204,7 +231,7 @@ public object CameraCharacteristics {
             if (compatibilityMap != null) {
                 return compatibilityMap
             }
-            val camera2Map = this[PlatformCameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+            val camera2Map = this[Camera2CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
             if (camera2Map != null) {
                 val cameraId =
                     (this as? CameraCharacteristicsWrapper)?.cameraId ?: CameraId("unknown")
@@ -239,4 +266,58 @@ public object CameraCharacteristics {
                 } else {
                     UnsupportedDynamicRangeProfiles
                 }
+
+    /**
+     * Loads [CameraCharacteristicsWrapper] for the given [cameraId] using [Context].
+     *
+     * This method will perform an instantaneous check to determine if the camera permission is
+     * granted, setting [CameraCharacteristicsWrapper.isRestricted] accordingly.
+     */
+    @JvmStatic
+    @JvmName("loadFrom")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmOverloads
+    public fun loadFrom(
+        context: Context,
+        cameraId: CameraId,
+        dynamicKeys: Set<Camera2CameraCharacteristics.Key<*>> = emptySet(),
+    ): CameraCharacteristicsWrapper {
+        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val hasPermission =
+            context.checkPermission(
+                android.Manifest.permission.CAMERA,
+                android.os.Process.myPid(),
+                android.os.Process.myUid(),
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        return loadFrom(cameraManager, cameraId, !hasPermission, dynamicKeys)
+    }
+
+    /** Loads [CameraCharacteristicsWrapper] for the given [cameraId] using [CameraManager]. */
+    @JvmStatic
+    @JvmName("loadFrom")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmOverloads
+    public fun loadFrom(
+        cameraManager: CameraManager,
+        cameraId: CameraId,
+        isRestricted: Boolean = false,
+        dynamicKeys: Set<Camera2CameraCharacteristics.Key<*>> = emptySet(),
+    ): CameraCharacteristicsWrapper {
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
+        return AndroidCameraCharacteristics(cameraId, characteristics, isRestricted, dynamicKeys)
+    }
+
+    /** Wraps a native [Camera2CameraCharacteristics] into a [CameraCharacteristicsWrapper]. */
+    @JvmStatic
+    @JvmName("wrap")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmOverloads
+    public fun wrap(
+        cameraId: CameraId,
+        characteristics: Camera2CameraCharacteristics,
+        isRestricted: Boolean = false,
+        dynamicKeys: Set<Camera2CameraCharacteristics.Key<*>> = emptySet(),
+    ): CameraCharacteristicsWrapper {
+        return AndroidCameraCharacteristics(cameraId, characteristics, isRestricted, dynamicKeys)
+    }
 }

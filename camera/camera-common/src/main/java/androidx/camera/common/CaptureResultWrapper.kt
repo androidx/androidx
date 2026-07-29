@@ -85,3 +85,19 @@ public interface CaptureResultWrapper : CaptureResultMetadata {
      */
     public val keys: List<CaptureResult.Key<*>>
 }
+
+public object CaptureResults {
+    /** Wraps a native [CaptureResult] into a [CaptureResultWrapper]. */
+    @JvmStatic
+    @JvmName("wrap")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmOverloads
+    public fun wrap(
+        captureResult: CaptureResult,
+        cameraId: CameraId,
+        captureRequest: CaptureRequestWrapper,
+        metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    ): CaptureResultWrapper {
+        return AndroidCaptureResult(captureResult, cameraId, captureRequest, metadata)
+    }
+}
