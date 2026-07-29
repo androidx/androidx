@@ -16,8 +16,12 @@
 
 package androidx.navigationevent.compose
 
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.ViewTreeHostDefaultKey
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.R
 
@@ -27,3 +31,18 @@ public actual val NavigationEventDispatcherOwnerHostDefaultKey:
         override val tagKey: Int
             get() = R.id.view_tree_navigation_event_dispatcher_owner
     }
+
+@Composable
+internal actual fun fallbackNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
+    findOwner<NavigationEventDispatcherOwner>(LocalContext.current)
+
+private inline fun <reified T> findOwner(context: Context): T? {
+    var innerContext = context
+    while (innerContext is ContextWrapper) {
+        if (innerContext is T) {
+            return innerContext
+        }
+        innerContext = innerContext.baseContext
+    }
+    return null
+}
