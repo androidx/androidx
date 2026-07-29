@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.3.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.0-alpha05)" variant="all" version="9.3.0-alpha05">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="KotlinRunTestResultUnused"
@@ -8,6 +8,15 @@
         errorLine2="        ~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/room3/coroutines/RunBlockingUninterruptibleTest.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/room3/util/FileUtil.android.kt"/>
     </issue>
 
 </issues>
