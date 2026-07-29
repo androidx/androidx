@@ -48,6 +48,15 @@ public abstract class Signature internal constructor() {
     /** Returns a copy of the current signature with the specified selection state. */
     public abstract fun setSelection(isSelected: Boolean): Signature
 
+    /** Returns a copy of the current signature with the updated bounds. */
+    public abstract fun updateBounds(
+        pageNum: Int,
+        xCoord: Float,
+        yCoord: Float,
+        width: Float,
+        height: Float,
+    ): Signature
+
     /**
      * A signature drawn by the user using vector paths.
      *
@@ -74,6 +83,24 @@ public abstract class Signature internal constructor() {
                 width = this.width,
                 height = this.height,
                 isSelected = isSelected,
+                drawnPath = this.drawnPath,
+            )
+
+        override fun updateBounds(
+            pageNum: Int,
+            xCoord: Float,
+            yCoord: Float,
+            width: Float,
+            height: Float,
+        ): Signature =
+            DrawnSignature(
+                id = this.id,
+                pageNum = pageNum,
+                xCoord = xCoord,
+                yCoord = yCoord,
+                width = width,
+                height = height,
+                isSelected = this.isSelected,
                 drawnPath = this.drawnPath,
             )
 
@@ -138,6 +165,25 @@ public abstract class Signature internal constructor() {
                 typedFont = this.typedFont,
             )
 
+        override fun updateBounds(
+            pageNum: Int,
+            xCoord: Float,
+            yCoord: Float,
+            width: Float,
+            height: Float,
+        ): Signature =
+            TypedSignature(
+                id = this.id,
+                pageNum = pageNum,
+                xCoord = xCoord,
+                yCoord = yCoord,
+                width = width,
+                height = height,
+                isSelected = this.isSelected,
+                typedText = this.typedText,
+                typedFont = this.typedFont,
+            )
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is TypedSignature) return false
@@ -192,6 +238,24 @@ public abstract class Signature internal constructor() {
                 width = this.width,
                 height = this.height,
                 isSelected = isSelected,
+                imageBitmap = this.imageBitmap,
+            )
+
+        override fun updateBounds(
+            pageNum: Int,
+            xCoord: Float,
+            yCoord: Float,
+            width: Float,
+            height: Float,
+        ): Signature =
+            UploadedSignature(
+                id = this.id,
+                pageNum = pageNum,
+                xCoord = xCoord,
+                yCoord = yCoord,
+                width = width,
+                height = height,
+                isSelected = this.isSelected,
                 imageBitmap = this.imageBitmap,
             )
 
