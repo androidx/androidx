@@ -353,6 +353,7 @@ public interface IcingOptionsConfig {
                         Flags.enableAccountPropertyIncompatibilityCheck())
                 .setSchemaStoreReleaseCachedProtoAfterUse(
                         Flags.releaseSchemaCacheAfterInitialization())
+                .setRemoveSchemaStoreMoveAssignment(Flags.removeSchemaStoreMoveAssignment())
                 .build();
     }
 }

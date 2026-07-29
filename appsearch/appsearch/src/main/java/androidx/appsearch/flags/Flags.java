@@ -306,6 +306,12 @@ public final class Flags {
     public static final String FLAG_RELEASE_SCHEMA_CACHE_AFTER_INITIALIZATION =
             FLAG_PREFIX + "release_schema_cache_after_initialization";
 
+    /**
+     * Controls whether to remove schema store move assignment during schema store set schema.
+     */
+    public static final String FLAG_REMOVE_SCHEMA_STORE_MOVE_ASSIGNMENT =
+            FLAG_PREFIX + "remove_schema_store_move_assignment";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -671,6 +677,14 @@ public final class Flags {
      */
     public static boolean releaseSchemaCacheAfterInitialization() {
         // TODO(b/490448633): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /**
+     * Controls whether to remove schema store move assignment during schema store set schema.
+     */
+    public static boolean removeSchemaStoreMoveAssignment() {
+        // TODO(b/521549968): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }
