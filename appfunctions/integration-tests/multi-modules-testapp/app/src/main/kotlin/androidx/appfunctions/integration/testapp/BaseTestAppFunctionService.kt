@@ -19,6 +19,7 @@ package androidx.appfunctions.integration.testapp
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
+import androidx.annotation.RequiresApi
 import androidx.appfunction.integration.test.sharedschema.AppFunctionNote
 import androidx.appfunction.integration.test.sharedschema.ClassWithOptionalValues
 import androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction
@@ -34,17 +35,22 @@ import androidx.appfunction.integration.test.sharedschema.ProxyTypesWrapper
 import androidx.appfunction.integration.test.sharedschema.ResourceFunctionResponse
 import androidx.appfunction.integration.test.sharedschema.UpdateNoteParams
 import androidx.appfunctions.AppFunction
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
+import androidx.appfunctions.AppFunctionService
+import androidx.appfunctions.AppFunctionServiceEntryPoint
 import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
-@Suppress("UNUSED_PARAMETER")
-class TestFunctions {
+@RequiresApi(36)
+@AppFunctionServiceEntryPoint(
+    serviceName = "TestAppFunctionService",
+    appFunctionXmlFileName = "test_app_function_service",
+)
+abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppFunction {
     /**
      * Returns the sum of the given two numbers.
      *
@@ -52,27 +58,19 @@ class TestFunctions {
      * @param num2 The second number.
      * @return The sum of the two numbers.
      */
-    @AppFunction(isDescribedByKDoc = true)
-    fun add(appFunctionContext: AppFunctionContext, num1: Long, num2: Long) = num1 + num2
+    @AppFunction(isDescribedByKDoc = true) internal fun add(num1: Long, num2: Long) = num1 + num2
+
+    @AppFunction internal fun echoProxyTypes(value: ProxyTypesWrapper): ProxyTypesWrapper = value
 
     @AppFunction
-    fun echoProxyTypes(
-        appFunctionContext: AppFunctionContext,
-        value: ProxyTypesWrapper,
-    ): ProxyTypesWrapper = value
-
-    @AppFunction
-    fun doThrow(appFunctionContext: AppFunctionContext) {
+    internal fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunction fun voidFunction(appFunctionContext: AppFunctionContext) {}
+    @AppFunction internal fun voidFunction() {}
 
     @AppFunction
-    fun createNote(
-        appFunctionContext: AppFunctionContext,
-        createNoteParams: CreateNoteParams,
-    ): Note {
+    internal fun createNoteSimple(createNoteParams: CreateNoteParams): Note {
         return Note(
             title = createNoteParams.title,
             content = createNoteParams.content,
@@ -82,10 +80,7 @@ class TestFunctions {
     }
 
     @AppFunction
-    fun updateNote(
-        appFunctionContext: AppFunctionContext,
-        updateNoteParams: UpdateNoteParams,
-    ): Note {
+    fun updateNote(updateNoteParams: UpdateNoteParams): Note {
         return Note(
             title =
                 (updateNoteParams.title?.value ?: "DefaultTitle") +
@@ -101,36 +96,26 @@ class TestFunctions {
     }
 
     @AppFunction
-    fun getOpenableNote(
-        appFunctionContext: AppFunctionContext,
-        createNoteParams: CreateNoteParams,
-    ): OpenableNote {
+    internal fun getOpenableNote(createNoteParams: CreateNoteParams): OpenableNote {
         return OpenableNote(
             title = createNoteParams.title,
             content = createNoteParams.content,
             owner = createNoteParams.owner,
             attachments = createNoteParams.attachments,
             intentToOpen =
-                PendingIntent.getActivity(
-                    appFunctionContext.context,
-                    0,
-                    Intent(),
-                    PendingIntent.FLAG_IMMUTABLE,
-                ),
+                PendingIntent.getActivity(this, 0, Intent(), PendingIntent.FLAG_IMMUTABLE),
         )
     }
 
     @AppFunction
-    fun echoClassWithOptionalValues(
-        appFunctionContext: AppFunctionContext,
-        classWithOptionalValues: ClassWithOptionalValues,
+    internal fun echoClassWithOptionalValues(
+        classWithOptionalValues: ClassWithOptionalValues
     ): ClassWithOptionalValues {
         return classWithOptionalValues
     }
 
     @AppFunction
-    fun enumValueFunction(
-        appFunctionContext: AppFunctionContext,
+    internal fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
         intEnumSerializable: IntEnumSerializable? = null,
@@ -139,8 +124,7 @@ class TestFunctions {
     }
 
     @AppFunction
-    fun echoFunctionWithOptionalParameters(
-        appFunctionContext: AppFunctionContext,
+    internal fun echoFunctionWithOptionalParameters(
         // Int
         optionalNonNullInt: Int = 1,
         optionalNullableInt: Int? = 1,
@@ -226,7 +210,7 @@ class TestFunctions {
     }
 
     @AppFunction
-    fun getFilesData(appFunctionContext: AppFunctionContext): FilesData {
+    internal fun getFilesData(): FilesData {
         return FilesData(
             readOnlyUri =
                 AppFunctionUriGrant(
@@ -269,37 +253,18 @@ class TestFunctions {
     }
 
     @AppFunction
-    suspend fun longRunningFunction(appFunctionContext: AppFunctionContext): String {
+    internal suspend fun longRunningFunction(): String {
         delay(500)
         return "Completed"
     }
 
     @AppFunction
     @Deprecated("deprecatedFunction is deprecated")
-    fun deprecatedFunction(appFunctionContext: AppFunctionContext) {}
+    internal fun deprecatedFunction() {}
 
-    @AppFunction(isEnabled = false)
-    fun functionDisabledByDefault(appFunctionContext: AppFunctionContext) {}
+    @AppFunction(isEnabled = false) internal fun functionDisabledByDefault() {}
 
-    @AppFunction(isEnabled = true)
-    fun functionEnabledByDefault(appFunctionContext: AppFunctionContext) {}
-}
-
-@Suppress("UNUSED_PARAMETER")
-class TestFactory {
-    private val createdByFactory: Boolean
-
-    constructor() : this(false)
-
-    constructor(createdByFactory: Boolean) {
-        this.createdByFactory = createdByFactory
-    }
-
-    @AppFunction
-    fun isCreatedByFactory(appFunctionContext: AppFunctionContext): Boolean = createdByFactory
-}
-
-class NotesFunctions : CreateNoteAppFunction {
+    @AppFunction(isEnabled = true) internal fun functionEnabledByDefault() {}
 
     /**
      * Create a note.
@@ -311,7 +276,6 @@ class NotesFunctions : CreateNoteAppFunction {
      */
     @AppFunction(isDescribedByKDoc = true)
     override suspend fun createNote(
-        appFunctionContext: AppFunctionContext,
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
     ): CreateNoteAppFunction.Response {
@@ -320,12 +284,9 @@ class NotesFunctions : CreateNoteAppFunction {
             tag = tag,
         )
     }
-}
 
-class NotesFunctions_disabledByDefault : CreateNoteAppFunction {
     @AppFunction(isEnabled = false)
-    override suspend fun createNote(
-        appFunctionContext: AppFunctionContext,
+    internal suspend fun createNoteDisabled(
         parameters: CreateNoteAppFunction.Parameters,
         tag: String?,
     ): CreateNoteAppFunction.Response {
@@ -334,23 +295,13 @@ class NotesFunctions_disabledByDefault : CreateNoteAppFunction {
             tag = tag,
         )
     }
-}
-
-class OneOfFunctions {
 
     @AppFunction
-    fun oneOfFunction(
-        appFunctionContext: AppFunctionContext,
-        oneOfList: List<OneOfSealedInterface>,
-    ) = oneOfList.map { OneOfSealedNestedSerializable(sealedInterface = it) }
-}
+    internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) =
+        oneOfList.map { OneOfSealedNestedSerializable(sealedInterface = it) }
 
-class ResourceFunctions {
     @AppFunction
-    fun textResourceFunction(
-        appFunctionContext: AppFunctionContext,
-        text: String,
-    ): ResourceFunctionResponse =
+    internal fun textResourceFunction(text: String): ResourceFunctionResponse =
         ResourceFunctionResponse(
             stringValue = text,
             resources = listOf(AppFunctionTextResource(mimeType = "text/plain", content = text)),

@@ -152,6 +152,11 @@ fun KSDeclaration.getJvmClassName(): String {
     return toClassName().reflectionName().substringAfterLast('.')
 }
 
+/** Checks if [KSTypeReference] is parameterized */
+fun KSTypeReference.isParametrized(): Boolean {
+    return resolve().arguments.isNotEmpty()
+}
+
 /**
  * Resolves the type reference to the parameterized type if it is a list.
  *

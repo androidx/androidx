@@ -17,7 +17,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name=".TestApplication"
         android:supportsRtl="true">
         <property
             android:name="android.app.appfunctions.v2"
@@ -60,38 +59,20 @@
             </intent-filter>
         </service>
         <service
-            android:name="androidx.appfunctions.PlatformAppFunctionService"
+            android:name=".TestAppFunctionService"
             android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
             android:exported="true"
-            android:enabled="@bool/enablePlatformAppFunctionService"
+            android:enabled="true"
             tools:targetApi="36">
             <property
-                android:name="android.app.appfunctions"
-                android:value="app_functions.xml" />
-            <property
                 android:name="android.app.appfunctions.schema"
                 android:value="app_functions_schema.xsd" />
             <property
                 android:name="android.app.appfunctions.v2"
-                android:value="app_functions_v2.xml" />
-            <intent-filter>
-                <action android:name="android.app.appfunctions.AppFunctionService" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="androidx.appfunctions.ExtensionAppFunctionService"
-            android:permission="android.permission.BIND_APP_FUNCTION_SERVICE"
-            android:exported="true"
-            android:enabled="@bool/enableExtensionAppFunctionService">
+                android:value="test_app_function_service.xml" />
             <property
                 android:name="android.app.appfunctions"
-                android:value="app_functions.xml" />
-            <property
-                android:name="android.app.appfunctions.schema"
-                android:value="app_functions_schema.xsd" />
-            <property
-                android:name="android.app.appfunctions.v2"
-                android:value="app_functions_v2.xml" />
+                android:value="test_app_function_service-v1.xml" />
             <intent-filter>
                 <action android:name="android.app.appfunctions.AppFunctionService" />
             </intent-filter>
