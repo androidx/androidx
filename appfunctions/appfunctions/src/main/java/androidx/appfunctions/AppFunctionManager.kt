@@ -37,6 +37,7 @@ import androidx.appfunctions.internal.Translator
 import androidx.appfunctions.internal.TranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
@@ -75,6 +76,7 @@ public constructor(
      * @param functionId The identifier of the app function.
      * @throws IllegalArgumentException If the [functionId] is not available in caller's package.
      */
+    // TODO(b/539865222): Remove this API completely after migrating usages.
     public suspend fun isAppFunctionEnabled(functionId: String): Boolean {
         return isAppFunctionEnabled(packageName = context.packageName, functionId = functionId)
     }
@@ -89,6 +91,7 @@ public constructor(
      * @param functionId The identifier of the app function.
      * @throws IllegalArgumentException If the [functionId] is not available under [packageName].
      */
+    // TODO(b/539865222): Remove this API completely after migrating usages.
     @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
     public suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean {
         return appFunctionManagerApi.isAppFunctionEnabled(
@@ -231,23 +234,19 @@ public constructor(
      *
      * An example usage flow is:
      * 1. Start collecting from the [Flow] to monitor app function changes.
-     * 2. Call [searchAppFunctions] and
-     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] to get the initial list
-     *    of app functions and their states.
+     * 2. Call [searchAppFunctions] and [getAppFunctionStates] to get the initial list of app
+     *    functions and their states.
      * 3. When receiving [ObserveAppFunctionsEvent.MetadataChanged], call [searchAppFunctions] with
      *    a [AppFunctionSearchSpec] that matches the changed packages to get the updated metadata.
-     * 4. When receiving [ObserveAppFunctionsEvent.StatesChanged], call
-     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] with the list of
-     *    [androidx.appfunctions.metadata.AppFunctionName]s matching the changed functions to get
-     *    the updated states. Note that this is guaranteed to trigger after
+     * 4. When receiving [ObserveAppFunctionsEvent.StatesChanged], call [getAppFunctionStates] with
+     *    the list of [androidx.appfunctions.metadata.AppFunctionName]s matching the changed
+     *    functions to get the updated states. Note that this is guaranteed to trigger after
      *    [ObserveAppFunctionsEvent.MetadataChanged] for new functions or functions that also
-     *    changed states. There is no need to call
-     *    [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] when receiving
+     *    changed states. There is no need to call [getAppFunctionStates] when receiving
      *    [ObserveAppFunctionsEvent.MetadataChanged].
      *
      * @return a [Flow] emitting [ObserveAppFunctionsEvent]s representing metadata or state changes
      */
-    // TODO(b/494238383) : Reference jetpack getAppFunctionState in KDoc once available.
     @RequiresPermission(
         anyOf =
             [
@@ -293,6 +292,43 @@ public constructor(
         searchSpec: AppFunctionSearchSpec
     ): List<AppFunctionMetadata> {
         return appFunctionReader.searchAppFunctionsMetadata(searchSpec)
+    }
+
+    /**
+     * Retrieves the runtime state of the specified app functions.
+     *
+     * This includes runtime-changing properties such as whether the functions are currently enabled
+     * or disabled. Functions that do not exist or are not visible to the calling application will
+     * be silently omitted from the result list.
+     *
+     * This method follows the same permission rules as [searchAppFunctions].
+     *
+     * See [android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates] for retrieving
+     * the states of app functions associated with a specific activity.
+     *
+     * See [searchAppFunctions] on how to retrieve the {@link AppFunctionMetadata} of app functions.
+     *
+     * See [observeAppFunctions] for observing changes to app functions' {@link AppFunctionMetadata}
+     * and {@link AppFunctionState}s.
+     *
+     * @param appFunctionNames The names of the app functions to request the state for.
+     * @return the [AppFunctionState]s of the specified app functions.
+     */
+    @RequiresPermission(
+        anyOf =
+            [
+                "android.permission.EXECUTE_APP_FUNCTIONS",
+                "android.permission.DISCOVER_APP_FUNCTIONS",
+                "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM",
+            ],
+        conditional = true,
+    )
+    // TODO(b/494238383): Remove annotation after supporting activityIds in CINNAMON_BUN+.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun getAppFunctionStates(
+        appFunctionNames: List<AppFunctionName>
+    ): List<AppFunctionState> {
+        return appFunctionReader.getAppFunctionStates(appFunctionNames)
     }
 
     /**

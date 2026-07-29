@@ -24,6 +24,7 @@ import android.os.Build
 import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
@@ -105,6 +106,11 @@ internal class PlatformAppFunctionReader(
             )
             .firstOrNull()
     }
+
+    // TODO(b/494238383): support activity ids.
+    override suspend fun getAppFunctionStates(
+        appFunctionNames: List<AppFunctionName>
+    ): List<AppFunctionState> = appSearchReader.getAppFunctionStates(appFunctionNames)
 
     override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> =
         callbackFlow {

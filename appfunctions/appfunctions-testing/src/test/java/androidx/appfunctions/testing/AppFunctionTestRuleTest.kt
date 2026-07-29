@@ -272,28 +272,113 @@ class AppFunctionTestRuleTest {
     fun returnedAppFunctionManagerCompat_currentPackage_enabledByDefault_modified_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isTrue()
 
             appFunctionManager.setAppFunctionEnabled(
                 functionId,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
 
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isFalse()
         }
 
     @Test(timeout = 5000)
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modified_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isFalse()
 
             appFunctionManager.setAppFunctionEnabled(
                 functionId,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
 
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isTrue()
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_getAppFunctionStates_multipleAppFunctionNames_returnsAllStates() =
+        runBlocking<Unit> {
+            val functionId1 = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
+            val functionId2 = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
+
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(context.packageName, functionId1),
+                        AppFunctionName(context.packageName, functionId2),
+                    )
+                )
+
+            assertThat(states).hasSize(2)
+            assertThat(
+                    states
+                        .single {
+                            it.functionName == AppFunctionName(context.packageName, functionId1)
+                        }
+                        .isEnabled
+                )
+                .isTrue()
+            assertThat(
+                    states
+                        .single {
+                            it.functionName == AppFunctionName(context.packageName, functionId2)
+                        }
+                        .isEnabled
+                )
+                .isFalse()
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_getAppFunctionStates_multipleAppFunctionNames_skipsInvalid() =
+        runBlocking<Unit> {
+            val validFunctionId = "androidx.appfunctions.testing.TestFunctions#enabledByDefault"
+            val invalidFunctionId = "androidx.appfunctions.testing.TestFunctions#unknown"
+
+            val states =
+                appFunctionManager.getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(context.packageName, validFunctionId),
+                        AppFunctionName(context.packageName, invalidFunctionId),
+                    )
+                )
+
+            assertThat(states).hasSize(1)
+            assertThat(states.single().functionName)
+                .isEqualTo(AppFunctionName(context.packageName, validFunctionId))
+            assertThat(states.single().isEnabled).isTrue()
         }
 
     @Test(timeout = 5000)
@@ -341,19 +426,43 @@ class AppFunctionTestRuleTest {
     fun returnedAppFunctionManagerCompat_currentPackage_disabledByDefault_modifiedAndRestoredToDefault_success() =
         runBlocking<Unit> {
             val functionId = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isFalse()
 
             appFunctionManager.setAppFunctionEnabled(
                 functionId,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isTrue()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isTrue()
 
             appFunctionManager.setAppFunctionEnabled(
                 functionId,
                 AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            assertThat(appFunctionManager.isAppFunctionEnabled(functionId)).isFalse()
+            assertThat(
+                    appFunctionManager
+                        .getAppFunctionStates(
+                            listOf(AppFunctionName(context.packageName, functionId))
+                        )
+                        .single()
+                        .isEnabled
+                )
+                .isFalse()
         }
 
     @Test(timeout = 5000)
