@@ -21,7 +21,13 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.content.Context;
+import android.hardware.camera2.CameraManager;
 import androidx.camera.common.testing.FakeCameraCharacteristics;
+import androidx.test.core.app.ApplicationProvider;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowCameraCharacteristics;
+import org.robolectric.shadows.ShadowCameraManager;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +88,34 @@ public final class CameraCharacteristicsWrapperJvmTest {
         assertThat(javaMetadata.getCameraId()).isEqualTo("java-0");
         assertThat(javaMetadata.get(customKey)).isEqualTo(100);
         assertThat(javaMetadata.getMetadataKeys()).containsExactly(customKey);
+    }
+
+    @Test
+    public void testLoadFromContext() {
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraManager cameraManager = context.getSystemService(CameraManager.class);
+        ShadowCameraManager shadowCameraManager = Shadows.shadowOf(cameraManager);
+        shadowCameraManager.addCamera(
+                "0", ShadowCameraCharacteristics.newCameraCharacteristics());
+
+        CameraCharacteristicsWrapper wrapper =
+                androidx.camera.common.CameraCharacteristics.loadFrom(context, "0");
+        assertThat(wrapper).isNotNull();
+        assertThat(wrapper.getCameraId()).isEqualTo("0");
+    }
+
+    @Test
+    public void testLoadFromCameraManager() {
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraManager cameraManager = context.getSystemService(CameraManager.class);
+        ShadowCameraManager shadowCameraManager = Shadows.shadowOf(cameraManager);
+        shadowCameraManager.addCamera(
+                "0", ShadowCameraCharacteristics.newCameraCharacteristics());
+
+        CameraCharacteristicsWrapper wrapper =
+                androidx.camera.common.CameraCharacteristics.loadFrom(cameraManager, "0");
+        assertThat(wrapper).isNotNull();
+        assertThat(wrapper.getCameraId()).isEqualTo("0");
     }
 
     private static final class TestJavaCameraCharacteristics
@@ -153,6 +187,16 @@ public final class CameraCharacteristicsWrapperJvmTest {
 
         @Override
         public Set<CameraCharacteristics.Key<?>> getRestrictedKeys() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public boolean isRestricted() {
+            return false;
+        }
+
+        @Override
+        public Set<CameraCharacteristics.Key<?>> getDynamicKeys() {
             return Collections.emptySet();
         }
 

@@ -66,3 +66,17 @@ public interface CaptureRequestWrapper : CaptureRequestMetadata {
      */
     public val keys: List<CaptureRequest.Key<*>>
 }
+
+public object CaptureRequests {
+    /** Wraps a native [CaptureRequest] into a [CaptureRequestWrapper]. */
+    @JvmStatic
+    @JvmName("wrap")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmOverloads
+    public fun wrap(
+        captureRequest: CaptureRequest,
+        metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    ): CaptureRequestWrapper {
+        return AndroidCaptureRequest(captureRequest, metadata)
+    }
+}
