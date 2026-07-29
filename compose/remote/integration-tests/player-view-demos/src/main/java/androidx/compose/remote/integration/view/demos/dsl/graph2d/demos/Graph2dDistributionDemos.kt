@@ -88,7 +88,10 @@ public fun graph2dBoxPlot(): ByteArray =
 /** Violin (mirrored KDE) comparison across groups. */
 public fun graph2dViolin(): ByteArray =
     graph2dDoc(800, 520, "Response Distribution") {
-        violinPlot(groups(), title = "Response Distribution", yTitle = "Score")
+        val theme = GraphTheme.Dark
+        theme.labelSize = 80f
+
+        violinPlot(groups(), title = "Response Distribution", yTitle = "Score", theme = theme)
     }
 
 /** Strip plot: raw observations per group. */

@@ -85,8 +85,12 @@ val CUBESPHERE_SHADER_SRC2 =
     // - t = 0.08 -> n = 25.0 -> sharp cube
     float sdSuperellipsoid(vec3 p, float n) {
         float r = 0.85;
-        float s = pow(abs(p.x), n) + pow(abs(p.y), n) + pow(abs(p.z), n);
-        return pow(s, 1.0 / n) - r;
+        vec3 ap = abs(p);
+        float m = max(ap.x, max(ap.y, ap.z));
+        if (m < 0.0001) return -r;
+        vec3 q = ap / m;
+        float s = pow(q.x, n) + pow(q.y, n) + pow(q.z, n);
+        return m * pow(s, 1.0 / n) - r;
     }
 
     vec3 getNormal(vec3 p, float n) {

@@ -129,8 +129,8 @@ fun dslClock(): ByteArray {
                     drawTextOnPath(date, textPath, 0.rf, 0.rf)
                 }
 
-                val versionId = remoteText("v1.2")
-                drawTextAnchored(versionId, cx, (cy + h) / 2f, 0.5f.rf, 0.5f.rf)
+                //                val versionId = remoteText("v1.2")
+                //                drawTextAnchored(versionId, cx, (cy + h) / 2f, 0.5f.rf, 0.5f.rf)
             }
         }
     }
