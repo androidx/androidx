@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("A2uiFunctionDefinitionKt")
+
 package androidx.a2ui.model.catalog
 
 import androidx.a2ui.model.schema.A2uiSchema
@@ -43,3 +45,10 @@ public interface A2uiFunctionDefinition {
     /** The type of the value returned by the function. */
     public val returnType: A2uiFunctionReturnType
 }
+
+/**
+ * Converts this function definition into an [A2uiSchema].
+ *
+ * @return the [A2uiSchema] representation of this function definition
+ */
+public fun A2uiFunctionDefinition.toSchema(): A2uiSchema = serializeFunctionDefinitionToSchema(this)
