@@ -170,14 +170,18 @@ package androidx.compose.ui.test {
   }
 
   @androidx.compose.runtime.Immutable public final class ComposeUiTestConfig {
-    ctor @KotlinOnly public ComposeUiTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode);
+    ctor @KotlinOnly public ComposeUiTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode, optional androidx.compose.ui.test.TestFailurePolicy failurePolicy);
+    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getEffectContext();
+    method @InaccessibleFromKotlin public androidx.compose.ui.test.TestFailurePolicy getFailurePolicy();
     method @BytecodeOnly public int getInputMode-aOaMEAU();
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getRunTestContext();
     method @BytecodeOnly public long getTestTimeout-UwyO8pc();
     property public kotlin.coroutines.CoroutineContext effectContext;
+    property public androidx.compose.ui.test.TestFailurePolicy failurePolicy;
     property public androidx.compose.ui.input.InputMode inputMode;
     property public kotlin.coroutines.CoroutineContext runTestContext;
     property public kotlin.time.Duration testTimeout;
@@ -267,6 +271,37 @@ package androidx.compose.ui.test {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {
+  }
+
+  public final class FailureArtifact {
+    ctor @KotlinOnly public FailureArtifact(androidx.compose.ui.test.FailureArtifact.Type type, String fileName);
+    ctor @BytecodeOnly public FailureArtifact(int, String!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getFileName();
+    method @BytecodeOnly public int getType-CPZAQgk();
+    property public String fileName;
+    property public androidx.compose.ui.test.FailureArtifact.Type type;
+  }
+
+  @kotlin.jvm.JvmInline public static final value class FailureArtifact.Type {
+    method @BytecodeOnly public static androidx.compose.ui.test.FailureArtifact.Type! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.test.FailureArtifact.Type.Companion Companion;
+  }
+
+  public static final class FailureArtifact.Type.Companion {
+    method @BytecodeOnly public int getScreenshot-CPZAQgk();
+    method @BytecodeOnly public int getUiHierarchy-CPZAQgk();
+    property public androidx.compose.ui.test.FailureArtifact.Type Screenshot;
+    property public androidx.compose.ui.test.FailureArtifact.Type UiHierarchy;
+  }
+
+  public final class FailureContext {
+    ctor @BytecodeOnly public FailureContext(Throwable!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FailureContext(Throwable error, optional java.util.List<androidx.compose.ui.test.FailureArtifact> artifacts);
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.test.FailureArtifact> getArtifacts();
+    method @InaccessibleFromKotlin public Throwable getError();
+    property public java.util.List<androidx.compose.ui.test.FailureArtifact> artifacts;
+    property public Throwable error;
   }
 
   public final class FiltersKt {
@@ -895,6 +930,37 @@ package androidx.compose.ui.test {
   }
 
   public final class TestContext {
+  }
+
+  public fun interface TestFailureHandler {
+    method public void onTestFailed(androidx.compose.ui.test.FailureContext context);
+  }
+
+  @androidx.compose.runtime.Immutable public final class TestFailurePolicy {
+    ctor @KotlinOnly public TestFailurePolicy(optional androidx.compose.ui.test.TestFailurePolicy.CaptureMode screenshotCaptureMode, optional androidx.compose.ui.test.TestFailurePolicy.CaptureMode uiHierarchyCaptureMode, optional java.util.List<androidx.compose.ui.test.TestFailureHandler> failureHandlers);
+    ctor @BytecodeOnly public TestFailurePolicy(int, int, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public TestFailurePolicy(int, int, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.test.TestFailureHandler> getFailureHandlers();
+    method @BytecodeOnly public int getScreenshotCaptureMode-zYtJLZc();
+    method @BytecodeOnly public int getUiHierarchyCaptureMode-zYtJLZc();
+    property public java.util.List<androidx.compose.ui.test.TestFailureHandler> failureHandlers;
+    property public androidx.compose.ui.test.TestFailurePolicy.CaptureMode screenshotCaptureMode;
+    property public androidx.compose.ui.test.TestFailurePolicy.CaptureMode uiHierarchyCaptureMode;
+  }
+
+  @kotlin.jvm.JvmInline public static final value class TestFailurePolicy.CaptureMode {
+    method @BytecodeOnly public static androidx.compose.ui.test.TestFailurePolicy.CaptureMode! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.test.TestFailurePolicy.CaptureMode.Companion Companion;
+  }
+
+  public static final class TestFailurePolicy.CaptureMode.Companion {
+    method @BytecodeOnly public int getDisabled-zYtJLZc();
+    method @BytecodeOnly public int getEnabled-zYtJLZc();
+    method @BytecodeOnly public int getUnspecified-zYtJLZc();
+    property public androidx.compose.ui.test.TestFailurePolicy.CaptureMode Disabled;
+    property public androidx.compose.ui.test.TestFailurePolicy.CaptureMode Enabled;
+    property public androidx.compose.ui.test.TestFailurePolicy.CaptureMode Unspecified;
   }
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi @kotlinx.coroutines.ExperimentalCoroutinesApi public final class TestMonotonicFrameClock implements androidx.compose.runtime.MonotonicFrameClock {

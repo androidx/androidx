@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.platform.WindowRecomposerPolicy
 import androidx.compose.ui.test.ComposeRootRegistry.OnRegistrationChangedListener
+import androidx.compose.ui.test.failure.FailurePipelineRunner
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -567,6 +568,8 @@ internal constructor(
 
     internal val composeRootRegistry = ComposeRootRegistry()
 
+    private val failurePipelineRunner = FailurePipelineRunner(config)
+
     private val mainClockImpl: MainTestClockImpl
     private lateinit var composeIdlingResource: ComposeIdlingResource
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
@@ -716,35 +719,33 @@ internal constructor(
      * Runs the given [block], setting up all test hooks before running the test and tearing them
      * down after running the test.
      */
-    public fun <R> runTest(block: suspend AndroidComposeUiTest<A>.() -> R): TestResult =
-        runCatching {
-                kotlinx.coroutines.test.runTest(
-                    context = combinedRunTestCoroutineContext,
-                    timeout = config.testTimeout,
-                ) {
-                    if (HasRobolectricFingerprint) {
-                        idlingStrategy =
-                            RobolectricIdlingStrategy(
-                                composeRootRegistry,
-                                composeIdlingResource,
-                                idlingResourceRegistry,
-                            )
-                    }
-                    // Need to await quiescence before registering our ComposeIdlingResource because
-                    // the
-                    // host activity might still be launching. If it is going to set compose
-                    // content,
-                    // we want that to happen before we install our hooks to avoid a race.
-                    idlingStrategy.runUntilIdle()
+    @Suppress("RedundantUnitReturnType")
+    public fun <R> runTest(block: suspend AndroidComposeUiTest<A>.() -> R): TestResult {
+        try {
+            return kotlinx.coroutines.test.runTest(
+                context = combinedRunTestCoroutineContext,
+                timeout = config.testTimeout,
+            ) {
+                if (HasRobolectricFingerprint) {
+                    idlingStrategy =
+                        RobolectricIdlingStrategy(
+                            composeRootRegistry,
+                            composeIdlingResource,
+                            idlingResourceRegistry,
+                        )
+                }
+                // Need to await quiescence before registering our ComposeIdlingResource because
+                // the host activity might still be launching. If it is going to set compose
+                // content, we want that to happen before we install our hooks to avoid a race.
+                idlingStrategy.runUntilIdle()
 
-                    composeRootRegistry.withRegistry {
-                        idlingResourceRegistry.withRegistry {
-                            idlingStrategy.withStrategy {
-                                withTestCoroutines {
-                                    withWindowRecomposer {
-                                        withComposeIdlingResource {
-                                            withConfiguredInputMode { testReceiverScope.block() }
-                                        }
+                composeRootRegistry.withRegistry {
+                    idlingResourceRegistry.withRegistry {
+                        idlingStrategy.withStrategy {
+                            withTestCoroutines {
+                                withWindowRecomposer {
+                                    withComposeIdlingResource {
+                                        withConfiguredInputMode { testReceiverScope.block() }
                                     }
                                 }
                             }
@@ -752,20 +753,15 @@ internal constructor(
                     }
                 }
             }
-            .onFailure { throwable ->
-                if (
-                    throwable.javaClass.name == "kotlinx.coroutines.test.UncompletedCoroutinesError"
-                ) {
-                    throw AndroidComposeUiTestTimeoutException(
-                            "runTest did not complete within the testTimeout of $config.testTimeout",
-                            throwable,
-                        )
-                        .also { it.addSuppressed(throwable) }
-                } else {
-                    throw throwable
-                }
-            }
-            .getOrNull() ?: error("runTest failed with an unhandled exception")
+        } catch (throwable: Throwable) {
+            failurePipelineRunner.runPipeline(
+                throwable = throwable,
+                composeRoots = composeRootRegistry.registeredComposeRootsBeforeTearDown,
+            )
+        } finally {
+            composeRootRegistry.clearRegisteredComposeRootsBeforeTearDown()
+        }
+    }
 
     private inline fun <R> withConfiguredInputMode(block: () -> R): R {
         if (!enforceInputModeFromConfig) {
