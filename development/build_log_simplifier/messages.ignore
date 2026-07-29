@@ -167,7 +167,7 @@ WARN: Couldn't resolve link: \[AsyncPagingDataDiffer\] in .*\/unzippedMultiplatf
 WARN: Couldn't resolve link: \[b\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/foundation\/lazy\/layout\/PrefetchScheduler\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[BrushFamily\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/ink\/storage\/BrushSerializationNative\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[BrushPaint\.Builder\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/ink\/brush\/BrushPaint\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
-WARN: Couldn't resolve link: \[Build\.VERSION_CODES_FULL.BAKLAVA_1\] in .*\/unzippedJvmSources\/androidx\/biometric\/AuthenticationRequest\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+WARN: Couldn't resolve link: \[Build\.VERSION_CODES_FULL.BAKLAVA_1\] in .*\/docs-public\/build\/unzippedJvmSources\/androidx\/biometric\/AuthenticationRequest\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[Bundle\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/navigation\/testing\/SavedStateHandleFactory\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[c\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/foundation\/lazy\/layout\/PrefetchScheduler\.android\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[calculateWindowSizeClass\] in .*\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/windowsizeclass\/WindowSizeClass\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
