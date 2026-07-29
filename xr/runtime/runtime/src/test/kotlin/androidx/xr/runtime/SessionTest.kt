@@ -610,6 +610,38 @@ class SessionTest {
         assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun destroy_whenLockHeld_stillDestroysRuntimes() =
+        runTest(testDispatcher) {
+            activityController.create().start()
+            underTest = createSession(coroutineDispatcher = testDispatcher)
+            val stubRuntime = getStubRuntime()
+
+            // Start the update loop. It will block on the second update (due to the semaphore
+            // in StubPerceptionRuntime) while holding the Session's configurationMutex.
+            activityController.resume()
+            shadowOf(Looper.getMainLooper()).idle()
+            advanceUntilIdle()
+
+            // Trigger Session.destroy(). Since the lock is held, it goes to the fallback path.
+            activityController.destroy()
+
+            // Verify that the runtime is not destroyed yet while the lock is held.
+            shadowOf(Looper.getMainLooper()).idle()
+            advanceUntilIdle()
+            assertThat(stubRuntime.state).isNotEqualTo(StubPerceptionRuntime.State.DESTROYED)
+
+            // Release the semaphore to let the update loop finish and release the lock.
+            stubRuntime.allowOneMoreCallToUpdate()
+
+            // Allow the update loop to finish, which resumes the queued destroy coroutine.
+            advanceUntilIdle()
+            shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
+        }
+
     @Test
     fun destroy_closesSessionConnector() {
         activityController.create()
