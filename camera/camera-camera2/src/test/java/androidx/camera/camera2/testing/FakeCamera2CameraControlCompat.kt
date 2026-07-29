@@ -30,6 +30,10 @@ class FakeCamera2CameraControlCompat : Camera2CameraControlCompat {
         // No-op
     }
 
+    override fun getSynchronizedMutableConfig(): androidx.camera.core.impl.MutableConfig {
+        return androidx.camera.core.impl.MutableOptionsBundle.create()
+    }
+
     override fun getRequestOption(): CaptureRequestOptions {
         return CaptureRequestOptions.Builder().build()
     }

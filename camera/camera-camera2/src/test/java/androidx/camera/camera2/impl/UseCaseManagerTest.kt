@@ -448,6 +448,58 @@ class UseCaseManagerTest {
             .isEqualTo(mapOf(CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_PREVIEW))
     }
 
+    @Test
+    fun createCameraGraphConfig_propagatesSessionConfigInteropToGraphConfig() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val fakeUseCase = FakeUseCase()
+
+        val testSurface = TestDeferrableSurface()
+        val sessionConfigBuilder = SessionConfig.Builder()
+        sessionConfigBuilder.addSurface(testSurface)
+        sessionConfigBuilder.setTemplateType(TEMPLATE_PREVIEW)
+        sessionConfigBuilder.setSessionType(SESSION_HIGH_SPEED)
+
+        val mutableConfig = androidx.camera.core.impl.MutableOptionsBundle.create()
+        val opt =
+            androidx.camera.core.impl.Config.Option.create<Any>(
+                "camera2.sessionParameter.option." +
+                    android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE.name,
+                Any::class.java,
+                android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE,
+            )
+        mutableConfig.insertOption(
+            opt,
+            androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE,
+            android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE_MONO,
+        )
+        mutableConfig.insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, 0)
+        sessionConfigBuilder.addImplementationOptions(mutableConfig)
+
+        val sessionConfig = sessionConfigBuilder.build()
+        fakeUseCase.updateSessionConfigForTesting(sessionConfig)
+        val sessionConfigAdapter = SessionConfigAdapter(setOf(fakeUseCase))
+
+        // Act
+        val graphConfig =
+            useCaseManager.createUseCaseCameraConfig(sessionConfigAdapter, null).cameraGraphConfig
+
+        // Assert
+        assertThat(graphConfig.sessionMode)
+            .isEqualTo(androidx.camera.camera2.pipe.CameraGraph.OperatingMode.HIGH_SPEED)
+        assertThat(
+                graphConfig.sessionParameters[
+                        android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE]
+            )
+            .isEqualTo(android.hardware.camera2.CaptureRequest.CONTROL_EFFECT_MODE_MONO)
+        if (android.os.Build.VERSION.SDK_INT >= 34) {
+            assertThat(graphConfig.sessionColorSpace)
+                .isEqualTo(androidx.camera.camera2.pipe.CameraColorSpace.SRGB)
+        }
+        testSurface.close()
+    }
+
     @Config(maxSdk = 32)
     @Test
     fun createCameraGraphConfig_underTiramisu_notSetDynamicRangeToGraphConfig() = runTest {

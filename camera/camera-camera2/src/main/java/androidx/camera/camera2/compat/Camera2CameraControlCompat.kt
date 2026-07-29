@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.core.CameraControl
 import androidx.camera.core.impl.Config
+import androidx.camera.core.impl.MutableConfig
 import androidx.camera.core.impl.annotation.ExecutedBy
 import dagger.Binds
 import dagger.Module
@@ -49,6 +50,8 @@ public interface Camera2CameraControlCompat : Request.Listener {
     public fun clearRequestOption()
 
     public fun cancelCurrentTask()
+
+    public fun getSynchronizedMutableConfig(): MutableConfig
 
     public fun applyAsync(
         requestControl: UseCaseCameraRequestControl?,
@@ -85,6 +88,72 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                     Config.OptionPriority.ALWAYS_OVERRIDE,
                     bundle.retrieveOption(objectOpt),
                 )
+            }
+        }
+    }
+
+    override fun getSynchronizedMutableConfig(): MutableConfig {
+        return object : MutableConfig {
+            override fun <ValueT> insertOption(opt: Config.Option<ValueT?>, value: ValueT?) {
+                synchronized(lock) { configBuilder.mutableConfig.insertOption(opt, value) }
+            }
+
+            override fun <ValueT> insertOption(
+                opt: Config.Option<ValueT?>,
+                priority: Config.OptionPriority,
+                value: ValueT?,
+            ) {
+                synchronized(lock) {
+                    configBuilder.mutableConfig.insertOption(opt, priority, value)
+                }
+            }
+
+            override fun <ValueT> removeOption(opt: Config.Option<ValueT?>): ValueT? {
+                return synchronized(lock) { configBuilder.mutableConfig.removeOption(opt) }
+            }
+
+            override fun containsOption(id: Config.Option<*>): Boolean {
+                return synchronized(lock) { configBuilder.mutableConfig.containsOption(id) }
+            }
+
+            override fun <ValueT> retrieveOption(id: Config.Option<ValueT?>): ValueT? {
+                return synchronized(lock) { configBuilder.mutableConfig.retrieveOption(id) }
+            }
+
+            override fun <ValueT> retrieveOption(
+                id: Config.Option<ValueT?>,
+                valueIfMissing: ValueT?,
+            ): ValueT? {
+                return synchronized(lock) {
+                    configBuilder.mutableConfig.retrieveOption(id, valueIfMissing)
+                }
+            }
+
+            override fun <ValueT> retrieveOptionWithPriority(
+                id: Config.Option<ValueT?>,
+                priority: Config.OptionPriority,
+            ): ValueT? {
+                return synchronized(lock) {
+                    configBuilder.mutableConfig.retrieveOptionWithPriority(id, priority)
+                }
+            }
+
+            override fun getOptionPriority(opt: Config.Option<*>): Config.OptionPriority {
+                return synchronized(lock) { configBuilder.mutableConfig.getOptionPriority(opt) }
+            }
+
+            override fun findOptions(idSearchString: String, matcher: Config.OptionMatcher) {
+                return synchronized(lock) {
+                    configBuilder.mutableConfig.findOptions(idSearchString, matcher)
+                }
+            }
+
+            override fun listOptions(): Set<Config.Option<*>?> {
+                return synchronized(lock) { configBuilder.mutableConfig.listOptions() }
+            }
+
+            override fun getPriorities(option: Config.Option<*>): Set<Config.OptionPriority?> {
+                return synchronized(lock) { configBuilder.mutableConfig.getPriorities(option) }
             }
         }
     }

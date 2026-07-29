@@ -284,6 +284,7 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             mCameraUseCaseAdapter.setEffects(sessionConfig.getEffects());
             mCameraUseCaseAdapter.setSessionType(sessionConfig.getSessionType());
             mCameraUseCaseAdapter.setFrameRate(sessionConfig.getFrameRateRange());
+            mCameraUseCaseAdapter.setSessionInteropConfig(sessionConfig.getInteropConfig());
 
             // Sets RotationProvider to ImageCapture, ImageAnalysis and VideoCapture when
             // auto-rotation is enabled.
@@ -351,6 +352,7 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
                 if (mBoundSessionConfig == sessionConfig) {
                     // Unbind the bound SessionConfig successfully only when they are identical.
                     mBoundSessionConfig = null;
+                    mCameraUseCaseAdapter.setSessionInteropConfig(null);
                 } else {
                     // If the unbinding SessionConfig is different than the bound one. we do nothing
                     // Returning here is necessary to avoid removing the use cases.
@@ -391,6 +393,7 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             // UseCase is unbound.
             updateUseCasesRotationProvider(useCases, null);
             mBoundSessionConfig = null;
+            mCameraUseCaseAdapter.setSessionInteropConfig(null);
         }
     }
 

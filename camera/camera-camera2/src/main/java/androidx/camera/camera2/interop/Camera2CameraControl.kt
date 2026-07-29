@@ -27,6 +27,7 @@ import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
 import androidx.camera.core.impl.CameraControlInternal
+import androidx.camera.core.impl.MutableConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
@@ -119,6 +120,10 @@ private constructor(
         return updateAsync("addCaptureRequestOptions")
     }
 
+    internal fun getSynchronizedMutableConfig(): MutableConfig {
+        return compat.getSynchronizedMutableConfig()
+    }
+
     /**
      * Gets all the capture request options that is currently applied by the [Camera2CameraControl].
      *
@@ -141,6 +146,10 @@ private constructor(
     public fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
         compat.clearRequestOption()
         return updateAsync("clearCaptureRequestOptions")
+    }
+
+    internal fun updateCamera2InteropAsync(): ListenableFuture<Void?> {
+        return updateAsync("Camera2Interop")
     }
 
     private fun updateAsync(tag: String): ListenableFuture<Void?> =
