@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="true" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 28): `setMirrorMode`"
+        errorLine1="                mirrorMode = OutputConfiguration.MIRROR_MODE_H"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/samples/Camera2InteropSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `setPhysicalCameraId`"
+        errorLine1="                physicalCameraId = &quot;5&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/samples/Camera2InteropSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `setPhysicalCameraId`"
+        errorLine1="            physicalCameraId = &quot;0&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/samples/Camera2InteropSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 33 (current min is 24): `setMirrorMode`"
+        errorLine1="            mirrorMode = OutputConfiguration.MIRROR_MODE_H"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/samples/Camera2InteropSamples.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 24): `setPhysicalCameraId`"
+        errorLine1="            physicalCameraId = &quot;5&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/samples/Camera2InteropSamples.kt"/>
+    </issue>
+
+</issues>
