@@ -32,6 +32,7 @@ import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.RegisterAppFunctionRequest
+import androidx.appfunctions.internal.AppFunctionManagerApi.Companion.applyMissingRuntimeMetadataExceptionFix
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
@@ -67,7 +68,9 @@ internal class PlatformAppFunctionManagerApi(
                     }
 
                     override fun onError(error: Exception) {
-                        cont.resumeWithException(error)
+                        cont.resumeWithException(
+                            applyMissingRuntimeMetadataExceptionFix(functionId, error)
+                        )
                     }
                 },
             )
@@ -90,7 +93,9 @@ internal class PlatformAppFunctionManagerApi(
                     }
 
                     override fun onError(error: Exception) {
-                        cont.resumeWithException(error)
+                        cont.resumeWithException(
+                            applyMissingRuntimeMetadataExceptionFix(functionId, error)
+                        )
                     }
                 },
             )
