@@ -97,6 +97,7 @@ public class BaseStats {
             INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB,
             CALL_TYPE_INITIALIZE_TRIVIAL,
             CALL_TYPE_INITIALIZE_PENDING,
+            INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CallType {
@@ -169,6 +170,8 @@ public class BaseStats {
     public static final int CALL_TYPE_INITIALIZE_TRIVIAL = 53;
     // Represents INITIALIZE tasks that retrieve a user instance whose creation was on-going.
     public static final int CALL_TYPE_INITIALIZE_PENDING = 54;
+    // Represents internal background task to handle expired documents.
+    public static final int INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB = 55;
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     public static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
@@ -225,6 +228,8 @@ public class BaseStats {
             "maintainAnnIndexJob";
     public static final String CALL_TYPE_STRING_INITIALIZE_TRIVIAL = "initializeTrivial";
     public static final String CALL_TYPE_STRING_INITIALIZE_PENDING = "initializePending";
+    public static final String INTERNAL_CALL_TYPE_STRING_HANDLE_EXPIRED_DOCUMENTS_JOB =
+            "handleExpiredDocumentsJob";
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;
