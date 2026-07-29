@@ -676,6 +676,8 @@ public constructor(
             }
         } else {
             if (isLookingAhead) {
+                (prefetchStrategy as? LazyGridCacheWindowPrefetchStrategy)?.hasLookaheadOccurred =
+                    true
                 hasLookaheadOccurred = true
             }
             scrollToBeConsumed -= result.consumedScroll
