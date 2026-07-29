@@ -172,6 +172,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - Ensure the main looper is idled after cleanup: `shadowOf(getMainLooper()).idle()`.
 
 #### 5. Troubleshooting Device-Specific Failures
+
+> [!IMPORTANT]
+> Many issues in CameraX are device-specific due to variations in camera
+> hardware and HAL implementations. Always consider whether a failure is
+> device-specific or general, and do not assume it will behave the same way on
+> all devices or test environments.
+
 - **Symptom**: A failure (test failure, crash, or unexpected behavior) occurs
   only on specific device models, while working correctly on others.
 - **Investigation Steps**:
@@ -216,6 +223,11 @@ CameraX involves complex hardware interactions, making robust testing essential.
            devices identified in step 4 (and available in the lab) also
            exhibit the issue and should be included. Verify the fix (ZSL
            disabled/fallback working) on all of them.
+  3. **Verification on Target Device**: If the issue was reported on a specific
+     device model, you **MUST** prioritize verifying the fix on that specific
+     device (and using the specific test that failed, if available) before
+     finalizing the fix. Use the lab infrastructure (see `AGENTS_INTERNAL.md`
+     for instructions) to run the tests on the target device.
 
 ## Git Commit Messages
 
