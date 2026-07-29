@@ -23,9 +23,11 @@ import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -44,8 +46,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +56,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 /**
  * A session is the main entrypoint to features provided by ARCore for Jetpack XR. It manages the
@@ -305,11 +306,10 @@ public constructor(
                     sessionResultProvider,
                 )
 
-            // Register the session as lifecycle observer on main thread.
-            withContext(Dispatchers.Main.immediate) {
+            lifecycleOwner.lifecycleScope.launch {
                 if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
                     session.destroy()
-                    return@withContext
+                    return@launch
                 }
                 lifecycleOwner.lifecycle.addObserver(session.lifecycleObserver)
 
@@ -317,7 +317,7 @@ public constructor(
                 if (context is LifecycleOwner && lifecycleOwner != context) {
                     if (context.lifecycle.currentState == Lifecycle.State.DESTROYED) {
                         session.destroy()
-                        return@withContext
+                        return@launch
                     }
                     val observer = LifecycleEventObserver { _, event ->
                         if (event == Lifecycle.Event.ON_DESTROY) session.destroy()
@@ -547,7 +547,8 @@ public constructor(
                 configurationMutex.unlock()
             }
         } else {
-            CoroutineScope(Dispatchers.Main.immediate).launch {
+            val mainDispatcher = ContextCompat.getMainExecutor(context).asCoroutineDispatcher()
+            CoroutineScope(mainDispatcher).launch {
                 configurationMutex.withLock { destroyRuntimes() }
             }
         }
