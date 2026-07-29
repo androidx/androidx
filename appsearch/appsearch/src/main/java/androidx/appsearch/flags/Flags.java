@@ -254,12 +254,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS =
             FLAG_PREFIX + "enable_private_compute_core_uid_access";
 
-    /**
-     * Whether to enable skipping the unnecessary schema type equality check.
-     */
-    public static final String FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK =
-            FLAG_PREFIX + "enable_skip_set_schema_type_equality_check";
-
     /** Enables set SearchFeatures and RankingFeatures APIs. */
     public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
             FLAG_PREFIX + "enable_set_search_and_ranking_feature";
@@ -575,13 +569,6 @@ public final class Flags {
      * Whether visibility access for Private Compute Core UIDs should be enabled.
      */
     public static boolean enablePrivateComputeCoreUidAccess() {
-        return true;
-    }
-
-    /*
-     * Whether to enable skipping the unnecessary schema type equality check.
-     */
-    public static boolean enableSkipSetSchemaTypeEqualityCheck() {
         return true;
     }
 

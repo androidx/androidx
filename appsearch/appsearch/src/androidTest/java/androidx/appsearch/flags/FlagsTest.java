@@ -212,13 +212,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableSkipSetSchemaTypeEqualityCheck() {
-        assertThat(Flags.FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK)
-                .isEqualTo(
-                        "com.android.appsearch.flags.enable_skip_set_schema_type_equality_check");
-    }
-
-    @Test
     public void testFlagValue_enableSchemaDefinitionDeduping() {
         assertThat(Flags.FLAG_ENABLE_SCHEMA_DEFINITION_DEDUPING)
                 .isEqualTo("com.android.appsearch.flags.enable_schema_definition_deduping");

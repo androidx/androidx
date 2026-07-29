@@ -348,8 +348,8 @@ public interface IcingOptionsConfig {
                         Flags.enableOptimizeImprovements())
                 .setEnableRepeatedFieldJoins(getAllowRepeatedFieldJoins())
                 .setEnableNonExistentQualifiedIdJoin(Flags.enableNonExistentQualifiedIdJoin())
-                .setEnableSkipSetSchemaTypeEqualityCheck(
-                        Flags.enableSkipSetSchemaTypeEqualityCheck())
+                // TODO(b/519346333): deprecate enableSkipSetSchemaTypeEqualityCheck from proto
+                .setEnableSkipSetSchemaTypeEqualityCheck(true)
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
                 .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())
