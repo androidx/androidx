@@ -33,6 +33,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.core.util.keyIterator
 import androidx.pdf.Highlight
 import androidx.pdf.PdfPoint
+import androidx.pdf.compose.PdfViewerState.Companion.GESTURE_STATE_IDLE
+import androidx.pdf.compose.PdfViewerState.Companion.GESTURE_STATE_INTERACTING
+import androidx.pdf.compose.PdfViewerState.Companion.GESTURE_STATE_SETTLING
 import androidx.pdf.selection.Selection
 import androidx.pdf.view.PdfView
 import kotlin.math.roundToInt
@@ -58,8 +61,10 @@ public interface PdfZoomScrollScope {
 /**
  * A state object that can be hoisted to observe and control [PdfViewer] zoom, scroll, and content
  * position.
+ *
+ * @param coroutineScope the [CoroutineScope] used for managing background tasks within this state.
  */
-public class PdfViewerState {
+public class PdfViewerState(private val coroutineScope: CoroutineScope) {
     private val zoomScrollMutex = MutatorMutex()
 
     internal var pdfView: PdfView? = null
@@ -78,7 +83,7 @@ public class PdfViewerState {
             currentSelection = pdfView?.currentSelection
             // Cancel any in-progress mutations to release the mutex. MutatorMutex only supports
             // cancellation by enqueuing higher-priority mutations.
-            mutatorMutexScope.launch {
+            coroutineScope.launch {
                 zoomScrollMutex.mutate(priority = MutatePriority.PreventUserInput) {}
             }
             field = value
@@ -230,27 +235,32 @@ public class PdfViewerState {
             when (newState) {
                 PdfView.GESTURE_STATE_IDLE -> {
                     interactionSession?.cancel()
+                    interactionSession = null
                     gestureState = GESTURE_STATE_IDLE
                 }
                 PdfView.GESTURE_STATE_INTERACTING -> {
                     gestureState = GESTURE_STATE_INTERACTING
-                    mutatorMutexScope.launch {
-                        // This is only safe to do because mutatorMutexScope uses
-                        // Dispatchers.Unconfined, so this is executed prior to the launch just
-                        // above returning.
-                        interactionSession = coroutineContext[Job]
-                        // Lock out Default priority mutations while the user is interacting
-                        // This will cancel any ongoing Default-priority mutations as well as any
-                        // ongoing UserInput mutations in case a previous UserInteractionSession
-                        // was not properly closed.
-                        zoomScrollMutex.mutate(priority = MutatePriority.UserInput) {
-                            // This Job is captured just above, and it's cancelled when this
-                            // listener receives notice the user is no longer interacting with the
-                            // PDF. Thus, when the user is no longer interacting with the PDF, the
-                            // mutex is released and programmatic scrolling is unblocked.
-                            awaitCancellation()
+
+                    // Using Dispatchers.Unconfined guarantees this block runs synchronously
+                    // up to the first suspend point (mutate), preventing race conditions.
+                    interactionSession =
+                        coroutineScope.launch(Dispatchers.Unconfined) {
+
+                            // Lock out Default priority mutations while the user is interacting
+                            // This will cancel any ongoing Default-priority mutations as well as
+                            // any
+                            // ongoing UserInput mutations in case a previous UserInteractionSession
+                            // was not properly closed.
+                            zoomScrollMutex.mutate(priority = MutatePriority.UserInput) {
+                                // This Job is captured just above, and it's cancelled when this
+                                // listener receives notice the user is no longer interacting with
+                                // the
+                                // PDF. Thus, when the user is no longer interacting with the PDF,
+                                // the
+                                // mutex is released and programmatic scrolling is unblocked.
+                                awaitCancellation()
+                            }
                         }
-                    }
                 }
                 PdfView.GESTURE_STATE_SETTLING -> {
                     // GESTURE_STATE_SETTLING is an intermediate value and we don't need to take
@@ -309,14 +319,3 @@ private class PdfViewPositioner(private val pdfView: PdfView) : PdfZoomScrollSco
 private fun PointF.toOffset() = Offset(this.x, this.y)
 
 private fun RectF.toOffset() = Offset(this.left, this.top)
-
-// It is rarely good practice to use a global constant scope in this way, but we're doing so here to
-// keep the scope out of the API. It's used strictly internally by PdfViewerState to access an
-// implementation detail MutatorMutex, and it doesn't make sense to leak that implementation detail
-// into the API surface. It's safe to capture this scope in a file-level constant because it has no
-// Job, and therefore it cannot leak child Job references.
-//
-// Dispatchers.Unconfined is safe to use because this scope is only used to mutate the MutatorMutex,
-// which is thread safe. We use Dispatchers.Unconfined so that we can safely assign a reference to
-// the current Job from within a launched Coroutine prior to the first suspension point.
-private val mutatorMutexScope = CoroutineScope(Dispatchers.Unconfined)

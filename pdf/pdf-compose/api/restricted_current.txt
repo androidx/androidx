@@ -23,7 +23,7 @@ package androidx.pdf.compose {
   }
 
   public final class PdfViewerState {
-    ctor public PdfViewerState();
+    ctor public PdfViewerState(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public void clearCurrentSelection();
     method @InaccessibleFromKotlin public androidx.pdf.selection.Selection? getCurrentSelection();
     method @InaccessibleFromKotlin public int getFirstVisiblePage();

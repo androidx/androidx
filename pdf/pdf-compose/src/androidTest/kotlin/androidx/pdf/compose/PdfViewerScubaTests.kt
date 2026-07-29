@@ -40,6 +40,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +63,7 @@ class PdfViewerScubaTests {
 
         lateinit var pdfViewerState: PdfViewerState
         composeTestRule.setContent {
-            pdfViewerState = remember { PdfViewerState() }
+            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
             PdfViewer(
                 pdfDocument = pdfDocument,
                 state = pdfViewerState,
@@ -90,7 +92,7 @@ class PdfViewerScubaTests {
 
         lateinit var pdfViewerState: PdfViewerState
         composeTestRule.setContent {
-            pdfViewerState = remember { PdfViewerState() }
+            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
             PdfViewer(
                 pdfDocument = pdfDocument,
                 state = pdfViewerState,

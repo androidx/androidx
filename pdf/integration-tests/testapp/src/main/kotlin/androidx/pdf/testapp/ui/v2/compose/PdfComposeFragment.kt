@@ -34,6 +34,8 @@ import androidx.pdf.compose.PdfViewerState
 import androidx.pdf.testapp.R
 import androidx.pdf.testapp.databinding.FragmentComposeBinding
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 /**
  * [Fragment] with a [androidx.compose.runtime.Composable] content view, for testing of [PdfViewer]
@@ -66,7 +68,9 @@ class PdfComposeFragment() : Fragment() {
                     ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
                 )
                 setContent {
-                    val pdfViewerState = remember { PdfViewerState() }
+                    val pdfViewerState = remember {
+                        PdfViewerState(CoroutineScope(Dispatchers.Unconfined))
+                    }
                     PdfViewer(
                         state = pdfViewerState,
                         pdfDocument =
