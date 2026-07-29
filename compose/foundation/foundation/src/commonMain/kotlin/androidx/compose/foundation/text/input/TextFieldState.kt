@@ -21,6 +21,7 @@ package androidx.compose.foundation.text.input
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.text.input.internal.TextStyleBuffer
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -58,13 +59,14 @@ internal constructor(
     initialText: String,
     initialSelection: TextRange,
     initialTextUndoManager: TextUndoManager,
+    initialTextStyles: TextFieldTextStylesImpl?,
 ) {
 
     @RememberInComposition
     public constructor(
         initialText: String = "",
         initialSelection: TextRange = TextRange(initialText.length),
-    ) : this(initialText, initialSelection, TextUndoManager())
+    ) : this(initialText, initialSelection, TextUndoManager(), null)
 
     /** Manages the history of edit operations that happen in this [TextFieldState]. */
     internal val textUndoManager: TextUndoManager = initialTextUndoManager
@@ -80,6 +82,7 @@ internal constructor(
                 TextFieldCharSequence(
                     text = initialText,
                     selection = initialSelection.coerceIn(0, initialText.length),
+                    textFieldTextStyles = initialTextStyles,
                 )
         )
 
@@ -105,7 +108,13 @@ internal constructor(
      * @see edit
      */
     internal var value: TextFieldCharSequence by
-        mutableStateOf(TextFieldCharSequence(initialText, initialSelection))
+        mutableStateOf(
+            TextFieldCharSequence(
+                text = initialText,
+                selection = initialSelection,
+                textFieldTextStyles = initialTextStyles,
+            )
+        )
         /** Do not set directly. Always go through [updateValueAndNotifyListeners]. */
         private set
 
@@ -663,22 +672,40 @@ internal constructor(
     public object Saver : androidx.compose.runtime.saveable.Saver<TextFieldState, Any> {
 
         override fun SaverScope.save(value: TextFieldState): Any? {
+            val textStylesImpl = value.value.textFieldTextStyles
+            val savedStyles =
+                textStylesImpl?.textStyleBuffer?.let { buffer ->
+                    with(TextStyleBuffer.Saver) { save(buffer) }
+                }
             return listOf(
                 value.text.toString(),
                 value.selection.start,
                 value.selection.end,
                 with(TextUndoManager.Companion.Saver) { save(value.textUndoManager) },
+                savedStyles,
             )
         }
 
         override fun restore(value: Any): TextFieldState? {
-            val (text, selectionStart, selectionEnd, savedTextUndoManager) = value as List<*>
+            val list = value as List<*>
+            val text = list[0] as String
+            val selectionStart = list[1] as Int
+            val selectionEnd = list[2] as Int
+            val savedTextUndoManager = list[3]
+            val savedStyles = list[4]
+
+            val textStyles =
+                savedStyles?.let {
+                    val styleBuffer = with(TextStyleBuffer.Saver) { restore(it)!! }
+                    TextFieldTextStylesImpl(styleBuffer, text.length)
+                }
+
             return TextFieldState(
-                initialText = text as String,
-                initialSelection =
-                    TextRange(start = selectionStart as Int, end = selectionEnd as Int),
+                initialText = text,
+                initialSelection = TextRange(start = selectionStart, end = selectionEnd),
                 initialTextUndoManager =
                     with(TextUndoManager.Companion.Saver) { restore(savedTextUndoManager!!) }!!,
+                initialTextStyles = textStyles,
             )
         }
     }

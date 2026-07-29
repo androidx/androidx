@@ -16,7 +16,12 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextAlign
 import com.google.common.truth.Truth.assertThat
 import kotlin.String
 import kotlin.math.max
@@ -628,6 +633,35 @@ class IntIntervalTreeTest {
         // Target can also be modified via the handle
         target.updateItem(handle, "c")
         assertThat(target.getItem(handle)).isEqualTo("c")
+    }
+
+    @Test
+    fun saver_savesAndRestoresCorrectly() {
+        val original = IntIntervalTree<AnnotatedString.Annotation>()
+        original.addInterval(SpanStyle(color = Color.Red), Interval(0, 10, true, false))
+        original.addInterval(
+            ParagraphStyle(textAlign = TextAlign.Center),
+            Interval(10, 20, false, true),
+        )
+
+        val saverScope = SaverScope { true }
+        val saved = with(IntIntervalTree.Saver) { saverScope.save(original) }
+        assertThat(saved).isNotNull()
+
+        val restored = IntIntervalTree.Saver.restore(saved!!)
+        assertThat(restored).isNotNull()
+
+        assertThat(restored).isEqualTo(original)
+
+        val styles = restored!!.getAllStyles()
+        assertThat(styles).hasSize(2)
+        assertThat(styles[0].item).isEqualTo(SpanStyle(color = Color.Red))
+        assertThat(styles[0].start).isEqualTo(0)
+        assertThat(styles[0].end).isEqualTo(10)
+
+        assertThat(styles[1].item).isEqualTo(ParagraphStyle(textAlign = TextAlign.Center))
+        assertThat(styles[1].start).isEqualTo(10)
+        assertThat(styles[1].end).isEqualTo(20)
     }
 }
 

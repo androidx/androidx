@@ -773,7 +773,12 @@ final class androidx.compose.ui.text/AnnotatedString : kotlin/CharSequence { // 
     final fun subSequence(kotlin/Int, kotlin/Int): androidx.compose.ui.text/AnnotatedString // androidx.compose.ui.text/AnnotatedString.subSequence|subSequence(kotlin.Int;kotlin.Int){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.text/AnnotatedString.toString|toString(){}[0]
 
-    sealed interface Annotation // androidx.compose.ui.text/AnnotatedString.Annotation|null[0]
+    sealed interface Annotation { // androidx.compose.ui.text/AnnotatedString.Annotation|null[0]
+        final object Companion { // androidx.compose.ui.text/AnnotatedString.Annotation.Companion|null[0]
+            final val Saver // androidx.compose.ui.text/AnnotatedString.Annotation.Companion.Saver|{}Saver[0]
+                final fun <get-Saver>(): androidx.compose.runtime.saveable/Saver<androidx.compose.ui.text/AnnotatedString.Annotation, kotlin/Any> // androidx.compose.ui.text/AnnotatedString.Annotation.Companion.Saver.<get-Saver>|<get-Saver>(){}[0]
+        }
+    }
 
     final class <#A1: kotlin/Any?> Range { // androidx.compose.ui.text/AnnotatedString.Range|null[0]
         constructor <init>(#A1, kotlin/Int, kotlin/Int) // androidx.compose.ui.text/AnnotatedString.Range.<init>|<init>(1:0;kotlin.Int;kotlin.Int){}[0]

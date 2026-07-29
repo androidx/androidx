@@ -20,7 +20,6 @@ import androidx.collection.mutableIntListOf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString.Annotation
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
@@ -57,9 +56,9 @@ import kotlin.jvm.JvmName
  * character:
  * - Styles appearing later in the [spanStyles] list take precedence and overwrite matching
  *   properties of earlier styles.
- * - Any unspecified properties (such as [Color.Unspecified] or [TextUnit.Unspecified]) do not
- *   overwrite prior styles, retaining the value from the previous style in the stack or the default
- *   text style.
+ * - Any unspecified properties (such as [androidx.compose.ui.graphics.Color.Unspecified] or
+ *   [TextUnit.Unspecified]) do not overwrite prior styles, retaining the value from the previous
+ *   style in the stack or the default text style.
  *
  * ### Paragraphs Arrangement
  *
@@ -1026,7 +1025,30 @@ internal constructor(
      * * [TtsAnnotation] provides information to assistive technologies such as screen readers.
      * * Custom annotations using the [StringAnnotation].
      */
-    public sealed interface Annotation
+    public sealed interface Annotation {
+        public companion object {
+            /**
+             * Saves and restores [AnnotatedString.Annotation] objects.
+             *
+             * Supports the following annotation types:
+             * - [ParagraphStyle]
+             * - [SpanStyle]
+             * - [VerbatimTtsAnnotation]
+             * - [UrlAnnotation]
+             * - [LinkAnnotation.Url]
+             * - [LinkAnnotation.Clickable]
+             * - [StringAnnotation]
+             *
+             * Note: Does not preserve [LinkInteractionListener] of [LinkAnnotation]s, and [Bullet]
+             * annotations are not preserved at the moment. Handle saving and restoring them
+             * manually if required.
+             *
+             * @sample androidx.compose.ui.text.samples.AnnotatedStringAnnotationSaverSample
+             * @sample androidx.compose.ui.text.samples.LinkAnnotationSaverWithListenerSample
+             */
+            public val Saver: Saver<Annotation, Any> = AnnotationSaver
+        }
+    }
 
     // Unused private subclass of the marker interface to avoid exhaustive "when" statement
     @Suppress("unused") private class ExhaustiveAnnotation : Annotation

@@ -21,6 +21,8 @@ import androidx.collection.MutableLongList
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableLongListOf
 import androidx.collection.mutableObjectListOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
@@ -63,10 +65,41 @@ import kotlin.math.min
  *
  * This data structure is **NOT** thread-safe and is not intended to be called from multiple
  * threads.
- *
- * @param source The [IntIntervalTree] to copy from.
  */
-internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
+internal class IntIntervalTree<T>
+/**
+ * Internal primary constructor that initializes all state fields directly.
+ *
+ * **Note:** This constructor is not intended to be used for purposes other than
+ * deserialization/restoration. Use the secondary constructor [IntIntervalTree] (which accepts a
+ * source tree) for all other purposes.
+ *
+ * @param items The list of items stored in the tree, indexed by node index / STRIDE.
+ * @param nodeInfo The flat list storing the tree structure and node metadata.
+ * @param root The root node of the tree.
+ * @param nextNodeId The ID to assign to the next inserted node.
+ * @param deletedNodeCount The number of nodes currently marked as deleted.
+ */
+internal constructor(
+    private val items: MutableObjectList<T?>,
+    private val nodeInfo: MutableLongList,
+    var root: Node,
+    var nextNodeId: Int,
+    private var deletedNodeCount: Int,
+) {
+
+    /**
+     * A sentinel node that represents a null leaf. It helps keep the code clean and avoids branch
+     * misses (using null introduces many if/else branches). Terminator is always Node(0).
+     *
+     * More details can be found in [rebalancePostAttach] and [rebalancePostDetach], where we need
+     * to check the colors of uncle and sibling nodes, which may be the [terminator].
+     *
+     * Note that the [terminator]'s parent, left, and right pointers are not meaningful as it is a
+     * shared sentinel node.
+     */
+    val terminator: Node = Node(0)
+
     companion object {
 
         /**
@@ -150,6 +183,60 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
          * fields are accessed by adding the offsets (e.g., `index + INFO_PARENT`).
          */
         private const val STRIDE = 4
+
+        val Saver =
+            Saver<IntIntervalTree<AnnotatedString.Annotation>, Any>(
+                save = { value ->
+                    val nodeInfoArray = LongArray(value.nodeInfo.size) { value.nodeInfo[it] }
+                    val serializedItems = ArrayList<Any?>(value.items.size)
+                    for (i in 0 until value.items.size) {
+                        val item = value.items[i]
+                        if (item != null) {
+                            serializedItems.add(
+                                with(AnnotatedString.Annotation.Saver) { save(item) }
+                            )
+                        } else {
+                            serializedItems.add(null)
+                        }
+                    }
+                    listOf(
+                        nodeInfoArray,
+                        value.root.index,
+                        value.nextNodeId,
+                        value.deletedNodeCount,
+                        serializedItems,
+                    )
+                },
+                restore = { value ->
+                    val list = value as List<*>
+                    val nodeInfoArray = list[0] as LongArray
+                    val rootIndex = list[1] as Int
+                    val nextNodeId = list[2] as Int
+                    val deletedNodeCount = list[3] as Int
+                    val serializedItems = list[4] as List<*>
+
+                    val itemsSize = nodeInfoArray.size / STRIDE
+                    val restoredItems = MutableObjectList<AnnotatedString.Annotation?>(itemsSize)
+                    for (i in 0 until itemsSize) {
+                        val item =
+                            serializedItems.getOrNull(i)?.let {
+                                AnnotatedString.Annotation.Saver.restore(it)
+                            }
+                        restoredItems.add(item)
+                    }
+
+                    val nodeInfo =
+                        MutableLongList(nodeInfoArray.size).also { it.addAll(nodeInfoArray) }
+
+                    IntIntervalTree(
+                        nodeInfo = nodeInfo,
+                        items = restoredItems,
+                        root = Node(rootIndex),
+                        nextNodeId = nextNodeId,
+                        deletedNodeCount = deletedNodeCount,
+                    )
+                },
+            )
     }
 
     /**
@@ -319,9 +406,6 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
         return Node(index)
     }
 
-    private val items: MutableObjectList<T?>
-    private val nodeInfo: MutableLongList
-
     /**
      * The total number of nodes allocated in [nodeInfo], including nodes marked as deleted but not
      * yet removed. The [terminator] is also included.
@@ -329,53 +413,42 @@ internal class IntIntervalTree<T>(source: IntIntervalTree<T>? = null) {
     private val totalNodeCount: Int
         get() = nodeInfo.size / STRIDE
 
-    /** The number of nodes marked for deletion but not yet removed from [nodeInfo]. */
-    private var deletedNodeCount: Int
-
-    /** The root [Node] of this [IntIntervalTree]. */
-    var root: Node
-
-    /**
-     * A sentinel node that represents a null leaf. It helps keep the code clean and avoids branch
-     * misses (using null introduces many if/else branches).
-     *
-     * More details can be found in [rebalancePostAttach] and [rebalancePostDetach], where we need
-     * to check the colors of uncle and sibling nodes, which may be the [terminator].
-     *
-     * Note that the [terminator]'s parent, left, and right pointers are not meaningful as it is a
-     * shared sentinel node.
-     */
-    val terminator: Node
-
-    /** The next available node id. It's always positive, and 0 represents an invalid id. */
-    var nextNodeId: Int
-
     private var _tempArray: NodeList? = null
     private val tempArray
         get() = _tempArray ?: NodeList().also { _tempArray = it }
 
-    init {
-        if (source != null) {
-            items = MutableObjectList<T?>(source.items.size).also { it.addAll(source.items) }
-            nodeInfo = MutableLongList(source.nodeInfo.size).also { it.addAll(source.nodeInfo) }
-            terminator = source.terminator
-            root = source.root
-            deletedNodeCount = source.deletedNodeCount
-            nextNodeId = source.nextNodeId
-        } else {
-            items = mutableObjectListOf()
-            nodeInfo = mutableLongListOf()
-            terminator =
-                Node(
-                    item = null,
-                    interval = Interval(start = Int.MAX_VALUE, end = Int.MIN_VALUE),
-                    id = 0,
-                    color = TreeColorBlack,
-                )
-            root = terminator
-            deletedNodeCount = 0
-            // Incremental id start with 1.
-            nextNodeId = 1
+    /**
+     * Copy constructor (and default constructor).
+     *
+     * @param source The [IntIntervalTree] to copy from, or null to create an empty tree.
+     */
+    constructor(
+        source: IntIntervalTree<T>? = null
+    ) : this(
+        items =
+            if (source != null) {
+                MutableObjectList<T?>(source.items.size).also { it.addAll(source.items) }
+            } else {
+                mutableObjectListOf()
+            },
+        nodeInfo =
+            if (source != null) {
+                MutableLongList(source.nodeInfo.size).also { it.addAll(source.nodeInfo) }
+            } else {
+                mutableLongListOf()
+            },
+        root = source?.root ?: Node(0),
+        nextNodeId = source?.nextNodeId ?: 1,
+        deletedNodeCount = source?.deletedNodeCount ?: 0,
+    ) {
+        if (source == null) {
+            // Populate terminator data at index 0 of the empty lists
+            Node(
+                item = null,
+                interval = Interval(start = Int.MAX_VALUE, end = Int.MIN_VALUE),
+                id = 0,
+                color = TreeColorBlack,
+            )
         }
     }
 
