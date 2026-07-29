@@ -176,7 +176,6 @@ public fun RemoteVerticalPageIndicator(
     )
 }
 
-@Suppress("RestrictedApiAndroidX")
 @RemoteComposable
 @Composable
 private fun RemotePageIndicatorImpl(
