@@ -130,7 +130,8 @@ internal object DragAndDropTestUtils {
             parcel.writeInt(0)
         }
         // mInputSource and mMetaState
-        if (Build.VERSION.SDK_INT >= 37) {
+        // These fields were added in API 37 (post-Baklava release / cuttlefish-next).
+        if (Build.VERSION.SDK_INT >= 37 && Build.VERSION.CODENAME != "REL") {
             parcel.writeInt(0) // Input source
             parcel.writeInt(0) // Meta state
         }
