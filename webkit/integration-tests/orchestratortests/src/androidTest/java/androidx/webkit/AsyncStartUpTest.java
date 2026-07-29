@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -24,7 +23,6 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.webkit.internal.StartupFeatures;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -52,7 +50,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>Each of these tests run in a separate test process.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class AsyncStartUpTest {

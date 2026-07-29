@@ -48,7 +48,6 @@ ext {
 
 android {
     defaultConfig {
-        minSdk { version = release(24) }
         consumerProguardFiles(
                 new File(webviewBoundaryInterfacesDir, "proguard.flags"), "proguard-rules.pro"
         )
