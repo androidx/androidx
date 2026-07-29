@@ -22,7 +22,6 @@ import android.os.OutcomeReceiver
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.AppFunctionInventoryProvider
 import androidx.appfunctions.internal.AppFunctionMetadataUtils.getAppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionException as ExtensionAppFunctionException
@@ -39,26 +38,59 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
- * Abstract base class to provide app functions to the system for Android versions 14-16
- * (inclusive), if the AppFunctions extensions library is available on the device.
+ * Abstract base class to provide app functions to the system for
+ * [Build.VERSION_CODES.UPSIDE_DOWN_CAKE] through [Build.VERSION_CODES.BAKLAVA] (inclusive), if the
+ * AppFunctions extensions library is available on the device.
  *
  * This class wraps [com.android.extensions.appfunctions.AppFunctionService] functionalities and
  * provides an API that uses `androidx.appfunctions` classes.
  *
  * Include the following in the manifest:
  * ```
- * <service android:name=".YourService"
- *  android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
- *  <intent-filter>
- *      <action android:name="android.app.appfunctions.AppFunctionService" />
- *  </intent-filter>
+ * <service
+ *     android:name=".YourService"
+ *     android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
+ *      <intent-filter>
+ *          <action android:name="android.app.appfunctions.AppFunctionService" />
+ *      </intent-filter>
+ * </service>
+ * ```
+ *
+ * ### Support multiple Android versions
+ *
+ * Prior to [Build.VERSION_CODES.CINNAMON_BUN], an app can declare only a single service that
+ * handles the `"android.app.appfunctions.AppFunctionService"` intent action. Consequently, if your
+ * app needs to provide both an extension service and a platform service (for example, to support
+ * both [Build.VERSION_CODES.VANILLA_ICE_CREAM] and [Build.VERSION_CODES.BAKLAVA]), you **must**
+ * conditionally enable the appropriate service based on the device's SDK version.
+ *
+ * For example:
+ * ```xml
+ * <!-- Expose the extension service when the SDK level is below 36 -->
+ * <service android:name=".ExtensionService"
+ *     android:enabled="@bool/enableExtensionAppFunctionService"
+ *     android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
+ *     <intent-filter>
+ *         <action android:name="android.app.appfunctions.AppFunctionService" />
+ *     </intent-filter>
+ * </service>
+ *
+ * <!-- Expose the platform service when the SDK level is 36 or higher -->
+ * <service android:name=".PlatformService"
+ *     android:enabled="@bool/enablePlatformAppFunctionService"
+ *     android:permission="android.permission.BIND_APP_FUNCTION_SERVICE">
+ *     <intent-filter>
+ *         <action android:name="android.app.appfunctions.AppFunctionService" />
+ *     </intent-filter>
  * </service>
  * ```
  *
  * @see [com.android.extensions.appfunctions.AppFunctionService]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+// com.android.extensions.appfunctions.AppFunctionService is not a public API,
+// ExtensionsAppFunctionService exposes its interface as a Jetpack API.
+@Suppress("HiddenSuperclass")
 public abstract class ExtensionsAppFunctionService :
     AppFunctionService(), AppFunctionInventoryProvider {
     private lateinit var workerExecutor: ExecutorService

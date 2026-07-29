@@ -356,6 +356,15 @@ package androidx.appfunctions {
     property public static String PROPERTY_RETURN_VALUE;
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public abstract class ExtensionsAppFunctionService extends android.app.Service {
+    ctor public ExtensionsAppFunctionService();
+    method public final android.os.IBinder onBind(android.content.Intent?);
+    method @MainThread public abstract void onExecuteFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, android.os.CancellationSignal cancellationSignal, java.util.function.Consumer<androidx.appfunctions.ExecuteAppFunctionResponse> callback);
+    method public final void onExecuteFunction(com.android.extensions.appfunctions.ExecuteAppFunctionRequest request, String callingPackage, android.os.CancellationSignal cancellationSignal, android.os.OutcomeReceiver<com.android.extensions.appfunctions.ExecuteAppFunctionResponse,com.android.extensions.appfunctions.AppFunctionException> callback);
+    field public static final String BIND_APP_FUNCTION_SERVICE = "android.permission.BIND_APP_FUNCTION_SERVICE";
+    field public static final String SERVICE_INTERFACE = "android.app.appfunctions.AppFunctionService";
+  }
+
   public final class HandleAppFunctionRequest {
     ctor public HandleAppFunctionRequest(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction);
     method @InaccessibleFromKotlin public androidx.appfunctions.SuspendingAppFunction getAppFunction();
