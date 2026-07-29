@@ -21,6 +21,7 @@ import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraXDsl
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.InteropConfigurableScope
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 
@@ -41,10 +42,12 @@ public fun <T : VideoOutput> videoCapture(
 
 /** Scope class for [VideoCapture] configuration DSL. */
 @CameraXDsl
-public class VideoCaptureScope<T : VideoOutput> internal constructor(videoOutput: T) {
+public class VideoCaptureScope<T : VideoOutput>
+internal constructor(
+    videoOutput: T,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val builder: VideoCapture.Builder<T> = VideoCapture.Builder(videoOutput)
-
+    override val builder: VideoCapture.Builder<T> = VideoCapture.Builder(videoOutput),
+) : InteropConfigurableScope<VideoCapture.Builder<T>> {
     /**
      * Sets the target name for this use case configuration.
      *

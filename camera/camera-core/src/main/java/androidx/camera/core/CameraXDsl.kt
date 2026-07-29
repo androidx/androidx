@@ -29,6 +29,27 @@ import java.util.concurrent.Executor
 @DslMarker public annotation class CameraXDsl
 
 /**
+ * Scope for CameraX DSL builders that supports applying interoperability options.
+ *
+ * Implemented by CameraX UseCase Kotlin DSL scope classes (such as [PreviewScope],
+ * [ImageAnalysisScope], and [androidx.camera.video.VideoCaptureScope]) to expose their underlying
+ * builder for interop extension functions like `camera2Interop { ... }`.
+ *
+ * @param B type of builder configured by this scope
+ */
+@CameraXDsl
+public interface InteropConfigurableScope<out B> {
+    /** Underlying builder configured by this scope. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val builder: B
+        get() {
+            // have a default implementation to avoid the HiddenAbstractMethodInInterface metalava
+            // error
+            throw NotImplementedError()
+        }
+}
+
+/**
  * Creates a [Preview] using a Kotlin DSL block.
  *
  * @param block A receiver lambda on [PreviewScope] to configure the preview.
@@ -44,8 +65,8 @@ public fun preview(block: PreviewScope.() -> Unit): Preview {
 public class PreviewScope
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val builder: Preview.Builder = Preview.Builder()
-) {
+    override val builder: Preview.Builder = Preview.Builder()
+) : InteropConfigurableScope<Preview.Builder> {
     /**
      * Sets the target name for this use case configuration.
      *
@@ -368,8 +389,8 @@ public fun imageAnalysis(block: ImageAnalysisScope.() -> Unit): ImageAnalysis {
 public class ImageAnalysisScope
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val builder: ImageAnalysis.Builder = ImageAnalysis.Builder()
-) {
+    override val builder: ImageAnalysis.Builder = ImageAnalysis.Builder()
+) : InteropConfigurableScope<ImageAnalysis.Builder> {
     /**
      * Sets the target name for this use case configuration.
      *

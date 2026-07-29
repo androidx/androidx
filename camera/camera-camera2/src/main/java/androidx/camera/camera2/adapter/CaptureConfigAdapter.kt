@@ -87,13 +87,6 @@ constructor(
                 }
             }
 
-        val callbacks =
-            CameraCallbackMap().apply {
-                captureConfig.cameraCaptureCallbacks.forEach { callback ->
-                    addCaptureCallback(callback, threads.sequentialExecutor)
-                }
-            }
-
         val configOptions = captureConfig.implementationOptions
         val optionBuilder = Camera2ImplConfig.Builder()
 
@@ -102,6 +95,23 @@ constructor(
         // P2 SessionConfig options
         optionBuilder.insertAllOptions(sessionConfigOptions)
         optionBuilder.insertAllOptions(configOptions)
+
+        val mergedConfig = optionBuilder.build()
+        val stillCaptureCallback =
+            mergedConfig.retrieveOption(Camera2ImplConfig.STILL_CAPTURE_CALLBACK_OPTION, null)
+
+        val callbacks =
+            CameraCallbackMap().apply {
+                captureConfig.cameraCaptureCallbacks.forEach { callback ->
+                    addCaptureCallback(callback, threads.sequentialExecutor)
+                }
+                stillCaptureCallback?.let {
+                    addCaptureCallback(
+                        CameraUseCaseAdapter.CaptureCallbackContainer.create(it),
+                        threads.sequentialExecutor,
+                    )
+                }
+            }
 
         // Add capture options defined in CaptureConfig
         if (configOptions.containsOption(CaptureConfig.OPTION_ROTATION)) {

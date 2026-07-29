@@ -903,6 +903,7 @@ public final class Preview extends UseCase {
     @SuppressWarnings({"ObjectToString", "HiddenSuperclass"})
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
+            UseCase.InteropConfigurable<Builder>,
             ImageOutputConfig.Builder<Builder>,
             ImageInputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder> {
@@ -961,6 +962,12 @@ public final class Preview extends UseCase {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public @NonNull MutableConfig getMutableConfig() {
+            return mMutableConfig;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public @NonNull MutableConfig getInteropMutableConfig() {
             return mMutableConfig;
         }
 

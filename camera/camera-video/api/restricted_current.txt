@@ -239,7 +239,7 @@ package androidx.camera.video {
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> withOutput(T);
   }
 
-  public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture!> {
+  public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture!> androidx.camera.core.UseCase.InteropConfigurable<androidx.camera.video.VideoCapture.Builder<T>!> {
     ctor public VideoCapture.Builder(T);
     method public androidx.camera.video.VideoCapture<T> build();
     method public androidx.camera.video.VideoCapture.Builder<T> setDynamicRange(androidx.camera.core.DynamicRange);
@@ -253,7 +253,7 @@ package androidx.camera.video {
     method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> videoCapture(T videoOutput, kotlin.jvm.functions.Function1<androidx.camera.video.VideoCaptureScope<T>,kotlin.Unit> block);
   }
 
-  @androidx.camera.core.CameraXDsl public final class VideoCaptureScope<T extends androidx.camera.video.VideoOutput> {
+  @androidx.camera.core.CameraXDsl public final class VideoCaptureScope<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.InteropConfigurableScope<androidx.camera.video.VideoCapture.Builder<T>> {
     method @BytecodeOnly @Deprecated public androidx.camera.core.DynamicRange getDynamicRange();
     method @BytecodeOnly @Deprecated public int getMirrorMode();
     method @BytecodeOnly @Deprecated public android.util.Range getTargetFrameRate();
