@@ -61,6 +61,19 @@
             android:label="Modern UI Remote Sensor Geospatial">
         </activity>
         <activity
+            android:name=".ThreadingStressTestActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:requiredDisplayCategory="xr_projected"
+            android:label="Threading Stress Test">
+        </activity>
+        <activity
+            android:name=".ThreadingRemoteSensorStressTestActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:label="Threading Remote Stress Test">
+        </activity>
+        <activity
             android:name=".tiltgesture.TiltGestureTrackingActivity"
             android:configChanges="uiMode"
             android:label="TiltGesture testcase"
