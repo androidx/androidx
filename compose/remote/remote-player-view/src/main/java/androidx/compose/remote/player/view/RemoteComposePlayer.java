@@ -611,7 +611,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * @return The current TypefaceResolver.
      */
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable TypefaceResolver getTypefaceResolver() {
+    public @NonNull TypefaceResolver getTypefaceResolver() {
         return ((AndroidRemoteContext) mInner.getRemoteContext()).getTypefaceResolver();
     }
 

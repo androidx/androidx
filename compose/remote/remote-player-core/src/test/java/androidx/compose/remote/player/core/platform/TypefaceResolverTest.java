@@ -66,4 +66,11 @@ public class TypefaceResolverTest {
         assertNotNull(instance);
         assertEquals(Typeface.MONOSPACE, instance.getTypeface());
     }
+
+    @Test
+    public void testAndroidRemoteContext_getTypefaceResolver_returnsNonNullDefault() {
+        AndroidRemoteContext context = new AndroidRemoteContext();
+        TypefaceResolver resolver = context.getTypefaceResolver();
+        assertNotNull(resolver);
+    }
 }

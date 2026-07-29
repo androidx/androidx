@@ -86,7 +86,10 @@ public class AndroidRemoteContext extends RemoteContext {
      *
      * @return The current TypefaceResolver.
      */
-    public @Nullable TypefaceResolver getTypefaceResolver() {
+    public @NonNull TypefaceResolver getTypefaceResolver() {
+        if (mTypefaceResolver == null) {
+            mTypefaceResolver = new DefaultTypefaceResolver(this);
+        }
         return mTypefaceResolver;
     }
 
