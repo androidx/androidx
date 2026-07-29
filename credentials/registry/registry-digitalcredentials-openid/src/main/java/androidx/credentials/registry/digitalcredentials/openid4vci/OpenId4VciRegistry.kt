@@ -17,7 +17,6 @@
 package androidx.credentials.registry.digitalcredentials.openid4vci
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCreationOptionsRequest
@@ -36,7 +35,6 @@ import org.json.JSONObject
  * @property holderDisplayData optional display metadata for the credential holder. Only privileged
  *   apps can set this to override the default app name and icon.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OpenId4VciDisplayData(
     public val entries: List<Entry> = emptyList(),
     public val holderDisplayData: HolderDisplayData? = null,
@@ -46,10 +44,14 @@ public class OpenId4VciDisplayData(
      *
      * Provides issuer-specific or default terms and information.
      *
-     * @property perIssuer map of issuer origin to issuer-specific explainer text
-     * @property default default explainer text used if no issuer-specific text matches
+     * The explainer text supports markdown formatting, but only links (e.g., `[link text](url)`)
+     * are supported. When rendered, the text must not exceed 150 characters.
+     *
+     * @property perIssuer map of issuer origin to issuer-specific explainer text. The text must not
+     *   exceed 150 characters when rendered and only link markdown is supported.
+     * @property default default explainer text used if no issuer-specific text matches. The text
+     *   must not exceed 150 characters when rendered and only link markdown is supported.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Explainer(
         public val perIssuer: Map<String, String> = emptyMap(),
         public val default: String? = null,
@@ -82,7 +84,6 @@ public class OpenId4VciDisplayData(
      * @property subtitle optional subtitle showing user identity or account info
      * @property explainer optional explainer text for this entry
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Entry(public val subtitle: String? = null, public val explainer: Explainer? = null)
 
     /**
@@ -93,7 +94,6 @@ public class OpenId4VciDisplayData(
      * @property name optional name of the holder or wallet app
      * @property icon optional icon bytes of the holder or wallet app
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class HolderDisplayData(
         public val name: String? = null,
         public val icon: ByteArray? = null,
@@ -106,7 +106,6 @@ public class OpenId4VciDisplayData(
  * Use [create] to build an instance.
  */
 @OptIn(ExperimentalDigitalCredentialApi::class)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OpenId4VciRegistry
 private constructor(
     id: String,
