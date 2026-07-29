@@ -158,7 +158,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -170,7 +170,7 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteTextWithLineHeightRenders() {
-        rule.setRemoteContent(autoUpdate = false) {
+        rule.setRemoteContent {
             RemoteText(text = "Hello Line Height".rs, style = RemoteTextStyle(lineHeight = 24.rsp))
         }
 
@@ -181,7 +181,7 @@ class RcPlayerPrimitivesTest {
 
     @Test
     fun testRemoteTextWithFontVariationAndDecoration() {
-        rule.setRemoteContent(autoUpdate = false) {
+        rule.setRemoteContent {
             val style = RemoteTextStyle(textDecoration = TextDecoration.Underline)
             val fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wdth", 100f))
             RemoteText(
@@ -230,7 +230,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -272,7 +272,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerRoot")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -322,7 +322,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -368,7 +368,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -415,7 +415,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -478,7 +478,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -533,7 +533,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -583,7 +583,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -635,7 +635,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -686,7 +686,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -739,7 +739,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -794,7 +794,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -851,7 +851,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -904,7 +904,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -960,7 +960,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1006,7 +1006,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -1064,7 +1064,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -1122,7 +1122,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -1187,7 +1187,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1243,7 +1243,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1281,7 +1281,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("playerRoot")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1325,7 +1325,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1367,7 +1367,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1411,7 +1411,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1455,7 +1455,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1500,7 +1500,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1544,7 +1544,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1588,7 +1588,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1651,7 +1651,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -1736,7 +1736,7 @@ class RcPlayerPrimitivesTest {
                     Box(
                         modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")
                     ) {
-                        RcPlayer(document = document, autoUpdate = false)
+                        RcPlayer(document = document)
                     }
                 }
 
@@ -1784,7 +1784,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1834,7 +1834,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvasParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1878,7 +1878,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1922,7 +1922,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -1966,7 +1966,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2010,7 +2010,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2055,7 +2055,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2101,7 +2101,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2153,7 +2153,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2197,7 +2197,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2243,7 +2243,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2294,7 +2294,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2339,7 +2339,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2392,7 +2392,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2445,7 +2445,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2494,7 +2494,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2538,7 +2538,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2582,7 +2582,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2627,7 +2627,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2672,7 +2672,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2716,7 +2716,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2760,7 +2760,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2806,7 +2806,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2851,7 +2851,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2897,7 +2897,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2943,7 +2943,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -2991,7 +2991,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3038,7 +3038,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3088,7 +3088,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3136,7 +3136,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("textSizeParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3198,7 +3198,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("paintColorParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3260,7 +3260,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("strokeWidthParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3320,7 +3320,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("iconTintParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3382,7 +3382,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("strokeCapParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3440,7 +3440,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("paintStyleParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3510,7 +3510,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("shaderParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3572,7 +3572,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("filterQualityParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3636,7 +3636,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("paintAlphaParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3701,7 +3701,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("colorFilterParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3759,7 +3759,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("antiAliasParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3822,7 +3822,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("strokeJoinParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3877,7 +3877,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("typefaceParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3938,7 +3938,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("blendModeParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -3999,7 +3999,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("colorIdParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4041,9 +4041,7 @@ class RcPlayerPrimitivesTest {
             val overrides = androidx.collection.mutableObjectIntMapOf<String>()
             overrides["myColor"] = 0xFF00FF00.toInt() // Green
 
-            rule.setContent {
-                RcPlayer(document = document, autoUpdate = false, namedColorOverrides = overrides)
-            }
+            rule.setContent { RcPlayer(document = document, namedColorOverrides = overrides) }
 
             rule.mainClock.advanceTimeBy(100)
 
@@ -4134,7 +4132,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("colorFilterIdParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4212,7 +4210,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("clearColorFilterParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4291,7 +4289,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("shaderMatrixParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4346,7 +4344,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("fontAxisParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4399,7 +4397,7 @@ class RcPlayerPrimitivesTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("textureParent")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4461,7 +4459,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("columnWeightParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4515,7 +4513,7 @@ class RcPlayerPrimitivesTest {
                 Box(
                     modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("blendModeParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4568,7 +4566,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(100.dp).testTag("reproductionParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4637,7 +4635,7 @@ class RcPlayerPrimitivesTest {
                         androidx.compose.ui.Modifier.size(100.dp)
                             .testTag("buttonReproductionParent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -4694,7 +4692,7 @@ class RcPlayerPrimitivesTest {
                     modifier =
                         androidx.compose.ui.Modifier.size(200.dp).testTag("buttonMaterial3Parent")
                 ) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
 

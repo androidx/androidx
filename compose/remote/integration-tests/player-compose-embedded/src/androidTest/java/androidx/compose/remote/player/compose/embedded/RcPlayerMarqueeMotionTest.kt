@@ -91,7 +91,7 @@ class RcPlayerMarqueeMotionTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             Box(modifier = Modifier.size(80.dp).testTag("marquee")) {
-                RcPlayer(document = document, autoUpdate = false)
+                RcPlayer(document = document)
             }
         }
         rule.mainClock.advanceTimeByFrame()

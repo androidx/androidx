@@ -53,7 +53,7 @@ class RemoteFontRobolectricTest {
         // Since we removed TypefaceResolver tracking from this specific path,
         // we mainly verify it routes to standard Compose FontFamily or doesn't throw.
 
-        rule.setRemoteContent(autoUpdate = false) {
+        rule.setRemoteContent {
             RemoteText(
                 text = "TestText".rs,
                 fontFamily = RemoteFontFamily.Named("sans-serif"),
@@ -79,7 +79,7 @@ class RemoteFontRobolectricTest {
     @Test
     fun testDeviceFontResolution() {
         // Verify "device:" prefix routing.
-        rule.setRemoteContent(autoUpdate = false) {
+        rule.setRemoteContent {
             RemoteText(
                 text = "TestText".rs,
                 fontFamily = RemoteFontFamily.Named("device:roboto-flex"),

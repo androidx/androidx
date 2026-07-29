@@ -123,11 +123,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(
-                    document = document,
-                    autoUpdate = false,
-                    customPlugins = CustomPluginRegistry(plugin),
-                )
+                RcPlayer(document = document, customPlugins = CustomPluginRegistry(plugin))
             }
         }
         rule.mainClock.advanceTimeBy(100)
@@ -206,11 +202,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(
-                    document = document,
-                    autoUpdate = false,
-                    customPlugins = CustomPluginRegistry(returnPlugin),
-                )
+                RcPlayer(document = document, customPlugins = CustomPluginRegistry(returnPlugin))
             }
         }
         rule.mainClock.advanceTimeBy(100)
@@ -300,7 +292,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, autoUpdate = false, customPlugins = registry)
+                RcPlayer(document = document, customPlugins = registry)
             }
         }
         rule.mainClock.advanceTimeBy(100)
@@ -377,7 +369,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, autoUpdate = false, customPlugins = registry)
+                RcPlayer(document = document, customPlugins = registry)
             }
         }
         rule.mainClock.advanceTimeBy(100)
@@ -437,7 +429,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp)) {
-                RcPlayer(document = document, autoUpdate = false, customPlugins = registry)
+                RcPlayer(document = document, customPlugins = registry)
             }
         }
         rule.mainClock.advanceTimeBy(100)
@@ -510,7 +502,7 @@ class RcPlayerCustomComponentTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, autoUpdate = true, customPlugins = registry)
+                RcPlayer(document = document, customPlugins = registry)
             }
         }
         rule.mainClock.advanceTimeBy(100)
