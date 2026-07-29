@@ -3770,11 +3770,20 @@ public final class AppSearchImpl implements Closeable {
      * @return a {@link HandleExpiredDocumentsResultProto} object with success code
      * @throws AppSearchException if Icing failed to handle expired documents
      */
-    public @NonNull HandleExpiredDocumentsResultProto handleExpiredDocuments()
-            throws AppSearchException {
+    public @NonNull HandleExpiredDocumentsResultProto handleExpiredDocuments(
+            CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
         try {
+            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             throwIfClosedLocked();
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastReadOrWriteOperationLatencyMillisLocked);
+            }
 
             HandleExpiredDocumentsResultProto resultProto =
                     mIcingSearchEngineLocked.handleExpiredDocuments();
@@ -3788,6 +3797,12 @@ public final class AppSearchImpl implements Closeable {
 
             return resultProto;
         } finally {
+            logWriteOperationLatencyLocked(
+                    totalLatencyStartMillis,
+                    javaLockAcquisitionEndTimeMillis,
+                    /* totalLatencyEndMillis= */ SystemClock.elapsedRealtime(),
+                    BaseStats.INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB,
+                    callStatsBuilder);
             mReadWriteLock.writeLock().unlock();
         }
     }
@@ -3800,11 +3815,20 @@ public final class AppSearchImpl implements Closeable {
      * @throws AppSearchException if Icing failed to maintain ANN index.
      */
     public @NonNull MaintainAnnIndexResultProto maintainAnnIndex(
-            @NonNull MaintainAnnIndexOptions options)
+            @NonNull MaintainAnnIndexOptions options, CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException {
+        long totalLatencyStartMillis = SystemClock.elapsedRealtime();
+        long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
         try {
+            javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             throwIfClosedLocked();
+            if (callStatsBuilder != null) {
+                callStatsBuilder
+                        .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
+                        .setLastBlockingOperationLatencyMillis(
+                                mLastReadOrWriteOperationLatencyMillisLocked);
+            }
 
             MaintainAnnIndexResultProto resultProto =
                     mIcingSearchEngineLocked.maintainAnnIndex(options);
@@ -3818,6 +3842,12 @@ public final class AppSearchImpl implements Closeable {
 
             return resultProto;
         } finally {
+            logWriteOperationLatencyLocked(
+                    totalLatencyStartMillis,
+                    javaLockAcquisitionEndTimeMillis,
+                    /* totalLatencyEndMillis= */ SystemClock.elapsedRealtime(),
+                    BaseStats.INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB,
+                    callStatsBuilder);
             mReadWriteLock.writeLock().unlock();
         }
     }
