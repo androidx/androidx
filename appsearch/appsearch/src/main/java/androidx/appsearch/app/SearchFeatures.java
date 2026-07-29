@@ -80,7 +80,6 @@ public class SearchFeatures extends EnabledFeatures {
      * Returns whether the LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION feature is enabled.
      */
     @ExperimentalAppSearchApi
-    @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
     public boolean isListFilterMatchScoreExpressionFunctionEnabled() {
         return mEnabledFeatures.contains(
                 FeatureConstants.LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION);
@@ -218,7 +217,6 @@ public class SearchFeatures extends EnabledFeatures {
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
         @ExperimentalAppSearchApi
-        @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
         public @NonNull Builder setListFilterMatchScoreExpressionFunctionEnabled(boolean enabled) {
             modifyEnabledFeature(
                     FeatureConstants.LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION, enabled);

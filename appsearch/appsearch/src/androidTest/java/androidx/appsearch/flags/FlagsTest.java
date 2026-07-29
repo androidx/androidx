@@ -34,14 +34,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableListFilterMatchScoreExpressionFunction() {
-        assertThat(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
-                .isEqualTo(
-                        "com.android.appsearch"
-                                + ".flags.enable_list_filter_match_score_expression_function");
-    }
-
-    @Test
     public void testFlagValue_enableGroupingTypePerSchema() {
         assertThat(Flags.FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA).isEqualTo(
                 "com.android.appsearch.flags.enable_grouping_type_per_schema");
@@ -122,12 +114,6 @@ public class FlagsTest {
     public void testFlagValue_enableInformationalRankingExpressions() {
         assertThat(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
                 .isEqualTo("com.android.appsearch.flags.enable_informational_ranking_expressions");
-    }
-
-    @Test
-    public void testFlagValue_enableResultAlreadyExists() {
-        assertThat(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)
-                .isEqualTo("com.android.appsearch.flags.enable_result_already_exists");
     }
 
     @Test
@@ -214,12 +200,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableRepeatedFieldJoins() {
-        assertThat(Flags.FLAG_ENABLE_REPEATED_FIELD_JOINS).isEqualTo(
-                "com.android.appsearch.flags.enable_repeated_field_joins");
-    }
-
-    @Test
     public void testFlagValue_enableDeletePropagationRw() {
         assertThat(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
                 .isEqualTo("com.android.appsearch.flags.enable_delete_propagation_rw");
@@ -229,13 +209,6 @@ public class FlagsTest {
     public void testFlagValue_enableNonExistentQualifiedIdJoin() {
         assertThat(Flags.FLAG_ENABLE_NON_EXISTENT_QUALIFIED_ID_JOIN)
                 .isEqualTo("com.android.appsearch.flags.enable_non_existent_qualified_id_join");
-    }
-
-    @Test
-    public void testFlagValue_enableSkipSetSchemaTypeEqualityCheck() {
-        assertThat(Flags.FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK)
-                .isEqualTo(
-                        "com.android.appsearch.flags.enable_skip_set_schema_type_equality_check");
     }
 
     @Test

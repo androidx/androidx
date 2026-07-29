@@ -20,7 +20,6 @@ package androidx.appsearch.flags;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
 import java.util.Collection;
 
@@ -53,10 +52,6 @@ public final class Flags {
     /** Enable the "hasProperty" function in list filter query expressions. */
     public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
             FLAG_PREFIX + "enable_list_filter_has_property_function";
-
-    /** Enable the "matchScoreExpression" function in list filter query expressions. */
-    public static final String FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION =
-            FLAG_PREFIX + "enable_list_filter_match_score_expression_function";
 
     /** Enable Schema Type Grouping related features. */
     public static final String FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA =
@@ -135,10 +130,6 @@ public final class Flags {
     /** Enables informational ranking expressions. */
     public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
             FLAG_PREFIX + "enable_informational_ranking_expressions";
-
-    /** Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS}. */
-    public static final String FLAG_ENABLE_RESULT_ALREADY_EXISTS =
-            FLAG_PREFIX + "enable_result_already_exists";
 
     /** Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}. */
     public static final String FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC =
@@ -242,13 +233,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_OPTIMIZE_IMPROVEMENTS =
             FLAG_PREFIX + "enable_optimize_improvements";
 
-    /**
-     * Controls whether repeated fields may set joinable value type to
-     * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
-     */
-    public static final String FLAG_ENABLE_REPEATED_FIELD_JOINS =
-            FLAG_PREFIX + "enable_repeated_field_joins";
-
     /** Enables delete propagation API. */
     public static final String FLAG_ENABLE_DELETE_PROPAGATION_RW =
             FLAG_PREFIX + "enable_delete_propagation_rw";
@@ -269,12 +253,6 @@ public final class Flags {
     /** Enables visibility access for Private Compute Core UIDs. */
     public static final String FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS =
             FLAG_PREFIX + "enable_private_compute_core_uid_access";
-
-    /**
-     * Whether to enable skipping the unnecessary schema type equality check.
-     */
-    public static final String FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK =
-            FLAG_PREFIX + "enable_skip_set_schema_type_equality_check";
 
     /** Enables set SearchFeatures and RankingFeatures APIs. */
     public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
@@ -317,14 +295,6 @@ public final class Flags {
 
     /** Whether the "hasProperty" function in list filter query expressions should be enabled. */
     public static boolean enableListFilterHasPropertyFunction() {
-        return true;
-    }
-
-    /**
-     * Whether the "matchScoreExpression" function in list filter query expressions should be
-     * enabled.
-     */
-    public static boolean enableListFilterMatchScoreExpressionFunction() {
         return true;
     }
 
@@ -415,14 +385,6 @@ public final class Flags {
 
     /** Whether informational ranking expressions should be enabled. */
     public static boolean enableInformationalRankingExpressions() {
-        return true;
-    }
-
-    /**
-     * Whether {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS} should be
-     * enabled.
-     */
-    public static boolean enableResultAlreadyExists() {
         return true;
     }
 
@@ -580,14 +542,6 @@ public final class Flags {
     }
 
     /**
-     * Controls whether repeated fields may set joinable value type to
-     * {@link StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
-     */
-    public static boolean enableRepeatedFieldJoins() {
-        return true;
-    }
-
-    /**
      * Whether delete propagation API should be enabled.
      *
      * <p>Note: delete propagation depends on qualified id join index v3 and soft index restoration.
@@ -615,13 +569,6 @@ public final class Flags {
      * Whether visibility access for Private Compute Core UIDs should be enabled.
      */
     public static boolean enablePrivateComputeCoreUidAccess() {
-        return true;
-    }
-
-    /*
-     * Whether to enable skipping the unnecessary schema type equality check.
-     */
-    public static boolean enableSkipSetSchemaTypeEqualityCheck() {
         return true;
     }
 

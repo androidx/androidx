@@ -64,8 +64,7 @@ public class SearchFeaturesCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE,
-            Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION})
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE)
     public void testSetFeatureEnabledToFalse_matchScoreExpression() {
         SearchFeatures.Builder builder = new SearchFeatures.Builder();
         SearchFeatures searchFeatures = builder
@@ -79,8 +78,7 @@ public class SearchFeaturesCtsTest {
 
     @Test
     @RequiresFlagsEnabled({Flags.FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE,
-            Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION,
-            Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION})
+            Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION})
     public void testEquals() {
         SearchFeatures searchFeatures1 = new SearchFeatures.Builder()
                 .setNumericSearchEnabled(true)
