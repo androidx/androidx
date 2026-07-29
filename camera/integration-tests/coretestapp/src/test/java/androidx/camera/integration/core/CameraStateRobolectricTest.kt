@@ -145,11 +145,11 @@ class CameraStateRobolectricTest(private val config: TestConfig) {
                     }
 
                     override fun postToMainThread(runnable: Runnable) {
-                        runnable.run()
+                        mainThreadHandler.post(runnable)
                     }
 
                     override fun isMainThread(): Boolean {
-                        return true
+                        return Looper.myLooper() == Looper.getMainLooper()
                     }
                 }
             )
