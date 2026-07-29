@@ -941,6 +941,28 @@ class ExposedDropdownMenuTest {
             )
     }
 
+    @Test
+    fun edm_positionProvider_contentExceedsWindowHeight() {
+        val density = Density(1f)
+        val anchorSize = IntSize(width = 200, height = 50)
+        val popupSize = IntSize(width = 200, height = 300)
+        val windowSize = IntSize(width = 500, height = 200)
+        val layoutDirection = LayoutDirection.Ltr
+
+        val edmPositionProvider =
+            ExposedDropdownMenuPositionProvider(density = density, topWindowInsets = 0)
+
+        val position =
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(size = anchorSize, offset = IntOffset(0, 50)),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+
+        assertThat(position.y).isEqualTo((windowSize.height - popupSize.height) / 2)
+    }
+
     @Composable
     fun ExposedDropdownMenuForTest(
         expanded: Boolean,
