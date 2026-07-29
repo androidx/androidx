@@ -387,6 +387,8 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demá máp s obsahom"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mapy so šablónou správy"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mapy so šablónou mriežky"</string>
+    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
+    <skip />
     <string name="banner_demo_title" msgid="6740573531391394513">"Ukážka bannera"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo zlepšenej hlavičky"</string>
 </resources>
