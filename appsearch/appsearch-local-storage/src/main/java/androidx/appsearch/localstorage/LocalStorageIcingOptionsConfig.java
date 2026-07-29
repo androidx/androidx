@@ -17,7 +17,6 @@
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.flags.Flags;
 
 import org.jspecify.annotations.NonNull;
 
@@ -122,8 +121,8 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     }
 
     @Override
-    public boolean enableRepeatedFieldJoins() {
-        return Flags.enableRepeatedFieldJoins();
+    public boolean getAllowRepeatedFieldJoins() {
+        return true;
     }
 
     @Override

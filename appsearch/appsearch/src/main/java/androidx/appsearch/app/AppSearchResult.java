@@ -128,7 +128,6 @@ public final class AppSearchResult<ValueType> {
     public static final int RESULT_RATE_LIMITED = 10;
 
     /** The operation is invalid because the resource already exists and can't be replaced. */
-    @FlaggedApi(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)
     @ExperimentalAppSearchApi
     public static final int RESULT_ALREADY_EXISTS = 12;
 
