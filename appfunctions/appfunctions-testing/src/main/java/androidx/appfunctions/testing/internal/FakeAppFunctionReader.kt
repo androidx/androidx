@@ -22,9 +22,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AppFunctionReader
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -190,6 +192,29 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                 packageToComponentsMetadataMapState.value[packageName]
                     ?: AppFunctionComponentsMetadata(),
             )
+
+    override suspend fun getAppFunctionStates(
+        appFunctionNames: List<AppFunctionName>
+    ): List<AppFunctionState> {
+        val packageToFunctionMetadataMap = packageToFunctionMetadataMapState.value
+
+        return appFunctionNames.mapNotNull { appFunctionName ->
+            val metadata =
+                packageToFunctionMetadataMap[appFunctionName.packageName]?.get(
+                    appFunctionName.functionIdentifier
+                ) ?: return@mapNotNull null
+
+            try {
+                AppFunctionState(
+                    functionName = appFunctionName,
+                    isEnabled = metadata.computeEffectivelyEnabled(),
+                )
+            } catch (e: Exception) {
+                Log.w(APP_FUNCTIONS_TAG, "Failed to retrieve state for $appFunctionName.", e)
+                null
+            }
+        }
+    }
 
     fun getAppFunctionStaticAndRuntimeMetadata(
         packageName: String,
