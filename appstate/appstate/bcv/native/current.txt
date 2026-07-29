@@ -9,32 +9,49 @@
 final class androidx.appstate/AppState { // androidx.appstate/AppState|null[0]
     constructor <init>() // androidx.appstate/AppState.<init>|<init>(){}[0]
 
+    final val keys // androidx.appstate/AppState.keys|{}keys[0]
+        final fun <get-keys>(): kotlin.collections/Set<androidx.appstate/AppStateKey<*>> // androidx.appstate/AppState.keys.<get-keys>|<get-keys>(){}[0]
+
     final fun <#A1: kotlin/Any?> getState(androidx.appstate/AppStateKey<#A1>, #A1): androidx.compose.runtime/State<#A1> // androidx.appstate/AppState.getState|getState(androidx.appstate.AppStateKey<0:0>;0:0){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> setState(androidx.appstate/AppStateKey<#A1>, #A1) // androidx.appstate/AppState.setState|setState(androidx.appstate.AppStateKey<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> updateState(androidx.appstate/AppStateKey<#A1>, #A1, kotlin/Function1<#A1, #A1>) // androidx.appstate/AppState.updateState|updateState(androidx.appstate.AppStateKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
-    final fun addAppStateListener(kotlin.coroutines/CoroutineContext = ..., kotlin/Function4<androidx.appstate/AppStateToken, kotlin.collections/Map<androidx.appstate/AppStateKey<*>, androidx.compose.runtime/State<*>>, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>): androidx.appstate/AppStateToken // androidx.appstate/AppState.addAppStateListener|addAppStateListener(kotlin.coroutines.CoroutineContext;kotlin.Function4<androidx.appstate.AppStateToken,kotlin.collections.Map<androidx.appstate.AppStateKey<*>,androidx.compose.runtime.State<*>>,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
-    final fun removeAppStateListener(androidx.appstate/AppStateToken) // androidx.appstate/AppState.removeAppStateListener|removeAppStateListener(androidx.appstate.AppStateToken){}[0]
-}
-
-final class androidx.appstate/AppStateToken { // androidx.appstate/AppStateToken|null[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.appstate/AppStateToken.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.appstate/AppStateToken.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.appstate/AppStateToken.toString|toString(){}[0]
+    final inline fun <#A1: kotlin/Any?> updateState(androidx.appstate/AppStateKey<#A1>, #A1, kotlin/Function1<#A1, #A1>) // androidx.appstate/AppState.updateState|updateState(androidx.appstate.AppStateKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
 }
 
 open class <#A: kotlin/Any?> androidx.appstate/AppStateKey { // androidx.appstate/AppStateKey|null[0]
-    constructor <init>(kotlin/Any? = ..., kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> = ...) // androidx.appstate/AppStateKey.<init>|<init>(kotlin.Any?;kotlin.Function1<androidx.appstate.AppState,kotlin.Boolean>){}[0]
+    constructor <init>(androidx.appstate/AppStateKey<#A>? = ..., kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> = ...) // androidx.appstate/AppStateKey.<init>|<init>(androidx.appstate.AppStateKey<1:0>?;kotlin.Function1<androidx.appstate.AppState,kotlin.Boolean>){}[0]
+    constructor <init>(kotlin/Int, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.appstate/AppStateKey.<init>|<init>(kotlin.Int;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
 
     final val autoClearKey // androidx.appstate/AppStateKey.autoClearKey|{}autoClearKey[0]
-        final fun <get-autoClearKey>(): kotlin/Any? // androidx.appstate/AppStateKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
-    final val predicate // androidx.appstate/AppStateKey.predicate|{}predicate[0]
-        final fun <get-predicate>(): kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> // androidx.appstate/AppStateKey.predicate.<get-predicate>|<get-predicate>(){}[0]
+        final fun <get-autoClearKey>(): androidx.appstate/AppStateKey<#A>? // androidx.appstate/AppStateKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
+    final val shouldClearState // androidx.appstate/AppStateKey.shouldClearState|{}shouldClearState[0]
+        final fun <get-shouldClearState>(): kotlin/Function1<androidx.appstate/AppState, kotlin/Boolean> // androidx.appstate/AppStateKey.shouldClearState.<get-shouldClearState>|<get-shouldClearState>(){}[0]
+
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.appstate/AppStateKey<#A1>> { // androidx.appstate/AppStateKey.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // androidx.appstate/AppStateKey.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+        final val descriptor // androidx.appstate/AppStateKey.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.appstate/AppStateKey.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // androidx.appstate/AppStateKey.$serializer.typeSerial0|{}typeSerial0[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.appstate/AppStateKey.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.appstate/AppStateKey<#A1> // androidx.appstate/AppStateKey.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.appstate/AppStateKey<#A1>) // androidx.appstate/AppStateKey.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.appstate.AppStateKey<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.appstate/AppStateKey.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // androidx.appstate/AppStateKey.Companion|null[0]
+        final val $cachedDescriptor // androidx.appstate/AppStateKey.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.appstate/AppStateKey.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<androidx.appstate/AppStateKey<#A2>> // androidx.appstate/AppStateKey.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // androidx.appstate/AppStateKey.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
 }
 
 final val androidx.appstate/androidx_appstate_AppState$stableprop // androidx.appstate/androidx_appstate_AppState$stableprop|#static{}androidx_appstate_AppState$stableprop[0]
 final val androidx.appstate/androidx_appstate_AppStateKey$stableprop // androidx.appstate/androidx_appstate_AppStateKey$stableprop|#static{}androidx_appstate_AppStateKey$stableprop[0]
-final val androidx.appstate/androidx_appstate_AppStateToken$stableprop // androidx.appstate/androidx_appstate_AppStateToken$stableprop|#static{}androidx_appstate_AppStateToken$stableprop[0]
+final val androidx.appstate/androidx_appstate_AppStateKey_$serializer$stableprop // androidx.appstate/androidx_appstate_AppStateKey_$serializer$stableprop|#static{}androidx_appstate_AppStateKey_$serializer$stableprop[0]
 
 final fun androidx.appstate/androidx_appstate_AppState$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppState$stableprop_getter|androidx_appstate_AppState$stableprop_getter(){}[0]
 final fun androidx.appstate/androidx_appstate_AppStateKey$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppStateKey$stableprop_getter|androidx_appstate_AppStateKey$stableprop_getter(){}[0]
-final fun androidx.appstate/androidx_appstate_AppStateToken$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppStateToken$stableprop_getter|androidx_appstate_AppStateToken$stableprop_getter(){}[0]
+final fun androidx.appstate/androidx_appstate_AppStateKey_$serializer$stableprop_getter(): kotlin/Int // androidx.appstate/androidx_appstate_AppStateKey_$serializer$stableprop_getter|androidx_appstate_AppStateKey_$serializer$stableprop_getter(){}[0]
