@@ -635,6 +635,7 @@ internal constructor(
             }
         } else {
             if (isLookingAhead) {
+                cacheWindowLogic?.hasLookaheadOccurred = true
                 hasLookaheadOccurred = true
             }
             scrollToBeConsumed -= result.consumedScroll

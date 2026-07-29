@@ -625,6 +625,7 @@ public constructor(
             }
         } else {
             if (isLookingAhead) {
+                (prefetchStrategy as? CacheWindowLogic)?.hasLookaheadOccurred = true
                 hasLookaheadOccurred = true
             }
 

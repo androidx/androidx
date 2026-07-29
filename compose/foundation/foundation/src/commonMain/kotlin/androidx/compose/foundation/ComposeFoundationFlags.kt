@@ -286,7 +286,7 @@ public object ComposeFoundationFlags {
     // TODO: b/535884139
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isCacheWindowVisibleItemCountCheckEnabled: Boolean = true
+    public var isCacheWindowLookaheadCheckEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
