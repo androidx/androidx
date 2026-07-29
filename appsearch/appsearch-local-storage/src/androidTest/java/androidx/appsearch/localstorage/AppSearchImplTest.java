@@ -6451,6 +6451,7 @@ public class AppSearchImplTest {
                 mSelfCallerAccess,
                 fakeLogger,
                 callStatsBuilder);
+        callStats = callStatsBuilder.build();
         assertThat(callStats.getLastBlockingOperation())
                 .isEqualTo(BaseStats.CALL_TYPE_PUT_DOCUMENTS);
 
@@ -6621,6 +6622,42 @@ public class AppSearchImplTest {
         callStats = callStatsBuilder.build();
         assertThat(callStats.getLastBlockingOperation())
                 .isEqualTo(BaseStats.CALL_TYPE_SET_BLOB_VISIBILITY);
+
+        // Handle expired documents and check the last blocking operation
+        callStatsBuilder = new CallStats.Builder();
+        try {
+            mAppSearchImpl.handleExpiredDocuments(callStatsBuilder);
+        } catch (Exception e) {
+            // We don't care whether handle expired documents is success or not, just want to verify
+            // the last write operation.
+        }
+        callStats = callStatsBuilder.build();
+        assertThat(callStats.getLastBlockingOperation())
+                .isEqualTo(BaseStats.CALL_TYPE_GLOBAL_OPEN_READ_BLOB);
+
+        callStatsBuilder = new CallStats.Builder();
+        try {
+            mAppSearchImpl.maintainAnnIndex(
+                    MaintainAnnIndexOptions.getDefaultInstance(), callStatsBuilder);
+        } catch (Exception e) {
+            // We don't care whether maintain ann index is success or not, just want to verify
+            // the last write operation.
+        }
+        callStats = callStatsBuilder.build();
+        assertThat(callStats.getLastBlockingOperation())
+                .isEqualTo(BaseStats.INTERNAL_CALL_TYPE_HANDLE_EXPIRED_DOCUMENTS_JOB);
+
+        // Call another API to make sure the last blocking operation was set correctly.
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.globalQuery(
+                "",
+                new SearchSpec.Builder().build(),
+                mSelfCallerAccess,
+                /* logger= */ null,
+                callStatsBuilder);
+        callStats = callStatsBuilder.build();
+        assertThat(callStats.getLastBlockingOperation())
+                .isEqualTo(BaseStats.INTERNAL_CALL_TYPE_MAINTAIN_ANN_INDEX_JOB);
     }
 
     @Test
@@ -13137,7 +13174,8 @@ public class AppSearchImplTest {
         // Sleep until document "Bob" expires and call handleExpiredDocuments to purge it and
         // propagate deletion to its child document "email3".
         SystemClock.sleep(Long.max(docCreationTimeMillis + 20 - System.currentTimeMillis(), 0));
-        HandleExpiredDocumentsResultProto resultProto = mAppSearchImpl.handleExpiredDocuments();
+        HandleExpiredDocumentsResultProto resultProto =
+                mAppSearchImpl.handleExpiredDocuments(/* callStatsBuilder= */ null);
 
         // Both "Bob" and "email3" should be purged. Although email3 was not expired, the parent
         // document "Bob" was expired, so delete propagation should be applied to email3.
@@ -13269,7 +13307,8 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isTrue();
 
         // Call handleExpiredDocuments immediately. Nothing was purged.
-        HandleExpiredDocumentsResultProto resultProto1 = mAppSearchImpl.handleExpiredDocuments();
+        HandleExpiredDocumentsResultProto resultProto1 =
+                mAppSearchImpl.handleExpiredDocuments(/* callStatsBuilder= */ null);
         assertThat(resultProto1.getNumExpiredDocuments()).isEqualTo(0);
         assertThat(resultProto1.getNumPropagatedDeletedDocuments()).isEqualTo(0);
         assertThat(resultProto1.getNextExpirationTimestampMs())
@@ -13291,7 +13330,8 @@ public class AppSearchImplTest {
         // Sleep until the document expires and call handleExpiredDocuments for the 2nd time to
         // purge it.
         SystemClock.sleep(docCreationTimeMillis + 100 - System.currentTimeMillis());
-        HandleExpiredDocumentsResultProto resultProto2 = mAppSearchImpl.handleExpiredDocuments();
+        HandleExpiredDocumentsResultProto resultProto2 =
+                mAppSearchImpl.handleExpiredDocuments(/* callStatsBuilder= */ null);
 
         // One document was expired and purged. NeedsPersistToDisk should be set to true.
         assertThat(resultProto2.getNumExpiredDocuments()).isEqualTo(1);
@@ -13305,7 +13345,8 @@ public class AppSearchImplTest {
 
         // Call maintainAnnIndex with default options.
         MaintainAnnIndexOptions options = MaintainAnnIndexOptions.getDefaultInstance();
-        MaintainAnnIndexResultProto resultProto = mAppSearchImpl.maintainAnnIndex(options);
+        MaintainAnnIndexResultProto resultProto =
+                mAppSearchImpl.maintainAnnIndex(options, /* callStatsBuilder= */ null);
 
         // Verify that it completes successfully.
         assertThat(resultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
@@ -13397,7 +13438,8 @@ public class AppSearchImplTest {
         MaintainAnnIndexOptions options = MaintainAnnIndexOptions.newBuilder()
                 .setMinSizeForIvf(1)
                 .build();
-        MaintainAnnIndexResultProto resultProto = mAppSearchImpl.maintainAnnIndex(options);
+        MaintainAnnIndexResultProto resultProto =
+                mAppSearchImpl.maintainAnnIndex(options, /* callStatsBuilder= */ null);
         assertThat(resultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
         assertThat(resultProto.getActualIterations()).isGreaterThan(0);
 
