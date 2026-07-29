@@ -63,6 +63,48 @@ class SignatureTest {
     }
 
     @Test
+    fun drawnSignature_updateBounds_updatesBoundsCorrectly() {
+        val path = Path().apply { moveTo(10f, 20f) }
+        val signature =
+            Signature.DrawnSignature(
+                id = defaultId,
+                pageNum = defaultPageNum,
+                xCoord = defaultX,
+                yCoord = defaultY,
+                width = defaultWidth,
+                height = defaultHeight,
+                isSelected = false,
+                drawnPath = path,
+            )
+
+        val newPageNum = 2
+        val newX = 10f
+        val newY = 20f
+        val newWidth = 30f
+        val newHeight = 40f
+
+        val updatedSignature =
+            signature.updateBounds(
+                pageNum = newPageNum,
+                xCoord = newX,
+                yCoord = newY,
+                width = newWidth,
+                height = newHeight,
+            ) as Signature.DrawnSignature
+
+        assertThat(updatedSignature.pageNum).isEqualTo(newPageNum)
+        assertThat(updatedSignature.xCoord).isEqualTo(newX)
+        assertThat(updatedSignature.yCoord).isEqualTo(newY)
+        assertThat(updatedSignature.width).isEqualTo(newWidth)
+        assertThat(updatedSignature.height).isEqualTo(newHeight)
+
+        // Verify unchanged fields
+        assertThat(updatedSignature.id).isEqualTo(signature.id)
+        assertThat(updatedSignature.isSelected).isEqualTo(signature.isSelected)
+        assertThat(updatedSignature.drawnPath).isEqualTo(signature.drawnPath)
+    }
+
+    @Test
     fun drawnSignature_equalsAndHashCode() {
         val path = Path().apply { moveTo(1f, 1f) }
 
@@ -99,6 +141,49 @@ class SignatureTest {
         assertThat(deselectedSignature.isSelected).isFalse()
         assertThat(deselectedSignature.typedText).isEqualTo(signature.typedText)
         assertThat(deselectedSignature.typedFont).isEqualTo(signature.typedFont)
+    }
+
+    @Test
+    fun typedSignature_updateBounds_updatesBoundsCorrectly() {
+        val signature =
+            Signature.TypedSignature(
+                id = defaultId,
+                pageNum = defaultPageNum,
+                xCoord = defaultX,
+                yCoord = defaultY,
+                width = defaultWidth,
+                height = defaultHeight,
+                isSelected = true,
+                typedText = "Jane Doe",
+                typedFont = Signature.TypedSignature.FONT_SERIF,
+            )
+
+        val newPageNum = 3
+        val newX = 50f
+        val newY = 60f
+        val newWidth = 70f
+        val newHeight = 80f
+
+        val updatedSignature =
+            signature.updateBounds(
+                pageNum = newPageNum,
+                xCoord = newX,
+                yCoord = newY,
+                width = newWidth,
+                height = newHeight,
+            ) as Signature.TypedSignature
+
+        assertThat(updatedSignature.pageNum).isEqualTo(newPageNum)
+        assertThat(updatedSignature.xCoord).isEqualTo(newX)
+        assertThat(updatedSignature.yCoord).isEqualTo(newY)
+        assertThat(updatedSignature.width).isEqualTo(newWidth)
+        assertThat(updatedSignature.height).isEqualTo(newHeight)
+
+        // Verify unchanged fields
+        assertThat(updatedSignature.id).isEqualTo(signature.id)
+        assertThat(updatedSignature.isSelected).isEqualTo(signature.isSelected)
+        assertThat(updatedSignature.typedText).isEqualTo(signature.typedText)
+        assertThat(updatedSignature.typedFont).isEqualTo(signature.typedFont)
     }
 
     @Test
@@ -168,6 +253,48 @@ class SignatureTest {
 
         assertThat(selectedSignature.isSelected).isTrue()
         assertThat(selectedSignature.imageBitmap.sameAs(signature.imageBitmap)).isTrue()
+    }
+
+    @Test
+    fun uploadedSignature_updateBounds_updatesBoundsCorrectly() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val signature =
+            Signature.UploadedSignature(
+                id = defaultId,
+                pageNum = defaultPageNum,
+                xCoord = defaultX,
+                yCoord = defaultY,
+                width = defaultWidth,
+                height = defaultHeight,
+                isSelected = false,
+                imageBitmap = bitmap,
+            )
+
+        val newPageNum = 4
+        val newX = 200f
+        val newY = 300f
+        val newWidth = 400f
+        val newHeight = 500f
+
+        val updatedSignature =
+            signature.updateBounds(
+                pageNum = newPageNum,
+                xCoord = newX,
+                yCoord = newY,
+                width = newWidth,
+                height = newHeight,
+            ) as Signature.UploadedSignature
+
+        assertThat(updatedSignature.pageNum).isEqualTo(newPageNum)
+        assertThat(updatedSignature.xCoord).isEqualTo(newX)
+        assertThat(updatedSignature.yCoord).isEqualTo(newY)
+        assertThat(updatedSignature.width).isEqualTo(newWidth)
+        assertThat(updatedSignature.height).isEqualTo(newHeight)
+
+        // Verify unchanged fields
+        assertThat(updatedSignature.id).isEqualTo(signature.id)
+        assertThat(updatedSignature.isSelected).isEqualTo(signature.isSelected)
+        assertThat(updatedSignature.imageBitmap.sameAs(signature.imageBitmap)).isTrue()
     }
 
     @Test
