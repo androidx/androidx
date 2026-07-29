@@ -63,21 +63,17 @@ class CameraGraphCameraControls3ATest {
         cameraGraph.start()
         cameraGraph.initializeSurfaces()
         cameraGraph.simulateCameraStarted()
-        testScope.advanceUntilIdle()
         val stream1 = cameraGraph.streams[streamConfig1]!!.id
         cameraGraph.useSessionIn(testScope) {
             it.startRepeating(Request(streams = listOf(stream1)))
         }
-        testScope.advanceUntilIdle()
         cameraGraph.simulateNextFrame()
-        testScope.advanceUntilIdle()
     }
 
     @Test
     fun update3A_completesWithStatusOK() =
         testScope.runTest {
             val result3ADeferred = cameraGraph.update3A(aeMode = AeMode.OFF)
-            advanceUntilIdle()
 
             val frame = cameraGraph.simulateNextFrame()
             frame.simulateTotalCaptureResult(
@@ -95,7 +91,6 @@ class CameraGraphCameraControls3ATest {
         testScope.runTest {
             val result3ADeferred =
                 cameraGraph.lock3A(afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN)
-            advanceUntilIdle()
 
             cameraGraph
                 .simulateNextFrame()
@@ -126,7 +121,6 @@ class CameraGraphCameraControls3ATest {
     fun setTorchOn_completesWithStatusOK() =
         testScope.runTest {
             val result3ADeferred = cameraGraph.setTorchOn()
-            advanceUntilIdle()
 
             val frame = cameraGraph.simulateNextFrame()
             frame.simulateTotalCaptureResult(
@@ -146,7 +140,6 @@ class CameraGraphCameraControls3ATest {
     fun unlock3A_completesWithStatusOK() =
         testScope.runTest {
             val unlockResultDeferred = cameraGraph.unlock3A(ae = true)
-            advanceUntilIdle()
 
             cameraGraph
                 .simulateNextFrame()
@@ -166,8 +159,6 @@ class CameraGraphCameraControls3ATest {
         testScope.runTest {
             cameraGraph.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
             cameraGraph.unlock3A(ae = true)
-
-            advanceUntilIdle()
 
             val lockParams = cameraGraph.simulateNextFrame().requestSequence.requiredParameters
             val unlockParams = cameraGraph.simulateNextFrame().requestSequence.requiredParameters

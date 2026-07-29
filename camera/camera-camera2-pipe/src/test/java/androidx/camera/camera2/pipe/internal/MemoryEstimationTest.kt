@@ -107,9 +107,7 @@ class MemoryEstimationTest {
 
             // Simulate 1 frame entering the buffer
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             assertThat(frameBuffer.size.value).isEqualTo(1)
 
@@ -124,12 +122,9 @@ class MemoryEstimationTest {
         testScope.runTest {
             val streamId = frameGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             // Memory starts in the evictable pool
             assertThat(estimator.evictable.value).isEqualTo(largeImageSize)
@@ -151,12 +146,9 @@ class MemoryEstimationTest {
         testScope.runTest {
             val streamId = frameGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             // App acquires and hides the memory
             val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
@@ -177,12 +169,9 @@ class MemoryEstimationTest {
         testScope.runTest {
             val streamId = frameGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             // App acquires frame
             val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
@@ -215,9 +204,7 @@ class MemoryEstimationTest {
             // Feed 3 frames into the pipeline
             repeat(3) {
                 val frame = frameGraph.simulateNextFrame()
-                advanceUntilIdle()
                 frame.simulateImage(streamId)
-                advanceUntilIdle()
             }
 
             // 3 frames in buffer = 3 allocated images, 3 evictable images
@@ -259,13 +246,10 @@ class MemoryEstimationTest {
             // Create TWO frame buffers for the exact same stream
             val buffer1 = frameGraph.captureWith(setOf(streamId), capacity = 3)
             val buffer2 = frameGraph.captureWith(setOf(streamId), capacity = 3)
-            advanceUntilIdle()
 
             // Simulate 1 frame
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             // Both buffers have a reference to the same underlying frame
             assertThat(buffer1.size.value).isEqualTo(1)
@@ -312,13 +296,10 @@ class MemoryEstimationTest {
             // Issue a single capture request (non-repeating) directly to the graph
             val request = Request(streams = listOf(streamId))
             val frameCapture = frameGraph.capture(request)
-            advanceUntilIdle()
 
             // Simulate the frame and image
             val simulatedFrame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             simulatedFrame.simulateImage(streamId)
-            advanceUntilIdle()
 
             val frame = frameCapture.awaitFrame()
             assertThat(frame).isNotNull()
@@ -344,13 +325,10 @@ class MemoryEstimationTest {
         testScope.runTest {
             val streamId = frameGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             // Simulate 1 frame
             val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
             frame.simulateImage(streamId)
-            advanceUntilIdle()
 
             // Stress test the state transitions
             repeat(100) {
@@ -372,17 +350,14 @@ class MemoryEstimationTest {
 
             val bufferA = frameGraph.captureWith(setOf(streamA), capacity = 5)
             val bufferB = frameGraph.captureWith(setOf(streamB), capacity = 5)
-            advanceUntilIdle()
 
             // 1. Simulate image for A
             val frameA = frameGraph.simulateNextFrame()
             frameA.simulateImage(streamA)
-            advanceUntilIdle()
 
             // 2. Simulate image for B
             val frameB = frameGraph.simulateNextFrame()
             frameB.simulateImage(streamB)
-            advanceUntilIdle()
 
             // Both are in the evictable pool
             assertThat(estimator.evictable.value).isEqualTo(largeImageSize + smallImageSize)
@@ -412,24 +387,19 @@ class MemoryEstimationTest {
 
             // 1. Attach a FrameBuffer
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             // Simulate a Frame for the buffer.
             val frame1 = frameGraph.simulateNextFrame()
             frame1.simulateImage(streamId)
-            advanceUntilIdle()
 
             // 2. Start an explicit capture request
             val request = Request(streams = listOf(streamId))
             val frameCapture = frameGraph.capture(request)
-            advanceUntilIdle()
 
             // Simulate a Frame for explicit capture.
             val frame2 = frameGraph.simulateNextFrame()
             frame2.simulateImage(streamId)
-            advanceUntilIdle()
             val capturedFrame = frameCapture.awaitFrame()
-            advanceUntilIdle()
 
             // Memory State Check:
             // Usage = (2 * largeImageSize)
@@ -459,12 +429,10 @@ class MemoryEstimationTest {
 
             val streamId = tightGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             // 1. Simulate the first frame (Should succeed)
             val frame1 = tightGraph.simulateNextFrame()
             frame1.simulateImage(streamId)
-            advanceUntilIdle()
 
             assertThat(frameBuffer.size.value).isEqualTo(1)
             assertThat(tightEstimator.usage.value).isEqualTo(largeImageSize) // Completely full
@@ -472,7 +440,6 @@ class MemoryEstimationTest {
             // 2. Simulate a second frame when memory is full
             val frame2 = tightGraph.simulateNextFrame()
             frame2.simulateImage(streamId)
-            advanceUntilIdle()
 
             // Assert the expected behavior when memory is exhausted:
             // Both frames enter the buffer...
@@ -507,13 +474,11 @@ class MemoryEstimationTest {
 
             // Start with a capacity of 5
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             // Simulate 2 frames entering the buffer
             repeat(2) {
                 val frame = frameGraph.simulateNextFrame()
                 frame.simulateImage(streamId)
-                advanceUntilIdle()
             }
 
             assertThat(frameBuffer.size.value).isEqualTo(2)
@@ -543,13 +508,11 @@ class MemoryEstimationTest {
         testScope.runTest {
             val streamId = frameGraph.streams[streamConfigLarge]!!.id
             val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
 
             // Simulate 3 frames entering the buffer
             repeat(3) {
                 val frame = frameGraph.simulateNextFrame()
                 frame.simulateImage(streamId)
-                advanceUntilIdle()
             }
 
             assertThat(frameBuffer.size.value).isEqualTo(3)
@@ -606,13 +569,11 @@ class MemoryEstimationTest {
                     frameGraph.capture(Request(streams = listOf(streamId))),
                     frameGraph.capture(Request(streams = listOf(streamId))),
                 )
-            advanceUntilIdle()
 
             // Simulate 3 frames from the camera
             repeat(3) {
                 val frame = frameGraph.simulateNextFrame()
                 frame.simulateImage(streamId)
-                advanceUntilIdle()
             }
 
             // Wait for all 3 captures to resolve
