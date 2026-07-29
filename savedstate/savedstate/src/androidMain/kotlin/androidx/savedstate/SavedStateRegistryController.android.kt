@@ -15,39 +15,6 @@
  */
 package androidx.savedstate
 
-import androidx.annotation.MainThread
-import androidx.savedstate.internal.SavedStateRegistryImpl
-
-public actual class SavedStateRegistryController
-private actual constructor(private val impl: SavedStateRegistryImpl) {
-
-    public actual val savedStateRegistry: SavedStateRegistry = SavedStateRegistry(impl)
-
-    @MainThread
-    public actual fun performAttach() {
-        impl.performAttach()
-    }
-
-    @MainThread
-    public actual fun performRestore(savedState: SavedState?) {
-        impl.performRestore(savedState)
-    }
-
-    @MainThread
-    public actual fun performSave(outBundle: SavedState) {
-        impl.performSave(outBundle)
-    }
-
-    public actual companion object {
-
-        @JvmStatic
-        public actual fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
-            val impl =
-                SavedStateRegistryImpl(
-                    owner = owner,
-                    onAttach = { owner.lifecycle.addObserver(Recreator(owner)) },
-                )
-            return SavedStateRegistryController(impl)
-        }
-    }
+internal actual fun onAttachSavedStateRegistryController(owner: SavedStateRegistryOwner) {
+    owner.lifecycle.addObserver(Recreator(owner))
 }
