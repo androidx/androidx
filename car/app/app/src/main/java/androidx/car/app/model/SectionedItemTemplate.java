@@ -16,6 +16,8 @@
 
 package androidx.car.app.model;
 
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -24,6 +26,7 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
+import androidx.car.app.utils.LogTags;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -339,10 +342,23 @@ public final class SectionedItemTemplate implements Template {
          * actions in the header), overwriting any other previously set actions from {@link
          * #addAction(Action)} or {@link #setActions(List)}. All actions must conform to the
          * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_FAB} constraints.
+         *
+         * <p>Note: Starting in Car API 9, for media apps (apps with
+         * {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES}), a maximum of 1 action can be
+         * set, as the host reserves space to render a persistent media entry point or miniplayer.
+         * If extra actions are sent by a media app, the host will drop the extra action.
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setActions(@NonNull List<Action> actions) {
             ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(actions);
+            for (Action action : actions) {
+                if (action.getType() == Action.TYPE_MEDIA_PLAYBACK) {
+                    Log.w(LogTags.TAG,
+                            "Action.TYPE_MEDIA_PLAYBACK is ignored as a floating action button on"
+                                    + " Car API 9+ hosts.");
+                    break;
+                }
+            }
             mActions = actions;
             return this;
         }
@@ -351,12 +367,22 @@ public final class SectionedItemTemplate implements Template {
          * Adds a single {@link Action} to this template, appending to the existing list of
          * actions. All actions must conform to the
          * {@link ActionsConstraints#ACTIONS_CONSTRAINTS_FAB} constraints.
+         *
+         * <p>Note: Starting in Car API 9, for media apps (apps with
+         * {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES}), a maximum of 1 action can be
+         * set, as the host reserves space to render a persistent media entry point or miniplayer.
+         * If extra actions are sent by a media app, the host will drop the extra action.
          */
         @CanIgnoreReturnValue
         public @NonNull Builder addAction(@NonNull Action action) {
             List<Action> actionsCopy = new ArrayList<>(mActions);
             actionsCopy.add(action);
             ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(actionsCopy);
+            if (action.getType() == Action.TYPE_MEDIA_PLAYBACK) {
+                Log.w(LogTags.TAG,
+                        "Action.TYPE_MEDIA_PLAYBACK is ignored as a floating action button on"
+                                + " Car API 9+ hosts.");
+            }
 
             mActions.add(action);
             return this;

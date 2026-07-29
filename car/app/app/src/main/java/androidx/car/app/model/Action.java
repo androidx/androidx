@@ -30,15 +30,12 @@ import android.text.TextUtils;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IntDef;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
-import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.media.model.MediaPlaybackTemplate;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -138,16 +135,13 @@ public final class Action {
      * A standard action to show the media playback button.
      *
      * <p>Note: ONLY apps with {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES} can use
-     * this action. There are 2 ways to use this action.
+     * this action.
      *
-     * <ol>
-     * <li>Used as a floating action button in a browse view, the action must provide an
-     * {@link OnClickListener} which pushes a {@link Screen} that provides a
-     * {@link MediaPlaybackTemplate}.
-     *
-     * <li>Used as a {@link Row#mActions} to indicate the currently playing song. An optional
-     * {@link OnClickListener} can be added.
-     * </ol>
+     * <p>Starting in Car API 9, this action can ONLY be used inside a {@link Row#mActions} to
+     * indicate the currently playing song. If used as a floating action button on Car API 9+
+     * hosts, it will be ignored, so developers should not set it as a floating action button. For
+     * Car API 8, this action continues to be supported as a floating action button in browse views
+     * or inside a row.
      */
     @RequiresCarApi(8)
     @RequiresPermission(MEDIA_TEMPLATES)
@@ -225,17 +219,14 @@ public final class Action {
     /**
      * A standard action to show the media playback button.
      *
-     * <p>Note: ONLY apps with {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES} can use this action. There
-     * are 2 ways to use this action.
+     * <p>Note: ONLY apps with {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES} can use
+     * this action.
      *
-     * <ol>
-     * <li>Used as a floating action button in a browse view, the action must provide an
-     * {@link OnClickListener} which pushes a {@link Screen} that provides a
-     * {@link MediaPlaybackTemplate}.
-     *
-     * <li>Used as a {@link Row#mActions} to indicate the currently playing song. An optional
-     * {@link OnClickListener} can be added.
-     * </ol>
+     * <p>Starting in Car API 9, this action can ONLY be used inside a {@link Row#mActions} to
+     * indicate the currently playing song. If used as a floating action button on Car API 9+
+     * hosts, it will be ignored, so developers should not set it as a floating action button. For
+     * Car API 8, this action continues to be supported as a floating action button in browse views
+     * or inside a row.
      */
     @RequiresCarApi(8)
     @RequiresPermission(MEDIA_TEMPLATES)
