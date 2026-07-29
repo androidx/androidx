@@ -1,3 +1,3 @@
 android {
-    ndkVersion = "27.0.12077973"
+    ndkVersion = providers.gradleProperty("androidx.ndkVersion").get()
 }
