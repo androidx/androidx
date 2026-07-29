@@ -23,6 +23,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material3.RippleThemeConfiguration.Focus
 import androidx.compose.material3.ripple.RippleNodeConfiguration
 import androidx.compose.material3.ripple.createRippleModifierNode
 import androidx.compose.material3.tokens.StateTokens
@@ -67,22 +68,27 @@ import androidx.compose.ui.unit.dp
  * [ripple] overload with a [ColorProducer] parameter. This will avoid unnecessary recompositions
  * when changing the color, and preserve existing ripple state when the color changes.
  *
+ * @sample androidx.compose.material3.samples.RippleSample
+ * @sample androidx.compose.material3.samples.InsetFocusRingRippleSample
+ * @sample androidx.compose.material3.samples.RippleConfigurationInsetFocusRingSample
  * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
  *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
  *   calculated based on the target layout size.
  * @param color the color of the ripple state layers. This color is usually the same color used by
- *   the text or iconography in the component. This color will then have
- *   [RippleDefaults.RippleAlpha] applied to calculate the final color used to draw the ripple. If
- *   [Color.Unspecified] is provided the color used will be [LocalContentColor] instead. If inset
- *   focus rings are enabled, their colors will be provided by the theme or by an overridden
- *   [LocalRippleConfiguration].
- * @param focusRingShape if specified, the shape of the ripple that the focus ring indication will
- *   use, if inset focus ring indications are enabled. If left `null`, a default shape will be used,
- *   which will be a rounded rectangle based on the [radius] if specified, otherwise it will be just
- *   a [RectangleShape]. This [Shape] instance must remain the same during the lifetime of the
- *   ripple in composition. If the [Shape] needs to change, delegate from a single instance to the
- *   changing shape to preserve the instance requirement.
+ *   the text or iconography in the component. This color will then have an alpha applied to
+ *   calculate the final color used to draw the ripple. If [Color.Unspecified] is provided the color
+ *   used will be [LocalContentColor] instead. If inset focus rings are enabled, their colors will
+ *   be provided by the theme or by an overridden [LocalRippleConfiguration].
+ * @param focusRingShape this parameter is only used if inset focus rings are enabled, specifically
+ *   when the [RippleThemeConfiguration.focus] from [LocalRippleThemeConfiguration] is
+ *   [RippleThemeConfiguration.Focus.InsetRing]. When inset focus rings are enabled, the focus ring
+ *   shape will define the shape of the ripple that the focus ring indication will use if specified.
+ *   If left `null`, a default shape will be used, which will be a rounded rectangle based on the
+ *   [radius] if specified, otherwise it will be just a [RectangleShape]. This [Shape] instance must
+ *   remain the same during the lifetime of the ripple in composition. If the [Shape] needs to
+ *   change, delegate from a single instance to the changing shape to preserve the instance
+ *   requirement.
  * @param enablePressIndication if true, this ripple will draw the indication for press
  *   interactions. Set this to `false` to disable drawing any visuals for press interactions in this
  *   ripple.
@@ -201,25 +207,27 @@ public fun ripple(
  * overload is optimized for Ripples that have dynamic colors that change over time, to reduce
  * unnecessary recompositions.
  *
+ * @sample androidx.compose.material3.samples.DynamicColorRippleSample
  * @param color the color of the ripple. This color is usually the same color used by the text or
- *   iconography in the component. This color will then have [RippleDefaults.RippleAlpha] applied to
- *   calculate the final color used to draw the ripple. If you are creating this [ColorProducer]
- *   outside of composition (where it will be automatically remembered), make sure that its instance
- *   is stable (such as by remembering the object that holds it), or remember the returned [ripple]
- *   object to make sure that ripple nodes are not being created each recomposition. If inset focus
- *   rings are enabled, their colors will
- *     * be provided by the theme or by an overridden [LocalRippleConfiguration].
- *
+ *   iconography in the component. This color will then have an alpha applied to calculate the final
+ *   color used to draw the ripple. If you are creating this [ColorProducer] outside of composition
+ *   (where it will be automatically remembered), make sure that its instance is stable (such as by
+ *   remembering the object that holds it), or remember the returned [ripple] object to make sure
+ *   that ripple nodes are not being created each recomposition. If inset focus rings are enabled,
+ *   their colors will be provided by the theme or by an overridden [LocalRippleConfiguration].
  * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
  *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
  *   calculated based on the target layout size.
- * @param focusRingShape if specified, the shape of the ripple that the focus ring indication will
- *   use, if inset focus ring indications are enabled. If left `null`, a default shape will be used,
- *   which will be a rounded rectangle based on the [radius] if specified, otherwise it will be just
- *   a [RectangleShape]. This [Shape] instance must remain the same during the lifetime of the
- *   ripple in composition. If the [Shape] needs to change, delegate from a single instance to the
- *   changing shape to preserve the instance requirement.
+ * @param focusRingShape this parameter is only used if inset focus rings are enabled, specifically
+ *   when the [RippleThemeConfiguration.focus] from [LocalRippleThemeConfiguration] is
+ *   [RippleThemeConfiguration.Focus.InsetRing]. When inset focus rings are enabled, the focus ring
+ *   shape will define the shape of the ripple that the focus ring indication will use if specified.
+ *   If left `null`, a default shape will be used, which will be a rounded rectangle based on the
+ *   [radius] if specified, otherwise it will be just a [RectangleShape]. This [Shape] instance must
+ *   remain the same during the lifetime of the ripple in composition. If the [Shape] needs to
+ *   change, delegate from a single instance to the changing shape to preserve the instance
+ *   requirement.
  * @param enablePressIndication if true, this ripple will draw the indication for press
  *   interactions. Set this to `false` to disable drawing any visuals for press interactions in this
  *   ripple.
@@ -323,17 +331,14 @@ public object RippleDefaults {
             hoveredAlpha = StateTokens.HoverStateLayerOpacity,
         )
 
-    /**
-     * The default [RippleThemeConfiguration] that corresponds to an opacity based indication style.
-     */
-    public val OpacityFocusRippleThemeConfiguration: RippleThemeConfiguration =
-        RippleThemeConfiguration(RippleThemeConfiguration.Focus.Opacity())
+    /** A [RippleThemeConfiguration] that corresponds to an opacity based indication style. */
+    public val OpacityFocusThemeConfiguration: RippleThemeConfiguration =
+        RippleThemeConfiguration(RippleThemeConfiguration.Focus.Opacity)
 
     /**
-     * The default [RippleThemeConfiguration] that corresponds to an inset focus ring based
-     * indication style.
+     * A [RippleThemeConfiguration] that corresponds to an inset focus ring based indication style.
      */
-    public val InsetFocusRingRippleThemeConfiguration: RippleThemeConfiguration =
+    public val InsetFocusRingThemeConfiguration: RippleThemeConfiguration =
         RippleThemeConfiguration(
             RippleThemeConfiguration.Focus.InsetRing(
                 outerStrokeInset = 0.dp,
@@ -344,7 +349,7 @@ public object RippleDefaults {
         )
 
     /** The default [RippleThemeConfiguration]. */
-    public val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusRippleThemeConfiguration
+    public val ThemeConfiguration: RippleThemeConfiguration = OpacityFocusThemeConfiguration
 }
 
 /**
@@ -359,6 +364,8 @@ public object RippleDefaults {
  *   including disabling ripples and their indications. This takes next highest priority.
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
+ *
+ * @sample androidx.compose.material3.samples.InsetFocusRingRippleSample
  */
 public val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleThemeConfiguration> =
     compositionLocalOf {
@@ -382,24 +389,21 @@ public val LocalRippleThemeConfiguration: ProvidableCompositionLocal<RippleTheme
  */
 public class RippleThemeConfiguration(public val focus: Focus) {
     /** The configuration options for the focus indication for [RippleThemeConfiguration]. */
-    public abstract class Focus private constructor() {
+    public sealed class Focus private constructor() {
         /** An opacity-based focus indication. */
-        public class Opacity : Focus() {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other !is Opacity) return false
-
-                return true
-            }
-
-            override fun hashCode(): Int = 1
-        }
+        public object Opacity : Focus()
 
         /**
          * An inset ring focus indication. This is drawn using two strokes, an outer stroke and an
-         * inner stroke.
+         * inner stroke. The inner stroke is drawn first, followed by the outer stroke.
          *
-         * The inner stroke is drawn first, followed by the outer stroke.
+         * As this describes the overall ripple theme, and the inset ring colors are use-site
+         * specific, the colors are configured in [RippleConfiguration.Focus.InsetRing] instead.
+         *
+         * @param outerStrokeInset the amount the outer stroke is inset
+         * @param outerStrokeWidth the width of the outer stroke
+         * @param innerStrokeInset the amount the inner stroke is inset
+         * @param innerStrokeWidth the width of the inner stroke
          */
         public class InsetRing(
             public val outerStrokeInset: Dp,
@@ -427,6 +431,8 @@ public class RippleThemeConfiguration(public val focus: Focus) {
                 return result
             }
         }
+
+        private object NonExhaustive : Focus()
     }
 }
 
@@ -449,6 +455,9 @@ public class RippleThemeConfiguration(public val focus: Focus) {
  *   including disabling ripples and their indications. This takes next highest priority.
  * - [ripple] parameters allow specifying configuration for individual indication callsites in
  *   components.
+ *
+ * @sample androidx.compose.material3.samples.RippleConfigurationOpacitySample
+ * @sample androidx.compose.material3.samples.RippleConfigurationInsetFocusRingSample
  */
 public val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
     compositionLocalWithComputedDefaultOf {
@@ -529,24 +538,16 @@ internal constructor(public val color: Color, public val focus: Focus?, rippleAl
     ) : this(color = color, focus = null, rippleAlpha = rippleAlpha)
 
     /** The configuration options for the focus indication for [RippleConfiguration]. */
-    public abstract class Focus private constructor() {
+    public sealed class Focus private constructor() {
         /** An opacity-based focus indication. */
-        public class Opacity : Focus() {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other !is Opacity) return false
-
-                return true
-            }
-
-            override fun hashCode(): Int = 1
-        }
+        public object Opacity : Focus()
 
         /**
          * An inset ring focus indication. This is drawn using two strokes, an outer stroke and an
-         * inner stroke.
+         * inner stroke. The inner stroke is drawn first, followed by the outer stroke.
          *
-         * The inner stroke is drawn first, followed by the outer stroke.
+         * As this describes a use-site specific override, the inset ring dimensions are controlled
+         * with [RippleThemeConfiguration.Focus.InsetRing] instead.
          *
          * @param outerStrokeColor the color of the outer stroke.
          * @param innerStrokeColor the color of the inner stroke.
@@ -571,6 +572,8 @@ internal constructor(public val color: Color, public val focus: Focus?, rippleAl
                 return result
             }
         }
+
+        private object NonExhaustive : Focus()
     }
 
     override fun equals(other: Any?): Boolean {

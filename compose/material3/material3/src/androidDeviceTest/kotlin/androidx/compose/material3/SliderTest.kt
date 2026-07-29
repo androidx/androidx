@@ -1440,7 +1440,7 @@ class SliderTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                    RippleDefaults.InsetFocusRingThemeConfiguration
             ) {
                 Column {
                     Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
@@ -1504,7 +1504,7 @@ class SliderTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                    RippleDefaults.InsetFocusRingThemeConfiguration
             ) {
                 Column {
                     Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
@@ -1568,7 +1568,7 @@ class SliderTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                    RippleDefaults.InsetFocusRingThemeConfiguration
             ) {
                 Column {
                     Box(Modifier.testTag("other").requiredSize(10.dp).focusable())
