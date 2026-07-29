@@ -135,10 +135,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
             FLAG_PREFIX + "enable_informational_ranking_expressions";
 
-    /** Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS}. */
-    public static final String FLAG_ENABLE_RESULT_ALREADY_EXISTS =
-            FLAG_PREFIX + "enable_result_already_exists";
-
     /** Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}. */
     public static final String FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC =
             FLAG_PREFIX + "enable_generic_document_over_ipc";
@@ -407,14 +403,6 @@ public final class Flags {
 
     /** Whether informational ranking expressions should be enabled. */
     public static boolean enableInformationalRankingExpressions() {
-        return true;
-    }
-
-    /**
-     * Whether {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS} should be
-     * enabled.
-     */
-    public static boolean enableResultAlreadyExists() {
         return true;
     }
 
