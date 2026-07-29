@@ -46,6 +46,12 @@ package androidx.compose.ui.text {
   }
 
   public static sealed nonexhaustive interface AnnotatedString.Annotation {
+    field public static final androidx.compose.ui.text.AnnotatedString.Annotation.Companion Companion;
+  }
+
+  public static final class AnnotatedString.Annotation.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString.Annotation,java.lang.Object> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString.Annotation,java.lang.Object> Saver;
   }
 
   public static final class AnnotatedString.Builder implements java.lang.Appendable {
