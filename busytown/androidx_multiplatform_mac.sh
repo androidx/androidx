@@ -2,9 +2,9 @@
 set -e
 cd "$(dirname "$0")"
 
-# Builds all projects that support KMP
+# Builds all projects that support Mac targets
 # Must be run on Mac
-export ANDROIDX_PROJECTS=KMP
+export ANDROIDX_PROJECTS=MAC
 
 # This target is for testing that clean builds work correctly
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
