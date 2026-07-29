@@ -32,7 +32,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertFalse
-import org.junit.Ignore
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -43,7 +43,6 @@ class RemoteComposePlayerTest {
 
     private var lastEventTime = SystemClock.uptimeMillis()
 
-    @Ignore("b/514549600")
     @Test
     fun scrollableComponent_disallowsParentIntercept_soDragIsNotPropagatedToHost() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
@@ -71,6 +70,34 @@ class RemoteComposePlayerTest {
         )
     }
 
+    @Test
+    fun nonInteractiveComponent_allowsParentIntercept_soDragIsPropagatedToHost() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = false)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val host = HostViewGroup(context)
+        val player = RemoteComposePlayer(context)
+        player.setDocument(docBytes)
+        host.addView(player, FrameLayout.LayoutParams(300, 300))
+
+        host.measure(
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(300, View.MeasureSpec.EXACTLY),
+        )
+        host.layout(0, 0, 300, 300)
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
+        host.draw(Canvas(bitmap))
+
+        // Swipe inside the non-interactive box (75, 250 -> 75, 50)
+        performSwipe(host, 75f, 250f, 75f, 50f)
+
+        assertTrue(
+            "Host parent should intercept drag gesture when RemoteComposePlayer has no interactive components",
+            host.hostInterceptedDrag,
+        )
+        assertFalse("Host parent disallowIntercept should remain false", host.disallowIntercept)
+    }
+
     private class HostViewGroup(context: Context) : FrameLayout(context) {
         var disallowIntercept = false
         var hostInterceptedDrag = false
@@ -78,6 +105,13 @@ class RemoteComposePlayerTest {
         override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
             this.disallowIntercept = disallowIntercept
             super.requestDisallowInterceptTouchEvent(disallowIntercept)
+        }
+
+        override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+            if (ev.action == MotionEvent.ACTION_DOWN) {
+                disallowIntercept = false
+            }
+            return super.dispatchTouchEvent(ev)
         }
 
         override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -89,6 +123,14 @@ class RemoteComposePlayerTest {
                 return true
             }
             return false
+        }
+
+        override fun onTouchEvent(ev: MotionEvent): Boolean {
+            if (ev.action == MotionEvent.ACTION_MOVE) {
+                hostInterceptedDrag = true
+                return true
+            }
+            return super.onTouchEvent(ev)
         }
     }
 

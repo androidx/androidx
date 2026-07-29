@@ -745,6 +745,7 @@ public class RemoteComposeView extends FrameLayout
                                 mVelocityTracker.clear();
                             }
                             mVelocityTracker.addMovement(event);
+                            requestDisallowInterceptTouchEvent(true);
                             invalidate();
                             return true;
                         }
