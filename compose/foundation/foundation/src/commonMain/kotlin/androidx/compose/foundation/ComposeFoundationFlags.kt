@@ -206,15 +206,6 @@ public object ComposeFoundationFlags {
     public var isDragNodeOffsetDoubleCountingFixEnabled: Boolean = true
 
     /**
-     * Enables fix where coroutine scope lambda and scope are cleared on node detachment to prevent
-     * reference leaking.
-     */
-    // TODO: b/506963276
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isClearNestedScrollCoroutineScopeFixEnabled: Boolean = true
-
-    /**
      * This flag controls whether selecting text in
      * [androidx.compose.foundation.text.selection.SelectionContainer] causes scrollable ancestors
      * of the text to be scrolled when the selecting pointer is dragged outside the scrollable's
