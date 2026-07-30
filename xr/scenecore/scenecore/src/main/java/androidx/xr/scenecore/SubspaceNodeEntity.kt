@@ -53,7 +53,7 @@ private constructor(rtSubspaceNodeEntity: RtSubspaceNodeEntity, entityRegistry: 
          * Creates a [SubspaceNodeEntity] from a [NodeHolder] with a given [FloatSize3d].
          *
          * @param session The [Session].
-         * @param NodeHolder The NodeHolder is a XrExtensions Node container. Use the [NodeHolder]
+         * @param nodeHolder The NodeHolder is a XrExtensions Node container. Use the [NodeHolder]
          *   to get the XrExtensions's Node to create the [SubspaceNodeEntity] from.
          * @param size The initial [FloatSize3d] of the [SubspaceNodeEntity] in meters in unscaled
          *   local space.

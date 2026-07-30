@@ -50,27 +50,15 @@ internal interface ComposeSubspaceNode {
          */
         val Constructor: () -> ComposeSubspaceNode = SubspaceLayoutNode.Constructor
 
-        /**
-         * Sets the [SubspaceMeasurePolicy] for the given [ComposeSubspaceNode].
-         *
-         * @param measurePolicy the [SubspaceMeasurePolicy] to be applied.
-         */
+        /** Sets the [SubspaceMeasurePolicy] for the given [ComposeSubspaceNode]. */
         val SetMeasurePolicy: ComposeSubspaceNode.(SubspaceMeasurePolicy) -> Unit = {
             this.measurePolicy = it
         }
 
-        /**
-         * Sets the [CoreEntity] for the given [ComposeSubspaceNode].
-         *
-         * @param entity the [CoreEntity] to be associated, or null.
-         */
+        /** Sets the [CoreEntity] for the given [ComposeSubspaceNode]. */
         val SetCoreEntity: ComposeSubspaceNode.(OpaqueEntity?) -> Unit = { this.entity = it }
 
-        /**
-         * Sets the [SubspaceModifier] for the given [ComposeSubspaceNode].
-         *
-         * @param modifier the [SubspaceModifier] to be applied.
-         */
+        /** Sets the [SubspaceModifier] for the given [ComposeSubspaceNode]. */
         val SetModifier: ComposeSubspaceNode.(SubspaceModifier) -> Unit = { this.modifier = it }
 
         /** Sets a snapshot of the current composition local map when this node is created. */
