@@ -95,7 +95,7 @@ class RcPlayerImageSizeTest {
         // composition — the decoder refuses the declared-vs-actual dimension mismatch.
         val thrown =
             assertThrows(Throwable::class.java) {
-                rule.setContent { RcPlayer(document = document, autoUpdate = false) }
+                rule.setContent { RcPlayer(document = document) }
                 rule.waitForIdle()
             }
         assertThat(thrown.chainMessages()).contains("dimensions don't match")

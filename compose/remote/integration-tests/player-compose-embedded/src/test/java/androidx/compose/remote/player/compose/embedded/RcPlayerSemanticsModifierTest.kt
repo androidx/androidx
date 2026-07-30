@@ -85,9 +85,7 @@ class RcPlayerSemanticsModifierTest {
                     }
                 }
             rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
-                }
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
             }
             rule.mainClock.advanceTimeBy(100)
         }

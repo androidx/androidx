@@ -119,9 +119,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         val idlingResource = RemoteComposeIdlingResource()
         rule.registerIdlingResource(idlingResource)
@@ -169,9 +167,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         val idlingResource = RemoteComposeIdlingResource()
         rule.registerIdlingResource(idlingResource)
@@ -232,9 +228,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         val idlingResource = RemoteComposeIdlingResource()
         rule.registerIdlingResource(idlingResource)
@@ -292,9 +286,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         val idlingResource = RemoteComposeIdlingResource()
         rule.registerIdlingResource(idlingResource)
@@ -348,7 +340,6 @@ class RcPlayerRecompositionEventsTest {
                 key(doc) {
                     RcPlayer(
                         document = doc,
-                        autoUpdate = true,
                         onNamedAction = { name, value, _ ->
                             if (name == "test_lambda" && value is Int) {
                                 testLambdaMap[value]?.invoke()
@@ -410,9 +401,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         var emissionCount = AtomicInteger(0)
         val collectorJob = Job()
@@ -482,9 +471,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         var emissionCount = AtomicInteger(0)
 
@@ -597,9 +584,7 @@ class RcPlayerRecompositionEventsTest {
 
         var document by mutableStateOf<CoreDocument?>(null)
 
-        rule.setContent {
-            document?.let { doc -> key(doc) { RcPlayer(document = doc, autoUpdate = true) } }
-        }
+        rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
         val idlingResource = RemoteComposeIdlingResource()
         rule.registerIdlingResource(idlingResource)
