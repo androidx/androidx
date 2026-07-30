@@ -469,4 +469,37 @@ class CallSessionTest : BaseTelecomTest() {
             callChannels.closeAllChannels()
         }
     }
+
+    /**
+     * Verifies that [CallSession.launchStartingEndpointSwitch] launches asynchronously in the
+     * background so call setup can return immediately without waiting for starting endpoint
+     * resolution.
+     */
+    @Test
+    fun testLaunchStartingEndpointSwitch_runsAsynchronouslyWithoutBlocking() {
+        runBlocking {
+            val callChannels = CallChannels()
+            val attributes = createAudioCallAttributes()
+            val callSession = initCallSession(coroutineContext, callChannels, attributes)
+
+            // Launch starting endpoint switch with a preferred endpoint.
+            // Because mIsAvailableEndpointsSet is NOT completed yet, this job is GUARANTEED to stay
+            // suspended at awaitAll() without finishing!
+            callSession.launchStartingEndpointSwitch(mEarpieceEndpoint)
+
+            // Verify that launchStartingEndpointSwitch returned immediately and
+            // mStartingEndpointJob
+            // is actively running in the background.
+            val audioJob = callSession.mStartingEndpointJob
+            assertNotNull("mStartingEndpointJob should have been launched", audioJob)
+            assertTrue(
+                "launchStartingEndpointSwitch must return immediately while audio setup job suspends in background!",
+                audioJob!!.isActive,
+            )
+
+            // Cleanup
+            audioJob.cancel()
+            callChannels.closeAllChannels()
+        }
+    }
 }
