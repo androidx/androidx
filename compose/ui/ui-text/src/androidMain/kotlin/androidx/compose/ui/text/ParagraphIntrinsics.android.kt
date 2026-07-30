@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.TypefaceResult
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.platform.EmojiCompatStatus
 import androidx.compose.ui.text.platform.createCharSequence
@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.core.text.TextUtilsCompat
+import java.util.Locale
 
 /**
  * The maximum length of text in characters for which the single-line line-height optimization is
@@ -59,7 +60,6 @@ internal class AndroidParagraphIntrinsics(
     val annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     val fontFamilyResolver: FontFamily.Resolver,
-    val defaultLocale: Locale,
     val density: Density,
     val softWrap: Boolean,
 ) : ParagraphIntrinsics {
@@ -98,10 +98,7 @@ internal class AndroidParagraphIntrinsics(
                     /* short-circuit this state read */ EmojiCompatStatus.fontLoaded.value)
 
     internal val textDirectionHeuristic =
-        resolveTextDirectionHeuristics(
-            style.textDirection,
-            style.localeList?.firstOrNull() ?: defaultLocale,
-        )
+        resolveTextDirectionHeuristics(style.textDirection, style.localeList)
 
     /**
      * Whether [text] contains a hard new line. This is evaluated to apply certain optimizations.
@@ -146,9 +143,7 @@ internal class AndroidParagraphIntrinsics(
                 style = style.toSpanStyle(),
                 resolveTypeface = resolveTypeface,
                 density = density,
-                requiresLetterSpacing =
-                    annotations.fastFirstOrNull { it.item is SpanStyle } != null,
-                defaultLocale = defaultLocale,
+                requiresLetterSpacing = annotations.fastFirstOrNull { it.item is SpanStyle } != null,
             )
 
         val finalSpanStyles =
@@ -191,7 +186,10 @@ internal class AndroidParagraphIntrinsics(
  * For a given [TextDirection] return [androidx.compose.ui.text.android.TextLayout] constants for
  * text direction heuristics.
  */
-internal fun resolveTextDirectionHeuristics(textDirection: TextDirection, locale: Locale): Int {
+internal fun resolveTextDirectionHeuristics(
+    textDirection: TextDirection,
+    localeList: LocaleList? = null,
+): Int {
     return when (textDirection) {
         TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
         TextDirection.ContentOrRtl -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
@@ -199,7 +197,7 @@ internal fun resolveTextDirectionHeuristics(textDirection: TextDirection, locale
         TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
         TextDirection.Content,
         TextDirection.Unspecified -> {
-            val currentLocale = locale.platformLocale
+            val currentLocale = localeList?.let { it[0].platformLocale } ?: Locale.getDefault()
             when (TextUtilsCompat.getLayoutDirectionFromLocale(currentLocale)) {
                 View.LAYOUT_DIRECTION_LTR -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
                 View.LAYOUT_DIRECTION_RTL -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
@@ -215,7 +213,7 @@ internal fun resolveTextDirectionHeuristics(textDirection: TextDirection, locale
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
     ReplaceWith(
         "ParagraphIntrinsics(text, style, spanStyles, density, " +
-            "createFontFamilyResolver(resourceLoader), placeholders, true, Locale.current)",
+            "createFontFamilyResolver(resourceLoader), placeholders, true)",
         "androidx.compose.ui.text.font.createFontFamilyResolver",
     ),
 )
@@ -235,13 +233,12 @@ public actual fun ParagraphIntrinsics(
         annotations = spanStyles,
         density = density,
         softWrap = true,
-        defaultLocale = Locale.current,
     )
 
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true, Locale.current)"
+        "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders, true)"
     ),
 )
 public actual fun ParagraphIntrinsics(
@@ -260,13 +257,12 @@ public actual fun ParagraphIntrinsics(
         annotations = spanStyles,
         density = density,
         softWrap = true,
-        defaultLocale = @Suppress("DEPRECATION") Locale.current,
     )
 
 @Deprecated(
     "Use an override with `softWrap`",
     ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, softWrap, Locale.current)"
+        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, listOf(), true)"
     ),
 )
 public actual fun ParagraphIntrinsics(
@@ -285,15 +281,8 @@ public actual fun ParagraphIntrinsics(
         annotations = annotations,
         density = density,
         softWrap = true,
-        defaultLocale = @Suppress("DEPRECATION") Locale.current,
     )
 
-@Deprecated(
-    "Use an override with `defaultLocale`",
-    ReplaceWith(
-        "ParagraphIntrinsics(text, style, annotations, density, fontFamilyResolver, placeholders, softWrap, Locale.current)"
-    ),
-)
 public actual fun ParagraphIntrinsics(
     text: String,
     style: TextStyle,
@@ -308,28 +297,6 @@ public actual fun ParagraphIntrinsics(
         style = style,
         placeholders = placeholders,
         fontFamilyResolver = fontFamilyResolver,
-        annotations = annotations,
-        density = density,
-        softWrap = softWrap,
-        defaultLocale = @Suppress("DEPRECATION") Locale.current,
-    )
-
-public actual fun ParagraphIntrinsics(
-    text: String,
-    style: TextStyle,
-    annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
-    density: Density,
-    fontFamilyResolver: FontFamily.Resolver,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    softWrap: Boolean,
-    defaultLocale: Locale,
-): ParagraphIntrinsics =
-    AndroidParagraphIntrinsics(
-        text = text,
-        style = style,
-        placeholders = placeholders,
-        fontFamilyResolver = fontFamilyResolver,
-        defaultLocale = defaultLocale,
         annotations = annotations,
         density = density,
         softWrap = softWrap,
