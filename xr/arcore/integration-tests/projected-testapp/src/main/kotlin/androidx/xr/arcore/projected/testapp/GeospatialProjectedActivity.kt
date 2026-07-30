@@ -128,13 +128,12 @@ open class GeospatialProjectedActivity : ComponentActivity() {
     }
 
     private fun onPermissionGranted() {
-        val useBgThread = intent.getBooleanExtra("debug.jxr.geo.bg_thread", false)
+        val useBgThread = intent.getBooleanExtra("debug.jxr.geo.bg_thread", true)
         val delayMs = intent.getIntExtra("debug.jxr.geo.delay_ms", 0)
         val dispatcher = if (useBgThread) Dispatchers.IO else Dispatchers.Main
 
         Log.i("JetpackXR", "onPermissionGranted: useBgThread=$useBgThread, delayMs=$delayMs")
 
-        // TODO: b/518877582 - switch back to lifecycleScope.launch(Dispatchers.IO)
         lifecycleScope.launch(dispatcher) {
             delay(delayMs.toLong())
             tryCreateSession()
