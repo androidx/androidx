@@ -262,6 +262,8 @@ private fun RemoteDrawScope.drawPageIndicators(
     val spacerSizePx = radius * 2f.rf + spacingPx
     val spacerAngleRad = spacerSizePx / bigRadius
     val spacerAngleDegrees = spacerAngleRad * (180f / PI_FLOAT).rf
+    val shrinkThresholdStart = calculateShrinkThresholdStart(spacingPx, radius * 2f.rf)
+    val shrinkThresholdEnd = calculateShrinkThresholdEnd(spacingPx, radius * 2f.rf)
 
     val windowActivePage: RemoteFloat
     val shift: RemoteFloat
@@ -273,17 +275,35 @@ private fun RemoteDrawScope.drawPageIndicators(
         windowActivePage = currentPage
         shift = 0f.rf
 
+        val floorPage = floor(currentPage)
+        val progression = currentPage - floorPage
         val inactivePaint = RemotePaint { style = PaintingStyle.Fill }
         for (i in 0 until pageCount) {
-            val distance = abs(currentPage - i.toFloat().rf)
-            val fraction = distance.isLessThan(1f.rf).select(1f.rf - distance, 0f.rf)
-            inactivePaint.color =
-                unselectedColor.copy(alpha = lerp(unselectedColor.alpha, 0f.rf, fraction))
+            val shrinkRatio =
+                calculateAdjacentShrinkRatio(
+                    dotIndex = i,
+                    floorPage = floorPage,
+                    progression = progression,
+                    shrinkThresholdStart = shrinkThresholdStart,
+                    shrinkThresholdEnd = shrinkThresholdEnd,
+                )
+            val alphaRatio = inverseLerp(0f.rf, 0.5f.rf, shrinkRatio)
+            inactivePaint.color = unselectedColor.copy(alpha = unselectedColor.alpha * alphaRatio)
 
-            val dotRadius = radius * (1f.rf - fraction)
+            val spacerOffsetRatio =
+                calculateSpacerOffsetRatio(
+                    dotIndex = i.toFloat().rf,
+                    floorPage = floorPage,
+                    progression = progression,
+                    shrinkThresholdStart = shrinkThresholdStart,
+                    shrinkThresholdEnd = shrinkThresholdEnd,
+                )
+            val dotRadius = radius * shrinkRatio
             val angleRad =
-                (startAngle + stepDirection.rf * spacerAngleDegrees * i.toFloat().rf) *
+                (startAngle +
+                    stepDirection.rf * spacerAngleDegrees * (i.toFloat().rf + spacerOffsetRatio)) *
                     (PI_FLOAT / 180f).rf
+
             val x = width / 2f.rf + bigRadius * cos(angleRad)
             val y = height / 2f.rf + bigRadius * sin(angleRad)
 
@@ -300,6 +320,8 @@ private fun RemoteDrawScope.drawPageIndicators(
             if (isHorizontal) 90f.rf + 2.5f.rf * spacerAngleDegrees
             else 0f.rf - 2.5f.rf * spacerAngleDegrees
 
+        val floorPage = floor(windowActivePage)
+        val progression = windowActivePage - floorPage
         val inactivePaint = RemotePaint { style = PaintingStyle.Fill }
         for (i in 0..6) {
             val pageIndex = floorHidden + i.toFloat().rf
@@ -336,17 +358,35 @@ private fun RemoteDrawScope.drawPageIndicators(
                     else -> 1f.rf
                 }
 
-            val distance = abs(windowActivePage - i.toFloat().rf)
-            val fraction = distance.isLessThan(1f.rf).select(1f.rf - distance, 0f.rf)
+            val shrinkRatio =
+                calculateAdjacentShrinkRatio(
+                    dotIndex = i,
+                    floorPage = floorPage,
+                    progression = progression,
+                    shrinkThresholdStart = shrinkThresholdStart,
+                    shrinkThresholdEnd = shrinkThresholdEnd,
+                )
+            val finalSizeRatio = slotSizeRatio * shrinkRatio
+            val alphaRatio = inverseLerp(0f.rf, 0.5f.rf, finalSizeRatio)
             inactivePaint.color =
-                unselectedColor.copy(
-                    alpha = lerp(unselectedColor.alpha * slotAlpha, 0f.rf, fraction)
+                unselectedColor.copy(alpha = unselectedColor.alpha * slotAlpha * alphaRatio)
+
+            val spacerOffsetRatio =
+                calculateSpacerOffsetRatio(
+                    dotIndex = i.toFloat().rf,
+                    floorPage = floorPage,
+                    progression = progression,
+                    shrinkThresholdStart = shrinkThresholdStart,
+                    shrinkThresholdEnd = shrinkThresholdEnd,
                 )
 
-            val dotRadius = radius * slotSizeRatio * (1f.rf - fraction)
+            val dotRadius = radius * finalSizeRatio
             val angleRad =
-                (startAngle + stepDirection.rf * (i.toFloat().rf - shift) * spacerAngleDegrees) *
-                    (PI_FLOAT / 180f).rf
+                (startAngle +
+                    stepDirection.rf *
+                        (i.toFloat().rf - shift + spacerOffsetRatio) *
+                        spacerAngleDegrees) * (PI_FLOAT / 180f).rf
+
             val x = width / 2f.rf + bigRadius * cos(angleRad)
             val y = height / 2f.rf + bigRadius * sin(angleRad)
 
@@ -407,4 +447,55 @@ private fun RemoteDrawScope.drawPageIndicators(
         topLeft = offset,
         size = arcSize,
     )
+}
+
+private fun calculateShrinkThresholdStart(
+    spacingPx: RemoteFloat,
+    indicatorSizePx: RemoteFloat,
+): RemoteFloat = spacingPx / (spacingPx + indicatorSizePx) / 4f.rf
+
+private fun calculateShrinkThresholdEnd(
+    spacingPx: RemoteFloat,
+    indicatorSizePx: RemoteFloat,
+): RemoteFloat = (spacingPx / 2f.rf + indicatorSizePx) / (spacingPx + indicatorSizePx) / 2f.rf
+
+private fun inverseLerp(start: RemoteFloat, stop: RemoteFloat, value: RemoteFloat): RemoteFloat {
+    return ((value - start) / (stop - start)).coerceIn(0f.rf, 1f.rf)
+}
+
+private fun calculateAdjacentShrinkRatio(
+    dotIndex: Int,
+    floorPage: RemoteFloat,
+    progression: RemoteFloat,
+    shrinkThresholdStart: RemoteFloat,
+    shrinkThresholdEnd: RemoteFloat,
+): RemoteFloat {
+    val isPrevDot = abs(dotIndex.toFloat().rf - floorPage).isLessThan(0.01f.rf)
+    val isNextDot = abs(dotIndex.toFloat().rf - (floorPage + 1f.rf)).isLessThan(0.01f.rf)
+
+    val prevShrink =
+        1f.rf - inverseLerp(1f.rf - shrinkThresholdStart, 1f.rf - shrinkThresholdEnd, progression)
+    val nextShrink = 1f.rf - inverseLerp(shrinkThresholdStart, shrinkThresholdEnd, progression)
+
+    return isPrevDot.select(prevShrink, isNextDot.select(nextShrink, 1f.rf))
+}
+
+private fun calculateSpacerOffsetRatio(
+    dotIndex: RemoteFloat,
+    floorPage: RemoteFloat,
+    progression: RemoteFloat,
+    shrinkThresholdStart: RemoteFloat,
+    shrinkThresholdEnd: RemoteFloat,
+): RemoteFloat {
+    val isPrevDot = abs(dotIndex - floorPage).isLessThan(0.01f.rf)
+    val isNextDot = abs(dotIndex - (floorPage + 1f.rf)).isLessThan(0.01f.rf)
+
+    val prevShrink =
+        1f.rf - inverseLerp(1f.rf - shrinkThresholdStart, 1f.rf - shrinkThresholdEnd, progression)
+    val nextShrink = 1f.rf - inverseLerp(shrinkThresholdStart, shrinkThresholdEnd, progression)
+
+    val prevOffset = 0f.rf - (1f.rf - prevShrink) / 3f.rf
+    val nextOffset = (1f.rf - nextShrink) / 3f.rf
+
+    return isPrevDot.select(prevOffset, isNextDot.select(nextOffset, 0f.rf))
 }
