@@ -21,7 +21,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Filters OpenID4VCI issuance requests based on issuance metadata. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed class OpenId4VciFilter {
     /** Serializes the filter to JSON. */
     public abstract fun asJson(): JSONObject
@@ -73,7 +72,6 @@ public class PassFilter() : OpenId4VciFilter() {
  *
  * @property filters list of filters that must all pass
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply {
@@ -98,7 +96,6 @@ public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
  *
  * @property filters list of filters where at least one must pass
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply {
@@ -123,7 +120,6 @@ public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
  *
  * @property filter the filter to invert
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply { put("Not", JSONObject().apply { put("filter", filter.asJson()) }) }
@@ -132,11 +128,14 @@ public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
 }
 
 /**
- * Filters issuance requests by allowed issuer origins.
+ * Filters issuance requests by allowed credential issuers.
  *
- * @property issuers set of allowed issuer origins (e.g., "https://issuer.example.com")
+ * See
+ * [Credential Issuer Identifier](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-1_1-wg-draft.html#section-4.1.1-2.1)
+ * in the OpenID4VCI specification.
+ *
+ * @property issuers set of allowed credential issuers (e.g., "https://issuer.example.com")
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply {
@@ -145,11 +144,14 @@ public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter(
 }
 
 /**
- * Filters issuance requests by allowed configuration identifiers.
+ * Filters issuance requests by allowed credential configuration identifiers.
  *
- * @property configurationIds set of allowed configuration identifiers
+ * See
+ * [Credential Configuration Identifier](https://openid.github.io/OpenID4VCI/openid-4-verifiable-credential-issuance-1_1-wg-draft.html#section-4.1.1-2.2)
+ * in the OpenID4VCI specification.
+ *
+ * @property configurationIds set of allowed credential configuration identifiers
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
     OpenId4VciFilter() {
     override fun asJson(): JSONObject =
@@ -166,7 +168,6 @@ public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
  *
  * @property doctypes set of allowed document types (e.g., "org.iso.18013.5.1.mDL")
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply {
@@ -179,7 +180,6 @@ public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciF
  *
  * @property vcts set of allowed verifiable credential types
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AllowedSdJwtVcts(public val vcts: Set<String>) : OpenId4VciFilter() {
     override fun asJson(): JSONObject =
         JSONObject().apply {
