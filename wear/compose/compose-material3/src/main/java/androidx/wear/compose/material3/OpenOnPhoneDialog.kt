@@ -84,8 +84,9 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
  *
- * ![OpenOnPhoneDialogSample Composite
- * Image](https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param visible A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
@@ -162,8 +163,9 @@ public fun OpenOnPhoneDialog(
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
  *
- * ![OpenOnPhoneDialogSample Composite
- * Image](https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OpenOnPhoneDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [openOnPhoneDialogCurvedText] for this parameter, which

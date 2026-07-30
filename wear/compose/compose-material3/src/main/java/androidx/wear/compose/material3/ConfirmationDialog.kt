@@ -91,8 +91,9 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
  *
- *   ![ConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
@@ -149,8 +150,9 @@ public fun ConfirmationDialog(
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationDialogSample
  *
- *   ![ConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_ConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
@@ -198,8 +200,9 @@ public fun ConfirmationDialogContent(
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
  *
- *   ![LongTextConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
@@ -252,8 +255,9 @@ public fun ConfirmationDialog(
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
  *
- *   ![LongTextConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_LongTextConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param text A slot for displaying text below the icon. It should not exceed 3 lines.
  * @param modifier Modifier to be applied to the confirmation content.
@@ -331,8 +335,9 @@ public fun ConfirmationDialogContent(
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
  *
- *   ![SuccessConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
@@ -398,8 +403,9 @@ public fun SuccessConfirmationDialog(
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationDialogSample
  *
- *   ![SuccessConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_SuccessConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
@@ -448,15 +454,17 @@ public fun SuccessConfirmationDialogContent(
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
  *
- *   ![FailureConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
  *
- *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param visible A boolean indicating whether the confirmation dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
@@ -521,15 +529,17 @@ public fun FailureConfirmationDialog(
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
  *
- *   ![FailureConfirmationDialogSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * Example of [FailureConfirmationDialog] with the variant failure icon for a generic error.
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationDialogWithGenericFailureIconSample
  *
- *   ![FailureConfirmationDialogWithGenericFailureIconSample Composite
- *   Image](https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.png)
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_FailureConfirmationDialogWithGenericFailureIconSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  *
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. We recommend using [confirmationDialogCurvedText] for this parameter, which
