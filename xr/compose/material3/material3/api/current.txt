@@ -67,12 +67,12 @@ package androidx.xr.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.xr.compose.material3.ExperimentalMaterial3XrApi public final class OrbiterProperties {
-    ctor public OrbiterProperties(androidx.xr.compose.spatial.OrbiterAlignment alignment, androidx.xr.compose.subspace.layout.SpatialShape shape);
-    method public androidx.xr.compose.material3.OrbiterProperties copy(optional androidx.xr.compose.spatial.OrbiterAlignment? alignment, optional androidx.xr.compose.subspace.layout.SpatialShape? shape);
-    method @BytecodeOnly public static androidx.xr.compose.material3.OrbiterProperties! copy$default(androidx.xr.compose.material3.OrbiterProperties!, androidx.xr.compose.spatial.OrbiterAlignment!, androidx.xr.compose.subspace.layout.SpatialShape!, int, Object!);
-    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.OrbiterAlignment getAlignment();
+    ctor public OrbiterProperties(androidx.xr.compose.spatial.OrbiterPosition position, androidx.xr.compose.subspace.layout.SpatialShape shape);
+    method public androidx.xr.compose.material3.OrbiterProperties copy(optional androidx.xr.compose.spatial.OrbiterPosition? position, optional androidx.xr.compose.subspace.layout.SpatialShape? shape);
+    method @BytecodeOnly public static androidx.xr.compose.material3.OrbiterProperties! copy$default(androidx.xr.compose.material3.OrbiterProperties!, androidx.xr.compose.spatial.OrbiterPosition!, androidx.xr.compose.subspace.layout.SpatialShape!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.xr.compose.spatial.OrbiterPosition getPosition();
     method @InaccessibleFromKotlin public androidx.xr.compose.subspace.layout.SpatialShape getShape();
-    property public androidx.xr.compose.spatial.OrbiterAlignment alignment;
+    property public androidx.xr.compose.spatial.OrbiterPosition position;
     property public androidx.xr.compose.subspace.layout.SpatialShape shape;
   }
 

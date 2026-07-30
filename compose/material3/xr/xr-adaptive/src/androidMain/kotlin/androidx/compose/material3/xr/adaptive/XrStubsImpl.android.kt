@@ -41,7 +41,7 @@ private object XrHorizontalOrbiterStubImpl : XrHorizontalOrbiterStub {
         content: @Composable (() -> Unit),
     ) {
         androidx.xr.compose.spatial.Orbiter(
-            alignment =
+            position =
                 properties.position.toXrOrbiterAlignment(
                     offset = properties.offset,
                     offsetType = properties.offsetType,
@@ -58,7 +58,7 @@ private object XrVerticalOrbiterStubImpl : XrVerticalOrbiterStub {
     @Composable
     override fun Orbiter(properties: VerticalOrbiterProperties, content: @Composable () -> Unit) {
         androidx.xr.compose.spatial.Orbiter(
-            alignment =
+            position =
                 properties.position.toXrOrbiterAlignment(
                     offset = properties.offset,
                     offsetType = properties.offsetType,

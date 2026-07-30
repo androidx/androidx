@@ -56,8 +56,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.SpatialColumn
@@ -191,9 +191,9 @@ class CurvedLayout : ComponentActivity() {
                     }
                 }
                 Orbiter(
-                    alignment =
-                        OrbiterAlignment.CenterEnd(
-                            edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    position =
+                        OrbiterPosition.CenterEnd(
+                            EdgeAlignment.Outside,
                             offset = DpVolumeOffset(x = 30.dp),
                         )
                 ) {

@@ -32,10 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.material3.XrSingleRowTopAppBarTokens.OrbiterOffset
+import androidx.xr.compose.material3.XrTwoRowsTopAppBarTokens.OrbiterOffset
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
@@ -82,9 +84,9 @@ public fun SpatialTopAppBar(
 @ExperimentalMaterial3XrApi
 public val DefaultSpatialTopAppBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.TopCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+        position =
+            OrbiterPosition.TopCenter(
+                EdgeAlignment.Inside,
                 offset =
                     DpVolumeOffset(
                         0.dp,
@@ -157,9 +159,9 @@ public fun SpatialTwoRowsTopAppBar(
 @ExperimentalMaterial3XrApi
 public val DefaultTwoRowsTopAppBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.TopCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+        position =
+            OrbiterPosition.TopCenter(
+                EdgeAlignment.Inside,
                 offset =
                     DpVolumeOffset(
                         0.dp,

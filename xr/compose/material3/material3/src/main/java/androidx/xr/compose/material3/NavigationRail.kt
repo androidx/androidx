@@ -37,11 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.material3.XrNavigationRailTokens.OrbiterOffset
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.unit.DpVolumeOffset
 
@@ -136,15 +137,10 @@ internal object XrNavigationRailTokens {
 @ExperimentalMaterial3XrApi
 public val DefaultSpatialNavigationRailOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.CenterStart(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-                offset =
-                    DpVolumeOffset(
-                        x = XrNavigationRailTokens.OrbiterOffset,
-                        0.dp,
-                        OrbiterDefaults.Elevation,
-                    ),
+        position =
+            OrbiterPosition.CenterStart(
+                EdgeAlignment.Outside,
+                offset = DpVolumeOffset(x = OrbiterOffset, 0.dp, OrbiterDefaults.Elevation),
             ),
         shape = XrTokens.ContainerShape,
     )

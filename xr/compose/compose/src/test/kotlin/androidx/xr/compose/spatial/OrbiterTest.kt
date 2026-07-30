@@ -46,6 +46,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.SpatialCapabilities
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -1218,10 +1219,10 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopCenter(
+                        position =
+                            OrbiterPosition.TopCenter(
+                                EdgeAlignment.Outside,
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1241,10 +1242,10 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopCenter(
+                        position =
+                            OrbiterPosition.TopCenter(
+                                EdgeAlignment.Inside,
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1264,10 +1265,10 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopCenter(
+                        position =
+                            OrbiterPosition.TopCenter(
+                                EdgeAlignment.Center,
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.None,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1287,10 +1288,11 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopStart(
+                        position =
+                            OrbiterPosition.TopStart(
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                verticalEdgeAlignment = EdgeAlignment.Outside,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1312,10 +1314,11 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopStart(
+                        position =
+                            OrbiterPosition.TopStart(
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                                verticalEdgeAlignment = EdgeAlignment.Inside,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1337,10 +1340,11 @@ class OrbiterTest {
             Subspace {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopStart(
+                        position =
+                            OrbiterPosition.TopStart(
                                 offset = DpVolumeOffset.Zero,
-                                edgeOffsetType = OrbiterEdgeOffsetType.None,
+                                horizontalEdgeAlignment = EdgeAlignment.Center,
+                                verticalEdgeAlignment = EdgeAlignment.Center,
                             )
                     ) {
                         Box(modifier = Modifier.size(10.dp))
@@ -1363,10 +1367,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.TopStart(
+                            position =
+                                OrbiterPosition.TopStart(
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1389,10 +1394,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.TopLeft(
+                            position =
+                                OrbiterPosition.TopLeft(
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1417,10 +1423,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.TopRight(
+                            position =
+                                OrbiterPosition.TopRight(
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1443,10 +1450,10 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.CenterLeft(
+                            position =
+                                OrbiterPosition.CenterLeft(
+                                    EdgeAlignment.Outside,
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1471,10 +1478,10 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.CenterRight(
+                            position =
+                                OrbiterPosition.CenterRight(
+                                    EdgeAlignment.Outside,
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1497,10 +1504,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.BottomLeft(
+                            position =
+                                OrbiterPosition.BottomLeft(
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1527,10 +1535,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.BottomRight(
+                            position =
+                                OrbiterPosition.BottomRight(
                                     offset = DpVolumeOffset.Zero,
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1555,10 +1564,11 @@ class OrbiterTest {
                 SpatialPanel(SubspaceModifier.size(100.dp)) {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.TopStart(
+                            position =
+                                OrbiterPosition.TopStart(
                                     offset = DpVolumeOffset((-20).dp, 10.dp, 5.dp),
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                                    verticalEdgeAlignment = EdgeAlignment.Outside,
                                 )
                         ) {
                             Box(modifier = Modifier.size(10.dp))
@@ -1573,6 +1583,36 @@ class OrbiterTest {
         assertThat(orbiterEntity.getPose().translation.x).isWithin(0.001f).of(75.dp.toMeter().toM())
         assertThat(orbiterEntity.getPose().translation.y).isWithin(0.001f).of(65.dp.toMeter().toM())
         assertThat(orbiterEntity.getPose().translation.z).isWithin(0.001f).of(5.dp.toMeter().toM())
+    }
+
+    @Test
+    fun alignment_cornerAlignment_mixedEdgeOffsets_positionsCorrectly() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(100.dp)) {
+                    Orbiter(
+                        position =
+                            OrbiterPosition.TopStart(
+                                offset = DpVolumeOffset.Zero,
+                                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                                verticalEdgeAlignment = EdgeAlignment.Outside,
+                            )
+                    ) {
+                        Box(modifier = Modifier.size(10.dp))
+                    }
+                }
+            }
+        }
+        val density = composeTestRule.density
+        val orbiterEntity = getOrbiterEntity(10.dp, density)
+        // Inside horizontal alignment: panel_width/2 - orbiter_width/2 = 50.dp - 5.dp = 45.dp ->
+        // -45.dp
+        // Outside vertical alignment: panel_height/2 + orbiter_height/2 = 50.dp + 5.dp = 55.dp ->
+        // 55.dp
+        assertThat(orbiterEntity.getPose().translation.x)
+            .isWithin(0.001f)
+            .of(-45.dp.toMeter().toM())
+        assertThat(orbiterEntity.getPose().translation.y).isWithin(0.001f).of(55.dp.toMeter().toM())
     }
 
     private fun getOrbiterEntity(size: Dp, density: Density): PanelEntity {

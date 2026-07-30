@@ -17,18 +17,18 @@
 package androidx.xr.compose.material3.integration.testapp
 
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition as XrOrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.unit.DpVolumeOffset
 
 private val NavigationSuiteOrbiterDefaultSpacing = 24.dp
 
-internal fun OrbiterPosition.toHorizontalAlignment(): OrbiterAlignment =
+internal fun OrbiterPosition.toHorizontalAlignment(): XrOrbiterPosition =
     when (this) {
         OrbiterPosition.Outside ->
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            XrOrbiterPosition.BottomCenter(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         y = -NavigationSuiteOrbiterDefaultSpacing,
@@ -36,13 +36,13 @@ internal fun OrbiterPosition.toHorizontalAlignment(): OrbiterAlignment =
                     ),
             )
         OrbiterPosition.Overlapping ->
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.None,
+            XrOrbiterPosition.BottomCenter(
+                EdgeAlignment.Center,
                 offset = DpVolumeOffset(y = 0.dp, z = OrbiterDefaults.Elevation),
             )
         OrbiterPosition.Inside ->
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+            XrOrbiterPosition.BottomCenter(
+                EdgeAlignment.Inside,
                 offset =
                     DpVolumeOffset(
                         y = NavigationSuiteOrbiterDefaultSpacing,
@@ -51,11 +51,11 @@ internal fun OrbiterPosition.toHorizontalAlignment(): OrbiterAlignment =
             )
     }
 
-internal fun OrbiterPosition.toVerticalAlignment(): OrbiterAlignment =
+internal fun OrbiterPosition.toVerticalAlignment(): XrOrbiterPosition =
     when (this) {
         OrbiterPosition.Outside ->
-            OrbiterAlignment.CenterStart(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            XrOrbiterPosition.CenterStart(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         x = -NavigationSuiteOrbiterDefaultSpacing,
@@ -63,13 +63,13 @@ internal fun OrbiterPosition.toVerticalAlignment(): OrbiterAlignment =
                     ),
             )
         OrbiterPosition.Overlapping ->
-            OrbiterAlignment.CenterStart(
-                edgeOffsetType = OrbiterEdgeOffsetType.None,
+            XrOrbiterPosition.CenterStart(
+                EdgeAlignment.Center,
                 offset = DpVolumeOffset(x = 0.dp, z = OrbiterDefaults.Elevation),
             )
         OrbiterPosition.Inside ->
-            OrbiterAlignment.CenterStart(
-                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+            XrOrbiterPosition.CenterStart(
+                EdgeAlignment.Inside,
                 offset =
                     DpVolumeOffset(
                         x = NavigationSuiteOrbiterDefaultSpacing,
