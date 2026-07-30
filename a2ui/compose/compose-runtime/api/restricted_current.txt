@@ -125,6 +125,22 @@ package androidx.a2ui.compose.runtime {
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
   }
 
+  public interface A2uiReadinessEvaluator {
+    method @KotlinOnly @androidx.compose.runtime.Composable public boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentModel componentModel);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentModel, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.a2ui.compose.runtime.A2uiReadinessEvaluator.Companion Companion;
+  }
+
+  public static final class A2uiReadinessEvaluator.Companion {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.A2uiReadinessEvaluator getDefault();
+    property public androidx.a2ui.compose.runtime.A2uiReadinessEvaluator Default;
+  }
+
+  public final class A2uiReadinessEvaluatorKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.a2ui.compose.runtime.A2uiReadinessEvaluator> getLocalA2uiReadinessEvaluator();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.a2ui.compose.runtime.A2uiReadinessEvaluator> LocalA2uiReadinessEvaluator;
+  }
+
   public interface A2uiRuntimeCatalog {
   }
 
