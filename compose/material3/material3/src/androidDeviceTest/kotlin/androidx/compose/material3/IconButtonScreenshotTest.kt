@@ -178,7 +178,7 @@ class IconButtonScreenshotTest {
             @OptIn(ExperimentalMaterial3Api::class)
             CompositionLocalProvider(
                 LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                    RippleDefaults.InsetFocusRingThemeConfiguration
             ) {
                 localInputModeManager = LocalInputModeManager.current
                 Box(wrap.testTag(wrapperTestTag)) {

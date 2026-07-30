@@ -1314,7 +1314,7 @@ final class androidx.compose.material3/RippleConfiguration { // androidx.compose
     final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.material3/RippleConfiguration.toString|toString(){}[0]
 
-    abstract class Focus { // androidx.compose.material3/RippleConfiguration.Focus|null[0]
+    sealed class Focus { // androidx.compose.material3/RippleConfiguration.Focus|null[0]
         final class InsetRing : androidx.compose.material3/RippleConfiguration.Focus { // androidx.compose.material3/RippleConfiguration.Focus.InsetRing|null[0]
             constructor <init>(androidx.compose.ui.graphics/Color, androidx.compose.ui.graphics/Color) // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.<init>|<init>(androidx.compose.ui.graphics.Color;androidx.compose.ui.graphics.Color){}[0]
 
@@ -1327,12 +1327,7 @@ final class androidx.compose.material3/RippleConfiguration { // androidx.compose
             final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.Focus.InsetRing.hashCode|hashCode(){}[0]
         }
 
-        final class Opacity : androidx.compose.material3/RippleConfiguration.Focus { // androidx.compose.material3/RippleConfiguration.Focus.Opacity|null[0]
-            constructor <init>() // androidx.compose.material3/RippleConfiguration.Focus.Opacity.<init>|<init>(){}[0]
-
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleConfiguration.Focus.Opacity.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleConfiguration.Focus.Opacity.hashCode|hashCode(){}[0]
-        }
+        final object Opacity : androidx.compose.material3/RippleConfiguration.Focus // androidx.compose.material3/RippleConfiguration.Focus.Opacity|null[0]
     }
 }
 
@@ -1342,7 +1337,7 @@ final class androidx.compose.material3/RippleThemeConfiguration { // androidx.co
     final val focus // androidx.compose.material3/RippleThemeConfiguration.focus|{}focus[0]
         final fun <get-focus>(): androidx.compose.material3/RippleThemeConfiguration.Focus // androidx.compose.material3/RippleThemeConfiguration.focus.<get-focus>|<get-focus>(){}[0]
 
-    abstract class Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus|null[0]
+    sealed class Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus|null[0]
         final class InsetRing : androidx.compose.material3/RippleThemeConfiguration.Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing|null[0]
             constructor <init>(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
 
@@ -1359,12 +1354,7 @@ final class androidx.compose.material3/RippleThemeConfiguration { // androidx.co
             final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleThemeConfiguration.Focus.InsetRing.hashCode|hashCode(){}[0]
         }
 
-        final class Opacity : androidx.compose.material3/RippleThemeConfiguration.Focus { // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity|null[0]
-            constructor <init>() // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.<init>|<init>(){}[0]
-
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity.hashCode|hashCode(){}[0]
-        }
+        final object Opacity : androidx.compose.material3/RippleThemeConfiguration.Focus // androidx.compose.material3/RippleThemeConfiguration.Focus.Opacity|null[0]
     }
 }
 
@@ -3085,10 +3075,10 @@ final object androidx.compose.material3/RadioButtonDefaults { // androidx.compos
 }
 
 final object androidx.compose.material3/RippleDefaults { // androidx.compose.material3/RippleDefaults|null[0]
-    final val InsetFocusRingRippleThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingRippleThemeConfiguration|{}InsetFocusRingRippleThemeConfiguration[0]
-        final fun <get-InsetFocusRingRippleThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingRippleThemeConfiguration.<get-InsetFocusRingRippleThemeConfiguration>|<get-InsetFocusRingRippleThemeConfiguration>(){}[0]
-    final val OpacityFocusRippleThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusRippleThemeConfiguration|{}OpacityFocusRippleThemeConfiguration[0]
-        final fun <get-OpacityFocusRippleThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusRippleThemeConfiguration.<get-OpacityFocusRippleThemeConfiguration>|<get-OpacityFocusRippleThemeConfiguration>(){}[0]
+    final val InsetFocusRingThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingThemeConfiguration|{}InsetFocusRingThemeConfiguration[0]
+        final fun <get-InsetFocusRingThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.InsetFocusRingThemeConfiguration.<get-InsetFocusRingThemeConfiguration>|<get-InsetFocusRingThemeConfiguration>(){}[0]
+    final val OpacityFocusThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusThemeConfiguration|{}OpacityFocusThemeConfiguration[0]
+        final fun <get-OpacityFocusThemeConfiguration>(): androidx.compose.material3/RippleThemeConfiguration // androidx.compose.material3/RippleDefaults.OpacityFocusThemeConfiguration.<get-OpacityFocusThemeConfiguration>|<get-OpacityFocusThemeConfiguration>(){}[0]
     final val RippleAlpha // androidx.compose.material3/RippleDefaults.RippleAlpha|{}RippleAlpha[0]
         final fun <get-RippleAlpha>(): androidx.compose.material.ripple/RippleAlpha // androidx.compose.material3/RippleDefaults.RippleAlpha.<get-RippleAlpha>|<get-RippleAlpha>(){}[0]
     final val ThemeConfiguration // androidx.compose.material3/RippleDefaults.ThemeConfiguration|{}ThemeConfiguration[0]
