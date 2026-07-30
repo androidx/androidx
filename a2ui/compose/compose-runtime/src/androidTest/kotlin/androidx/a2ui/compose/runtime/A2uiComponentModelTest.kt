@@ -23,8 +23,6 @@ import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.schema.A2uiSchema
 import com.google.common.truth.Truth.assertThat
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CoroutineScope
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -102,10 +100,5 @@ class A2uiComponentModelTest {
             id = "TestScope",
             baseDataPath = A2uiDataPath("/"),
             surface = surface,
-            surfaceScope =
-                object : CoroutineScope {
-                    override val coroutineContext: CoroutineContext
-                        get() = TODO("Not yet implemented")
-                },
         )
 }
