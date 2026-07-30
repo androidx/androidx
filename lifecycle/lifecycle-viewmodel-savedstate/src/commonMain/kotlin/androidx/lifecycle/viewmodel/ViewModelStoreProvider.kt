@@ -110,6 +110,8 @@ public constructor(
         parentStore?.getOrPut(parentKey) { StateHolder() } ?: StateHolder()
     }
 
+    private val owners = mutableScatterMapOf<Any?, ViewModelStoreOwner>()
+
     /**
      * Increments the reference count for the [ViewModelStore] associated with the given [key],
      * ensuring it is not cleared until the returned [ReferenceToken] is released.
@@ -125,6 +127,7 @@ public constructor(
         return ReferenceToken {
             entry.refCount--
             if (entry.isDisposable && entry.refCount <= 0) {
+                owners.remove(key)
                 stateHolder.remove(key)
             }
         }
@@ -180,24 +183,26 @@ public constructor(
         defaultCreationExtras: CreationExtras = this.defaultCreationExtras,
         defaultFactory: Factory = this.defaultFactory,
     ): ViewModelStoreOwner {
-        val viewModelStore = getOrCreate(key)
-        return if (savedStateRegistryOwner == null) {
-            // If no saved state is required, return a basic owner.
-            ViewModelStoreOwner(
-                viewModelStore = viewModelStore,
-                defaultArgs = defaultArgs,
-                defaultFactory = defaultFactory,
-                defaultCreationExtras = defaultCreationExtras,
-            )
-        } else {
-            // If saved state is required, return the full delegate owner.
-            ViewModelStoreOwner(
-                viewModelStore = viewModelStore,
-                savedStateRegistryOwner = savedStateRegistryOwner,
-                defaultArgs = defaultArgs,
-                defaultFactory = defaultFactory,
-                defaultCreationExtras = defaultCreationExtras,
-            )
+        return owners.getOrPut(key) {
+            val viewModelStore = getOrCreate(key)
+            if (savedStateRegistryOwner == null) {
+                // If no saved state is required, return a basic owner.
+                ViewModelStoreOwner(
+                    viewModelStore = viewModelStore,
+                    defaultArgs = defaultArgs,
+                    defaultFactory = defaultFactory,
+                    defaultCreationExtras = defaultCreationExtras,
+                )
+            } else {
+                // If saved state is required, return the full delegate owner.
+                ViewModelStoreOwner(
+                    viewModelStore = viewModelStore,
+                    savedStateRegistryOwner = savedStateRegistryOwner,
+                    defaultArgs = defaultArgs,
+                    defaultFactory = defaultFactory,
+                    defaultCreationExtras = defaultCreationExtras,
+                )
+            }
         }
     }
 
@@ -211,6 +216,7 @@ public constructor(
      *   scope associated with the `null` key.
      */
     public fun clearKey(key: Any?) {
+        owners.remove(key)
         stateHolder.clearKey(key)
     }
 
@@ -228,6 +234,7 @@ public constructor(
             // Cleanup is deferred until the last ProviderMarkerKey token is released.
             return
         }
+        owners.clear()
         stateHolder.onCleared()
     }
 
