@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -41,7 +40,6 @@ import org.junit.runner.RunWith
 class CacheTextLayoutInputTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun default_ctor_should_be_equal() {
@@ -222,7 +220,6 @@ class CacheTextLayoutInputTest {
         density: Density = Density(context),
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        defaultLocale: Locale = this.defaultLocale,
         constraints: Constraints = Constraints(),
     ): CacheTextLayoutInput {
         return CacheTextLayoutInput(
@@ -236,7 +233,6 @@ class CacheTextLayoutInputTest {
                 density = density,
                 layoutDirection = layoutDirection,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 constraints = constraints,
             )
         )

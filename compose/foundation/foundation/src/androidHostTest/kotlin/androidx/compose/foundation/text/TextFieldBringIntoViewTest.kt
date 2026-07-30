@@ -86,7 +86,6 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                defaultLocale = TEST_LOCALE,
                 constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
@@ -120,7 +119,6 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                defaultLocale = TEST_LOCALE,
                 constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
@@ -154,7 +152,6 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                defaultLocale = TEST_LOCALE,
                 constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
@@ -191,7 +188,6 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                defaultLocale = TEST_LOCALE,
                 constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)

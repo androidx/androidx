@@ -44,14 +44,12 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -185,7 +183,6 @@ private class HeightInLinesNode(
                 density = this,
                 resolvedStyle = requireResolvedStyle(),
                 fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
-                defaultLocale = currentValueOf(LocalLocale),
             )
             dirty = false
         }
@@ -244,7 +241,6 @@ private class HeightInLinesNode(
                 density = this,
                 resolvedStyle = requireResolvedStyle(),
                 fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
-                defaultLocale = currentValueOf(LocalLocale),
             )
             dirty = false
         }
@@ -297,7 +293,6 @@ private class HeightInLinesNode(
         density: Density,
         resolvedStyle: TextStyle,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
     ) {
         if (isBasicTextFieldHeightInLinesOptimizationEnabled) {
             val threeLinesParagraph =
@@ -305,7 +300,6 @@ private class HeightInLinesNode(
                     style = resolvedStyle,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                     lines = 3,
                     softWrap = true,
                 )
@@ -323,7 +317,6 @@ private class HeightInLinesNode(
                         style = resolvedStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                         lines = 1,
                     )
                     .height
@@ -333,7 +326,6 @@ private class HeightInLinesNode(
                         style = resolvedStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                         lines = 2,
                     )
                     .height
@@ -374,7 +366,6 @@ internal fun Modifier.legacyHeightInLines(
     ) {
         val density = LocalDensity.current
         val fontFamilyResolver = LocalFontFamilyResolver.current
-        val locale = LocalLocale.current
         val layoutDirection = LocalLayoutDirection.current
 
         val resolvedStyle =
@@ -398,7 +389,6 @@ internal fun Modifier.legacyHeightInLines(
                     style = resolvedStyle,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = locale,
                     lines = 3,
                     softWrap = true,
                 )
@@ -418,7 +408,6 @@ internal fun Modifier.legacyHeightInLines(
                             style = resolvedStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            defaultLocale = locale,
                         )
                         .height
                 }
@@ -429,7 +418,6 @@ internal fun Modifier.legacyHeightInLines(
                             style = resolvedStyle,
                             density = density,
                             fontFamilyResolver = fontFamilyResolver,
-                            defaultLocale = locale,
                             lines = 2,
                         )
                         .height

@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -48,7 +47,6 @@ class TextLayoutResultIntegrationTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
     private val layoutDirection = LayoutDirection.Ltr
-    private val defaultLocale = TEST_LOCALE
 
     @Test
     fun width_getter() {
@@ -62,7 +60,6 @@ class TextLayoutResultIntegrationTest {
                         text = annotatedString,
                         style = TextStyle.Default,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                     )
                     .also { it.density = this }
 
@@ -84,7 +81,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -106,7 +102,6 @@ class TextLayoutResultIntegrationTest {
                         text = annotatedString,
                         style = TextStyle.Default,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                     )
                     .also { it.density = this }
 
@@ -124,7 +119,6 @@ class TextLayoutResultIntegrationTest {
                     text = AnnotatedString("hello"),
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -149,7 +143,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
         textDelegate.layoutWithConstraints(Constraints(), layoutDirection)
@@ -175,7 +168,6 @@ class TextLayoutResultIntegrationTest {
                         text = annotatedString,
                         style = TextStyle.Default,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
                     )
                     .also { it.density = this }
             textDelegate.layoutWithConstraints(Constraints(), layoutDirection)
@@ -200,7 +192,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -225,7 +216,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                     maxLines = maxLines,
                 )
                 .also { it.density = density }
@@ -251,7 +241,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                     maxLines = maxLines,
                 )
                 .also { it.density = density }
@@ -276,7 +265,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 
@@ -303,7 +291,6 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                 )
                 .also { it.density = density }
 

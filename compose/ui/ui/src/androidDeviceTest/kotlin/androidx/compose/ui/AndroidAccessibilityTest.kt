@@ -195,7 +195,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
@@ -3367,7 +3367,7 @@ class AndroidAccessibilityTest {
     @Test
     fun sendTextEvents_whenSetText() {
         // Arrange.
-        val locale = Locale("en_US")
+        val locale = LocaleList("en_US")
         val initialText = "h"
         val finalText = "hello"
         setContent {

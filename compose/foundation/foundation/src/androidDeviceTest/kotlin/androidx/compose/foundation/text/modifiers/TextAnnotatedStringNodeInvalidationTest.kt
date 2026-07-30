@@ -28,7 +28,6 @@ class TextAnnotatedStringNodeInvalidationTest : NodeInvalidationTestParent() {
                 maxLines = params.maxLines,
                 softWrap = params.softWrap,
                 fontFamilyResolver = params.fontFamilyResolver,
-                defaultLocale = params.defaultLocale,
                 overflow = params.overflow,
                 placeholders = null,
                 // TODO(b/364657660): Give this a non-null value when AutoSize becomes public
@@ -56,7 +55,6 @@ class TextAnnotatedStringNodeInvalidationTest : NodeInvalidationTestParent() {
             text = AnnotatedString(text = params.text),
             style = params.style,
             fontFamilyResolver = params.fontFamilyResolver,
-            defaultLocale = params.defaultLocale,
             onTextLayout = null,
             overflow = params.overflow,
             softWrap = params.softWrap,
@@ -70,7 +68,6 @@ class TextAnnotatedStringNodeInvalidationTest : NodeInvalidationTestParent() {
             text = AnnotatedString(text = params.text),
             style = params.style,
             fontFamilyResolver = params.fontFamilyResolver,
-            defaultLocale = params.defaultLocale,
             onTextLayout = null,
             overflow = params.overflow,
             softWrap = params.softWrap,
