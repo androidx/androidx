@@ -84,14 +84,14 @@ private constructor(
      *
      * @return The configured mock value, or `null` if not set.
      */
-    override fun <T> get(key: Metadata.Key<T>): T? = resultMetadata.getUnchecked(key)
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = resultMetadata.getUnchecked(key)
 
     /**
      * Retrieves the mock value for the specified [CaptureResult.Key].
      *
      * @return The configured mock value, or `null` if not set.
      */
-    override fun <T> get(key: CaptureResult.Key<T>): T? = resultParameters.getUnchecked(key)
+    override fun <T : Any> get(key: CaptureResult.Key<T>): T? = resultParameters.getUnchecked(key)
 
     /**
      * Attempts to unwrap this fake object.
