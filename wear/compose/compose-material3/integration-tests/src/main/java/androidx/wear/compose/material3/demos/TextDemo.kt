@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -266,6 +267,21 @@ fun TextWeightDemo() {
             Text(
                 text = "Body Large",
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight(800)),
+            )
+        }
+    }
+}
+
+@Composable
+fun TextMarqueeDemo() {
+    ScalingLazyDemo {
+        item { ListHeader { Text(text = "Basic Marquee") } }
+        item {
+            Text(
+                text =
+                    "This is a basic marquee demo. The text should be long enough to overflow the screen and trigger the sliding animation.",
+                modifier = Modifier.basicMarquee(),
+                maxLines = 1,
             )
         }
     }
