@@ -2895,7 +2895,7 @@ package androidx.compose.material3 {
     property public androidx.compose.material.ripple.RippleAlpha? rippleAlpha;
   }
 
-  public abstract static class RippleConfiguration.Focus {
+  public abstract static sealed nonexhaustive class RippleConfiguration.Focus {
   }
 
   public static final class RippleConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleConfiguration.Focus {
@@ -2908,16 +2908,16 @@ package androidx.compose.material3 {
   }
 
   public static final class RippleConfiguration.Focus.Opacity extends androidx.compose.material3.RippleConfiguration.Focus {
-    ctor public RippleConfiguration.Focus.Opacity();
+    field public static final androidx.compose.material3.RippleConfiguration.Focus.Opacity INSTANCE;
   }
 
   public final class RippleDefaults {
-    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getInsetFocusRingRippleThemeConfiguration();
-    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getOpacityFocusRippleThemeConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getInsetFocusRingThemeConfiguration();
+    method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getOpacityFocusThemeConfiguration();
     method @InaccessibleFromKotlin @Deprecated public androidx.compose.material.ripple.RippleAlpha getRippleAlpha();
     method @InaccessibleFromKotlin public androidx.compose.material3.RippleThemeConfiguration getThemeConfiguration();
-    property public androidx.compose.material3.RippleThemeConfiguration InsetFocusRingRippleThemeConfiguration;
-    property public androidx.compose.material3.RippleThemeConfiguration OpacityFocusRippleThemeConfiguration;
+    property public androidx.compose.material3.RippleThemeConfiguration InsetFocusRingThemeConfiguration;
+    property public androidx.compose.material3.RippleThemeConfiguration OpacityFocusThemeConfiguration;
     property @Deprecated public androidx.compose.material.ripple.RippleAlpha RippleAlpha;
     property public androidx.compose.material3.RippleThemeConfiguration ThemeConfiguration;
     field public static final androidx.compose.material3.RippleDefaults INSTANCE;
@@ -2946,7 +2946,7 @@ package androidx.compose.material3 {
     property public androidx.compose.material3.RippleThemeConfiguration.Focus focus;
   }
 
-  public abstract static class RippleThemeConfiguration.Focus {
+  public abstract static sealed nonexhaustive class RippleThemeConfiguration.Focus {
   }
 
   public static final class RippleThemeConfiguration.Focus.InsetRing extends androidx.compose.material3.RippleThemeConfiguration.Focus {
@@ -2963,7 +2963,7 @@ package androidx.compose.material3 {
   }
 
   public static final class RippleThemeConfiguration.Focus.Opacity extends androidx.compose.material3.RippleThemeConfiguration.Focus {
-    ctor public RippleThemeConfiguration.Focus.Opacity();
+    field public static final androidx.compose.material3.RippleThemeConfiguration.Focus.Opacity INSTANCE;
   }
 
   public final class ScaffoldDefaults {

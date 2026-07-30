@@ -192,9 +192,8 @@ internal class IconButtonTestCase(
         isFocused = interactionSource.collectIsFocusedAsState()
         val themeConfig =
             when (rippleConfig) {
-                RippleConfigType.Opacity -> RippleDefaults.OpacityFocusRippleThemeConfiguration
-                RippleConfigType.InsetFocusRing ->
-                    RippleDefaults.InsetFocusRingRippleThemeConfiguration
+                RippleConfigType.Opacity -> RippleDefaults.OpacityFocusThemeConfiguration
+                RippleConfigType.InsetFocusRing -> RippleDefaults.InsetFocusRingThemeConfiguration
             }
         MaterialTheme {
             CompositionLocalProvider(LocalRippleThemeConfiguration provides themeConfig) {

@@ -492,7 +492,7 @@ class RippleTest {
                 bounded = true,
                 lightTheme = true,
                 contentColor = Color.Black,
-                rippleThemeConfiguration = RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+                rippleThemeConfiguration = RippleDefaults.InsetFocusRingThemeConfiguration,
                 outerStrokeColor = outerColor,
                 innerStrokeColor = innerColor,
             )
@@ -536,7 +536,7 @@ class RippleTest {
                 bounded = true,
                 lightTheme = true,
                 contentColor = Color.Black,
-                rippleThemeConfiguration = RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+                rippleThemeConfiguration = RippleDefaults.InsetFocusRingThemeConfiguration,
             )
 
         // Pause the clock
@@ -588,7 +588,7 @@ class RippleTest {
             MaterialTheme {
                 CompositionLocalProvider(
                     LocalRippleThemeConfiguration provides
-                        RippleDefaults.InsetFocusRingRippleThemeConfiguration,
+                        RippleDefaults.InsetFocusRingThemeConfiguration,
                     LocalRippleConfiguration provides rippleConfiguration,
                 ) {
                     Surface {
