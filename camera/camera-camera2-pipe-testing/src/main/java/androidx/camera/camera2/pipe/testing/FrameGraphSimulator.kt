@@ -16,11 +16,16 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.content.Context
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.StreamId
+import kotlinx.coroutines.test.TestScope
 
-public class FrameGraphSimulator(
+public class FrameGraphSimulator
+internal constructor(
     private val realFrameGraph: FrameGraph,
     private val cameraSimulator: CameraSimulator,
     private val testThreadScope: TestThreadScope? = null,
@@ -28,6 +33,35 @@ public class FrameGraphSimulator(
 
     public val setSurfaceResults: MutableMap<StreamId, Surface?> =
         mutableMapOf<StreamId, Surface?>()
+
+    public companion object {
+        public fun create(
+            testScope: TestScope,
+            testContext: Context,
+            cameraMetadata: CameraMetadata,
+            graphConfig: FrameGraph.Config,
+        ): FrameGraphSimulator {
+
+            val cameraPipeSimulator =
+                CameraPipeSimulator.create(testScope, testContext, listOf(cameraMetadata))
+            return cameraPipeSimulator.createFrameGraph(graphConfig)
+        }
+
+        public fun create(
+            testContext: Context,
+            testThreads: CameraPipe.ThreadConfig,
+            testCamera: CameraMetadata,
+            graphConfig: FrameGraph.Config,
+        ): FrameGraphSimulator {
+            val cameraPipeSimulator =
+                CameraPipeSimulator.create(
+                    testContext = testContext,
+                    testThreads = testThreads,
+                    testCameras = listOf(testCamera),
+                )
+            return cameraPipeSimulator.createFrameGraph(graphConfig)
+        }
+    }
 
     // Allows caller to check if the setSurface function is called and how many times.
     override fun setSurface(stream: StreamId, surface: Surface?) {
