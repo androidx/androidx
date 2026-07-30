@@ -1336,12 +1336,12 @@ private fun Modifier.layoutCaret(
         }
     }
 
-@ExperimentalMaterial3Api
 /**
  * Default [Shape] of the caret used by tooltips.
  *
  * @param caretSize the size of the caret used
  */
+@ExperimentalMaterial3Api
 public class DefaultTooltipCaretShape(public val caretSize: DpSize = TooltipDefaults.caretSize) :
     Shape {
     override fun createOutline(
