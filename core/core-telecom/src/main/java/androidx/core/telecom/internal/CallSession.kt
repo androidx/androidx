@@ -45,6 +45,7 @@ import kotlin.Int
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -359,6 +360,32 @@ internal open class CallSession(
             }
         }
         callChannels.isMutedChannel.trySend(isMuted).getOrThrow()
+    }
+
+    @VisibleForTesting internal var mStartingEndpointJob: Job? = null
+
+    /**
+     * Non-blocking entry point to launch starting endpoint resolution in the background.
+     *
+     * Clients executing logic inside their [androidx.core.telecom.CallsManager.addCall] blocks
+     * should never be blocked by initial audio route setup or waiting on platform audio state
+     * callback emissions before entering [androidx.core.telecom.CallControlScope].
+     *
+     * Previously, executing this logic synchronously on the main setup path caused notable setup
+     * regressions for client apps, stalling [androidx.core.telecom.CallsManager.addCall] execution.
+     * Furthermore, if platform or Jetpack call initialization took more than a few seconds and was
+     * further delayed by starting audio route settlement (e.g., Bluetooth connection delays), it
+     * could cause the call setup transaction to hit the platform timeout threshold and fail with a
+     * timeout error.
+     *
+     * Starting audio route setup can safely execute in the background after unpausing execution and
+     * exposing the [androidx.core.telecom.CallControlScope] to the client.
+     */
+    fun launchStartingEndpointSwitch(preferredStartingCallEndpoint: CallEndpointCompat?) {
+        mStartingEndpointJob =
+            CoroutineScope(coroutineContext).launch {
+                maybeSwitchStartingEndpoint(preferredStartingCallEndpoint)
+            }
     }
 
     /**
