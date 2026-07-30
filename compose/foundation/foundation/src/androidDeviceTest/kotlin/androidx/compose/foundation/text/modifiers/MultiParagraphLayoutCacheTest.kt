@@ -19,7 +19,7 @@ package androidx.compose.foundation.text.modifiers
 import android.graphics.Typeface
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.input.internal.AsyncFauxFont
 import androidx.compose.foundation.text.input.internal.AsyncTestTypefaceLoader
@@ -62,7 +62,7 @@ class MultiParagraphLayoutCacheTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocale = TEST_LOCALE
+    private val defaultLocaleList = TEST_LOCALE_LIST
 
     @Test
     fun minIntrinsicWidth_getter() {
@@ -76,7 +76,7 @@ class MultiParagraphLayoutCacheTest {
                         text = annotatedString,
                         style = TextStyle.Default,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
+                        defaultLocaleList = defaultLocaleList,
                     )
                     .also { it.density = this }
 
@@ -98,7 +98,7 @@ class MultiParagraphLayoutCacheTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
 
@@ -107,7 +107,7 @@ class MultiParagraphLayoutCacheTest {
             AnnotatedString("Longer\ntext\ngoes\nhere\n\n\n."),
             TextStyle.Default,
             fontFamilyResolver,
-            defaultLocale,
+            defaultLocaleList,
             TextOverflow.Visible,
             true,
             Int.MAX_VALUE,
@@ -129,7 +129,7 @@ class MultiParagraphLayoutCacheTest {
                         text = text,
                         style = TextStyle.Default.copy(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
+                        defaultLocaleList = defaultLocaleList,
                         minLines = 1,
                     )
                     .also { it.density = this }
@@ -138,7 +138,7 @@ class MultiParagraphLayoutCacheTest {
                         text = text,
                         style = TextStyle.Default.copy(fontSize = fontSize),
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
+                        defaultLocaleList = defaultLocaleList,
                         minLines = 3,
                     )
                     .also { it.density = this }
@@ -160,7 +160,7 @@ class MultiParagraphLayoutCacheTest {
                         text = annotatedString,
                         style = TextStyle.Default,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
+                        defaultLocaleList = defaultLocaleList,
                     )
                     .also { it.density = this }
 
@@ -178,7 +178,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("Hello World"),
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
         val width = 200
@@ -203,7 +203,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("Hello World"),
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
         val width = 200
@@ -230,7 +230,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -257,7 +257,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontSize = fontSize.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Ellipsis,
                 )
                 .also { it.density = density }
@@ -290,7 +290,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("Hello World"),
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
 
@@ -324,7 +324,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("Hello World"),
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
 
@@ -352,7 +352,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontSize = fontSize.sp, letterSpacing = 0.5.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Ellipsis,
                 )
                 .also { it.density = density }
@@ -377,7 +377,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = overflow,
                     softWrap = softWrap,
                     maxLines = 1,
@@ -405,7 +405,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Clip,
                     softWrap = false,
                     maxLines = 1,
@@ -500,7 +500,7 @@ class MultiParagraphLayoutCacheTest {
                         ),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Clip,
                     autoSize = TextAutoSize.StepBased(20.sp, 51.sp, 1.sp),
                 )
@@ -546,7 +546,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = textOverflow,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -584,7 +584,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.StartEllipsis,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -621,7 +621,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.StartEllipsis,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -663,7 +663,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.MiddleEllipsis,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -700,7 +700,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.MiddleEllipsis,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -744,7 +744,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Ellipsis,
                     autoSize =
                         TextAutoSize.StepBased(
@@ -806,7 +806,7 @@ class MultiParagraphLayoutCacheTest {
                         ),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Visible,
                     autoSize = TextAutoSize.StepBased(20.sp, 51.sp, 1.sp),
                 )
@@ -829,7 +829,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontSize = 5.sp, fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Clip,
                     autoSize = AutoSizePreset(arrayOf(5.12.em)), // = 25.6sp
                 )
@@ -863,7 +863,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("Hello World"),
                     style = TextStyle(fontSize = 0.01.em, fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Clip,
                     autoSize = AutoSizePreset(arrayOf(2.em)),
                 )
@@ -899,7 +899,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Clip,
                     autoSize = fakeAutoSize(1.em),
                 )
@@ -927,7 +927,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString("H"),
                     style = TextStyle(fontFamily = fontFamily),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     minLines = 2,
                     autoSize = TextAutoSize.StepBased(20.sp, 51.sp, 1.sp),
                 )
@@ -1105,7 +1105,7 @@ class MultiParagraphLayoutCacheTest {
                     text = text,
                     style = TextStyle(fontSize = 1.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 5,
                 )
@@ -1120,7 +1120,7 @@ class MultiParagraphLayoutCacheTest {
                 Constraints(),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
                 text.spanStyles,
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis,
@@ -1136,7 +1136,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontSize = 100.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
         subject.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)
@@ -1150,7 +1150,7 @@ class MultiParagraphLayoutCacheTest {
                     text = AnnotatedString(text),
                     style = TextStyle(fontSize = 100.sp),
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
+                    defaultLocaleList = defaultLocaleList,
                 )
                 .also { it.density = density }
 
@@ -1159,7 +1159,7 @@ class MultiParagraphLayoutCacheTest {
             text = AnnotatedString("Hello again, World"),
             style = TextStyle(fontSize = 100.sp),
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
+            defaultLocaleList = defaultLocaleList,
             overflow = TextOverflow.Clip,
             softWrap = true,
             maxLines = Int.MAX_VALUE,
@@ -1184,7 +1184,7 @@ class MultiParagraphLayoutCacheTest {
             text = AnnotatedString(text),
             style = TextStyle(fontSize = fontSize, fontFamily = fontFamily),
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
+            defaultLocaleList = defaultLocaleList,
             overflow = overflow,
             softWrap = softWrap,
             maxLines = Int.MAX_VALUE,
@@ -1232,7 +1232,7 @@ class MultiParagraphLayoutCacheTest {
                 text = text,
                 style = style,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
+                defaultLocaleList = defaultLocaleList,
                 autoSize = autoSize,
                 maxLines = maxLines,
             )

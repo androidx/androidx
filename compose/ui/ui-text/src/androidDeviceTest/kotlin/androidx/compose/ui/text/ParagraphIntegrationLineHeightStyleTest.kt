@@ -1050,7 +1050,7 @@ class ParagraphIntegrationLineHeightStyleTest(private val softWrap: Boolean) {
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
                 softWrap = softWrap,
-                defaultLocale = TEST_LOCALE,
+                defaultLocaleList = TEST_LOCALE_LIST,
             )
 
         return AndroidParagraph(

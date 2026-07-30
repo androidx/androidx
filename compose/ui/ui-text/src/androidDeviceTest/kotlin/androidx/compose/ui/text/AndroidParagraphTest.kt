@@ -2033,7 +2033,7 @@ class AndroidParagraphTest {
             overflow = TextOverflow.Ellipsis,
             constraints = minWidthConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocale = TEST_LOCALE,
+            defaultLocaleList = TEST_LOCALE_LIST,
             density = defaultDensity,
         )
     }
@@ -2050,7 +2050,7 @@ class AndroidParagraphTest {
             overflow = TextOverflow.Ellipsis,
             constraints = minHeightConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            defaultLocale = TEST_LOCALE,
+            defaultLocaleList = TEST_LOCALE_LIST,
             density = defaultDensity,
         )
     }
@@ -2179,7 +2179,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
+                    defaultLocaleList = TEST_LOCALE_LIST,
                     density = defaultDensity,
                 )
 
@@ -2214,7 +2214,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
+                    defaultLocaleList = TEST_LOCALE_LIST,
                     density = defaultDensity,
                 )
 
@@ -2249,7 +2249,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Clip,
                     constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
+                    defaultLocaleList = TEST_LOCALE_LIST,
                     density = defaultDensity,
                 )
 
@@ -2290,7 +2290,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
+                    defaultLocaleList = TEST_LOCALE_LIST,
                     density = defaultDensity,
                 )
 
@@ -2337,7 +2337,7 @@ class AndroidParagraphTest {
                     overflow = TextOverflow.Ellipsis,
                     constraints = Constraints(maxWidth = (6 * fontSize.toPx()).roundToInt()),
                     fontFamilyResolver = UncachedFontFamilyResolver(context),
-                    defaultLocale = TEST_LOCALE,
+                    defaultLocaleList = TEST_LOCALE_LIST,
                     density = defaultDensity,
                 )
 
@@ -2436,7 +2436,7 @@ class AndroidParagraphTest {
         height: Float = Float.POSITIVE_INFINITY,
         style: TextStyle? = null,
         fontFamilyResolver: FontFamily.Resolver = UncachedFontFamilyResolver(context),
-        defaultLocale: Locale = Locale("en"),
+        defaultLocaleList: LocaleList = LocaleList("en"),
     ): AndroidParagraph {
         return AndroidParagraph(
             text = text,
@@ -2448,7 +2448,7 @@ class AndroidParagraphTest {
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
+            defaultLocaleList = defaultLocaleList,
         )
     }
 }

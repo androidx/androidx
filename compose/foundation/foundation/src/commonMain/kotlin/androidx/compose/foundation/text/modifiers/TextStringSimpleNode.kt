@@ -54,7 +54,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -75,7 +75,7 @@ internal class TextStringSimpleNode(
     private var text: String,
     private var style: TextStyle,
     private var fontFamilyResolver: FontFamily.Resolver,
-    private var defaultLocale: Locale,
+    private var defaultLocaleList: LocaleList,
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,
     private var maxLines: Int = Int.MAX_VALUE,
@@ -101,7 +101,7 @@ internal class TextStringSimpleNode(
                         text,
                         style,
                         fontFamilyResolver,
-                        defaultLocale,
+                        defaultLocaleList,
                         overflow,
                         softWrap,
                         maxLines,
@@ -169,7 +169,7 @@ internal class TextStringSimpleNode(
         maxLines: Int,
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
+        defaultLocaleList: LocaleList,
         overflow: TextOverflow,
     ): Boolean {
         var changed: Boolean
@@ -197,8 +197,8 @@ internal class TextStringSimpleNode(
             changed = true
         }
 
-        if (this.defaultLocale != defaultLocale) {
-            this.defaultLocale = defaultLocale
+        if (this.defaultLocaleList != defaultLocaleList) {
+            this.defaultLocaleList = defaultLocaleList
             changed = true
         }
 
@@ -218,7 +218,7 @@ internal class TextStringSimpleNode(
                 text = text,
                 style = style,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
+                defaultLocaleList = defaultLocaleList,
                 overflow = overflow,
                 softWrap = softWrap,
                 maxLines = maxLines,
@@ -273,7 +273,7 @@ internal class TextStringSimpleNode(
                 updatedText,
                 style,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
                 overflow,
                 softWrap,
                 maxLines,
@@ -286,7 +286,7 @@ internal class TextStringSimpleNode(
                     updatedText,
                     style,
                     fontFamilyResolver,
-                    defaultLocale,
+                    defaultLocaleList,
                     overflow,
                     softWrap,
                     maxLines,

@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -449,7 +449,9 @@ public expect fun Paragraph(
  * @param overflow specifies how visual overflow should be handled
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
-@Deprecated("Paragraph that doesn't take a default locale is deprecated, pass a Locale instead")
+@Deprecated(
+    "Paragraph that doesn't take a default locale list is deprecated, pass a LocaleList instead"
+)
 public expect fun Paragraph(
     text: String,
     style: TextStyle,
@@ -476,7 +478,7 @@ public expect fun Paragraph(
  *   that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
  * @param density density of the device
  * @param fontFamilyResolver [FontFamily.Resolver] to be used to load the font given in [SpanStyle]s
- * @param defaultLocale The default [Locale] to be used to measure the text
+ * @param defaultLocaleList The default [LocaleList] to be used to measure the text
  * @param spanStyles [SpanStyle]s to be applied to parts of text
  * @param placeholders a list of placeholder metrics which tells [Paragraph] where should be left
  *   blank to leave space for inline elements.
@@ -490,7 +492,7 @@ public expect fun Paragraph(
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocale: Locale,
+    defaultLocaleList: LocaleList,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,

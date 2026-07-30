@@ -20,7 +20,7 @@ import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -43,7 +43,7 @@ internal class MinLinesConstrainer
     val inputTextStyle: TextStyle,
     val density: Density,
     val fontFamilyResolver: FontFamily.Resolver,
-    val defaultLocale: Locale,
+    val defaultLocaleList: LocaleList,
 ) {
     private val resolvedStyle = resolveDefaults(inputTextStyle, layoutDirection)
     private var lineHeightCache: Float = Float.NaN
@@ -57,7 +57,7 @@ internal class MinLinesConstrainer
             paramStyle: TextStyle,
             density: Density,
             fontFamilyResolver: FontFamily.Resolver,
-            defaultLocale: Locale,
+            defaultLocaleList: LocaleList,
         ): MinLinesConstrainer {
             minMaxUtil?.let {
                 if (
@@ -65,7 +65,7 @@ internal class MinLinesConstrainer
                         resolveDefaults(paramStyle, layoutDirection) == it.inputTextStyle &&
                         density.density == it.density.density &&
                         fontFamilyResolver === it.fontFamilyResolver &&
-                        defaultLocale == it.defaultLocale
+                        defaultLocaleList == it.defaultLocaleList
                 ) {
                     return it
                 }
@@ -77,7 +77,7 @@ internal class MinLinesConstrainer
                 // which the cache outlives, potentially causing memory leak.
                 Density(density.density, density.fontScale),
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
         }
     }
@@ -102,7 +102,7 @@ internal class MinLinesConstrainer
                                 density = density,
                                 softWrap = false,
                                 fontFamilyResolver = fontFamilyResolver,
-                                defaultLocale = defaultLocale,
+                                defaultLocaleList = defaultLocaleList,
                             ),
                         maxLines = 1,
                         overflow = TextOverflow.Clip,
@@ -121,7 +121,7 @@ internal class MinLinesConstrainer
                                 density = density,
                                 softWrap = true,
                                 fontFamilyResolver = fontFamilyResolver,
-                                defaultLocale = defaultLocale,
+                                defaultLocaleList = defaultLocaleList,
                             ),
                         maxLines = 2,
                         overflow = TextOverflow.Clip,

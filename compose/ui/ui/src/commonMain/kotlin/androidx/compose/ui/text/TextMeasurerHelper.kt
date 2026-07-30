@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalLocaleList
 
 /** This value should reflect the default cache size for TextMeasurer. */
 private val DefaultCacheSize: Int = 8
@@ -42,11 +42,11 @@ private val DefaultCacheSize: Int = 8
 @Composable
 public fun rememberTextMeasurer(cacheSize: Int = DefaultCacheSize): TextMeasurer {
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val locale = LocalLocale.current
+    val localeList = LocalLocaleList.current
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
 
-    return remember(fontFamilyResolver, locale, density, layoutDirection, cacheSize) {
-        TextMeasurer(fontFamilyResolver, locale, density, layoutDirection, cacheSize)
+    return remember(fontFamilyResolver, localeList, density, layoutDirection, cacheSize) {
+        TextMeasurer(fontFamilyResolver, localeList, density, layoutDirection, cacheSize)
     }
 }

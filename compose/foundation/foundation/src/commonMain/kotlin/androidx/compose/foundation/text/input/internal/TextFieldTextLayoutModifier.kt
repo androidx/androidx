@@ -34,7 +34,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFontFamilyResolver
-import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
@@ -177,7 +177,7 @@ internal class TextFieldTextLayoutModifierNode(
                 density = this,
                 layoutDirection = layoutDirection,
                 fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
-                defaultLocale = currentValueOf(LocalLocale),
+                defaultLocaleList = currentValueOf(LocalLocaleList),
                 constraints = constraints,
             )
 

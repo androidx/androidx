@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -36,7 +36,7 @@ class MinLinesConstrainerTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val fontFamilyResolver = createFontFamilyResolver(context)
-    private val defaultLocale = TEST_LOCALE
+    private val defaultLocaleList = TEST_LOCALE_LIST
 
     @Test
     fun minConstrainer_from_new_onStyleChange() {
@@ -49,7 +49,7 @@ class MinLinesConstrainerTest {
                 TextStyle(color = Color.Green),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         val minMaxConstrainer =
@@ -59,7 +59,7 @@ class MinLinesConstrainerTest {
                 TextStyle(color = Color.Blue),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         assertThat(previous === minMaxConstrainer).isFalse()
@@ -75,7 +75,7 @@ class MinLinesConstrainerTest {
                 resolveDefaults(TextStyle(color = Color.Green), layoutDirection),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         val minMaxConstrainer =
@@ -85,7 +85,7 @@ class MinLinesConstrainerTest {
                 TextStyle(color = Color.Green),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         assertThat(constrainer === minMaxConstrainer).isTrue()
@@ -102,7 +102,7 @@ class MinLinesConstrainerTest {
                 TextStyle(color = Color.Green),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         val minMaxConstrainer =
@@ -112,7 +112,7 @@ class MinLinesConstrainerTest {
                 TextStyle(color = Color.Green),
                 density,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
             )
 
         assertThat(previous === minMaxConstrainer).isFalse()

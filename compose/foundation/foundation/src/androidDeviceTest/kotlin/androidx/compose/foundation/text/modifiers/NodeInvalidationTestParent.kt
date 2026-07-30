@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.modifiers
 
-import androidx.compose.foundation.text.TEST_LOCALE
+import androidx.compose.foundation.text.TEST_LOCALE_LIST
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
@@ -162,7 +162,7 @@ abstract class NodeInvalidationTestParent {
             "text",
             TextStyle.Default.copy(color = Color.Cyan, fontSize = 10.sp),
             createFontFamilyResolver(context),
-            TEST_LOCALE,
+            TEST_LOCALE_LIST,
             TextOverflow.Ellipsis,
             true,
             10,
@@ -174,7 +174,7 @@ abstract class NodeInvalidationTestParent {
         val text: String,
         val style: TextStyle,
         val fontFamilyResolver: FontFamily.Resolver,
-        val defaultLocale: Locale,
+        val defaultLocaleList: LocaleList,
         val overflow: TextOverflow,
         val softWrap: Boolean,
         val maxLines: Int,

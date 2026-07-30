@@ -21,6 +21,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -64,7 +65,7 @@ private const val DefaultCacheSize = 8
  * [TextMeasurer] uses these as defaults when skipped in [measure] calls.
  *
  * @param defaultFontFamilyResolver resolver to load fonts defined in styles
- * @param defaultLocale the default locale to use for formatting.
+ * @param defaultLocaleList the default locale list to use for formatting.
  * @param defaultLayoutDirection layout direction of the measurement environment
  * @param defaultDensity density of the measurement environment, used for scaling fonts
  * @param cacheSize sets the maximum number of cached layouts. Match this to the number of distinct
@@ -73,12 +74,12 @@ private const val DefaultCacheSize = 8
 @Immutable
 public class TextMeasurer(
     private val defaultFontFamilyResolver: FontFamily.Resolver,
-    private val defaultLocale: Locale,
+    private val defaultLocaleList: LocaleList,
     private val defaultDensity: Density,
     private val defaultLayoutDirection: LayoutDirection,
     private val cacheSize: Int = DefaultCacheSize,
 ) {
-    @Deprecated("Replace with overload that takes a default locale")
+    @Deprecated("Replace with overload that takes a default locale list")
     @Suppress("DEPRECATION")
     public constructor(
         defaultFontFamilyResolver: FontFamily.Resolver,
@@ -87,7 +88,7 @@ public class TextMeasurer(
         cacheSize: Int = DefaultCacheSize,
     ) : this(
         defaultFontFamilyResolver,
-        Locale.current,
+        LocaleList.current,
         defaultDensity,
         defaultLayoutDirection,
         cacheSize,
@@ -142,8 +143,8 @@ public class TextMeasurer(
      *   specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
-     * @param defaultLocale the locale to use if none is specified as part of [style]. If not
-     *   specified, defaults to the value that was given during initialization of this
+     * @param defaultLocaleList the locale list to use if none is specified as part of [style]. If
+     *   not specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @sample androidx.compose.ui.text.samples.measureTextAnnotatedString
      */
@@ -160,7 +161,7 @@ public class TextMeasurer(
         density: Density = this.defaultDensity,
         fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
         skipCache: Boolean = false,
-        defaultLocale: Locale = this.defaultLocale,
+        defaultLocaleList: LocaleList = this.defaultLocaleList,
     ): TextLayoutResult {
         val requestedTextLayoutInput =
             TextLayoutInput(
@@ -173,7 +174,7 @@ public class TextMeasurer(
                 density,
                 layoutDirection,
                 fontFamilyResolver,
-                defaultLocale,
+                defaultLocaleList,
                 constraints,
             )
 
@@ -315,7 +316,7 @@ public class TextMeasurer(
      *   specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
-     * @param defaultLocale the locale to use if none is specified as part of [style]. If not
+     * @param defaultLocaleList the locale list to use if none is specified as part of [style]. If
      *   specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @sample androidx.compose.ui.text.samples.measureTextStringWithConstraints
@@ -332,7 +333,7 @@ public class TextMeasurer(
         density: Density = this.defaultDensity,
         fontFamilyResolver: FontFamily.Resolver = this.defaultFontFamilyResolver,
         skipCache: Boolean = false,
-        defaultLocale: Locale = this.defaultLocale,
+        defaultLocaleList: LocaleList = this.defaultLocaleList,
     ): TextLayoutResult =
         measure(
             text = AnnotatedString(text),
@@ -345,7 +346,7 @@ public class TextMeasurer(
             density = density,
             fontFamilyResolver = fontFamilyResolver,
             skipCache = skipCache,
-            defaultLocale = defaultLocale,
+            defaultLocaleList = defaultLocaleList,
         )
 
     /**
@@ -433,7 +434,7 @@ public class TextMeasurer(
                         style = resolveDefaults(style, layoutDirection),
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        defaultLocale = defaultLocale,
+                        defaultLocaleList = defaultLocaleList,
                         placeholders = placeholders,
                         softWrap = softWrap,
                     )
@@ -583,7 +584,7 @@ internal class CacheTextLayoutInput(val textLayoutInput: TextLayoutInput) {
             result = 31 * result + density.hashCode()
             result = 31 * result + layoutDirection.hashCode()
             result = 31 * result + fontFamilyResolver.hashCode()
-            result = 31 * result + defaultLocale.hashCode()
+            result = 31 * result + defaultLocaleList.hashCode()
             result = 31 * result + constraints.hashCode()
             return result
         }
@@ -602,7 +603,7 @@ internal class CacheTextLayoutInput(val textLayoutInput: TextLayoutInput) {
             if (density != other.textLayoutInput.density) return false
             if (layoutDirection != other.textLayoutInput.layoutDirection) return false
             if (fontFamilyResolver !== other.textLayoutInput.fontFamilyResolver) return false
-            if (defaultLocale != other.textLayoutInput.defaultLocale) return false
+            if (defaultLocaleList != other.textLayoutInput.defaultLocaleList) return false
             if (constraints != other.textLayoutInput.constraints) return false
         }
 

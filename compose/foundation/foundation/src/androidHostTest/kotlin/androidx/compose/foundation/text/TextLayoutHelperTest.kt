@@ -388,7 +388,7 @@ class TextLayoutHelperTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = TEST_LOCALE,
+                defaultLocaleList = TEST_LOCALE_LIST,
                 constraints = constraints,
             ),
             multiParagraph = multiParagraph,
