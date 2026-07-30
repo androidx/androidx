@@ -45,7 +45,7 @@ internal class A2uiCoreExecutionContext(
         dynamicEvaluator.evaluate(dataPath, payload, this)
 
     override fun executeFunction(name: String, args: Map<String, Any>): Any? {
-        val catalogFunction = catalog.getFunction(name)
+        val catalogFunction = catalog.functions[name]
         if (catalogFunction == null) {
             val exception =
                 A2uiException.A2uiRuntimeException("Function '$name' not found in catalog.")

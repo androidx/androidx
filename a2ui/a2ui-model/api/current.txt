@@ -7,6 +7,16 @@ package androidx.a2ui.model.catalog {
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionDefinition definition;
   }
 
+  public sealed nonexhaustive interface A2uiFunctionCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.model.catalog.A2uiFunction> {
+    method public operator androidx.a2ui.model.catalog.A2uiFunction? get(String name);
+  }
+
+  public final class A2uiFunctionCollectionKt {
+    method public static androidx.a2ui.model.catalog.A2uiFunctionCollection A2uiFunctionCollection();
+    method public static androidx.a2ui.model.catalog.A2uiFunctionCollection A2uiFunctionCollection(optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    method @BytecodeOnly public static androidx.a2ui.model.catalog.A2uiFunctionCollection! A2uiFunctionCollection$default(java.util.List!, int, Object!);
+  }
+
   public interface A2uiFunctionDefinition {
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getArgumentSchema();
     method @InaccessibleFromKotlin public String getDescription();
