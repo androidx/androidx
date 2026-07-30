@@ -36,6 +36,11 @@
 - **Regression Prevention**: Scan the codebase and analyze the impact of your
   changes on related components to ensure no potential regressions are
   introduced.
+- **Camera2 API Usage**: When writing code that utilizes Android Camera2 APIs
+  (directly or indirectly, including modifying behavior that relies on them),
+  always revisit the official [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
+  to check the API usage guidelines and contracts before finalizing the code change,
+  ensuring all usage aligns with the framework's design.
 - **Standard Verification Procedure**: Never skip the verification steps.
   Always compile (build), run related tests, run lint, and **verify code
   elegance and regression prevention** before finalizing any code changes.
@@ -83,6 +88,12 @@ CameraX involves complex hardware interactions, making robust testing essential.
 #### 1. Research & Context Gathering (Before Modifying Code)
 - **Read Documentation & API Contracts**: Carefully read the JavaDoc and API contracts of
   the class/interface you are modifying. Understand the design intent and constraints.
+- **Camera2 API Check**: If the change interacts with or modifies behavior
+  relying on Android Camera2 APIs, read the official Camera2 API reference
+  (e.g., [`StreamConfigurationMap`](https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap),
+  [`CameraCharacteristics`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics))
+  to verify that the proposed changes align with the documented framework behavior
+  and constraints.
 - **Analyze Existing Code & Style**: Reference existing implementations in the same module.
   Observe the coding style, threading model, and check for any "intentional" workarounds (e.g.,
   device-specific workarounds or deprecation usage) that must be preserved.
@@ -321,6 +332,7 @@ Test: <test instructions>
 - https://developer.android.com/training/camerax/analyze
 - https://developer.android.com/training/camerax/video-capture
 - https://android-developers.googleblog.com/search?q=camerax
+- https://developer.android.com/reference/android/hardware/camera2/package-summary (Camera2 API Reference)
 
 ## AndroidX-specific Instructions
 
