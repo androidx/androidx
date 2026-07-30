@@ -71,8 +71,6 @@ internal class FakeActivitySpace : FakeSystemSpaceEntity(), ActivitySpace {
      * For test purposes only.
      *
      * The set of listeners to be called when the bounds of the primary Activity change.
-     *
-     * @param bounds The new bounds of the primary Activity in Meters
      */
     val onBoundsChangedListeners: Set<ActivitySpace.OnBoundsChangedListener>
         get() = _onBoundsChangedListeners

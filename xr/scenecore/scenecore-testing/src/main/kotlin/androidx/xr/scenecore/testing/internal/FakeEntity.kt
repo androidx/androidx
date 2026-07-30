@@ -50,8 +50,6 @@ internal open class FakeEntity(val name: String = "") : FakeScenePose(), Entity 
     /**
      * Sets the parent Entity for this Entity. The child Entity's pose will be relative to the pose
      * of its parent.
-     *
-     * @param parent The parent entity.
      */
     override var parent: Entity?
         get() = _parent

@@ -63,7 +63,6 @@ public class ProjectedServiceConnection(
      * This method binds to the projected service and waits for the connection to be established. A
      * new connection can be established after a successful call to [disconnect].
      *
-     * @param context The context to use for binding to the service.
      * @return An [IProjectedService] instance.
      * @throws IllegalStateException if the projected service is not found or binding is not
      *   permitted, or if [connect] is called while a connection is already active.

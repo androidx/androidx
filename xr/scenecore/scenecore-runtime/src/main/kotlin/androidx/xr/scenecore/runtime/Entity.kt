@@ -31,8 +31,6 @@ public interface Entity : ScenePose {
     /**
      * Sets the parent Entity for this Entity. The child Entity's pose will be relative to the pose
      * of its parent.
-     *
-     * @param parent The parent entity.
      */
     public var parent: Entity?
 
