@@ -435,7 +435,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
 
     @Test
     fun lookahead_sizeChange_cacheClearedCorrectly() {
-        assumeTrue(ComposeFoundationFlags.isCacheWindowVisibleItemCountCheckEnabled)
+        assumeTrue(ComposeFoundationFlags.isCacheWindowLookaheadCheckEnabled)
         assumeTrue(ComposeFoundationFlags.isMultiLaneCacheWindowEnabled)
         val disposed = mutableListOf<Boolean>().apply { repeat(10) { this.add(false) } }
         var lookaheadHeight by mutableIntStateOf(1000)

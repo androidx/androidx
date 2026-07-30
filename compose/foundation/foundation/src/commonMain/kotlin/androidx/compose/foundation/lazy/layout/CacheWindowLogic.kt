@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import androidx.collection.mutableIntIntMapOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
-import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowVisibleItemCountCheckEnabled
+import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowLookaheadCheckEnabled
 import androidx.compose.foundation.ComposeFoundationFlags.isMultiLaneCacheWindowEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
@@ -33,6 +33,8 @@ import kotlin.math.sign
 @OptIn(ExperimentalFoundationApi::class)
 internal interface CacheWindowLogic {
     val cacheWindow: LazyLayoutCacheWindow
+
+    var hasLookaheadOccurred: Boolean
 
     fun CacheWindowScope.onScroll(delta: Float)
 
@@ -64,6 +66,8 @@ internal class MultiLaneCacheWindow(
     override val cacheWindow: LazyLayoutCacheWindow,
     private val laneCount: () -> Int = { 1 },
 ) : CacheWindowLogic {
+    /* Used to check if we have performed a lookahead. */
+    override var hasLookaheadOccurred = false
     /** Handles for prefetched items in the current forward window. */
     private val prefetchWindowHandles = mutableIntObjectMapOf<List<PrefetchHandle>>()
 
@@ -79,8 +83,6 @@ internal class MultiLaneCacheWindow(
     private var previousPassDelta = 0f
     private var previousPassItemCount = UnsetItemCount
     private var hasUpdatedVisibleItemsOnce = false
-    private var previousPassVisibleItemCount = 0
-    private var hasScrolledInCurrentFrame = false
 
     /**
      * Indices for the start and end of the cache window for each lane. The items between
@@ -122,6 +124,7 @@ internal class MultiLaneCacheWindow(
         val newLaneCount = maxOf(1, laneCount())
         if (previousLaneCount != newLaneCount) {
             resetStrategy()
+            shouldRefillWindow = true
         }
     }
 
@@ -143,7 +146,6 @@ internal class MultiLaneCacheWindow(
     private var itemsCount = 0
 
     override fun CacheWindowScope.onScroll(delta: Float) {
-        hasScrolledInCurrentFrame = true
         handleLaneResize()
         debugLog { "delta=$delta" }
         traceWindowInfo()
@@ -183,7 +185,7 @@ internal class MultiLaneCacheWindow(
     override fun CacheWindowScope.onVisibleItemsUpdated() {
         handleLaneResize()
         debugLog { "hasUpdatedVisibleItemsOnce=$hasUpdatedVisibleItemsOnce" }
-        if (isCacheWindowVisibleItemCountCheckEnabled) {
+        if (isCacheWindowLookaheadCheckEnabled) {
             if (!hasUpdatedVisibleItemsOnce) {
                 shouldRefillWindow = true
                 hasUpdatedVisibleItemsOnce = true
@@ -219,33 +221,17 @@ internal class MultiLaneCacheWindow(
                 }
             }
 
-            /**
-             * This comparison is required because there are instances, for example when using
-             * lookahead, where the number of visible items can change without keys or sizes
-             * changing and without the dataset changing. In the case where the number of visible
-             * items decrease, the executing the refill will be cheap the items that we omitted form
-             * the new visible items list are still in the cache after having been cached with
-             * `cacheVisibleItemsInfo` from the previous invocation of `onVisibleItemsUpdated`. In
-             * the case where the visible items list increase in size, those uncached items are
-             * brought into composition by measure because they are needed in the measure pass and
-             * we use them here.
-             */
-            if (isCacheWindowVisibleItemCountCheckEnabled) {
-                if (
-                    visibleItemsCount != previousPassVisibleItemCount &&
-                        !hasScrolledInCurrentFrame &&
-                        cacheWindow.isNonScrollCachingEnabled
-                ) {
+            if (isCacheWindowLookaheadCheckEnabled) {
+                if (hasLookaheadOccurred) {
                     shouldRefillWindow = true
+                    hasLookaheadOccurred = false
                 }
             }
-
-            previousPassVisibleItemCount = visibleItemsCount
 
             if (shouldRefillWindow) {
                 // refill window in accordance with last pass delta
                 debugLog { "Refill Window Forward=${previousPassDelta <= 0.0f}" }
-                if (isCacheWindowVisibleItemCountCheckEnabled) {
+                if (isCacheWindowLookaheadCheckEnabled) {
                     val viewport = mainAxisViewportSize
 
                     /**
@@ -282,7 +268,6 @@ internal class MultiLaneCacheWindow(
         }
 
         previousPassItemCount = totalItemsCount
-        hasScrolledInCurrentFrame = false
     }
 
     private fun CacheWindowScope.onDatasetChanged() {
@@ -820,6 +805,8 @@ internal class LegacyCacheWindowLogic(
     override val cacheWindow: LazyLayoutCacheWindow,
     private val enableInitialPrefetch: Boolean = true,
 ) : CacheWindowLogic {
+    /* Used to check if we have performed a lookahead. */
+    override var hasLookaheadOccurred = false
     /** Temporary buffer to avoid array allocations. */
     private val extraSpaceBuffer = IntArray(1)
     /** Handles for prefetched items in the current forward window. */
