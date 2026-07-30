@@ -240,6 +240,7 @@ class LazyGridCacheWindowTest(orientation: Orientation) :
         initialFirstVisibleItemIndex: Int = 0,
         initialFirstVisibleItemScrollOffset: Int = 0,
     ): LazyGridState = remember {
+        @Suppress("DEPRECATION")
         LazyGridState(
             cacheWindow,
             initialFirstVisibleItemIndex,
