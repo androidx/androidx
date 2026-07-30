@@ -464,15 +464,15 @@ class Controller3AForCaptureTest {
 
     @Test
     fun testUnlock3APostCapture() {
-        testUnlock3APostCaptureAndroidMAndAbove()
+        testUnlock3APostCapture(cancelAf = true)
     }
 
     @Test
     fun testUnlock3APostCapture_whenAfNotTriggered() {
-        testUnlock3APostCaptureAndroidMAndAbove(false)
+        testUnlock3APostCapture(cancelAf = false)
     }
 
-    private fun testUnlock3APostCaptureAndroidMAndAbove(cancelAf: Boolean = true) = runTest {
+    private fun testUnlock3APostCapture(cancelAf: Boolean) = runTest {
         val result = controller3A.unlock3APostCapture(cancelAf)
         assertThat(result.isCompleted).isFalse()
 

@@ -36,7 +36,6 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.compat.Api24Compat
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.ImageSources
@@ -301,20 +300,16 @@ constructor(
     }
 
     private fun readExistingGroupNumbers(outputs: List<CameraStream.Config>): List<Int> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            outputs
-                .flatMap { it.outputs }
-                .filterIsInstance<OutputStream.Config.ExternalOutputConfig>()
-                .fold(mutableListOf()) { values, config ->
-                    val groupId = Api24Compat.getSurfaceGroupId(config.output)
-                    if (!values.contains(groupId)) {
-                        values.add(groupId)
-                    }
-                    values
+        return outputs
+            .flatMap { it.outputs }
+            .filterIsInstance<OutputStream.Config.ExternalOutputConfig>()
+            .fold(mutableListOf()) { values, config ->
+                val groupId = config.output.surfaceGroupId
+                if (!values.contains(groupId)) {
+                    values.add(groupId)
                 }
-        } else {
-            emptyList()
-        }
+                values
+            }
     }
 
     private fun computeIfDeferredStreamsAreSupported(

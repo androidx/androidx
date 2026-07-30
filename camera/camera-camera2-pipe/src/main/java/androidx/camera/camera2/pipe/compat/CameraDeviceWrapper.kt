@@ -76,14 +76,12 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     ): Boolean
 
     /** @see CameraDevice.createCaptureSessionByOutputConfigurations */
-    @RequiresApi(24)
     fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
     ): Boolean
 
     /** @see CameraDevice.createReprocessableCaptureSessionByConfigurations */
-    @RequiresApi(24)
     fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
@@ -299,7 +297,7 @@ internal class AndroidCameraDevice(
         return result != null
     }
 
-    @RequiresApi(24)
+    @Suppress("deprecation")
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -312,8 +310,7 @@ internal class AndroidCameraDevice(
                 // This function was deprecated in Android Q, but is required for some
                 // configurations
                 // when running on older versions of the OS.
-                Api24Compat.createCaptureSessionByOutputConfigurations(
-                    cameraDevice,
+                cameraDevice.createCaptureSessionByOutputConfigurations(
                     outputConfigurations.map { it.unwrapAs<OutputConfiguration>() },
                     AndroidCaptureSessionStateCallback(
                         this,
@@ -338,7 +335,7 @@ internal class AndroidCameraDevice(
         return result != null
     }
 
-    @RequiresApi(24)
+    @Suppress("deprecation")
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
@@ -351,8 +348,7 @@ internal class AndroidCameraDevice(
             instrumentAndCatch("createReprocessableCaptureSessionByConfigurations") {
                 // This function was deprecated in Android Q, but is required for some
                 // configurations when running on older versions of the OS.
-                Api24Compat.createReprocessableCaptureSessionByConfigurations(
-                    cameraDevice,
+                cameraDevice.createReprocessableCaptureSessionByConfigurations(
                     InputConfiguration(inputConfig.width, inputConfig.height, inputConfig.format),
                     outputs.map { it.unwrapAs<OutputConfiguration>() },
                     AndroidCaptureSessionStateCallback(
@@ -607,7 +603,6 @@ internal class VirtualAndroidCameraDevice(internal val androidCameraDevice: Andr
             }
         }
 
-    @RequiresApi(24)
     override fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -627,7 +622,6 @@ internal class VirtualAndroidCameraDevice(internal val androidCameraDevice: Andr
             }
         }
 
-    @RequiresApi(24)
     override fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
