@@ -62,8 +62,8 @@ public abstract class Tracer {
     /**
      * Writes a trace message indicating that a given section of code has begun.
      *
-     * Should be followed by a corresponding call to [AutoCloseable.close] returned by the call to
-     * `beginSection`. If the corresponding [AutoCloseable.close] is missing, the section will be
+     * Should be followed by a corresponding call to `AutoCloseable.close` returned by the call to
+     * `beginSection`. If the corresponding `AutoCloseable.close` is missing, the section will be
      * present in the trace, but non-terminating (generally shown as fading out to the left).
      *
      * @param category The category that the trace section belongs to. Apps can potentially filter
@@ -92,8 +92,8 @@ public abstract class Tracer {
     /**
      * Writes a trace message indicating that a given suspending section of code has begun.
      *
-     * Should be followed by a corresponding call to [AutoCloseable.close] returned by the call to
-     * `beginCoroutineSectionWithMetadata`. If the corresponding [AutoCloseable.close] is missing,
+     * Should be followed by a corresponding call to `AutoCloseable.close` returned by the call to
+     * `beginCoroutineSectionWithMetadata`. If the corresponding `AutoCloseable.close` is missing,
      * the section will be present in the trace, but non-terminating (generally shown as fading out
      * to the left).
      *
@@ -156,8 +156,8 @@ public abstract class Tracer {
     /**
      * Writes a trace message indicating that a given section of code has begun.
      *
-     * Should be followed by a corresponding call to [AutoCloseable.close] returned by the call to
-     * `beginSection`. If the corresponding [AutoCloseable.close] is missing, the section will be
+     * Should be followed by a corresponding call to `AutoCloseable.close` returned by the call to
+     * `beginSection`. If the corresponding `AutoCloseable.close` is missing, the section will be
      * present in the trace, but non-terminating (generally shown as fading out to the left).
      *
      * @param category The category that the trace section belongs to. Apps can potentially filter
@@ -199,8 +199,8 @@ public abstract class Tracer {
     /**
      * Writes a trace message indicating that a given suspending section of code has begun.
      *
-     * Should be followed by a corresponding call to [AutoCloseable.close] returned by the call to
-     * `beginCoroutineSectionWithMetadata`. If the corresponding [AutoCloseable.close] is missing,
+     * Should be followed by a corresponding call to `AutoCloseable.close` returned by the call to
+     * `beginCoroutineSectionWithMetadata`. If the corresponding `AutoCloseable.close` is missing,
      * the section will be present in the trace, but non-terminating (generally shown as fading out
      * to the left).
      *
