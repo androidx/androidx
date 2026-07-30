@@ -280,10 +280,7 @@ public final class UiWindow implements Searchable {
      * @see AccessibilityWindowInfo#getTitle()
      */
     public @Nullable String getTitle() {
-        CharSequence title = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            title = Api24Impl.getTitle(getAccessibilityWindowInfo());
-        }
+        CharSequence title = getAccessibilityWindowInfo().getTitle();
         return title != null ? title.toString() : null;
     }
 
@@ -375,17 +372,6 @@ public final class UiWindow implements Searchable {
     }
 
     // Inner classes for API level compatibility
-
-    @RequiresApi(24)
-    static class Api24Impl {
-        private Api24Impl() {
-        }
-
-        @DoNotInline
-        static CharSequence getTitle(AccessibilityWindowInfo window) {
-            return window.getTitle();
-        }
-    }
 
     @RequiresApi(26)
     static class Api26Impl {

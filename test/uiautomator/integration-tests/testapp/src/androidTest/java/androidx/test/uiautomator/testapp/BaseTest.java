@@ -112,8 +112,7 @@ public abstract class BaseTest {
     }
 
     protected static boolean isDesktopWindowing() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && InstrumentationRegistry.getInstrumentation()
+        return InstrumentationRegistry.getInstrumentation()
                 .getContext()
                 .getPackageManager()
                 .hasSystemFeature(FEATURE_FREEFORM_WINDOW_MANAGEMENT);

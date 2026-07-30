@@ -142,8 +142,7 @@ class ByWindowMatcher {
         if (criteria == null) {
             return true;
         }
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && matchesCriteria(criteria,
-                Api24Impl.getTitle(window));
+        return matchesCriteria(criteria, window.getTitle());
     }
 
     /** Returns true if the display ID criteria is null or equal to that of the window. */
@@ -165,17 +164,6 @@ class ByWindowMatcher {
         }
         AccessibilityNodeInfo root = window.getRoot();
         return root != null && matchesCriteria(criteria, root.getPackageName());
-    }
-
-    @RequiresApi(24)
-    static class Api24Impl {
-        private Api24Impl() {
-        }
-
-        @DoNotInline
-        static CharSequence getTitle(AccessibilityWindowInfo window) {
-            return window.getTitle();
-        }
     }
 
     @RequiresApi(30)

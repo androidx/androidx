@@ -509,9 +509,8 @@ public class UiObject2 implements Searchable {
      *
      * @return The drawing order of this object relative to its siblings.
      */
-    @RequiresApi(24)
     public int getDrawingOrder() {
-        return Api24Impl.getDrawingOrder(getAccessibilityNodeInfo());
+        return getAccessibilityNodeInfo().getDrawingOrder();
     }
 
     // Actions
@@ -1077,16 +1076,6 @@ public class UiObject2 implements Searchable {
 
     UiDevice getDevice() {
         return mDevice;
-    }
-
-    @RequiresApi(24)
-    static class Api24Impl {
-        private Api24Impl() {
-        }
-
-        static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
-            return accessibilityNodeInfo.getDrawingOrder();
-        }
     }
 
     @RequiresApi(26)
