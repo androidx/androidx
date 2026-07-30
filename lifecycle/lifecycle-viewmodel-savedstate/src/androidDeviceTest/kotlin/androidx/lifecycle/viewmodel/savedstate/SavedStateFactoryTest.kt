@@ -17,6 +17,7 @@
 package androidx.lifecycle.viewmodel.savedstate
 
 import android.app.Application
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
@@ -28,6 +29,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.defaultViewModelProviderFactory
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.savedstate.SavedStateRegistryOwner
@@ -293,6 +295,153 @@ class SavedStateFactoryTest {
             assertThat(e.message)
                 .contains("SavedStateRegistryOwner must implement ViewModelStoreOwner")
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSavedStateViewModelFactory_legacy_updatedDefaultArgs() {
+        val activity = activityRule.activity
+        val factory =
+            SavedStateViewModelFactory(activity.application, activity, activity.intent.extras)
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm1 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm1.handle.get<String>("test_key")).isNull()
+
+        val newIntent = Intent().putExtra("test_key", "new_value")
+        activity.intent = newIntent
+
+        activity.viewModelStore.clear()
+
+        val vm2 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm2.handle.get<String>("test_key")).isEqualTo("new_value")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testAbstractSavedStateViewModelFactory_legacy_updatedDefaultArgs() {
+        val activity = activityRule.activity
+        @Suppress("DEPRECATION")
+        val factory =
+            object :
+                androidx.lifecycle.AbstractSavedStateViewModelFactory(
+                    activity,
+                    activity.intent.extras,
+                ) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle,
+                ): T {
+                    return modelClass.cast(MyViewModel(handle))!!
+                }
+            }
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm1 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm1.handle.get<String>("test_key")).isNull()
+
+        val newIntent = Intent().putExtra("test_key", "new_value")
+        activity.intent = newIntent
+
+        activity.viewModelStore.clear()
+
+        val vm2 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm2.handle.get<String>("test_key")).isEqualTo("new_value")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSavedStateViewModelFactory_legacy_constructorArgsPrecedence() {
+        val activity = activityRule.activity
+
+        val intent = Intent().putExtra("key1", "intent_val").putExtra("key2", "intent_val2")
+        activity.intent = intent
+
+        val customArgs = Bundle().apply { putString("key1", "custom_val") }
+        val factory = SavedStateViewModelFactory(activity.application, activity, customArgs)
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm = provider["vm_key", MyViewModel::class.java]
+
+        assertThat(vm.handle.get<String>("key1")).isEqualTo("custom_val")
+        assertThat(vm.handle.get<String>("key2")).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testAbstractSavedStateViewModelFactory_legacy_constructorArgsPrecedence() {
+        val activity = activityRule.activity
+
+        val intent = Intent().putExtra("key1", "intent_val").putExtra("key2", "intent_val2")
+        activity.intent = intent
+
+        val customArgs = Bundle().apply { putString("key1", "custom_val") }
+        @Suppress("DEPRECATION")
+        val factory =
+            object : androidx.lifecycle.AbstractSavedStateViewModelFactory(activity, customArgs) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle,
+                ): T {
+                    return modelClass.cast(MyViewModel(handle))!!
+                }
+            }
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm = provider["vm_key", MyViewModel::class.java]
+
+        assertThat(vm.handle.get<String>("key1")).isEqualTo("custom_val")
+        assertThat(vm.handle.get<String>("key2")).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testComponentActivity_defaultFactory_updatedDefaultArgs() {
+        val activity = activityRule.activity
+        val factory = activity.defaultViewModelProviderFactory
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm1 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm1.handle.get<String>("test_key")).isNull()
+
+        val newIntent = Intent().putExtra("test_key", "new_value")
+        activity.intent = newIntent
+
+        activity.viewModelStore.clear()
+
+        val vm2 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm2.handle.get<String>("test_key")).isEqualTo("new_value")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testAbstractSavedStateViewModelFactory_defaultFactory_updatedDefaultArgs() {
+        val activity = activityRule.activity
+        @Suppress("DEPRECATION")
+        val factory =
+            object : androidx.lifecycle.AbstractSavedStateViewModelFactory(activity, null) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle,
+                ): T {
+                    return modelClass.cast(MyViewModel(handle))!!
+                }
+            }
+        val provider = ViewModelProvider(activity.viewModelStore, factory)
+
+        val vm1 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm1.handle.get<String>("test_key")).isNull()
+
+        val newIntent = Intent().putExtra("test_key", "new_value")
+        activity.intent = newIntent
+
+        activity.viewModelStore.clear()
+
+        val vm2 = provider["vm_key", MyViewModel::class.java]
+        assertThat(vm2.handle.get<String>("test_key")).isEqualTo("new_value")
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :

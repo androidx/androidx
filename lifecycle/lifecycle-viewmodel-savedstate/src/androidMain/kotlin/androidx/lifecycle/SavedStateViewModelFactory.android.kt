@@ -23,6 +23,7 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.getInstance
+import androidx.lifecycle.ViewModelProvider.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.savedstate.SavedStateRegistryOwner
@@ -202,18 +203,30 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
             }
         }
 
+        // Register controller under host. Ensures createSavedStateHandle() resolves it.
         val controller =
             SavedStateHandleController.getOrCreate(savedStateRegistryOwner, viewModelStoreOwner)
         attachSavedStateHandleOnNextRecreation(savedStateRegistryOwner, controller)
-        val handle = controller.getOrCreateHandle(key, defaultArgs)
-        val viewModel =
-            if (isAndroidViewModel && hasApplication) {
-                newInstance(modelClass, constructor, application, handle)
-            } else {
-                newInstance(modelClass, constructor, handle)
+
+        // Construct CreationExtras. Preserves owner default extras, overrides with factory keys.
+        val extras =
+            CreationExtras(initialExtras = viewModelStoreOwner.defaultViewModelCreationExtras) {
+                this[SAVED_STATE_REGISTRY_OWNER_KEY] = savedStateRegistryOwner
+                this[VIEW_MODEL_STORE_OWNER_KEY] = viewModelStoreOwner
+                this[VIEW_MODEL_KEY] = key
+                if (defaultArgs != null) {
+                    this[DEFAULT_ARGS_KEY] = defaultArgs
+                }
             }
 
-        return viewModel
+        // Retrieve SavedStateHandle from registered controller via CreationExtras.
+        val handle = extras.createSavedStateHandle()
+
+        return if (isAndroidViewModel && hasApplication) {
+            newInstance(modelClass, constructor, application, handle)
+        } else {
+            newInstance(modelClass, constructor, handle)
+        }
     }
 
     /**
