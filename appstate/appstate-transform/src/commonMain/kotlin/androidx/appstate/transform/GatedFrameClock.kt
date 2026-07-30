@@ -19,6 +19,7 @@ package androidx.appstate.transform
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.MonotonicFrameClock
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -35,11 +36,12 @@ internal class GatedFrameClock(scope: CoroutineScope, context: CoroutineContext)
             }
         }
 
+    private val markedTime = TimeSource.Monotonic.markNow()
     private var lastNanos = 0L
     private var lastOffset = 0
 
     private fun sendFrame() {
-        val timeNanos = System.nanoTime()
+        val timeNanos = markedTime.elapsedNow().inWholeNanoseconds
 
         // Since we only have millisecond resolution, ensure the nanos form always increases by
         // incrementing a nano offset if we collide with the previous timestamp.
