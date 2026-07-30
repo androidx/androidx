@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/AnimatedPaneOverride from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/LocalAnimatedPaneOverride from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/LocalThreePaneScaffoldOverride from androidx.compose.material

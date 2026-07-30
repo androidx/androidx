@@ -31,15 +31,7 @@ final enum class androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRol
     final fun values(): kotlin/Array<androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole> // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole.values|values#static(){}[0]
 }
 
-abstract interface androidx.compose.material3.adaptive.layout/AnimatedPaneOverride { // androidx.compose.material3.adaptive.layout/AnimatedPaneOverride|null[0]
-    abstract fun <#A1: androidx.compose.material3.adaptive.layout/PaneScaffoldRole, #B1: androidx.compose.material3.adaptive.layout/PaneScaffoldValue<#A1>> (androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope<#A1, #B1>).AnimatedPane(androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.adaptive.layout/AnimatedPaneOverride.AnimatedPane|AnimatedPane@androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope<0:0,0:1>(androidx.compose.runtime.Composer?;kotlin.Int){0§<androidx.compose.material3.adaptive.layout.PaneScaffoldRole>;1§<androidx.compose.material3.adaptive.layout.PaneScaffoldValue<0:0>>}[0]
-}
-
 abstract interface androidx.compose.material3.adaptive.layout/PaneScaffoldRole // androidx.compose.material3.adaptive.layout/PaneScaffoldRole|null[0]
-
-abstract interface androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride { // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride|null[0]
-    abstract fun (androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope).ThreePaneScaffold(androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride.ThreePaneScaffold|ThreePaneScaffold@androidx.compose.material3.adaptive.layout.ThreePaneScaffoldOverrideScope(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-}
 
 sealed interface <#A: androidx.compose.material3.adaptive.layout/PaneScaffoldRole, #B: androidx.compose.material3.adaptive.layout/PaneScaffoldValue<#A>> androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldPaneScope : androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldScope<#A, #B>, androidx.compose.material3.adaptive.layout/PaneScaffoldPaneScope<#A> // androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldPaneScope|null[0]
 
@@ -272,25 +264,6 @@ abstract class androidx.compose.material3.adaptive.layout/DragToResizeState : an
     final object Companion // androidx.compose.material3.adaptive.layout/DragToResizeState.Companion|null[0]
 }
 
-final class <#A: androidx.compose.material3.adaptive.layout/PaneScaffoldRole, #B: androidx.compose.material3.adaptive.layout/PaneScaffoldValue<#A>> androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope { // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope|null[0]
-    final val boundsAnimationSpec // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.boundsAnimationSpec|{}boundsAnimationSpec[0]
-        final fun <get-boundsAnimationSpec>(): androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.unit/IntRect> // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.boundsAnimationSpec.<get-boundsAnimationSpec>|<get-boundsAnimationSpec>(){}[0]
-    final val content // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.content|{}content[0]
-        final fun <get-content>(): kotlin/Function3<androidx.compose.material3.adaptive.layout/AnimatedPaneScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.content.<get-content>|<get-content>(){}[0]
-    final val dragToResizeHandle // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.dragToResizeHandle|{}dragToResizeHandle[0]
-        final fun <get-dragToResizeHandle>(): kotlin/Function3<androidx.compose.material3.adaptive.layout/DragToResizeState, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>? // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.dragToResizeHandle.<get-dragToResizeHandle>|<get-dragToResizeHandle>(){}[0]
-    final val enterTransition // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.enterTransition|{}enterTransition[0]
-        final fun <get-enterTransition>(): androidx.compose.animation/EnterTransition // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.enterTransition.<get-enterTransition>|<get-enterTransition>(){}[0]
-    final val exitTransition // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.exitTransition|{}exitTransition[0]
-        final fun <get-exitTransition>(): androidx.compose.animation/ExitTransition // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.exitTransition.<get-exitTransition>|<get-exitTransition>(){}[0]
-    final val modifier // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.modifier|{}modifier[0]
-        final fun <get-modifier>(): androidx.compose.ui/Modifier // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.modifier.<get-modifier>|<get-modifier>(){}[0]
-    final val scope // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.scope|{}scope[0]
-        final fun <get-scope>(): androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldPaneScope<#A, #B> // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.scope.<get-scope>|<get-scope>(){}[0]
-    final val shape // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.shape|{}shape[0]
-        final fun <get-shape>(): androidx.compose.ui.graphics/Shape // androidx.compose.material3.adaptive.layout/AnimatedPaneOverrideScope.shape.<get-shape>|<get-shape>(){}[0]
-}
-
 final class <#A: out kotlin/Any?> androidx.compose.material3.adaptive.layout/ThreePaneScaffoldDestinationItem { // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldDestinationItem|null[0]
     constructor <init>(androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole, #A? = ...) // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldDestinationItem.<init>|<init>(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole;1:0?){}[0]
 
@@ -416,27 +389,6 @@ final class androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizont
     final fun get(kotlin/Int): androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizontalOrder.get|get(kotlin.Int){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizontalOrder.hashCode|hashCode(){}[0]
     final fun indexOf(androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole): kotlin/Int // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizontalOrder.indexOf|indexOf(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole){}[0]
-}
-
-final class androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope { // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope|null[0]
-    final val modifier // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.modifier|{}modifier[0]
-        final fun <get-modifier>(): androidx.compose.ui/Modifier // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.modifier.<get-modifier>|<get-modifier>(){}[0]
-    final val paneExpansionDragHandle // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneExpansionDragHandle|{}paneExpansionDragHandle[0]
-        final fun <get-paneExpansionDragHandle>(): kotlin/Function3<androidx.compose.material3.adaptive.layout/PaneExpansionState, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>? // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneExpansionDragHandle.<get-paneExpansionDragHandle>|<get-paneExpansionDragHandle>(){}[0]
-    final val paneExpansionState // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneExpansionState|{}paneExpansionState[0]
-        final fun <get-paneExpansionState>(): androidx.compose.material3.adaptive.layout/PaneExpansionState // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneExpansionState.<get-paneExpansionState>|<get-paneExpansionState>(){}[0]
-    final val paneOrder // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneOrder|{}paneOrder[0]
-        final fun <get-paneOrder>(): androidx.compose.material3.adaptive.layout/ThreePaneScaffoldHorizontalOrder // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.paneOrder.<get-paneOrder>|<get-paneOrder>(){}[0]
-    final val primaryPane // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.primaryPane|{}primaryPane[0]
-        final fun <get-primaryPane>(): kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.primaryPane.<get-primaryPane>|<get-primaryPane>(){}[0]
-    final val scaffoldDirective // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.scaffoldDirective|{}scaffoldDirective[0]
-        final fun <get-scaffoldDirective>(): androidx.compose.material3.adaptive.layout/PaneScaffoldDirective // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.scaffoldDirective.<get-scaffoldDirective>|<get-scaffoldDirective>(){}[0]
-    final val scaffoldState // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.scaffoldState|{}scaffoldState[0]
-        final fun <get-scaffoldState>(): androidx.compose.material3.adaptive.layout/ThreePaneScaffoldState // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.scaffoldState.<get-scaffoldState>|<get-scaffoldState>(){}[0]
-    final val secondaryPane // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.secondaryPane|{}secondaryPane[0]
-        final fun <get-secondaryPane>(): kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit> // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.secondaryPane.<get-secondaryPane>|<get-secondaryPane>(){}[0]
-    final val tertiaryPane // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.tertiaryPane|{}tertiaryPane[0]
-        final fun <get-tertiaryPane>(): kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>? // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverrideScope.tertiaryPane.<get-tertiaryPane>|<get-tertiaryPane>(){}[0]
 }
 
 final class androidx.compose.material3.adaptive.layout/ThreePaneScaffoldValue : androidx.compose.material3.adaptive.layout/PaneExpansionStateKeyProvider, androidx.compose.material3.adaptive.layout/PaneScaffoldValue<androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole> { // androidx.compose.material3.adaptive.layout/ThreePaneScaffoldValue|null[0]
@@ -580,10 +532,6 @@ final object androidx.compose.material3.adaptive.layout/SupportingPaneScaffoldRo
         final fun <get-Supporting>(): androidx.compose.material3.adaptive.layout/ThreePaneScaffoldRole // androidx.compose.material3.adaptive.layout/SupportingPaneScaffoldRole.Supporting.<get-Supporting>|<get-Supporting>(){}[0]
 }
 
-final val androidx.compose.material3.adaptive.layout/LocalAnimatedPaneOverride // androidx.compose.material3.adaptive.layout/LocalAnimatedPaneOverride|{}LocalAnimatedPaneOverride[0]
-    final fun <get-LocalAnimatedPaneOverride>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3.adaptive.layout/AnimatedPaneOverride> // androidx.compose.material3.adaptive.layout/LocalAnimatedPaneOverride.<get-LocalAnimatedPaneOverride>|<get-LocalAnimatedPaneOverride>(){}[0]
-final val androidx.compose.material3.adaptive.layout/LocalThreePaneScaffoldOverride // androidx.compose.material3.adaptive.layout/LocalThreePaneScaffoldOverride|{}LocalThreePaneScaffoldOverride[0]
-    final fun <get-LocalThreePaneScaffoldOverride>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material3.adaptive.layout/ThreePaneScaffoldOverride> // androidx.compose.material3.adaptive.layout/LocalThreePaneScaffoldOverride.<get-LocalThreePaneScaffoldOverride>|<get-LocalThreePaneScaffoldOverride>(){}[0]
 final val androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AdaptStrategy_Levitate$stableprop // androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AdaptStrategy_Levitate$stableprop|#static{}androidx_compose_material3_adaptive_layout_AdaptStrategy_Levitate$stableprop[0]
 final val androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AdaptStrategy_Reflow$stableprop // androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AdaptStrategy_Reflow$stableprop|#static{}androidx_compose_material3_adaptive_layout_AdaptStrategy_Reflow$stableprop[0]
 final val androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AnimatedPaneOverrideScope$stableprop // androidx.compose.material3.adaptive.layout/androidx_compose_material3_adaptive_layout_AnimatedPaneOverrideScope$stableprop|#static{}androidx_compose_material3_adaptive_layout_AnimatedPaneOverrideScope$stableprop[0]
