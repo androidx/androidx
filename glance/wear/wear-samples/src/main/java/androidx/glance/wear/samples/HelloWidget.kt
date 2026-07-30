@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.glance.wear.AssociateWithGlanceWearWidget
@@ -41,6 +42,7 @@ import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.tooling.preview.SquircleLargeWidgetPreviewParams
 import androidx.glance.wear.tooling.preview.SquircleSmallWidgetPreviewParams
 import androidx.glance.wear.tooling.preview.WearWidgetPreview
+import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
 
 @AssociateWithGlanceWearWidget(HelloWidget::class)
@@ -63,14 +65,22 @@ internal class HelloWidget : GlanceWearWidget() {
 @RemoteComposable
 @Composable
 private fun HelloWidgetContent(@ContainerInfo.ContainerType containerType: Int) {
-    RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = RemoteAlignment.Center) {
-        RemoteText(
-            when (containerType) {
-                ContainerInfo.CONTAINER_TYPE_SMALL -> stringResource(R.string.hello_small)
-                ContainerInfo.CONTAINER_TYPE_LARGE -> stringResource(R.string.hello_large)
-                else -> stringResource(R.string.hello)
-            }.rs
-        )
+    RemoteMaterialTheme {
+        RemoteBox(
+            modifier = RemoteModifier.fillMaxSize(),
+            contentAlignment = RemoteAlignment.Center,
+        ) {
+            RemoteText(
+                text =
+                    when (containerType) {
+                        ContainerInfo.CONTAINER_TYPE_SMALL -> stringResource(R.string.hello_small)
+                        ContainerInfo.CONTAINER_TYPE_LARGE -> stringResource(R.string.hello_large)
+                        else -> stringResource(R.string.hello)
+                    }.rs,
+                style = RemoteMaterialTheme.typography.displayMedium,
+                fontVariationSettings = FontVariation.Settings(FontVariation.Setting("ROND", 100f)),
+            )
+        }
     }
 }
 
@@ -78,7 +88,7 @@ private fun getBackgroundColor(@ContainerInfo.ContainerType containerType: Int):
     when (containerType) {
         ContainerInfo.CONTAINER_TYPE_SMALL -> Color.Red
         ContainerInfo.CONTAINER_TYPE_LARGE -> Color.Blue
-        else -> Color.Gray
+        else -> Color.DarkGray
     }
 
 /**
