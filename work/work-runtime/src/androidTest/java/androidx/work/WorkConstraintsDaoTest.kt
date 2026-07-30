@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 
 // TODO(b/209145335): Combine with WorkSpecDaoTest when it is converted to Kotlin
 @RunWith(AndroidJUnit4::class)
-class WorkConstrainsDaoTest : DatabaseTest() {
+class WorkConstraintsDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 31)
