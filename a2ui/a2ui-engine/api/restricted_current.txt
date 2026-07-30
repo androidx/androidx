@@ -31,6 +31,10 @@ package androidx.a2ui.engine.catalog {
     method @BytecodeOnly public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection! A2uiCoreComponentDefinitionCollection$default(java.util.List!, int, Object!);
   }
 
+  public final class A2uiCoreComponentDefinitionKt {
+    method public static androidx.a2ui.model.schema.A2uiSchema toSchema(androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition);
+  }
+
 }
 
 package androidx.a2ui.engine.model {
