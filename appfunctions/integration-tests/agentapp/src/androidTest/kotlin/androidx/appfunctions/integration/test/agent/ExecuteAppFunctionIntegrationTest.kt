@@ -122,7 +122,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#add")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#add"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -147,7 +149,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunctionWithAttribution_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#add")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#add"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -176,7 +180,7 @@ class ExecuteAppFunctionIntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFunctions#voidFunction"
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#voidFunction"
             )
 
         val response =
@@ -190,58 +194,6 @@ class ExecuteAppFunctionIntegrationTest {
             )
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-    }
-
-    @Test
-    fun executeAppFunction_setFactory_success() = doBlocking {
-        assumeTrue(isDynamicIndexerAvailable(targetContext))
-        val metadata =
-            searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFactory#isCreatedByFactory"
-            )
-        // A factory is set to create the enclosing class of the function.
-        // See [TestApplication.appFunctionConfiguration].
-        val response =
-            appFunctionManager.executeAppFunction(
-                request =
-                    ExecuteAppFunctionRequest(
-                        metadata.packageName,
-                        metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components).build(),
-                    )
-            )
-
-        // If the enclosing class was created by the provided factory, the secondary constructor
-        // should be called and so the return value would be `true`.
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        val successResponse = response as ExecuteAppFunctionResponse.Success
-        assertThat(successResponse.returnValue.getBoolean(PROPERTY_RETURN_VALUE)).isEqualTo(true)
-    }
-
-    @Test
-    fun executeAppFunction_functionInLibraryModule_success() = doBlocking {
-        assumeTrue(isDynamicIndexerAvailable(targetContext))
-        val metadata =
-            searchAppFunction(
-                "androidx.appfunctions.integration.testapp.library.TestFunctions2#concat"
-            )
-
-        val response =
-            appFunctionManager.executeAppFunction(
-                request =
-                    ExecuteAppFunctionRequest(
-                        metadata.packageName,
-                        metadata.id,
-                        AppFunctionData.Builder(metadata.parameters, metadata.components)
-                            .setString("str1", "log")
-                            .setString("str2", "cat")
-                            .build(),
-                    )
-            )
-
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        val successResponse = response as ExecuteAppFunctionResponse.Success
-        assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE)).isEqualTo("logcat")
     }
 
     @Test
@@ -251,7 +203,7 @@ class ExecuteAppFunctionIntegrationTest {
                 request =
                     ExecuteAppFunctionRequest(
                         TARGET_APP_PACKAGE,
-                        "androidx.appfunctions.integration.testapp.TestFunctions#notExist",
+                        "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#notExist",
                         AppFunctionData.EMPTY,
                     )
             )
@@ -265,7 +217,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_appThrows_fail() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#doThrow")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#doThrow"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -287,7 +241,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_createNote() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val createNoteMetadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#createNote")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#createNoteSimple"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -339,7 +295,7 @@ class ExecuteAppFunctionIntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFunctions#getOpenableNote"
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#getOpenableNote"
             )
 
         val response =
@@ -389,7 +345,7 @@ class ExecuteAppFunctionIntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFunctions#getOpenableNote"
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#getOpenableNote"
             )
 
         val response =
@@ -445,7 +401,7 @@ class ExecuteAppFunctionIntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFunctions#echoProxyTypes"
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoProxyTypes"
             )
         val value =
             ProxyTypesWrapper(
@@ -493,7 +449,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_updateNote_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#updateNote")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#updateNote"
+            )
         val attachment = Attachment(uri = "uri", nested = null)
         val dateTime = LocalDateTime.of(1, 1, 1, 1, 1)
 
@@ -544,7 +502,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_updateNoteSetFieldNullContent_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#updateNote")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#updateNote"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -590,7 +550,9 @@ class ExecuteAppFunctionIntegrationTest {
     fun executeAppFunction_updateNoteNullSetFields_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
-            searchAppFunction("androidx.appfunctions.integration.testapp.TestFunctions#updateNote")
+            searchAppFunction(
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#updateNote"
+            )
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -855,7 +817,7 @@ class ExecuteAppFunctionIntegrationTest {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
         val metadata =
             searchAppFunction(
-                "androidx.appfunctions.integration.testapp.TestFunctions#echoClassWithOptionalValues"
+                "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoClassWithOptionalValues"
             )
         val classWithOptionalValues =
             ClassWithOptionalValues(
@@ -925,7 +887,7 @@ class ExecuteAppFunctionIntegrationTest {
             assumeTrue(isDynamicIndexerAvailable(targetContext))
             val metadata =
                 searchAppFunction(
-                    "androidx.appfunctions.integration.testapp.TestFunctions#echoClassWithOptionalValues"
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoClassWithOptionalValues"
                 )
             val response =
                 appFunctionManager.executeAppFunction(
@@ -1191,7 +1153,7 @@ class ExecuteAppFunctionIntegrationTest {
             ExecuteAppFunctionRequest(
                 targetPackageName = TARGET_APP_PACKAGE,
                 functionIdentifier =
-                    "androidx.appfunctions.integration.testapp.TestFunctions#getFilesData",
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#getFilesData",
                 functionParameters = AppFunctionData.EMPTY,
             )
 
@@ -1219,7 +1181,7 @@ class ExecuteAppFunctionIntegrationTest {
             ExecuteAppFunctionRequest(
                 targetPackageName = TARGET_APP_PACKAGE,
                 functionIdentifier =
-                    "androidx.appfunctions.integration.testapp.TestFunctions#getFilesData",
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#getFilesData",
                 functionParameters = AppFunctionData.EMPTY,
             )
 
@@ -1259,14 +1221,14 @@ class ExecuteAppFunctionIntegrationTest {
             ExecuteAppFunctionRequest(
                 targetPackageName = TARGET_APP_PACKAGE,
                 functionIdentifier =
-                    "androidx.appfunctions.integration.testapp.TestFunctions#longRunningFunction",
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#longRunningFunction",
                 functionParameters = AppFunctionData.EMPTY,
             )
         val requestB =
             ExecuteAppFunctionRequest(
                 targetPackageName = TARGET_APP_PACKAGE,
                 functionIdentifier =
-                    "androidx.appfunctions.integration.testapp.TestFunctions#longRunningFunction",
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#longRunningFunction",
                 functionParameters = AppFunctionData.EMPTY,
             )
         // Execute two functions simultaneously
@@ -1496,18 +1458,18 @@ class ExecuteAppFunctionIntegrationTest {
     private companion object {
         const val TARGET_APP_PACKAGE = "androidx.appfunctions.integration.testapp"
         const val ONE_OF_FUNCTION_ID =
-            "androidx.appfunctions.integration.testapp.OneOfFunctions#oneOfFunction"
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#oneOfFunction"
 
         const val TEXT_RESOURCE_FUNCTION_ID: String =
-            "androidx.appfunctions.integration.testapp.ResourceFunctions#textResourceFunction"
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#textResourceFunction"
 
         const val ADD_FUNCTION_ID: String =
-            "androidx.appfunctions.integration.testapp.TestFunctions#add"
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#add"
 
         const val DEPRECATED_FUNCTION_ID: String =
-            "androidx.appfunctions.integration.testapp.TestFunctions#deprecatedFunction"
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#deprecatedFunction"
 
         const val ECHO_FUNCTION_WITH_OPTIONAL_PARAMETERS =
-            "androidx.appfunctions.integration.testapp.TestFunctions#echoFunctionWithOptionalParameters"
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoFunctionWithOptionalParameters"
     }
 }

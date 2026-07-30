@@ -42,16 +42,19 @@ internal object AppFunctionMetadataHelper {
     const val TARGET_APP_PACKAGE = "androidx.appfunctions.integration.testapp"
 
     object FunctionIds {
-        const val ADD_FUNCTION_ID = "$TARGET_APP_PACKAGE.TestFunctions#add"
-        const val DEPRECATED_FUNCTION_ID = "$TARGET_APP_PACKAGE.TestFunctions#deprecatedFunction"
-        const val SENTINEL_FUNCTION_ID = "$TARGET_APP_PACKAGE.TestFunctions#voidFunction"
+        const val ADD_FUNCTION_ID = "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#add"
+        const val DEPRECATED_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#deprecatedFunction"
+        const val SENTINEL_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#voidFunction"
         const val DISABLED_BY_DEFAULT_FUNCTION_ID =
-            "$TARGET_APP_PACKAGE.TestFunctions#functionDisabledByDefault"
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#functionDisabledByDefault"
         const val ENABLED_BY_DEFAULT_FUNCTION_ID =
-            "$TARGET_APP_PACKAGE.TestFunctions#functionEnabledByDefault"
-        const val CREATE_NOTE_FUNCTION_ID = "$TARGET_APP_PACKAGE.NotesFunctions#createNote"
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#functionEnabledByDefault"
+        const val CREATE_NOTE_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#createNote"
         const val CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID =
-            "$TARGET_APP_PACKAGE.NotesFunctions_disabledByDefault#createNote"
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#createNoteDisabled"
     }
 
     object Components {
@@ -1348,39 +1351,6 @@ internal object AppFunctionMetadataHelper {
                         isNullable = true,
                         description = "",
                     ),
-                "androidx.appfunctions.integration.testapp.library.ExampleSerializable" to
-                    AppFunctionObjectTypeMetadata(
-                        properties =
-                            mapOf(
-                                "intProperty" to
-                                    AppFunctionIntTypeMetadata(
-                                        isNullable = false,
-                                        description = "Instruction for intProperty.",
-                                    )
-                            ),
-                        required = listOf("intProperty"),
-                        qualifiedName =
-                            "androidx.appfunctions.integration.testapp.library.ExampleSerializable",
-                        isNullable = true,
-                        description = "Instruction for ExampleSerializable.",
-                    ),
-                "androidx.appfunctions.integration.testapp.library.GenericSerializable<kotlin.Int>" to
-                    AppFunctionObjectTypeMetadata(
-                        properties =
-                            mapOf(
-                                "value" to
-                                    AppFunctionIntTypeMetadata(
-                                        isNullable = false,
-                                        description = "Value property of GenericSerializable.",
-                                    )
-                            ),
-                        required = listOf("value"),
-                        qualifiedName =
-                            "androidx.appfunctions.integration.testapp.library.GenericSerializable<kotlin.Int>",
-                        isNullable = true,
-                        description =
-                            "Example parameterized AppFunctionSerializable in another package.",
-                    ),
                 "java.time.Instant" to
                     AppFunctionObjectTypeMetadata(
                         properties =
@@ -1546,6 +1516,12 @@ internal object AppFunctionMetadataHelper {
                             MULTI_SERVICE_DATA_TYPES +
                             DYNAMIC_SIGNATURE_DATA_TYPES +
                             SCHEMA_DATA_TYPES
+                    } else if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+                        // Using BAKLAVAL_1 as proxy to decide whether the dynamic indexer exist
+                        // or not since this is a static variable. If we started seeing dynamic
+                        // indexer being backported to SDK36. We should update the logic here to
+                        // dynamically decide the shared components.
+                        COMMON_DATA_TYPES + SCHEMA_DATA_TYPES
                     } else {
                         SCHEMA_DATA_TYPES_LEGACY_INDEXER
                     }

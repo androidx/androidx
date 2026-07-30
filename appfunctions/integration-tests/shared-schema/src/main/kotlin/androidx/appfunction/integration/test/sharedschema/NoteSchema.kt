@@ -17,7 +17,6 @@
 package androidx.appfunction.integration.test.sharedschema
 
 import android.net.Uri
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSchemaDefinition
 import androidx.appfunctions.AppFunctionSerializable
 
@@ -35,11 +34,7 @@ public interface CreateNoteAppFunction {
      * @param tag Optional tag.
      * @return The response including the created note.
      */
-    public suspend fun createNote(
-        appFunctionContext: AppFunctionContext,
-        parameters: Parameters,
-        tag: String? = null,
-    ): Response
+    public suspend fun createNote(parameters: Parameters, tag: String? = null): Response
 
     /** The parameters for creating a note. */
     @AppFunctionSerializable(isDescribedByKDoc = true)

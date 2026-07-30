@@ -23,6 +23,7 @@ import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import org.junit.Ignore
 import org.junit.Test
 
 class SerializationTest {
@@ -30,6 +31,9 @@ class SerializationTest {
     // allows for skipping the validation.
     // TODO: b/446606781 - Remove or figure out the best place for serialization tests.
     @Test
+    @Ignore(
+        "b/446606781: Re-enable once serialization no longer relies on aggregation mode to validate"
+    )
     fun serializeAppFunctionSerializable_failsForInvalidValues() {
         assertFailsWith<IllegalArgumentException> {
             AppFunctionData.serialize(
@@ -51,6 +55,9 @@ class SerializationTest {
     }
 
     @Test
+    @Ignore(
+        "b/446606781: Re-enable once serialization no longer relies on aggregation mode to validate"
+    )
     fun deserializeAppFunctionSerializable_failsForInvalidValues() {
         assertFailsWith<IllegalArgumentException> {
             AppFunctionData.Builder(

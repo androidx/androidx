@@ -28,6 +28,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionContex
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionInvokerClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ConfigurableAppFunctionFactoryClass
 import androidx.appfunctions.compiler.core.isOfType
+import androidx.appfunctions.compiler.core.isParametrized
 import androidx.appfunctions.compiler.core.toTypeName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getConstructors
@@ -37,7 +38,6 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -329,7 +329,7 @@ class AppFunctionInvokerProcessor(private val codeGenerator: CodeGenerator) : Sy
                     } else {
                         val parameterName = checkNotNull(value.name).asString()
                         val parameterType = value.type.toTypeName()
-                        if (value.type.isOfType(LIST) || isParametrized(value.type)) {
+                        if (value.type.isOfType(LIST) || value.type.isParametrized()) {
                             add(
                                 "@Suppress(\"UNCHECKED_CAST\") (${functionParametersSpec.name}[\"${parameterName}\"] as $parameterType)"
                             )
@@ -346,9 +346,5 @@ class AppFunctionInvokerProcessor(private val codeGenerator: CodeGenerator) : Sy
 
     private fun getAppFunctionInvokerClassName(functionClassName: String): String {
         return "$%s_AppFunctionInvoker".format(functionClassName)
-    }
-
-    private fun isParametrized(type: KSTypeReference): Boolean {
-        return type.resolve().arguments.isNotEmpty()
     }
 }
