@@ -32,6 +32,13 @@ import java.nio.ByteBuffer
  */
 public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
     /**
+     * Closes the underlying image and releases any associated resources.
+     *
+     * Overridden to remove the checked [Exception] from the throws clause for Java callers.
+     */
+    override fun close()
+
+    /**
      * The width of the image in pixels.
      *
      * @see Image.getWidth
@@ -198,4 +205,15 @@ public interface ImagePlane : UnsafeWrapper {
      * @see Image.Plane.getBuffer
      */
     public val buffer: ByteBuffer
+}
+
+/** Utility methods for [ImageWrapper]. */
+public object ImageWrappers {
+    /** Wraps a native [Image] into a [MutableImageWrapper]. */
+    @JvmStatic
+    @JvmName("wrap")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    public fun wrap(image: Image): MutableImageWrapper {
+        return AndroidImage(image)
+    }
 }

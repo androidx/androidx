@@ -86,7 +86,7 @@ public interface CaptureResultWrapper : CaptureResultMetadata {
     public val keys: List<CaptureResult.Key<*>>
 }
 
-public object CaptureResults {
+public object CaptureResultWrappers {
     /** Wraps a native [CaptureResult] into a [CaptureResultWrapper]. */
     @JvmStatic
     @JvmName("wrap")
