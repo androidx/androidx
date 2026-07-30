@@ -37,12 +37,12 @@ import java.lang.Class
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class AndroidCameraCharacteristics
 @Suppress("ValueClassUsageFromConstructor")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public constructor(
     cameraId: CameraId,
     private val characteristics: CameraCharacteristics,
     override val isRestricted: Boolean = false,
     override val dynamicKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
 ) : CameraCharacteristicsWrapper {
 
     @Suppress("INAPPLICABLE_JVM_NAME")
@@ -61,8 +61,7 @@ public constructor(
      * @param key The key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+    override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? {
         if (dynamicKeys.contains(key)) {
             return characteristics.get(key)
         }
@@ -78,12 +77,10 @@ public constructor(
         return result
     }
 
-    /** Always returns `null` as this implementation does not support [Metadata.Key]s. */
-    override fun <T> get(key: Metadata.Key<T>): T? = null
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = metadata.getUnchecked(key)
 
-    /** Always returns an empty set as this implementation does not support [Metadata.Key]s. */
     override val metadataKeys: Set<Metadata.Key<*>>
-        get() = emptySet()
+        get() = metadata.keys
 
     /**
      * Unwraps this object to access the underlying implementation type.
