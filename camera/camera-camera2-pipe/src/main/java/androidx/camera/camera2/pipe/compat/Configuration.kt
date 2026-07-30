@@ -24,7 +24,6 @@ import android.os.Build
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraColorSpace
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
@@ -139,7 +138,6 @@ internal interface OutputConfigurationWrapper : UnsafeWrapper {
     }
 }
 
-@RequiresApi(24)
 internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
@@ -147,7 +145,6 @@ internal class AndroidOutputConfiguration(
     override val physicalCameraId: CameraId?,
 ) : OutputConfigurationWrapper {
 
-    @RequiresApi(24)
     companion object {
         /**
          * Create and validate an OutputConfiguration for Camera2. null is returned when a

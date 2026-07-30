@@ -37,7 +37,6 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
-import android.os.Handler
 import android.util.Range
 import android.util.Size
 import android.view.Surface
@@ -46,48 +45,6 @@ import androidx.annotation.RequiresPermission
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.availableVideoStabilizationModes
 import java.util.concurrent.Executor
-
-@RequiresApi(24)
-internal object Api24Compat {
-    @JvmStatic
-    @Throws(CameraAccessException::class)
-    @Suppress("deprecation")
-    fun createCaptureSessionByOutputConfigurations(
-        cameraDevice: CameraDevice,
-        outputConfig: List<OutputConfiguration?>,
-        stateCallback: CameraCaptureSession.StateCallback,
-        handler: Handler?,
-    ) {
-        cameraDevice.createCaptureSessionByOutputConfigurations(
-            outputConfig,
-            stateCallback,
-            handler,
-        )
-    }
-
-    @JvmStatic
-    @Throws(CameraAccessException::class)
-    @Suppress("deprecation")
-    fun createReprocessableCaptureSessionByConfigurations(
-        cameraDevice: CameraDevice,
-        inputConfig: InputConfiguration,
-        outputs: List<OutputConfiguration?>,
-        stateCallback: CameraCaptureSession.StateCallback,
-        handler: Handler?,
-    ) {
-        cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            inputConfig,
-            outputs,
-            stateCallback,
-            handler,
-        )
-    }
-
-    @JvmStatic
-    fun getSurfaceGroupId(outputConfiguration: OutputConfiguration): Int {
-        return outputConfiguration.surfaceGroupId
-    }
-}
 
 @RequiresApi(26)
 internal object Api26Compat {
