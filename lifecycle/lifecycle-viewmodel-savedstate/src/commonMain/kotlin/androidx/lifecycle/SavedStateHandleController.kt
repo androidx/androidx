@@ -81,16 +81,6 @@ private constructor(
     SavedStateRegistryOwner by savedStateRegistryOwner,
     ViewModelStoreOwner by viewModelStoreOwner {
 
-    /**
-     * Tracks whether the restored state bundle has been consumed from the [SavedStateRegistry].
-     *
-     * Reset to `false` during state saving to allow restoring state again if needed.
-     */
-    private var isRestored = false
-
-    /** Caches the restored state bundle containing handle states before they are consumed. */
-    private var restoredState: SavedState? = null
-
     private var _stateHolder: StateHolder? = null
 
     /** Holds active [SavedStateHandle] instances. */
@@ -115,7 +105,7 @@ private constructor(
     override fun saveState(): SavedState {
         return savedState {
             // Retain restored state for any ViewModels that have not been recreated yet.
-            restoredState?.let { putAll(it) }
+            stateHolder.restoredState?.let { putAll(it) }
 
             // Prefer the state of active ViewModels over the restored state.
             for ((key, handle) in stateHolder.handles) {
@@ -126,19 +116,20 @@ private constructor(
             }
 
             // Allow restoring state a second time after saving.
-            isRestored = false
+            stateHolder.isRestored = false
         }
     }
 
     /** Restores the state from the [SavedStateRegistry] if not already restored. */
     fun performRestore() {
-        if (!isRestored) {
+        val holder = stateHolder
+        if (!holder.isRestored) {
             val newState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
-            restoredState = savedState {
-                restoredState?.let { putAll(it) }
+            holder.restoredState = savedState {
+                holder.restoredState?.let { putAll(it) }
                 newState?.let { putAll(it) }
             }
-            isRestored = true
+            holder.isRestored = true
 
             // Eagerly evaluate the ViewModel provider. This ensures we can still retrieve the VM
             // during state saving even if the lifecycle reaches DESTROYED.
@@ -154,13 +145,14 @@ private constructor(
      */
     fun consumeRestoredStateForKey(key: String): SavedState? {
         performRestore()
-        val state = restoredState ?: return null
+        val holder = stateHolder
+        val state = holder.restoredState ?: return null
         if (!state.read { contains(key) }) return null
 
         val result = state.read { getSavedStateOrNull(key) ?: savedState() }
         state.write { remove(key) }
         if (state.read { isEmpty() }) {
-            restoredState = null
+            holder.restoredState = null
         }
         return result
     }
@@ -189,6 +181,8 @@ private constructor(
      */
     private class StateHolder : ViewModel() {
         val handles = mutableMapOf<String, SavedStateHandle>()
+        var restoredState: SavedState? = null
+        var isRestored = false
     }
 
     companion object {
