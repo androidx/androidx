@@ -16,7 +16,9 @@
 
 package androidx.a2ui.compose.ui
 
+import androidx.a2ui.compose.runtime.A2uiComponentModel
 import androidx.a2ui.compose.runtime.A2uiProperty
+import androidx.a2ui.compose.runtime.A2uiReadinessEvaluator
 import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
@@ -25,6 +27,7 @@ import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
 /**
@@ -107,6 +110,30 @@ public fun A2uiCatalog(
         componentCollection,
         functionCollection,
     )
+}
+
+/**
+ * Creates an [A2uiReadinessEvaluator] that resolves readiness states using the components
+ * registered in this catalog.
+ *
+ * This evaluator delegates to each specific [A2uiComponent.isReady] implementation to determine if
+ * a component is ready to transition from a loading state to a success state (e.g., has loaded all
+ * its required dynamic data).
+ *
+ * @return An [A2uiReadinessEvaluator] backed by this catalog.
+ */
+public fun A2uiCatalog.asReadinessEvaluator(): A2uiReadinessEvaluator {
+    return object : A2uiReadinessEvaluator {
+        @Composable
+        override fun isReady(componentModel: A2uiComponentModel): Boolean {
+            val component =
+                components[componentModel.type]
+                    ?: throw IllegalStateException(
+                        "Component with type '${componentModel.type}' is not registered"
+                    )
+            return with(component) { componentModel.scope.isReady(componentModel.properties) }
+        }
+    }
 }
 
 internal class A2uiCatalogImpl(
