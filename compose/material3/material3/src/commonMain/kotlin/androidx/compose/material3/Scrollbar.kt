@@ -38,10 +38,10 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * A visual-only scrollbar that represents the current scroll position of a scrolling component.
@@ -407,11 +407,19 @@ private class NonInteractiveScrollbarNode(
     private var cachedCornerRadius = CornerRadius.Zero
     private var lastOffset = -1
     private var fadeJob: Job? = null
+    private var scrollEvents: Channel<Unit>? = null
+
+    override fun onAttach() {
+        super.onAttach()
+        // Baseline the initial offset on node re-attach
+        lastOffset = state.scrollOffset
+    }
 
     override fun onDetach() {
         fadeJob?.cancel()
         fadeJob = null
-        lastOffset = -1
+        scrollEvents?.close()
+        scrollEvents = null
         super.onDetach()
     }
 
@@ -431,30 +439,48 @@ private class NonInteractiveScrollbarNode(
         if (isFadeEnabled && currentOffset != lastOffset) {
             lastOffset = currentOffset
 
-            fadeJob?.cancel()
-            fadeJob =
-                coroutineScope.launch {
-                    if (alpha.value != 1f) {
-                        alpha.snapTo(1f)
-                    }
+            var events = scrollEvents
+            if (events == null) {
+                events = Channel(1)
+                scrollEvents = events
+            }
+            events.trySend(Unit)
 
-                    // We use coroutine delay instead of AnimationSpec delay because system
-                    // animations might be disabled (MotionDurationScale = 0f). A coroutine delay
-                    // ensures the scrollbar remains visible for the configured fade delay period
-                    // before fading out, whereas an AnimationSpec's delay would scale to 0f and
-                    // cause the scrollbar to disappear instantly.
-                    delay(fadeDelayMillis.milliseconds)
-                    alpha.animateTo(0f, fadeAnimationSpec)
-                }
+            // Launch a single coroutine loop that persists throughout the active scroll session.
+            if (alpha.targetValue == 0f || fadeJob == null || fadeJob?.isActive == false) {
+                fadeJob?.cancel()
+                fadeJob =
+                    coroutineScope.launch {
+                        alpha.snapTo(1f)
+
+                        while (true) {
+                            // Consume any pending events before starting the wait
+                            events.tryReceive()
+
+                            // Suspend until a new scroll event comes in, OR the timeout is reached.
+                            val interrupted =
+                                withTimeoutOrNull(fadeDelayMillis.toLong()) { events.receive() }
+
+                            // Timeout completed without being interrupted by a scroll.
+                            if (interrupted == null) {
+                                break
+                            }
+                        }
+
+                        alpha.animateTo(0f, fadeAnimationSpec)
+                    }
+            }
         }
 
-        val currentAlpha = alpha.value
+        val currentAlpha = if (isFadeEnabled) alpha.value else 1f
         val currentThumbColor = thumbColor()
         val currentTrackColor = trackColor()
         val resolvedThumbColor =
-            currentThumbColor.copy(alpha = currentThumbColor.alpha * currentAlpha)
+            if (currentAlpha == 1f) currentThumbColor
+            else currentThumbColor.copy(alpha = currentThumbColor.alpha * currentAlpha)
         val resolvedTrackColor =
-            currentTrackColor.copy(alpha = currentTrackColor.alpha * currentAlpha)
+            if (currentAlpha == 1f) currentTrackColor
+            else currentTrackColor.copy(alpha = currentTrackColor.alpha * currentAlpha)
 
         val isTrackVisible = resolvedTrackColor.alpha > 0f
         val isThumbVisible = resolvedThumbColor.alpha > 0f

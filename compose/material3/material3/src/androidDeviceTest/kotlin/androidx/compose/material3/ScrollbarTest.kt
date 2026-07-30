@@ -24,7 +24,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Rect
@@ -147,6 +150,95 @@ class ScrollbarTest(
                 computeScrollbarTestColors(pixelMap, thicknessPx, viewportWidthPx, viewportHeightPx)
 
             // Verify that the scrollbar fades out
+            assertEquals(TestContainerBackgroundColor, actualColors.thumbColor)
+            assertEquals(TestContainerBackgroundColor, actualColors.trackColor)
+        }
+    }
+
+    @Test
+    fun nonInteractiveScrollbar_fadeAnimation_onNodeReattach() {
+        val offsetState = mutableStateOf(0)
+        val state =
+            object : ScrollIndicatorState {
+                override val scrollOffset: Int
+                    get() = offsetState.value
+
+                override val contentSize: Int = 200
+                override val viewportSize: Int = 100
+            }
+
+        var reuseKey by mutableStateOf(true)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Box(
+                    Modifier.size(ScrollableContainerSize).background(TestContainerBackgroundColor)
+                ) {
+                    ReusableContent(reuseKey) {
+                        Box(
+                            Modifier.size(ScrollableContainerSize)
+                                .nonInteractiveScrollbar(
+                                    state = state,
+                                    orientation = orientation,
+                                    thumbColor = ScrollbarThumbColor,
+                                    trackColor = ScrollbarTrackColor,
+                                    thickness = ScrollbarThickness,
+                                    isFadeEnabled = true,
+                                    fadeDelayMillis = 100,
+                                    fadeDurationMillis = 100,
+                                )
+                                .testTag(ScrollableContainerTestTag)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+
+        assertEquals(0, state.scrollOffset)
+
+        // Trigger a reuse cycle. This detaches the node and re-attaches the SAME node instance.
+        rule.runOnIdle { reuseKey = false }
+        // Trigger recomposition
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+
+        // Trigger scroll
+        rule.runOnIdle { offsetState.value = 10 }
+
+        // Advance clock a bit to trigger the first draw
+        rule.mainClock.advanceTimeBy(20)
+
+        with(rule.density) {
+            val thicknessPx = ScrollbarThickness.roundToPx()
+            val viewportWidthPx = ScrollableContainerSize.roundToPx()
+            val viewportHeightPx = ScrollableContainerSize.roundToPx()
+
+            val initialImage = rule.onNodeWithTag(ScrollableContainerTestTag).captureToImage()
+            val initialColors =
+                computeScrollbarTestColors(
+                    initialImage.toPixelMap(),
+                    thicknessPx,
+                    viewportWidthPx,
+                    viewportHeightPx,
+                )
+
+            // Verify that the scrollbar is visible after scroll
+            assertEquals(ScrollbarThumbColor, initialColors.thumbColor)
+            assertEquals(ScrollbarTrackColor, initialColors.trackColor)
+
+            // Advance clock past delay and animation duration
+            rule.mainClock.advanceTimeBy(230)
+
+            val imageBitmap = rule.onNodeWithTag(ScrollableContainerTestTag).captureToImage()
+            val pixelMap = imageBitmap.toPixelMap()
+
+            val actualColors =
+                computeScrollbarTestColors(pixelMap, thicknessPx, viewportWidthPx, viewportHeightPx)
+
+            // Verify that the scrollbar fades out successfully (proves channel works on
+            // re-attachment)
             assertEquals(TestContainerBackgroundColor, actualColors.thumbColor)
             assertEquals(TestContainerBackgroundColor, actualColors.trackColor)
         }
