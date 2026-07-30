@@ -18,8 +18,10 @@ package androidx.appfunctions.internal
 
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import kotlinx.coroutines.flow.Flow
 
@@ -61,6 +63,16 @@ public interface AppFunctionReader {
         functionId: String,
         packageName: String,
     ): AppFunctionMetadata?
+
+    /**
+     * Returns the [AppFunctionState]s of the given app functions.
+     *
+     * Functions that do not exist or are not visible to the calling application will be silently
+     * omitted from the result list.
+     */
+    public suspend fun getAppFunctionStates(
+        appFunctionNames: List<AppFunctionName>
+    ): List<AppFunctionState>
 
     /**
      * Observes app functions for changes to their [AppFunctionMetadata] or
