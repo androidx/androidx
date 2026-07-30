@@ -39,7 +39,7 @@ import java.util.function.Supplier
 
 /** Concrete implementation of SpatialEnvironment / XR Wallpaper for Android XR. */
 internal class SpatialEnvironmentImpl(
-    private val activity: Activity,
+    @Volatile @get:VisibleForTesting internal var activity: Activity?,
     private val xrExtensions: XrExtensions,
     rootSceneNode: Node,
     private val spatialStateProvider: Supplier<SpatialState>,
@@ -109,6 +109,12 @@ internal class SpatialEnvironmentImpl(
     // should be treated as an atomic set. We could consider replacing with AtomicReferences.
     @Synchronized
     fun setSpatialState(spatialState: SpatialState): EnumSet<ChangedSpatialStates> {
+        if (activity == null) {
+            // TODO: b/540434758 - Replace silent no-op early returns with explicit error handling
+            // and throwing from the API layer.
+            // If activity is null, then it has been disposed, and we should not recreate events
+            return EnumSet.noneOf(ChangedSpatialStates::class.java)
+        }
         val changedSpatialStates = EnumSet.noneOf(ChangedSpatialStates::class.java)
         val passthroughVisibilityChanged = hasPassthroughVisibilityChanged(spatialState)
         if (passthroughVisibilityChanged) {
@@ -147,6 +153,9 @@ internal class SpatialEnvironmentImpl(
         // not been initialized previously.
         @Synchronized
         get() {
+            if (activity == null) {
+                return 0.0f
+            }
             if (activePassthroughOpacity == SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE) {
                 setSpatialState(spatialStateProvider.get())
             }
@@ -156,6 +165,9 @@ internal class SpatialEnvironmentImpl(
     override var preferredPassthroughOpacity: Float
         get() = passthroughOpacityPreference
         set(value) {
+            if (activity == null) {
+                return
+            }
             // To work around floating-point precision issues, the opacity preference is documented
             // to clamp to 0.0f if it is set below 1% opacity and it clamps to 1.0f if it is set
             // above 99% opacity.
@@ -239,6 +251,7 @@ internal class SpatialEnvironmentImpl(
             return spatialEnvironmentFeature!!.preferredSpatialEnvironment
         }
         set(value) {
+            val currentActivity = activity ?: return
             if (spatialEnvironmentFeature == null) {
                 val hasContent = value != null && (value.skybox != null || value.geometry != null)
 
@@ -257,7 +270,7 @@ internal class SpatialEnvironmentImpl(
                 if (value == null) {
                     // Detaching the app environment to go back to the system environment.
                     xrExtensions.detachSpatialEnvironment(
-                        activity,
+                        currentActivity,
                         { it.run() },
                         { _: XrExtensionResult -> },
                     )
@@ -266,7 +279,7 @@ internal class SpatialEnvironmentImpl(
                     val currentRootEnvironmentNode = xrExtensions.createNode()
                     val skyboxMode = XrExtensions.NO_SKYBOX
                     xrExtensions.attachSpatialEnvironment(
-                        activity,
+                        currentActivity,
                         currentRootEnvironmentNode,
                         skyboxMode,
                         { it.run() },
@@ -307,11 +320,14 @@ internal class SpatialEnvironmentImpl(
      *
      * This should be called when the environment is no longer needed.
      */
+    @Synchronized
     fun dispose() {
         if (spatialEnvironmentFeature != null) {
             spatialEnvironmentFeature!!.dispose()
             spatialEnvironmentFeature = null
         }
+        activity = null
+        previousSpatialState = null
         activePassthroughOpacity = SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
         passthroughOpacityPreference = SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
         spatialEnvironmentPreference.set(null)

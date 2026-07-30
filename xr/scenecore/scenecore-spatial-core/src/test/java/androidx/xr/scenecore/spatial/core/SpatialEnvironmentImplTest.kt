@@ -319,4 +319,48 @@ class SpatialEnvironmentImplTest {
             .isEqualTo(SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE)
         assertThat(spatialEnvironmentImpl.currentPassthroughOpacity).isEqualTo(0.0f)
     }
+
+    @Test
+    fun dispose_clearsActivityAndPreviousSpatialState() {
+        val spatialState = ShadowSpatialState.create()
+        ShadowSpatialState.extract(spatialState)
+            .setEnvironmentVisibilityState(
+                ShadowEnvironmentVisibilityState.create(EnvironmentVisibilityState.APP_VISIBLE)
+            )
+        ShadowSpatialState.extract(spatialState)
+            .setPassthroughVisibilityState(
+                ShadowPassthroughVisibilityState.create(PassthroughVisibilityState.APP, 0.5f)
+            )
+
+        spatialEnvironmentImpl.setSpatialState(spatialState)
+
+        // Before dispose, hasEnvironmentVisibilityChanged is false for the identical state
+        assertThat(spatialEnvironmentImpl.hasEnvironmentVisibilityChanged(spatialState)).isFalse()
+        assertThat(spatialEnvironmentImpl.activity).isNotNull()
+
+        spatialEnvironmentImpl.dispose()
+
+        // After dispose, previousSpatialState is nulled out, causing this check to return true
+        assertThat(spatialEnvironmentImpl.hasEnvironmentVisibilityChanged(spatialState)).isTrue()
+
+        // Verify that the private activity reference was dropped to prevent Activity leaks
+        assertThat(spatialEnvironmentImpl.activity).isNull()
+    }
+
+    @Test
+    fun setSpatialState_afterDispose_returnsEmptyAndDoesNotThrow() {
+        val spatialState = ShadowSpatialState.create()
+        spatialEnvironmentImpl.setSpatialState(spatialState)
+
+        spatialEnvironmentImpl.dispose()
+
+        val result = spatialEnvironmentImpl.setSpatialState(spatialState)
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun currentPassthroughOpacity_afterDispose_returnsZero() {
+        spatialEnvironmentImpl.dispose()
+        assertThat(spatialEnvironmentImpl.currentPassthroughOpacity).isEqualTo(0.0f)
+    }
 }
