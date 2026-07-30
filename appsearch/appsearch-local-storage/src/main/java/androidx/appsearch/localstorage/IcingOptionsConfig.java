@@ -271,8 +271,12 @@ public interface IcingOptionsConfig {
     /**
      * Controls whether repeated fields may set joinable value type to
      * {@link AppSearchSchema.StringPropertyConfig#JOINABLE_VALUE_TYPE_QUALIFIED_ID}.
+     *
+     * <p>Due to rollback compatibility issues, this feature cannot be enabled in some old versions
+     * of framework AppSearch. Therefore, we need this interface method to have different options
+     * (i.e. local storage vs framework AppSearch).
      */
-    boolean enableRepeatedFieldJoins();
+    boolean getAllowRepeatedFieldJoins();
 
     /**
      * Controls whether enabling Icing background task scheduler or not.
@@ -342,10 +346,10 @@ public interface IcingOptionsConfig {
                 .setEmbeddingIndexNumShards(Math.max(1, getEmbeddingIndexNumShards()))
                 .setEnableOptimizeImprovements(
                         Flags.enableOptimizeImprovements())
-                .setEnableRepeatedFieldJoins(enableRepeatedFieldJoins())
+                .setEnableRepeatedFieldJoins(getAllowRepeatedFieldJoins())
                 .setEnableNonExistentQualifiedIdJoin(Flags.enableNonExistentQualifiedIdJoin())
-                .setEnableSkipSetSchemaTypeEqualityCheck(
-                        Flags.enableSkipSetSchemaTypeEqualityCheck())
+                // TODO(b/519346333): deprecate enableSkipSetSchemaTypeEqualityCheck from proto
+                .setEnableSkipSetSchemaTypeEqualityCheck(true)
                 .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .setEnableSchemaDefinitionDeduping(Flags.enableSchemaDefinitionDeduping())
                 .setEnableDatabaseStablenessLog(Flags.enableDatabaseStablenessLog())

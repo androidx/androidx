@@ -18,9 +18,6 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.appsearch.flags.Flags;
-import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
-
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
@@ -184,7 +181,6 @@ public class SearchSpecInternalTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
     public void testGetBundle_matchScoreExpression() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setNumericSearchEnabled(true)

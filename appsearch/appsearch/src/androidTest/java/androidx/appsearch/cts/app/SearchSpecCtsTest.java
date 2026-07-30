@@ -321,7 +321,6 @@ public class SearchSpecCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
     public void testBuildSearchSpec_matchScoreExpression() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setNumericSearchEnabled(true)
@@ -645,7 +644,6 @@ public class SearchSpecCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_MATCH_SCORE_EXPRESSION_FUNCTION)
     public void testSetFeatureEnabledToFalse_matchScoreExpression() {
         SearchSpec.Builder builder = new SearchSpec.Builder();
         SearchSpec searchSpec = builder
