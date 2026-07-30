@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.ui.ComposeUiFlags.isClearNestedScrollCoroutineScopeFixEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -169,10 +168,8 @@ internal class NestedScrollNode(
         // it has already been reused in a different node
         if (resolvedDispatcher.nestedScrollNode === this) {
             resolvedDispatcher.nestedScrollNode = null
-            if (isClearNestedScrollCoroutineScopeFixEnabled) {
-                resolvedDispatcher.scope = null
-                resolvedDispatcher.calculateNestedScrollScope = CancelledNestedScope
-            }
+            resolvedDispatcher.scope = null
+            resolvedDispatcher.calculateNestedScrollScope = CancelledNestedScope
         }
     }
 
