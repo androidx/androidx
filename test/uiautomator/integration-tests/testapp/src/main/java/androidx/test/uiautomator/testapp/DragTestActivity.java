@@ -24,11 +24,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
-
 import org.jspecify.annotations.Nullable;
 
-@RequiresApi(24)
 public class DragTestActivity extends TestActivity {
 
     @Override

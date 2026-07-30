@@ -20,15 +20,6 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="@RequiresApi(24)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/test/uiautomator/testapp/DragTestActivity.java"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="field mOrder with type List&lt;Integer>: replace with IntList"
         errorLine1="        private final List&lt;Integer> mOrder = Arrays.asList(0, 1, 2);"

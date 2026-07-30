@@ -32,7 +32,6 @@ import android.app.Activity;
 import android.content.Intent;
 
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.StaleObjectException;
 import androidx.test.uiautomator.UiObject2;
@@ -82,7 +81,6 @@ public class UiWindowTest extends BaseTest {
         assertTrue(window.isActive());
     }
 
-    @SdkSuppress(minSdkVersion = 24) // b/454186071
     @Test
     public void testUiDevice_findWindowByTitle() {
         String expectedTitle = APP_NAME;

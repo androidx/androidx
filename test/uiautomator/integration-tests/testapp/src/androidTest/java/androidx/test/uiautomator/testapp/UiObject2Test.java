@@ -217,7 +217,6 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 24)
     public void testDrag_dest() {
         launchTestActivity(DragTestActivity.class);
 
@@ -232,7 +231,6 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed() {
         launchTestActivity(DragTestActivity.class);
 
@@ -247,7 +245,6 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 24)
     public void testDrag_destAndSpeed_throwsIllegalArgumentException() {
         launchTestActivity(DragTestActivity.class);
 
@@ -636,7 +633,6 @@ public class UiObject2Test extends BaseTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 24)
     public void testGetDrawingOrder() {
         launchTestActivity(DrawingOrderTestActivity.class);
         UiObject2 red = mDevice.findObject(By.res(TEST_APP, "red"));
