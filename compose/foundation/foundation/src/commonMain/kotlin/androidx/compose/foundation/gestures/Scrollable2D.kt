@@ -19,7 +19,6 @@ package androidx.compose.foundation.gestures
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.splineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags.isClearNestedScrollCoroutineScopeFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
@@ -193,7 +192,7 @@ internal class Scrollable2DNode(
     }
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
-        if (isClearNestedScrollCoroutineScopeFixEnabled && !isAttached) return
+        if (!isAttached) return
         nestedScrollDispatcher.coroutineScope.launch {
             scrollLogic.onScrollStopped(event.velocity, isMouseWheel = false)
         }
