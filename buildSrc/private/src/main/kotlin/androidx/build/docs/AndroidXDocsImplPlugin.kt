@@ -401,7 +401,19 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         // Create mapping from target name to classpath for that target.
         val kmpDependencyClasspathMap = createKmpClasspaths()
 
-        private val stdLibKlibDir = ClangBuildService.obtain(project).map { it.stdlibKlibDir() }
+        private val clang = ClangBuildService.obtain(project)
+        private val stdLibKlibDir = clang.map { it.stdlibKlibDir() }
+        private val platformKlibDir = clang.flatMap { it.platformKlibDir() }
+
+        /**
+         * Returns the target-specific klibs required for docs. Currently, this is just posix to
+         * resolve pthread references.
+         */
+        private fun klibsForTarget(target: KotlinNativeTarget): Provider<Directory> {
+            return platformKlibDir.map {
+                it.dir(target.konanTarget.name).dir("org.jetbrains.kotlin.native.platform.posix")
+            }
+        }
 
         private fun createKmpClasspaths(): MapProperty<String, FileCollection> {
             val map = project.objects.mapProperty<String, FileCollection>()
@@ -460,7 +472,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             return targetApiClasspath.zip(targetRuntimeClasspath) { api, runtime ->
                 val additionalFiles =
                     if (target is KotlinNativeTarget) {
-                        project.files(stdLibKlibDir)
+                        project.files(stdLibKlibDir) + project.files(klibsForTarget(target))
                     } else {
                         project.files()
                     }
