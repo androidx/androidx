@@ -32,6 +32,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
 internal class TrampolineRequestPermissionsOnHostActivity : Activity() {
 
     private lateinit var resultReceiver: ResultReceiver
+    private var hasSentResult = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,14 @@ internal class TrampolineRequestPermissionsOnHostActivity : Activity() {
         )
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::resultReceiver.isInitialized && !hasSentResult) {
+            resultReceiver.send(RESULT_CANCELED, Bundle.EMPTY)
+            hasSentResult = true
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -78,6 +87,7 @@ internal class TrampolineRequestPermissionsOnHostActivity : Activity() {
                 putIntArray(ProjectedPermissionsConstants.RESULT_DATA_GRANT_RESULTS, grantResults)
             },
         )
+        hasSentResult = true
         finish()
     }
 
