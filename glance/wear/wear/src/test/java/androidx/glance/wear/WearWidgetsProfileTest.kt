@@ -18,7 +18,6 @@ package androidx.glance.wear
 
 import androidx.compose.remote.core.Operations.CLIP_PATH
 import androidx.compose.remote.core.Operations.COLOR_THEME
-import androidx.compose.remote.core.Operations.CORE_TEXT
 import androidx.compose.remote.core.Operations.DATA_BITMAP_FONT
 import androidx.compose.remote.core.Operations.DATA_SHADER
 import androidx.compose.remote.core.Operations.DRAW_BITMAP_FONT_TEXT_RUN
@@ -82,8 +81,6 @@ class WearWidgetsProfileTest {
                 THEME,
                 TOUCH_EXPRESSION,
                 WAKE_IN,
-                // Temporarily out while implementation is worked on
-                CORE_TEXT,
             )
 
         // Things not in AndroidX profile, so either experimental, Widgets or Wear related
