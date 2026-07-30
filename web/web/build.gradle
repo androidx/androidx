@@ -34,10 +34,18 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     implementation(project(":webkit:webkit"))
+    implementation(libs.kotlinCoroutinesCore)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.byteBuddy)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 
