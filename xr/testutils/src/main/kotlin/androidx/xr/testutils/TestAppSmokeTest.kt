@@ -17,68 +17,21 @@
 package androidx.xr.testutils
 
 import android.app.Activity
-import android.content.ComponentName
-import androidx.test.platform.app.InstrumentationRegistry
-import kotlin.test.assertNotNull
-import kotlin.test.fail
 import org.junit.Test
 
 /**
  * Abstract parameterized base test class for smoke testing XR Activities. Other libraries can
  * subclass this to automatically inherit these smoke tests.
  */
-public abstract class TestAppSmokeTest(public val activityClass: Class<out Activity>) {
+abstract class TestAppSmokeTest(activityClass: Class<out Activity>) : TestAppTest(activityClass) {
 
     @Test
     @XrDeviceTest
-    @Suppress("BanThreadSleep")
-    public fun activity_loadsAndShowsUi() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val uiAutomation = instrumentation.uiAutomation
-        val screenshotBefore = uiAutomation.takeScreenshot()
-        val packageName = instrumentation.targetContext.packageName
-        val componentName = ComponentName(packageName, activityClass.name)
-        val monitor = instrumentation.addMonitor(activityClass.name, null, false)
-        val command = "am start -f 0x10008000 -n ${componentName.flattenToString()}"
-        uiAutomation.executeShellCommand(command).checkError()
+    fun activity_loadsAndShowsUi() {
+        val screenshotBefore = takeScreenshotWithTimeout()
+        val activity = startActivity()
 
-        val activity = monitor.waitForActivityWithTimeout(20000)
-        assertNotNull(
-            activity,
-            "Failed to launch Activity ${activityClass.name} within 20 seconds timeout.",
-        )
-
-        // Wait for the main thread to be idle
-        instrumentation.waitForIdleSync()
-
-        var screenshotAfter = uiAutomation.takeScreenshot()
-
-        // Verify that the screenshot changed (allow up to 8 seconds for slow emulation)
-        if (screenshotBefore != null) {
-            var attempts = 0
-            while (
-                attempts < 40 &&
-                    (screenshotAfter == null || screenshotBefore.sameAs(screenshotAfter))
-            ) {
-                // waitForIdleSync may return too quickly on its own, using Thread.sleep to give the
-                // compositor some time to update the UI. This only happens in cases where the UI
-                // has not immediately rendered, so we wait some time for the screen to update
-                Thread.sleep(200)
-                instrumentation.waitForIdleSync()
-                screenshotAfter = uiAutomation.takeScreenshot()
-                attempts++
-            }
-            assertNotNull(
-                screenshotAfter,
-                "Failed to take screenshot after launching Activity ${activityClass.name}.",
-            )
-            if (screenshotBefore.sameAs(screenshotAfter)) {
-                fail(
-                    "The screenshot did not change after launching Activity ${activityClass.name}. " +
-                        "The screen UI might not have rendered correctly."
-                )
-            }
-        }
+        assertScreenshotChanged(screenshotBefore)
 
         // Finish the Activity to close it
         instrumentation.runOnMainSync { activity.finish() }
