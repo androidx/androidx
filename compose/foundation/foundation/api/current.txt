@@ -175,7 +175,6 @@ package androidx.compose.foundation {
     property public boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     property public boolean isSelectionAutoScrollEnabled;
-    property public boolean isSkipItemPlacementAnimationFixEnabled;
     property public boolean isSmartSelectionEnabled;
     property public boolean isUsingCacheWindowInStaggeredGrids;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
@@ -198,7 +197,6 @@ package androidx.compose.foundation {
     field public static boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     field public static boolean isSelectionAutoScrollEnabled;
-    field public static boolean isSkipItemPlacementAnimationFixEnabled;
     field public static boolean isSmartSelectionEnabled;
     field public static boolean isUsingCacheWindowInStaggeredGrids;
   }
