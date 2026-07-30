@@ -67,7 +67,7 @@ public interface CaptureRequestWrapper : CaptureRequestMetadata {
     public val keys: List<CaptureRequest.Key<*>>
 }
 
-public object CaptureRequests {
+public object CaptureRequestWrappers {
     /** Wraps a native [CaptureRequest] into a [CaptureRequestWrapper]. */
     @JvmStatic
     @JvmName("wrap")

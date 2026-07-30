@@ -19,8 +19,8 @@ package androidx.camera.common.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import androidx.camera.common.CameraCharacteristics.streamConfigurationMap
 import androidx.camera.common.CameraCharacteristicsWrapper
+import androidx.camera.common.CameraCharacteristicsWrappers.streamConfigurationMap
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import androidx.camera.common.unwrapAs

@@ -605,7 +605,6 @@ package androidx.camera.core {
   }
 
   public interface ImageProxy extends androidx.camera.common.ImageWrapper java.lang.AutoCloseable {
-    method public void close();
     method @SuppressCompatibility @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public default java.util.List<androidx.camera.common.ImagePlane> getImagePlanes();
