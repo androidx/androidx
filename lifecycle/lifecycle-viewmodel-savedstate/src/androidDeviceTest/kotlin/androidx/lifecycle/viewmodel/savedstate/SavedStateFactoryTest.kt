@@ -244,6 +244,57 @@ class SavedStateFactoryTest {
         }
     }
 
+    @Test
+    fun testSavedStateViewModelFactoryConstructorAssert() {
+        val owner =
+            object : SavedStateRegistryOwner {
+                override val savedStateRegistry: androidx.savedstate.SavedStateRegistry
+                    get() = TODO("Not yet implemented")
+
+                override val lifecycle: androidx.lifecycle.Lifecycle
+                    get() = TODO("Not yet implemented")
+            }
+        try {
+            SavedStateViewModelFactory(null, owner)
+            fail(
+                "SavedStateViewModelFactory should throw if owner does not implement ViewModelStoreOwner"
+            )
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message)
+                .contains("SavedStateRegistryOwner must implement ViewModelStoreOwner")
+        }
+    }
+
+    @Test
+    fun testAbstractSavedStateViewModelFactoryConstructorAssert() {
+        val owner =
+            object : SavedStateRegistryOwner {
+                override val savedStateRegistry: androidx.savedstate.SavedStateRegistry
+                    get() = TODO("Not yet implemented")
+
+                override val lifecycle: androidx.lifecycle.Lifecycle
+                    get() = TODO("Not yet implemented")
+            }
+        try {
+            @Suppress("DEPRECATION")
+            object : androidx.lifecycle.AbstractSavedStateViewModelFactory(owner, null) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle,
+                ): T {
+                    TODO("Not yet implemented")
+                }
+            }
+            fail(
+                "AbstractSavedStateViewModelFactory should throw if owner does not implement ViewModelStoreOwner"
+            )
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message)
+                .contains("SavedStateRegistryOwner must implement ViewModelStoreOwner")
+        }
+    }
+
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :
         AndroidViewModel(app)
 
