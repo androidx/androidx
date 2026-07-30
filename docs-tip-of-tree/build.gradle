@@ -28,6 +28,7 @@ dependencies {
     docs(project(":appsearch:appsearch-local-storage"))
     kmpDocs(project(":appstate:appstate"))
     kmpDocs(project(":appstate:appstate-transform"))
+    kmpDocs(project(":appstate:appstate-datastore"))
     docs(project(":arch:core:core-common"))
     docs(project(":arch:core:core-runtime"))
     docs(project(":arch:core:core-testing"))
