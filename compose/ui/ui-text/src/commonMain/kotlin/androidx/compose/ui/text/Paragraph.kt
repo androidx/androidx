@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -448,12 +449,48 @@ public expect fun Paragraph(
  * @param overflow specifies how visual overflow should be handled
  * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
  */
+@Deprecated("Paragraph that doesn't take a default locale is deprecated, pass a Locale instead")
 public expect fun Paragraph(
     text: String,
     style: TextStyle,
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
+    spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
+    maxLines: Int = DefaultMaxLines,
+    overflow: TextOverflow = TextOverflow.Clip,
+): Paragraph
+
+/**
+ * Lays out a given [text] with the given constraints. A paragraph is a text that has a single
+ * [ParagraphStyle].
+ *
+ * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
+ * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
+ *
+ * @param text the text to be laid out
+ * @param style the [TextStyle] to be applied to the whole text
+ * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth] will
+ *   define the width of the Paragraph. [Constraints.maxHeight] helps defining the number of lines
+ *   that fit with ellipsis is true. Minimum components of the [Constraints] object are no-op.
+ * @param density density of the device
+ * @param fontFamilyResolver [FontFamily.Resolver] to be used to load the font given in [SpanStyle]s
+ * @param defaultLocale The default [Locale] to be used to measure the text
+ * @param spanStyles [SpanStyle]s to be applied to parts of text
+ * @param placeholders a list of placeholder metrics which tells [Paragraph] where should be left
+ *   blank to leave space for inline elements.
+ * @param maxLines the maximum number of lines that the text can have
+ * @param overflow specifies how visual overflow should be handled
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set
+ */
+public expect fun Paragraph(
+    text: String,
+    style: TextStyle,
+    constraints: Constraints,
+    density: Density,
+    fontFamilyResolver: FontFamily.Resolver,
+    defaultLocale: Locale,
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     maxLines: Int = DefaultMaxLines,

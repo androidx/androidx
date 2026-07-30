@@ -35,6 +35,7 @@ import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -319,6 +320,7 @@ private class TextFieldSizeConstrainerNode(
                     style = requireResolvedStyle().copy(textDirection = TextDirection.Ltr),
                     density = requireDensity(),
                     fontFamilyResolver = currentValueOf(LocalFontFamilyResolver),
+                    defaultLocale = currentValueOf(LocalLocale),
                     lines = lines,
                     softWrap = lines > 1,
                 )

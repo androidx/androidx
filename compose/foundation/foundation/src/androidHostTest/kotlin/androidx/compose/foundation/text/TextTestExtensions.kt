@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.foundation.text
 
-package androidx.compose.foundation.text.selection
+import androidx.compose.ui.text.intl.Locale
 
-import androidx.compose.foundation.implementedInJetBrainsFork
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.intl.LocaleList
-
-@Composable
-internal actual fun rememberPlatformSelectionBehaviors(
-    selectedTextType: SelectedTextType,
-    localeList: LocaleList,
-): PlatformSelectionBehaviors? = implementedInJetBrainsFork()
+internal val TEST_LOCALE = Locale("en")

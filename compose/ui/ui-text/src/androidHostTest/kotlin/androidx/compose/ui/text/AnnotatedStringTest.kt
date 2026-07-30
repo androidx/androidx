@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
@@ -777,7 +778,7 @@ class AnnotatedStringTest {
             append("non-empty anything")
             pop()
         }
-        annotatedString.toUpperCase()
+        annotatedString.toUpperCase(Locale("en"))
     }
 
     @Test
@@ -788,7 +789,7 @@ class AnnotatedStringTest {
             pop()
             append("non-empty something")
         }
-        annotatedString.toUpperCase()
+        annotatedString.toUpperCase(Locale("en"))
     }
 
     @Test
@@ -800,7 +801,7 @@ class AnnotatedStringTest {
             pop()
             append("non-empty after")
         }
-        annotatedString.toUpperCase()
+        annotatedString.toUpperCase(Locale("en"))
     }
 
     @Test(expected = IllegalArgumentException::class)

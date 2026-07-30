@@ -16,11 +16,10 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.intl.Locale
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -30,33 +29,33 @@ class StringTest {
 
     @Test
     fun English_uppercase() {
-        assertThat("aBcDe".toUpperCase(LocaleList("en-US"))).isEqualTo("ABCDE")
+        assertThat("aBcDe".toUpperCase(Locale("en-US"))).isEqualTo("ABCDE")
     }
 
     @Test
     fun English_lowercase() {
-        assertThat("aBcDe".toLowerCase(LocaleList("en-US"))).isEqualTo("abcde")
+        assertThat("aBcDe".toLowerCase(Locale("en-US"))).isEqualTo("abcde")
     }
 
     @Test
     fun English_capitalize() {
-        assertThat("abcde".capitalize(LocaleList("en-US"))).isEqualTo("Abcde")
+        assertThat("abcde".capitalize(Locale("en-US"))).isEqualTo("Abcde")
     }
 
     @Test
     fun English_decapitalize() {
-        assertThat("Abcde".decapitalize(LocaleList("en-US"))).isEqualTo("abcde")
+        assertThat("Abcde".decapitalize(Locale("en-US"))).isEqualTo("abcde")
     }
 
     @Test
     fun LocaleDependent_uppercase() {
-        val upperI = "i".uppercase(Locale.forLanguageTag("tr"))
-        assertThat("hijkl".toUpperCase(LocaleList("tr"))).isEqualTo("H${upperI}JKL")
+        val upperI = "i".uppercase(Locale("tr").platformLocale)
+        assertThat("hijkl".toUpperCase(Locale("tr"))).isEqualTo("H${upperI}JKL")
     }
 
     @Test
     fun LocaleDependent_lowercase() {
-        val upperI = "i".uppercase(Locale.forLanguageTag("tr"))
-        assertThat("h${upperI}jkl".toLowerCase(LocaleList("tr"))).isEqualTo("hijkl")
+        val upperI = "i".uppercase(Locale("tr").platformLocale)
+        assertThat("h${upperI}jkl".toLowerCase(Locale("tr"))).isEqualTo("hijkl")
     }
 }
