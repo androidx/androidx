@@ -16,7 +16,7 @@
 
 package androidx.a2ui.engine.catalog
 
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.schema.A2uiSchema
 
 /** A registry of UI components and functions that a client surface can render. */
@@ -28,28 +28,12 @@ public interface A2uiCoreCatalog {
      */
     public val id: String
 
-    /** The list of component definitions available in this catalog. */
-    public val componentDefinitions: List<A2uiCoreComponentDefinition>
+    /** The collection of component definitions available in this catalog. */
+    public val componentDefinitions: A2uiCoreComponentDefinitionCollection
 
-    /** The list of functions available in this catalog. */
-    public val functions: List<A2uiFunction>
+    /** The collection of functions available in this catalog. */
+    public val functions: A2uiFunctionCollection
 
     /** The schema this catalog uses to define the theme the is applied over the components. */
     public val themeSchema: A2uiSchema?
-
-    /**
-     * Retrieves a component definition by its unique name.
-     *
-     * @param name The name of the component.
-     * @return The component definition, or `null` if it is not registered in this catalog.
-     */
-    public fun getComponentDefinition(name: String): A2uiCoreComponentDefinition?
-
-    /**
-     * Retrieves a function implementation by its unique name.
-     *
-     * @param name The name of the function.
-     * @return The function implementation, or `null` if it is not registered in this catalog.
-     */
-    public fun getFunction(name: String): A2uiFunction?
 }

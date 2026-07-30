@@ -17,9 +17,10 @@
 package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
@@ -1229,13 +1230,10 @@ class A2uiComponentScopeImplTest {
     private fun createCatalog(functions: List<A2uiFunction> = emptyList()) =
         object : A2uiCoreCatalog {
             override val id: String = "TestCatalog"
-            override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
-            override val functions = emptyList<A2uiFunction>()
+            override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
+                A2uiCoreComponentDefinitionCollection()
+            override val functions: A2uiFunctionCollection = A2uiFunctionCollection(functions)
             override val themeSchema: A2uiSchema? = null
-
-            override fun getComponentDefinition(name: String) = null
-
-            override fun getFunction(name: String) = functions.find { it.definition.name == name }
         }
 
     private fun createSurface(catalog: A2uiCoreCatalog) =

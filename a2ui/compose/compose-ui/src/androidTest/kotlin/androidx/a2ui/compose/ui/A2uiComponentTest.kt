@@ -26,8 +26,9 @@ import androidx.a2ui.compose.runtime.a2uiRuntimeMessageProcessor
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
@@ -105,24 +106,18 @@ class A2uiComponentTest {
             catalog =
                 object : A2uiCoreCatalog, A2uiRuntimeCatalog {
                     override val id = "non_compose_catalog"
-                    override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
-                    override val functions = emptyList<A2uiFunction>()
+                    override val componentDefinitions =
+                        A2uiCoreComponentDefinitionCollection(
+                            listOf(
+                                object : A2uiCoreComponentDefinition {
+                                    override val name = "TestComponent"
+                                    override val description = ""
+                                    override val propertySchema = A2uiObjectSchema()
+                                }
+                            )
+                        )
+                    override val functions = A2uiFunctionCollection()
                     override val themeSchema: A2uiSchema? = null
-
-                    override fun getComponentDefinition(
-                        name: String
-                    ): A2uiCoreComponentDefinition? {
-                        if (name == "TestComponent") {
-                            return object : A2uiCoreComponentDefinition {
-                                override val name = "TestComponent"
-                                override val description = ""
-                                override val propertySchema = A2uiObjectSchema()
-                            }
-                        }
-                        return null
-                    }
-
-                    override fun getFunction(name: String) = null
                 },
             componentPayloads = listOf(A2uiComponentPayload("root", TestComponentName, emptyMap())),
         ) { surface ->

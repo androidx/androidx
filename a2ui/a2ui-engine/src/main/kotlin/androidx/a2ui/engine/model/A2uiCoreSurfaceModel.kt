@@ -238,7 +238,7 @@ public class A2uiCoreSurfaceModel(
     private fun validateComponent(payload: A2uiComponentPayload) {
         val basePath = "/components/${payload.id}"
         val componentDef =
-            catalog.getComponentDefinition(payload.type)
+            catalog.componentDefinitions[payload.type]
                 ?: throw A2uiException.A2uiValidationException(
                     "Component type '${payload.type}' not found in catalog",
                     basePath,

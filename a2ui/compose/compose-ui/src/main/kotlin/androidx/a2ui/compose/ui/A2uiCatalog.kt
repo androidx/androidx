@@ -20,11 +20,12 @@ import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.compose.runtime.Stable
-import kotlin.math.ceil
 
 /**
  * A Jetpack Compose implementation of an A2UI component catalog, which defines which
@@ -45,11 +46,11 @@ public sealed interface A2uiCatalog {
      */
     public val id: String
 
-    /** The exhaustive list of [A2uiComponent] implementations registered in this catalog. */
-    public val components: List<A2uiComponent>
+    /** The collection of [A2uiComponent] implementations registered in this catalog. */
+    public val components: A2uiComponentCollection
 
-    /** The exhaustive list of [A2uiFunction] implementations registered in this catalog. */
-    public val functions: List<A2uiFunction>
+    /** The collection of [A2uiFunction] implementations registered in this catalog. */
+    public val functions: A2uiFunctionCollection
 
     /**
      * The optional JSON schema defining the dynamic theme overrides supported by this catalog.
@@ -59,24 +60,6 @@ public sealed interface A2uiCatalog {
      * appearance.
      */
     public val themeSchema: A2uiSchema?
-
-    /**
-     * Retrieves a Compose component implementation by its unique name.
-     *
-     * @param name The unique type name of the component (e.g., `"Text"`, `"Button"`).
-     * @return The [A2uiComponent] implementation, or `null` if the component is not registered in
-     *   this catalog.
-     */
-    public fun getComponent(name: String): A2uiComponent?
-
-    /**
-     * Retrieves a local function implementation by its unique name.
-     *
-     * @param name The unique name of the function (e.g., `"formatString"`).
-     * @return The [A2uiFunction] implementation, or `null` if the function is not registered in
-     *   this catalog.
-     */
-    public fun getFunction(name: String): A2uiFunction?
 }
 
 /**
@@ -99,63 +82,40 @@ public fun A2uiCatalog(
     functions: List<A2uiFunction> = emptyList(),
     themeSchema: A2uiSchema? = null,
 ): A2uiCatalog {
-    // Divide the expected size by the default HashMap load factor (0.75) to calculate a capacity
-    // large enough to hold the elements without triggering an internal map resize.
-    val componentCapacity = ceil(components.size / 0.75).toInt()
-    val componentMap = HashMap<String, A2uiComponent>(componentCapacity)
-    for (i in components.indices) {
-        val component = components[i]
-        val name = component.name
-        require(componentMap.put(name, component) == null) {
-            "Duplicate component registered for name '$name'. " +
-                "Catalogs must have unique component types."
-        }
-    }
+    val componentCollection = A2uiComponentCollection(components)
+    val functionCollection = A2uiFunctionCollection(functions)
 
-    val functionCapacity = ceil(functions.size / 0.75).toInt()
-    val functionMap = HashMap<String, A2uiFunction>(functionCapacity)
-    for (i in functions.indices) {
-        val function = functions[i]
-        val name = function.definition.name
-        require(functionMap.put(name, function) == null) {
-            "Duplicate function registered for name '$name'. " +
-                "Catalogs must have unique function names."
+    val componentDefinitions =
+        ArrayList<A2uiCoreComponentDefinition>(components.size).apply {
+            for (i in components.indices) {
+                val component = components[i]
+                add(
+                    A2uiCoreComponentDefinitionImpl(
+                        name = component.name,
+                        description = component.description,
+                        properties = component.properties,
+                    )
+                )
+            }
         }
-    }
+    val componentDefinitionCollection = A2uiCoreComponentDefinitionCollection(componentDefinitions)
 
-    return A2uiCatalogImpl(catalogId, themeSchema, componentMap, functionMap)
+    return A2uiCatalogImpl(
+        catalogId,
+        themeSchema,
+        componentDefinitionCollection,
+        componentCollection,
+        functionCollection,
+    )
 }
 
 internal class A2uiCatalogImpl(
     override val id: String,
     override val themeSchema: A2uiSchema?,
-    private val componentMap: Map<String, A2uiComponent>,
-    private val functionMap: Map<String, A2uiFunction>,
-) : A2uiCatalog, A2uiRuntimeCatalog, A2uiCoreCatalog {
-
-    override val components: List<A2uiComponent> = componentMap.values.toList()
-
-    private val componentDefinitionMap: Map<String, A2uiCoreComponentDefinition> =
-        componentMap.mapValues { (_, component) ->
-            A2uiCoreComponentDefinitionImpl(
-                name = component.name,
-                description = component.description,
-                properties = component.properties,
-            )
-        }
-
-    override val componentDefinitions: List<A2uiCoreComponentDefinition> =
-        componentDefinitionMap.values.toList()
-
-    override val functions: List<A2uiFunction> = functionMap.values.toList()
-
-    override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? =
-        componentDefinitionMap[name]
-
-    override fun getFunction(name: String): A2uiFunction? = functionMap[name]
-
-    override fun getComponent(name: String): A2uiComponent? = componentMap[name]
-}
+    override val componentDefinitions: A2uiCoreComponentDefinitionCollection,
+    override val components: A2uiComponentCollection,
+    override val functions: A2uiFunctionCollection,
+) : A2uiCatalog, A2uiRuntimeCatalog, A2uiCoreCatalog
 
 private class A2uiCoreComponentDefinitionImpl(
     override val name: String,

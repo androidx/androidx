@@ -18,9 +18,10 @@ package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
@@ -382,20 +383,17 @@ class A2uiCoreMessageProcessorTest {
 
     private class TestCatalog(override val id: String) : A2uiCoreCatalog {
         override val componentDefinitions =
-            listOf(
-                object : A2uiCoreComponentDefinition {
-                    override val name = "button"
-                    override val description = "A test button"
-                    override val propertySchema = A2uiObjectSchema()
-                }
+            A2uiCoreComponentDefinitionCollection(
+                listOf(
+                    object : A2uiCoreComponentDefinition {
+                        override val name = "button"
+                        override val description = "A test button"
+                        override val propertySchema = A2uiObjectSchema()
+                    }
+                )
             )
-        override val functions = emptyList<A2uiFunction>()
+        override val functions = A2uiFunctionCollection()
         override val themeSchema: A2uiSchema? = null
-
-        override fun getComponentDefinition(name: String) =
-            componentDefinitions.find { it.name == name }
-
-        override fun getFunction(name: String) = null
     }
 
     private class TestDataModel : A2uiCoreDataModel {

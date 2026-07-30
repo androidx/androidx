@@ -17,10 +17,10 @@
 package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -343,16 +343,10 @@ class A2uiComponentStateTest {
             catalog =
                 object : A2uiCoreCatalog {
                     override val id: String = "TestCatalog"
-                    override val componentDefinitions: List<A2uiCoreComponentDefinition> =
-                        emptyList()
-                    override val functions: List<A2uiFunction> = emptyList()
+                    override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
+                        A2uiCoreComponentDefinitionCollection()
+                    override val functions: A2uiFunctionCollection = A2uiFunctionCollection()
                     override val themeSchema: A2uiSchema? = null
-
-                    override fun getComponentDefinition(
-                        name: String
-                    ): A2uiCoreComponentDefinition? = null
-
-                    override fun getFunction(name: String): A2uiFunction? = null
                 },
             dataModel = A2uiDataModel(),
             componentRegistry = registry,

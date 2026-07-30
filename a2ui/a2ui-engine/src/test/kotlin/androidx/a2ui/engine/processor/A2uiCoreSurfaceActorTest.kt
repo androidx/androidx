@@ -18,10 +18,14 @@ package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
+import androidx.a2ui.model.catalog.A2uiFunctionDefinition
+import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiClientEventMessage
@@ -32,6 +36,7 @@ import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiFunctionCallAction
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
@@ -541,39 +546,37 @@ class A2uiCoreSurfaceActorTest {
 
     private class TestCatalog(override val id: String) : A2uiCoreCatalog {
         override val componentDefinitions =
-            listOf(
-                object : A2uiCoreComponentDefinition {
-                    override val name = "button"
-                    override val description = "A test button"
-                    override val propertySchema = A2uiObjectSchema()
-                }
+            A2uiCoreComponentDefinitionCollection(
+                listOf(
+                    object : A2uiCoreComponentDefinition {
+                        override val name = "button"
+                        override val description = "A test button"
+                        override val propertySchema = A2uiObjectSchema()
+                    }
+                )
             )
         override val functions =
-            listOf(
-                object : A2uiFunction {
-                    override val definition =
-                        object : androidx.a2ui.model.catalog.A2uiFunctionDefinition {
-                            override val name = "test_func"
-                            override val description = "A test function"
-                            override val argumentSchema = A2uiObjectSchema()
-                            override val returnType =
-                                androidx.a2ui.model.catalog.A2uiFunctionReturnType.VOID
-                        }
+            A2uiFunctionCollection(
+                listOf(
+                    object : A2uiFunction {
+                        override val definition =
+                            object : A2uiFunctionDefinition {
+                                override val name = "test_func"
+                                override val description = "A test function"
+                                override val argumentSchema = A2uiObjectSchema()
+                                override val returnType = A2uiFunctionReturnType.VOID
+                            }
 
-                    override fun execute(
-                        args: Map<String, Any>,
-                        executionContext: androidx.a2ui.model.protocol.A2uiExecutionContext,
-                    ): Any? {
-                        return null
+                        override fun execute(
+                            args: Map<String, Any>,
+                            executionContext: A2uiExecutionContext,
+                        ): Any? {
+                            return null
+                        }
                     }
-                }
+                )
             )
         override val themeSchema: A2uiSchema? = null
-
-        override fun getComponentDefinition(name: String) =
-            componentDefinitions.find { it.name == name }
-
-        override fun getFunction(name: String) = functions.find { it.definition.name == name }
     }
 
     private class TestDataModel : A2uiCoreDataModel {

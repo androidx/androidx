@@ -2,14 +2,12 @@
 package androidx.a2ui.compose.ui {
 
   @androidx.compose.runtime.Stable public sealed nonexhaustive interface A2uiCatalog {
-    method public androidx.a2ui.compose.ui.A2uiComponent? getComponent(String name);
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
-    method public androidx.a2ui.model.catalog.A2uiFunction? getFunction(String name);
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.A2uiComponentCollection getComponents();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
     method @InaccessibleFromKotlin public String getId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
-    property public abstract java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
-    property public abstract java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public abstract androidx.a2ui.compose.ui.A2uiComponentCollection components;
+    property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
     property public abstract String id;
     property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
   }
@@ -30,6 +28,16 @@ package androidx.a2ui.compose.ui {
     property public abstract String description;
     property public abstract String name;
     property public abstract java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+  }
+
+  @androidx.compose.runtime.Immutable public sealed nonexhaustive interface A2uiComponentCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.compose.ui.A2uiComponent> {
+    method public operator androidx.a2ui.compose.ui.A2uiComponent? get(String name);
+  }
+
+  public final class A2uiComponentCollectionKt {
+    method public static androidx.a2ui.compose.ui.A2uiComponentCollection A2uiComponentCollection();
+    method public static androidx.a2ui.compose.ui.A2uiComponentCollection A2uiComponentCollection(optional java.util.List<? extends androidx.a2ui.compose.ui.A2uiComponent> components);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiComponentCollection! A2uiComponentCollection$default(java.util.List!, int, Object!);
   }
 
   public final class A2uiComponentKt {

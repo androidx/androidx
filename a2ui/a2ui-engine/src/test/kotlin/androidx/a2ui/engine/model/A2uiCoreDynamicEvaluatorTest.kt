@@ -17,8 +17,9 @@
 package androidx.a2ui.engine.model
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiDataPath
@@ -55,7 +56,7 @@ class A2uiCoreDynamicEvaluatorTest {
                 }
 
                 override fun executeFunction(name: String, args: Map<String, Any>): Any? {
-                    val catalogFunction = mockCatalog.getFunction(name)
+                    val catalogFunction = mockCatalog.functions[name]
                     if (catalogFunction != null) {
                         return catalogFunction.execute(args, this)
                     }
@@ -113,16 +114,11 @@ class A2uiCoreDynamicEvaluatorTest {
         mockCatalog =
             object : A2uiCoreCatalog {
                 override val id: String = "test_catalog"
-                override val componentDefinitions: List<A2uiCoreComponentDefinition> = emptyList()
-                override val functions: List<A2uiFunction> =
-                    listOf(mockAddFunction, mockConcatFunction)
+                override val componentDefinitions: A2uiCoreComponentDefinitionCollection =
+                    A2uiCoreComponentDefinitionCollection()
+                override val functions: A2uiFunctionCollection =
+                    A2uiFunctionCollection(listOf(mockAddFunction, mockConcatFunction))
                 override val themeSchema: A2uiSchema? = null
-
-                override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? =
-                    null
-
-                override fun getFunction(name: String): A2uiFunction? =
-                    functions.find { it.definition.name == name }
             }
 
         evaluator = A2uiCoreDynamicEvaluatorImpl

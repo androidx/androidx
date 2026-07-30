@@ -33,6 +33,7 @@ dependencies {
     api(project(":a2ui:a2ui-model"))
     api(project(":a2ui:compose:compose-runtime"))
     implementation(project(":a2ui:a2ui-engine"))
+    implementation(project(":collection:collection"))
 
     api("androidx.compose.runtime:runtime:1.10.0")
     api("androidx.compose.ui:ui:1.10.0")
