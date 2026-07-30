@@ -37,9 +37,6 @@ dependencies {
 android {
     namespace = "androidx.photopicker.activity"
     compileSdk { version = release(36) }
-    defaultConfig {
-        minSdk { version = release(23) }
-    }
 }
 
 androidx {

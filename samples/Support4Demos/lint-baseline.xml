@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="MissingPermission"
@@ -26,15 +26,6 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/media/MediaNotificationManager.java"/>
-    </issue>
-
-    <issue
-        id="WifiManagerLeak"
-        message="The WIFI_SERVICE must be looked up on the Application context or memory will leak on devices &lt; Android N. Try changing `service` to `service.getApplicationContext()`"
-        errorLine1="        this.mWifiLock = ((WifiManager) service.getSystemService(Context.WIFI_SERVICE))"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/media/Playback.java"/>
     </issue>
 
     <issue
@@ -138,7 +129,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -147,7 +138,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -156,7 +147,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -165,7 +156,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -174,7 +165,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -183,7 +174,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="                Build.VERSION.SDK_INT >= 23"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -201,14 +192,14 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 24. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v11"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 24. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v21"/>
     </issue>

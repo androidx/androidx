@@ -264,7 +264,7 @@ class ImageTranslatorTest {
         }
 
     @Test
-    @Config(sdk = [23, 31])
+    @Config(sdk = [24, 31])
     fun translateImage_colorFilter() =
         fakeCoroutineScope.runTest {
             val rv =
@@ -281,7 +281,7 @@ class ImageTranslatorTest {
         }
 
     @Test
-    @Config(sdk = [23, 31])
+    @Config(sdk = [24, 31])
     fun translateImage_colorFilterWithResource() =
         fakeCoroutineScope.runTest {
             val colorProvider = ColorProvider(R.color.my_color) as ResourceColorProvider
@@ -299,7 +299,7 @@ class ImageTranslatorTest {
         }
 
     @Test
-    @Config(sdk = [23, 31])
+    @Config(sdk = [24, 31])
     fun translateImage_noColorFilter() =
         fakeCoroutineScope.runTest {
             val rv =

@@ -48,28 +48,17 @@ public class PackageUtilsTest {
     private PackageManager mPackageManager;
 
     @Test
-    @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
-    public void testHasSystemFeatureFingerprint_ReturnsFalse_OnApi22AndBelow() {
-        when(mContext.getPackageManager()).thenReturn(mPackageManager);
-        when(mPackageManager.hasSystemFeature(anyString())).thenReturn(true);
-        assertThat(PackageUtils.hasSystemFeatureFingerprint(mContext)).isFalse();
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testHasSystemFeatureFingerprint_ReturnsFalse_WhenContextIsNull() {
         assertThat(PackageUtils.hasSystemFeatureFingerprint(null)).isFalse();
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testHasSystemFeatureFingerprint_ReturnsFalse_WhenPackageManagerIsNull() {
         when(mContext.getPackageManager()).thenReturn(null);
         assertThat(PackageUtils.hasSystemFeatureFingerprint(mContext)).isFalse();
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testHasSystemFeatureFingerprint_ReturnsFalse_WhenPackageManagerReturnsFalse() {
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT))
@@ -78,7 +67,6 @@ public class PackageUtilsTest {
     }
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testHasSystemFeatureFingerprint_ReturnsTrue_WhenPackageManagerReturnsTrue() {
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)).thenReturn(true);

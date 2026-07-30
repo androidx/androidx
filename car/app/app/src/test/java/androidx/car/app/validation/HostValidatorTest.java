@@ -55,7 +55,7 @@ import java.util.List;
 /** Tests for {@link HostValidator}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(sdk = 23)
+@Config(sdk = 24)
 public class HostValidatorTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();

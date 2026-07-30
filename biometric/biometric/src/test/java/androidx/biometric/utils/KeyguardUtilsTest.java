@@ -19,13 +19,10 @@ package androidx.biometric.utils;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import android.accessibilityservice.AccessibilityService;
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -35,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
@@ -45,44 +41,19 @@ public class KeyguardUtilsTest {
     public final MockitoRule mocks = MockitoJUnit.rule();
 
     @Mock
-    private AccessibilityService mAccessibilityService;
-    @Mock
     private Context mContext;
     @Mock
     private KeyguardManager mKeyguardManager;
 
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testGetsKeyguardManager_OnApi23AndAbove() {
         when(mContext.getSystemService(KeyguardManager.class)).thenReturn(mKeyguardManager);
         assertThat(KeyguardUtils.getKeyguardManager(mContext)).isEqualTo(mKeyguardManager);
     }
 
     @Test
-    @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
-    public void testGetsKeyguardManager_OnApi22AndBelow() {
-        when(mContext.getSystemService(Context.KEYGUARD_SERVICE)).thenReturn(mKeyguardManager);
-        assertThat(KeyguardUtils.getKeyguardManager(mContext)).isEqualTo(mKeyguardManager);
-    }
-
-    @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testGetKeyguardManager_HandlesNull_OnApi23AndAbove() {
         when(mContext.getSystemService(KeyguardManager.class)).thenReturn(null);
-        assertThat(KeyguardUtils.getKeyguardManager(mContext)).isNull();
-    }
-
-    @Test
-    @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
-    public void testGetKeyguardManager_HandlesNull_OnApi22AndBelow() {
-        when(mContext.getSystemService(Context.KEYGUARD_SERVICE)).thenReturn(null);
-        assertThat(KeyguardUtils.getKeyguardManager(mContext)).isNull();
-    }
-
-    @Test
-    @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
-    public void testGetKeyguardManager_HandlesWrongService_OnApi22AndBelow() {
-        when(mContext.getSystemService(Context.KEYGUARD_SERVICE)).thenReturn(mAccessibilityService);
         assertThat(KeyguardUtils.getKeyguardManager(mContext)).isNull();
     }
 
@@ -93,18 +64,9 @@ public class KeyguardUtilsTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    @Config(minSdk = Build.VERSION_CODES.M)
     public void testIsDeviceSecuredWithCredential_CorrectlyReturnsTrue_OnApi23AndAbove() {
         when(mContext.getSystemService(any(Class.class))).thenReturn(mKeyguardManager);
         when(mKeyguardManager.isDeviceSecure()).thenReturn(true);
-        assertThat(KeyguardUtils.isDeviceSecuredWithCredential(mContext)).isTrue();
-    }
-
-    @Test
-    @Config(maxSdk = Build.VERSION_CODES.LOLLIPOP_MR1)
-    public void testIsDeviceSecuredWithCredential_CorrectlyReturnsTrue_OnApi16To22() {
-        when(mContext.getSystemService(anyString())).thenReturn(mKeyguardManager);
-        when(mKeyguardManager.isKeyguardSecure()).thenReturn(true);
         assertThat(KeyguardUtils.isDeviceSecuredWithCredential(mContext)).isTrue();
     }
 }

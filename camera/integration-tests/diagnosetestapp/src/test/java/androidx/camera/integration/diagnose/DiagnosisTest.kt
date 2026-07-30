@@ -19,7 +19,6 @@ package androidx.camera.integration.diagnose
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.os.Build
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.view.LifecycleCameraController
 import androidx.test.core.app.ApplicationProvider
@@ -36,7 +35,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.M, maxSdk = 32)
+@Config(maxSdk = 32)
 class DiagnosisTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()

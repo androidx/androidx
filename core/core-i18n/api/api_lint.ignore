@@ -3,3 +3,7 @@ KotlinDefaultParameterOrder: androidx.core.i18n.MessageFormat#format(android.con
     Parameter `locale` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.core.i18n.MessageFormat.Companion#format(android.content.Context, java.util.Locale, String, java.util.Map<java.lang.String,?>) parameter #1:
     Parameter `locale` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+
+
+UseIcu: androidx.core.i18n.DateTimeFormatter#format(java.util.Calendar) parameter #0:
+    Type `java.util.Calendar` should be replaced with richer ICU type `android.icu.util.Calendar`

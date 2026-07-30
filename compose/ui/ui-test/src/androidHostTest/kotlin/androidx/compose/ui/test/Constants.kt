@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.test
 
-internal const val RobolectricMinSdk = 23
+internal const val RobolectricMinSdk = 24

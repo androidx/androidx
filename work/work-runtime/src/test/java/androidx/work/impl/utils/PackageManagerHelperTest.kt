@@ -39,7 +39,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE, minSdk = 23)
+@Config(manifest = Config.NONE, minSdk = 24)
 class PackageManagerHelperTest {
 
     private lateinit var context: Context

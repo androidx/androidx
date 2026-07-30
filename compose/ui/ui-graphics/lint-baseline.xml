@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` is always true here (`SDK_INT` ≥ 23 and &lt; 29)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` is always true here (`SDK_INT` ≥ 24 and &lt; 29)"
         errorLine1="                    isRenderNodeCompatible &amp;&amp; Build.VERSION.SDK_INT >= Build.VERSION_CODES.M"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1` is always true here (`SDK_INT` ≥ 23 and &lt; 28)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1` is always true here (`SDK_INT` ≥ 24 and &lt; 28)"
         errorLine1="                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 &amp;&amp;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,6 +30,24 @@
 
     <issue
         id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayerV23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 24"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.N)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayerV23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is always >= 23"
         errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -39,7 +57,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +66,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -84,7 +102,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -93,7 +111,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; `SDK_INT` is always >= 24"
         errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -283,8 +301,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method sweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
-        errorLine1="        fun sweepGradient(colors: List&lt;Color>, center: Offset = Offset.Unspecified): Brush ="
-        errorLine2="                                  ~~~~~~~~~~~">
+        errorLine1="        public fun sweepGradient(colors: List&lt;Color>, center: Offset = Offset.Unspecified): Brush ="
+        errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
     </issue>
@@ -292,8 +310,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
-        errorLine1="    fun drawPoints(pointMode: PointMode, points: List&lt;Offset>, paint: Paint)"
-        errorLine2="                                                 ~~~~~~~~~~~~">
+        errorLine1="    public fun drawPoints(pointMode: PointMode, points: List&lt;Offset>, paint: Paint)"
+        errorLine2="                                                        ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Canvas.kt"/>
     </issue>

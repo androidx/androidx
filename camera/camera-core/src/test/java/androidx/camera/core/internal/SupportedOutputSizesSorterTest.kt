@@ -17,7 +17,6 @@
 package androidx.camera.core.internal
 
 import android.graphics.ImageFormat
-import android.os.Build
 import android.util.Pair
 import android.util.Size
 import androidx.camera.core.AspectRatio
@@ -406,7 +405,6 @@ class SupportedOutputSizesSorterTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun getSupportedOutputSizes_whenHighResolutionIsEnabled_aspectRatio16x9() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(
@@ -435,7 +433,6 @@ class SupportedOutputSizesSorterTest {
         )
     }
 
-    @Config(minSdk = Build.VERSION_CODES.M)
     @Test
     fun highResolutionCanNotBeSelected_whenHighResolutionForceDisabled() {
         verifySupportedOutputSizesWithResolutionSelectorSettings(

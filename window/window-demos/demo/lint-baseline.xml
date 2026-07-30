@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 23): `android.view.WindowInsets.Type#statusBars`"
+        message="Call requires API level 30 (current min is 24): `android.view.WindowInsets.Type#statusBars`"
         errorLine1="            attrs.fitInsetsTypes = WindowInsets.Type.statusBars()"
         errorLine2="                                                     ~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 23): `android.view.WindowInsets.Type#statusBars`"
+        message="Call requires API level 30 (current min is 24): `android.view.WindowInsets.Type#statusBars`"
         errorLine1="            attrs.fitInsetsTypes = WindowInsets.Type.statusBars()"
         errorLine2="                                                     ~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 23): `android.view.WindowManager.LayoutParams#setFitInsetsTypes`"
+        message="Call requires API level 30 (current min is 24): `android.view.WindowManager.LayoutParams#setFitInsetsTypes`"
         errorLine1="            attrs.fitInsetsTypes = WindowInsets.Type.statusBars()"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 30 (current min is 23): `android.view.WindowManager.LayoutParams#setFitInsetsTypes`"
+        message="Call requires API level 30 (current min is 24): `android.view.WindowManager.LayoutParams#setFitInsetsTypes`"
         errorLine1="            attrs.fitInsetsTypes = WindowInsets.Type.statusBars()"
         errorLine2="                                 ~">
         <location

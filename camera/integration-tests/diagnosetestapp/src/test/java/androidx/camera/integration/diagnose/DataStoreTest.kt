@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.BufferedReader
@@ -33,7 +32,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(minSdk = Build.VERSION_CODES.M, maxSdk = 32)
+@Config(maxSdk = 32)
 class DataStoreTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
