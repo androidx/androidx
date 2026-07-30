@@ -3,13 +3,21 @@ package androidx.a2ui.engine.catalog {
 
   public interface A2uiCoreCatalog {
     method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection getComponentDefinitions();
+    method @InaccessibleFromKotlin public default String? getDescription();
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
     method @InaccessibleFromKotlin public String getId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
+    method @InaccessibleFromKotlin public default String? getTitle();
     property public abstract androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection componentDefinitions;
+    property public default String? description;
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
     property public abstract String id;
     property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
+    property public default String? title;
+  }
+
+  public final class A2uiCoreCatalogKt {
+    method public static String toJsonSchema(androidx.a2ui.engine.catalog.A2uiCoreCatalog);
   }
 
   public interface A2uiCoreComponentDefinition {
