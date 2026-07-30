@@ -38,6 +38,14 @@ androidXMultiplatform {
             implementation(project(":datastore:datastore-core-okio"))
             implementation(libs.okio)
         }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
+        }
     }
 }
 
