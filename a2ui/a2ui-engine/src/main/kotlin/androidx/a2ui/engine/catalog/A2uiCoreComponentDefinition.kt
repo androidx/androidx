@@ -31,3 +31,11 @@ public interface A2uiCoreComponentDefinition {
     /** The schema of the properties of the component. */
     public val propertySchema: A2uiSchema
 }
+
+/**
+ * Converts this component definition into an [A2uiSchema].
+ *
+ * @return the [A2uiSchema] representation of this component definition
+ */
+public fun A2uiCoreComponentDefinition.toSchema(): A2uiSchema =
+    serializeComponentDefinitionToSchema(this)
