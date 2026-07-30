@@ -65,9 +65,16 @@ public fun rememberRemoteDocument(
         val coreDocument =
             CoreDocument(clock).apply {
                 trace("CreateRemoteDocument:parsing") {
-                    initFromBuffer(
+                    val buffer =
                         RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
+                    // Configure version and supported operations from profile to allow custom
+                    // profiles
+                    buffer.setVersion(
+                        profile.apiLevel,
+                        profile.operationsProfiles,
+                        profile.supportedOperations,
                     )
+                    initFromBuffer(buffer)
                 }
             }
         if (onCreate != null) {

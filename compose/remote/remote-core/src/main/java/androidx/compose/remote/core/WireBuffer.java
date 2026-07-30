@@ -535,20 +535,6 @@ public class WireBuffer {
     }
 
     /**
-     * Set the version used to write operations in this buffer. If not called, any operations will
-     * be allowed, but if called only operations valid for the given api level and profiles used
-     * will.
-     *
-     * @param documentApiLevel api level
-     * @param profiles profiles mask used
-     */
-    public void setVersion(int documentApiLevel, int profiles) {
-        for (int i = 0; i < mValidOperations.length; i++) {
-            mValidOperations[i] = Operations.valid(i, documentApiLevel, profiles);
-        }
-    }
-
-    /**
      * Sets the operations that are considered valid for this buffer. This is typically used to
      * restrict operations based on a specific version or profile. By default, all operations
      * (0-255) are considered valid.

@@ -354,7 +354,7 @@ public class RemoteComposeWriter {
             mContentDescription = (String) d;
         }
 
-        mBuffer.setVersion(apiLevel, profiles);
+        mBuffer.setVersion(apiLevel, profiles, (Set<Integer>) null);
 
         mBuffer.addHeader(HTag.getTags(tags), HTag.getValues(tags));
         if (apiLevel == 6 && profiles == 0) {
@@ -404,7 +404,7 @@ public class RemoteComposeWriter {
             mContentDescription = (String) d;
         }
 
-        mBuffer.setVersion(mApiLevel, HTag.getProfiles(tags));
+        mBuffer.setVersion(mApiLevel, HTag.getProfiles(tags), profile.getSupportedOperations());
         mBuffer.addHeader(HTag.getTags(tags), HTag.getValues(tags));
     }
 

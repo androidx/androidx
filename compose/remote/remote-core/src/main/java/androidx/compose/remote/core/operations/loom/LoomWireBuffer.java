@@ -254,11 +254,6 @@ public class LoomWireBuffer extends WireBuffer {
     }
 
     @Override
-    public void setVersion(int documentApiLevel, int profiles) {
-        mWrapped.setVersion(documentApiLevel, profiles);
-    }
-
-    @Override
     public void setValidOperations(@NonNull Set<Integer> supportedOperations) {
         mWrapped.setValidOperations(supportedOperations);
     }

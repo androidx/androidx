@@ -213,6 +213,7 @@ public class RemoteComposeBuffer {
     protected int mApiLevel = CoreDocument.DOCUMENT_API_LEVEL;
     private final java.util.Stack<Integer> mPatternDefineOffsets = new java.util.Stack<>();
     protected int mProfileMask = 0;
+    protected boolean mIsCustomMap = false;
 
     Operations.UniqueIntMap<CompanionOperation> mMap = new Operations.UniqueIntMap<>();
 
@@ -1042,7 +1043,11 @@ public class RemoteComposeBuffer {
                 // Invalid API level (or invalid Header)
                 return;
             }
-            mMap = Operations.getOperations(mApiLevel, profiles);
+            // Read the api and profile from the document and use that unless it's previously been
+            // specifically overridden.
+            if (!mIsCustomMap) {
+                setVersion(mApiLevel, profiles, (Set<Integer>) null);
+            }
         }
         if (mMap == null) {
             // Invalid operations map
@@ -1812,7 +1817,18 @@ public class RemoteComposeBuffer {
         float b = (color & 0xff) / 255.0f;
         float a = (color >> 24 & 0xff) / 255.0f;
         BorderModifierOperation.apply(
-                mBuffer, 0, 0, useLegacy ? 0 : 1, 0, borderWidth, borderRoundedCorner, r, g, b, a, shape);
+                mBuffer,
+                0,
+                0,
+                useLegacy ? 0 : 1,
+                0,
+                borderWidth,
+                borderRoundedCorner,
+                r,
+                g,
+                b,
+                a,
+                shape);
     }
 
     /**
@@ -1838,7 +1854,11 @@ public class RemoteComposeBuffer {
      * @param useLegacy flag for enabling legacy border drawing
      */
     public void addModifierDynamicBorder(
-            float borderWidth, float borderRoundedCorner, int colorId, int shape, boolean useLegacy) {
+            float borderWidth,
+            float borderRoundedCorner,
+            int colorId,
+            int shape,
+            boolean useLegacy) {
         BorderModifierOperation.apply(
                 mBuffer,
                 BorderModifierOperation.COLOR_REF,
@@ -2705,7 +2725,7 @@ public class RemoteComposeBuffer {
      * Store raw SC-format sound data under the given ID.
      *
      * @param soundId the ID to register the sound under
-     * @param data    SC-format audio bytes
+     * @param data SC-format audio bytes
      * @return the soundId
      */
     public int addSound(int soundId, byte @NonNull [] data) {
@@ -2716,19 +2736,15 @@ public class RemoteComposeBuffer {
     /**
      * Store a sound synthesis expression under the given ID.
      *
-     * @param id          expression ID
-     * @param params      synthesis params float array
-     * @param leftVolume  left-channel volume
+     * @param id expression ID
+     * @param params synthesis params float array
+     * @param leftVolume left-channel volume
      * @param rightVolume right-channel volume
-     * @param rate        playback rate
+     * @param rate playback rate
      * @return the id
      */
     public int addSoundExpression(
-            int id,
-            float @NonNull [] params,
-            float leftVolume,
-            float rightVolume,
-            float rate) {
+            int id, float @NonNull [] params, float leftVolume, float rightVolume, float rate) {
         SoundExpression.apply(mBuffer, id, leftVolume, rightVolume, rate, params);
         return id;
     }
@@ -2853,19 +2869,49 @@ public class RemoteComposeBuffer {
         Skip.applyEndSkip(mBuffer, offset);
     }
 
-    /** Set current version of the buffer (typically for writing) */
-    public void setVersion(int documentApiLevel, int profiles) {
-        mApiLevel = documentApiLevel;
-        mProfileMask = profiles;
-        mBuffer.setVersion(documentApiLevel, profiles);
-    }
-
-    /** Set current version of the buffer (typically for writing) */
+    /**
+     * Set current version of the buffer.
+     *
+     * @param documentApiLevel the API level of the document
+     * @param profileMask the profile mask used
+     * @param supportedOperations the set of allowed operation IDs. If null, operations known for
+     *     this version and profile will be used by default.
+     */
     public void setVersion(
-            int documentApiLevel, int profileMask, @NonNull Set<Integer> supportedOperations) {
+            int documentApiLevel, int profileMask, @Nullable Set<Integer> supportedOperations) {
         mApiLevel = documentApiLevel;
         mProfileMask = profileMask;
-        mBuffer.setValidOperations(supportedOperations);
+        Operations.UniqueIntMap<CompanionOperation> map =
+                Operations.getOperations(documentApiLevel, profileMask);
+        if (map != null) {
+            mMap = map;
+            if (supportedOperations == null) {
+                supportedOperations = map.keySet();
+            }
+        }
+        if (supportedOperations != null) {
+            mBuffer.setValidOperations(supportedOperations);
+        }
+    }
+
+    /**
+     * Set current version of the buffer with custom operation implementations.
+     *
+     * <p>This allows providing custom operation mappings for inflation.
+     *
+     * @param documentApiLevel the API level of the document
+     * @param profileMask the profile mask used
+     * @param customMap custom operations map to use
+     */
+    public void setVersion(
+            int documentApiLevel,
+            int profileMask,
+            Operations.@NonNull UniqueIntMap<CompanionOperation> customMap) {
+        mApiLevel = documentApiLevel;
+        mProfileMask = profileMask;
+        mMap = customMap;
+        mIsCustomMap = true;
+        mBuffer.setValidOperations(customMap.keySet());
     }
 
     /**

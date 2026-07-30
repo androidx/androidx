@@ -66,7 +66,13 @@ public class RemoteCaptureTestRule : TestRule {
         val remoteComposeDocument =
             CoreDocument(clock).apply {
                 ByteArrayInputStream(document).use {
-                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                    val buffer = RemoteComposeBuffer.fromInputStream(it)
+                    buffer.setVersion(
+                        profile.apiLevel,
+                        profile.operationsProfiles,
+                        profile.supportedOperations,
+                    )
+                    initFromBuffer(buffer)
                 }
             }
         return remoteComposeDocument
