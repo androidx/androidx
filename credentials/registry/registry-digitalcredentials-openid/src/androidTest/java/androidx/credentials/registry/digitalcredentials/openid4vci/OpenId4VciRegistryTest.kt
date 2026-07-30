@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONObject
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -267,5 +268,31 @@ class OpenId4VciRegistryTest {
         val iconRange2 = entry2.getJSONArray("icon")
         assertThat(iconRange2.getInt(0)).isEqualTo(4)
         assertThat(iconRange2.getInt(1)).isEqualTo(7)
+    }
+
+    @Test
+    fun explainer_empty_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) { OpenId4VciDisplayData.Explainer() }
+    }
+
+    @Test
+    fun explainer_blankIssuer_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OpenId4VciDisplayData.Explainer(perIssuer = mapOf(" " to "explainer"))
+        }
+    }
+
+    @Test
+    fun explainer_blankText_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OpenId4VciDisplayData.Explainer(perIssuer = mapOf("https://issuer.com" to ""))
+        }
+    }
+
+    @Test
+    fun explainer_blankDefault_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OpenId4VciDisplayData.Explainer(default = "  ")
+        }
     }
 }
