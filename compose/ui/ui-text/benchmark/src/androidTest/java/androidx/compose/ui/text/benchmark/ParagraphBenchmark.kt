@@ -25,10 +25,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -164,6 +166,37 @@ class ParagraphBenchmark(
                     text = annotatedString.text,
                     spanStyles = annotatedString.spanStyles,
                     width = width,
+                )
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun construct_withLineHeight() {
+        textBenchmarkRule.generator { textGenerator ->
+            benchmarkRule.measureRepeated {
+                val text = runWithMeasurementDisabled { textGenerator.nextParagraph(16) + "\n" }
+
+                Paragraph(
+                    paragraphIntrinsics =
+                        ParagraphIntrinsics(
+                            text = text,
+                            style =
+                                TextStyle(
+                                    fontSize = fontSize,
+                                    lineHeight = fontSize * 2,
+                                    lineHeightStyle = LineHeightStyle.Default,
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                ),
+                            density =
+                                Density(
+                                    density =
+                                        instrumentationContext.resources.displayMetrics.density
+                                ),
+                            fontFamilyResolver = createFontFamilyResolver(instrumentationContext),
+                        ),
+                    constraints = Constraints(maxWidth = ceil(width).toInt()),
                 )
             }
         }
