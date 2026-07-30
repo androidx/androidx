@@ -144,7 +144,7 @@ public object ComposeUiFlags {
     // TODO: b/535296682 - Cleanup feature flag
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isTrackpadPanHoverFixEnabled: Boolean = true
+    public var isTrackpadPanHoverFixEnabled: Boolean = false
 
     /**
      * Enables re-interpreting trackpad pinch gestures (CLASSIFICATION_PINCH) as mouse events with
