@@ -17,10 +17,10 @@
 package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.processor.A2uiCoreMessageProcessor
-import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
 import androidx.a2ui.model.schema.A2uiSchema
@@ -127,12 +127,8 @@ class A2uiRuntimeMessageProcessorTest {
     }
 
     private class ValidTestCatalog(override val id: String) : A2uiRuntimeCatalog, A2uiCoreCatalog {
-        override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
-        override val functions = emptyList<A2uiFunction>()
+        override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+        override val functions = A2uiFunctionCollection()
         override val themeSchema: A2uiSchema? = null
-
-        override fun getComponentDefinition(name: String): A2uiCoreComponentDefinition? = null
-
-        override fun getFunction(name: String): A2uiFunction? = null
     }
 }

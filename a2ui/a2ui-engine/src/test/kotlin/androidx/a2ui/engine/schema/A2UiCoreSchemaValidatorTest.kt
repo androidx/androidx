@@ -17,8 +17,9 @@
 package androidx.a2ui.engine.schema
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiException
@@ -764,15 +765,9 @@ class A2UiCoreSchemaValidatorTest {
             }
         return object : A2uiCoreCatalog {
             override val id = "test"
-            override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
-            override val functions = wrappedFunctions
+            override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+            override val functions = A2uiFunctionCollection(wrappedFunctions)
             override val themeSchema: A2uiSchema? = null
-
-            override fun getComponentDefinition(name: String) = null
-
-            override fun getFunction(name: String): A2uiFunction? {
-                return functions.find { it.definition.name == name }
-            }
         }
     }
 

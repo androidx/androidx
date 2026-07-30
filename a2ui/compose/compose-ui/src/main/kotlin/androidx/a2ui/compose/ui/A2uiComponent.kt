@@ -47,7 +47,7 @@ public fun A2uiComponent(component: A2uiComponentModel, modifier: Modifier = Mod
         surface.catalog as? A2uiCatalog
             ?: throw IllegalStateException("Catalog must implement A2uiCatalog")
     val a2uiComponent =
-        catalog.getComponent(component.type)
+        catalog.components[component.type]
             ?: throw IllegalStateException(
                 "Component with type '${component.type}' is not registered"
             )

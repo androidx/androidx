@@ -2,14 +2,12 @@
 package androidx.a2ui.engine.catalog {
 
   public interface A2uiCoreCatalog {
-    method public androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition? getComponentDefinition(String name);
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> getComponentDefinitions();
-    method public androidx.a2ui.model.catalog.A2uiFunction? getFunction(String name);
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection getComponentDefinitions();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
     method @InaccessibleFromKotlin public String getId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
-    property public abstract java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> componentDefinitions;
-    property public abstract java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public abstract androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection componentDefinitions;
+    property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
     property public abstract String id;
     property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
   }
@@ -21,6 +19,16 @@ package androidx.a2ui.engine.catalog {
     property public abstract String description;
     property public abstract String name;
     property public abstract androidx.a2ui.model.schema.A2uiSchema propertySchema;
+  }
+
+  public sealed nonexhaustive interface A2uiCoreComponentDefinitionCollection extends kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> {
+    method public operator androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition? get(String name);
+  }
+
+  public final class A2uiCoreComponentDefinitionCollectionKt {
+    method public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection A2uiCoreComponentDefinitionCollection();
+    method public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection A2uiCoreComponentDefinitionCollection(optional java.util.List<? extends androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition> definitions);
+    method @BytecodeOnly public static androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection! A2uiCoreComponentDefinitionCollection$default(java.util.List!, int, Object!);
   }
 
 }

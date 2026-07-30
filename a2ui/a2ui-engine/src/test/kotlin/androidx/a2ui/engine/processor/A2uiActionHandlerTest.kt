@@ -17,12 +17,13 @@
 package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
-import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreCacheProvider
 import androidx.a2ui.engine.model.A2uiCoreDynamicEvaluator
 import androidx.a2ui.engine.model.A2uiCoreExecutionContext
 import androidx.a2ui.engine.model.A2uiCoreValueResolver
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.catalog.A2uiFunctionCollection
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.processor.A2uiActionInterceptor
@@ -369,13 +370,10 @@ class A2uiActionHandlerTest {
 
     private class FakeCatalog(val func: A2uiFunction? = null) : A2uiCoreCatalog {
         override val id = "fake"
-        override val componentDefinitions = emptyList<A2uiCoreComponentDefinition>()
-        override val functions = if (func != null) listOf(func) else emptyList()
+        override val componentDefinitions = A2uiCoreComponentDefinitionCollection()
+        override val functions =
+            A2uiFunctionCollection(if (func != null) listOf(func) else emptyList())
         override val themeSchema: A2uiSchema? = null
-
-        override fun getComponentDefinition(name: String) = null
-
-        override fun getFunction(name: String) = if (name == func?.definition?.name) func else null
     }
 
     private class FakeValueResolver : A2uiCoreValueResolver {

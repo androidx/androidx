@@ -29,6 +29,7 @@ dependencies {
     api(project(":a2ui:a2ui-model"))
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
+    implementation(project(":collection:collection"))
     implementation(libs.kotlinSerializationJson)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)

@@ -85,6 +85,7 @@ class A2uiCatalogTest {
             assertThrows(IllegalArgumentException::class.java) {
                 A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
             }
+
         assertThat(exception)
             .hasMessageThat()
             .contains("Duplicate component registered for name 'DuplicateComponent'")
@@ -103,26 +104,27 @@ class A2uiCatalogTest {
                     functions = listOf(function1, function2),
                 )
             }
+
         assertThat(exception)
             .hasMessageThat()
             .contains("Duplicate function registered for name 'DuplicateFunction'")
     }
 
     @Test
-    fun getComponent_returnsCorrectComponent() {
+    fun components_lookupByName_returnsCorrectComponent() {
         val component1 = StubComponent("Component1")
         val component2 = StubComponent("Component2")
 
         val catalog =
             A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
 
-        assertThat(catalog.getComponent("Component1")).isEqualTo(component1)
-        assertThat(catalog.getComponent("Component2")).isEqualTo(component2)
-        assertThat(catalog.getComponent("UnknownComp")).isNull()
+        assertThat(catalog.components["Component1"]).isEqualTo(component1)
+        assertThat(catalog.components["Component2"]).isEqualTo(component2)
+        assertThat(catalog.components["UnknownComp"]).isNull()
     }
 
     @Test
-    fun getFunction_returnsCorrectFunction() {
+    fun functions_lookupByName_returnsCorrectFunction() {
         val function1 = StubFunction("Function1")
         val function2 = StubFunction("Function2")
 
@@ -133,9 +135,9 @@ class A2uiCatalogTest {
                 functions = listOf(function1, function2),
             )
 
-        assertThat(catalog.getFunction("Function1")).isEqualTo(function1)
-        assertThat(catalog.getFunction("Function2")).isEqualTo(function2)
-        assertThat(catalog.getFunction("UnknownFunction")).isNull()
+        assertThat(catalog.functions["Function1"]).isEqualTo(function1)
+        assertThat(catalog.functions["Function2"]).isEqualTo(function2)
+        assertThat(catalog.functions["UnknownFunction"]).isNull()
     }
 
     @Test
@@ -147,13 +149,13 @@ class A2uiCatalogTest {
             A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
         val coreCatalog = catalog as A2uiCoreCatalog
 
-        val definition1 = coreCatalog.getComponentDefinition("Component1")
+        val definition1 = coreCatalog.componentDefinitions["Component1"]
         assertThat(definition1?.name).isEqualTo("Component1")
         assertThat(definition1?.description).isEqualTo("Description1")
-        val definition2 = coreCatalog.getComponentDefinition("Component2")
+        val definition2 = coreCatalog.componentDefinitions["Component2"]
         assertThat(definition2?.name).isEqualTo("Component2")
         assertThat(definition2?.description).isEqualTo("Description2")
-        assertThat(coreCatalog.getComponentDefinition("UnknownComponent")).isNull()
+        assertThat(coreCatalog.componentDefinitions["UnknownComponent"]).isNull()
     }
 
     @Test
@@ -175,7 +177,7 @@ class A2uiCatalogTest {
 
         val catalog = A2uiCatalog(TestCatalogId, listOf(component))
         val coreCatalog = catalog as A2uiCoreCatalog
-        val definition = coreCatalog.getComponentDefinition("TestComponent")
+        val definition = coreCatalog.componentDefinitions["TestComponent"]
 
         assertThat(definition).isNotNull()
         assertThat(definition?.name).isEqualTo("TestComponent")
