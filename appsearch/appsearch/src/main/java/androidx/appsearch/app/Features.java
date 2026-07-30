@@ -209,7 +209,6 @@ public interface Features {
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link SearchSpec.Builder#addFilterDocumentIds}.
      */
-    @ExperimentalAppSearchApi
     String SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS = "SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS";
 
     /**
