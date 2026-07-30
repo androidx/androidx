@@ -138,7 +138,7 @@ internal class ViewModelStoreProviderTest {
     }
 
     @Test
-    fun getViewModelStoreOwner_whenCalledTwice_returnsNewWrapperButSameStore() {
+    fun getViewModelStoreOwner_whenCalledTwice_returnsSameWrapperAndSameStore() {
         val owner = TestViewModelStoreOwner()
         val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "key"
@@ -146,8 +146,8 @@ internal class ViewModelStoreProviderTest {
         val wrapper1 = provider.getOrCreateOwner(key)
         val wrapper2 = provider.getOrCreateOwner(key)
 
-        // Owner wrappers are lightweight allocation objects and are intentionally not cached.
-        assertThat(wrapper2).isNotSameInstanceAs(wrapper1)
+        // Owner wrappers are cached at the provider level and return the same wrapper instance.
+        assertThat(wrapper2).isSameInstanceAs(wrapper1)
         assertThat(wrapper2.viewModelStore).isSameInstanceAs(wrapper1.viewModelStore)
     }
 
