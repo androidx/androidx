@@ -134,6 +134,48 @@ class TrampolineRequestPermissionsOnHostActivityTest {
         }
     }
 
+    @Test
+    fun onDestroy_withoutSendingResult_sendsCanceledResult() {
+        val permissions = arrayOf("android.permission.CAMERA")
+        val resultReceiver = TestResultReceiver()
+        val intent =
+            Intent(context, TrampolineRequestPermissionsOnHostActivity::class.java).apply {
+                putExtra(ProjectedPermissionsConstants.EXTRA_PERMISSIONS, permissions)
+                putExtra(ProjectedPermissionsConstants.EXTRA_RESULT_RECEIVER, resultReceiver)
+            }
+
+        ActivityScenario.launch<TrampolineRequestPermissionsOnHostActivity>(intent).use { scenario
+            ->
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            assertThat(resultReceiver.resultCode).isEqualTo(Activity.RESULT_CANCELED)
+        }
+    }
+
+    @Test
+    fun onDestroy_afterSendingResult_doesNotSendCanceledResult() {
+        val permissions = arrayOf("android.permission.CAMERA")
+        val grantResults = intArrayOf(PackageManager.PERMISSION_GRANTED)
+        val resultReceiver = TestResultReceiver()
+        val intent =
+            Intent(context, TrampolineRequestPermissionsOnHostActivity::class.java).apply {
+                putExtra(ProjectedPermissionsConstants.EXTRA_PERMISSIONS, permissions)
+                putExtra(ProjectedPermissionsConstants.EXTRA_RESULT_RECEIVER, resultReceiver)
+            }
+
+        ActivityScenario.launch<TrampolineRequestPermissionsOnHostActivity>(intent).use { scenario
+            ->
+            scenario.onActivity { activity ->
+                activity.onRequestPermissionsResult(
+                    PERMISSION_REQUEST_CODE,
+                    permissions,
+                    grantResults,
+                )
+            }
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+            assertThat(resultReceiver.resultCode).isEqualTo(Activity.RESULT_OK)
+        }
+    }
+
     private class TestResultReceiver : ResultReceiver(Handler(Looper.getMainLooper())) {
         var resultCode: Int = DEFAULT_RESULT_CODE
         var resultData: Bundle? = null
