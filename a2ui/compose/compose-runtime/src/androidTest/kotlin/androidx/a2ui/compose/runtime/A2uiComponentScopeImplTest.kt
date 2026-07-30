@@ -40,7 +40,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -49,7 +48,6 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
-import kotlinx.coroutines.CoroutineScope
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -491,7 +489,6 @@ class A2uiComponentScopeImplTest {
                     id = "test_scope",
                     baseDataPath = A2uiDataPath("/base"),
                     surface = customSurface,
-                    surfaceScope = rememberCoroutineScope(),
                 )
             result = with(scope) { props.bind(propDef) }
         }
@@ -1306,16 +1303,12 @@ class A2uiComponentScopeImplTest {
     }
 
     @Composable
-    private fun rememberComponentScope(
-        path: String,
-        coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    ) =
-        remember(path, coroutineScope) {
+    private fun rememberComponentScope(path: String) =
+        remember(path) {
             A2uiComponentScopeImpl(
                 id = TestComponentId,
                 baseDataPath = A2uiDataPath(path),
                 surface = surface,
-                surfaceScope = coroutineScope,
             )
         }
 

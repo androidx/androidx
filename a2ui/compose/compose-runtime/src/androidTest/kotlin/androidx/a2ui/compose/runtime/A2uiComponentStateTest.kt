@@ -39,9 +39,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import com.google.common.truth.Truth.assertThat
-import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.CoroutineScope
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -627,10 +625,5 @@ class A2uiComponentStateTest {
             id = "TestScope",
             baseDataPath = A2uiDataPath("/"),
             surface = surface,
-            surfaceScope =
-                object : CoroutineScope {
-                    override val coroutineContext: CoroutineContext
-                        get() = TODO("Not yet implemented")
-                },
         )
 }
