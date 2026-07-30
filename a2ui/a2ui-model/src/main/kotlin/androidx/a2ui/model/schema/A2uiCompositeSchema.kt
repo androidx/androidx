@@ -33,7 +33,7 @@ public abstract class A2uiCompositeSchema : A2uiSchema() {
      * definition name instead of inlining the full schema. Use this to avoid duplicating complex
      * schemas in components.
      */
-    protected open val definitionName: String? = null
+    public open val definitionName: String? = null
 
     /**
      * Root schema ID used to reference this sub-schema.
@@ -44,7 +44,7 @@ public abstract class A2uiCompositeSchema : A2uiSchema() {
      *
      * Note: This has no effect if [definitionName] is null.
      */
-    protected open val schemaId: String? = null
+    public open val schemaId: String? = null
 
     /**
      * Returns the underlying schema definition.
