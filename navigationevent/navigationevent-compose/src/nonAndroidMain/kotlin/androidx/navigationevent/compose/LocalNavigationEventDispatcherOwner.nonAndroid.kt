@@ -16,9 +16,13 @@
 
 package androidx.navigationevent.compose
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.HostDefaultKey
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
 public actual val NavigationEventDispatcherOwnerHostDefaultKey:
     HostDefaultKey<NavigationEventDispatcherOwner?> =
     object : HostDefaultKey<NavigationEventDispatcherOwner?> {}
+
+@Composable
+internal actual fun fallbackNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? = null
