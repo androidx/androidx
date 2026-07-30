@@ -23,6 +23,7 @@ import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner.LocalNavigationEventDispatcherOwner
 
 /** The CompositionLocal containing the current [NavigationEventDispatcher]. */
 public object LocalNavigationEventDispatcherOwner {
@@ -35,7 +36,9 @@ public object LocalNavigationEventDispatcherOwner {
      * `androidx.compose.ui.platform.LocalView`.
      */
     public val current: NavigationEventDispatcherOwner?
-        @Composable get() = LocalNavigationEventDispatcherOwner.current
+        @Composable
+        get() =
+            LocalNavigationEventDispatcherOwner.current ?: fallbackNavigationEventDispatcherOwner()
 
     /**
      * Associates a [LocalNavigationEventDispatcherOwner] key to a value in a call to
@@ -63,3 +66,14 @@ public object LocalNavigationEventDispatcherOwner {
  */
 public expect val NavigationEventDispatcherOwnerHostDefaultKey:
     HostDefaultKey<NavigationEventDispatcherOwner?>
+
+/**
+ * Finds the [NavigationEventDispatcherOwner] with platform fallbacks.
+ *
+ * Use this function if the owner is not provided in a [CompositionLocalProvider] or set on the
+ * ViewTree. On Android, this searches the `ContextWrapper` chain of the current `LocalContext` to
+ * find the `Activity` that implements the owner. Other platforms do not have contexts and return
+ * `null`.
+ */
+@Composable
+internal expect fun fallbackNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner?
