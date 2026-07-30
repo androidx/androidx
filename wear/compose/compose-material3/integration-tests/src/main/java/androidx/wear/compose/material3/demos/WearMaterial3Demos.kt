@@ -319,6 +319,7 @@ val WearMaterial3Demos =
                 ),
                 Material3DemoCategory("One Handed Gestures", OneHandedGestureDemos),
                 ComposableDemo("Text Block") { TextBlockDemo() },
+                ComposableDemo("Text Marquee") { TextMarqueeDemo() },
                 ComposableDemo("Text Weights") { TextWeightDemo() },
             )
             .sortedBy { it.title },
