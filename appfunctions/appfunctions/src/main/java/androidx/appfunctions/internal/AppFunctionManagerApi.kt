@@ -18,6 +18,7 @@ package androidx.appfunctions.internal
 
 import android.app.appfunctions.AppFunctionRegistration
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionManager
@@ -66,4 +67,39 @@ public interface AppFunctionManagerApi {
     public fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration
+
+    public companion object {
+        /**
+         * When the AppSearch indexer has finished but the AppFunction metadata adapter is still
+         * running, apps calling isAppFunctionEnabled or setAppFunctionEnabled would encounter a
+         * runtime exception with [RUNTIME_METADATA_MISSING_ERROR_MESSAGE] as error message.
+         * However, that should have been returned as IllegalArgumentException according to the
+         * public API documentation.
+         */
+        public fun applyMissingRuntimeMetadataExceptionFix(
+            functionId: String,
+            error: Exception,
+        ): Exception {
+            if (
+                error is RuntimeException &&
+                    error !is IllegalArgumentException &&
+                    error.message?.contains(RUNTIME_METADATA_MISSING_ERROR_MESSAGE) == true
+            ) {
+                Log.d(Constants.APP_FUNCTIONS_TAG, "Apply missing runtime metadata exception fix")
+                return IllegalArgumentException(
+                    "Runtime metadata for $functionId is not yet created."
+                )
+            }
+            return error
+        }
+
+        /**
+         * The RuntimeException error message return by
+         * [android.app.appfunctions.AppFunctionManager.isAppFunctionEnabled] and
+         * [android.app.appfunctions.AppFunctionManager.setAppFunctionEnabled] when the runtime
+         * metadata is not yet created.
+         */
+        private const val RUNTIME_METADATA_MISSING_ERROR_MESSAGE: String =
+            "Expected 1 GenericDocument for runtimeMetadata, found 0"
+    }
 }
