@@ -23,6 +23,7 @@ import androidx.build.PlatformIdentifier
 import androidx.build.getAndroidJar
 import androidx.build.getOperatingSystem
 import androidx.build.multiplatformExtension
+import com.android.build.api.artifact.MultipleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -75,10 +76,16 @@ internal sealed interface CompilationInputs {
             val javaCollection = project.files(variant.sources.java?.all)
             val sourceCollection = kotlinCollection + javaCollection
 
+            @Suppress("UnstableApiUsage") // Usage of PRE_COMPILATION_CLASSES
+            val preCompilationClasses =
+                variant.artifacts.getAll(MultipleArtifact.PRE_COMPILATION_CLASSES)
             @Suppress("UnstableApiUsage") // Usage of compileClasspath
+            val dependencyClasspath =
+                variant.compileClasspath + project.files(preCompilationClasses)
+
             return StandardCompilationInputs(
                 sourcePaths = sourceCollection,
-                dependencyClasspath = variant.compileClasspath,
+                dependencyClasspath = dependencyClasspath,
                 bootClasspath = bootClasspath,
             )
         }
