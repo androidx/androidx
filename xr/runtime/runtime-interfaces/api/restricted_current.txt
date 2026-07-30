@@ -124,10 +124,19 @@ package androidx.xr.runtime.interfaces {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrNativeInstanceProvider extends androidx.xr.runtime.interfaces.Service {
     method @InaccessibleFromKotlin public long getXrInstanceHandle();
     method @InaccessibleFromKotlin public long getXrInstanceProcAddr();
+    method @InaccessibleFromKotlin public default long getXrSessionHandle();
     method public void initialize(android.content.Context context, optional java.util.List<java.lang.String> extraExtensions);
     method @BytecodeOnly public static void initialize$default(androidx.xr.runtime.interfaces.XrNativeInstanceProvider!, android.content.Context!, java.util.List!, int, Object!);
     property public abstract long xrInstanceHandle;
     property public abstract long xrInstanceProcAddr;
+    property public default long xrSessionHandle;
+    field public static final androidx.xr.runtime.interfaces.XrNativeInstanceProvider.Companion Companion;
+    field public static final long INVALID_HANDLE = 0L; // 0x0L
+  }
+
+  public static final class XrNativeInstanceProvider.Companion {
+    property public static long INVALID_HANDLE;
+    field public static final long INVALID_HANDLE = 0L; // 0x0L
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrServiceUpdateRequester {

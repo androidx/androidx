@@ -83,6 +83,7 @@ internal object XrInstanceManager {
         return NativeInstanceData(
             loadedProvider.xrInstanceHandle,
             loadedProvider.xrInstanceProcAddr,
+            loadedProvider.xrSessionHandle,
         )
     }
 }
