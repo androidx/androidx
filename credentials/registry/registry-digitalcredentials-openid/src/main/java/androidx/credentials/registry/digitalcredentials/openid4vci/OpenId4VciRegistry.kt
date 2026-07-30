@@ -54,6 +54,19 @@ public class OpenId4VciDisplayData(
         public val perIssuer: Map<String, String> = emptyMap(),
         public val default: String? = null,
     ) {
+        init {
+            require(perIssuer.isNotEmpty() || default != null) {
+                "Explainer must have at least one issuer-specific or default terms."
+            }
+            require(perIssuer.keys.all { it.isNotBlank() }) { "Issuer origins must not be blank." }
+            require(perIssuer.values.all { it.isNotBlank() }) {
+                "Explainer text must not be blank."
+            }
+            if (default != null) {
+                require(default.isNotBlank()) { "Default explainer text must not be blank." }
+            }
+        }
+
         internal fun asJson(): JSONObject =
             JSONObject().apply {
                 put("per_issuer", JSONObject(perIssuer))
