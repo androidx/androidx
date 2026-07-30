@@ -185,7 +185,6 @@ internal constructor(
 
 /** Contains the default values used by [Button]. */
 public object ButtonDefaults {
-    @Composable
     /**
      * Creates a [ButtonColors] that represents the default background and content colors used in a
      * [Button].
@@ -193,6 +192,7 @@ public object ButtonDefaults {
      * @param backgroundColor the background color of this [Button]
      * @param contentColor the content color of this [Button]
      */
+    @Composable
     public fun buttonColors(
         backgroundColor: ColorProvider = GlanceTheme.colors.primary,
         contentColor: ColorProvider = GlanceTheme.colors.onPrimary,

@@ -340,12 +340,6 @@ public object RotaryScrollableDefaults {
             hapticFeedbackEnabled = hapticFeedbackEnabled,
         )
 
-    @Deprecated(
-        "This snapBehavior overload is provided for backwards compatibility with Wear " +
-            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
-            "snapSensitivity parameter.",
-        level = DeprecationLevel.HIDDEN,
-    )
     /**
      * Implementation of [RotaryScrollableBehavior] to define scrolling behaviour with snap - used
      * with the [rotaryScrollable] modifier when snapping is required.
@@ -358,6 +352,12 @@ public object RotaryScrollableDefaults {
      *   scrolling (true by default). It's recommended to keep the default value of true for premium
      *   scrolling experience.
      */
+    @Deprecated(
+        "This snapBehavior overload is provided for backwards compatibility with Wear " +
+            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
+            "snapSensitivity parameter.",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     public fun snapBehavior(
         scrollableState: ScrollableState,
@@ -404,12 +404,6 @@ public object RotaryScrollableDefaults {
             hapticFeedbackEnabled = hapticFeedbackEnabled,
         )
 
-    @Deprecated(
-        "This snapBehavior overload is provided for backwards compatibility with Wear " +
-            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
-            "snapSensitivity parameter.",
-        level = DeprecationLevel.HIDDEN,
-    )
     /**
      * Implementation of [RotaryScrollableBehavior] to define scrolling behaviour with snap for
      * [ScalingLazyColumn] - used with the [rotaryScrollable] modifier when snapping is required.
@@ -421,6 +415,12 @@ public object RotaryScrollableDefaults {
      *   scrolling (true by default). It's recommended to keep the default value of true for premium
      *   scrolling experience.
      */
+    @Deprecated(
+        "This snapBehavior overload is provided for backwards compatibility with Wear " +
+            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
+            "snapSensitivity parameter.",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     public fun snapBehavior(
         scrollableState: ScalingLazyListState,
@@ -502,12 +502,6 @@ public object RotaryScrollableDefaults {
             hapticFeedbackEnabled = hapticFeedbackEnabled,
         )
 
-    @Deprecated(
-        "This snapBehavior overload is provided for backwards compatibility with Wear " +
-            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
-            "snapSensitivity parameter.",
-        level = DeprecationLevel.HIDDEN,
-    )
     /**
      * Implementation of [RotaryScrollableBehavior] to define scrolling behaviour with snap for
      * [HorizontalPager] and [VerticalPager].
@@ -519,6 +513,12 @@ public object RotaryScrollableDefaults {
      *   scrolling (true by default). It's recommended to keep the default value of true for premium
      *   scrolling experience.
      */
+    @Deprecated(
+        "This snapBehavior overload is provided for backwards compatibility with Wear " +
+            "Compose 1.5. Please use the new snapBehavior function that takes optional " +
+            "snapSensitivity parameter.",
+        level = DeprecationLevel.HIDDEN,
+    )
     @Composable
     public fun snapBehavior(
         pagerState: PagerState,

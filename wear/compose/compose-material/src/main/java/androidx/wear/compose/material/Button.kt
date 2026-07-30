@@ -453,13 +453,12 @@ public interface ButtonColors {
 /** Represents the border stroke used in a [Button] in different states. */
 @Stable
 public interface ButtonBorder {
-    @Composable
     /**
      * Represents the border stroke for this border, depending on [enabled] or null if no border
      *
      * @param enabled Whether the button is enabled
      */
-    public fun borderStroke(enabled: Boolean): State<BorderStroke?>
+    @Composable public fun borderStroke(enabled: Boolean): State<BorderStroke?>
 }
 
 /** Contains the default values used by [Button]. */
