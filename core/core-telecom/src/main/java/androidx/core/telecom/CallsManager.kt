@@ -679,7 +679,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             )
 
         callSession.sendEvent(EVENT_CALL_READY)
-        callSession.maybeSwitchStartingEndpoint(callAttributes.preferredStartingCallEndpoint)
+        callSession.launchStartingEndpointSwitch(callAttributes.preferredStartingCallEndpoint)
         return Pair(callSession, scope)
     }
 
