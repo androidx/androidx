@@ -512,7 +512,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
      *
      * <p>If empty, the query will search over all documents.
      */
-    @ExperimentalAppSearchApi
     @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_DOCUMENT_IDS)
     public @NonNull List<String> getFilterDocumentIds() {
         return mFilterDocumentIds;
@@ -1251,7 +1250,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>If unset, the query will search over all documents.
          */
         @CanIgnoreReturnValue
-        @ExperimentalAppSearchApi
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS)
@@ -1269,7 +1267,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>If unset, the query will search over all documents.
          */
         @CanIgnoreReturnValue
-        @ExperimentalAppSearchApi
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS)
@@ -1282,7 +1279,6 @@ public final class SearchSpec extends AbstractSafeParcelable {
         }
 
         /** Clears the document id filters. */
-        @ExperimentalAppSearchApi
         @FlaggedApi(Flags.FLAG_ENABLE_ADDITIONAL_BUILDER_COPY_CONSTRUCTORS)
         @CanIgnoreReturnValue
         public @NonNull Builder clearFilterDocumentIds() {
