@@ -16,6 +16,7 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.annotation.RestrictTo
 import kotlinx.serialization.json.JsonElement
 
 /** Base node for all schema of A2UI based on JSON Schema. */
@@ -35,7 +36,7 @@ public sealed class A2uiSchema {
      *
      * @return the [JsonElement] hierarchy representing this schema
      */
-    internal abstract fun toJsonElement(): JsonElement
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun toJsonElement(): JsonElement
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

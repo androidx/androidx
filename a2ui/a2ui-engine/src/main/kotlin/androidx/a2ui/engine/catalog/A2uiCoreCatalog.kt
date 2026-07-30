@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("A2uiCoreCatalogKt")
+
 package androidx.a2ui.engine.catalog
 
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
@@ -28,6 +30,14 @@ public interface A2uiCoreCatalog {
      */
     public val id: String
 
+    /** The title of this catalog. */
+    public val title: String?
+        get() = null
+
+    /** The description of this catalog. */
+    public val description: String?
+        get() = null
+
     /** The collection of component definitions available in this catalog. */
     public val componentDefinitions: A2uiCoreComponentDefinitionCollection
 
@@ -37,3 +47,10 @@ public interface A2uiCoreCatalog {
     /** The schema this catalog uses to define the theme the is applied over the components. */
     public val themeSchema: A2uiSchema?
 }
+
+/**
+ * Serializes this catalog to a JSON Schema string representation.
+ *
+ * @return the serialized catalog JSON Schema string
+ */
+public fun A2uiCoreCatalog.toJsonSchema(): String = serializeCatalogToJsonSchema(this)
