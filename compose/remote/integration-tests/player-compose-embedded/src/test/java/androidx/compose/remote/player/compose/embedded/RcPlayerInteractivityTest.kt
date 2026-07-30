@@ -179,7 +179,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -259,7 +259,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -317,7 +317,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -373,7 +373,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(100.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -437,7 +437,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -509,7 +509,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
 
@@ -625,7 +625,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
             rule.waitForIdle()
@@ -692,7 +692,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(400.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
             rule.waitForIdle()
@@ -754,7 +754,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
             rule.waitForIdle()
@@ -809,7 +809,6 @@ class RcPlayerInteractivityTest {
                 Box(modifier = Modifier.size(100.dp)) {
                     RcPlayer(
                         document = document,
-                        autoUpdate = true,
                         onNamedAction = { name, value, _ ->
                             firedName = name
                             firedValue = value
@@ -863,7 +862,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(200.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
             rule.waitForIdle()
@@ -912,7 +911,7 @@ class RcPlayerInteractivityTest {
 
             rule.setContent {
                 Box(modifier = Modifier.size(300.dp).testTag("playerParent")) {
-                    RcPlayer(document = document, autoUpdate = true)
+                    RcPlayer(document = document)
                 }
             }
             rule.waitForIdle()
@@ -947,9 +946,7 @@ class RcPlayerInteractivityTest {
                 }
 
             rule.setContent {
-                Box(modifier = Modifier.size(200.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
-                }
+                Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) }
             }
             rule.waitForIdle()
 
@@ -1008,9 +1005,7 @@ class RcPlayerInteractivityTest {
                 }
 
             rule.setContent {
-                Box(modifier = Modifier.size(300.dp)) {
-                    RcPlayer(document = document, autoUpdate = true)
-                }
+                Box(modifier = Modifier.size(300.dp)) { RcPlayer(document = document) }
             }
             rule.waitForIdle()
 
@@ -1082,7 +1077,7 @@ class RcPlayerInteractivityTest {
             // Verify it works
             rule.setContent {
                 Box(modifier = Modifier.size(100.dp)) {
-                    RcPlayer(capturedDocument = capturedDocument, autoUpdate = true)
+                    RcPlayer(capturedDocument = capturedDocument)
                 }
             }
             rule.waitForIdle()

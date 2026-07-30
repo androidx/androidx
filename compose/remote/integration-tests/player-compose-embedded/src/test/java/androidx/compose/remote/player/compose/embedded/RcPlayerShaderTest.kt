@@ -105,7 +105,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("gradient")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
@@ -158,7 +158,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("clipped")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
@@ -206,7 +206,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("canvastext")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
@@ -256,7 +256,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("textonpath")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
@@ -307,7 +307,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("anchoredtext")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
@@ -359,7 +359,7 @@ class RcPlayerShaderTest {
 
             rule.setContent {
                 Box(modifier = androidx.compose.ui.Modifier.size(100.dp).testTag("tweenpath")) {
-                    RcPlayer(document = document, autoUpdate = false)
+                    RcPlayer(document = document)
                 }
             }
             rule.mainClock.advanceTimeBy(100)
