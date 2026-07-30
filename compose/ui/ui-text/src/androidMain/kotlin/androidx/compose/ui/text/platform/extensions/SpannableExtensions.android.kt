@@ -56,6 +56,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intersect
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.style.CustomBulletSpan
 import androidx.compose.ui.text.platform.style.DrawStyleSpan
@@ -507,7 +508,8 @@ internal fun Spannable.setLocaleList(localeList: LocaleList?, start: Int, end: I
             if (Build.VERSION.SDK_INT >= 24) {
                 LocaleListHelperMethods.localeSpan(it)
             } else {
-                LocaleSpan(it.firstOrNull()?.platformLocale)
+                val locale = if (it.isEmpty()) Locale.current else it[0]
+                LocaleSpan(locale.platformLocale)
             },
             start,
             end,

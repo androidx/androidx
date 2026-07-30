@@ -103,7 +103,6 @@ class ParagraphIntegrationIndentationFixTest {
                 constraints = Constraints(maxWidth = width1),
                 density = Density(density = 1f),
                 fontFamilyResolver = UncachedFontFamilyResolver(getInstrumentation().context),
-                defaultLocale = TEST_LOCALE,
             )
 
         val width = subject.width.ceilToInt()
@@ -398,7 +397,6 @@ class ParagraphIntegrationIndentationFixTest {
             density = Density(density = 1f),
             fontFamilyResolver =
                 UncachedFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context),
-            defaultLocale = TEST_LOCALE,
         )
     }
 

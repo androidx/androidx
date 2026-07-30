@@ -829,7 +829,7 @@ internal fun resolveSpanStyleDefaults(style: SpanStyle) =
         baselineShift =
             (style.baselineShift ?: BaselineShift.None).takeOrElse { BaselineShift.None },
         textGeometricTransform = style.textGeometricTransform ?: TextGeometricTransform.None,
-        localeList = style.localeList,
+        localeList = style.localeList ?: LocaleList.current,
         background = style.background.takeOrElse { DefaultBackgroundColor },
         textDecoration = style.textDecoration ?: TextDecoration.None,
         shadow = style.shadow ?: Shadow.None,

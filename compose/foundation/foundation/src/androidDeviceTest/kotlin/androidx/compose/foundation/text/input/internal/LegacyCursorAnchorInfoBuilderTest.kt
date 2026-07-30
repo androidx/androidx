@@ -23,7 +23,6 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
 import android.view.inputmethod.CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION
 import android.view.inputmethod.CursorAnchorInfo.FLAG_IS_RTL
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
@@ -66,7 +65,6 @@ class LegacyCursorAnchorInfoBuilderTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
-    private val defaultLocale = TEST_LOCALE
     private val matrix = Matrix()
 
     @Test
@@ -691,7 +689,6 @@ class LegacyCursorAnchorInfoBuilderTest {
                 density = defaultDensity,
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 constraints = Constraints(maxWidth = intWidth),
             )
 
@@ -702,7 +699,6 @@ class LegacyCursorAnchorInfoBuilderTest {
                 constraints = Constraints(maxWidth = ceil(width).toInt()),
                 density = input.density,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 overflow = TextOverflow.Clip,
             )
 

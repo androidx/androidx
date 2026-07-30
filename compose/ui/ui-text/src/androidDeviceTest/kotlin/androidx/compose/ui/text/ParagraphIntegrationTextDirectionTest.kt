@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text
 
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDirection
@@ -27,6 +26,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,16 +36,29 @@ import org.junit.runner.RunWith
 @SmallTest
 class ParagraphIntegrationTextDirectionTest {
 
+    private lateinit var defaultLocale: Locale
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
     private val resourceLoader = UncachedFontFamilyResolver(context)
     private val ltrLocaleList = LocaleList("en")
     private val rtlLocaleList = LocaleList("ar")
-    private val rtlLocale = Locale("ar")
-    private val ltrLocale = Locale("en")
+    private val rtlLocale = Locale.forLanguageTag("ar")
+    private val ltrLocale = Locale.ENGLISH
+
+    @Before
+    fun before() {
+        defaultLocale = Locale.getDefault()
+    }
+
+    @After
+    fun after() {
+        Locale.setDefault(defaultLocale)
+    }
 
     @Test
     fun unspecifiedTextDirection_withLtrLocale_resolvesToLtr() {
+        Locale.setDefault(ltrLocale)
+
         val paragraph =
             Paragraph(
                 text = "",
@@ -51,7 +66,6 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocale = ltrLocale,
                 overflow = TextOverflow.Clip,
             )
 
@@ -60,6 +74,8 @@ class ParagraphIntegrationTextDirectionTest {
 
     @Test
     fun unspecifiedTextDirection_withRtlLocale_resolvesToRtl() {
+        Locale.setDefault(rtlLocale)
+
         val paragraph =
             Paragraph(
                 text = "",
@@ -67,7 +83,6 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocale = rtlLocale,
                 overflow = TextOverflow.Clip,
             )
 
@@ -87,7 +102,6 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocale = rtlLocale, // not used
                 overflow = TextOverflow.Clip,
             )
 
@@ -107,7 +121,6 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                defaultLocale = ltrLocale, // not used
                 overflow = TextOverflow.Clip,
             )
 

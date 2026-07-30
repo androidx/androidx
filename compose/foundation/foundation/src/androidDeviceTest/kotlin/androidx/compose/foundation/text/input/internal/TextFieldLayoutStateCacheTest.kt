@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.input.internal
 
 import android.graphics.Typeface
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setSelectionCoerced
@@ -38,7 +37,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -83,7 +81,6 @@ class TextFieldLayoutStateCacheTest {
     private var layoutDirection = LayoutDirection.Ltr
     private var fontFamilyResolver =
         createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
-    private var defaultLocale = TEST_LOCALE
     private var constraints = Constraints()
 
     private lateinit var globalWriteObserverHandle: ObserverHandle
@@ -319,15 +316,6 @@ class TextFieldLayoutStateCacheTest {
         constraints = Constraints.fixed(5, 5)
         assertInvalidationsOnChange(1) {
             constraints = Constraints.fixed(6, 5)
-            updateMeasureInputs()
-        }
-    }
-
-    @Test
-    fun updateMeasureInputs_invalidatesSnapshot_whenLocaleChanged() {
-        defaultLocale = Locale("ar")
-        assertInvalidationsOnChange(1) {
-            defaultLocale = TEST_LOCALE
             updateMeasureInputs()
         }
     }
@@ -1022,7 +1010,6 @@ class TextFieldLayoutStateCacheTest {
             density = density,
             layoutDirection = layoutDirection,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
             constraints = constraints,
         )
     }
