@@ -55,13 +55,15 @@ internal constructor(
         /**
          * Creates and attaches an [Anchor] at the given [pose].
          *
+         * Returns [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
+         * attempting to create the anchor.
+         *
+         * Returns [AnchorCreateTrackingUnavailable] if tracking was unavailable while attempting to
+         * create the anchor.
+         *
          * @param session the [Session] that is used to create the anchor
          * @param pose the [Pose] that describes the location and orientation of the anchor
          * @return a subtype of [AnchorResult] based on the result of the operation
-         * @throws [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
-         *   attempting to create the anchor
-         * @throws [AnchorCreateTrackingUnavailable] if tracking was unavailable while attempting to
-         *   create the anchor
          * @throws [AnchorRuntimeFailureException] if an unspecified error occurred in the runtime
          *   while attempting to create the anchor
          * @sample androidx.xr.arcore.samples.callCreateAnchor
@@ -106,14 +108,15 @@ internal constructor(
          * was previously persisted. The [uuid] should be the return value of a previous call to
          * [persist].
          *
+         * Returns [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
+         * attempting to create the anchor.
+         *
          * @param session the [Session] to load the anchor from
          * @param uuid the [UUID] of the anchor to load
          * @throws [IllegalStateException] if [Session.config] is set to
          *   [AnchorPersistenceMode.DISABLED]
          * @throws [AnchorInvalidUuidException] if [uuid] is not a [UUID] currently being tracked by
          *   the [Session]
-         * @throws [AnchorCreateResourcesExhausted] if the runtime has run out of resources while
-         *   attempting to create the anchor
          * @throws [AnchorNotAuthorizedException] if an authorization error occurred while
          *   attempting to create the anchor
          * @throws [AnchorRuntimeFailureException] if an unspecified error occurred in the runtime
