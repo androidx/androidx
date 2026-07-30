@@ -94,7 +94,7 @@ public class LineHeightStyle(
      * Test your text layout with tall scripts (e.g., Arabic "العَرَبِيَّةُ", Tibetan "དབུ་ཅན་", or
      * Burmese "မြန်မာဘာသာ") before using in production.
      */
-    @kotlin.jvm.JvmInline
+    @JvmInline
     public value class Trim internal constructor(internal val value: Int) {
 
         public override fun toString(): String {
@@ -198,11 +198,17 @@ public class LineHeightStyle(
                 get() = Trim(0)
         }
 
-        internal fun isTrimFirstLineTop(): Boolean {
+        /**
+         * Returns true if this [Trim] configuration trims the space at the top of the first line.
+         */
+        public fun isTrimFirstLineTop(): Boolean {
             return value and FlagTrimTop > 0
         }
 
-        internal fun isTrimLastLineBottom(): Boolean {
+        /**
+         * Returns true if this [Trim] configuration trims the space at the bottom of the last line.
+         */
+        public fun isTrimLastLineBottom(): Boolean {
             return value and FlagTrimBottom > 0
         }
     }
@@ -210,11 +216,11 @@ public class LineHeightStyle(
     /**
      * Aligns the line within the space provided by the line height.
      *
-     * @param topRatio the alignment ratio of the text. 0f aligns to top, 0.5f to center, 1f to
+     * @property topRatio the alignment ratio of the text. 0f aligns to top, 0.5f to center, 1f to
      *   bottom, and -1f aligns proportionally based on font metrics (ascent/descent ratio).
      */
-    @kotlin.jvm.JvmInline
-    public value class Alignment public constructor(internal val topRatio: Float) {
+    @JvmInline
+    public value class Alignment(public val topRatio: Float) {
 
         init {
             checkPrecondition(topRatio in 0f..1f || topRatio == -1f) {

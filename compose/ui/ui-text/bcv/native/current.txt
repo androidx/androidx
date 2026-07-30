@@ -622,6 +622,9 @@ final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose
     final value class Alignment { // androidx.compose.ui.text.style/LineHeightStyle.Alignment|null[0]
         constructor <init>(kotlin/Float) // androidx.compose.ui.text.style/LineHeightStyle.Alignment.<init>|<init>(kotlin.Float){}[0]
 
+        final val topRatio // androidx.compose.ui.text.style/LineHeightStyle.Alignment.topRatio|{}topRatio[0]
+            final fun <get-topRatio>(): kotlin/Float // androidx.compose.ui.text.style/LineHeightStyle.Alignment.topRatio.<get-topRatio>|<get-topRatio>(){}[0]
+
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Alignment.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.compose.ui.text.style/LineHeightStyle.Alignment.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // androidx.compose.ui.text.style/LineHeightStyle.Alignment.toString|toString(){}[0]
@@ -656,6 +659,8 @@ final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose
     final value class Trim { // androidx.compose.ui.text.style/LineHeightStyle.Trim|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.compose.ui.text.style/LineHeightStyle.Trim.hashCode|hashCode(){}[0]
+        final fun isTrimFirstLineTop(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.isTrimFirstLineTop|isTrimFirstLineTop(){}[0]
+        final fun isTrimLastLineBottom(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.isTrimLastLineBottom|isTrimLastLineBottom(){}[0]
         final fun toString(): kotlin/String // androidx.compose.ui.text.style/LineHeightStyle.Trim.toString|toString(){}[0]
 
         final object Companion { // androidx.compose.ui.text.style/LineHeightStyle.Trim.Companion|null[0]
