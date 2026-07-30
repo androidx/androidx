@@ -86,14 +86,22 @@ private constructor(
     /** Holds active [SavedStateHandle] instances. */
     private val stateHolder: StateHolder
         get() {
-            // Use backing field instead of lazy/ViewModelLazy to clear cache on store clear,
-            // resolving updated default args on re-query.
+            // Invalidate cached reference when cleared. Forces creation of a new StateHolder
+            // to prevent stale handle retention and memory leaks.
+            if (_stateHolder?.isCleared == true) {
+                _stateHolder = null
+            }
+
+            // Recreate StateHolder to reset state and resolve updated default args on new query.
             if (_stateHolder == null) {
                 val factory = viewModelFactory { initializer { StateHolder() } }
                 val provider = ViewModelProvider.create(owner = this, factory)
+
+                // Cache instance in backing field. Prevents ViewModelProvider.get() from throwing
+                // an exception when controller is accessed while Lifecycle is DESTROYED.
                 _stateHolder = provider.get<StateHolder>()
-                _stateHolder?.addCloseable(AutoCloseable { _stateHolder = null })
             }
+
             return _stateHolder!!
         }
 
@@ -183,6 +191,12 @@ private constructor(
         val handles = mutableMapOf<String, SavedStateHandle>()
         var restoredState: SavedState? = null
         var isRestored = false
+        var isCleared = false
+            private set
+
+        override fun onCleared() {
+            isCleared = true
+        }
     }
 
     companion object {
