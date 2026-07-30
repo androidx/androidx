@@ -76,10 +76,6 @@ internal data class ElementNode(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     node.hintText?.toString() ?: ""
                 } else ""
-            val drawingOrderInParent =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    node.drawingOrder
-                } else 0
 
             fun CharSequence?.orBlank() = this.toString()
             return ElementNode(
@@ -104,7 +100,7 @@ internal data class ElementNode(
                 bounds = node.boundsInScreen(),
                 children = childrenNodes.toSet(),
                 isLeaf = children.isEmpty(),
-                drawingOrderInParent = drawingOrderInParent,
+                drawingOrderInParent = node.drawingOrder,
                 accessibilityNodeInfo = node,
             )
         }

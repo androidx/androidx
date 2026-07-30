@@ -1542,16 +1542,8 @@ public class UiDevice implements Searchable {
     }
 
     UiAutomation getUiAutomation() {
-        UiAutomation uiAutomation;
         int flags = Configurator.getInstance().getUiAutomationFlags();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uiAutomation = Api24Impl.getUiAutomationWithRetry(getInstrumentation(), flags);
-        } else {
-            if (flags != Configurator.DEFAULT_UIAUTOMATION_FLAGS) {
-                Log.w(TAG, "UiAutomation flags not supported prior to API 24");
-            }
-            uiAutomation = getInstrumentation().getUiAutomation();
-        }
+        UiAutomation uiAutomation = getUiAutomationWithRetry(getInstrumentation(), flags);
 
         if (uiAutomation == null) {
             throw new NullPointerException("Got null UiAutomation from instrumentation.");
@@ -1613,25 +1605,20 @@ public class UiDevice implements Searchable {
         }
     }
 
-    @RequiresApi(24)
-    static class Api24Impl {
-        private Api24Impl() {
-        }
-
-        static UiAutomation getUiAutomationWithRetry(Instrumentation instrumentation, int flags) {
-            UiAutomation uiAutomation = null;
-            for (int i = 0; i < MAX_UIAUTOMATION_RETRY; i++) {
-                uiAutomation = instrumentation.getUiAutomation(flags);
-                if (uiAutomation != null) {
-                    break;
-                }
-                if (i < MAX_UIAUTOMATION_RETRY - 1) {
-                    Log.e(TAG, "Got null UiAutomation from instrumentation - Retrying...");
-                    SystemClock.sleep(UIAUTOMATION_RETRY_INTERVAL);
-                }
+    private static UiAutomation getUiAutomationWithRetry(
+            Instrumentation instrumentation, int flags) {
+        UiAutomation uiAutomation = null;
+        for (int i = 0; i < MAX_UIAUTOMATION_RETRY; i++) {
+            uiAutomation = instrumentation.getUiAutomation(flags);
+            if (uiAutomation != null) {
+                break;
             }
-            return uiAutomation;
+            if (i < MAX_UIAUTOMATION_RETRY - 1) {
+                Log.e(TAG, "Got null UiAutomation from instrumentation - Retrying...");
+                SystemClock.sleep(UIAUTOMATION_RETRY_INTERVAL);
+            }
         }
+        return uiAutomation;
     }
 
     @RequiresApi(30)
