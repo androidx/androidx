@@ -364,7 +364,9 @@ class PoseTest {
             )
 
         assertTranslation(underTest.translation, 0f, 0f, 0f)
-        assertRotation(underTest.rotation, 0f, 0f, 0f, 1f)
+        assertRotation(underTest.rotation, 0f, 1f, 0f, 0f)
+        // Assert that the pose forward vector points towards the target (+Z)
+        assertThat(underTest.forward).isEqualTo(Vector3(0f, 0f, 1f))
     }
 
     private fun rotate(result: Quaternion, vector: Vector3): Vector3 {

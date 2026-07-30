@@ -193,7 +193,10 @@ constructor(
         @JvmOverloads
         public fun fromLookAt(eye: Vector3, target: Vector3, up: Vector3 = Vector3.Up): Pose {
             val forward = (target - eye).toNormalized()
-            val rotation = fromLookTowards(forward, up)
+            // Since Quaternion.fromLookTowards aligns the local +Z axis (Vector3.Backward) with the
+            // target, we must pass the opposite direction to align local -Z (Vector3.Forward) with
+            // it, matching the Pose.forward definition.
+            val rotation = fromLookTowards(-forward, up)
 
             return Pose(eye, rotation)
         }
