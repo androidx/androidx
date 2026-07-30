@@ -17,15 +17,16 @@
 package androidx.pdf.signature
 
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
-import androidx.pdf.annotation.PdfViewportState
+import androidx.pdf.R
 import androidx.pdf.signature.model.Signature
 
 /** A custom [View] responsible for drawing a single signature onto a Canvas. */
 internal class SignatureView
 @JvmOverloads
-internal constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     View(context, attrs, defStyleAttr) {
 
     internal var signatureData: Signature? = null
@@ -38,11 +39,84 @@ internal constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr
             }
         }
 
-    private var currentZoom: Float = 1f
+    private val renderer: SignatureRenderer = SignatureRenderer(context)
 
-    internal fun updatePdfViewport(viewport: PdfViewportState) {
-        if (this.currentZoom != viewport.zoom) {
-            this.currentZoom = viewport.zoom
+    private var scaleFactor: Float = 1f
+
+    private val handleRadiusPx: Float =
+        context.resources.getDimension(R.dimen.pdf_signature_handle_radius)
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        val currentSignature = signatureData ?: return
+
+        val r = handleRadiusPx
+        val contentWidth = width - (r * 2)
+        val contentHeight = height - (r * 2)
+
+        if (contentWidth <= 0 || contentHeight <= 0) return
+
+        canvas.save()
+        canvas.translate(r, r)
+
+        when (currentSignature) {
+            is Signature.DrawnSignature ->
+                renderer.drawDrawnSignature(
+                    canvas,
+                    contentWidth,
+                    contentHeight,
+                    currentSignature.drawnPath,
+                    scaleFactor,
+                )
+            is Signature.TypedSignature ->
+                renderer.drawTypedSignature(
+                    canvas,
+                    contentWidth,
+                    contentHeight,
+                    currentSignature.typedText,
+                    currentSignature.typedFont,
+                )
+            is Signature.UploadedSignature ->
+                renderer.drawUploadedSignature(
+                    canvas,
+                    contentWidth,
+                    contentHeight,
+                    currentSignature.imageBitmap,
+                )
+            else -> {}
+        }
+
+        canvas.restore()
+        drawSizeHandles(canvas)
+    }
+
+    private fun drawSizeHandles(canvas: Canvas) {
+        val r = handleRadiusPx
+        if (signatureData?.isSelected == true) {
+            val w = width.toFloat()
+            val h = height.toFloat()
+            val midX = w / 2f
+            val midY = h / 2f
+
+            canvas.drawRect(r, r, w - r, h - r, renderer.borderPaint)
+
+            canvas.drawCircle(r, r, r, renderer.handlePaint)
+            canvas.drawCircle(w - r, r, r, renderer.handlePaint)
+            canvas.drawCircle(r, h - r, r, renderer.handlePaint)
+            canvas.drawCircle(w - r, h - r, r, renderer.handlePaint)
+
+            canvas.drawCircle(midX, r, r, renderer.handlePaint)
+            canvas.drawCircle(midX, h - r, r, renderer.handlePaint)
+            canvas.drawCircle(r, midY, r, renderer.handlePaint)
+            canvas.drawCircle(w - r, midY, r, renderer.handlePaint)
+        }
+    }
+
+    internal fun updatePdfViewport(scaleFactor: Float) {
+        if (this.scaleFactor != scaleFactor) {
+            this.scaleFactor = scaleFactor
+            invalidate()
         }
     }
 
