@@ -116,6 +116,10 @@ class MainActivity : AppCompatActivity() {
                         Intent(this, PrefetchActivity::class.java),
                     ),
                     MenuListView.MenuItem(
+                        getResources().getString(R.string.preconnect_activity_title),
+                        Intent(this, PreconnectActivity::class.java),
+                    ),
+                    MenuListView.MenuItem(
                         getResources().getString(R.string.http_cache_quota_activity_title),
                         Intent(this, HttpCacheQuotaActivity::class.java),
                     ),
