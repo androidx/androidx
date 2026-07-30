@@ -32,8 +32,9 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheWindow) :
-    LazyGridPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
+internal class LazyGridCacheWindowPrefetchStrategy(
+    override val cacheWindow: LazyLayoutCacheWindow
+) : LazyGridPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
     private val cacheWindowScope = LazyGridCacheWindowScope()
 
     override fun LazyGridPrefetchScope.onScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) {
@@ -45,7 +46,15 @@ internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheW
     }
 
     override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) {
-        repeat(nestedPrefetchItemCount) { schedulePrecomposition(firstVisibleItemIndex + it) }
+        val resolvedNestedPrefetchItemCount =
+            if (nestedPrefetchItemCount == -1) {
+                DefaultNestedPrefetchCount
+            } else {
+                nestedPrefetchItemCount
+            }
+        repeat(resolvedNestedPrefetchItemCount) {
+            schedulePrecomposition(firstVisibleItemIndex + it)
+        }
     }
 
     /** Adapts the LazyGridPrefetchScope and LazyGridLayoutInfo to a single scope. */
@@ -60,7 +69,7 @@ internal class LazyGridCacheWindowPrefetchStrategy(cacheWindow: LazyLayoutCacheW
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private class LazyGridCacheWindowScope() : CacheWindowScope {
+private class LazyGridCacheWindowScope : CacheWindowScope {
     lateinit var layoutInfo: LazyGridLayoutInfo
     lateinit var prefetchScope: LazyGridPrefetchScope
 
@@ -179,3 +188,7 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
         return measureResult.lineIndexProvider.invoke(totalItemsCount - 1)
     }
 }
+
+// we use 2 here because nested grid has usually > 1 visible elements, so 2 is the minimum
+// logical value we could use.
+private const val DefaultNestedPrefetchCount = 2

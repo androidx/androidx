@@ -78,7 +78,7 @@ public fun rememberLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyGridState {
-    return rememberSaveable(saver = LazyGridState.Saver) {
+    return rememberSaveable(saver = Saver) {
         LazyGridState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset)
     }
 }
@@ -96,6 +96,9 @@ public fun rememberLazyGridState(
  *   grid
  */
 @ExperimentalFoundationApi
+@Deprecated(
+    """Providing `LazyLayoutCacheWindow` via the `Lazy[Orientation]Grid` composable should be preferred over using `LazyGridPrefetchStrategy` here."""
+)
 @Composable
 public fun rememberLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -103,6 +106,7 @@ public fun rememberLazyGridState(
     prefetchStrategy: LazyGridPrefetchStrategy = remember { LazyGridPrefetchStrategy() },
 ): LazyGridState {
     return rememberSaveable(prefetchStrategy, saver = LazyGridState.saver(prefetchStrategy)) {
+        @Suppress("DEPRECATION")
         LazyGridState(
             initialFirstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset,
@@ -124,6 +128,9 @@ public fun rememberLazyGridState(
  *   [LazyGridState.firstVisibleItemScrollOffset]
  */
 @ExperimentalFoundationApi
+@Deprecated(
+    """Providing `LazyLayoutCacheWindow` via the `Lazy[Orientation]Grid` composable should be preferred over providing it via state."""
+)
 @Composable
 public fun rememberLazyGridState(
     cacheWindow: LazyLayoutCacheWindow,
@@ -131,6 +138,7 @@ public fun rememberLazyGridState(
     initialFirstVisibleItemScrollOffset: Int = 0,
 ): LazyGridState {
     return rememberSaveable(cacheWindow, saver = LazyGridState.saver(cacheWindow)) {
+        @Suppress("DEPRECATION")
         LazyGridState(
             cacheWindow,
             initialFirstVisibleItemIndex,
@@ -139,26 +147,36 @@ public fun rememberLazyGridState(
     }
 }
 
-/**
- * A state object that can be hoisted to control and observe scrolling.
- *
- * In most cases, this will be created via [rememberLazyGridState].
- *
- * @param firstVisibleItemIndex the initial value for [LazyGridState.firstVisibleItemIndex]
- * @param firstVisibleItemScrollOffset the initial value for
- *   [LazyGridState.firstVisibleItemScrollOffset]
- * @param prefetchStrategy the [LazyGridPrefetchStrategy] to use for prefetching content in this
- *   grid
- */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
 public class LazyGridState
 @ExperimentalFoundationApi
-public constructor(
+internal constructor(
+    internal val legacyPrefetchStrategy: LazyGridPrefetchStrategy?,
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
-    internal val prefetchStrategy: LazyGridPrefetchStrategy = LazyGridPrefetchStrategy(),
 ) : ScrollableState {
+
+    /**
+     * A state object that can be hoisted to control and observe scrolling.
+     *
+     * In most cases, this will be created via [rememberLazyGridState].
+     *
+     * @param firstVisibleItemIndex the initial value for [LazyGridState.firstVisibleItemIndex]
+     * @param firstVisibleItemScrollOffset the initial value for
+     *   [LazyGridState.firstVisibleItemScrollOffset]
+     * @param prefetchStrategy the [LazyGridPrefetchStrategy] to use for prefetching content in this
+     *   grid
+     */
+    @ExperimentalFoundationApi
+    @Deprecated(
+        """`LazyGridPrefetchStrategy` is deprecated. Prefetching behaviour should be specified via the lazy grid composable arguments as a `CacheWindow`."""
+    )
+    public constructor(
+        firstVisibleItemIndex: Int = 0,
+        firstVisibleItemScrollOffset: Int = 0,
+        prefetchStrategy: LazyGridPrefetchStrategy = LazyGridPrefetchStrategy(),
+    ) : this(prefetchStrategy, firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     /**
      * @param cacheWindow specifies the size of the ahead and behind window to be used as per
@@ -168,14 +186,17 @@ public constructor(
      *   [LazyGridState.firstVisibleItemScrollOffset]
      */
     @ExperimentalFoundationApi
+    @Deprecated(
+        """`CacheWindow` is now specified via the lazy grid composable arguments as `CacheWindow`."""
+    )
     public constructor(
         cacheWindow: LazyLayoutCacheWindow,
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
     ) : this(
+        LazyGridCacheWindowPrefetchStrategy(cacheWindow),
         firstVisibleItemIndex,
         firstVisibleItemScrollOffset,
-        LazyGridCacheWindowPrefetchStrategy(cacheWindow),
     )
 
     /**
@@ -186,7 +207,7 @@ public constructor(
     public constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
-    ) : this(firstVisibleItemIndex, firstVisibleItemScrollOffset, LazyGridPrefetchStrategy())
+    ) : this(null, firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     internal var hasLookaheadOccurred: Boolean = false
         private set
@@ -312,15 +333,31 @@ public constructor(
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
-    @Suppress("DEPRECATION") // b/420551535
-    internal val prefetchState =
-        LazyLayoutPrefetchState(prefetchStrategy.prefetchScheduler) {
-            with(prefetchStrategy) {
-                onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
+    /**
+     * [legacyPrefetchState] will always be null if [LazyGridState] is constructed without
+     * specifying either a [LazyLayoutCacheWindow] or a [LazyGridPrefetchStrategy] explicitly.
+     */
+    internal val legacyPrefetchState =
+        legacyPrefetchStrategy?.let { legacyPrefetchStrategy ->
+            @Suppress("DEPRECATION") // b/420551535
+            LazyLayoutPrefetchState(legacyPrefetchStrategy.prefetchScheduler) {
+                with(legacyPrefetchStrategy) {
+                    onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
+                }
             }
         }
 
-    private val prefetchScope: LazyGridPrefetchScope =
+    private val prefetchState
+        get() =
+            Snapshot.withoutReadObservation { layoutInfoState.value.prefetchState }
+                ?: legacyPrefetchState
+
+    private val prefetchStrategy
+        get() =
+            Snapshot.withoutReadObservation { layoutInfoState.value.prefetchStrategy }
+                ?: legacyPrefetchStrategy
+
+    private val prefetchScope: LazyGridPrefetchScope by lazy {
         object : LazyGridPrefetchScope {
             override fun scheduleLinePrefetch(
                 lineIndex: Int
@@ -352,8 +389,8 @@ public constructor(
                         var completedCount = 1
                         val itemsInLineInfo = measureResult.prefetchInfoRetriever(lineIndex)
                         itemsInLineInfo.fastForEach { lineInfo ->
-                            prefetchHandles.add(
-                                prefetchState.schedulePrecompositionAndPremeasure(
+                            val prefetchHandle =
+                                prefetchState?.schedulePrecompositionAndPremeasure(
                                     lineInfo.first,
                                     lineInfo.second,
                                     executeRequestsInHighPriorityMode,
@@ -383,13 +420,17 @@ public constructor(
                                         completedCount++
                                     }
                                 }
-                            )
+
+                            if (prefetchHandle != null) {
+                                prefetchHandles.add(prefetchHandle)
+                            }
                         }
                     }
                 }
                 return prefetchHandles
             }
         }
+    }
 
     private val _scrollIndicatorState =
         object : ScrollIndicatorState {
@@ -620,11 +661,12 @@ public constructor(
         }
     }
 
-    private fun notifyPrefetchOnScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) {
-        if (prefetchingEnabled) {
-            with(prefetchStrategy) { prefetchScope.onScroll(delta, layoutInfo) }
+    private fun notifyPrefetchOnScroll(delta: Float, layoutInfo: LazyGridLayoutInfo) =
+        prefetchStrategy?.apply {
+            if (prefetchingEnabled) {
+                prefetchScope.onScroll(delta, layoutInfo)
+            }
         }
-    }
 
     private val numOfItemsToTeleport: Int
         get() = 100 * slotsPerLine
@@ -655,7 +697,7 @@ public constructor(
     ) {
         // update the prefetch state with the number of nested prefetch items this layout
         // should use.
-        prefetchState.idealNestedPrefetchCount = result.visibleItemsInfo.size
+        result.prefetchState?.idealNestedPrefetchCount = result.visibleItemsInfo.size
 
         if (!isLookingAhead && hasLookaheadOccurred) {
             // If there was already a lookahead pass, record this result as Approach result
@@ -690,8 +732,10 @@ public constructor(
                 scrollPosition.updateScrollOffset(result.firstVisibleLineScrollOffset)
             } else {
                 scrollPosition.updateFromMeasureResult(result)
-                if (prefetchingEnabled) {
-                    with(prefetchStrategy) { prefetchScope.onVisibleItemsUpdated(result) }
+                prefetchStrategy?.apply {
+                    if (prefetchingEnabled) {
+                        prefetchScope.onVisibleItemsUpdated(result)
+                    }
                 }
             }
 
@@ -743,6 +787,7 @@ public constructor(
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {
+                    @Suppress("DEPRECATION")
                     LazyGridState(
                         firstVisibleItemIndex = it[0],
                         firstVisibleItemScrollOffset = it[1],
@@ -759,6 +804,7 @@ public constructor(
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {
+                    @Suppress("DEPRECATION")
                     LazyGridState(
                         cacheWindow = cacheWindow,
                         firstVisibleItemIndex = it[0],
@@ -769,6 +815,7 @@ public constructor(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private val EmptyLazyGridLayoutInfo =
     LazyGridMeasureResult(
         firstVisibleLine = null,
@@ -801,4 +848,6 @@ private val EmptyLazyGridLayoutInfo =
         prefetchInfoRetriever = { emptyList() },
         lineIndexProvider = { -1 },
         stickingItemsCombinedSize = 0,
+        prefetchState = null,
+        prefetchStrategy = null,
     )
