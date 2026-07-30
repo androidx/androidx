@@ -32,8 +32,8 @@ import kotlin.jvm.JvmName
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended adaptive layout
- * settings of the current activity window.
+ * method with [androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2] to acquire
+ * Material-recommended adaptive layout settings of the current activity window.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
@@ -107,12 +107,12 @@ public fun calculatePaneScaffoldDirective(
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended dense-mode adaptive
- * layout settings of the current activity window. Note that this function results in a dual-pane
- * layout when the window width falls in the Medium size bucket, while
- * [calculatePaneScaffoldDirective] results in a single-pane layout instead. We recommend to use
- * [calculatePaneScaffoldDirective], unless you have a strong use case to show two panes on a
- * medium-width window, which can make your layout look too packed.
+ * method with [androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2] to acquire
+ * Material-recommended dense-mode adaptive layout settings of the current activity window. Note
+ * that this function results in a dual-pane layout when the window width falls in the Medium size
+ * bucket, while [calculatePaneScaffoldDirective] results in a single-pane layout instead. We
+ * recommend to use [calculatePaneScaffoldDirective], unless you have a strong use case to show two
+ * panes on a medium-width window, which can make your layout look too packed.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).

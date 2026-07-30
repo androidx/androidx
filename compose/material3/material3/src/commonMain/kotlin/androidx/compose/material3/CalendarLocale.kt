@@ -23,14 +23,14 @@ import androidx.compose.runtime.ReadOnlyComposable
  * Represents a Locale for the calendar. This locale will be used when formatting dates, determining
  * the input format, and more.
  *
- * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
+ * Note: For JVM based platforms, this would be equivalent to `java.util.Locale`.
  */
 public expect class CalendarLocale
 
 /**
  * Returns the default [CalendarLocale].
  *
- * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
+ * Note: For JVM based platforms, this would be equivalent to `java.util.Locale.getDefault`.
  */
 @Composable @ReadOnlyComposable internal expect fun defaultLocale(): CalendarLocale
 
