@@ -41,6 +41,8 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.RequiresApiAnnota
 import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.findAnnotation
 import androidx.appfunctions.compiler.core.fromCamelCaseToScreamingSnakeCase
+import androidx.appfunctions.compiler.core.isOfType
+import androidx.appfunctions.compiler.core.isParametrized
 import androidx.appfunctions.compiler.core.logException
 import androidx.appfunctions.compiler.core.toTypeName
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -57,6 +59,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LIST
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -304,16 +307,28 @@ class AppFunctionServiceEntryPointProcessor(
             for (appFunction in serviceEntryPoint.appFunctions) {
                 val function = appFunction.appFunctionDeclaration
                 beginControlFlow("%L ->", getFunctionIdConstantPropertyName(appFunction))
+                if (appFunction.isDeprecated) {
+                    add("@Suppress(\"DEPRECATION\")\n")
+                }
                 add("this.%N(\n", function.simpleName.asString())
                 indent()
                 for (param in function.parameters) {
                     val paramName = param.name!!.asString()
-                    addStatement(
-                        "%L[%S] as %T,",
-                        innerParametersName,
-                        paramName,
-                        param.type.toTypeName(),
-                    )
+                    if (param.type.isOfType(LIST) || param.type.isParametrized()) {
+                        addStatement(
+                            "@Suppress(\"UNCHECKED_CAST\") (%L[%S] as %T),",
+                            innerParametersName,
+                            paramName,
+                            param.type.toTypeName(),
+                        )
+                    } else {
+                        addStatement(
+                            "%L[%S] as %T,",
+                            innerParametersName,
+                            paramName,
+                            param.type.toTypeName(),
+                        )
+                    }
                 }
                 unindent()
                 addStatement(")")

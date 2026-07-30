@@ -40,6 +40,10 @@ android {
     }
 }
 
+ksp {
+    arg("appfunctions:generateV1Xml", "true")
+}
+
 dependencies {
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
@@ -58,10 +62,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.kotlinTest)
-}
-
-ksp {
-    arg("appfunctions:aggregateAppFunctions", "true")
 }
 
 // Define a configuration that can be consumed, as this project is a provider of test apks for
