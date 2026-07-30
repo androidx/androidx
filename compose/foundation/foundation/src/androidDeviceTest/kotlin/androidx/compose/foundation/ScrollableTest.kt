@@ -1353,6 +1353,59 @@ class ScrollableTest {
     }
 
     @Test
+    fun scrollable_blocksDownEvents_ifOverscrollSettling() {
+        val mockOverscroll =
+            object : OverscrollEffect {
+                override fun applyToScroll(
+                    delta: Offset,
+                    source: NestedScrollSource,
+                    performScroll: (Offset) -> Offset,
+                ): Offset = performScroll(delta)
+
+                override suspend fun applyToFling(
+                    velocity: Velocity,
+                    performFling: suspend (Velocity) -> Velocity,
+                ) {
+                    performFling(velocity)
+                }
+
+                // Mark this overscroll as always settling. This should block clicks while true
+                override val isInProgress: Boolean
+                    get() = true
+            }
+
+        val scrollableState = ScrollableState(consumeScrollDelta = { it })
+        rule.setContent {
+            Box {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        Modifier.size(300.dp)
+                            .scrollable(
+                                orientation = Orientation.Horizontal,
+                                state = scrollableState,
+                                overscrollEffect = mockOverscroll,
+                            ),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.size(300.dp).testTag(scrollableBoxTag).clickable {
+                                assertWithMessage(
+                                        "Clickable shouldn't click when overscroll settling"
+                                    )
+                                    .fail()
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTouchInput { click(this.center) }
+
+        // shouldn't assert in clickable lambda
+    }
+
+    @Test
     fun scrollable_snappingScrolling() {
         var total = 0f
         val scrollableState =
