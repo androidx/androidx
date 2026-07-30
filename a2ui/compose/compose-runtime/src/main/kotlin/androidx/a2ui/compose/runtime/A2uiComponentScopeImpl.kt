@@ -26,14 +26,12 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import kotlinx.coroutines.CoroutineScope
 
 @Stable
 internal class A2uiComponentScopeImpl(
     private val id: String,
     private val baseDataPath: A2uiDataPath,
     private val surface: A2uiCoreSurfaceModel,
-    private val surfaceScope: CoroutineScope,
 ) : A2uiComponentScope {
 
     private val resolver = A2uiCoreValueResolver { path -> surface.dataModel[path] }
@@ -53,7 +51,6 @@ internal class A2uiComponentScopeImpl(
             id = id,
             baseDataPath = resolvedDataPath,
             surface = surface,
-            surfaceScope = surfaceScope,
         )
     }
 

@@ -22,8 +22,6 @@ import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * Represents the state of an A2UI component instance.
@@ -88,22 +86,18 @@ public sealed interface A2uiComponentState {
  * @return The reactive state of the root component.
  */
 @Composable
-public fun observeA2uiComponentState(surface: A2uiCoreSurfaceModel): A2uiComponentState {
-    val surfaceScope = rememberCoroutineScope()
-    return observeA2uiComponentState(
+public fun observeA2uiComponentState(surface: A2uiCoreSurfaceModel): A2uiComponentState =
+    observeA2uiComponentState(
         id = RootComponentId,
         baseDataPath = RootComponentDataPath,
         surface = surface,
-        surfaceScope = surfaceScope,
     )
-}
 
 @Composable
 internal fun observeA2uiComponentState(
     id: String,
     baseDataPath: A2uiDataPath,
     surface: A2uiCoreSurfaceModel,
-    surfaceScope: CoroutineScope,
 ): A2uiComponentState {
     val registry =
         surface.componentRegistry as? A2uiComponentRegistry
@@ -113,9 +107,7 @@ internal fun observeA2uiComponentState(
     val record = registry.get(id)
 
     val scope =
-        remember(id, baseDataPath, surface) {
-            A2uiComponentScopeImpl(id, baseDataPath, surface, surfaceScope)
-        }
+        remember(id, baseDataPath, surface) { A2uiComponentScopeImpl(id, baseDataPath, surface) }
 
     val state =
         remember(record, surface, scope) {
