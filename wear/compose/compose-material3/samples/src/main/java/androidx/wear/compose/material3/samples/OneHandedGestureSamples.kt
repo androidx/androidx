@@ -40,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.AmbientMode
+import androidx.wear.compose.foundation.LocalAmbientModeManager
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
@@ -47,8 +49,10 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.foundation.rememberAmbientModeManager
 import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.ScreenScaffold
@@ -99,6 +103,57 @@ fun OneHandedGestureButtonSample() {
         ) {
             OneHandedGestureClickIndicator(gestureConfig, indicatorState) {
                 Text(label, modifier = Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun OneHandedGestureButtonInAmbientSample() {
+    var label by remember { mutableStateOf("Gesturable Button") }
+    val onClick = { label = "Clicked/Gestured" }
+    val interactionSource = remember { MutableInteractionSource() }
+    val gestureConfig =
+        rememberOneHandedGestureConfiguration(action = OneHandedGestureAction.Primary)
+    val indicatorState = remember { OneHandedGestureClickIndicatorState() }
+    val coroutineScope = rememberCoroutineScope()
+    val activityAmbientModeManager = rememberAmbientModeManager()
+    var showGestureIndicator by remember { mutableStateOf(true) }
+
+    CompositionLocalProvider(LocalAmbientModeManager provides activityAmbientModeManager) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val isInAmbientMode =
+                LocalAmbientModeManager.current?.currentAmbientMode is AmbientMode.Ambient
+            Button(
+                onClick = onClick,
+                interactionSource = interactionSource,
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            interactionSource = interactionSource,
+                            enabledInAmbient = true,
+                            onGestureLabel = "activate the button",
+                            onGestureAvailable = {
+                                // Bypass repeating the gesture indicator on every recomposition.
+                                if (showGestureIndicator) {
+                                    coroutineScope.launch { indicatorState.showIndicator() }
+                                    showGestureIndicator = false
+                                }
+                            },
+                            onGesture = onClick,
+                        ),
+                colors =
+                    if (isInAmbientMode) ButtonDefaults.outlinedButtonColors()
+                    else ButtonDefaults.buttonColors(),
+                border =
+                    if (isInAmbientMode) ButtonDefaults.outlinedButtonBorder(enabled = true)
+                    else null,
+            ) {
+                OneHandedGestureClickIndicator(gestureConfig, indicatorState) {
+                    Text(label, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }

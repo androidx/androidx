@@ -73,6 +73,11 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
  *
+ * Example of adding one-handed gesture handler that is enabled in ambient mode to a
+ * [androidx.wear.compose.material3.Button]:
+ *
+ * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonInAmbientSample
+ *
  * Example of adding one-handed gesture handler to a
  * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]:
  *
