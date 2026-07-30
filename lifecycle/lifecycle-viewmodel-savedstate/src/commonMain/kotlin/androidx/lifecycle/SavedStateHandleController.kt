@@ -17,7 +17,6 @@
 package androidx.lifecycle
 
 import androidx.lifecycle.SavedStateHandleController.Companion.SAVED_STATE_KEY
-import androidx.lifecycle.SavedStateHandleController.Companion.getOrCreate
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -40,15 +39,15 @@ import androidx.savedstate.write
  * controller under [SAVED_STATE_KEY] without creating handles. Later during [ViewModel] creation,
  * [CreationExtras.createSavedStateHandle] retrieves the controller and calls [getOrCreateHandle] to
  * build the handle. In the legacy pathway, factories like [SavedStateViewModelFactory] receive the
- * [SavedStateRegistryOwner] directly and call [getOrCreate] to construct and register the
- * controller, then invoke [getOrCreateHandle].
+ * [SavedStateRegistryOwner] directly and call [getOrPut] to construct and register the controller,
+ * then invoke [getOrCreateHandle].
  *
  * **State Persistence and Reattachment:** All active handles are retained in [StateHolder] (a
  * [ViewModel] subclass) to survive configuration changes. Because the [SavedStateRegistry] is
  * recreated from scratch on rotation, the controller reattaches itself to the new registry when
- * [getOrCreate] is called during [ViewModel] instantiation on the recreated host, re-registering
- * under [SAVED_STATE_KEY]. During state saving, the controller collects handle states and
- * serializes them into a nested [SavedState] map. Component relationships are visualized below:
+ * [getOrPut] is called during [ViewModel] instantiation on the recreated host, re-registering under
+ * [SAVED_STATE_KEY]. During state saving, the controller collects handle states and serializes them
+ * into a nested [SavedState] map. Component relationships are visualized below:
  * ```
  *       +---------------------------------+      +---------------------------------+
  *       |     SavedStateRegistryOwner     |      |       ViewModelStoreOwner       |
@@ -255,20 +254,6 @@ private constructor(
                 }
             }
             return controller
-        }
-
-        /**
-         * Returns the existing [SavedStateHandleController] or creates and registers a new one.
-         *
-         * @param owner component registry owner implementing [ViewModelStoreOwner]
-         * @return controller instance
-         * @throws IllegalArgumentException if [owner] is not a [ViewModelStoreOwner]
-         */
-        internal fun getOrCreate(owner: SavedStateRegistryOwner): SavedStateHandleController {
-            require(owner is ViewModelStoreOwner) {
-                "SavedStateRegistryOwner must implement ViewModelStoreOwner to support SavedStateHandles"
-            }
-            return getOrCreate(owner, owner)
         }
     }
 }

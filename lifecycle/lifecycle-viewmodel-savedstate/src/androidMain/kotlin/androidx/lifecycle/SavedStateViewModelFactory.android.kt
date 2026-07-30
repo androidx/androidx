@@ -44,7 +44,8 @@ import kotlin.reflect.KClass
  */
 public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
     private val application: Application?
-    private val owner: SavedStateRegistryOwner?
+    private val savedStateRegistryOwner: SavedStateRegistryOwner?
+    private val viewModelStoreOwner: ViewModelStoreOwner?
     private val defaultArgs: Bundle?
     private val factory: ViewModelProvider.Factory
 
@@ -57,7 +58,8 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      */
     public actual constructor() {
         this.application = null
-        this.owner = null
+        this.savedStateRegistryOwner = null
+        this.viewModelStoreOwner = null
         this.defaultArgs = null
         this.factory = AndroidViewModelFactory()
     }
@@ -86,6 +88,7 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
      * @param owner [SavedStateRegistryOwner] that will provide restored state for created
      *   [ViewModel]s. Must implement [ViewModelStoreOwner] to support state retention.
      * @param defaultArgs default values to populate the [SavedStateHandle] if no state is restored
+     * @throws IllegalArgumentException if the [owner] does not implement [ViewModelStoreOwner]
      */
     @SuppressLint("LambdaLast")
     public constructor(
@@ -93,7 +96,11 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
         owner: SavedStateRegistryOwner,
         defaultArgs: Bundle?,
     ) {
-        this.owner = owner
+        require(owner is ViewModelStoreOwner) {
+            "SavedStateRegistryOwner must implement ViewModelStoreOwner to support SavedStateHandles"
+        }
+        this.savedStateRegistryOwner = owner
+        this.viewModelStoreOwner = owner
         this.defaultArgs = defaultArgs
         this.application = application
         this.factory =
@@ -123,7 +130,7 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
                 extras[VIEW_MODEL_STORE_OWNER_KEY] != null
 
         if (!hasCreationExtras) {
-            checkNotNull(owner) {
+            checkNotNull(savedStateRegistryOwner) {
                 "SAVED_STATE_REGISTRY_OWNER_KEY and VIEW_MODEL_STORE_OWNER_KEY must be provided " +
                     "in the creation extras to successfully create a ViewModel."
             }
@@ -166,7 +173,7 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
     public fun <T : ViewModel> create(key: String, modelClass: Class<T>): T {
         // Fail fast if instantiated via the empty constructor, as that requires
         // the modern CreationExtras pathway to provide the SavedStateRegistryOwner.
-        if (owner == null) {
+        if (savedStateRegistryOwner == null || viewModelStoreOwner == null) {
             throw UnsupportedOperationException(
                 "SavedStateViewModelFactory constructed with empty constructor supports only " +
                     "calls to create(modelClass: Class<T>, extras: CreationExtras)."
@@ -195,8 +202,9 @@ public actual class SavedStateViewModelFactory : ViewModelProvider.Factory {
             }
         }
 
-        val controller = SavedStateHandleController.getOrCreate(owner)
-        controller.attachSavedStateHandleOnNextRecreation()
+        val controller =
+            SavedStateHandleController.getOrCreate(savedStateRegistryOwner, viewModelStoreOwner)
+        attachSavedStateHandleOnNextRecreation(savedStateRegistryOwner, controller)
         val handle = controller.getOrCreateHandle(key, defaultArgs)
         val viewModel =
             if (isAndroidViewModel && hasApplication) {
