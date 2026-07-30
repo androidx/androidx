@@ -106,6 +106,11 @@ abstract class ClangBuildService @Inject constructor(private val execOperations:
         return parameters.konanHome.dir("klib/common/stdlib")
     }
 
+    /** A directory containing a subdirectory of klibs for each target. */
+    fun platformKlibDir(): Provider<Directory> {
+        return parameters.konanHome.dir("klib/platform")
+    }
+
     interface Parameters : BuildServiceParameters {
         /** KONAN_HOME parameter for initializing konan */
         val konanHome: DirectoryProperty
