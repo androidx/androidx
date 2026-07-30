@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyList
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -62,7 +63,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
     }
 
     private val pageSizePx = 30
-    private val oageSizeDp = with(rule.density) { pageSizePx.toDp() }
+    private val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
     private val scheduler = TestPrefetchScheduler()
 
     @Test
@@ -71,7 +72,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
         composeListOfPagers(listState)
         val prefetchIndex = 2
         val actions = trackingActions {
-            rule.runOnIdle { runBlocking { listState.scrollBy(5f) } }
+            rule.runOnIdle { runBlocking { listState.scrollBy(pageSizePx.toFloat()) } }
             waitForPrefetch()
         }
 
@@ -101,7 +102,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
             runBlocking {
                 // this will move the viewport so pages 1-2 are visible
                 // and schedule a prefetching for 3
-                listState.scrollBy(pageSizePx * 2f)
+                listState.scrollBy(pageSizePx * 3f)
             }
         }
 
@@ -146,7 +147,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
         composeListOfPagers(listState) { PagerState(currentPage = 4) { 10 } }
         val prefetchIndex = 2
         val actions = trackingActions {
-            rule.runOnIdle { runBlocking { listState.scrollBy(5f) } }
+            rule.runOnIdle { runBlocking { listState.scrollBy(pageSizePx.toFloat()) } }
             waitForPrefetch()
         }
 
@@ -191,7 +192,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
     ) {
         rule.setContent {
             LazyList(
-                modifier = Modifier.size(oageSizeDp * 2.5f),
+                modifier = Modifier.size(pageSizeDp * 2.5f),
                 contentPadding = PaddingValues(0.dp),
                 flingBehavior = ScrollableDefaults.flingBehavior(),
                 isVertical = !vertical,
@@ -203,21 +204,22 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Top,
                 horizontalAlignment = Alignment.Start,
+                cacheWindow = LazyLayoutCacheWindow(0.25f),
             ) {
                 items(100) { index ->
                     TrackActiveNodesEffect(index)
                     val nestedState = remember(index) { createNestedPagerState(index) }
                     HorizontalOrVerticalPager(
                         modifier =
-                            Modifier.size(oageSizeDp * 2)
+                            Modifier.size(pageSizeDp * 2)
                                 .testTag(tagFor(index))
                                 .trackWhenMeasured(index),
                         state = nestedState,
-                        pageSize = PageSize.Fixed(oageSizeDp),
+                        pageSize = PageSize.Fixed(pageSizeDp),
                     ) { page ->
                         TrackActiveNodesEffect(index, page)
                         Spacer(
-                            Modifier.size(oageSizeDp)
+                            Modifier.size(pageSizeDp)
                                 .testTag(tagFor(index, page))
                                 .trackWhenMeasured(index, page)
                         )

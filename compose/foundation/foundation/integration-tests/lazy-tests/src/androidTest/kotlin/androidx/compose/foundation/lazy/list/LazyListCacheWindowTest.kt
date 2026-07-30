@@ -204,8 +204,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         val items = mutableStateOf(listOf("a", "b", "c", "d", "e"))
 
         rule.setContent {
-            @OptIn(ExperimentalFoundationApi::class)
-            state = rememberLazyListState(cacheWindow = viewportWindow)
+            state = rememberLazyListState()
             LazyColumnOrRow(
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f)
                     .then(
@@ -216,13 +215,15 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                         }
                     ),
                 state,
+                cacheWindow = viewportWindow,
             ) {
                 items(items.value, key = { it }) {
                     if (it == "e") {
-                        val state = rememberLazyListState(cacheWindow = viewportWindow)
+                        val state = rememberLazyListState()
                         LazyRow(
                             Modifier.mainAxisSize(itemsSizeDp).fillMaxCrossAxis().testTag(it),
                             state = state,
+                            cacheWindow = viewportWindow,
                         ) {
                             item {
                                 Spacer(
@@ -284,8 +285,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         val items = mutableStateOf(listOf("a", "b", "c", "d"))
 
         rule.setContent {
-            @OptIn(ExperimentalFoundationApi::class)
-            state = rememberLazyListState(cacheWindow = viewportWindow)
+            state = rememberLazyListState()
             LazyColumnOrRow(
                 Modifier.mainAxisSize(itemsSizeDp * 2f)
                     .then(
@@ -296,13 +296,15 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                         }
                     ),
                 state,
+                cacheWindow = viewportWindow,
             ) {
                 items(items.value, key = { it }) {
                     if (it == "e" || it == "f") {
-                        val state = rememberLazyListState(cacheWindow = viewportWindow)
+                        val state = rememberLazyListState()
                         LazyRow(
                             Modifier.mainAxisSize(itemsSizeDp).fillMaxCrossAxis().testTag(it),
                             state = state,
+                            cacheWindow = viewportWindow,
                         ) {
                             item {
                                 Spacer(
@@ -450,7 +452,8 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                                 else Constraints.fixed(400, approachHeight)
                             m.measure(c).run { layout(width, lookaheadHeight) { place(0, 0) } }
                         },
-                        state = LazyListState(cacheWindow = LazyLayoutCacheWindow(0f)),
+                        state = LazyListState(),
+                        cacheWindow = LazyLayoutCacheWindow(0f),
                     ) {
                         items(10) {
                             Box(Modifier.height(100.dp).fillMaxWidth())
@@ -492,12 +495,10 @@ class LazyListCacheWindowTest(orientation: Orientation) :
     ) {
         rule.setContent {
             scope = rememberCoroutineScope()
-            @OptIn(ExperimentalFoundationApi::class)
             state =
                 rememberLazyListState(
                     initialFirstVisibleItemIndex = firstItem,
                     initialFirstVisibleItemScrollOffset = itemOffset,
-                    cacheWindow = cacheWindow,
                 )
             LazyColumnOrRow(
                 Modifier.mainAxisSize(itemsSizeDp * numberOfItemsInTheList)
@@ -511,6 +512,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                 state,
                 reverseLayout = reverseLayout,
                 contentPadding = contentPadding,
+                cacheWindow = cacheWindow,
             ) {
                 items(numItems.value) {
                     DisposableEffect(it) {

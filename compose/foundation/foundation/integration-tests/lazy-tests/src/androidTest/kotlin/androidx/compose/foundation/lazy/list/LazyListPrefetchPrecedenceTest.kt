@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress(
-    "INVISIBLE_MEMBER",
-    "INVISIBLE_REFERENCE",
-    "DEPRECATION",
-) // b/407927787 // b/420551535
+@file:Suppress("DEPRECATION")
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package androidx.compose.foundation.lazy.grid
+package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.DefaultLazyListCacheWindow
+import androidx.compose.foundation.lazy.DefaultLazyListPrefetchStrategy
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListCacheWindowStrategy
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -37,14 +39,14 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class LazyGridPrefetchPrecedenceTest {
+class LazyListPrefetchPrecedenceTest {
     @get:Rule val rule = createComposeRule()
 
-    lateinit var state: LazyGridState
+    lateinit var state: LazyListState
 
-    private fun composeLazyGrid(state: LazyGridState, cacheWindow: LazyLayoutCacheWindow?) =
+    private fun composeLazyList(state: LazyListState, cacheWindow: LazyLayoutCacheWindow?) =
         rule.setContent {
-            val content: LazyGridScope.() -> Unit = {
+            val content: LazyListScope.() -> Unit = {
                 items(10) {
                     Spacer(
                         Modifier.height(100.dp).testTag("$it").layout { measurable, constraints ->
@@ -55,15 +57,9 @@ class LazyGridPrefetchPrecedenceTest {
                 }
             }
             if (cacheWindow == null) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(1),
-                    modifier = Modifier.height(150.dp),
-                    state = state,
-                    content = content,
-                )
+                LazyColumn(modifier = Modifier.height(150.dp), state = state, content = content)
             } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(1),
+                LazyColumn(
                     modifier = Modifier.height(150.dp),
                     state = state,
                     cacheWindow = cacheWindow,
@@ -74,50 +70,50 @@ class LazyGridPrefetchPrecedenceTest {
 
     @Before
     fun setup() {
-        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid = true
+        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyList = true
     }
 
     @Test
     fun usesDefaultLayoutCacheWindow() {
-        composeLazyGrid(state = LazyGridState().also { state = it }, cacheWindow = null)
+        composeLazyList(state = LazyListState().also { state = it }, cacheWindow = null)
 
         val cacheWindowPrefetchStrategy =
-            state.layoutInfoState.value.prefetchStrategy as? LazyGridCacheWindowPrefetchStrategy
-        assertThat(cacheWindowPrefetchStrategy?.cacheWindow).isEqualTo(DefaultLazyGridCacheWindow)
+            state.layoutInfoState.value.prefetchStrategy as? LazyListCacheWindowStrategy
+        assertThat(cacheWindowPrefetchStrategy?.cacheWindow).isEqualTo(DefaultLazyListCacheWindow)
     }
 
     @Test
     fun usesDefaultPrefetchStrategyWhenFeatureFlagDisabled() {
-        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid = false
-        composeLazyGrid(state = LazyGridState().also { state = it }, cacheWindow = null)
+        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyList = false
+        composeLazyList(state = LazyListState().also { state = it }, cacheWindow = null)
 
         assertThat(state.layoutInfoState.value.prefetchStrategy)
-            .isInstanceOf(DefaultLazyGridPrefetchStrategy::class.java)
+            .isInstanceOf(DefaultLazyListPrefetchStrategy::class.java)
     }
 
     @Test
     fun providedCacheWindowIsUsedWhenNoStateStrategy() {
         val layoutCacheWindow = LazyLayoutCacheWindow(0.dp)
-        composeLazyGrid(
-            state = LazyGridState().also { state = it },
+        composeLazyList(
+            state = LazyListState().also { state = it },
             cacheWindow = layoutCacheWindow,
         )
 
         val cacheWindowPrefetchStrategy =
-            state.layoutInfoState.value.prefetchStrategy as? LazyGridCacheWindowPrefetchStrategy
+            state.layoutInfoState.value.prefetchStrategy as? LazyListCacheWindowStrategy
         assertThat(cacheWindowPrefetchStrategy?.cacheWindow).isEqualTo(layoutCacheWindow)
     }
 
     @Test
-    fun preferPrefetchStrategyPreferredWhenProvidedAlongsideCacheWindow() {
+    fun prefetchStrategyPreferredWhenProvidedAlongsideCacheWindow() {
         val stateCacheWindow = LazyLayoutCacheWindow(0.dp)
-        composeLazyGrid(
-            state = LazyGridState(cacheWindow = stateCacheWindow).also { state = it },
+        composeLazyList(
+            state = LazyListState(cacheWindow = stateCacheWindow).also { state = it },
             cacheWindow = LazyLayoutCacheWindow(100.dp),
         )
 
         val cacheWindowPrefetchStrategy =
-            state.layoutInfoState.value.prefetchStrategy as? LazyGridCacheWindowPrefetchStrategy
+            state.layoutInfoState.value.prefetchStrategy as? LazyListCacheWindowStrategy
         assertThat(cacheWindowPrefetchStrategy?.cacheWindow).isEqualTo(stateCacheWindow)
     }
 }

@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.CacheWindowLogic
 import androidx.compose.foundation.lazy.layout.LazyLayout
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
@@ -84,6 +86,11 @@ internal fun LazyList(
     verticalAlignment: Alignment.Vertical? = null,
     /** The horizontal arrangement for items. Required when isVertical is false */
     horizontalArrangement: Arrangement.Horizontal? = null,
+    /**
+     * cacheWindow specifies the size of the ahead and behind window to be used as per
+     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     */
+    cacheWindow: LazyLayoutCacheWindow = DefaultLazyListCacheWindow,
     /** The content of the list */
     content: LazyListScope.() -> Unit,
 ) {
@@ -94,21 +101,59 @@ internal fun LazyList(
     val graphicsContext = LocalGraphicsContext.current
     val stickyHeadersEnabled = !LocalScrollCaptureInProgress.current
 
+    val prefetchStrategy =
+        remember(state, cacheWindow) {
+            state.legacyPrefetchStrategy
+                ?: when (cacheWindow) {
+                    is DefaultLazyListCacheWindow ->
+                        if (
+                            ComposeFoundationFlags
+                                .isPreferDefaultCacheWindowOverPrefetchStrategyLazyList
+                        ) {
+                            LazyListCacheWindowStrategy(cacheWindow)
+                        } else {
+                            LazyListPrefetchStrategy()
+                        }
+                    is LazyLayoutCacheWindow -> LazyListCacheWindowStrategy(cacheWindow)
+                }
+        }
+
+    val prefetchState =
+        remember(state, prefetchStrategy) {
+            // If the user has not constructed state using one of the deprecated constructors that
+            // yield a prefetch state, then, at this point, `state.legacyPrefetchState` will always
+            // be null.
+            state.legacyPrefetchState
+                ?: run {
+                    @Suppress("DEPRECATION") // b/420551535
+                    LazyLayoutPrefetchState(prefetchStrategy.prefetchScheduler) {
+                        with(prefetchStrategy) {
+                            onNestedPrefetch(
+                                Snapshot.withoutReadObservation { state.firstVisibleItemIndex }
+                            )
+                        }
+                    }
+                }
+        }
+
     val measurePolicy =
         rememberLazyListMeasurePolicy(
-            itemProviderLambda,
-            state,
-            contentPadding,
-            reverseLayout,
-            isVertical,
-            beyondBoundsItemCount,
-            horizontalAlignment,
-            verticalAlignment,
-            horizontalArrangement,
-            verticalArrangement,
-            coroutineScope,
-            graphicsContext,
-            if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
+            itemProviderLambda = itemProviderLambda,
+            state = state,
+            contentPadding = contentPadding,
+            reverseLayout = reverseLayout,
+            isVertical = isVertical,
+            beyondBoundsItemCount = beyondBoundsItemCount,
+            horizontalAlignment = horizontalAlignment,
+            verticalAlignment = verticalAlignment,
+            horizontalArrangement = horizontalArrangement,
+            verticalArrangement = verticalArrangement,
+            coroutineScope = coroutineScope,
+            graphicsContext = graphicsContext,
+            stickyItemsPlacement =
+                if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
+            prefetchState = prefetchState,
+            prefetchStrategy = prefetchStrategy,
         )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -158,7 +203,7 @@ internal fun LazyList(
                     overscrollEffect = overscrollEffect,
                     bringIntoViewSpec = bringIntoViewSpec,
                 ),
-        prefetchState = state.prefetchState,
+        prefetchState = prefetchState,
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda,
     )
@@ -193,6 +238,10 @@ private fun rememberLazyListMeasurePolicy(
     graphicsContext: GraphicsContext,
     /** Scroll behavior for sticky items */
     stickyItemsPlacement: StickyItemsPlacement?,
+    /** Prefetch state used in our layout */
+    prefetchState: LazyLayoutPrefetchState?,
+    /** Prefetch strategy used in our layout */
+    prefetchStrategy: LazyListPrefetchStrategy?,
 ) =
     remember(
         state,
@@ -206,6 +255,8 @@ private fun rememberLazyListMeasurePolicy(
         verticalArrangement,
         graphicsContext,
         stickyItemsPlacement,
+        prefetchState,
+        prefetchStrategy,
     ) {
         LazyLayoutMeasurePolicy { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -393,12 +444,14 @@ private fun rememberLazyListMeasurePolicy(
                             placement,
                         )
                     },
+                    prefetchState = prefetchState,
+                    prefetchStrategy = prefetchStrategy,
                 )
 
             state.applyMeasureResult(measureResult, isLookingAhead)
             // apply keep around after updating the strategy with measure result.
             if (!ComposeFoundationFlags.isKeepAroundDuringLookaheadDisabled || !isLookingAhead) {
-                (state.prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
+                (prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
                     measureResult.visibleItemsInfo,
                     measuredItemProvider,
                 )

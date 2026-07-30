@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -83,6 +84,16 @@ fun LazyRowSample() {
         item { Text("Single item") }
 
         itemsIndexed(itemsIndexedList) { index, item -> Text("Item at index $index is $item") }
+    }
+}
+
+@Sampled
+@Composable
+fun LazyListCacheWindowSample() {
+    val itemsList = (0..100).toList()
+
+    LazyColumn(cacheWindow = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 0.2f)) {
+        items(itemsList) { item -> Text("Item $item") }
     }
 }
 
