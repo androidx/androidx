@@ -60,6 +60,7 @@ import androidx.wear.compose.material3.onehandedgesture.rememberOneHandedGesture
 import androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
 import androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
 import androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
+import androidx.wear.compose.material3.samples.OneHandedGestureButtonInAmbientSample
 import androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
 import androidx.wear.compose.material3.samples.OneHandedGestureDisableButtonSample
 import androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
@@ -78,6 +79,7 @@ import kotlinx.coroutines.launch
 val OneHandedGestureDemos =
     listOf(
         ComposableDemo("Button") { OneHandedGestureButtonSample() },
+        ComposableDemo("Button in ambient") { OneHandedGestureButtonInAmbientSample() },
         ComposableDemo("Enable/Disable Gestures") { OneHandedGestureDisableButtonSample() },
         ComposableDemo("TLC scrollDown with EdgeButton") {
             OneHandedGestureTransformingLazyColumnSample()
