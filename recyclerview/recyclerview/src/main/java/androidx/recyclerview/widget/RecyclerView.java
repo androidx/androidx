@@ -219,6 +219,13 @@ import java.util.Set;
  * information about the Paging library, see the
  * <a href="https://developer.android.com/topic/libraries/architecture/paging/">library
  * documentation</a>.
+ * <p>
+ * <h3>Focus Handling</h3>
+ * By default, RecyclerView is focusable. When focusable, focus search into the
+ * RecyclerView triggers focus enter handling (delegating to
+ * {@link LayoutManager#onFocusEnter} to select an appropriate item to receive focus).
+ * If RecyclerView is configured as non-focusable (e.g. via {@link #setFocusable(boolean)} set to
+ * {@code false}), focus enter navigation is bypassed and focus search skips the RecyclerView.
  */
 public class RecyclerView extends ViewGroup implements ScrollingView,
         NestedScrollingChild2, NestedScrollingChild3 {
@@ -3725,14 +3732,34 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         return mLayout.requestChildRectangleOnScreen(this, child, rect, immediate);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * When set to {@code false} (or {@link #NOT_FOCUSABLE}), the RecyclerView will not attempt
+     * to perform focus enter navigation (via {@link LayoutManager#onFocusEnter}) when focus
+     * enters the view during focus search.
+     */
+    @Override
+    public void setFocusable(boolean focusable) {
+        super.setFocusable(focusable);
+    }
+
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
         if (mLayout == null || !mLayout.onAddFocusables(this, views, direction, focusableMode)) {
             // Decide if we are going to treat this request for adding focusables as a focus enter
             boolean treatAsFocusEnter =
                     FOCUS_LOOPING_FIX_SUPPORTED
+                            // If the RecyclerView isn't focusable, don't try to add it to the
+                            // focusable views and expect it to have focus requested on it
+                            && isFocusable()
+                            // If we are in a re-entrant call because focus enter failed, don't
+                            // kick it off again
                             && !mHasFocusEnterFailed
+                            // If we have focus, we should only treat it as a focus enter if we
+                            // know that focus is leaving
                             && (!hasFocus() || mIsFocusLeaving)
+                            // Only treat forward and backward as a potential focus enter
                             && (direction == View.FOCUS_FORWARD
                                     || direction == View.FOCUS_BACKWARD);
 
