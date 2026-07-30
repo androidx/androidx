@@ -531,29 +531,8 @@ class FocusLoopingTest(private val layoutManagerType: LayoutManagerType) {
         assertThat(firstViewHolder).isNull()
     }
 
-    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun focusSearchForward_skipsUnfocusableRecyclerView() {
-        val (rv, before, after) =
-            setupRecyclerviewWithSurroundingViews(
-                itemCount = 100,
-                scrollTo = 99,
-                isItemFocusable = { false },
-                isFocusable = false,
-            )
-        requestFocus(before)
-        val nextFocus = findAndRequestFocusInRecyclerview(before, View.FOCUS_FORWARD, rv)
-        var firstViewHolder: RecyclerView.ViewHolder? = null
-        rule.scenario.onActivity { firstViewHolder = rv.findViewHolderForAdapterPosition(0) }
-
-        assertThat(nextFocus).isNull()
-        assertThat(firstViewHolder).isNotNull()
-        assertThat(after.isFocused).isTrue()
-    }
-
-    @SdkSuppress(maxSdkVersion = 25)
-    @Test
-    fun focusSearchForward_skipsUnfocusableRecyclerView_oldBehavior() {
         val (rv, before, after) =
             setupRecyclerviewWithSurroundingViews(
                 itemCount = 100,
