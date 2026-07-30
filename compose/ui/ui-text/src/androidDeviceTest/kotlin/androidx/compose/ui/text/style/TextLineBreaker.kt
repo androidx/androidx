@@ -18,7 +18,6 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.AndroidParagraph
 import androidx.compose.ui.text.Paragraph
-import androidx.compose.ui.text.TEST_LOCALE
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.ceilToInt
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -32,7 +31,6 @@ open class TextLineBreaker {
     private val defaultHyphens = Hyphens.None
     private val defaultLineBreak = LineBreak.Simple
     private val density = Density(density = 1f)
-    private val defaultLocale = TEST_LOCALE
 
     private fun paragraph(
         text: String,
@@ -50,7 +48,6 @@ open class TextLineBreaker {
                 Constraints(maxWidth = maxWidth, maxHeight = Float.POSITIVE_INFINITY.ceilToInt()),
             density = density,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
         )
     }
 

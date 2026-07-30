@@ -23,5 +23,5 @@ import androidx.compose.ui.text.intl.LocaleList
 @Composable
 internal actual fun rememberPlatformSelectionBehaviors(
     selectedTextType: SelectedTextType,
-    localeList: LocaleList,
+    localeList: LocaleList?,
 ): PlatformSelectionBehaviors? = implementedInJetBrainsFork()

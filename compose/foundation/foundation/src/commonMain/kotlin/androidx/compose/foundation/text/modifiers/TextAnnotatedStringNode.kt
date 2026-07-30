@@ -58,7 +58,6 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -72,7 +71,6 @@ internal class TextAnnotatedStringNode(
     private var text: AnnotatedString,
     private var style: TextStyle,
     private var fontFamilyResolver: FontFamily.Resolver,
-    private var defaultLocale: Locale,
     private var onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     private var overflow: TextOverflow = TextOverflow.Clip,
     private var softWrap: Boolean = true,
@@ -100,7 +98,6 @@ internal class TextAnnotatedStringNode(
                         text,
                         style,
                         fontFamilyResolver,
-                        defaultLocale,
                         overflow,
                         softWrap,
                         maxLines,
@@ -163,7 +160,6 @@ internal class TextAnnotatedStringNode(
         maxLines: Int,
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
         overflow: TextOverflow,
         autoSize: TextAutoSize?,
     ): Boolean {
@@ -194,11 +190,6 @@ internal class TextAnnotatedStringNode(
 
         if (this.fontFamilyResolver != fontFamilyResolver) {
             this.fontFamilyResolver = fontFamilyResolver
-            changed = true
-        }
-
-        if (this.defaultLocale != defaultLocale) {
-            this.defaultLocale = defaultLocale
             changed = true
         }
 
@@ -259,7 +250,6 @@ internal class TextAnnotatedStringNode(
                 text = text,
                 style = style,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 overflow = overflow,
                 softWrap = softWrap,
                 maxLines = maxLines,
@@ -312,7 +302,6 @@ internal class TextAnnotatedStringNode(
                 updatedText,
                 style,
                 fontFamilyResolver,
-                defaultLocale,
                 overflow,
                 softWrap,
                 maxLines,
@@ -327,7 +316,6 @@ internal class TextAnnotatedStringNode(
                     updatedText,
                     style,
                     fontFamilyResolver,
-                    defaultLocale,
                     overflow,
                     softWrap,
                     maxLines,
@@ -375,7 +363,6 @@ internal class TextAnnotatedStringNode(
                                     density = inputLayout.layoutInput.density,
                                     layoutDirection = inputLayout.layoutInput.layoutDirection,
                                     fontFamilyResolver = inputLayout.layoutInput.fontFamilyResolver,
-                                    defaultLocale = inputLayout.layoutInput.defaultLocale,
                                     constraints = inputLayout.layoutInput.constraints,
                                 )
                         )

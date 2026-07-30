@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.compose.foundation.internal.ClipboardUtils
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.LegacyTextFieldState
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
@@ -133,7 +132,6 @@ class TextFieldSelectionManagerTest {
                     density = density,
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = mock(),
-                    defaultLocale = TEST_LOCALE,
                     constraints = Constraints(),
                 )
             )

@@ -31,7 +31,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.internal.requirePrecondition
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.platform.drawMultiParagraph
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
@@ -167,7 +166,6 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = createFontFamilyResolver(resourceLoader),
                 softWrap = true,
-                defaultLocale = Locale.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -193,7 +191,6 @@ public class MultiParagraph(
      *   [placeholders] crosses paragraph boundary.
      * @see Placeholder
      */
-    @Suppress("DEPRECATION")
     @Deprecated(
         "MultiParagraph that takes maximum allowed width is deprecated, pass constraints instead.",
         ReplaceWith(
@@ -221,7 +218,6 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -250,7 +246,6 @@ public class MultiParagraph(
      *   [placeholders] crosses paragraph boundary.
      * @see Placeholder
      */
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Constructor with `ellipsis: Boolean` is deprecated, pass TextOverflow instead",
         level = DeprecationLevel.HIDDEN,
@@ -273,7 +268,6 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
             ),
         maxLines = maxLines,
         overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -303,8 +297,6 @@ public class MultiParagraph(
      *   [placeholders] crosses paragraph boundary.
      * @see Placeholder
      */
-    @Suppress("DEPRECATION")
-    @Deprecated("Constructor without a default locale is deprecated")
     public constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
@@ -323,57 +315,6 @@ public class MultiParagraph(
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
                 softWrap = true,
-                defaultLocale = Locale.current,
-            ),
-        maxLines = maxLines,
-        overflow = overflow,
-        constraints = constraints,
-    )
-
-    /**
-     * Lays out a given [annotatedString] with the given constraints. Unlike a [Paragraph],
-     * [MultiParagraph] can handle a text what has multiple paragraph styles.
-     *
-     * @param annotatedString the text to be laid out
-     * @param style the [TextStyle] to be applied to the whole text
-     * @param constraints how wide and tall the text is allowed to be. [Constraints.maxWidth] will
-     *   define the width of the MultiParagraph. [Constraints.maxHeight] helps defining the number
-     *   of lines that fit with ellipsis is true. Minimum components of the [Constraints] object are
-     *   no-op.
-     * @param density density of the device
-     * @param fontFamilyResolver to be used to load the font given in [SpanStyle]s
-     * @param defaultLocale the default [Locale] to be used if [style] doesn't specify one
-     * @param placeholders a list of [Placeholder]s that specify ranges of text which will be
-     *   skipped during layout and replaced with [Placeholder]. It's required that the range of each
-     *   [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is
-     *   thrown.
-     * @param maxLines the maximum number of lines that the text can have
-     * @param overflow configures how visual overflow is handled. Ellipsis is applied only when
-     *   [maxLines] is set
-     * @throws IllegalArgumentException if [ParagraphStyle.textDirection] is not set, or any of the
-     *   [placeholders] crosses paragraph boundary.
-     * @see Placeholder
-     */
-    public constructor(
-        annotatedString: AnnotatedString,
-        style: TextStyle,
-        constraints: Constraints,
-        density: Density,
-        fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
-        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
-        maxLines: Int = Int.MAX_VALUE,
-        overflow: TextOverflow = TextOverflow.Clip,
-    ) : this(
-        intrinsics =
-            MultiParagraphIntrinsics(
-                annotatedString = annotatedString,
-                style = style,
-                placeholders = placeholders,
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                softWrap = true,
-                defaultLocale = defaultLocale,
             ),
         maxLines = maxLines,
         overflow = overflow,

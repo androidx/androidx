@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.AndroidTextPaint
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextGeometricTransform
@@ -47,7 +48,6 @@ internal fun AndroidTextPaint.applySpanStyle(
     style: SpanStyle,
     resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> Typeface,
     density: Density,
-    defaultLocale: Locale,
     requiresLetterSpacing: Boolean = false,
 ): SpanStyle? {
     when (style.fontSize.type) {
@@ -68,14 +68,18 @@ internal fun AndroidTextPaint.applySpanStyle(
             )
     }
 
-    if (style.localeList != null) {
+    if (style.localeList != null && style.localeList != LocaleList.current) {
         if (Build.VERSION.SDK_INT >= 24) {
             LocaleListHelperMethods.setTextLocales(this, style.localeList)
         } else {
-            textLocale = style.localeList[0].platformLocale
+            val locale =
+                if (style.localeList.isEmpty()) {
+                    Locale.current
+                } else {
+                    style.localeList[0]
+                }
+            textLocale = locale.platformLocale
         }
-    } else {
-        textLocale = defaultLocale.platformLocale
     }
 
     if (style.fontFeatureSettings != null && style.fontFeatureSettings != "") {

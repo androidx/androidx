@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import androidx.collection.LongObjectMap
 import androidx.collection.buildLongObjectMap
 import androidx.collection.emptyLongObjectMap
-import androidx.compose.foundation.text.TEST_LOCALE
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.AlignmentLine
@@ -106,7 +105,6 @@ internal fun getTextLayoutResultMock(
             density = Density(1f),
             layoutDirection = LayoutDirection.Ltr,
             fontFamilyResolver = mock(),
-            defaultLocale = TEST_LOCALE,
             constraints = Constraints(0L),
         )
 

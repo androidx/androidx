@@ -28,7 +28,7 @@ class AllCapsTransformationTest {
 
     @Test
     fun allCapsTransformation_definesCharacterCapitalizationKeyboardOption() {
-        val transformation = InputTransformation.allCaps(Locale("en"))
+        val transformation = InputTransformation.allCaps(Locale.current)
         assertThat(transformation.keyboardOptions?.capitalization)
             .isEqualTo(KeyboardCapitalization.Characters)
     }

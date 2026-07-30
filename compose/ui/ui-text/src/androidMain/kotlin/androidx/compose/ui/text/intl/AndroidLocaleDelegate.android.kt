@@ -24,10 +24,6 @@ import java.util.Locale as JavaLocale
 /** An Android implementation of LocaleDelegate object for API 23 */
 internal class AndroidLocaleDelegateAPI23 : PlatformLocaleDelegate {
 
-    @Deprecated(
-        "This method of accessing locale isn't backed by snapshot state, meaning " +
-            "that updates to the locale won't notify reading this API."
-    )
     override val current: LocaleList
         get() = LocaleList(listOf(Locale(JavaLocale.getDefault())))
 }
@@ -39,10 +35,6 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
     private var lastLocaleList: LocaleList? = null
     private val lock = makeSynchronizedObject()
 
-    @Deprecated(
-        "This method of accessing locale isn't backed by snapshot state, meaning " +
-            "that updates to the locale won't notify reading this API."
-    )
     override val current: LocaleList
         get() {
             val platformLocaleList = AndroidLocaleList.getDefault()

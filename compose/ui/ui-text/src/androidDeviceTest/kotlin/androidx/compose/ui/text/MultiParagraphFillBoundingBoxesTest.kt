@@ -36,7 +36,6 @@ class MultiParagraphFillBoundingBoxesTest {
     private val fontFamilyMeasureFont = BASIC_MEASURE_FONT.toFontFamily()
     val fontFamilyResolver =
         createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
-    private val defaultLocale = TEST_LOCALE
     private val defaultDensity = Density(density = 1f)
     private val fontSize = 10.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
@@ -190,7 +189,6 @@ class MultiParagraphFillBoundingBoxesTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver,
-            defaultLocale = defaultLocale,
             overflow = TextOverflow.Clip,
         )
     }

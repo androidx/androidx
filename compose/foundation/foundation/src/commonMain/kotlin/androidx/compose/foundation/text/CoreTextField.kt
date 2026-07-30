@@ -93,8 +93,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -115,7 +113,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -223,7 +220,6 @@ internal fun CoreTextField(
     // CompositionLocals
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
-    val locale = LocalLocale.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
     val focusManager = LocalFocusManager.current
     val windowInfo = LocalWindowInfo.current
@@ -270,7 +266,6 @@ internal fun CoreTextField(
                     softWrap = softWrap,
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = locale,
                 ),
                 recomposeScope = scope,
                 keyboardController = keyboardController,
@@ -283,7 +278,6 @@ internal fun CoreTextField(
         softWrap,
         density,
         fontFamilyResolver,
-        locale,
         onValueChange,
         keyboardActions,
         focusManager,
@@ -315,10 +309,7 @@ internal fun CoreTextField(
     @OptIn(ExperimentalFoundationApi::class)
     if (ComposeFoundationFlags.isSmartSelectionEnabled) {
         manager.platformSelectionBehaviors =
-            rememberPlatformSelectionBehaviors(
-                SelectedTextType.EditableText,
-                textStyle.localeList ?: LocalLocaleList.current,
-            )
+            rememberPlatformSelectionBehaviors(SelectedTextType.EditableText, textStyle.localeList)
     }
 
     rememberClipboardEventsHandler(
@@ -962,7 +953,6 @@ internal class LegacyTextFieldState(
         softWrap: Boolean,
         density: Density,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
         onValueChange: (TextFieldValue) -> Unit,
         keyboardActions: KeyboardActions,
         focusManager: FocusManager,
@@ -984,7 +974,6 @@ internal class LegacyTextFieldState(
                 softWrap = softWrap,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 placeholders = emptyList(),
             )
 
@@ -1073,7 +1062,6 @@ internal suspend fun BringIntoViewRequester.bringSelectionEndIntoView(
                         textDelegate.style,
                         textDelegate.density,
                         textDelegate.fontFamilyResolver,
-                        textDelegate.defaultLocale,
                     )
                 Rect(0f, 0f, 1.0f, defaultSize.height.toFloat())
             }

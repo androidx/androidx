@@ -46,7 +46,6 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 
@@ -59,7 +58,6 @@ internal class SelectableTextAnnotatedStringNode(
     text: AnnotatedString,
     style: TextStyle,
     fontFamilyResolver: FontFamily.Resolver,
-    defaultLocale: Locale,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
@@ -89,7 +87,6 @@ internal class SelectableTextAnnotatedStringNode(
                 text = text,
                 style = style,
                 fontFamilyResolver = fontFamilyResolver,
-                defaultLocale = defaultLocale,
                 onTextLayout = onTextLayout,
                 overflow = overflow,
                 softWrap = softWrap,
@@ -181,7 +178,6 @@ internal class SelectableTextAnnotatedStringNode(
         maxLines: Int,
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
-        defaultLocale: Locale,
         overflow: TextOverflow,
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
@@ -200,7 +196,6 @@ internal class SelectableTextAnnotatedStringNode(
                     maxLines = maxLines,
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
-                    defaultLocale = defaultLocale,
                     overflow = overflow,
                     autoSize = autoSize,
                 ),
