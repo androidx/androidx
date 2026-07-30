@@ -102,7 +102,7 @@ class RcPlayerDensityBehaviorTest {
     private fun paddingInsetDp(document: CoreDocument): Float {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
-                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+                Box(modifier = Modifier) { RcPlayer(document = document) }
             }
         }
         rule.waitForIdle()
@@ -178,7 +178,7 @@ class RcPlayerDensityBehaviorTest {
     private fun spacingGapDp(document: CoreDocument): Float {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
-                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+                Box(modifier = Modifier) { RcPlayer(document = document) }
             }
         }
         rule.waitForIdle()
@@ -219,7 +219,7 @@ class RcPlayerDensityBehaviorTest {
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
-                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+                Box(modifier = Modifier) { RcPlayer(document = document) }
             }
         }
         rule.waitForIdle()
@@ -266,7 +266,7 @@ class RcPlayerDensityBehaviorTest {
     private fun widthInDp(document: CoreDocument): Float {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
-                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+                Box(modifier = Modifier) { RcPlayer(document = document) }
             }
         }
         rule.waitForIdle()
@@ -321,7 +321,7 @@ class RcPlayerDensityBehaviorTest {
     private fun heightInDp(document: CoreDocument): Float {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
-                Box(modifier = Modifier) { RcPlayer(document = document, autoUpdate = false) }
+                Box(modifier = Modifier) { RcPlayer(document = document) }
             }
         }
         rule.waitForIdle()

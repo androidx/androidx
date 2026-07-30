@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 public fun ExperimentalRemoteDocumentPlayer(
     document: RemoteDocument,
     modifier: Modifier = Modifier,
-    autoUpdate: Boolean = true,
     namedColorOverrides: ObjectIntMap<String> = emptyObjectIntMap(),
     imageLoader: RcImageLoader? = null,
     isShaderValid: (shaderSource: String) -> Boolean = { true },
@@ -45,7 +44,6 @@ public fun ExperimentalRemoteDocumentPlayer(
     RcPlayer(
         document = document.document,
         modifier = modifier,
-        autoUpdate = autoUpdate,
         namedColorOverrides = namedColorOverrides,
         imageLoader = imageLoader,
         isShaderValid = isShaderValid,

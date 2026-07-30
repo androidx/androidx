@@ -77,11 +77,7 @@ class RcPlayerLayoutA11yTest {
         val document = captureDocument { RemoteBox(modifier = RemoteModifier.size(100.rdp)) }
         document.setContentDescription("a weather card")
 
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, autoUpdate = false)
-            }
-        }
+        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) } }
         rule.waitForIdle()
 
         rule.onNodeWithContentDescription("a weather card").assertIsDisplayed()
@@ -97,11 +93,7 @@ class RcPlayerLayoutA11yTest {
             )
         }
 
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                RcPlayer(document = document, autoUpdate = false)
-            }
-        }
+        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = document) } }
         rule.waitForIdle()
 
         rule.onNodeWithContentDescription("inner box").assertIsDisplayed()
@@ -134,11 +126,7 @@ class RcPlayerLayoutA11yTest {
             }
         }
 
-        rule.setContent {
-            Box(modifier = Modifier.size(300.dp)) {
-                RcPlayer(document = document, autoUpdate = true)
-            }
-        }
+        rule.setContent { Box(modifier = Modifier.size(300.dp)) { RcPlayer(document = document) } }
         rule.waitForIdle()
 
         fun markerWidth() =

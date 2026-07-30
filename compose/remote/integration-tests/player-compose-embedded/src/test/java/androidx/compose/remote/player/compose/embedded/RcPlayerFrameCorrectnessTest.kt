@@ -30,10 +30,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.graphicsLayer
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.animateRemoteFloat
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -98,9 +101,7 @@ class RcPlayerFrameCorrectnessTest {
             val document = loadDocument(bytes)
             rule.mainClock.autoAdvance = false
             rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
-                }
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
             }
 
             // Exactly one frame: composition + layout + draw. No settle time allowed.
@@ -132,15 +133,49 @@ class RcPlayerFrameCorrectnessTest {
             val document = loadDocument(bytes)
             rule.mainClock.autoAdvance = false
             rule.setContent {
-                Box(modifier = Modifier.size(100.dp)) {
-                    RcPlayer(document = document, autoUpdate = false)
-                }
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
             }
 
             val d = rule.density.density
             val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
             val center = bitmap.getPixel((50 * d).toInt(), (50 * d).toInt())
             assertThat(AndroidColor.blue(center)).isGreaterThan(200)
+        }
+    }
+
+    /**
+     * An animated document must reach idle using withInfiniteAnimationFrameMillis, allowing
+     * standard Compose test APIs (like waitForIdle and captureToImage) to complete without timing
+     * out.
+     */
+    @Test
+    fun animatedDocumentReachesIdleWithDefaultAutoUpdate() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            val animated = animateRemoteFloat(rf = 1.0f.rf, duration = 1.0f)
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(100.rdp)
+                                        .background(Color.Red.rc)
+                                        .graphicsLayer(alpha = animated)
+                            )
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+            rule.setContent {
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
+            }
+
+            // waitForIdle() and captureToImage() should complete successfully without timing out
+            rule.waitForIdle()
+            val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+            assertThat(bitmap).isNotNull()
         }
     }
 }

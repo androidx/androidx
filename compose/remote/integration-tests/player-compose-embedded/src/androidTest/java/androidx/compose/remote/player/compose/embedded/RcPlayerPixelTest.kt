@@ -80,7 +80,7 @@ class RcPlayerPixelTest {
         val document = runBlocking { captureRule.captureDocument(context = ctx, content = content) }
         rule.setContent {
             Box(modifier = Modifier.size(100.dp).testTag("player")) {
-                RcPlayer(document = document, autoUpdate = false)
+                RcPlayer(document = document)
             }
         }
         rule.waitForIdle()
@@ -377,7 +377,7 @@ class RcPlayerPixelTest {
 
         rule.setContent {
             Box(modifier = Modifier.size(100.dp).testTag("player")) {
-                RcPlayer(document = document, autoUpdate = true)
+                RcPlayer(document = document)
             }
         }
         rule.waitForIdle()
