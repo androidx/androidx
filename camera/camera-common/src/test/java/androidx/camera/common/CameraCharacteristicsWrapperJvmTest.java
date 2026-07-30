@@ -99,7 +99,7 @@ public final class CameraCharacteristicsWrapperJvmTest {
                 "0", ShadowCameraCharacteristics.newCameraCharacteristics());
 
         CameraCharacteristicsWrapper wrapper =
-                androidx.camera.common.CameraCharacteristics.loadFrom(context, "0");
+                CameraCharacteristicsWrappers.loadFrom(context, "0");
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getCameraId()).isEqualTo("0");
     }
@@ -113,7 +113,7 @@ public final class CameraCharacteristicsWrapperJvmTest {
                 "0", ShadowCameraCharacteristics.newCameraCharacteristics());
 
         CameraCharacteristicsWrapper wrapper =
-                androidx.camera.common.CameraCharacteristics.loadFrom(cameraManager, "0");
+                CameraCharacteristicsWrappers.loadFrom(cameraManager, "0");
         assertThat(wrapper).isNotNull();
         assertThat(wrapper.getCameraId()).isEqualTo("0");
     }
