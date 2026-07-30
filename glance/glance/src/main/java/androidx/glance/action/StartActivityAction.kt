@@ -98,7 +98,6 @@ public fun <T : Activity> actionStartActivity(
     activityOptions: Bundle? = null,
 ): Action = StartActivityClassAction(activity, parameters, activityOptions)
 
-@Suppress("MissingNullability")
 /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
@@ -106,11 +105,11 @@ public fun <T : Activity> actionStartActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  *   the activity intent, keyed by the parameter key name string.
  */
+@Suppress("MissingNullability")
 public inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionStartActivity(T::class.java, parameters)
 
-@Suppress("MissingNullability")
 /* Shouldn't need to specify @NonNull. b/199284086 */
 /**
  * Creates an [Action] that launches the specified [Activity] when triggered.
@@ -120,6 +119,7 @@ public inline fun <reified T : Activity> actionStartActivity(
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
  *   an activity start.
  */
+@Suppress("MissingNullability")
 @ExperimentalGlanceApi
 public inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf(),
