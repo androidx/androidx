@@ -15,6 +15,7 @@ package androidx.a2ui.compose.ui {
   public final class A2uiCatalogKt {
     method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(String catalogId, java.util.List<? extends androidx.a2ui.compose.ui.A2uiComponent> components, optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions, optional androidx.a2ui.model.schema.A2uiSchema? themeSchema);
     method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! A2uiCatalog$default(String!, java.util.List!, java.util.List!, androidx.a2ui.model.schema.A2uiSchema!, int, Object!);
+    method public static androidx.a2ui.compose.runtime.A2uiReadinessEvaluator asReadinessEvaluator(androidx.a2ui.compose.ui.A2uiCatalog);
   }
 
   @androidx.compose.runtime.Stable public interface A2uiComponent {
