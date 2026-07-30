@@ -48,13 +48,27 @@ class ActivityViewModelLazyTest {
         assertThat(activity.savedStateViewModel.defaultValue).isEqualTo("value")
     }
 
+    @UiThreadTest
+    @Test
+    fun keyedVmInitialization() {
+        val activity = activityRule.activity
+        assertThat(activity.keyedVM).isSameInstanceAs(activity.sameKeyedVM)
+        assertThat(activity.keyedVM).isNotSameInstanceAs(activity.otherKeyedVM)
+        assertThat(activity.keyedVM).isNotSameInstanceAs(activity.vm)
+        assertThat(activity.keyedSavedStateViewModel.defaultValue).isEqualTo("value")
+    }
+
     class TestActivity : ComponentActivity() {
         val vm: TestViewModel by viewModels()
+        val keyedVM: TestViewModel by viewModels(key = "one")
+        val sameKeyedVM: TestViewModel by viewModels(key = "one")
+        val otherKeyedVM: TestViewModel by viewModels(key = "two")
         val factoryVM: TestFactorizedViewModel by viewModels { VMFactory("activity") }
         lateinit var injectedFactory: ViewModelProvider.Factory
         val daggerPoorCopyVM: TestDaggerViewModel by viewModels { injectedFactory }
         val savedStateViewModel: TestSavedStateViewModel by
             viewModels(extrasProducer = { defaultViewModelCreationExtras })
+        val keyedSavedStateViewModel: TestSavedStateViewModel by viewModels(key = "saved-state")
 
         override fun onCreate(savedInstanceState: Bundle?) {
             injectedFactory = VMFactory("dagger")
