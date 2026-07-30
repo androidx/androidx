@@ -106,7 +106,7 @@ constructor(
      * @param key The custom metadata key to query.
      * @return The mock value configured in [cameraMetadata], or `null` if not present.
      */
-    override fun <T> get(key: Metadata.Key<T>): T? = cameraMetadata.getUnchecked(key)
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = cameraMetadata.getUnchecked(key)
 
     /**
      * Retrieves the mock value for the specified [CameraCharacteristics.Key].
@@ -114,7 +114,7 @@ constructor(
      * @param key The native characteristics key to query.
      * @return The mock value configured in [cameraCharacteristics], or `null` if not present.
      */
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? =
+    override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? =
         cameraCharacteristics.getUnchecked(key)
 
     /**

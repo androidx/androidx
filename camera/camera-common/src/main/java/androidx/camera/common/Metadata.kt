@@ -41,23 +41,23 @@ public interface Metadata {
     /**
      * Retrieves the value associated with the specified [Metadata.Key].
      *
-     * @param T The type of the value.
+     * @param T The type of the value (must be non-nullable).
      * @param key The custom key to query.
      * @return The value associated with the key, or `null` if the key is not present in this
      *   container or if its value is not set.
      */
-    public operator fun <T> get(key: Key<T>): T?
+    public operator fun <T : Any> get(key: Key<T>): T?
 
     /**
      * Retrieves the value associated with the specified [Metadata.Key], or returns [default] if the
      * key is not present.
      *
-     * @param T The type of the value.
+     * @param T The type of the value (must be non-nullable).
      * @param key The custom key to query.
      * @param default The value to return if the key is not present or if its value is `null`.
      * @return The value associated with the key, or [default] if the value is not present.
      */
-    public fun <T> getOrDefault(key: Key<T>, default: T): T {
+    public fun <T : Any> getOrDefault(key: Key<T>, default: T): T {
         return get(key) ?: default
     }
 
@@ -93,11 +93,12 @@ public interface Metadata {
      * val configKey = Metadata.Key<MyConfig>("androidx.camera.config")
      * ```
      *
-     * @param T The type of the value associated with this key.
+     * @param T The type of the value associated with this key (must be non-nullable).
      * @property name The unique string name identifying this key.
      * @property type The [Class] representing the type of the value associated with this key.
      */
-    public class Key<T> internal constructor(public val name: String, public val type: Class<T>) {
+    public class Key<T : Any>
+    internal constructor(public val name: String, public val type: Class<T>) {
         public companion object {
             @JvmStatic private val keys: MutableMap<String, Key<*>> = HashMap()
 
@@ -182,20 +183,22 @@ public interface CameraCharacteristicsMetadata : Metadata, UnsafeWrapper {
     /**
      * Retrieves the value of the specified [CameraCharacteristics.Key].
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+    public operator fun <T : Any> get(key: CameraCharacteristics.Key<T>): T?
 
     /**
      * Retrieves the value of the specified [CameraCharacteristics.Key], or returns [default] if the
      * value is `null` or the key is unsupported.
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @param default The value to return if the key is not present or unsupported.
      * @return The value of the key, or [default] if null.
      */
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
+    public fun <T : Any> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
         return get(key) ?: default
     }
 }
@@ -237,20 +240,22 @@ public interface CaptureRequestMetadata : Metadata, UnsafeWrapper {
     /**
      * Retrieves the value of the specified [CaptureRequest.Key].
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
-    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+    public operator fun <T : Any> get(key: CaptureRequest.Key<T>): T?
 
     /**
      * Retrieves the value of the specified [CaptureRequest.Key], or returns [default] if the key is
      * not present or its value is `null`.
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @param default The value to return if the key is not present or is `null`.
      * @return The value of the key, or [default] if the key is not present or its value is `null`.
      */
-    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
+    public fun <T : Any> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
         return get(key) ?: default
     }
 }
@@ -292,20 +297,22 @@ public interface CaptureResultMetadata : Metadata, UnsafeWrapper {
     /**
      * Retrieves the value of the specified [CaptureResult.Key].
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @return The value of the key, or `null` if the key is not present or unsupported.
      */
-    public operator fun <T> get(key: CaptureResult.Key<T>): T?
+    public operator fun <T : Any> get(key: CaptureResult.Key<T>): T?
 
     /**
      * Retrieves the value of the specified [CaptureResult.Key], or returns [default] if the key is
      * not present or its value is null.
      *
+     * @param T The type of the value (must be non-nullable).
      * @param key The key to query.
      * @param default The value to return if the key is not present or its value is null.
      * @return The value of the key, or [default] if null.
      */
-    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
+    public fun <T : Any> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
         return get(key) ?: default
     }
 }
@@ -316,13 +323,14 @@ public interface CaptureResultMetadata : Metadata, UnsafeWrapper {
  * This is an internal helper to retrieve a value from a map of [Metadata.Key] to generic objects,
  * casting the result to the type specified by the key.
  *
- * @param T The expected return type.
+ * @param T The expected return type (must be non-nullable).
  * @param key The key to look up.
  * @return The casted value, or `null` if the key is not present in the map.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> Map<Metadata.Key<*>, *>.getUnchecked(key: Metadata.Key<T>): T? = this[key] as T?
+public fun <T : Any> Map<Metadata.Key<*>, *>.getUnchecked(key: Metadata.Key<T>): T? =
+    this[key] as T?
 
 /**
  * Helper extension to perform type-safe unchecked casts from generic maps.
@@ -330,13 +338,13 @@ public fun <T> Map<Metadata.Key<*>, *>.getUnchecked(key: Metadata.Key<T>): T? = 
  * This is an internal helper to retrieve a value from a map of [CameraCharacteristics.Key] to
  * generic objects, casting the result to the type specified by the key.
  *
- * @param T The expected return type.
+ * @param T The expected return type (must be non-nullable).
  * @param key The key to look up.
  * @return The casted value, or `null` if the key is not present in the map.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> Map<CameraCharacteristics.Key<*>, *>.getUnchecked(
+public fun <T : Any> Map<CameraCharacteristics.Key<*>, *>.getUnchecked(
     key: CameraCharacteristics.Key<T>
 ): T? = this[key] as T?
 
@@ -346,13 +354,13 @@ public fun <T> Map<CameraCharacteristics.Key<*>, *>.getUnchecked(
  * This is an internal helper to retrieve a value from a map of [CaptureRequest.Key] to generic
  * objects, casting the result to the type specified by the key.
  *
- * @param T The expected return type.
+ * @param T The expected return type (must be non-nullable).
  * @param key The key to look up.
  * @return The casted value, or `null` if the key is not present in the map.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> Map<CaptureRequest.Key<*>, *>.getUnchecked(key: CaptureRequest.Key<T>): T? =
+public fun <T : Any> Map<CaptureRequest.Key<*>, *>.getUnchecked(key: CaptureRequest.Key<T>): T? =
     this[key] as T?
 
 /**
@@ -361,11 +369,11 @@ public fun <T> Map<CaptureRequest.Key<*>, *>.getUnchecked(key: CaptureRequest.Ke
  * This is an internal helper to retrieve a value from a map of [CaptureResult.Key] to generic
  * objects, casting the result to the type specified by the key.
  *
- * @param T The expected return type.
+ * @param T The expected return type (must be non-nullable).
  * @param key The key to look up.
  * @return The casted value, or `null` if the key is not present in the map.
  */
 @Suppress("UNCHECKED_CAST")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> Map<CaptureResult.Key<*>, *>.getUnchecked(key: CaptureResult.Key<T>): T? =
+public fun <T : Any> Map<CaptureResult.Key<*>, *>.getUnchecked(key: CaptureResult.Key<T>): T? =
     this[key] as T?
