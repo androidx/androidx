@@ -58,7 +58,7 @@ internal class A2uiComponentScopeImpl(
     }
 
     override fun dispatchAction(actionPayload: Map<String, Any?>) {
-        TODO("Not implemented yet")
+        surface.dispatchAction(id, actionPayload)
     }
 
     override fun reportError(exception: A2uiException) {
