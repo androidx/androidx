@@ -93,9 +93,8 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
 
     val rippleThemeConfiguration =
         when (theme.focusIndicationStyle) {
-            FocusIndicationStyle.Opacity -> RippleDefaults.OpacityFocusRippleThemeConfiguration
-            FocusIndicationStyle.InsetFocusRing ->
-                RippleDefaults.InsetFocusRingRippleThemeConfiguration
+            FocusIndicationStyle.Opacity -> RippleDefaults.OpacityFocusThemeConfiguration
+            FocusIndicationStyle.InsetFocusRing -> RippleDefaults.InsetFocusRingThemeConfiguration
         }
 
     CompositionLocalProvider(
