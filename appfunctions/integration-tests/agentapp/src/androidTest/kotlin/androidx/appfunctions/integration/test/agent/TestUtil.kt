@@ -158,8 +158,8 @@ internal object TestUtil {
                 )
             }
         val signedPackage = "${context.packageName}:$certificate"
-        executeShellCommand("cmd app_function purge-allowlist-cache")
-        executeShellCommand(
+        executeShellCommandSync("cmd app_function purge-allowlist-cache")
+        executeShellCommandSync(
             buildString {
                 append("cmd allowlist add-package-multimap")
                 append(" ")
@@ -170,13 +170,17 @@ internal object TestUtil {
                 append(targetPackageName)
             }
         )
+        executeShellCommandSync("cmd app_function set-temporary-caller ${context.packageName}")
+        executeShellCommandSync("cmd app_function flush-allowlist-changes")
     }
 
     /** Revokes AppFunction access. */
     fun UiAutomation.revokeAppFunctionAccess() {
         if (Build.VERSION.SDK_INT < 37) return
-        executeShellCommand("cmd app_function purge-allowlist-cache")
-        executeShellCommand("cmd allowlist clear-shell-allowlist $APP_FUNCTION_ALLOWLIST_ID")
+        executeShellCommandSync("cmd app_function purge-allowlist-cache")
+        executeShellCommandSync("cmd allowlist clear-shell-allowlist $APP_FUNCTION_ALLOWLIST_ID")
+        executeShellCommandSync("cmd app_function clear-temporary-caller")
+        executeShellCommandSync("cmd app_function flush-allowlist-changes")
     }
 
     /** Starts a background service using shell command to bypass background start restrictions. */
