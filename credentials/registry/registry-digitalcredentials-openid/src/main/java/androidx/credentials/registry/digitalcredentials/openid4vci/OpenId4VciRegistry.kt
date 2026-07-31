@@ -186,42 +186,53 @@ private constructor(
             preferredProtocols: List<String>,
         ): ByteArray {
             val icon = displayData?.holderDisplayData?.icon
-            val hasIcon = icon != null && icon.isNotEmpty()
+            val hasIcon = icon?.isNotEmpty() == true
+
+            // Package-level display info (app name and icon) is serialized as a separate
+            // object at the top level. This is optional and only included if name or icon
+            // is provided by the caller.
+            val jsonPackageInfo =
+                displayData?.holderDisplayData?.let { holderData ->
+                    val name = holderData.name
+                    val hasName = !name.isNullOrEmpty()
+                    if (hasName || hasIcon) {
+                        JSONObject().apply {
+                            if (hasName) put("name", name)
+                            if (hasIcon) {
+                                // The icon bytes are packed at the beginning of the returned binary
+                                // blob (starting at offset 4, after the 4-byte JSON offset).
+                                // The JSON references the icon using its start and end offsets in
+                                // the packed blob.
+                                put(
+                                    "icon",
+                                    JSONArray().apply {
+                                        put(NUM_BYTES_PER_INT32) // Start offset of icon (always 4)
+                                        put(NUM_BYTES_PER_INT32 + icon!!.size) // End offset of icon
+                                    },
+                                )
+                            }
+                        }
+                    } else {
+                        null
+                    }
+                }
 
             val jsonEntries = JSONArray()
             val entries = displayData?.entries ?: emptyList()
 
             if (entries.isEmpty()) {
-                val jsonEntry =
-                    JSONObject().apply {
-                        displayData?.holderDisplayData?.name?.let { put("title", it) }
-                        if (hasIcon) {
-                            put(
-                                "icon",
-                                JSONArray().apply {
-                                    put(NUM_BYTES_PER_INT32)
-                                    put(NUM_BYTES_PER_INT32 + icon!!.size)
-                                },
-                            )
-                        }
-                    }
-                jsonEntries.put(jsonEntry)
+                // If the caller didn't provide any entries, we still register a single empty
+                // entry. This ensures the credential option is registered and can be matched,
+                // fallbacking to the package-level name/icon for display.
+                jsonEntries.put(JSONObject())
             } else {
+                // Individual entries only contain subtitle and explainer. The title and icon
+                // are omitted here as they are declared at the package-level.
                 for (entry in entries) {
                     val jsonEntry =
                         JSONObject().apply {
-                            displayData?.holderDisplayData?.name?.let { put("title", it) }
                             entry.subtitle?.let { put("subtitle", it) }
                             entry.explainer?.let { put("explainer", it.asJson()) }
-                            if (hasIcon) {
-                                put(
-                                    "icon",
-                                    JSONArray().apply {
-                                        put(NUM_BYTES_PER_INT32)
-                                        put(NUM_BYTES_PER_INT32 + icon!!.size)
-                                    },
-                                )
-                            }
                         }
                     jsonEntries.put(jsonEntry)
                 }
@@ -233,6 +244,9 @@ private constructor(
                         put("entry_id", id)
                         put("entries", jsonEntries)
                         put("filter", filter.asJson())
+                        if (jsonPackageInfo != null) {
+                            put("self_declared_package_info", jsonPackageInfo)
+                        }
                         if (preferredProtocols.isNotEmpty()) {
                             put("preferred_protocols", JSONArray(preferredProtocols))
                         }
