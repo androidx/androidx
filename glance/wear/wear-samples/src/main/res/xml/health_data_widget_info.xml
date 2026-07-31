@@ -20,6 +20,8 @@
     label="@string/health_data_widget_label"
     preferredType="@integer/glance_wear_container_type_large">
 
-    <container type="@integer/glance_wear_container_type_large" />
+    <container
+        type="@integer/glance_wear_container_type_large"
+        previewImage="@drawable/health_data_widget_preview" />
 
 </wearwidget-provider>
