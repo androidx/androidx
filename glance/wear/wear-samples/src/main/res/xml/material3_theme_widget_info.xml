@@ -20,6 +20,8 @@
     label="@string/material3_theme_widget_label"
     preferredType="@integer/glance_wear_container_type_large">
 
-    <container type="@integer/glance_wear_container_type_large" />
+    <container
+        type="@integer/glance_wear_container_type_large"
+        previewImage="@drawable/material3_theme_widget_preview" />
 
 </wearwidget-provider>
