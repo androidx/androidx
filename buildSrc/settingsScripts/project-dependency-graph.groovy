@@ -43,6 +43,7 @@ class ProjectDependencyGraph {
     private Map<String, Set<String>> projectConsumers = new HashMap<String, Set<String>>()
 
     private Set<String> publishedLibraryProjects = new HashSet<>()
+    private Set<String> macTargetProjects = new HashSet<>()
 
     /**
      * A map of all project paths to their project directory.
@@ -61,6 +62,10 @@ class ProjectDependencyGraph {
 
     Map<String, Set<String>> allProjectConsumers() {
         return projectConsumers
+    }
+
+    boolean isMacProject(String projectPath) {
+        return macTargetProjects.contains(projectPath)
     }
 
     /**
@@ -245,6 +250,9 @@ class ProjectDependencyGraph {
                     .fileValue(buildFile)
             def contents = settings.providers.fileContents(buildGradleProperty)
                     .getAsText().get()
+            if (macTargetPattern.matcher(contents).find()) {
+                macTargetProjects.add(projectPath)
+            }
             for (line in contents.lines()) {
                 Matcher m = projectReferencePattern.matcher(line)
                 if (m.find()) {
@@ -352,6 +360,9 @@ class ProjectDependencyGraph {
         }
     }
 
+    private static Pattern macTargetPattern = Pattern.compile(
+            "(?i)\\b(mac|ios|watchos|tvos|darwin)\\w*\\s*[\\(\\{]"
+    )
     private static Pattern projectReferencePattern = Pattern.compile(
             "(project|projectOrArtifact)\\((path: )?[\"'](?<name>\\S*)[\"'](, configuration: .*)?\\)"
     )
