@@ -365,10 +365,9 @@ class ResolutionSelectorDeviceTest(
         assumeTrue(isSixtyFpsSupported())
 
         val preview = Preview.Builder().setTargetFrameRate(Range.create(60, 60)).build()
-        val imageCapture = ImageCapture.Builder().build()
 
         instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageCapture)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         }
 
         assertThat(getMaxFrameRate(preview.attachedSurfaceResolution!!)).isEqualTo(60)
