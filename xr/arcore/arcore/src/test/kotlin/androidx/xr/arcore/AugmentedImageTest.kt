@@ -49,6 +49,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -149,6 +150,7 @@ class AugmentedImageTest {
             activityController.pause()
             advanceUntilIdle()
             session.configure(Config.Builder().setAugmentedImageDatabase(null).build())
+            ShadowLooper.idleMainLooper()
             activityController.resume()
             advanceUntilIdle()
 
