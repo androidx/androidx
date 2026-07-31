@@ -64,7 +64,14 @@ private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
  * @sample androidx.compose.ui.text.samples.SpanStyleSample
  * @sample androidx.compose.ui.text.samples.SpanStyleBrushSample
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
- * @param color color to apply to the text
+ * @see AnnotatedString
+ * @see TextStyle
+ * @see ParagraphStyle
+ */
+@Immutable
+public class SpanStyle
+/**
+ * @param textForegroundStyle style to apply to the text
  * @param fontSize glyph size. If [TextUnit.Unspecified], inherits size from parent or default
  *   style.
  * @param fontWeight typeface thickness (e.g., bold)
@@ -83,12 +90,7 @@ private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
  * @param shadow shadow effect
  * @param platformStyle platform-specific parameters
  * @param drawStyle drawing style (fill or stroke)
- * @see AnnotatedString
- * @see TextStyle
- * @see ParagraphStyle
  */
-@Immutable
-public class SpanStyle
 internal constructor(
     // The fill to draw text, a unified representation of Color and Brush.
     internal val textForegroundStyle: TextForegroundStyle,

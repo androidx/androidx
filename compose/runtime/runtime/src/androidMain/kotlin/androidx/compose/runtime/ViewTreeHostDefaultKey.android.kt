@@ -28,7 +28,7 @@ import androidx.annotation.IdRes
  * disjoint parents like Dialogs and Popups—to find a value associated with the provided [tagKey].
  *
  * @param T The type of the value associated with this key.
- * @param tagKey The Android Resource ID used as the tag key in [android.view.View.getTag].
+ * @property tagKey The Android Resource ID used as the tag key in [android.view.View.getTag].
  */
 public interface ViewTreeHostDefaultKey<T> : HostDefaultKey<T> {
     /** The Android Resource ID used as the tag key to retrieve the value from a View's tags. */

@@ -50,7 +50,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
     /**
      * Holder object for inputs to [loadInitial].
      *
-     * @param Key Type of data used to query [Value] types out of the [DataSource].
+     * @param Key Type of data used to query `Value` types out of the [DataSource].
      * @param requestedInitialKey Load items around this key, or at the beginning of the data set if
      *   `null` is passed.
      *
@@ -73,7 +73,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
     /**
      * Holder object for inputs to [loadBefore] and [loadAfter].
      *
-     * @param Key Type of data used to query [Value] types out of the [DataSource].
+     * @param Key Type of data used to query `Value` types out of the [DataSource].
      * @param key Load items before/after this key.
      *
      * Returned data must begin directly adjacent to this position.

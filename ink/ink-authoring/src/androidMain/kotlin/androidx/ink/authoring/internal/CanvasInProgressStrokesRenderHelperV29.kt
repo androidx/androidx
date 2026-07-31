@@ -54,7 +54,7 @@ import kotlin.math.floor
  * [android.os.Build.VERSION_CODES.Q] and before [android.os.Build.VERSION_CODES.TIRAMISU].
  *
  * @param mainView The [View] within which the front buffer should be constructed.
- * @param callback How to render the desired content within the front buffer.
+ * @property callback How to render the desired content within the front buffer.
  * @param renderer Draws individual stroke objects using [Canvas].
  * @param canvasFrontBufferedRendererAdapter Override the default only for testing.
  * @param frontBufferToHwuiHandoffFactory Override the default only for testing.

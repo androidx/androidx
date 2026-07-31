@@ -503,8 +503,6 @@ internal constructor(
      * an [UnconfinedTestDispatcher] will be created. In both cases, the `TestCoroutineScheduler`
      * from the `effectContext` will be used if present.
      *
-     * @param A The Activity type to be interacted with, which typically (but not necessarily) is
-     *   the activity that was launched and hosts the Compose content.
      * @param effectContext The [CoroutineContext] used to run the composition. The context for
      *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
      *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
@@ -527,8 +525,6 @@ internal constructor(
      * will be created. In both cases, the `TestCoroutineScheduler` from the `effectContext` will be
      * used if present.
      *
-     * @param A The Activity type to be interacted with, which typically (but not necessarily) is
-     *   the activity that was launched and hosts the Compose content.
      * @param effectContext The [CoroutineContext] used to run the composition. The context for
      *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
      *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be

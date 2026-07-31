@@ -29,8 +29,6 @@ import kotlin.jvm.JvmOverloads
  * [NavigationEventHistory] is stable during gestures and only updates when the active handler
  * changes or when the active handler's info (its local stack) is updated.
  *
- * @param mergedHistory The combined navigation stack from the root (index 0) to the leaf (last
- *   index).
  * @param currentIndex The index within [mergedHistory] that represents the currently active
  *   destination.
  */
