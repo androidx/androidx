@@ -18,8 +18,10 @@
 
 package androidx.compose.remote.player.compose.embedded.modifier
 
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.readDataReflection
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -41,29 +43,30 @@ internal fun Modifier.clipRect(op: ClipRectModifierOperation): Modifier {
     return this.clip(RectangleShape)
 }
 
+internal data class ClipCorner(val value: State<Float>, val literal: Boolean = true)
+
 @Composable
 internal fun Modifier.roundedClipRect(op: RoundedClipRectModifierOperation): Modifier {
+    val behavior = LocalCoreDocument.current.densityBehavior
     val data = op.readDataReflection()
-    val topStartPx = rememberRemoteFloatAsState(data.x1Value)
-    val topEndPx = rememberRemoteFloatAsState(data.y1Value)
-    val bottomEndPx = rememberRemoteFloatAsState(data.y2Value)
-    val bottomStartPx = rememberRemoteFloatAsState(data.x2Value)
 
     return this.clip(
         RemoteRoundedClipShape(
-            topStart = topStartPx,
-            topEnd = topEndPx,
-            bottomEnd = bottomEndPx,
-            bottomStart = bottomStartPx,
+            topStart = ClipCorner(rememberRemoteFloatAsState(data.x1Value), !data.x1.isNaN()),
+            topEnd = ClipCorner(rememberRemoteFloatAsState(data.y1Value), !data.y1.isNaN()),
+            bottomEnd = ClipCorner(rememberRemoteFloatAsState(data.y2Value), !data.y2.isNaN()),
+            bottomStart = ClipCorner(rememberRemoteFloatAsState(data.x2Value), !data.x2.isNaN()),
+            densityBehavior = behavior,
         )
     )
 }
 
 internal data class RemoteRoundedClipShape(
-    val topStart: State<Float>,
-    val topEnd: State<Float>,
-    val bottomEnd: State<Float>,
-    val bottomStart: State<Float>,
+    val topStart: ClipCorner,
+    val topEnd: ClipCorner,
+    val bottomEnd: ClipCorner,
+    val bottomStart: ClipCorner,
+    val densityBehavior: Int = CoreDocument.DENSITY_BEHAVIOR_DP,
 ) : Shape {
     override fun createOutline(
         size: Size,
@@ -72,10 +75,13 @@ internal data class RemoteRoundedClipShape(
     ): Outline {
         val minDimension = size.minDimension
         val fallback = minDimension / 2f
-        val topStartRadius = topStart.value.componentRelativeRadius(fallback, minDimension)
-        val topEndRadius = topEnd.value.componentRelativeRadius(fallback, minDimension)
-        val bottomEndRadius = bottomEnd.value.componentRelativeRadius(fallback, minDimension)
-        val bottomStartRadius = bottomStart.value.componentRelativeRadius(fallback, minDimension)
+        val topStartRadius =
+            topStart.resolve(minDimension, fallback, density.density, densityBehavior)
+        val topEndRadius = topEnd.resolve(minDimension, fallback, density.density, densityBehavior)
+        val bottomEndRadius =
+            bottomEnd.resolve(minDimension, fallback, density.density, densityBehavior)
+        val bottomStartRadius =
+            bottomStart.resolve(minDimension, fallback, density.density, densityBehavior)
 
         return Outline.Rounded(
             RoundRect(
@@ -89,11 +95,16 @@ internal data class RemoteRoundedClipShape(
     }
 }
 
-internal fun Float.componentRelativeRadius(fallback: Float, minDimension: Float): Float =
-    when {
-        !isFinite() -> fallback
-        // Percent corner sizes can arrive as 0..1 fractions before the component-size expression
-        // has settled into pixels.
-        this > 0f && this <= 1f -> this * minDimension
-        else -> this
+internal fun ClipCorner.resolve(
+    minDimension: Float,
+    fallback: Float,
+    density: Float,
+    densityBehavior: Int,
+): Float {
+    val v = value.value
+    return when {
+        !v.isFinite() -> fallback
+        literal -> if (densityBehavior == CoreDocument.DENSITY_BEHAVIOR_DP) v * density else v
+        else -> v
     }
+}
