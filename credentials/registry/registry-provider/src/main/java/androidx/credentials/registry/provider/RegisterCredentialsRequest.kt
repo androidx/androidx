@@ -46,7 +46,7 @@ package androidx.credentials.registry.provider
  */
 public abstract class RegisterCredentialsRequest
 @JvmOverloads
-constructor(
+internal constructor(
     public val type: String,
     public val id: String,
     public val credentials: ByteArray,

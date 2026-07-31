@@ -17,10 +17,12 @@
 package androidx.credentials.registry.provider.playservices
 
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.DigitalCredential
+import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCredentialsException
-import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegisterCredentialsResponse
 import androidx.credentials.registry.provider.RegistryManager
+import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -34,6 +36,7 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalDigitalCredentialApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class PlayServicesRegistryManagerTest {
@@ -66,8 +69,7 @@ class PlayServicesRegistryManagerTest {
                 val result =
                     registryManager.registerCredentials(
                         object :
-                            RegisterCredentialsRequest(
-                                "type",
+                            DigitalCredentialRegistry(
                                 "id",
                                 ByteArray(4),
                                 ByteArray(8),
@@ -75,7 +77,7 @@ class PlayServicesRegistryManagerTest {
                             ) {}
                     )
 
-                assertThat(result.type).isEqualTo("type")
+                assertThat(result.type).isEqualTo(DigitalCredential.TYPE_DIGITAL_CREDENTIAL)
             }
         }
 
@@ -86,8 +88,7 @@ class PlayServicesRegistryManagerTest {
             var resultType = ""
             registryManager.registerCredentialsAsync(
                 object :
-                    RegisterCredentialsRequest(
-                        "type",
+                    DigitalCredentialRegistry(
                         "id",
                         ByteArray(4),
                         ByteArray(8),
@@ -113,7 +114,7 @@ class PlayServicesRegistryManagerTest {
                 if (executor.executedHere) break
                 delay(100)
             }
-            assertThat(resultType).isEqualTo("type")
+            assertThat(resultType).isEqualTo(DigitalCredential.TYPE_DIGITAL_CREDENTIAL)
             assertThat(executor.executedHere).isTrue()
         }
     }
