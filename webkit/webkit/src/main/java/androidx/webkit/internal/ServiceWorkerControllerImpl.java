@@ -40,11 +40,12 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
     public ServiceWorkerControllerImpl() {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl = ApiHelperForN.getServiceWorkerControllerInstance();
+            mFrameworksImpl = ServiceWorkerController.getInstance();
             // The current WebView APK might not be compatible with the support library, so set the
             // boundary interface to null for now.
             mBoundaryInterface = null;
-            mWebSettings = ApiHelperForN.getServiceWorkerWebSettingsImpl(getFrameworksImpl());
+            mWebSettings = new ServiceWorkerWebSettingsImpl(
+                    getFrameworksImpl().getServiceWorkerWebSettings());
         } else if (feature.isSupportedByWebView()) {
             mFrameworksImpl = null;
             mBoundaryInterface = WebViewGlueCommunicator.getFactory().getServiceWorkerController();
@@ -57,7 +58,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
 
     private ServiceWorkerController getFrameworksImpl() {
         if (mFrameworksImpl == null) {
-            mFrameworksImpl = ApiHelperForN.getServiceWorkerControllerInstance();
+            mFrameworksImpl = ServiceWorkerController.getInstance();
         }
         return mFrameworksImpl;
     }
@@ -79,9 +80,10 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             if (client == null) {
-                ApiHelperForN.setServiceWorkerClient(getFrameworksImpl(), null);
+                getFrameworksImpl().setServiceWorkerClient(null);
             } else {
-                ApiHelperForN.setServiceWorkerClientCompat(getFrameworksImpl(), client);
+                getFrameworksImpl().setServiceWorkerClient(
+                        new FrameworkServiceWorkerClient(client));
             }
         } else if (feature.isSupportedByWebView()) {
             if (client == null) {

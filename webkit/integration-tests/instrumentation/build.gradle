@@ -13,9 +13,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.webkit.instrumentation"
     flavorDimensions = ["targetSdk"]
 

@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -25,7 +24,6 @@ import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
@@ -53,7 +51,6 @@ import okhttp3.mockwebserver.RecordedRequest;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 public class CustomHeadersTest {
 
     private static final String SERVER_PATH = "/index.html";

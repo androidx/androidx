@@ -90,7 +90,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setCacheMode(int mode) {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
         if (feature.isSupportedByFramework()) {
-            ApiHelperForN.setCacheMode(getFrameworksImpl(), mode);
+            getFrameworksImpl().setCacheMode(mode);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setCacheMode(mode);
         } else {
@@ -99,10 +99,11 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     }
 
     @Override
+    @SuppressWarnings("WrongConstant")
     public int getCacheMode() {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_CACHE_MODE;
         if (feature.isSupportedByFramework()) {
-            return ApiHelperForN.getCacheMode(getFrameworksImpl());
+            return getFrameworksImpl().getCacheMode();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getCacheMode();
         } else {
@@ -114,7 +115,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setAllowContentAccess(boolean allow) {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
         if (feature.isSupportedByFramework()) {
-            ApiHelperForN.setAllowContentAccess(getFrameworksImpl(), allow);
+            getFrameworksImpl().setAllowContentAccess(allow);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setAllowContentAccess(allow);
         } else {
@@ -126,7 +127,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public boolean getAllowContentAccess() {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_CONTENT_ACCESS;
         if (feature.isSupportedByFramework()) {
-            return ApiHelperForN.getAllowContentAccess(getFrameworksImpl());
+            return getFrameworksImpl().getAllowContentAccess();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getAllowContentAccess();
         } else {
@@ -138,7 +139,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setAllowFileAccess(boolean allow) {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
         if (feature.isSupportedByFramework()) {
-            ApiHelperForN.setAllowFileAccess(getFrameworksImpl(), allow);
+            getFrameworksImpl().setAllowFileAccess(allow);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setAllowFileAccess(allow);
         } else {
@@ -150,7 +151,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public boolean getAllowFileAccess() {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_FILE_ACCESS;
         if (feature.isSupportedByFramework()) {
-            return ApiHelperForN.getAllowFileAccess(getFrameworksImpl());
+            return getFrameworksImpl().getAllowFileAccess();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getAllowFileAccess();
         } else {
@@ -162,7 +163,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public void setBlockNetworkLoads(boolean flag) {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BLOCK_NETWORK_LOADS;
         if (feature.isSupportedByFramework()) {
-            ApiHelperForN.setBlockNetworkLoads(getFrameworksImpl(), flag);
+            getFrameworksImpl().setBlockNetworkLoads(flag);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().setBlockNetworkLoads(flag);
         } else {
@@ -174,7 +175,7 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
     public boolean getBlockNetworkLoads() {
         final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BLOCK_NETWORK_LOADS;
         if (feature.isSupportedByFramework()) {
-            return ApiHelperForN.getBlockNetworkLoads(getFrameworksImpl());
+            return getFrameworksImpl().getBlockNetworkLoads();
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().getBlockNetworkLoads();
         } else {

@@ -38,9 +38,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.webkit.test.common"
 }
 

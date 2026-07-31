@@ -18,12 +18,10 @@ package androidx.webkit;
 
 import static android.webkit.WebSettings.LOAD_DEFAULT;
 
-import android.os.Build;
 import android.webkit.WebStorage;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
@@ -43,8 +41,6 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.QueueDispatcher;
 import okhttp3.mockwebserver.RecordedRequest;
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
-
 @RunWith(AndroidJUnit4.class)
 public class WebStorageTest {
     WebViewOnUiThread mWebViewOnUiThread;
@@ -62,7 +58,6 @@ public class WebStorageTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     @MediumTest
     public void testDeleteBrowsingDataDeletesCache() throws Exception {
@@ -102,7 +97,6 @@ public class WebStorageTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
     @MediumTest
     public void testDeleteBrowsingDataForSiteDeletesCache() throws Exception {
