@@ -46,6 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLooper
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -167,6 +168,7 @@ class AugmentedObjectTest {
             activityController.pause()
             advanceUntilIdle()
             session.configure(Config.Builder().setAugmentedObjectCategories(emptySet()).build())
+            ShadowLooper.idleMainLooper()
             activityController.resume()
             advanceUntilIdle()
 

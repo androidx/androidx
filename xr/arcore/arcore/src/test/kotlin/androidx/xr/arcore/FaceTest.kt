@@ -51,6 +51,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLooper
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -173,7 +174,7 @@ class FaceTest {
             activityController.pause()
             advanceUntilIdle()
             session.configure(DISABLED_CONFIG)
-            advanceUntilIdle()
+            ShadowLooper.idleMainLooper()
             activityController.resume()
             advanceUntilIdle()
 

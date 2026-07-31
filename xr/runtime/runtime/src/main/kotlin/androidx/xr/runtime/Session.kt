@@ -373,10 +373,13 @@ public constructor(
     /** A [StateFlow] of the current state. */
     public val state: StateFlow<CoreState> = _state.asStateFlow()
 
+    @Volatile private var isConfigured = false
+    @Volatile private var isResumed = false
     @Volatile private var isDestroyed = false
     private var contextLifecycleObserver: LifecycleEventObserver? = null
 
-    private var updateJob: Job? = null
+    @Volatile private var updateJob: Job? = null
+    private val mainDispatcher = ContextCompat.getMainExecutor(context).asCoroutineDispatcher()
 
     private val configurationMutex = Mutex()
     private val lifecycleLock = Any()
@@ -438,8 +441,6 @@ public constructor(
      *   application for the provided configuration
      */
     public fun configure(config: Config): SessionConfigureResult {
-        // Fast-path framework check: fail fast outside runBlocking if the lifecycle is already
-        // dead.
         check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
             "Session has been destroyed."
         }
@@ -448,7 +449,6 @@ public constructor(
         }
         return runBlocking {
             configurationMutex.withLock {
-                // Thread-safe internal check: verify session was not destroyed concurrently.
                 check(!isDestroyed) { "Session has been destroyed." }
                 val runtimesConfigured: MutableList<JxrRuntime> = mutableListOf()
                 try {
@@ -474,6 +474,10 @@ public constructor(
                     }
                 }
                 this@Session.config = config
+                isConfigured = true
+                if (isResumed) {
+                    startUpdateLoop()
+                }
                 SessionConfigureSuccess()
             }
         }
@@ -481,10 +485,23 @@ public constructor(
 
     /** Starts or resumes the session. */
     private fun resume() {
+        executeWithConfigurationMutex { resumeRuntimes() }
+    }
+
+    private fun resumeRuntimes() {
         for (runtime in runtimes) {
             runtime.resume()
         }
-        updateJob = coroutineScope.launch { updateLoop() }
+        if (isConfigured) {
+            startUpdateLoop()
+        }
+        isResumed = true
+    }
+
+    private fun startUpdateLoop() {
+        if (updateJob == null) {
+            updateJob = coroutineScope.launch { updateLoop() }
+        }
     }
 
     /**
@@ -494,10 +511,34 @@ public constructor(
      * Calling this method on an inactive session is a no-op.
      */
     private fun pause() {
+        isResumed = false
         updateJob?.cancel()
         updateJob = null
+
+        executeWithConfigurationMutex { pauseRuntimes() }
+    }
+
+    private fun pauseRuntimes() {
         for (runtime in runtimes) {
             runtime.pause()
+        }
+    }
+
+    private fun executeWithConfigurationMutex(action: () -> Unit) {
+        // Fast-path: If the configuration lock is available, execute the action synchronously to
+        // avoid blocking the main thread.
+        if (configurationMutex.tryLock()) {
+            try {
+                action()
+            } finally {
+                configurationMutex.unlock()
+            }
+        } else {
+            // Fallback-path: If the lock is held, launch a Main-thread coroutine to execute the
+            // action asynchronously. This preserves the threading model, as Lifecycle events
+            // are otherwise guaranteed to be executed on the main thread. A new CoroutineScope is
+            // used to avoid cancellation when the session is destroyed.
+            CoroutineScope(mainDispatcher).launch { configurationMutex.withLock { action() } }
         }
     }
 
@@ -531,27 +572,7 @@ public constructor(
             (context as? LifecycleOwner)?.lifecycle?.removeObserver(observer)
         }
         contextLifecycleObserver = null
-
-        // Fast-path: If the configuration lock is available, destroy the runtimes synchronously.
-        // This ensures GL/EGL contexts and surface resources are released before onDestroy()
-        // returns.
-        // Fallback-path: If the lock is held, launch a Main-thread coroutine to clean up
-        // asynchronously.
-        // We cannot block the Main thread waiting for the lock here, as that would risk ANRs in
-        // production and cause deadlocks in single-threaded test environments where the lock owner
-        // needs the Main thread to release.
-        if (configurationMutex.tryLock()) {
-            try {
-                destroyRuntimes()
-            } finally {
-                configurationMutex.unlock()
-            }
-        } else {
-            val mainDispatcher = ContextCompat.getMainExecutor(context).asCoroutineDispatcher()
-            CoroutineScope(mainDispatcher).launch {
-                configurationMutex.withLock { destroyRuntimes() }
-            }
-        }
+        executeWithConfigurationMutex { destroyRuntimes() }
     }
 
     private suspend fun updateLoop() {
