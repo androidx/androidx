@@ -47,6 +47,10 @@ package androidx.compose.runtime
  * the compiler encodes the set of appliers that they are compatible with at index 0 of [indexed].
  * The body of the return type does not have an index, so the compiler encodes the set of appliers
  * that it is compatible with in [positional].
+ *
+ * If the [indexed] argument is empty, it means that there are no constraints on any indexed parts
+ * of the annotated function. If the [positional] argument is empty, it means that there are no
+ * constraints on any non-indexed parts of the annotated function.
  */
 @ComposeCompilerApi
 @Retention(AnnotationRetention.BINARY)
