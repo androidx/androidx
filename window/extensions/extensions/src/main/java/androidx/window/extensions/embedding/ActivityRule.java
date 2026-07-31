@@ -22,7 +22,6 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.window.extensions.RequiresVendorApiLevel;
-import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Predicate;
 
 import org.jspecify.annotations.NonNull;
@@ -82,9 +81,9 @@ public class ActivityRule extends EmbeddingRule {
 
         /**
          * @deprecated Use {@link #Builder(Predicate, Predicate)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * {@code WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
          * {@link #Builder(Predicate, Predicate)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * {@code WindowExtensions#VENDOR_API_LEVEL_1}.
          */
         @Deprecated
         @RequiresApi(Build.VERSION_CODES.N)
