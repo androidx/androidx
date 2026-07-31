@@ -42,7 +42,7 @@ internal object DokkaInputModels {
         @get:InputFiles @PathSensitive(PathSensitivity.RELATIVE) val sourceRoots: FileCollection,
         @get:InputFiles @PathSensitive(PathSensitivity.RELATIVE) val samples: FileCollection,
         @get:InputFiles @PathSensitive(PathSensitivity.RELATIVE) val includes: FileCollection,
-        @get:Input val analysisPlatform: String,
+        @get:Input val analysisPlatform: DokkaAnalysisPlatform,
         @get:Input val documentedVisibilities: List<String> = listOf("PUBLIC", "PROTECTED"),
         @get:Input val noStdlibLink: Boolean,
         @get:Input val noJdkLink: Boolean,

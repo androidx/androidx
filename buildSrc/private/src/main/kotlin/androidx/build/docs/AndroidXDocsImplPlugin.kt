@@ -20,6 +20,8 @@ import androidx.build.KonanPrebuiltsSetup
 import androidx.build.clang.ClangBuildService
 import androidx.build.configureTaskTimeouts
 import androidx.build.dackka.DackkaTask
+import androidx.build.dackka.DokkaAnalysisPlatform
+import androidx.build.dackka.DokkaUtils
 import androidx.build.dackka.GenerateMetadataTask
 import androidx.build.defaultAndroidConfig
 import androidx.build.getAndroidJar
@@ -983,7 +985,7 @@ data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>) {
 
 data class SourceSetMetadata(
     val name: String,
-    val analysisPlatform: String,
+    var analysisPlatform: DokkaAnalysisPlatform,
     var dependencies: List<String>,
 )
 
@@ -1081,7 +1083,7 @@ abstract class MergeMultiplatformMetadataTask : DefaultTask() {
             .walkTopDown()
             .filter { file -> file.name == PROJECT_STRUCTURE_METADATA_FILENAME }
             .forEach { metaFile ->
-                val gson = GsonBuilder().create()
+                val gson = DokkaUtils.createGson()
                 val metadata =
                     gson.fromJson(metaFile.readText(), ProjectStructureMetadata::class.java)
                 mergedMetadata.merge(metadata)
@@ -1104,6 +1106,8 @@ abstract class MergeMultiplatformMetadataTask : DefaultTask() {
         metadata.sourceSets.forEach { newSourceSet ->
             val existingSourceSet = originalSourceSets.find { it.name == newSourceSet.name }
             if (existingSourceSet != null) {
+                existingSourceSet.analysisPlatform =
+                    existingSourceSet.analysisPlatform.merge(newSourceSet.analysisPlatform)
                 existingSourceSet.dependencies =
                     (newSourceSet.dependencies + existingSourceSet.dependencies).toSet().toList()
             } else {
