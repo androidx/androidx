@@ -17,6 +17,7 @@
 package androidx.camera.common.compat
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics as Camera2CameraExtensionCharacteristics
 import androidx.annotation.RequiresApi
 
 /** Compatibility wrapper for API 35 ([android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM]) APIs. */
@@ -35,5 +36,24 @@ internal object Api35Compat {
         cameraCharacteristics: CameraCharacteristics
     ): List<CameraCharacteristics.Key<*>>? {
         return cameraCharacteristics.availableSessionCharacteristicsKeys
+    }
+
+    /** Returns the set of keys supported by the camera extension. */
+    @JvmStatic
+    fun getExtensionKeys(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+    ): Set<CameraCharacteristics.Key<*>> {
+        return chars.getKeys(extension)
+    }
+
+    /** Returns the value of the extension characteristic key. */
+    @JvmStatic
+    fun <T> getExtensionCharacteristic(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+        key: CameraCharacteristics.Key<T>,
+    ): T? {
+        return chars.get(extension, key)
     }
 }
