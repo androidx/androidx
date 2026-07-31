@@ -17,7 +17,6 @@
 package androidx.compose.foundation.lazy
 
 import androidx.collection.IntList
-import androidx.compose.foundation.ComposeFoundationFlags.isSkipItemPlacementAnimationFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.internal.checkPrecondition
@@ -364,7 +363,7 @@ internal fun measureLazyList(
                 density = density,
             )
 
-        if (!isSkipItemPlacementAnimationFixEnabled || shouldRunItemAnimation) {
+        if (shouldRunItemAnimation) {
             itemAnimator.onMeasured(
                 consumedScroll = consumedScroll.toInt(),
                 layoutWidth = layoutWidth,

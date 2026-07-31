@@ -168,16 +168,6 @@ public object ComposeFoundationFlags {
     public var isBasicTextFieldSizeOptimizationEnabled: Boolean = false
 
     /**
-     * This flag controls the fix where item placement animation in
-     * [androidx.compose.foundation.lazy.LazyColumn] and [androidx.compose.foundation.lazy.LazyRow]
-     * is disabled when animated scroll happens.
-     */
-    // TODO: Remove this flag once it has soaked (b/493183465)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isSkipItemPlacementAnimationFixEnabled: Boolean = true
-
-    /**
      * This flag controls the fix where we correctly dispatch deltas in pager's default
      * pageNestedScrollConnection by considering the role of reverse layout.
      */
