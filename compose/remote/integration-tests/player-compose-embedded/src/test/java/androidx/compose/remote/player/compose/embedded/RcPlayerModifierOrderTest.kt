@@ -101,6 +101,24 @@ class RcPlayerModifierOrderTest {
         }
     }
 
+    @Test
+    fun testDrawContentProcessedOnce() {
+        val componentModifiers = ComponentModifiers()
+        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
+
+        var resolvedModifier: Modifier = Modifier
+
+        rule.setContent {
+            CompositionLocalProvider(LocalRemoteContext provides remoteContext) {
+                resolvedModifier = componentModifiers.toModifier(drawOpsList = listOf())
+            }
+        }
+
+        val elements = resolvedModifier.toElementList()
+        val drawElements = elements.filter { it.javaClass.name.contains("DrawWithContent") }
+        assertEquals(1, drawElements.size)
+    }
+
     private fun Modifier.toElementList(): List<Modifier.Element> {
         val list = mutableListOf<Modifier.Element>()
         foldIn(list) { acc, element ->
