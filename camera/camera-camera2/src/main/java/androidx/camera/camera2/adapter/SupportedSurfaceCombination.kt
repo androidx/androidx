@@ -1631,7 +1631,7 @@ public class SupportedSurfaceCombination(
                 return FRAME_RATE_UNLIMITED
             }
         }
-        return (1_000_000_000.0 / minFrameDuration).toInt()
+        return (1_000_000_000.0 / minFrameDuration + 0.5).toInt()
     }
 
     /**
