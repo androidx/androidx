@@ -22,14 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
@@ -44,17 +40,13 @@ import org.junit.runners.Parameterized
  *
  * This benchmark only adds one replacement span, which is a typical case.
  */
-class SetTextWithInlineContent(private val text: AnnotatedString) :
-    LayeredComposeTestCase(), ToggleableTestCase {
+class SetTextWithInlineContentM3(private val text: AnnotatedString) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf(AnnotatedString(""))
-
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
         Subject(
             toggleText.value,
-            style = style,
             inlineContent =
                 mapOf(
                     BenchmarkInlineContentId to
@@ -78,12 +70,12 @@ class SetTextWithInlineContent(private val text: AnnotatedString) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextWithInlineContentParent(private val size: Int) :
-    EmpiricalBench<SetTextWithInlineContent>() {
+open class SetTextWithInlineContentParentM3(private val size: Int) :
+    EmpiricalBench<SetTextWithInlineContentM3>() {
 
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
-        SetTextWithInlineContent(text.annotateWithInlineContent())
+        SetTextWithInlineContentM3(text.annotateWithInlineContent())
     }
 
     companion object {
@@ -95,7 +87,7 @@ open class SetTextWithInlineContentParent(private val size: Int) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsWithInlineContent(size: Int) : SetTextWithInlineContentParent(size) {
+class AllAppsWithInlineContentM3(size: Int) : SetTextWithInlineContentParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -105,7 +97,7 @@ class AllAppsWithInlineContent(size: Int) : SetTextWithInlineContentParent(size)
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SocialAppWithInlineContent(size: Int) : SetTextWithInlineContentParent(size) {
+class SocialAppWithInlineContentM3(size: Int) : SetTextWithInlineContentParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -120,7 +112,7 @@ class SocialAppWithInlineContent(size: Int) : SetTextWithInlineContentParent(siz
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppWithInlineContent(size: Int) : SetTextWithInlineContentParent(size) {
+class ChatAppWithInlineContentM3(size: Int) : SetTextWithInlineContentParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -135,7 +127,7 @@ class ChatAppWithInlineContent(size: Int) : SetTextWithInlineContentParent(size)
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ShoppingAppWithInlineContent(size: Int) : SetTextWithInlineContentParent(size) {
+class ShoppingAppWithInlineContentM3(size: Int) : SetTextWithInlineContentParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")

@@ -19,12 +19,11 @@ package androidx.compose.foundation.benchmark.text.empirical.baselines
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.foundation.benchmark.text.empirical.AllApps
 import androidx.compose.foundation.benchmark.text.empirical.ChatApps
+import androidx.compose.foundation.benchmark.text.empirical.EmpiricalTestCase
 import androidx.compose.foundation.benchmark.text.empirical.generateCacheableStringOf
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
@@ -48,7 +47,7 @@ import org.junit.runners.Parameterized
  * Text will never be able to be _this_ fast (as we don't _yet_ have time-travel chips), but it is
  * useful to use this number as a floor when evaluating potential optimizations.
  */
-class EmptyLayoutBaseline(private val text: String) : LayeredComposeTestCase(), ToggleableTestCase {
+class EmptyLayoutBaselineM3(private val text: String) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf("")
 
     private val measurePolicy = MeasurePolicy { _, _ ->
@@ -77,13 +76,13 @@ private val modifier = Modifier.fillMaxSize()
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class EmptyLayoutBaselineParent(private val size: Int) {
+open class EmptyLayoutBaselineParentM3(private val size: Int) {
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val caseFactory = {
         val text = generateCacheableStringOf(size)
-        EmptyLayoutBaseline(text)
+        EmptyLayoutBaselineM3(text)
     }
 
     companion object {
@@ -108,7 +107,7 @@ open class EmptyLayoutBaselineParent(private val size: Int) {
 
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsEmptyLayoutBaselineBaseline(size: Int) : EmptyLayoutBaselineParent(size) {
+class AllAppsEmptyLayoutBaselineBaselineM3(size: Int) : EmptyLayoutBaselineParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -118,7 +117,7 @@ class AllAppsEmptyLayoutBaselineBaseline(size: Int) : EmptyLayoutBaselineParent(
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppEmptyLayoutBaselineBaseline(size: Int) : EmptyLayoutBaselineParent(size) {
+class ChatAppEmptyLayoutBaselineBaselineM3(size: Int) : EmptyLayoutBaselineParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")

@@ -19,10 +19,6 @@ package androidx.compose.foundation.benchmark.text.empirical
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.test.filters.LargeTest
 import org.junit.Assume
 import org.junit.runner.RunWith
@@ -33,14 +29,12 @@ import org.junit.runners.Parameterized
  *
  * This intentionally hits as many text caches as possible, to isolate compose setText behavior.
  */
-class SetText(private val text: String) : LayeredComposeTestCase(), ToggleableTestCase {
+class SetTextM3(private val text: String) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf("")
-
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
-        Subject(toggleText.value, style = style)
+        Subject(toggleText.value)
     }
 
     override fun toggleState() {
@@ -54,10 +48,10 @@ class SetText(private val text: String) : LayeredComposeTestCase(), ToggleableTe
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextParent(private val size: Int) : EmpiricalBench<SetText>() {
+open class SetTextParentM3(private val size: Int) : EmpiricalBench<SetTextM3>() {
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
-        SetText(text)
+        SetTextM3(text)
     }
 
     companion object {
@@ -70,7 +64,7 @@ open class SetTextParent(private val size: Int) : EmpiricalBench<SetText>() {
 /** Metrics determined from all apps */
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsSetText(size: Int) : SetTextParent(size) {
+class AllAppsSetTextM3(size: Int) : SetTextParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -85,7 +79,7 @@ class AllAppsSetText(size: Int) : SetTextParent(size) {
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppSetText(size: Int) : SetTextParent(size) {
+class ChatAppSetTextM3(size: Int) : SetTextParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
