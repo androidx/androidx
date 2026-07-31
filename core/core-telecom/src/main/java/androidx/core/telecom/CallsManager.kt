@@ -335,11 +335,13 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * @throws UnsupportedOperationException if the device is on an invalid build
      * @throws androidx.core.telecom.CallException if the platform cannot add the call (e.g. reached
      *   max # of calls) or failed with an exception (e.g. call was already removed)
-     * @throws androidx.core.telecom.CallException.ERROR_OPERATION_TIMED_OUT if the call failed to
-     *   be added within 5000 milliseconds
-     * @throws androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME if
-     *   another call setup is currently in progress. Client applications must wait for the existing
-     *   call setup to complete before initiating another call.
+     * @throws androidx.core.telecom.CallException with error code
+     *   [androidx.core.telecom.CallException.ERROR_OPERATION_TIMED_OUT] if the call failed to be
+     *   added within 5000 milliseconds
+     * @throws androidx.core.telecom.CallException with error code
+     *   [androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME] if another
+     *   call setup is currently in progress. Client applications must wait for the existing call
+     *   setup to complete before initiating another call.
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     public suspend fun addCall(
@@ -392,9 +394,10 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * @param init The scope used to first initialize Extensions that will be used when the call is
      *   first notified to the platform and UX surfaces. Once the call is set up, the user's
      *   implementation of [ExtensionInitializationScope.onCall] will be called.
-     * @throws androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME if
-     *   another call setup is currently in progress. Client applications must wait for the existing
-     *   call setup to complete before initiating another call.
+     * @throws androidx.core.telecom.CallException with error code
+     *   [androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME] if another
+     *   call setup is currently in progress. Client applications must wait for the existing call
+     *   setup to complete before initiating another call.
      * @see CallsManagerExtensions.addCallWithExtensions
      */
     override suspend fun addCallWithExtensions(

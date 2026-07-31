@@ -3834,7 +3834,7 @@ public constructor(
      * Indicates whether the slider is currently being dragged.
      *
      * This is set to `true` when a drag gesture starts (either via user touch interaction or
-     * programmatically via [drag]) and set back to `false` when the gesture completes or is
+     * programmatically via `drag`) and set back to `false` when the gesture completes or is
      * cancelled.
      */
     public var isDragging: Boolean by mutableStateOf(false)
