@@ -85,20 +85,18 @@ internal constructor(
     }
 
     /** Builder class for a [GuavaDataStore]. */
-    public class Builder<T : Any>(
-        /**
-         * Create a [Builder] with the [Callable] which returns the File that [DataStore] acts on.
-         * The user is responsible for ensuring that there is never more than one [DataStore] acting
-         * on a file at a time.
-         *
-         * @param serializer the [Serializer] for the type that this DataStore acts on.
-         * @param produceFile [Function] which returns the file that the new [DataStore] will act
-         *   on. The function must return the same path every time. No two instances of DataStore
-         *   should act on the same file at the same time.
-         */
-        private val serializer: Serializer<T>,
-        private val produceFile: Callable<File>,
-    ) {
+    public class Builder<T : Any>
+    /**
+     * Create a [Builder] with the [Callable] which returns the File that [DataStore] acts on. The
+     * user is responsible for ensuring that there is never more than one [DataStore] acting on a
+     * file at a time.
+     *
+     * @param serializer the [Serializer] for the type that this DataStore acts on.
+     * @param produceFile [Function] which returns the file that the new [DataStore] will act on.
+     *   The function must return the same path every time. No two instances of DataStore should act
+     *   on the same file at the same time.
+     */
+    constructor(private val serializer: Serializer<T>, private val produceFile: Callable<File>) {
 
         /**
          * Create a [Builder] with the [Context] and name from which to derive the [DataStore] file.

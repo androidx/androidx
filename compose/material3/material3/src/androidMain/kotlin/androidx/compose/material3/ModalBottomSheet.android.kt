@@ -70,10 +70,10 @@ import java.util.UUID
 /**
  * Properties used to customize the behavior of a [ModalBottomSheet].
  *
- * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
+ * @property securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
  *   sheet's window.
- * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing the
- *   back button. If true, pressing the back button will call onDismissRequest.
+ * @property shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing
+ *   the back button. If true, pressing the back button will call onDismissRequest.
  */
 @Immutable
 @ExperimentalMaterial3Api
