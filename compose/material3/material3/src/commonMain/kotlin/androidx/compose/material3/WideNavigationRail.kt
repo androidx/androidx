@@ -83,6 +83,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
@@ -227,6 +228,7 @@ private fun WideNavigationRailLayout(
             targetValue = if (!expanded) TopIconItemMinHeight else minimumA11ySize,
             animationSpec = animationSpec,
         )
+    val density = LocalDensity.current
 
     Surface(
         color = if (!isModal) colors.containerColor else colors.modalContainerColor,
@@ -368,12 +370,16 @@ private fun WideNavigationRailLayout(
                             }
 
                             if (itemsPlaceables != null) {
+                                val topPadding = contentPadding.calculateTopPadding().roundToPx()
+                                val bottomPadding =
+                                    contentPadding.calculateBottomPadding().roundToPx()
                                 val layoutSize =
                                     if (arrangement == Arrangement.Center) {
                                         // For centered arrangement the items will be centered in
                                         // the container, not in the remaining space below the
-                                        // header.
-                                        height
+                                        // header. Since height does not account for vertical
+                                        // padding, we need to add them here.
+                                        height + topPadding + bottomPadding
                                     } else {
                                         height - headerOffset
                                     }
@@ -388,7 +394,13 @@ private fun WideNavigationRailLayout(
                                 with(arrangement) { arrange(layoutSize, sizes, y) }
 
                                 val offset =
-                                    if (arrangement == Arrangement.Center) 0 else headerOffset
+                                    if (arrangement == Arrangement.Center) {
+                                        // Negatively offset the top padding so the items are
+                                        // actually centered.
+                                        -topPadding
+                                    } else {
+                                        headerOffset
+                                    }
                                 itemsPlaceables.fastForEachIndexed { index, item ->
                                     item.placeRelative(0, y[index] + offset)
                                 }
@@ -964,12 +976,7 @@ public object WideNavigationRailDefaults {
 
     /** The default content padding used for [WideNavigationRail] and [ModalWideNavigationRail]. */
     public val ContentPadding: PaddingValues =
-        PaddingValues(
-            start = 0.dp,
-            top = WNRVerticalPadding,
-            end = 0.dp,
-            bottom = WNRVerticalPadding,
-        )
+        PaddingValues(start = 0.dp, top = WNRTopPadding, end = 0.dp, bottom = 0.dp)
 
     private val containerColor: Color
         @Composable get() = NavigationRailCollapsedTokens.ContainerColor.value
@@ -1322,8 +1329,8 @@ internal val WNRItemNoLabelIndicatorPadding =
 internal val WNRItemHorizontalPadding
     get() = 20.dp
 
-// Vertical padding between the contents of the wide navigation rail and its top/bottom.
-private val WNRVerticalPadding
+// Top padding between the contents of the wide navigation rail and its top.
+private val WNRTopPadding
     get() = NavigationRailCollapsedTokens.TopSpace
 // Padding at the bottom of the rail's header. This padding will only be added when the header is
 // not null and the rail arrangement is Top.

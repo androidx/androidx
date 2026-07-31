@@ -803,8 +803,6 @@ class WideNavigationRailTest {
         // Assert item is at the bottom.
         rule
             .onNodeWithTag("item", useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(
-                (railBounds.height - verticalPadding - itemBounds.height)
-            )
+            .assertTopPositionInRootIsEqualTo((railBounds.height - itemBounds.height))
     }
 }
