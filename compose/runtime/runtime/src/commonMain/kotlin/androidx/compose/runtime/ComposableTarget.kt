@@ -21,7 +21,7 @@ package androidx.compose.runtime
  * function expects an applier whose name is the [applier] argument of any of the [ComposableTarget]
  * annotations marking the function.
  *
- * Beware that only version 2.4.20 and newer of the Compose compiler plugin correctly acknowledge
+ * Beware that only version 2.5.0 and newer of the Compose compiler plugin correctly acknowledge
  * multiple applications of this annotation on a single function. Older versions of the Compose
  * compiler plugin will only acknowledge the [ComposableTarget] annotation on a function that comes
  * earliest in the file.
