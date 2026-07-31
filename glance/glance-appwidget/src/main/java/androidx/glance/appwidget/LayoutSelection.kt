@@ -133,7 +133,7 @@ internal enum class LayoutType {
 }
 
 /** Mapping from layout type to fixed layout (if any). */
-private val LayoutMap =
+private val LayoutMap: Map<LayoutType, Int> =
     mapOf(
         LayoutType.Text to R.layout.glance_text,
         LayoutType.List to R.layout.glance_list,
