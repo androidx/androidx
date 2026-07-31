@@ -144,6 +144,7 @@ public class WebViewFeature {
             WEBVIEW_NAVIGATE_EXPERIMENTAL_V1,
             DOWNLOAD_FAVICONS_ENABLED,
             HTTP_CACHE_MANAGER,
+            CROSS_ORIGIN_ISOLATED_ALLOWLIST,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -990,6 +991,16 @@ public class WebViewFeature {
      * {@link HttpCache#setQuotaBytes(long)}
      */
     public static final String HTTP_CACHE_MANAGER = "HTTP_CACHE_MANAGER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#setCrossOriginIsolatedAllowlist(Set)}
+     * {@link Profile#getCrossOriginIsolatedAllowlist()}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String CROSS_ORIGIN_ISOLATED_ALLOWLIST =
+            "CROSS_ORIGIN_ISOLATED_ALLOWLIST";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

@@ -739,4 +739,62 @@ public interface Profile {
     default @NonNull HttpCache getHttpCache() {
         throw new UnsupportedOperationException("Profile#getHttpCache is not implemented.");
     }
+
+    /**
+     * Get the current allowlist of origins, with explicitly written ports, for cross-origin
+     * isolated APIs.
+     * <p>
+     * If setting the origin rule {@code https://example.com}, this method will return the same
+     * origin rule as {@code https://example.com:443}).
+     *
+     * @return An empty set if no allowlist has been set.
+     *
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#CROSS_ORIGIN_ISOLATED_ALLOWLIST} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    default @NonNull Set<String> getCrossOriginIsolatedAllowlist() {
+        throw new UnsupportedOperationException("Profile#getCrossOriginIsolatedAllowlist is "
+                + "not implemented.");
+    }
+
+    /**
+     * Set the list of origin patterns where <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy/cross-origin-isolated">Cross Origin Isolated APIs</a> should be accessible.
+     * <p>
+     * This API allows you to set an allowlist of origins where these APIs will be enabled, provided
+     * the loaded page has the correct <a href="https://developer.chrome.com/blog/document-isolation-policy">{@code Document-Isolation-Policy}</a>
+     * response header.
+     * <p>
+     * WebView does not enable this feature by default because WebView does not support renderer
+     * process isolation. By calling this API, you acknowledge that it is OK to relax this security
+     * guarantee and allow pages to use cross-origin-isolated APIs, for example <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer">SharedArrayBuffer</a>
+     * even if they are running in a shared renderer process. For this reason, you should only use
+     * this API with origins you trust.
+     * <p>
+     * You should also avoid using the wildcard matcher ({@code "*"}) in the {@code originPatterns}
+     * for the same reason.
+     * <p>
+     * This method will affect pages that are already loaded.
+     *
+     * @param allowedOriginRules A set of origin patterns where cross-origin-isolated APIs should be
+     *                       available. Avoid using the wildcard matcher. See the documentation for
+     *                       {@link WebViewCompat#addWebMessageListener} for syntax.
+     * @throws IllegalArgumentException if one or more of the patterns cannot be parsed.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#CROSS_ORIGIN_ISOLATED_ALLOWLIST} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    default void setCrossOriginIsolatedAllowlist(@NonNull Set<String> allowedOriginRules) {
+        throw new UnsupportedOperationException("Profile#setCrossOriginIsolatedAllowlist is "
+                + "not implemented.");
+    }
+
 }

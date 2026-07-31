@@ -1077,6 +1077,15 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework HTTP_CACHE_MANAGER =
             new ApiFeature.NoFramework(WebViewFeature.HTTP_CACHE_MANAGER,
                     Features.HTTP_CACHE_MANAGER);
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#setCrossOriginIsolatedAllowlist(Set)}
+     * {@link Profile#getCrossOriginIsolatedAllowlist()}
+     */
+    public static final ApiFeature.NoFramework CROSS_ORIGIN_ISOLATED_ALLOWLIST =
+            new ApiFeature.NoFramework(WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
+                    Features.CROSS_ORIGIN_ISOLATED_ALLOW_LIST);
 
     // --- Add new feature constants above this line ---
 
