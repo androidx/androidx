@@ -112,60 +112,49 @@ internal class DisposableSaveableStateRegistry(
     }
 }
 
-/** Checks that [value] can be stored inside [Bundle]. */
+/**
+ * Checks if [value] can be stored in a [Bundle].
+ *
+ * **IMPORTANT:** Uses direct type checks instead of reflection to avoid class check overhead at
+ * runtime.
+ */
 private fun canBeSavedToBundle(value: Any): Boolean {
-    // SnapshotMutableStateImpl is Parcelable, but we do extra checks
+    // SnapshotMutableStateImpl is Parcelable, but inner state value might not be saveable.
     if (value is SnapshotMutableState<*>) {
+        // Custom policies are not serializable.
+        val policy = value.policy
         if (
-            value.policy === neverEqualPolicy<Any?>() ||
-                value.policy === structuralEqualityPolicy<Any?>() ||
-                value.policy === referentialEqualityPolicy<Any?>()
+            policy !== neverEqualPolicy<Any?>() &&
+                policy !== structuralEqualityPolicy<Any?>() &&
+                policy !== referentialEqualityPolicy<Any?>()
         ) {
-            val stateValue = value.value
-            return if (stateValue == null) true else canBeSavedToBundle(stateValue)
-        } else {
             return false
         }
+
+        // Must check if inner value is serializable.
+        val stateValue = value.value
+        return stateValue == null || canBeSavedToBundle(stateValue)
     }
-    // lambdas in Kotlin implement Serializable, but will crash if you really try to save them.
-    // we check for both Function and Serializable (see kotlin.jvm.internal.Lambda) to support
-    // custom user defined classes implementing Function interface.
+
+    // Lambdas implement Serializable but crash on save. Check both Function and
+    // Serializable to support custom classes implementing Function.
     if (value is Function<*> && value is Serializable) {
         return false
     }
-    for (cl in AcceptableClasses) {
-        if (cl.isInstance(value)) {
-            return true
-        }
+
+    // Check interface. String is Serializable.
+    if (value is Parcelable || value is Serializable) {
+        return true
     }
+
+    // Check other Bundle supported types. Do not implement Parcelable or Serializable.
+    @Suppress("USELESS_IS_CHECK") // SizeF is not Parcelable before API 31.
+    if (value is Binder || value is Size || value is SizeF || value is SparseArray<*>) {
+        return true
+    }
+
     return false
 }
-
-/**
- * Contains Classes which can be stored inside [Bundle].
- *
- * Some of the classes are not added separately because:
- *
- * This classes implement Serializable:
- * - Arrays (DoubleArray, BooleanArray, IntArray, LongArray, ByteArray, FloatArray, ShortArray,
- *   CharArray, Array<Parcelable, Array<String>)
- * - ArrayList
- * - Primitives (Boolean, Int, Long, Double, Float, Byte, Short, Char) will be boxed when casted to
- *   Any, and all the boxed classes implements Serializable. This class implements Parcelable:
- * - Bundle
- *
- * Note: it is simplified copy of the array from SavedStateHandle (lifecycle-viewmodel-savedstate).
- */
-private val AcceptableClasses =
-    arrayOf(
-        Serializable::class.java,
-        Parcelable::class.java,
-        String::class.java,
-        SparseArray::class.java,
-        Binder::class.java,
-        Size::class.java,
-        SizeF::class.java,
-    )
 
 @Suppress("DEPRECATION")
 private fun Bundle.toMap(): Map<String, List<Any?>> {
