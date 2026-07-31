@@ -19,11 +19,7 @@ package androidx.compose.foundation.benchmark.text.empirical
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.test.filters.LargeTest
 import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
@@ -43,15 +39,12 @@ import org.junit.runners.Parameterized
  * frequency of spans that use the full length. This is not verified in the data set that produced
  * this benchmark. This assumption does not, currently, impact the performance of Compose.
  */
-class SetTextWithSpans(private val text: AnnotatedString) :
-    LayeredComposeTestCase(), ToggleableTestCase {
+class SetTextWithSpansM3(private val text: AnnotatedString) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf(AnnotatedString(""))
-
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
-        Subject(toggleText.value, style = style)
+        Subject(toggleText.value)
     }
 
     override fun toggleState() {
@@ -65,11 +58,11 @@ class SetTextWithSpans(private val text: AnnotatedString) :
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextWithSpansParent(private val size: Int, private val spanCount: Int) :
-    EmpiricalBench<SetTextWithSpans>() {
+open class SetTextWithSpansParentM3(private val size: Int, private val spanCount: Int) :
+    EmpiricalBench<SetTextWithSpansM3>() {
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
-        SetTextWithSpans(text.annotateWithSpans(spanCount))
+        SetTextWithSpansM3(text.annotateWithSpans(spanCount))
     }
 
     companion object {
@@ -81,7 +74,7 @@ open class SetTextWithSpansParent(private val size: Int, private val spanCount: 
 
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size, spanCount) {
+class AllAppsWithSpansM3(size: Int, spanCount: Int) : SetTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -91,7 +84,7 @@ class AllAppsWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size,
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SocialAppWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size, spanCount) {
+class SocialAppWithSpansM3(size: Int, spanCount: Int) : SetTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -106,7 +99,7 @@ class SocialAppWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(siz
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size, spanCount) {
+class ChatAppWithSpansM3(size: Int, spanCount: Int) : SetTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
@@ -121,7 +114,8 @@ class ChatAppWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size,
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ShoppingAppWithSpans(size: Int, spanCount: Int) : SetTextWithSpansParent(size, spanCount) {
+class ShoppingAppWithSpansM3(size: Int, spanCount: Int) :
+    SetTextWithSpansParentM3(size, spanCount) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}, spanCount={1}")
