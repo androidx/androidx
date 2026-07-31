@@ -22,10 +22,12 @@
 
     <container
         label="@string/hello_widget_label_small"
-        type="@integer/glance_wear_container_type_small" />
+        type="@integer/glance_wear_container_type_small"
+        previewImage="@drawable/hello_widget_small_preview" />
 
     <container
         label="@string/hello_widget_label_large"
-        type="@integer/glance_wear_container_type_large" />
+        type="@integer/glance_wear_container_type_large"
+        previewImage="@drawable/hello_widget_large_preview" />
 
 </wearwidget-provider>
