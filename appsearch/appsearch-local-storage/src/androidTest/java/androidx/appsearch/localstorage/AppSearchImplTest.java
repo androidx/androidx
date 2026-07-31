@@ -921,7 +921,6 @@ public class AppSearchImplTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_RESET_VISIBILITY_STORE)
     public void testResetVisibilityStore() throws Exception {
         // Setup Icing mock to success to all calls in initialize expect the setSchema call of
         // VisibilityStore.
