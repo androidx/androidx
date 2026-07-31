@@ -28,7 +28,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
@@ -994,6 +996,24 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public void setLong(@NonNull String name, long value) {
         mInner.setLong(name, value);
+    }
+
+    @Override
+    public boolean performClick() {
+        ViewParent parent = getParent();
+        if (parent instanceof View) {
+            ((View) parent).performClick();
+        }
+        return super.performClick();
+    }
+
+    @Override
+    public boolean performLongClick() {
+        ViewParent parent = getParent();
+        if (parent instanceof View) {
+            ((View) parent).performLongClick();
+        }
+        return super.performLongClick();
     }
 
     @Override

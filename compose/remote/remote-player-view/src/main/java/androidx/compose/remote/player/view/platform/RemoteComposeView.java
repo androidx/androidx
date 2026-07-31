@@ -30,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.EdgeEffect;
 import android.widget.FrameLayout;
@@ -854,6 +855,7 @@ public class RemoteComposeView extends FrameLayout
 
                 case MotionEvent.ACTION_CANCEL:
                     mInActionDown = false;
+                    requestDisallowInterceptTouchEvent(false);
                     if (doc.hasTouchListener()) {
                         mVelocityTracker.computeCurrentVelocity(1000);
                         float dx = mVelocityTracker.getXVelocity(pointerId);
@@ -867,14 +869,19 @@ public class RemoteComposeView extends FrameLayout
                 case MotionEvent.ACTION_UP:
                     mLimiter.touchBoost();
                     mInActionDown = false;
+                    requestDisallowInterceptTouchEvent(false);
                     mActionCurrentPoint.x = (int) x;
                     mActionCurrentPoint.y = (int) y;
                     boolean handled = false;
                     if (!mHasMoved) {
                         if (mIsDoubleTap) {
-                            doc.onDoubleClick(mARContext, x, y);
+                            boolean handledDouble = doc.onDoubleClick(mARContext, x, y);
+                            if (!handledDouble) {
+                                performClick();
+                            }
                             mLastUpTime = 0;
                             mIsDoubleTap = false;
+                            handled = true;
                         } else if (!mIsLongPressPerformed) {
                             long duration = time - mDownTime;
                             if (mUseGestureDetector && duration >= mLongPressTimeout) {
@@ -944,18 +951,60 @@ public class RemoteComposeView extends FrameLayout
         if (mDisable || mDocument == null) {
             return super.performClick();
         }
+        boolean handled = false;
         try {
-            mDocument
-                    .getDocument()
-                    .onClick(
-                            mARContext,
-                            (float) mActionCurrentPoint.x,
-                            (float) mActionCurrentPoint.y);
+            handled =
+                    mDocument
+                            .getDocument()
+                            .onClick(
+                                    mARContext,
+                                    (float) mActionCurrentPoint.x,
+                                    (float) mActionCurrentPoint.y);
         } catch (Throwable e) {
             mErrorMessage = e.getMessage();
             mDisable = true;
         }
+        if (!handled) {
+            ViewParent parent = getParent();
+            if (parent instanceof View) {
+                ((View) parent).performClick();
+            }
+        }
+        requestDisallowInterceptTouchEvent(false);
         super.performClick();
+        invalidate();
+        return true;
+    }
+
+    @Override
+    public boolean performLongClick() {
+        if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
+            return super.performLongClick();
+        }
+        if (mDisable || mDocument == null) {
+            return super.performLongClick();
+        }
+        boolean handled = false;
+        try {
+            handled =
+                    mDocument
+                            .getDocument()
+                            .onLongPress(
+                                    mARContext,
+                                    (float) mActionCurrentPoint.x,
+                                    (float) mActionCurrentPoint.y);
+        } catch (Throwable e) {
+            mErrorMessage = e.getMessage();
+            mDisable = true;
+        }
+        if (!handled) {
+            ViewParent parent = getParent();
+            if (parent instanceof View) {
+                ((View) parent).performLongClick();
+            }
+        }
+        requestDisallowInterceptTouchEvent(false);
+        super.performLongClick();
         invalidate();
         return true;
     }
@@ -1152,7 +1201,11 @@ public class RemoteComposeView extends FrameLayout
                     long elapsed = android.os.SystemClock.uptimeMillis() - mDownTime;
                     if (elapsed >= mLongPressTimeout) {
                         mIsLongPressPerformed = true;
-                        mDocument.getDocument().onLongPress(mARContext, mDownX, mDownY);
+                        mActionCurrentPoint.x = (int) mDownX;
+                        mActionCurrentPoint.y = (int) mDownY;
+                        // b/546006609: it needs to be deferred as otherwise it causes
+                        // IllegalStateException in ShortcutAndWidgetContainer.
+                        post(this::performLongClick);
                         nextFrame = 1;
                     } else {
                         int remaining = (int) (mLongPressTimeout - elapsed);

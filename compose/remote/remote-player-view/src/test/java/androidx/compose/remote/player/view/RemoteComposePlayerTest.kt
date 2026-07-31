@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.view
 
+import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
@@ -23,6 +24,7 @@ import android.graphics.Canvas
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
@@ -33,6 +35,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.view.platform.SoundSupport
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.time.Duration
 import kotlin.use
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -41,7 +44,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
+import org.robolectric.shadows.ShadowSystemClock
 
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
@@ -183,6 +189,124 @@ class RemoteComposePlayerTest {
     }
 
     @Test
+    fun scrollableComponent_propagatesClickToParentWhenClickingNonClickableScrollableComponent() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var parentClicked = false
+
+        setupPlayerInParent(docBytes = docBytes).use { (_, parent) ->
+            parent.setOnClickListener { parentClicked = true }
+
+            // Click on the left side (x=75, y=150) -> inside the scrollable box that is not
+            // clickable.
+            performClick(parent, 75f, 150f)
+
+            assertTrue(
+                "Parent should receive click event for scrollable component click when component is not clickable",
+                parentClicked,
+            )
+        }
+    }
+
+    @Test
+    fun scrollableComponent_propagatesDoubleTapToParentWhenClickingNonClickableScrollableComponent() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var singleClickCount = 0
+        var doubleClickCount = 0
+        var lastClickTime = 0L
+        val doubleTapTimeout = ViewConfiguration.getDoubleTapTimeout().toLong()
+
+        setupPlayerInParent(docBytes = docBytes).use { (_, parent) ->
+            parent.setOnClickListener {
+                val currentTime = SystemClock.uptimeMillis()
+                if (lastClickTime != 0L && currentTime - lastClickTime <= doubleTapTimeout) {
+                    doubleClickCount++
+                    lastClickTime = 0L
+                } else {
+                    singleClickCount++
+                    lastClickTime = currentTime
+                }
+            }
+
+            // Double click on the left side (x=75, y=150) -> inside the scrollable box that is not
+            // clickable.
+            performDoubleClick(parent, 75f, 150f)
+
+            assertEquals("Parent should detect exactly 1 double click", 1, doubleClickCount)
+            assertEquals(
+                "First tap was registered as a single click before the second tap completed the double click",
+                1,
+                singleClickCount,
+            )
+        }
+    }
+
+    @Test
+    fun scrollableComponent_propagatesLongClickToParentWhenClickingNonClickableScrollableComponent() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var parentLongClicked = false
+
+        setupPlayerInParent(docBytes = docBytes).use { (_, parent) ->
+            parent.setOnLongClickListener {
+                parentLongClicked = true
+                true
+            }
+
+            // Long click on the left side (x=75, y=150) -> inside the scrollable box that is not
+            // clickable.
+            performLongClick(parent, 75f, 150f)
+
+            assertTrue(
+                "Parent should receive long click event for scrollable component long click when component is not clickable",
+                parentLongClicked,
+            )
+        }
+    }
+
+    @Test
+    fun scrollableComponent_propagatesLongClickDuringHoldBeforeTouchUp() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var parentLongClicked = false
+
+        setupPlayerInParent(docBytes = docBytes).use { (_, parent) ->
+            parent.setOnLongClickListener {
+                parentLongClicked = true
+                true
+            }
+
+            // Perform only the hold phase (without sending ACTION_UP)
+            performLongPressHold(parent, 75f, 150f)
+
+            assertTrue(
+                "Parent should receive long click during hold phase before finger is released",
+                parentLongClicked,
+            )
+        }
+    }
+
+    @Test
+    fun scrollableComponent_releasingLongPressDoesNotTriggerRegularClick() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var parentClicked = false
+        var parentLongClicked = false
+
+        setupPlayerInParent(docBytes = docBytes).use { (_, parent) ->
+            parent.setOnClickListener { parentClicked = true }
+            parent.setOnLongClickListener {
+                parentLongClicked = true
+                true
+            }
+
+            performLongClick(parent, 75f, 150f)
+
+            assertTrue("Parent should receive long click event", parentLongClicked)
+            assertFalse(
+                "Releasing touch after long press should not trigger regular click event",
+                parentClicked,
+            )
+        }
+    }
+
+    @Test
     fun scrollableComponent_onlyConsumesWhenScrollingInteractiveComponent() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
         var parentReceivedDown = false
@@ -297,23 +421,173 @@ class RemoteComposePlayerTest {
         assertFalse("Host parent disallowIntercept should remain false", host.disallowIntercept)
     }
 
-    @Ignore("b/514549600")
     @Test
-    fun clickingScrollableComponent_withoutClickable_doesNotConsume() {
+    fun scrollableComponent_resetsDisallowIntercept_duringLongPressHoldBeforeTouchUp() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
-        var parentReceivedDown = false
+        val (_, host) = setupHostWithPlayer(docBytes)
 
-        setupPlayerInParent(docBytes = docBytes, onParentDown = { parentReceivedDown = true })
-            .use { (_, parent) ->
-                // Click on the left side (x=75, y=150) -> inside the scrollable box that is not
-                // clickable.
-                performClick(parent, 75f, 150f)
+        var parentLongClicked = false
+        host.setOnLongClickListener {
+            parentLongClicked = true
+            true
+        }
 
-                assertTrue(
-                    "Parent should receive down event for scrollable component click when component is not clickable",
-                    parentReceivedDown,
-                )
-            }
+        // 1. Touch down on scrollable component (75, 150)
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent =
+            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 75f, 150f, 0)
+        host.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        assertTrue(
+            "Disallow intercept should be true initially upon ACTION_DOWN on scrollable component",
+            host.disallowIntercept,
+        )
+
+        // 2. Advance time past long-press timeout and simulate Choreographer render loop
+        ShadowSystemClock.advanceBy(Duration.ofMillis(600))
+        val bitmap = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
+        host.draw(Canvas(bitmap))
+        ShadowLooper.idleMainLooper()
+
+        assertTrue("Parent should have received long click during hold", parentLongClicked)
+        assertFalse(
+            "Disallow intercept should be reset to false when long-click is performed during hold phase",
+            host.disallowIntercept,
+        )
+
+        // 3. Release finger (ACTION_UP)
+        val upTime = SystemClock.uptimeMillis()
+        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, 75f, 150f, 0)
+        host.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+
+        assertFalse(
+            "Disallow intercept should remain false after releasing touch (ACTION_UP)",
+            host.disallowIntercept,
+        )
+    }
+
+    @Test
+    fun scrollableComponent_resetsDisallowIntercept_onSingleClick() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // 1. Touch down on scrollable component
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent =
+            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 75f, 150f, 0)
+        host.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        assertTrue(
+            "Disallow intercept should be true on ACTION_DOWN for scrollable component",
+            host.disallowIntercept,
+        )
+
+        // 2. Touch up without long press or drag
+        val upTime = downTime + 50
+        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, 75f, 150f, 0)
+        host.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+
+        assertFalse(
+            "Disallow intercept should be reset to false after click (ACTION_UP)",
+            host.disallowIntercept,
+        )
+    }
+
+    @Test
+    fun scrollableComponent_resetsDisallowIntercept_onActionCancel() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // 1. Touch down on scrollable component
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent =
+            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 75f, 150f, 0)
+        host.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        assertTrue(
+            "Disallow intercept should be true on ACTION_DOWN for scrollable component",
+            host.disallowIntercept,
+        )
+
+        // 2. Cancel gesture
+        val cancelTime = downTime + 50
+        val cancelEvent =
+            MotionEvent.obtain(downTime, cancelTime, MotionEvent.ACTION_CANCEL, 75f, 150f, 0)
+        host.dispatchTouchEvent(cancelEvent)
+        cancelEvent.recycle()
+
+        assertFalse(
+            "Disallow intercept should be reset to false after ACTION_CANCEL",
+            host.disallowIntercept,
+        )
+    }
+
+    @Test
+    fun scrollableComponent_resetsDisallowIntercept_onDragRelease() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        val (_, host) = setupHostWithPlayer(docBytes)
+
+        // 1. Touch down on scrollable component (75, 250)
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent =
+            MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, 75f, 250f, 0)
+        host.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        assertTrue(
+            "Disallow intercept should be true during touch down on scrollable component",
+            host.disallowIntercept,
+        )
+
+        // 2. Drag movement
+        val moveEvent =
+            MotionEvent.obtain(downTime, downTime + 20, MotionEvent.ACTION_MOVE, 75f, 200f, 0)
+        host.dispatchTouchEvent(moveEvent)
+        moveEvent.recycle()
+
+        assertTrue(
+            "Disallow intercept should remain true during drag on scrollable component",
+            host.disallowIntercept,
+        )
+
+        // 3. Release drag gesture (ACTION_UP)
+        val upEvent =
+            MotionEvent.obtain(downTime, downTime + 40, MotionEvent.ACTION_UP, 75f, 200f, 0)
+        host.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+
+        assertFalse(
+            "Disallow intercept should be reset to false when drag gesture is released",
+            host.disallowIntercept,
+        )
+    }
+
+    private fun setupHostWithPlayer(
+        docBytes: ByteArray,
+        width: Int = 300,
+        height: Int = 300,
+    ): Pair<RemoteComposePlayer, HostViewGroup> {
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val host = HostViewGroup(activity)
+        val player = RemoteComposePlayer(activity)
+        player.setDocument(docBytes)
+        host.addView(player, FrameLayout.LayoutParams(width, height))
+        activity.setContentView(host)
+
+        host.measure(
+            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
+        )
+        host.layout(0, 0, width, height)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        host.draw(Canvas(bitmap))
+
+        return Pair(player, host)
     }
 
     private fun setupPlayerInParent(
@@ -323,9 +597,9 @@ class RemoteComposePlayerTest {
         width: Int = 300,
         height: Int = 300,
     ): TestFixture {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val parent = FrameLayout(context)
-        val player = RemoteComposePlayer(context)
+        val activity = Robolectric.buildActivity(Activity::class.java).setup().get()
+        val parent = FrameLayout(activity)
+        val player = RemoteComposePlayer(activity)
         player.setDocument(docBytes)
 
         parent.addView(player, FrameLayout.LayoutParams(width, height))
@@ -336,6 +610,7 @@ class RemoteComposePlayerTest {
             onParentTouch(event)
             true
         }
+        activity.setContentView(parent)
 
         // Force draw to initialize layout component bounds
         parent.measure(
@@ -406,6 +681,63 @@ class RemoteComposePlayerTest {
         lastEventTime += 10
         val upEvent =
             MotionEvent.obtain(lastEventTime - 10, lastEventTime, MotionEvent.ACTION_UP, x, y, 0)
+        view.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+    }
+
+    private fun performDoubleClick(view: View, x: Float, y: Float) {
+        val downTime1 = SystemClock.uptimeMillis()
+        val downEvent1 = MotionEvent.obtain(downTime1, downTime1, MotionEvent.ACTION_DOWN, x, y, 0)
+        view.dispatchTouchEvent(downEvent1)
+        downEvent1.recycle()
+
+        ShadowSystemClock.advanceBy(Duration.ofMillis(10))
+        val upTime1 = SystemClock.uptimeMillis()
+        val upEvent1 = MotionEvent.obtain(downTime1, upTime1, MotionEvent.ACTION_UP, x, y, 0)
+        view.dispatchTouchEvent(upEvent1)
+        upEvent1.recycle()
+
+        ShadowSystemClock.advanceBy(Duration.ofMillis(50))
+        val downTime2 = SystemClock.uptimeMillis()
+        val downEvent2 = MotionEvent.obtain(downTime2, downTime2, MotionEvent.ACTION_DOWN, x, y, 0)
+        view.dispatchTouchEvent(downEvent2)
+        downEvent2.recycle()
+
+        ShadowSystemClock.advanceBy(Duration.ofMillis(10))
+        val upTime2 = SystemClock.uptimeMillis()
+        val upEvent2 = MotionEvent.obtain(downTime2, upTime2, MotionEvent.ACTION_UP, x, y, 0)
+        view.dispatchTouchEvent(upEvent2)
+        upEvent2.recycle()
+
+        lastEventTime = SystemClock.uptimeMillis()
+    }
+
+    private fun performLongPressHold(view: View, x: Float, y: Float, holdTimeMs: Long = 600) {
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent = MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, x, y, 0)
+        view.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        // Advance system clock past the long-press timeout
+        ShadowSystemClock.advanceBy(Duration.ofMillis(holdTimeMs))
+        lastEventTime = SystemClock.uptimeMillis()
+
+        // Trigger draw pass during touch hold (simulating Choreographer render loop on live device)
+        val bitmap =
+            Bitmap.createBitmap(
+                view.width.coerceAtLeast(1),
+                view.height.coerceAtLeast(1),
+                Bitmap.Config.ARGB_8888,
+            )
+        view.draw(Canvas(bitmap))
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun performLongClick(view: View, x: Float, y: Float) {
+        performLongPressHold(view, x, y)
+        val upTime = SystemClock.uptimeMillis()
+        val downTime = upTime - 600
+        val upEvent = MotionEvent.obtain(downTime, upTime, MotionEvent.ACTION_UP, x, y, 0)
         view.dispatchTouchEvent(upEvent)
         upEvent.recycle()
     }
