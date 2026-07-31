@@ -118,6 +118,9 @@ internal object KotlinCliRunner {
         // We are running on deprecated versions (1.9) on purpose for testing
         cliArguments.suppressVersionWarnings = true
 
+        // Report all warning even if there are compiler errors, so assertions can be done on them
+        cliArguments.reportAllWarnings = true
+
         val languageVersion = getLanguageVersion(kotlincArguments)
         cliArguments.languageVersion = languageVersion.versionString
         cliArguments.apiVersion = getApiVersion(kotlincArguments).versionString
