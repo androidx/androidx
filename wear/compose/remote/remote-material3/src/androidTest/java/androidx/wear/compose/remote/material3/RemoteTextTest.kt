@@ -17,6 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import android.content.Context
+import android.graphics.Typeface
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -34,6 +35,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
@@ -46,8 +48,11 @@ import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.R
+import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.player.compose.test.utils.createMockContextWithFont
+import androidx.compose.remote.player.core.platform.FontInstance
+import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -67,8 +72,8 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import java.text.DecimalFormat
-import kotlin.test.Ignore
 import kotlin.test.Test
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -323,33 +328,123 @@ class RemoteTextTest {
     }
 
     @Test
-    @Ignore("No flex font in CI")
     fun text_withTnum() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
+            val robotoFont = RemoteFontFamily.Named("google:Roboto Flex")
+            val googleSansFont = RemoteFontFamily.Named("google:Google Sans Flex")
+            val sampleText = "11111 vs 88888"
             RemoteColumn(RemoteModifier.fillMaxSize()) {
                 RemoteText(
-                    text = RemoteString("WWWiii 012345679"),
+                    text = RemoteString("Roboto Default: $sampleText"),
                     modifier = RemoteModifier.fillMaxWidth(),
-                    fontSize = 32.rsp,
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFont,
+                )
+                RemoteText(
+                    text = RemoteString("Roboto pnum: $sampleText"),
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFont,
+                    fontVariationSettings = Settings(Setting("pnum", 1f)),
+                )
+                RemoteText(
+                    text = RemoteString("Roboto tnum: $sampleText"),
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 14.rsp,
+                    fontFamily = robotoFont,
                     fontVariationSettings = Settings(Setting("tnum", 1f)),
                 )
                 RemoteText(
-                    text = RemoteString("WWWiii 012345679"),
+                    text = RemoteString("GSans Default: $sampleText"),
                     modifier = RemoteModifier.fillMaxWidth(),
-                    fontSize = 32.rsp,
+                    fontSize = 14.rsp,
+                    fontFamily = googleSansFont,
+                )
+                RemoteText(
+                    text = RemoteString("GSans pnum: $sampleText"),
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 14.rsp,
+                    fontFamily = googleSansFont,
+                    fontVariationSettings = Settings(Setting("pnum", 1f)),
+                )
+                RemoteText(
+                    text = RemoteString("GSans tnum: $sampleText"),
+                    modifier = RemoteModifier.fillMaxWidth(),
+                    fontSize = 14.rsp,
+                    fontFamily = googleSansFont,
+                    fontVariationSettings = Settings(Setting("tnum", 1f)),
                 )
             }
         }
     }
 
     @Test
-    @Ignore("No flex font in CI")
+    fun text_withSlant() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                VariantText(FontVariation.slant(-15f))
+                VariantText(FontVariation.slant(-7.5f))
+                VariantText(FontVariation.slant(0f))
+                VariantText(FontVariation.slant(15f))
+            }
+        }
+    }
+
+    @Test
     fun text_withRoundness() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
             RemoteColumn(RemoteModifier.fillMaxSize()) {
-                VariantText(Setting("ROND", 0f))
-                VariantText(Setting("ROND", 50f))
-                VariantText(Setting("ROND", 100f))
+                VariantText(Setting("RNDS", 0f))
+                VariantText(Setting("RNDS", 50f))
+                VariantText(Setting("RNDS", 100f))
+            }
+        }
+    }
+
+    @Test
+    fun text_withRobotoFlex_minMax() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            val robotoFlex = RemoteFontFamily.Named("google:Roboto Flex")
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                VariantText(FontVariation.weight(100), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.weight(1000), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.width(25f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.width(151f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.grade(-200), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.grade(150), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.slant(0f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(FontVariation.slant(-10f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(Setting("opsz", 8f), fontSize = 14.rsp, fontFamily = robotoFlex)
+                VariantText(Setting("opsz", 144f), fontSize = 14.rsp, fontFamily = robotoFlex)
+            }
+        }
+    }
+
+    @Test
+    fun text_withLobsterTwo() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            val fonts =
+                listOf(
+                    "google:Lobster Two",
+                    "google:Pacifico",
+                    "google:Caveat",
+                    "google:Dancing Script",
+                    "google:Cinzel",
+                    "google:Oswald",
+                    "google:Comfortaa",
+                    "google:Press Start 2P",
+                    "google:Bebas Neue",
+                    "google:Playfair Display",
+                )
+            RemoteColumn(RemoteModifier.fillMaxSize()) {
+                for (font in fonts) {
+                    RemoteText(
+                        text = RemoteString(font.removePrefix("google:")),
+                        modifier = RemoteModifier.fillMaxWidth(),
+                        fontSize = 16.rsp,
+                        fontFamily = RemoteFontFamily.Named(font),
+                    )
+                }
             }
         }
     }
@@ -409,15 +504,19 @@ class RemoteTextTest {
     }
 
     @Composable
-    private fun VariantText(setting: Setting) {
+    private fun VariantText(
+        setting: Setting,
+        fontSize: RemoteTextUnit = 32.rsp,
+        fontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
+    ) {
         RemoteText(
             text =
                 RemoteString(setting.axisName) +
                     RemoteString(" = ") +
                     setting.toVariationValue(null).rf.toRemoteString(DecimalFormat("0")),
             modifier = RemoteModifier.fillMaxWidth(),
-            fontSize = 32.rsp,
-            fontFamily = RemoteFontFamily.Named("RobotoFlex"),
+            fontSize = fontSize,
+            fontFamily = fontFamily,
             fontVariationSettings = Settings(setting),
         )
     }
@@ -615,12 +714,94 @@ class RemoteTextTest {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
+        val mockContext =
+            createMockContextWithFont(
+                baseContext = context,
+                fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
+            )
+        val current = FallbackCreateTypefaceResolver()
+        val remappingResolver =
+            RemappingTypefaceResolver(current).apply {
+                remapName("RobotoFlex", "google:Roboto Flex")
+                remapType(0, "google:Roboto Flex")
+                remapName("Fraunces", "google:Fraunces")
+            }
+        val resolver =
+            DownloadableTypefaceResolver(
+                context = context,
+                next = remappingResolver,
+                isBlocking = true,
+            )
+        // Trigger a pre-fetch of fonts so they are loaded and cached in
+        // DownloadableTypefaceResolver before screenshot capture in CI.
+        resolver.prefetchFonts(
+            listOf(
+                "google:Fraunces",
+                "google:Roboto Flex",
+                "google:Google Sans Flex",
+                "google:Lobster Two",
+                "google:Pacifico",
+                "google:Caveat",
+                "google:Dancing Script",
+                "google:Cinzel",
+                "google:Oswald",
+                "google:Comfortaa",
+                "google:Press Start 2P",
+                "google:Bebas Neue",
+                "google:Playfair Display",
+            )
+        )
+
+        var resolveCalled = false
+        val trackingResolver =
+            object : TypefaceResolver {
+                override fun resolve(
+                    fontType: Int,
+                    weight: Int,
+                    italic: Boolean,
+                    fallbackTypeface: Typeface?,
+                    fallbackWeight: Int,
+                    fallbackItalic: Boolean,
+                ): FontInstance {
+                    resolveCalled = true
+                    return resolver.resolve(
+                        fontType,
+                        weight,
+                        italic,
+                        fallbackTypeface,
+                        fallbackWeight,
+                        fallbackItalic,
+                    )
+                }
+
+                override fun resolve(
+                    fontName: String,
+                    weight: Int,
+                    italic: Boolean,
+                    fallbackTypeface: Typeface?,
+                    fallbackWeight: Int,
+                    fallbackItalic: Boolean,
+                ): FontInstance {
+                    resolveCalled = true
+                    return resolver.resolve(
+                        fontName,
+                        weight,
+                        italic,
+                        fallbackTypeface,
+                        fallbackWeight,
+                        fallbackItalic,
+                    )
+                }
+            }
+
         this.runScreenshotTest(
             profile = TestProfiles.androidXWithCoreText,
             creationComposableWrapper = ComposableWrappers.layoutDirection(layoutDirection),
             playComposableWrapper = ComposableWrappers.blackBackground,
+            typefaceResolver = trackingResolver,
             composable = composable,
         )
+        assertTrue("Expected TypefaceResolver.resolve to be called during test", resolveCalled)
     }
 
     private companion object {
