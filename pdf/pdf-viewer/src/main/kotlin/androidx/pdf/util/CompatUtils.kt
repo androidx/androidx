@@ -63,7 +63,7 @@ internal fun <T> SparseArray<T>.compatContentEquals(other: SparseArray<T>): Bool
  * where you cannot access activity or fragment directly.
  *
  * @param context The [Context] used to access system services.
- * @param Point The [Point] object that will be updated with the display width and height.
+ * @return The [Point] object that will be updated with the display width and height.
  */
 @Suppress("deprecation")
 internal fun getDisplaySize(context: Context): Point {
