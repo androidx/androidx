@@ -1868,7 +1868,7 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 // @exportToFramework:endStrip()
 
-    @SdkSuppress(minSdkVersion = 24) // b/441557822
+    @SdkSuppress(minSdkVersion = 25) // b/441557822
     @Test
     public void testPutHugeDocumentInBatch() throws Exception {
         // Schema registration
