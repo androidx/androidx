@@ -47,7 +47,6 @@ import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.rememberLifecycleOwner
-import androidx.navigation3.fastToSet
 import androidx.navigation3.runtime.MetadataScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -694,6 +693,8 @@ public fun <T : Any> NavDisplay(
                     .map { it.value }
                     .forEach { if (!scenes.contains(it)) scenes.add(it) }
 
+                val isPop = transition.targetState != scenes.first()
+
                 // At this point we have a list in this order
                 // [zIndex larger --> zIndex smaller]
 
@@ -701,46 +702,25 @@ public fun <T : Any> NavDisplay(
                 // z-order
                 // overlayScenes is already in order of [top most overlay ---> lowest overlay],
                 // so we put overlayScenes in front, and then add the scenes after.
-                val scenesInZOrder = currentOverlayScenes + scenes
+                // During pops, we reverse the scene order so the incoming destination scene
+                // (lowest z-index) claims its entry keys first, allowing shared elements to
+                // render in the target scene and excluding them from outgoing higher z-index
+                // scenes.
+                val scenesInZOrder =
+                    (currentOverlayScenes + scenes).let { if (isPop) it.reversed() else it }
                 // At this point we have a list of all scenes in this order
                 // [top most overlay ---> lowest overlay, other scenes zIndex larger --> zIndex
-                // smaller]
+                // smaller], or vice versa if we are popping.
 
                 // Then we track which entries are already covered
                 val coveredEntryKeys = mutableSetOf<Any>()
 
-                // This determines whether this is a pop or not
-                val shouldSwapExcludedScenesFromTarget = transition.targetState != scenes.first()
-
-                // In scenesInZOrder's natural order, go through each scene, marking
-                // all of the entries not already covered as associated
-                // with that scene. This ensures that each unique contentKey will only be
-                // rendered by one scene.
+                // In scenesInZOrder, go through each scene, marking all of the entries not
+                // already covered as associated with that scene. This ensures that each unique
+                // contentKey will only be rendered by one scene.
                 scenesInZOrder.fastForEach { scene ->
-                    val newlyCoveredEntryKeys =
-                        scene.entries
-                            .map { it.contentKey }
-                            .filterNot(coveredEntryKeys::contains)
-                            .toSet()
-                    // If our target scene is not the scene on top
-                    // we should exclude the entries in the target scene from all other scenes
-                    // this ensures we render the entry in the target scene when popping using
-                    // shared elements
-                    if (shouldSwapExcludedScenesFromTarget && transition.targetState != scene) {
-                        put(
-                            AnimatedSceneKey(scene),
-                            transition.targetState.entries.fastMap { it.contentKey }.fastToSet(),
-                        )
-                    } else {
-                        put(AnimatedSceneKey(scene), coveredEntryKeys.toMutableSet())
-                    }
-                    coveredEntryKeys.addAll(newlyCoveredEntryKeys)
-                }
-
-                // After we are done building the entire map, check if we should clear
-                // the target scene key
-                if (shouldSwapExcludedScenesFromTarget) {
-                    put(AnimatedSceneKey(transition.targetState), emptySet())
+                    put(AnimatedSceneKey(scene), coveredEntryKeys.toMutableSet())
+                    coveredEntryKeys.addAll(scene.entries.fastMap { it.contentKey })
                 }
             }
         }
