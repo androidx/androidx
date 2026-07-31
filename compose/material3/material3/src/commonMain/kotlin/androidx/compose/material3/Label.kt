@@ -37,7 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * Label component that will append a [label] to [content]. The positioning logic uses
@@ -109,16 +109,34 @@ private fun HandleInteractions(
 ) {
     if (enabled) {
         LaunchedEffect(interactionSource) {
-            interactionSource.interactions.collectLatest { interaction ->
+            val activeInteractions = mutableListOf<Interaction>()
+            var wasVisible = false
+
+            interactionSource.interactions.collect { interaction ->
                 when (interaction) {
-                    is PressInteraction.Press,
-                    is DragInteraction.Start,
-                    is HoverInteraction.Enter -> {
-                        state.show(MutatePriority.UserInput)
-                    }
-                    is PressInteraction.Release,
-                    is DragInteraction.Stop,
-                    is HoverInteraction.Exit -> {
+                    // Add starting interactions
+                    is PressInteraction.Press -> activeInteractions.add(interaction)
+                    is DragInteraction.Start -> activeInteractions.add(interaction)
+                    is HoverInteraction.Enter -> activeInteractions.add(interaction)
+
+                    // Remove ending/cancelling interactions
+                    is PressInteraction.Release -> activeInteractions.remove(interaction.press)
+                    is PressInteraction.Cancel -> activeInteractions.remove(interaction.press)
+                    is DragInteraction.Stop -> activeInteractions.remove(interaction.start)
+                    is DragInteraction.Cancel -> activeInteractions.remove(interaction.start)
+                    is HoverInteraction.Exit -> activeInteractions.remove(interaction.enter)
+                }
+
+                // Only react when the label's visibility actually changes, so that a
+                // HoverInteraction.Exit emitted while a drag is still in progress - the Slider
+                // thumb shrinks out from under the pointer when the drag starts - no longer
+                // dismisses the label.
+                val isVisible = activeInteractions.isNotEmpty()
+                if (isVisible != wasVisible) {
+                    wasVisible = isVisible
+                    if (isVisible) {
+                        launch { state.show(MutatePriority.UserInput) }
+                    } else {
                         state.dismiss()
                     }
                 }
