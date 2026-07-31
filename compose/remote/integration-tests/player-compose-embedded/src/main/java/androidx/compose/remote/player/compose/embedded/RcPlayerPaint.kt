@@ -398,10 +398,13 @@ internal fun updatePaintFromBundle(
             }
             PaintBundle.GRADIENT -> {
                 val gradientType = (cmd shr 16)
-                var len = array[i++] and 0xFF // colors count
+                val meta = array[i++]
+                var len = meta and 0xFF // colors count
+                val register = (meta shr 16) and 0xFFFF // bitmask: which stops are colour-id refs
                 val colors = IntArray(len)
                 for (j in 0 until len) {
-                    colors[j] = array[i++]
+                    val word = array[i++]
+                    colors[j] = if ((register and (1 shl j)) != 0) read.getColor(word) else word
                 }
                 len = array[i++] // stops count
                 val stops = FloatArray(len)
