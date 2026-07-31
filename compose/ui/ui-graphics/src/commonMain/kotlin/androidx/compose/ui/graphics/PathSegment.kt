@@ -34,12 +34,19 @@ package androidx.compose.ui.graphics
  * @property weight Conic weight, only valid if [type] is [Type.Conic]. See [Type.Conic] for more
  *   information.
  */
-public class PathSegment
-internal constructor(
+public class PathSegment(
     public val type: Type,
     @get:Suppress("ArrayReturn") public val points: FloatArray,
     public val weight: Float,
 ) {
+    init {
+        requirePrecondition(points.size == type.expectedPointCount * 2) {
+            "The number of points for $type must be ${type.expectedPointCount * 2} (got ${points.size})"
+        }
+        requirePrecondition(type == Type.Conic || weight == 0.0f) {
+            "The weight for $type must be 0.0f (got $weight)"
+        }
+    }
 
     /**
      * Type of a given segment in a [Path], either a command ([Type.Move], [Type.Close],
@@ -126,6 +133,19 @@ internal constructor(
         return "PathSegment(type=$type, points=${points.contentToString()}, weight=$weight)"
     }
 }
+
+/** The number of points required to represent this [PathSegment.Type]. */
+private val PathSegment.Type.expectedPointCount
+    get() =
+        when (this) {
+            PathSegment.Type.Move -> 1
+            PathSegment.Type.Line -> 2
+            PathSegment.Type.Quadratic -> 3
+            PathSegment.Type.Conic -> 3
+            PathSegment.Type.Cubic -> 4
+            PathSegment.Type.Close -> 0
+            PathSegment.Type.Done -> 0
+        }
 
 /**
  * A [PathSegment] containing the [Done][PathSegment.Type.Done] command. This static object exists
