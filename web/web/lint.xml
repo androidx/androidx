@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Ignore RestrictedApiAndroidX warnings when accessing internal webkit boundary classes. -->
+    <!-- androidx.web acts as a sibling to androidx.webkit and safely assumes this responsibility. -->
+    <issue id="RestrictedApiAndroidX">
+        <ignore regexp=".*androidx\.webkit\:webkit.*" />
+    </issue>
+</lint>
+
