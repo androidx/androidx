@@ -423,6 +423,7 @@ dependencies {
     docs(project(":xr:runtime:runtime-openxr"))
     docs(project(":xr:runtime:runtime-testing"))
     docs(project(":xr:scenecore:scenecore"))
+    docs(project(":xr:scenecore:scenecore-openxr"))
     docs(project(":xr:scenecore:scenecore-projected"))
     docs(project(":xr:scenecore:scenecore-runtime"))
     docs(project(":xr:scenecore:scenecore-spatial-core"))
