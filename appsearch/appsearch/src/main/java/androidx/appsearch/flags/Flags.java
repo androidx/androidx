@@ -201,10 +201,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET =
             FLAG_PREFIX + "enable_initialization_retries_before_reset";
 
-    /** Enable reset visibility store during initialization. */
-    public static final String FLAG_ENABLE_RESET_VISIBILITY_STORE =
-            FLAG_PREFIX + "enable_reset_visibility_store";
-
     /**
      * Whether to skip interacting with icing if the set schema call is a noop.
      */
@@ -499,12 +495,6 @@ public final class Flags {
         return true;
     }
 
-    /**
-     * Whether to enable reset visibility store during initialization.
-     */
-    public static boolean enableResetVisibilityStore() {
-        return true;
-    }
 
     /**
      * Whether to skip interacting with icing if the set schema call is a noop.
