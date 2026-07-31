@@ -18,14 +18,20 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /**
@@ -38,17 +44,56 @@ import java.util.Objects;
 @RequiresCarApi(9)
 @ExperimentalCarApi
 public final class SpotlightSection extends Section<CondensedItem> {
+    /**
+     * Defines the strategy to use for handling the incomplete last column
+     */
+    @IntDef(
+            value = {
+                    INCOMPLETE_LAST_COLUMN_AS_IS,
+                    INCOMPLETE_LAST_COLUMN_TRUNCATE,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface IncompleteLastColumnStrategy {
+    }
+
+    /**
+     * The last row will be shown as-is. This is a default behavior
+     */
+    @IncompleteLastColumnStrategy
+    public static final int INCOMPLETE_LAST_COLUMN_AS_IS = 0;
+
+    /**
+     * Truncates the last column if that column is not completely filled
+     */
+    @IncompleteLastColumnStrategy
+    public static final int INCOMPLETE_LAST_COLUMN_TRUNCATE = 1;
 
     private final @Nullable CarIcon mImage;
+
+    @IncompleteLastColumnStrategy
+    private final int mIncompleteLastColumnStrategy;
 
     private SpotlightSection() {
         super();
         mImage = null;
+        mIncompleteLastColumnStrategy = INCOMPLETE_LAST_COLUMN_TRUNCATE;
     }
 
     private SpotlightSection(Builder builder) {
         super(builder);
         mImage = builder.mImage;
+        mIncompleteLastColumnStrategy = builder.mIncompleteLastColumnStrategy;
+    }
+
+    /**
+     * Returns the strategy for handling incomplete last column
+     */
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    @IncompleteLastColumnStrategy
+    public int getIncompleteLastColumnStrategy() {
+        return mIncompleteLastColumnStrategy;
     }
 
     /** Returns the image associated with the section. */
@@ -58,7 +103,7 @@ public final class SpotlightSection extends Section<CondensedItem> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mImage);
+        return Objects.hash(super.hashCode(), mImage, mIncompleteLastColumnStrategy);
     }
 
     @Override
@@ -73,22 +118,42 @@ public final class SpotlightSection extends Section<CondensedItem> {
             return false;
         }
         SpotlightSection that = (SpotlightSection) other;
-        return super.equals(that) && Objects.equals(mImage, that.mImage);
+        return super.equals(that) && Objects.equals(mImage, that.mImage)
+                && mIncompleteLastColumnStrategy == that.mIncompleteLastColumnStrategy;
     }
 
     @Override
     public @NonNull String toString() {
-        return "SpotlightSection { image: " + mImage + ", " + super.toString() + " }";
+        return "SpotlightSection { image: " + mImage + ", "
+                + ", incompleteLastColumn: " + mIncompleteLastColumnStrategy
+                + super.toString() + " }";
     }
 
     /** A builder of {@link SpotlightSection}. */
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
         @NonNull CarIcon mImage;
 
+        @IncompleteLastColumnStrategy
+        private int mIncompleteLastColumnStrategy = INCOMPLETE_LAST_COLUMN_AS_IS;
+
         /** Creates a new {@link SpotlightSection} builder. */
         public Builder(@NonNull CarIcon image) {
             super();
             mImage = requireNonNull(image);
+        }
+
+        /**
+         * Sets the strategy for handling incomplete last column
+         *
+         * <p>By default, {@link #INCOMPLETE_LAST_COLUMN_AS_IS} is used.
+         */
+        @CanIgnoreReturnValue
+        @RequiresCarApi(9)
+        @ExperimentalCarApi
+        public @NonNull Builder setIncompleteLastColumnStrategy(
+                @IncompleteLastColumnStrategy int incompleteLastColumnStrategy) {
+            mIncompleteLastColumnStrategy = incompleteLastColumnStrategy;
+            return this;
         }
 
         /**

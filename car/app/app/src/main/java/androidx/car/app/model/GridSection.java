@@ -16,10 +16,11 @@
 
 package androidx.car.app.model;
 
-
 import androidx.annotation.IntDef;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -91,24 +92,57 @@ public final class GridSection extends Section<GridItem> {
     @ItemImageShape
     public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2;
 
+    /**
+     * Defines the strategy to use for handling the incomplete last row
+     */
+    @IntDef(
+            value = {
+                    INCOMPLETE_LAST_ROW_AS_IS,
+                    INCOMPLETE_LAST_ROW_TRUNCATE,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface IncompleteLastRowStrategy {
+    }
+
+    /**
+     * The last row will be shown as-is. This is a default behavior
+     */
+    @IncompleteLastRowStrategy
+    public static final int INCOMPLETE_LAST_ROW_AS_IS = 0;
+
+    /**
+     * Truncates the last row if that row is not completely filled
+     */
+    @IncompleteLastRowStrategy
+    public static final int INCOMPLETE_LAST_ROW_TRUNCATE = 1;
+
     @ItemSize
     private final int mItemSize;
 
     @ItemImageShape
     private final int mItemImageShape;
 
+    @IncompleteLastRowStrategy
+    private final int mIncompleteLastRowStrategy;
+
+
     // Empty constructor for serialization
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private GridSection() {
         super();
         mItemSize = ITEM_SIZE_SMALL;
         mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
+        mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_TRUNCATE;
     }
 
     /** Creates a {@link GridSection} from the {@link Builder}. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private GridSection(Builder builder) {
         super(builder);
         mItemSize = builder.mItemSize;
         mItemImageShape = builder.mItemImageShape;
+        mIncompleteLastRowStrategy = builder.mIncompleteLastRowStrategy;
     }
 
     /** Returns the size which this section's grid items should be rendered at. */
@@ -123,11 +157,24 @@ public final class GridSection extends Section<GridItem> {
         return mItemImageShape;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), mItemImageShape, mItemSize);
+    /**
+     * Returns the strategy for handling incomplete last row
+     */
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    @IncompleteLastRowStrategy
+    public int getIncompleteLastRowStrategy() {
+        return mIncompleteLastRowStrategy;
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), mItemImageShape, mItemSize,
+                mIncompleteLastRowStrategy);
+    }
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (other == null) {
@@ -142,12 +189,14 @@ public final class GridSection extends Section<GridItem> {
         GridSection section = (GridSection) other;
         return super.equals(section)
                 && mItemImageShape == section.mItemImageShape
-                && mItemSize == section.mItemSize;
+                && mItemSize == section.mItemSize
+                && mIncompleteLastRowStrategy == section.mIncompleteLastRowStrategy;
     }
 
     @Override
     public @NonNull String toString() {
         return "GridSection { itemSize: " + mItemSize + ", itemImageShape: " + mItemImageShape
+                + ", incompleteLastRowStrategy: " + mIncompleteLastRowStrategy
                 + ", " + super.toString() + " }";
     }
 
@@ -158,6 +207,9 @@ public final class GridSection extends Section<GridItem> {
 
         @ItemImageShape
         private int mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
+
+        @IncompleteLastRowStrategy
+        private int mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_AS_IS;
 
         /** Create a new {@link GridSection} builder. */
         public Builder() {
@@ -178,6 +230,20 @@ public final class GridSection extends Section<GridItem> {
         @CanIgnoreReturnValue
         public @NonNull Builder setItemImageShape(@ItemImageShape int itemImageShape) {
             mItemImageShape = itemImageShape;
+            return this;
+        }
+
+        /**
+         * Sets the strategy to use for handling the incomplete last row
+         *
+         * <p>By default, {@link #INCOMPLETE_LAST_ROW_AS_IS} is used.
+         */
+        @CanIgnoreReturnValue
+        @RequiresCarApi(9)
+        @ExperimentalCarApi
+        public @NonNull Builder setIncompleteLastRowStrategy(
+                @IncompleteLastRowStrategy int incompleteLastRowStrategy) {
+            mIncompleteLastRowStrategy = incompleteLastRowStrategy;
             return this;
         }
 
