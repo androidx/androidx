@@ -61,6 +61,11 @@ import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialBoxScope
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.TrackedDimensions
+import androidx.xr.compose.subspace.animation.follow.AnchorTarget as AnchorTargetV2
+import androidx.xr.compose.subspace.animation.follow.ArDeviceTarget as ArDeviceTargetV2
+import androidx.xr.compose.subspace.animation.follow.FollowBehavior as FollowBehaviorV2
+import androidx.xr.compose.subspace.animation.follow.FollowTarget as FollowTargetV2
+import androidx.xr.compose.subspace.animation.follow.TrackedDimensions as TrackedDimensionsV2
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -603,13 +608,12 @@ public fun FollowingSubspace(
 @Composable
 @ComposableOpenTarget(index = -1)
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
-@OptIn(ExperimentalFollowingSubspaceApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun FollowingSubspaceV2(
-    target: FollowTarget,
-    behavior: FollowBehavior,
+    target: FollowTargetV2,
+    behavior: FollowBehaviorV2,
     modifier: SubspaceModifier = SubspaceModifier,
-    dimensions: TrackedDimensions = TrackedDimensions.All,
+    dimensions: TrackedDimensionsV2 = TrackedDimensionsV2.All,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     // If not in XR, do nothing
@@ -621,7 +625,7 @@ public fun FollowingSubspaceV2(
 
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
-    if (target is AnchorTarget && behavior == FollowBehavior.Tight) {
+    if (target is AnchorTargetV2 && behavior == FollowBehaviorV2.Tight) {
         Subspace(modifier = modifier, subspaceRootNode = target.anchorSpace, content = content)
         return
     }
@@ -739,6 +743,65 @@ private fun validateFollowingSubspaceConfiguration(
 
     // Tight follow for AR devices was not performant enough to be supported at this time.
     if (target is ArDeviceTarget && behavior == FollowBehavior.Tight) {
+        return false
+    }
+
+    return true
+}
+
+private fun getInitialSubspaceOffset(target: FollowTargetV2): Pose {
+    return if (target is ArDeviceTargetV2) target.offset else Pose.Identity
+}
+
+@Composable
+private fun rememberRecenterSignal(
+    session: Session,
+    target: FollowTargetV2,
+    subspaceTrailingEntity: CoreGroupEntity,
+    subspaceRootNode: Entity,
+): Boolean {
+    var recenterSignal by remember { mutableStateOf(false) }
+    val currentTargetState = rememberUpdatedState(target)
+    DisposableEffect(session) {
+        val listener = Runnable {
+            recenterSignal = !recenterSignal
+            val targetValue = currentTargetState.value
+            if (targetValue is AnchorTargetV2) {
+                // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
+                // relative position to the anchor must be manually updated.
+                subspaceTrailingEntity.poseInMeters =
+                    targetValue.anchorSpace.getPose(Space.ACTIVITY)
+            } else {
+                // If the activity space moves, this should be the new origin.
+                subspaceRootNode.setPose(Pose.Identity)
+                subspaceTrailingEntity.poseInMeters = Pose.Identity
+            }
+        }
+        session.scene.activitySpace.addOriginChangedListener(listener)
+
+        onDispose {
+            if (session.lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                session.scene.activitySpace.removeOriginChangedListener(listener)
+            }
+        }
+    }
+
+    return recenterSignal
+}
+
+/** Validates the configuration for [FollowingSubspaceV2]. */
+private fun validateFollowingSubspaceConfiguration(
+    target: FollowTargetV2,
+    behavior: FollowBehaviorV2,
+    config: Config,
+): Boolean {
+    // Following an AR device requires device tracking to be enabled.
+    if (target is ArDeviceTargetV2 && config.deviceTracking == DeviceTrackingMode.DISABLED) {
+        return false
+    }
+
+    // Tight follow for AR devices was not performant enough to be supported at this time.
+    if (target is ArDeviceTargetV2 && behavior == FollowBehaviorV2.Tight) {
         return false
     }
 
