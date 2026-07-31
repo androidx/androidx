@@ -18,7 +18,12 @@
 
 package androidx.credentials.registry.provider
 
+import androidx.annotation.RestrictTo
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public const val EXTRA_CREDENTIAL_METADATA: String =
+    "androidx.credentials.registry.provider.extra.CREDENTIAL_METADATA"
 
 /**
  * Returns the id of the entry selected by the user.
@@ -31,3 +36,12 @@ import androidx.credentials.provider.ProviderCreateCredentialRequest
 @get:JvmName("getSelectedEntryId")
 public val ProviderCreateCredentialRequest.selectedEntryId: String?
     get() = this.sourceBundle?.getString(EXTRA_CREDENTIAL_ID)
+
+/**
+ * Returns the metadata associated with the selected entry.
+ *
+ * A null return means that metadata isn't supported or wasn't provided for the selected entry.
+ */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val ProviderCreateCredentialRequest.selectedEntryMetadata: String?
+    get() = this.sourceBundle?.getString(EXTRA_CREDENTIAL_METADATA)
