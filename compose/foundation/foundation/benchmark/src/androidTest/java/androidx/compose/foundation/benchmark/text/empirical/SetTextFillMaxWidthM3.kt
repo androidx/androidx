@@ -20,11 +20,7 @@ import androidx.compose.foundation.benchmark.text.DoFullBenchmark
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.LayeredComposeTestCase
-import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.test.filters.LargeTest
 import org.junit.Assume
 import org.junit.runner.RunWith
@@ -37,14 +33,12 @@ import org.junit.runners.Parameterized
  *
  * This benchmark removes dynamic layout sizing cost by using fillMaxWidth.
  */
-class SetTextFillMaxWidth(private val text: String) : LayeredComposeTestCase(), ToggleableTestCase {
+class SetTextFillMaxWidthM3(private val text: String) : EmpiricalTestCase() {
     private var toggleText = mutableStateOf("")
-
-    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
-        Subject(toggleText.value, modifier = Modifier.fillMaxWidth(), style = style)
+        Subject(toggleText.value, modifier = Modifier.fillMaxWidth())
     }
 
     override fun toggleState() {
@@ -58,11 +52,11 @@ class SetTextFillMaxWidth(private val text: String) : LayeredComposeTestCase(), 
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextFillMaxWidthParent(private val size: Int) :
-    EmpiricalBench<SetTextFillMaxWidth>() {
+open class SetTextFillMaxWidthParentM3(private val size: Int) :
+    EmpiricalBench<SetTextFillMaxWidthM3>() {
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
-        SetTextFillMaxWidth(text)
+        SetTextFillMaxWidthM3(text)
     }
 
     companion object {
@@ -75,7 +69,7 @@ open class SetTextFillMaxWidthParent(private val size: Int) :
 /** Metrics determined from all apps */
 @LargeTest
 @RunWith(Parameterized::class)
-class AllAppsSetTextFillMaxWidth(size: Int) : SetTextFillMaxWidthParent(size) {
+class AllAppsSetTextFillMaxWidthM3(size: Int) : SetTextFillMaxWidthParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")
@@ -90,7 +84,7 @@ class AllAppsSetTextFillMaxWidth(size: Int) : SetTextFillMaxWidthParent(size) {
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class ChatAppSetTextFillMaxWidth(size: Int) : SetTextFillMaxWidthParent(size) {
+class ChatAppSetTextFillMaxWidthM3(size: Int) : SetTextFillMaxWidthParentM3(size) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "size={0}")

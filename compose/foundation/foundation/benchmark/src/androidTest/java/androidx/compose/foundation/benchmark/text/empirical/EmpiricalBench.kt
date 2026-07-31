@@ -17,7 +17,8 @@
 package androidx.compose.foundation.benchmark.text.empirical
 
 import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
@@ -27,7 +28,6 @@ import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
 import org.junit.Rule
 import org.junit.Test
 
@@ -53,26 +53,29 @@ abstract class EmpiricalBench<S> where S : ToggleableTestCase, S : LayeredCompos
     }
 }
 
-@Composable
-fun Subject(text: String, style: TextStyle) {
-    Text(text, style = style)
+abstract class EmpiricalTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+    @Composable
+    override fun ContentWrappers(content: @Composable () -> Unit) {
+        MaterialTheme { content() }
+    }
 }
 
 @Composable
-fun Subject(text: String, modifier: Modifier, style: TextStyle) {
-    Text(text, modifier, style = style)
+fun Subject(text: String) {
+    Text(text)
 }
 
 @Composable
-fun Subject(text: AnnotatedString, style: TextStyle) {
-    Text(text, style = style)
+fun Subject(text: String, modifier: Modifier) {
+    Text(text, modifier = modifier)
 }
 
 @Composable
-fun Subject(
-    text: AnnotatedString,
-    style: TextStyle,
-    inlineContent: Map<String, InlineTextContent>,
-) {
-    Text(text, style = style, inlineContent = inlineContent)
+fun Subject(text: AnnotatedString) {
+    Text(text)
+}
+
+@Composable
+fun Subject(text: AnnotatedString, inlineContent: Map<String, InlineTextContent>) {
+    Text(text, inlineContent = inlineContent)
 }
