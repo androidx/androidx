@@ -24,12 +24,14 @@ import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.widthIn
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -372,5 +374,40 @@ class RcPlayerDensityBehaviorTest {
         val density = 2.5f
         val offsetDp = rawDimensionDp(rawOffset, behavior, density)
         assertEquals(10.dp, offsetDp)
+    }
+
+    /** Document with a rounded clip rect modifier. */
+    private fun documentWithClip(behavior: Int, cornerRadiusDp: Float): CoreDocument = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val doc =
+            captureRule.captureDocument(
+                context = context,
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(100.rdp)
+                                .clip(
+                                    androidx.compose.remote.creation.compose.shapes
+                                        .RemoteRoundedCornerShape(cornerRadiusDp.rdp)
+                                )
+                                .semantics { contentDescription = "box".rs }
+                    )
+                },
+            )
+        doc.apply { setDensityBehavior(behavior) }
+    }
+
+    @Test
+    fun dpBehaviorScalesClipCornerByDensity() {
+        val doc = documentWithClip(CoreDocument.DENSITY_BEHAVIOR_DP, 26f)
+        // Verify document renders under DP behavior without error
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                Box(modifier = Modifier) { RcPlayer(document = doc) }
+            }
+        }
+        rule.waitForIdle()
+        val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
+        assert(abs((bounds.right.value - bounds.left.value) - 100f) < 1f)
     }
 }
