@@ -685,6 +685,7 @@ class StreamSharingTest {
         assertThat(outputConfigs[0].dynamicRange).isEqualTo(HLG_10_BIT)
     }
 
+    @Suppress("DEPRECATION")
     private fun extendChildAndReturnParentSessionConfig(
         extender: (Camera2Interop.Extender<Preview>) -> Unit
     ): SessionConfig {

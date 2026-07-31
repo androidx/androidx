@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope.cameracontrollers
 
 import android.graphics.SurfaceTexture
