@@ -151,9 +151,8 @@ public fun LazyGridPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyGridP
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-internal class DefaultLazyGridPrefetchStrategy(
-    private val initialNestedPrefetchItemCount: Int = 2
-) : LazyGridPrefetchStrategy {
+private class DefaultLazyGridPrefetchStrategy(private val initialNestedPrefetchItemCount: Int = 2) :
+    LazyGridPrefetchStrategy {
 
     /**
      * The index scheduled to be prefetched (or the last prefetched index if the prefetch is done).
