@@ -219,6 +219,7 @@ enum BuildType {
     NATIVE,
     WINDOW,
     XR,
+    MAC, // Projects that have Mac targets (macOS, iOS, watchOS, tvOS).
 }
 
 private String getRequestedProjectSubsetName() {
@@ -312,6 +313,9 @@ private Set<BuildType> createRequestedFilter() {
             case "XR":
                 filter.add(BuildType.XR)
                 break
+            case "MAC":
+                filter.add(BuildType.MAC)
+                break
             case "ALL":
                 // Return null so that no filtering is done
                 return null
@@ -329,7 +333,8 @@ private Set<BuildType> createRequestedFilter() {
                         "NATIVE  - native projects\n" +
                         "WINDOW  - window projects\n" +
                         "GLANCE  - glance projects\n" +
-                        "XR      - XR projects")
+                        "XR      - XR projects\n" +
+                        "MAC     - projects that have Mac targets")
         }
     }
     return filter
@@ -344,11 +349,13 @@ private Set<BuildType> createRequestedFilter() {
 Set<BuildType> requestedFilter
 requestedFilter = createRequestedFilter()
 
-boolean shouldIncludeForFilter(List<BuildType> includeList) {
-    if (includeList.empty) return true
-    if (requestedFilter == null) return true
+boolean shouldIncludeForFilter(List<BuildType> includeList, String name) {
+    if (includeList.empty || requestedFilter == null) return true
     for (BuildType type : includeList) {
         if (requestedFilter.contains(type)) return true
+    }
+    if (requestedFilter.contains(BuildType.MAC)) {
+        return projectDependencyGraph.isMacProject(name)
     }
     return false
 }
@@ -376,13 +383,6 @@ filteredProjects.add(":lint-checks")
 //   the Maven artifactId
 //
 def includeProject(String name, filePath, List<BuildType> filter = []) {
-    if (projectPrefixFilter.isConfigured) {
-        if (projectPrefixFilter.matches(name)) {
-            filteredProjects.add(name)
-        }
-    } else if (shouldIncludeForFilter(filter)) {
-        filteredProjects.add(name)
-    }
     def file
     if (filePath != null) {
         if (filePath instanceof String) {
@@ -397,6 +397,14 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
         file = new File(rootDir, name.substring(1).replace(":", "/"))
     }
     projectDependencyGraph.addToAllProjects(name, file)
+
+    if (projectPrefixFilter.isConfigured) {
+        if (projectPrefixFilter.matches(name)) {
+            filteredProjects.add(name)
+        }
+    } else if (shouldIncludeForFilter(filter, name)) {
+        filteredProjects.add(name)
+    }
 }
 
 /////////////////////////////
