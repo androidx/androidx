@@ -2,4 +2,9 @@
 <resources>
     <item name="start_drag_handle" type="id" />
     <item name="stop_drag_handle" type="id" />
+
+    <!-- Annotation Toolbar IDs -->
+    <item name="pdf_wet_strokes_view" type="id" />
+    <item name="pdf_annotation_view" type="id" />
+    <item name="pdf_annotation_toolbar_coordinator" type="id" />
 </resources>

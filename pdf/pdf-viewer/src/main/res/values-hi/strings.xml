@@ -92,4 +92,65 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"सूची बॉक्स"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"टेक्स्ट फ़ील्ड"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"सिग्नेचर"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"क्या आपको बदलाव खारिज करने हैं?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"आपके किए गए बदलाव सेव नहीं हुए."</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"बदलाव करना जारी रखें"</string>
+    <string name="discard_button" msgid="345675813790884187">"खारिज करें"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"पेन"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"हाइलाइटर"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"इरेज़र"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"रंग पटल"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"पहले जैसा करें"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"फिर से करें"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"एनोटेशन को टॉगल करें"</string>
+    <string name="pdf_pen_color_palette_item_black" msgid="2349482864795708538">"काला"</string>
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"गहरा नीला"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"लाल"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"हरा"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"गोल्ड"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"ऑलिव ग्रीन"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"भूरा"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"ग्रे"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"नीला"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"कोरल रेड"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"लाइम ग्रीन"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"पीला"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"फीका लाइम"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"टैन"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"लाइट ग्रे"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"बैंगनी"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"गुलाबी"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"मिंट ग्रीन"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"नारंगी"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"स्टील ब्लू"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"गहरा लाल"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"सफ़ेद"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"लैवेंडर"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"फीका गुलाबी"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"फीका हरा"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"पीच"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"हल्का नीला"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"सैलमन"</string>
+    <string name="pdf_highlighter_color_palette_item_dark_gray" msgid="129747852317213657">"डार्क ग्रे"</string>
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"सफ़ेद"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"कोरल रेड"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"लाइम ग्रीन"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"पेरीविंकल ब्लू"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"नारंगी"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"पीला"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"फीका गुलाबी"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"हल्का नीला"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"फीका हरा"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"चमकीला पीला"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"पीच"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"डस्टी रोज़"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"ऑलिव ग्रीन"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"मीडियम पर्पल"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"मीडियम ग्रीन"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"रोज़ पिंक"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"स्टील ब्लू"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"लाइलैक"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"सेज ग्रीन"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"मटमैला"</string>
+    <string name="pdf_brush_slider_content_description" msgid="7693112422816705779">"लाइन की मोटाई"</string>
 </resources>

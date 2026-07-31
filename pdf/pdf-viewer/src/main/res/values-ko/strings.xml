@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"목록 상자"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"텍스트 입력란"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"서명"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"변경사항을 삭제하시겠습니까?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"변경사항이 저장되지 않습니다."</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"계속 수정"</string>
+    <string name="discard_button" msgid="345675813790884187">"삭제"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"펜"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"형광펜"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"지우개"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"색상 팔레트"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"실행취소"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"재실행"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"주석 전환"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"진한 파란색"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"빨간색"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"녹색"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"골드"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"올리브그린"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"갈색"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"회색"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"파란색"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"코럴 레드"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"라임 그린"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"노란색"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"연한 라임"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"황갈색"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"연한 회색"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"보라색"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"분홍색"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"민트 그린"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"주황색"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"스틸 블루"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"진한 빨간색"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"흰색"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"라벤더"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"연한 분홍색"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"연한 녹색"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"복숭아색"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"연한 파란색"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"연어색"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"흰색"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"코럴 레드"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"라임 그린"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"페리윙클 블루"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"주황색"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"노란색"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"연한 분홍색"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"연한 파란색"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"연한 녹색"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"밝은 노란색"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"복숭아색"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"더스티 로즈"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"올리브그린"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"중간 보라색"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"중간 녹색"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"로즈핑크"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"스틸 블루"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"라일락"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"세이지 그린"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"베이지색"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>

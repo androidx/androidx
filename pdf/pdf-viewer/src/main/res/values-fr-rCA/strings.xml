@@ -92,4 +92,68 @@
     <string name="form_widget_type_list_box" msgid="431828611710070971">"Zone de liste"</string>
     <string name="form_widget_type_text_field" msgid="4443782242324937941">"Champ de texte"</string>
     <string name="form_widget_type_signature" msgid="3811511096215331673">"Signature"</string>
+    <string name="discard_changes_dialog_title" msgid="8471151263363129054">"Supprimer les modifications?"</string>
+    <string name="discard_changes_dialog_message" msgid="6052519273995024254">"Vos modifications n\'ont pas été enregistrées."</string>
+    <string name="keep_editing_button" msgid="7573006208701305988">"Continuer à modifier"</string>
+    <string name="discard_button" msgid="345675813790884187">"Supprimer"</string>
+    <string name="annotation_pen_button_content_desc" msgid="3429267369324256891">"Stylo"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="4145607409953592495">"Surligneur"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7095965950282529732">"Gomme à effacer"</string>
+    <string name="annotation_color_palette_button_content_desc" msgid="3857939523964276535">"Palette de couleurs"</string>
+    <string name="annotation_undo_button_content_desc" msgid="8677860607653139057">"Annuler"</string>
+    <string name="annotation_redo_button_content_desc" msgid="6173017390316607430">"Rétablir"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7576992521535921829">"Activer/Désactiver l\'annotation"</string>
+    <!-- no translation found for pdf_pen_color_palette_item_black (2349482864795708538) -->
+    <skip />
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="8227114459819696973">"Bleu foncé"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="6367852274869305090">"Rouge"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="4048949964965941329">"Vert"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3591366007431445814">"Or"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="1872421165852966098">"Vert olive"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="9133647461570342884">"Brun"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="758196389357724982">"Gris"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="6624561290795093542">"Bleu"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="3472790346783163237">"Rouge corail"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="2925975266430165024">"Vert lime"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="3408908880225489347">"Jaune"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="6222272594988730012">"Vert lime pâle"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="4446741184644224946">"Havane"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="71510397000580323">"Gris clair"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="7007410838826542299">"Violet"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="5726500338191639795">"Rose"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3385312517845353964">"Vert menthe"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="4364496006674819380">"Orange"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3391398601008659651">"Bleu acier"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="1624337798517256053">"Rouge foncé"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8520258422897015917">"Blanc"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="2201920941939797490">"Lavande"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="6793633656166022181">"Rose pâle"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="7640276023460122441">"Vert pâle"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="4574864310357012821">"Pêche"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="1221502826981830146">"Bleu clair"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="5729612885142439660">"Saumon"</string>
+    <!-- no translation found for pdf_highlighter_color_palette_item_dark_gray (129747852317213657) -->
+    <skip />
+    <string name="pdf_highlighter_color_palette_item_white" msgid="2772905536293009655">"Blanc"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="449068479718102588">"Rouge corail"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="702328612689542595">"Vert lime"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5855323132087647114">"Bleu pervenche"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="9039462823926560002">"Orange"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="8722349618048494139">"Jaune"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="5090029667187265117">"Rose pâle"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="7650371560127252297">"Bleu clair"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6661538285172874930">"Vert pâle"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="8165260767569639713">"Jaune vif"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="677800720719433260">"Pêche"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="6204969508698655017">"Vieux rose"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="5477535957920899892">"Vert olive"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="7817217551335552373">"Violet moyen"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="197052696316136021">"Vert moyen"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="1021474840088432691">"Rose"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="652842313614405631">"Bleu acier"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="8359141260355077279">"Lilas"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="3055450785882188986">"Vert sauge"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="465951735046038490">"Beige"</string>
+    <!-- no translation found for pdf_brush_slider_content_description (7693112422816705779) -->
+    <skip />
 </resources>

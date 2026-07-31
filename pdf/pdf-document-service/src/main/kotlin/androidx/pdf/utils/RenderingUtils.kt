@@ -19,6 +19,7 @@ package androidx.pdf.utils
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
 
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 /**
  * Calculates a transformation matrix for scaling and translating content.
  *
@@ -35,7 +36,6 @@ import androidx.annotation.RestrictTo
  * @return The calculated transformation matrix.
  * @throws IllegalArgumentException If `pageWidth` or `pageHeight` is less than or equal to 0.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun getTransformationMatrix(
     left: Int,
     top: Int,
