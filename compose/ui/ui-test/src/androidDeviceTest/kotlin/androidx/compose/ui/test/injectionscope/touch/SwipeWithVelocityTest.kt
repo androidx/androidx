@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -52,7 +51,6 @@ import org.junit.runners.Parameterized
  * a specific velocity. Note that the "engine" is already extensively tested in
  * [VelocityPathFinderTest], so all we need to do here is verify a few swipes.
  */
-@OptIn(ExperimentalVelocityTrackerApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class SwipeWithVelocityTest(private val config: TestConfig) {

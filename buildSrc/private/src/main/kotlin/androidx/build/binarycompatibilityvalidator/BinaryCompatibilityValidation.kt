@@ -376,7 +376,6 @@ private val nonPublicMarkers =
         "androidx.compose.ui.ExperimentalMediaQueryApi",
         "androidx.compose.ui.InternalComposeUiApi",
         "androidx.compose.ui.graphics.ExperimentalGraphicsApi",
-        "androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi",
         "androidx.compose.ui.node.InternalCoreApi",
         "androidx.compose.ui.test.ExperimentalTestApi",
         "androidx.compose.ui.test.InternalTestApi",

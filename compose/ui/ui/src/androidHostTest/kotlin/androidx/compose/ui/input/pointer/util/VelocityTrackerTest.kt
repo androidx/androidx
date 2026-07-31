@@ -77,7 +77,6 @@ class Lsq2VelocityTrackerTest {
         }
     }
 
-    @OptIn(ExperimentalVelocityTrackerApi::class)
     @Test
     fun calculateVelocity_gapOf40MillisecondsInPositions_positionsAfterGapIgnored() {
         val tracker = Lsq2VelocityTracker()
@@ -156,7 +155,6 @@ private fun createPxPosition(width: Float, height: Float) = Offset(width, height
 internal class PointerInputData(val uptime: Long, val position: Offset, val down: Boolean)
 
 // Expected velocities for "velocityEventData". See below.
-@OptIn(ExperimentalVelocityTrackerApi::class)
 internal val expected2DVelocities =
     listOf(
         Pair(219.59280094228163f, 1304.701682306001f),
