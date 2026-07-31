@@ -1,1 +1,35 @@
 // Signature format: 4.0
+package androidx.web {
+
+  public final class DetachedWebContentView extends androidx.web.WebContentView {
+  }
+
+  public interface WebContent extends java.lang.AutoCloseable {
+    method @UiThread public <T extends androidx.web.WebContentView> T attach(android.content.Context context, java.util.function.Function<android.content.Context,T> factory);
+    method @UiThread public void close();
+    method @UiThread public void detach();
+  }
+
+  public static final class WebContent.Builder {
+    ctor @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") public WebContent.Builder(android.content.Context context);
+    method public androidx.web.WebContent build();
+  }
+
+  public final class WebContentKt {
+    method @InaccessibleFromJava @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent WebContent(android.content.Context context, optional kotlin.jvm.functions.Function1<androidx.web.WebContent.Builder,kotlin.Unit> block);
+    method @BytecodeOnly @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent! WebContent$default(android.content.Context!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public class WebContentView extends android.webkit.WebView {
+    ctor public WebContentView(android.content.Context context);
+    ctor public WebContentView(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public WebContentView(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr);
+  }
+
+  public final class WebFeature {
+    method public static boolean isFeatureSupported(String feature);
+    field public static final androidx.web.WebFeature INSTANCE;
+  }
+
+}
+

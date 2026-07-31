@@ -31,12 +31,27 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(libs.jspecify)
+    api("androidx.annotation:annotation:1.8.1")
+    implementation(project(":webkit:webkit"))
+    implementation(libs.kotlinCoroutinesCore)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.byteBuddy)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
 }
 
 
 android {
     namespace = "androidx.web"
+    compileSdk { version = release(37) }
 }
 
 
@@ -46,4 +61,5 @@ androidx {
 
     inceptionYear = "2026"
     description = "Web is a collection of modern APIs that can be used with android.webkit and androidx.webkit."
+    additionalDeviceTestApkKeys.add("chrome")
 }
