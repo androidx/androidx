@@ -367,20 +367,31 @@ class AppFunctionManagerTest {
             assertThat(testAppPackage.resolveAppFunctionAppMetadata(context))
                 .isEqualTo(TEST_APP_METADATA)
 
-            assertThat(testAppPackage.appFunctions)
-                .containsExactly(
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_ENABLED_BY_DEFAULT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_DISABLED_BY_DEFAULT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
-                    AppFunctionMetadataTestHelper.FunctionMetadata
-                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
-                    AppFunctionMetadataTestHelper.FunctionMetadata
-                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
+            val expectedFunctions = buildList {
+                addAll(
+                    listOf(
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata
+                            .NO_SCHEMA_DISABLED_BY_DEFAULT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
+                    )
                 )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                    addAll(
+                        listOf(
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
+                        )
+                    )
+                }
+            }
+            assertThat(testAppPackage.appFunctions).containsExactlyElementsIn(expectedFunctions)
         }
 
     @Test
@@ -425,20 +436,31 @@ class AppFunctionManagerTest {
                     it.appFunctions
                 }
 
-            assertThat(appFunctions)
-                .containsExactly(
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_ENABLED_BY_DEFAULT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_DISABLED_BY_DEFAULT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
-                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
-                    AppFunctionMetadataTestHelper.FunctionMetadata
-                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
-                    AppFunctionMetadataTestHelper.FunctionMetadata
-                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
+            val expectedFunctions = buildList {
+                addAll(
+                    listOf(
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata
+                            .NO_SCHEMA_DISABLED_BY_DEFAULT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_FAIL,
+                        AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_EXECUTION_SUCCEED,
+                    )
                 )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                    addAll(
+                        listOf(
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                            AppFunctionMetadataTestHelper.FunctionMetadata
+                                .DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
+                        )
+                    )
+                }
+            }
+            assertThat(appFunctions).containsExactlyElementsIn(expectedFunctions)
         }
 
     @Test
