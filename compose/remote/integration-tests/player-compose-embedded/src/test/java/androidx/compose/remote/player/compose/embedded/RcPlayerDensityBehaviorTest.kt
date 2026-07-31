@@ -41,9 +41,11 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -352,5 +354,23 @@ class RcPlayerDensityBehaviorTest {
         assert(abs(height - constraintMin) < 1f) {
             "LEGACY behavior should constrain min height to ${constraintMin}dp, got ${height}dp"
         }
+    }
+
+    @Test
+    fun dpBehaviorPreservesOffsetDp() {
+        val behavior = CoreDocument.DENSITY_BEHAVIOR_DP
+        val rawOffset = 16f
+        val density = 2.5f
+        val offsetDp = rawDimensionDp(rawOffset, behavior, density)
+        assertEquals(16.dp, offsetDp)
+    }
+
+    @Test
+    fun pixelsBehaviorConvertsOffsetPixelsToDp() {
+        val behavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS
+        val rawOffset = 25f
+        val density = 2.5f
+        val offsetDp = rawDimensionDp(rawOffset, behavior, density)
+        assertEquals(10.dp, offsetDp)
     }
 }
