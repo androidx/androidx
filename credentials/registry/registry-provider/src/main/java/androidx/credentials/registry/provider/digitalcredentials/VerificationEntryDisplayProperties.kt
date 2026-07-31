@@ -57,7 +57,7 @@ constructor(
             this.icon == other.icon &&
             this.explainer == other.explainer &&
             this.warning == other.warning &&
-            this.metadataDisplayText == metadataDisplayText
+            this.metadataDisplayText == other.metadataDisplayText
     }
 
     override fun hashCode(): Int {
