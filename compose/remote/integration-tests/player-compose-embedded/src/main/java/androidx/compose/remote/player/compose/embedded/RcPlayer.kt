@@ -101,7 +101,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
@@ -600,26 +599,6 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                     .then(modifier)
         }
 
-        val drawOpsList = component.getDrawContentOperationsListReflection()
-        if (drawOpsList != null) {
-            val remoteContext = LocalRemoteContext.current
-            val graph = LocalGraphContext.current
-            val document = LocalCoreDocument.current
-            val textMeasurer = rememberTextMeasurer()
-            modifier =
-                modifier.drawWithContent {
-                    // Size feedback is published by onSizeChanged above; the draw pass only draws.
-                    // graph makes time/variable-driven reads reactive, so the draw self-invalidates
-                    // when they change — no per-frame applyOperations refreshing the store.
-                    executeOperations(
-                        drawOpsList,
-                        remoteContext,
-                        onDrawContent = { drawContent() },
-                        graph = graph,
-                        textMeasurer = textMeasurer,
-                    )
-                }
-        }
         when (component) {
             is CanvasLayout -> RcPlayerCanvas(component, modifier)
             is ColumnLayout -> RcPlayerColumn(component, modifier)
