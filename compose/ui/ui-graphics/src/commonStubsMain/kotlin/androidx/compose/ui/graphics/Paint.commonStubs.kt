@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.graphics
 
-@Deprecated("Use direct reference to platform type instead of typealias")
+@Deprecated(
+    message = "Use direct reference to platform type instead of typealias",
+    level = DeprecationLevel.ERROR,
+)
 public actual class NativePaint
 
 public actual fun Paint(): Paint = implementedInJetBrainsFork()
