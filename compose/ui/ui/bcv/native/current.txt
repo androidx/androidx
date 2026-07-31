@@ -10,10 +10,6 @@ open annotation class androidx.compose.ui.graphics.vector/VectorComposable : kot
     constructor <init>() // androidx.compose.ui.graphics.vector/VectorComposable.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.compose.ui.input.pointer.util/ExperimentalVelocityTrackerApi : kotlin/Annotation { // androidx.compose.ui.input.pointer.util/ExperimentalVelocityTrackerApi|null[0]
-    constructor <init>() // androidx.compose.ui.input.pointer.util/ExperimentalVelocityTrackerApi.<init>|<init>(){}[0]
-}
-
 open annotation class androidx.compose.ui.layout/MeasureScopeMarker : kotlin/Annotation { // androidx.compose.ui.layout/MeasureScopeMarker|null[0]
     constructor <init>() // androidx.compose.ui.layout/MeasureScopeMarker.<init>|<init>(){}[0]
 }
