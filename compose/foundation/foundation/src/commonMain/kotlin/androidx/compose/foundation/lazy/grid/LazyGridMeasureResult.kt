@@ -16,10 +16,8 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
-import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -28,9 +26,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CoroutineScope
 
 /** The result of the measure pass for lazy grid layout. */
-internal class LazyGridMeasureResult
-@OptIn(ExperimentalFoundationApi::class)
-constructor(
+internal class LazyGridMeasureResult(
     // properties defining the scroll position:
     /** The new first visible line of items. */
     val firstVisibleLine: LazyGridMeasuredLine?,
@@ -58,10 +54,6 @@ constructor(
     val lineIndexProvider: (itemIndex: Int) -> Int,
     /** Main axis size of sticking header items. */
     val stickingItemsCombinedSize: Int,
-    /** Prefetch state used by the lazy layout. */
-    val prefetchState: LazyLayoutPrefetchState?,
-    /** Prefetch strategy used in our layout */
-    val prefetchStrategy: LazyGridPrefetchStrategy?,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyGridLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyGridMeasuredItem>,
@@ -104,7 +96,6 @@ constructor(
      *   If If new layout info is returned, only the placement phase is needed to apply new offsets.
      *   If null is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    @OptIn(ExperimentalFoundationApi::class)
     fun copyWithScrollDeltaWithoutRemeasure(
         delta: Int,
         updateAnimations: Boolean,
@@ -168,8 +159,6 @@ constructor(
                 afterContentPadding = afterContentPadding,
                 mainAxisItemSpacing = mainAxisItemSpacing,
                 stickingItemsCombinedSize = stickingItemsCombinedSize,
-                prefetchState = prefetchState,
-                prefetchStrategy = prefetchStrategy,
             )
         } else {
             null
