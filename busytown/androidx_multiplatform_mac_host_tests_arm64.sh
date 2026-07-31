@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# Runs host tests for all projects that support KMP except for Compose-specific projects which are
+# Runs host tests for all projects that support Mac targets except for Compose-specific projects which are
 # already covered by androidx_compose_multiplatform.sh
 
 # Must be run on Mac
 
-export ANDROIDX_PROJECTS=KMP
+export ANDROIDX_PROJECTS=MAC
 
 echo "Starting $0 at $(date)"
 
