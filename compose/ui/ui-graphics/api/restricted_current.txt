@@ -1158,6 +1158,7 @@ package androidx.compose.ui.graphics {
   }
 
   public final class PathSegment {
+    ctor public PathSegment(androidx.compose.ui.graphics.PathSegment.Type type, float[] points, float weight);
     method @InaccessibleFromKotlin public float[] getPoints();
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.PathSegment.Type getType();
     method @InaccessibleFromKotlin public float getWeight();

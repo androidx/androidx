@@ -882,6 +882,8 @@ final class androidx.compose.ui.graphics/PathHitTester { // androidx.compose.ui.
 }
 
 final class androidx.compose.ui.graphics/PathSegment { // androidx.compose.ui.graphics/PathSegment|null[0]
+    constructor <init>(androidx.compose.ui.graphics/PathSegment.Type, kotlin/FloatArray, kotlin/Float) // androidx.compose.ui.graphics/PathSegment.<init>|<init>(androidx.compose.ui.graphics.PathSegment.Type;kotlin.FloatArray;kotlin.Float){}[0]
+
     final val points // androidx.compose.ui.graphics/PathSegment.points|{}points[0]
         final fun <get-points>(): kotlin/FloatArray // androidx.compose.ui.graphics/PathSegment.points.<get-points>|<get-points>(){}[0]
     final val type // androidx.compose.ui.graphics/PathSegment.type|{}type[0]
