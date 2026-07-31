@@ -425,7 +425,7 @@ open class GeospatialProjectedActivity : ComponentActivity() {
             if (usesProjectedScreen()) {
                 this
             } else {
-                ProjectedContext.createProjectedDeviceContext(this)
+                ProjectedContext.createProjectedDeviceContext(this.applicationContext)
             }
         Log.i("JetpackXR", "Session.create(sessionContext)")
         when (val result = Session.create(context = sessionContext, lifecycleOwner = this)) {
