@@ -329,7 +329,7 @@ internal constructor(
         private fun QueryResult.Companion.decodeAndCheckError(
             query: String,
             inputStream: InputStream,
-        ) =
+        ): QueryResult =
             ADAPTER.decode(inputStream).also {
                 check(it.error == null) {
                     throw IllegalStateException("Error with query: --$query--, error=${it.error}")

@@ -111,8 +111,8 @@ fun ViewGroup.callPoolingContainerOnReleaseForChildren() {
     this.children.forEach { child -> child.poolingContainerListenerHolder.onRelease() }
 }
 
-private val PoolingContainerListenerHolderTag = R.id.pooling_container_listener_holder_tag
-private val IsPoolingContainerTag = R.id.is_pooling_container_tag
+private val PoolingContainerListenerHolderTag: Int = R.id.pooling_container_listener_holder_tag
+private val IsPoolingContainerTag: Int = R.id.is_pooling_container_tag
 
 private class PoolingContainerListenerHolder {
     private val listeners = ArrayList<PoolingContainerListener>()

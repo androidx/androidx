@@ -386,7 +386,8 @@ internal object SparseParcelableArraySerializer : KSerializer<SparseArray<Parcel
 public class SparseArraySerializer<T>(elementSerializer: KSerializer<T>) :
     KSerializer<SparseArray<T>> {
 
-    private val surrogateSerializer = SparseArraySurrogate.serializer(elementSerializer)
+    private val surrogateSerializer: KSerializer<SparseArraySurrogate<T>> =
+        SparseArraySurrogate.serializer(elementSerializer)
 
     // We can't use `SerialDescriptor("android.util.SparseArray", surrogateSerializer.descriptor)
     // as the `WrappedSerialDescriptor` returned doesn't have a proper `equals()` to trigger our
