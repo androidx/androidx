@@ -396,6 +396,7 @@ private val nonPublicMarkers =
         "androidx.ink.brush.ExperimentalInkBrushCompatibilityApi",
         "androidx.ink.brush.ExperimentalInkCustomBrushApi",
         "androidx.ink.strokes.ExperimentalInkEraserApi",
+        "androidx.ink.rendering.ExperimentalInkCrossPlatformRenderingApi",
         "androidx.ink.nativeloader.InkInternalOnlyApi",
         "androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi",
         "androidx.paging.ExperimentalPagingApi",
