@@ -1522,13 +1522,6 @@ public interface SearchBarScrollBehavior {
      * applies this automatically.
      */
     public val searchBarScrollBehaviorModifier: Modifier
-
-    @Deprecated(
-        message = "Use searchBarScrollBehaviorModifier instead.",
-        replaceWith = ReplaceWith("this.then(searchBarScrollBehaviorModifier)"),
-    )
-    public fun Modifier.searchBarScrollBehavior(): Modifier =
-        this.then(searchBarScrollBehaviorModifier)
 }
 
 /**

@@ -3151,7 +3151,6 @@ package androidx.compose.material3 {
     method @InaccessibleFromKotlin public androidx.compose.ui.input.nestedscroll.NestedScrollConnection getNestedScrollConnection();
     method @InaccessibleFromKotlin public androidx.compose.material3.SearchBarScrollState getScrollState();
     method @InaccessibleFromKotlin public androidx.compose.ui.Modifier getSearchBarScrollBehaviorModifier();
-    method @Deprecated public default androidx.compose.ui.Modifier searchBarScrollBehavior(androidx.compose.ui.Modifier);
     property public abstract androidx.compose.ui.input.nestedscroll.NestedScrollConnection nestedScrollConnection;
     property public abstract androidx.compose.material3.SearchBarScrollState scrollState;
     property public abstract androidx.compose.ui.Modifier searchBarScrollBehaviorModifier;

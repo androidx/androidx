@@ -432,6 +432,7 @@
 [linuxX64]: Removed declaration androidx.compose.material3/rememberModalBottomSheetState(kotlin/Boolean, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberStandardBottomSheetState(androidx.compose.material3/SheetValue?, kotlin/Function1<androidx.compose.material3/SheetValue, kotlin/Boolean>?, kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
 [linuxX64]: Removed declaration androidx.compose.material3/rememberTooltipState(kotlin/Boolean, kotlin/Boolean, androidx.compose.foundation/MutatorMutex?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).searchBarScrollBehavior() from androidx.compose.material3/SearchBarScrollBehavior
 [linuxX64]: Removed declaration scrollOffset from androidx.compose.material3/SearchBarScrollBehavior
 [linuxX64]: Removed declaration scrollOffsetLimit from androidx.compose.material3/SearchBarScrollBehavior
 [linuxX64]: Added declaration scrollState to androidx.compose.material3/SearchBarScrollBehavior
