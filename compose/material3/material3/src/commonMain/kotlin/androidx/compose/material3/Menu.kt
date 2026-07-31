@@ -979,19 +979,19 @@ public class MenuItemColors(
         disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
         disabledTrailingContentColor: Color = this.disabledTrailingContentColor,
     ): MenuItemColors =
-        MenuItemColors(
+        copy(
             textColor = textColor,
             leadingIconColor = leadingIconColor,
-            trailingIconColor = trailingContentColor,
+            trailingContentColor = trailingContentColor,
             disabledTextColor = disabledTextColor,
             disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingIconColor = disabledTrailingContentColor,
-            containerColor = Color.Unspecified,
-            disabledContainerColor = Color.Unspecified,
-            selectedTextColor = Color.Unspecified,
-            selectedLeadingIconColor = Color.Unspecified,
-            selectedTrailingIconColor = Color.Unspecified,
-            selectedContainerColor = Color.Unspecified,
+            disabledTrailingContentColor = disabledTrailingContentColor,
+            containerColor = this.containerColor,
+            disabledContainerColor = this.disabledContainerColor,
+            selectedTextColor = this.selectedTextColor,
+            selectedLeadingIconColor = this.selectedLeadingIconColor,
+            selectedTrailingContentColor = this.selectedTrailingContentColor,
+            selectedContainerColor = this.selectedContainerColor,
         )
 
     /**
