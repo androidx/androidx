@@ -843,6 +843,39 @@ class NavDisplayTest {
             .that(poppedKeys1)
             .containsExactly(first)
     }
+
+    @Test
+    fun testInterruptPopWithPop() {
+        val backStack = mutableStateListOf(first, second, third)
+
+        composeTestRule.setContent {
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
+                onBack = { backStack.removeLastOrNull() },
+            ) { key ->
+                NavEntry(key) { Text(key) }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.autoAdvance = false
+
+        // Pop 'third' in frame 1 and advance clock slightly so pop 1 transition is actively running
+        // mid-flight
+        backStack.removeLastOrNull()
+        composeTestRule.mainClock.advanceTimeBy(50)
+
+        // Pop 'second' while pop 1 exit transition is still actively animating
+        backStack.removeLastOrNull()
+        composeTestRule.mainClock.advanceTimeBy(50)
+
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+
+        // Verify 'first' is displayed
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+    }
 }
 
 @Serializable object First : NavKey
