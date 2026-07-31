@@ -1,5 +1,5 @@
 diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-index 89e37fae4d9..113ab2d78c0 100644
+index 99fc74c1480..e358424fb92 100644
 --- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
 +++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
 @@ -426,56 +426,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
@@ -84,10 +84,10 @@ index 89e37fae4d9..113ab2d78c0 100644
      fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
          supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
 diff --git a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
-index a86f6ad643e..857cf08dcf6 100644
+index 317d1bf1d18..ca0abff38ac 100644
 --- a/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
 +++ b/buildSrc/private/src/main/kotlin/androidx/build/docs/AndroidXDocsImplPlugin.kt
-@@ -780,18 +780,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
+@@ -792,18 +792,12 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
  
          multiplatformExtension.jvm()
  
@@ -107,20 +107,20 @@ index a86f6ad643e..857cf08dcf6 100644
          multiplatformExtension.watchosDeviceArm64()
          multiplatformExtension.watchosSimulatorArm64()
 diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
-index 6fece502bef..f1c96195b0b 100644
+index 6fece502bef..78d3e498cbc 100644
 --- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
 +++ b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
-@@ -38,11 +38,11 @@ interface AndroidXConfiguration {
+@@ -38,11 +38,10 @@ interface AndroidXConfiguration {
  }
  
  enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
 -    KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
-     KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
+-    KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
      KOTLIN_2_3(KotlinVersion.KOTLIN_2_3, "kotlin23"),
 -    DEFAULT(KOTLIN_2_1),
 -    LATEST(KOTLIN_2_3);
 +    KOTLIN_2_4(KotlinVersion.KOTLIN_2_3, "kotlin24"),
-+    DEFAULT(KOTLIN_2_2),
++    DEFAULT(KOTLIN_2_3),
 +    LATEST(KOTLIN_2_4);
  
      constructor(
@@ -149,7 +149,7 @@ index e11c8cc95af..998cea54c06 100644
      WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
      TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
 diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
-index e516bf8575b..bd3400df80f 100644
+index e516bf8575b..4c7d3d0b84d 100644
 --- a/buildSrc/shared.gradle
 +++ b/buildSrc/shared.gradle
 @@ -44,7 +44,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
@@ -158,8 +158,8 @@ index e516bf8575b..bd3400df80f 100644
          )
 -        languageVersion.set(KotlinVersion.KOTLIN_2_1)
 -        apiVersion.set(KotlinVersion.KOTLIN_2_1)
-+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
-+        apiVersion.set(KotlinVersion.KOTLIN_2_2)
++        languageVersion.set(KotlinVersion.KOTLIN_2_3)
++        apiVersion.set(KotlinVersion.KOTLIN_2_3)
      }
  }
 diff --git a/collection/collection/bcv/native/current.ignore b/collection/collection/bcv/native/current.ignore
