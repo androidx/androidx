@@ -62,7 +62,6 @@ internal expect fun PlatformVelocityTracker(): PlatformVelocityTracker
  * Computes a pointer's velocity using an implementation of the Android Framework's LSQ2
  * VelocityTracker strategy.
  */
-@OptIn(ExperimentalVelocityTrackerApi::class)
 internal class Lsq2VelocityTracker : PlatformVelocityTracker {
     private val strategy =
         VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
