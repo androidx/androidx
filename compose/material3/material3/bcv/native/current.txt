@@ -243,8 +243,6 @@ abstract interface androidx.compose.material3/SearchBarScrollBehavior { // andro
         abstract fun <get-scrollState>(): androidx.compose.material3/SearchBarScrollState // androidx.compose.material3/SearchBarScrollBehavior.scrollState.<get-scrollState>|<get-scrollState>(){}[0]
     abstract val searchBarScrollBehaviorModifier // androidx.compose.material3/SearchBarScrollBehavior.searchBarScrollBehaviorModifier|{}searchBarScrollBehaviorModifier[0]
         abstract fun <get-searchBarScrollBehaviorModifier>(): androidx.compose.ui/Modifier // androidx.compose.material3/SearchBarScrollBehavior.searchBarScrollBehaviorModifier.<get-searchBarScrollBehaviorModifier>|<get-searchBarScrollBehaviorModifier>(){}[0]
-
-    open fun (androidx.compose.ui/Modifier).searchBarScrollBehavior(): androidx.compose.ui/Modifier // androidx.compose.material3/SearchBarScrollBehavior.searchBarScrollBehavior|searchBarScrollBehavior@androidx.compose.ui.Modifier(){}[0]
 }
 
 abstract interface androidx.compose.material3/SelectableDates { // androidx.compose.material3/SelectableDates|null[0]
