@@ -560,7 +560,9 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     }
 
     private void init(@NonNull Context context, @NonNull AttributeSet attrs, int defStyleAttr) {
-        mSoundSupport.init(context);
+        if (!isInEditMode()) {
+            mSoundSupport.init(context);
+        }
         LayoutParams layoutParams =
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         setBackgroundColor(Color.TRANSPARENT);

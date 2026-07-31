@@ -44,6 +44,16 @@ class RemoteComposePlayerTest {
     private var lastEventTime = SystemClock.uptimeMillis()
 
     @Test
+    fun init_inEditMode_doesNotCrash() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val playerInEditMode =
+            object : RemoteComposePlayer(context) {
+                override fun isInEditMode(): Boolean = true
+            }
+        assertTrue("player should be in edit mode", playerInEditMode.isInEditMode)
+    }
+
+    @Test
     fun scrollableComponent_disallowsParentIntercept_soDragIsNotPropagatedToHost() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
 
