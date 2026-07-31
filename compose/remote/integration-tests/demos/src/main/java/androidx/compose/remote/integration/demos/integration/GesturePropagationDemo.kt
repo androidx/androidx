@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.hostAction
@@ -46,7 +47,9 @@ import androidx.compose.remote.creation.compose.modifier.combinedClickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
@@ -59,7 +62,9 @@ import androidx.compose.remote.foundation.layout.RemoteSpacer
 import androidx.compose.remote.integration.demos.common.RemoteDemo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -88,6 +93,7 @@ fun GesturePropagationDemo() {
     val remoteComposeClick = "remote_compose_click"
     val remoteComposeDoubleClick = "remote_compose_double_click"
     val remoteComposeLongClick = "remote_compose_long_click"
+    var applyVerticalScroll by remember { mutableStateOf(false) }
 
     Column(
         modifier =
@@ -139,91 +145,109 @@ fun GesturePropagationDemo() {
                 Cell { Text(text = "$remoteComposeLongClickCounter") }
             }
         }
-        RemoteDemo(
-            modifier = Modifier.fillMaxSize().padding(10.dp).border(1.dp, Color.Blue),
-            profile = experimentalProfile,
-            onNamedAction = { name, _, _ ->
-                when (name) {
-                    remoteComposeClick -> remoteComposeClickCounter++
-                    remoteComposeDoubleClick -> remoteComposeDoubleClickCounter++
-                    remoteComposeLongClick -> remoteComposeLongClickCounter++
-                }
-            },
-        ) {
-            val clickCount = rememberMutableRemoteInt(0)
-            val doubleClickCount = rememberMutableRemoteInt(0)
-            val longClickCount = rememberMutableRemoteInt(0)
-            RemoteColumn(
-                modifier = RemoteModifier.fillMaxSize().padding(5.rdp),
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = applyVerticalScroll, onCheckedChange = { applyVerticalScroll = it })
+            Text(text = "Apply verticalScroll modifier to root.", color = Color.Black)
+        }
+        key(applyVerticalScroll) {
+            RemoteDemo(
+                modifier = Modifier.fillMaxSize().padding(10.dp).border(1.dp, Color.Blue),
+                profile = experimentalProfile,
+                onNamedAction = { name, _, _ ->
+                    when (name) {
+                        remoteComposeClick -> remoteComposeClickCounter++
+                        remoteComposeDoubleClick -> remoteComposeDoubleClickCounter++
+                        remoteComposeLongClick -> remoteComposeLongClickCounter++
+                    }
+                },
             ) {
-                RemoteText("Clickable:".rs, color = Color.Black.rc)
-                RemoteRow {
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp)
-                                .background(RemoteColor(Color.Red))
-                                .clickable(hostAction(remoteComposeClick.rs)),
-                        contentAlignment = RemoteAlignment.Center,
-                    ) {
-                        RemoteText("HostAction.".rs)
+                val scrollState = rememberRemoteScrollState()
+                val clickCount = rememberMutableRemoteInt(0)
+                val doubleClickCount = rememberMutableRemoteInt(0)
+                val longClickCount = rememberMutableRemoteInt(0)
+                RemoteColumn(
+                    modifier =
+                        RemoteModifier.fillMaxSize()
+                            .padding(5.rdp)
+                            .then(
+                                if (applyVerticalScroll) {
+                                    RemoteModifier.verticalScroll(scrollState)
+                                } else {
+                                    RemoteModifier
+                                }
+                            ),
+                    horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                ) {
+                    RemoteText("Clickable:".rs, color = Color.Black.rc)
+                    RemoteRow {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .background(RemoteColor(Color.Red))
+                                    .clickable(hostAction(remoteComposeClick.rs)),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText("HostAction.".rs)
+                        }
+                        RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .background(RemoteColor(Color.Green))
+                                    .clickable(valueChange(clickCount, clickCount + 1)),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                        }
                     }
-                    RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp)
-                                .background(RemoteColor(Color.Green))
-                                .clickable(valueChange(clickCount, clickCount + 1)),
-                        contentAlignment = RemoteAlignment.Center,
-                    ) {
-                        RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                    RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
+                    RemoteText("CombinedClickable:".rs, color = Color.Black.rc)
+                    RemoteRow {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .background(RemoteColor(Color.Red))
+                                    .combinedClickable(
+                                        onClick = hostAction(remoteComposeClick.rs),
+                                        onDoubleClick = hostAction(remoteComposeDoubleClick.rs),
+                                        onLongClick = hostAction(remoteComposeLongClick.rs),
+                                    ),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText("HostAction.".rs)
+                        }
+                        RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .background(RemoteColor(Color.Green))
+                                    .combinedClickable(
+                                        onClick = valueChange(clickCount, clickCount + 1),
+                                        onDoubleClick =
+                                            valueChange(doubleClickCount, doubleClickCount + 1),
+                                        onLongClick =
+                                            valueChange(longClickCount, longClickCount + 1),
+                                    ),
+                            contentAlignment = RemoteAlignment.Center,
+                        ) {
+                            RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                        }
                     }
+                    RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
+                    RemoteText(
+                        "ValueChange click counter: ".rs + clickCount.toRemoteString(),
+                        color = Color.Black.rc,
+                    )
+                    RemoteText(
+                        "ValueChange double click counter: ".rs + doubleClickCount.toRemoteString(),
+                        color = Color.Black.rc,
+                    )
+                    RemoteText(
+                        "ValueChange long click counter: ".rs + longClickCount.toRemoteString(),
+                        color = Color.Black.rc,
+                    )
                 }
-                RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
-                RemoteText("CombinedClickable:".rs, color = Color.Black.rc)
-                RemoteRow {
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp)
-                                .background(RemoteColor(Color.Red))
-                                .combinedClickable(
-                                    onClick = hostAction(remoteComposeClick.rs),
-                                    onDoubleClick = hostAction(remoteComposeDoubleClick.rs),
-                                    onLongClick = hostAction(remoteComposeLongClick.rs),
-                                ),
-                        contentAlignment = RemoteAlignment.Center,
-                    ) {
-                        RemoteText("HostAction.".rs)
-                    }
-                    RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
-                    RemoteBox(
-                        modifier =
-                            RemoteModifier.size(80.rdp)
-                                .background(RemoteColor(Color.Green))
-                                .combinedClickable(
-                                    onClick = valueChange(clickCount, clickCount + 1),
-                                    onDoubleClick =
-                                        valueChange(doubleClickCount, doubleClickCount + 1),
-                                    onLongClick = valueChange(longClickCount, longClickCount + 1),
-                                ),
-                        contentAlignment = RemoteAlignment.Center,
-                    ) {
-                        RemoteText("ValueChange.".rs, color = Color.Black.rc)
-                    }
-                }
-                RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
-                RemoteText(
-                    "ValueChange click counter: ".rs + clickCount.toRemoteString(),
-                    color = Color.Black.rc,
-                )
-                RemoteText(
-                    "ValueChange double click counter: ".rs + doubleClickCount.toRemoteString(),
-                    color = Color.Black.rc,
-                )
-                RemoteText(
-                    "ValueChange long click counter: ".rs + longClickCount.toRemoteString(),
-                    color = Color.Black.rc,
-                )
             }
         }
     }
