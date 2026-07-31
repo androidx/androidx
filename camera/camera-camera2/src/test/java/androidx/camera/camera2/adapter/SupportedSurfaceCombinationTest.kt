@@ -1875,6 +1875,7 @@ class SupportedSurfaceCombinationTest {
         findMaxSupportedFrameRate: Boolean = false,
         expectedSessionType: Int = SESSION_TYPE_REGULAR,
         maxFpsBySizeMap: Map<Size, Int> = emptyMap(),
+        minFrameDurationMap: Map<Size, Long> = emptyMap(),
         isFeatureComboInvocation: Boolean = false,
         featureCombinationQuery: FeatureCombinationQuery = NO_OP_FEATURE_COMBINATION_QUERY,
         deviceFPSRanges: Array<Range<Int>> = defaultFpsRanges,
@@ -1889,6 +1890,7 @@ class SupportedSurfaceCombinationTest {
             supportedFormats = supportedOutputFormats,
             supportedHighSpeedSizeAndFpsMap = supportedHighSpeedSizeAndFpsMap,
             maxFpsBySizeMap = maxFpsBySizeMap,
+            minFrameDurationMap = minFrameDurationMap,
             deviceFPSRanges = deviceFPSRanges,
             sessionConfigQueryVersion = sessionConfigQueryVersion,
         )
@@ -2805,6 +2807,20 @@ class SupportedSurfaceCombinationTest {
         getSuggestedSpecsAndVerify(
             useCaseExpectedResultMap,
             hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+        )
+    }
+
+    @Test
+    fun getSuggestedStreamSpec_roundingMaxFps() {
+        // Device supports 60fps but min frame duration is 16666667ns (which is 59.99fps).
+        // With rounding, it should be treated as 60fps.
+        val useCase = createUseCase(CaptureType.PREVIEW, targetFrameRate = Range<Int>(60, 60))
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply { put(useCase, Size(1920, 1080)) }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            minFrameDurationMap = mapOf(Size(1920, 1080) to 16666667L), // 59.99 fps
         )
     }
 
@@ -5041,6 +5057,7 @@ class SupportedSurfaceCombinationTest {
         capabilities: IntArray? = null,
         cameraId: CameraId = CameraId.fromCamera1Id(0),
         maxFpsBySizeMap: Map<Size, Int> = emptyMap(),
+        minFrameDurationMap: Map<Size, Long> = emptyMap(),
         deviceFPSRanges: Array<Range<Int>> = defaultFpsRanges,
         // VIC used as default as it's the first version supporting FCQ combinations
         sessionConfigQueryVersion: Int = Build.VERSION_CODES.VANILLA_ICE_CREAM,
@@ -5246,6 +5263,10 @@ class SupportedSurfaceCombinationTest {
         maxFpsBySizeMap.forEach { (size, maxFps) ->
             // x FPS means 1 second for x frames, so min frame duration is (1e9 / x) ns
             mockMap.mockOutputMinFrameDuration(size, floor(1e9 / maxFps.toDouble()).toLong())
+        }
+
+        minFrameDurationMap.forEach { (size, duration) ->
+            mockMap.mockOutputMinFrameDuration(size, duration)
         }
 
         shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
