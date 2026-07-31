@@ -105,9 +105,9 @@ public fun RemoteDocumentPlayer(
         factory = {
             RemoteComposePlayer(it).apply {
                 doOnPreDraw { fullyDrawnReporter?.removeReporter() }
-                init(this)
                 bitmapLoader?.let(::setBitmapLoader)
                 typefaceResolver?.let(::setTypefaceResolver)
+                init(this)
             }
         },
         update = { remoteComposePlayer ->
