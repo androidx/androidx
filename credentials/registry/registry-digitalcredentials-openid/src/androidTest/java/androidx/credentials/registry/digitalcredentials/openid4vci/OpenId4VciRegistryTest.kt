@@ -82,7 +82,8 @@ class OpenId4VciRegistryTest {
         val entries = json.getJSONArray("entries")
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
-        assertThat(entry.getString("title")).isEqualTo("test_title")
+        assertThat(entry.has("title")).isFalse()
+        assertThat(entry.has("icon")).isFalse()
         assertThat(entry.getString("subtitle")).isEqualTo("test_subtitle")
 
         val explainer = entry.getJSONObject("explainer")
@@ -90,7 +91,9 @@ class OpenId4VciRegistryTest {
         val perIssuer = explainer.getJSONObject("per_issuer")
         assertThat(perIssuer.getString("https://issuer.my")).isEqualTo("Issuer explainer")
 
-        val iconRange = entry.getJSONArray("icon")
+        val packageInfo = json.getJSONObject("self_declared_package_info")
+        assertThat(packageInfo.getString("name")).isEqualTo("test_title")
+        val iconRange = packageInfo.getJSONArray("icon")
         assertThat(iconRange.getInt(0)).isEqualTo(4)
         assertThat(iconRange.getInt(1)).isEqualTo(7)
     }
@@ -139,13 +142,17 @@ class OpenId4VciRegistryTest {
         val entries = json.getJSONArray("entries")
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
-        assertThat(entry.getString("title")).isEqualTo("test_title")
+        assertThat(entry.has("title")).isFalse()
+        assertThat(entry.has("icon")).isFalse()
         assertThat(entry.getString("subtitle")).isEqualTo("test_subtitle")
 
         val explainer = entry.getJSONObject("explainer")
         assertThat(explainer.getString("default")).isEqualTo("Default explainer")
         val perIssuer = explainer.getJSONObject("per_issuer")
         assertThat(perIssuer.getString("https://issuer.my")).isEqualTo("Issuer explainer")
+
+        val packageInfo = json.getJSONObject("self_declared_package_info")
+        assertThat(packageInfo.getString("name")).isEqualTo("test_title")
     }
 
     @Test
@@ -204,14 +211,16 @@ class OpenId4VciRegistryTest {
         val entries = json.getJSONArray("entries")
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
-        assertThat(entry.getString("title")).isEqualTo("Holder")
-
-        val iconRange = entry.getJSONArray("icon")
-        assertThat(iconRange.getInt(0)).isEqualTo(4)
-        assertThat(iconRange.getInt(1)).isEqualTo(7)
-
+        assertThat(entry.has("title")).isFalse()
+        assertThat(entry.has("icon")).isFalse()
         assertThat(entry.has("subtitle")).isFalse()
         assertThat(entry.has("explainer")).isFalse()
+
+        val packageInfo = json.getJSONObject("self_declared_package_info")
+        assertThat(packageInfo.getString("name")).isEqualTo("Holder")
+        val iconRange = packageInfo.getJSONArray("icon")
+        assertThat(iconRange.getInt(0)).isEqualTo(4)
+        assertThat(iconRange.getInt(1)).isEqualTo(7)
     }
 
     @Test
@@ -253,21 +262,23 @@ class OpenId4VciRegistryTest {
         assertThat(entries.length()).isEqualTo(2)
 
         val entry1 = entries.getJSONObject(0)
-        assertThat(entry1.getString("title")).isEqualTo("Holder")
+        assertThat(entry1.has("title")).isFalse()
+        assertThat(entry1.has("icon")).isFalse()
         assertThat(entry1.getString("subtitle")).isEqualTo("sub1")
         assertThat(entry1.has("explainer")).isFalse()
-        val iconRange1 = entry1.getJSONArray("icon")
-        assertThat(iconRange1.getInt(0)).isEqualTo(4)
-        assertThat(iconRange1.getInt(1)).isEqualTo(7)
 
         val entry2 = entries.getJSONObject(1)
-        assertThat(entry2.getString("title")).isEqualTo("Holder")
+        assertThat(entry2.has("title")).isFalse()
+        assertThat(entry2.has("icon")).isFalse()
         assertThat(entry2.getString("subtitle")).isEqualTo("sub2")
         val explainer2 = entry2.getJSONObject("explainer")
         assertThat(explainer2.getString("default")).isEqualTo("default")
-        val iconRange2 = entry2.getJSONArray("icon")
-        assertThat(iconRange2.getInt(0)).isEqualTo(4)
-        assertThat(iconRange2.getInt(1)).isEqualTo(7)
+
+        val packageInfo = json.getJSONObject("self_declared_package_info")
+        assertThat(packageInfo.getString("name")).isEqualTo("Holder")
+        val iconRange = packageInfo.getJSONArray("icon")
+        assertThat(iconRange.getInt(0)).isEqualTo(4)
+        assertThat(iconRange.getInt(1)).isEqualTo(7)
     }
 
     @Test
