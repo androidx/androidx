@@ -38,7 +38,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -100,19 +99,6 @@ fun LazyVerticalGridSpanSample() {
                 Text("Item $it", Modifier.border(1.dp, Color.Blue).height(80.dp).wrapContentSize())
             }
         }
-    }
-}
-
-@Sampled
-@Composable
-fun LazyGridCacheWindowSample() {
-    val itemsList = (0..100).toList()
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        cacheWindow = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 0.2f),
-    ) {
-        items(itemsList) { item -> Text("Item $item") }
     }
 }
 
