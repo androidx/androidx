@@ -203,7 +203,7 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
                         this@LowPowerGeospatialActivity
                     } else {
                         ProjectedContext.createProjectedDeviceContext(
-                            this@LowPowerGeospatialActivity
+                            this@LowPowerGeospatialActivity.applicationContext
                         )
                     }
                 when (
