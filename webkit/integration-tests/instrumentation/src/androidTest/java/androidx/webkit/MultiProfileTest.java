@@ -19,11 +19,9 @@ package androidx.webkit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import android.os.Build;
 import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
@@ -42,7 +40,6 @@ import java.util.List;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 public class MultiProfileTest {
 
     ProfileStore mProfileStore;

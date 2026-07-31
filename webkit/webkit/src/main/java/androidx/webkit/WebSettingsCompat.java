@@ -30,7 +30,6 @@ import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.ApiFeature;
-import androidx.webkit.internal.ApiHelperForN;
 import androidx.webkit.internal.ApiHelperForO;
 import androidx.webkit.internal.ApiHelperForQ;
 import androidx.webkit.internal.WebSettingsAdapter;
@@ -181,7 +180,7 @@ public class WebSettingsCompat {
             @MenuItemFlags int menuItems) {
         ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            ApiHelperForN.setDisabledActionModeMenuItems(settings, menuItems);
+            settings.setDisabledActionModeMenuItems(menuItems);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setDisabledActionModeMenuItems(menuItems);
         } else {
@@ -203,7 +202,7 @@ public class WebSettingsCompat {
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
         ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            return ApiHelperForN.getDisabledActionModeMenuItems(settings);
+            return settings.getDisabledActionModeMenuItems();
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getDisabledActionModeMenuItems();
         } else {
