@@ -18,6 +18,9 @@ package androidx.camera.common.compat
 
 import android.hardware.SyncFence
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics as Camera2CameraExtensionCharacteristics
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.media.Image
 import androidx.annotation.RequiresApi
 import androidx.camera.common.CameraCharacteristicsMetadata
@@ -83,5 +86,23 @@ internal object Api33Compat {
         return wrapper[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]?.let {
             AndroidDynamicRangeProfiles(it)
         }
+    }
+
+    /** Returns the list of capture request keys supported by the camera extension. */
+    @JvmStatic
+    fun getAvailableCaptureRequestKeys(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+    ): Set<CaptureRequest.Key<*>> {
+        return chars.getAvailableCaptureRequestKeys(extension)
+    }
+
+    /** Returns the list of capture result keys supported by the camera extension. */
+    @JvmStatic
+    fun getAvailableCaptureResultKeys(
+        chars: Camera2CameraExtensionCharacteristics,
+        extension: Int,
+    ): Set<CaptureResult.Key<*>> {
+        return chars.getAvailableCaptureResultKeys(extension)
     }
 }
