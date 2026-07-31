@@ -259,16 +259,22 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
 }
 
 fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<String, Any> {
-    val commonMain = kmpExtension.sourceSets.getByName("commonMain")
-    val sourceSetsByName =
-        mutableMapOf(
-            "commonMain" to
-                mapOf(
-                    "name" to commonMain.name,
-                    "dependencies" to commonMain.dependsOn.map { it.name }.sorted(),
-                    "analysisPlatform" to DokkaAnalysisPlatform.COMMON.jsonName,
-                )
-        )
+    // Build a mapping from each source set to the analysis platform for that source set. If a
+    // source set is used by several targets, the analysis platform is found by merging the
+    // platforms from all targets.
+    val sourceSetToPlatforms = mutableMapOf<String, DokkaAnalysisPlatform>()
+    kmpExtension.targets.forEach { target ->
+        val platform = target.docsPlatform()
+        // Skip the metadata compilation.
+        if (platform == DokkaAnalysisPlatform.COMMON) return@forEach
+        // Add or update each source set in the mapping.
+        for (sourceSet in target.mainCompilation().allKotlinSourceSets) {
+            val current = sourceSetToPlatforms[sourceSet.name]
+            sourceSetToPlatforms[sourceSet.name] = platform.merge(current)
+        }
+    }
+
+    val sourceSetsByName = mutableMapOf<String, Map<String, Any>>()
     kmpExtension.targets.forEach { target ->
         // Skip adding entries for stub targets are they are not intended to be documented
         if (target.name in setOfStubTargets) return@forEach
@@ -277,7 +283,7 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
                 mapOf(
                     "name" to it.name,
                     "dependencies" to it.transitiveDependsOn().map { it.name }.sorted(),
-                    "analysisPlatform" to target.docsPlatform().jsonName,
+                    "analysisPlatform" to sourceSetToPlatforms[it.name]!!.jsonName,
                 )
             }
         }

@@ -18,6 +18,8 @@ package androidx.build.dackka
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
@@ -35,6 +37,10 @@ internal object DokkaUtils {
             .setPrettyPrinting()
             .registerTypeAdapter(File::class.java, CanonicalFileSerializer())
             .registerTypeAdapter(FileCollection::class.java, FileCollectionSerializer())
+            .registerTypeAdapter(
+                DokkaAnalysisPlatform::class.java,
+                DokkaAnalysisPlatform.Serializer,
+            )
             .create()
 
     /** Serializer for Gradle's [FileCollection] */
@@ -73,6 +79,45 @@ enum class DokkaAnalysisPlatform(val jsonName: String) {
     COMMON("common");
 
     fun androidOrJvm() = this == JVM || this == ANDROID
+
+    /**
+     * Returns the [DokkaAnalysisPlatform] that should be used for a source set involved in
+     * compilations with both `this` and [other] [DokkaAnalysisPlatform]s.
+     */
+    fun merge(other: DokkaAnalysisPlatform?): DokkaAnalysisPlatform {
+        return if (other == null || other == this) {
+            this
+        } else if (androidOrJvm() && other.androidOrJvm()) {
+            JVM
+        } else {
+            COMMON
+        }
+    }
+
+    /**
+     * Handles JSON serialization and deserialization using [jsonName].
+     *
+     * [JVM] and [ANDROID] have the same [jsonName], so they are both serialized to `jvm`, which is
+     * deserialized to [JVM].
+     */
+    object Serializer :
+        JsonSerializer<DokkaAnalysisPlatform>, JsonDeserializer<DokkaAnalysisPlatform> {
+        override fun serialize(
+            src: DokkaAnalysisPlatform?,
+            typeOfSrc: Type?,
+            context: JsonSerializationContext?,
+        ): JsonElement? {
+            return src?.let { JsonPrimitive(it.jsonName) }
+        }
+
+        override fun deserialize(
+            json: JsonElement?,
+            typeOfT: Type?,
+            context: JsonDeserializationContext?,
+        ): DokkaAnalysisPlatform? {
+            return json?.asString?.let { DokkaAnalysisPlatform.valueOf(it.uppercase()) }
+        }
+    }
 }
 
 fun KotlinTarget.docsPlatform() =
