@@ -18,7 +18,6 @@ package androidx.xr.runtime
 
 import android.Manifest
 import android.graphics.Bitmap
-import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThrows
 import androidx.lifecycle.Lifecycle
@@ -51,6 +50,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(AndroidJUnit4::class)
 class SessionTest {
@@ -461,20 +461,20 @@ class SessionTest {
             val expectedDuration = 100.milliseconds
             val initialTimeMark = underTest.state.value.timeMark
 
-            // First resume and update
+            underTest.configure(underTest.config)
             activityController.resume()
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
             advanceUntilIdle()
             val beforeTimeMark = underTest.state.value.timeMark
             check(beforeTimeMark != initialTimeMark)
             activityController.pause()
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
             advanceUntilIdle()
             timeSource += expectedDuration
 
             stubRuntime.allowOneMoreCallToUpdate()
             activityController.resume()
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
             advanceUntilIdle()
 
             val afterTimeMark = underTest.state.value.timeMark
@@ -489,11 +489,47 @@ class SessionTest {
             activityController.create().start()
             underTest = createSession(coroutineDispatcher = testDispatcher)
 
+            underTest.configure(underTest.config)
             activityController.resume() // Triggers update
             advanceUntilIdle()
 
             val stateExtender = underTest.stateExtenders.last() as StubStateExtender
             assertThat(stateExtender.extended).isNotEmpty()
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun resume_withoutConfigure_doesNotTriggerUpdateLoop() =
+        runTest(testDispatcher) {
+            activityController.create().start()
+            underTest = createSession(coroutineDispatcher = testDispatcher)
+
+            val initialTimeMark = underTest.state.value.timeMark
+            activityController.resume()
+            ShadowLooper.idleMainLooper()
+            advanceUntilIdle()
+
+            val beforeConfigTimeMark = underTest.state.value.timeMark
+            assertThat(beforeConfigTimeMark).isEqualTo(initialTimeMark)
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun configure_whileResumed_startsUpdateLoop() =
+        runTest(testDispatcher) {
+            activityController.create().start()
+            underTest = createSession(coroutineDispatcher = testDispatcher)
+
+            val initialTimeMark = underTest.state.value.timeMark
+            activityController.resume()
+            ShadowLooper.idleMainLooper()
+            advanceUntilIdle()
+            underTest.configure(underTest.config)
+            ShadowLooper.idleMainLooper()
+            advanceUntilIdle()
+
+            val afterConfigTimeMark = underTest.state.value.timeMark
+            assertThat(afterConfigTimeMark).isNotEqualTo(initialTimeMark)
         }
 
     @Test
@@ -614,30 +650,33 @@ class SessionTest {
     @Test
     fun destroy_whenLockHeld_stillDestroysRuntimes() =
         runTest(testDispatcher) {
-            activityController.create().start()
+            activityController.create().start().resume()
             underTest = createSession(coroutineDispatcher = testDispatcher)
+            underTest.configure(underTest.config)
+
             val stubRuntime = getStubRuntime()
 
             // Start the update loop. It will block on the second update (due to the semaphore
             // in StubPerceptionRuntime) while holding the Session's configurationMutex.
-            activityController.resume()
-            shadowOf(Looper.getMainLooper()).idle()
             advanceUntilIdle()
 
-            // Trigger Session.destroy(). Since the lock is held, it goes to the fallback path.
-            activityController.destroy()
+            // Trigger Session.destroy(). The pause() call internally cancels the updateJob,
+            // but the testDispatcher will not process the cancellation inline. Because the
+            // cancellation is queued, the lock is still held when destroy() uses tryLock().
+            // Thus, destroy() queues a fallback coroutine to clean up later.
+            activityController.pause().stop().destroy()
 
-            // Verify that the runtime is not destroyed yet while the lock is held.
-            shadowOf(Looper.getMainLooper()).idle()
-            advanceUntilIdle()
+            // Verify that the runtime is not destroyed yet because the fallback coroutine is queued
+            // and the lock hasn't been released by the cancelled updateJob.
             assertThat(stubRuntime.state).isNotEqualTo(StubPerceptionRuntime.State.DESTROYED)
 
-            // Release the semaphore to let the update loop finish and release the lock.
-            stubRuntime.allowOneMoreCallToUpdate()
-
-            // Allow the update loop to finish, which resumes the queued destroy coroutine.
+            // Advance the testDispatcher to process the updateJob's cancellation, which will
+            // unlock the configurationMutex.
             advanceUntilIdle()
-            shadowOf(Looper.getMainLooper()).idle()
+
+            // Finally, pump the MainLooper to allow the queued fallback coroutine to acquire the
+            // lock and execute destroyRuntimes().
+            ShadowLooper.idleMainLooper()
 
             assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
         }
@@ -732,7 +771,7 @@ class SessionTest {
             activityController.destroy()
 
             // Run the registration coroutine on the main thread.
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
             advanceUntilIdle()
 
             // Verify that the session has been destroyed.
@@ -766,7 +805,7 @@ class SessionTest {
             val session = (result as SessionCreateSuccess).session
 
             // Let the registration coroutine run.
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
             advanceUntilIdle()
 
             // At this point, the session should be active.
@@ -775,7 +814,7 @@ class SessionTest {
 
             // Destroy the context (activity).
             activityController.destroy()
-            shadowOf(Looper.getMainLooper()).idle()
+            ShadowLooper.idleMainLooper()
 
             // The session should now be destroyed.
             assertThat(stubRuntime.state).isEqualTo(StubPerceptionRuntime.State.DESTROYED)
