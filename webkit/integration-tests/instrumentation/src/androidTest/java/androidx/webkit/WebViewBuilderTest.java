@@ -27,7 +27,6 @@ import android.webkit.WebView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.instrumentation.test.R;
 import androidx.webkit.test.common.TestWebMessageListener;
@@ -53,7 +52,6 @@ import okhttp3.mockwebserver.MockWebServer;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 public class WebViewBuilderTest {
     @Rule
     public final ActivityScenarioRule<WebViewTestActivity> mActivityScenarioRule =

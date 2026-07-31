@@ -27,19 +27,16 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.os.Build;
 import android.os.Looper;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
@@ -56,7 +53,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
@@ -358,14 +354,9 @@ public class WebViewCompatTest {
      */
     @Test
     public void testGetCurrentWebViewPackage() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            assertNull(WebViewCompat.getCurrentWebViewPackage(
-                    ApplicationProvider.getApplicationContext()));
-        } else {
-            assertNotNull(
-                    WebViewCompat.getCurrentWebViewPackage(
-                            ApplicationProvider.getApplicationContext()));
-        }
+        assertNotNull(
+                WebViewCompat.getCurrentWebViewPackage(
+                        ApplicationProvider.getApplicationContext()));
     }
 
     /**
@@ -373,7 +364,6 @@ public class WebViewCompatTest {
      */
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void testSetNullWebViewClient() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
         WebkitUtils.checkFeature(WebViewFeature.WEB_MESSAGE_LISTENER);
@@ -382,11 +372,11 @@ public class WebViewCompatTest {
         mWebViewOnUiThread.setWebViewClient(null);
         mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
 
-        final Future<String> future = ApiHelperForN.getCompletableFutureForN();
+        final CompletableFuture<String> future = new CompletableFuture<>();
         mWebViewOnUiThread.addWebMessageListener(
                 "completelistener", Collections.singleton("*"),
                 (view, message, sourceOrigin, isMainFrame, replyProxy) ->
-                        ApiHelperForN.completeFutureWithValue(future, message.getData()));
+                        future.complete(message.getData()));
 
         try (MockWebServer server = new MockWebServer()) {
             server.start();
@@ -440,23 +430,4 @@ public class WebViewCompatTest {
         // TODO(crbug.com/374694125): Update this test to confirm that the bytes transferred were
         //  tagged.
     }
-
-    /**
-     * ApiHelper class to ensure that the CompletableFuture is not classloaded on API < N.
-     *
-     * @noinspection NewClassNamingConvention
-     */
-    @RequiresApi(Build.VERSION_CODES.N)
-    private static class ApiHelperForN {
-        static <T> Future<T> getCompletableFutureForN() {
-            return new CompletableFuture<>();
-        }
-
-        static <T> void completeFutureWithValue(Future<T> future, T value) {
-            if (future instanceof CompletableFuture) {
-                ((CompletableFuture<T>) future).complete(value);
-            }
-        }
-    }
-
 }
