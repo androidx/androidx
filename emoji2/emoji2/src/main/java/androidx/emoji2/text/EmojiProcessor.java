@@ -362,24 +362,63 @@ final class EmojiProcessor {
                 mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
 
         int currentOffset = start;
-        int codePoint = Character.codePointAt(charSequence, currentOffset);
         boolean keepProcessing = true;
+        int codePoint = 0;
+        int startCharCount = 0;
+        if (currentOffset < end) {
+            codePoint = Character.codePointAt(charSequence, currentOffset);
+            startCharCount = Character.charCount(codePoint);
+        }
+        int scannedCharCount = startCharCount;
 
         while (currentOffset < end && addedCount < maxEmojiCount && keepProcessing) {
+            // Bypass state machine for non-candidate ASCII (letters, spaces, punctuation)
+            if (sm.isInDefaultState()) {
+                while (currentOffset < end) {
+                    final char c = charSequence.charAt(currentOffset);
+                    if (c < Character.MIN_HIGH_SURROGATE) {
+                        if (!MetadataRepo.isEmojiCandidate(c)) {
+                            currentOffset++;
+                            continue;
+                        }
+                        codePoint = c;
+                        startCharCount = 1;
+                        break;
+                    } else {
+                        final int cp = Character.codePointAt(charSequence, currentOffset);
+                        if (!MetadataRepo.isEmojiCandidate(cp)) {
+                            currentOffset += Character.charCount(cp);
+                            continue;
+                        }
+                        codePoint = cp;
+                        startCharCount = Character.charCount(cp);
+                        break;
+                    }
+                }
+                start = currentOffset;
+                scannedCharCount = startCharCount;
+                if (currentOffset >= end) {
+                    break;
+                }
+            }
+
             final int action = sm.check(codePoint);
 
             switch (action) {
                 case ACTION_ADVANCE_BOTH:
-                    start += Character.charCount(Character.codePointAt(charSequence, start));
+                    start += startCharCount;
                     currentOffset = start;
                     if (currentOffset < end) {
                         codePoint = Character.codePointAt(charSequence, currentOffset);
+                        startCharCount = Character.charCount(codePoint);
+                        scannedCharCount = startCharCount;
                     }
                     break;
                 case ACTION_ADVANCE_END:
-                    currentOffset += Character.charCount(codePoint);
+                    currentOffset += scannedCharCount;
                     if (currentOffset < end) {
                         codePoint = Character.codePointAt(charSequence, currentOffset);
+                        scannedCharCount = Character.charCount(codePoint);
                     }
                     break;
                 case ACTION_FLUSH:
@@ -390,6 +429,7 @@ final class EmojiProcessor {
                         addedCount++;
                     }
                     start = currentOffset;
+                    startCharCount = scannedCharCount;
                     break;
             }
         }
@@ -642,6 +682,10 @@ final class EmojiProcessor {
             mCurrentNode = rootNode;
             mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
             mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
+        }
+
+        boolean isInDefaultState() {
+            return mState == STATE_DEFAULT;
         }
 
         @Action
@@ -962,7 +1006,7 @@ final class EmojiProcessor {
     }
 
     /**
-     * Mark exclusinos for any emoji matched by this callback
+     * Mark exclusions for any emoji matched by this callback
      */
     private static class MarkExclusionCallback
             implements EmojiProcessCallback<MarkExclusionCallback> {

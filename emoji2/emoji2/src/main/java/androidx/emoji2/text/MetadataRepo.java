@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
+import androidx.emoji2.text.flatbuffer.MetadataItem;
 import androidx.emoji2.text.flatbuffer.MetadataList;
 
 import org.jspecify.annotations.NonNull;
@@ -39,10 +40,6 @@ import java.nio.ByteBuffer;
  */
 @AnyThread
 public final class MetadataRepo {
-    /**
-     * The default children size of the root node.
-     */
-    private static final int DEFAULT_ROOT_SIZE = 1024;
     private static final String S_TRACE_CREATE_REPO = "EmojiCompat.MetadataRepo.create";
 
     /**
@@ -77,9 +74,30 @@ public final class MetadataRepo {
             final @NonNull MetadataList metadataList) {
         mTypeface = typeface;
         mMetadataList = metadataList;
-        mRootNode = new Node(DEFAULT_ROOT_SIZE);
+        mRootNode = new RootNode(findMaxPlane1Key(metadataList));
         mEmojiCharArray = new char[mMetadataList.listLength() * 2];
         constructIndex(mMetadataList);
+    }
+
+    private static int findMaxPlane1Key(final MetadataList metadataList) {
+        int length = metadataList.listLength();
+        if (length == 0) {
+            return 0;
+        }
+        int maxKey = 0;
+        final MetadataItem item = new MetadataItem();
+        for (int i = 0; i < length; i++) {
+            metadataList.list(item, i);
+            if (item.codepointsLength() > 0) {
+                int firstCodepoint = item.codepoints(0);
+                if (firstCodepoint >= 0x1F300 && firstCodepoint <= 0x1FFFF) {
+                    if (firstCodepoint > maxKey) {
+                        maxKey = firstCodepoint;
+                    }
+                }
+            }
+        }
+        return maxKey;
     }
 
     /**
@@ -187,6 +205,31 @@ public final class MetadataRepo {
         return mRootNode;
     }
 
+    private static final long ASCII_CANDIDATE_MASK = (1L << '#') | (1L << '*') | (0x3FFL << '0');
+
+    /**
+     * Checks if the given codepoint is a candidate for being an emoji.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static boolean isEmojiCandidate(final int key) {
+        if (key < 128) {
+            return key < 64 && ((ASCII_CANDIDATE_MASK & (1L << key)) != 0);
+        }
+        if (key >= 0x00B0 && key <= 0x1FFF) {
+            return false;
+        }
+        if (key >= 0x3300 && key <= 0xFFFF) {
+            return false;
+        }
+        if (key >= 0x10000 && key <= 0x1EFFF) {
+            return false;
+        }
+        if (key > 0x1FFFF) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -249,6 +292,63 @@ public final class MetadataRepo {
             if (node == null) {
                 node = new Node();
                 mChildren.put(data.getCodepointAt(start), node);
+            }
+
+            if (end > start) {
+                node.put(data, start + 1, end);
+            } else {
+                node.mData = data;
+            }
+        }
+    }
+
+    static class RootNode extends Node {
+        private final Node[] mPlane1Direct;
+        private final int mPlane1Min = 0x1F300;
+        private final Node[] mPlane0Direct = new Node[448];
+        private final int mPlane0Min = 0x2600;
+        private final SparseArray<Node> mSparseDirect;
+
+        RootNode(int maxPlane1Key) {
+            super(0);
+            mSparseDirect = new SparseArray<>(256);
+            int plane1Size = 0;
+            if (maxPlane1Key >= mPlane1Min) {
+                plane1Size = Math.min(maxPlane1Key, 0x1FFFF) - mPlane1Min + 1;
+            }
+            mPlane1Direct = new Node[plane1Size];
+        }
+
+        @Override
+        Node get(final int key) {
+            int off1 = key - mPlane1Min;
+            if (off1 >= 0 && off1 < mPlane1Direct.length) {
+                return mPlane1Direct[off1];
+            }
+            int off2 = key - mPlane0Min;
+            if (off2 >= 0 && off2 < 448) {
+                return mPlane0Direct[off2];
+            }
+            return mSparseDirect.get(key);
+        }
+
+        @Override
+        void put(final @NonNull TypefaceEmojiRasterizer data, final int start, final int end) {
+            int key = data.getCodepointAt(start);
+            Node node = get(key);
+            if (node == null) {
+                node = new Node();
+                int off1 = key - mPlane1Min;
+                if (off1 >= 0 && off1 < mPlane1Direct.length) {
+                    mPlane1Direct[off1] = node;
+                } else {
+                    int off2 = key - mPlane0Min;
+                    if (off2 >= 0 && off2 < 448) {
+                        mPlane0Direct[off2] = node;
+                    } else {
+                        mSparseDirect.put(key, node);
+                    }
+                }
             }
 
             if (end > start) {
