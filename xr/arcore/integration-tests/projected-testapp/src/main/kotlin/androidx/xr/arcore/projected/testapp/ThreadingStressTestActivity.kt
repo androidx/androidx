@@ -130,7 +130,7 @@ open class ThreadingStressTestActivity : ComponentActivity() {
                 } else {
                     try {
                         ProjectedContext.createProjectedDeviceContext(
-                            this@ThreadingStressTestActivity
+                            this@ThreadingStressTestActivity.applicationContext
                         )
                     } catch (e: Exception) {
                         this@ThreadingStressTestActivity
