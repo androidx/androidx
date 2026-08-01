@@ -24,6 +24,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.ArDevice
@@ -166,9 +167,17 @@ open class GeospatialProjectedActivity : ComponentActivity() {
 
     @OptIn(ExperimentalProjectedApi::class)
     private fun requestPermissions() {
-        lifecycleScope.launch(Dispatchers.Default) {
-            ProjectedActivityCompat.requestPermissions(
-                this@GeospatialProjectedActivity,
+        if (ProjectedContext.isProjectedDeviceContext(this)) {
+            lifecycleScope.launch(Dispatchers.Default) {
+                ProjectedActivityCompat.requestPermissions(
+                    this@GeospatialProjectedActivity,
+                    permissionsRequired.toTypedArray(),
+                    PERMISSION_REQUEST_CODE,
+                )
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
                 permissionsRequired.toTypedArray(),
                 PERMISSION_REQUEST_CODE,
             )
