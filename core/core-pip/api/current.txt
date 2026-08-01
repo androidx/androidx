@@ -49,3 +49,18 @@ package androidx.core.pip {
 
 }
 
+package androidx.core.pip.contentpip {
+
+  public final class ContentPip {
+    method public static void enablePipOnAppSwitch(androidx.activity.ComponentActivity, androidx.core.pip.contentpip.ContentPipCallback callback);
+  }
+
+  public interface ContentPipCallback {
+    method public void onAttachContentPip(androidx.activity.ComponentActivity pipActivity);
+    method public void onFinishContentPip(boolean isDismissed);
+    method public boolean onInitContentPip();
+    method public boolean onPrepareContentPip();
+  }
+
+}
+
