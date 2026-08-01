@@ -19,10 +19,10 @@ package androidx.glance.wear.parcel.legacy;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Holder for Tiles' {@link androidx.glance.wear.parcel.proto.legacy.TileRemoveEvent} class, to be
+ * Holder for Tiles' {@code androidx.glance.wear.parcel.proto.legacy.TileRemoveEvent} class, to be
  * parceled and transferred to a Tile Service.
  *
- * <p>All this does is to serialize {@link androidx.glance.wear.parcel.proto.legacy.TileRemoveEvent}
+ * <p>All this does is to serialize {@code androidx.glance.wear.parcel.proto.legacy.TileRemoveEvent}
  * as a protobuf and transmit it.
  */
 public final class TileAddEventData extends ProtoParcelable {
