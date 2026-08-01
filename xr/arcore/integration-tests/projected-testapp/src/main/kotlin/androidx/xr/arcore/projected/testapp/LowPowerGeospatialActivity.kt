@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.ArDevice
@@ -119,7 +120,7 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
             }
         if (hasAllPermissions) {
             tryCreateAndConfigureSession()
-        } else {
+        } else if (ProjectedContext.isProjectedDeviceContext(this)) {
             lifecycleScope.launch(Dispatchers.Default) {
                 ProjectedActivityCompat.requestPermissions(
                     this@LowPowerGeospatialActivity,
@@ -127,6 +128,12 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
                     PERMISSION_REQUEST_CODE,
                 )
             }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                permissionsRequired.toTypedArray(),
+                PERMISSION_REQUEST_CODE,
+            )
         }
         setContent {
             GlimmerTheme {
