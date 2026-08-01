@@ -41,6 +41,7 @@ import androidx.emoji2.text.flatbuffer.MetadataList;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.Matchers;
@@ -88,6 +89,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 32)
     public void testBuild_withDefaultValues() {
         final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true);
 
@@ -276,10 +278,12 @@ public class ConfigTest {
     private static class ValidTestConfig extends EmojiCompat.Config {
         ValidTestConfig() {
             super(new TestConfigBuilder.TestEmojiDataLoader());
+            setUseAfterUpdatableSystemFonts(true);
         }
 
         ValidTestConfig(EmojiCompat.MetadataRepoLoader loader) {
             super(loader);
+            setUseAfterUpdatableSystemFonts(true);
         }
     }
 }

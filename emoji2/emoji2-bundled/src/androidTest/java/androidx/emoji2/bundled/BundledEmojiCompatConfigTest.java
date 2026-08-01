@@ -30,6 +30,7 @@ import androidx.emoji2.text.flatbuffer.MetadataItem;
 import androidx.emoji2.text.flatbuffer.MetadataList;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -42,6 +43,7 @@ import java.util.concurrent.Executor;
 @SmallTest
 public class BundledEmojiCompatConfigTest {
     @Test
+    @SdkSuppress(maxSdkVersion = 34)
     public void whenPassedExecutor_usesIt() {
         Context context = ApplicationProvider.getApplicationContext();
         Executor executor = mock(Executor.class);
