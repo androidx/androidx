@@ -81,14 +81,14 @@ public class EmojiProcessorTest extends TestCase {
     }
 
     private void init(Set<int[]> emojiExclusions) {
-        MetadataRepo metadataRepo = MetadataRepo.create(mock(Typeface.class));
-        metadataRepo.put(mInitialCodepoint);
-        metadataRepo.put(mAnotherInitial);
-        metadataRepo.put(mAddedLast);
-        metadataRepo.put(mUnrelatedLast);
-        metadataRepo.put(mExactMatchLast);
-        metadataRepo.put(mExcludedEmoji);
-        metadataRepo.put(mKeycapEmoji);
+        MetadataRepo metadataRepo = MetadataRepo.create(mock(Typeface.class), 7);
+        metadataRepo.putForTesting(mInitialCodepoint);
+        metadataRepo.putForTesting(mAnotherInitial);
+        metadataRepo.putForTesting(mAddedLast);
+        metadataRepo.putForTesting(mUnrelatedLast);
+        metadataRepo.putForTesting(mExactMatchLast);
+        metadataRepo.putForTesting(mExcludedEmoji);
+        metadataRepo.putForTesting(mKeycapEmoji);
         EmojiCompat.SpanFactory spanFactory = new EmojiCompat.DefaultSpanFactory();
         EmojiCompat.GlyphChecker glyphChecker = (charSequence, start, end, sdkAdded) -> true;
         mProcessor = new EmojiProcessor(metadataRepo,

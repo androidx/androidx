@@ -140,10 +140,12 @@ final class EmojiProcessor {
     }
 
     @EmojiCompat.CodepointSequenceMatchResult
-    int getEmojiMatch(final @NonNull CharSequence charSequence,
-            final int metadataVersion) {
-        final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
-                mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
+    int getEmojiMatch(final @NonNull CharSequence charSequence, final int metadataVersion) {
+        final ProcessorSm sm =
+                new ProcessorSm(
+                        mMetadataRepo,
+                        mUseEmojiAsDefaultStyle,
+                        mEmojiAsDefaultStyleExceptions);
         final int end = charSequence.length();
         int currentOffset = 0;
         int potentialSubsequenceMatch = 0;
@@ -450,11 +452,11 @@ final class EmojiProcessor {
             }
 
             if (sm == null) {
-                sm = new ProcessorSm(
-                        mMetadataRepo.getRootNode(),
-                        mUseEmojiAsDefaultStyle,
-                        mEmojiAsDefaultStyleExceptions
-                );
+                sm =
+                        new ProcessorSm(
+                                mMetadataRepo,
+                                mUseEmojiAsDefaultStyle,
+                                mEmojiAsDefaultStyleExceptions);
             }
 
             final int action = sm.check(codePoint);
@@ -727,21 +729,15 @@ final class EmojiProcessor {
 
         private int mState = STATE_DEFAULT;
 
-        /**
-         * Root of the trie
-         */
-        private final MetadataRepo.Node mRootNode;
+        private static final int ROOT_OFFSET = -1;
 
-        /**
-         * Pointer to the node after last codepoint.
-         */
-        private MetadataRepo.Node mCurrentNode;
+        private final MetadataRepo mMetadataRepo;
 
-        /**
-         * The node where ACTION_FLUSH is called. Required since after flush action is
-         * returned mCurrentNode is reset to be the root.
-         */
-        private MetadataRepo.Node mFlushNode;
+        private int mCurrentNodeOffset = ROOT_OFFSET;
+
+        private TypefaceEmojiRasterizer mCurrentNodeData;
+
+        private TypefaceEmojiRasterizer mFlushNodeData;
 
         /**
          * The code point that was checked.
@@ -763,10 +759,11 @@ final class EmojiProcessor {
          */
         private final int[] mEmojiAsDefaultStyleExceptions;
 
-        ProcessorSm(MetadataRepo.Node rootNode, boolean useEmojiAsDefaultStyle,
+        ProcessorSm(
+                MetadataRepo metadataRepo,
+                boolean useEmojiAsDefaultStyle,
                 int[] emojiAsDefaultStyleExceptions) {
-            mRootNode = rootNode;
-            mCurrentNode = rootNode;
+            mMetadataRepo = metadataRepo;
             mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
             mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
         }
@@ -778,11 +775,18 @@ final class EmojiProcessor {
         @Action
         int check(final int codePoint) {
             final int action;
-            MetadataRepo.Node node = mCurrentNode.get(codePoint);
+            final int nextNodeOffset;
+            if (mCurrentNodeOffset == ROOT_OFFSET) {
+                nextNodeOffset = mMetadataRepo.getRootChildOffset(codePoint);
+            } else {
+                nextNodeOffset = mMetadataRepo.getChildOffset(mCurrentNodeOffset, codePoint);
+            }
+
             switch (mState) {
                 case STATE_WALKING:
-                    if (node != null) {
-                        mCurrentNode = node;
+                    if (nextNodeOffset != -1) {
+                        mCurrentNodeOffset = nextNodeOffset;
+                        mCurrentNodeData = mMetadataRepo.getNodeData(nextNodeOffset);
                         mCurrentDepth += 1;
                         action = ACTION_ADVANCE_END;
                     } else {
@@ -790,32 +794,35 @@ final class EmojiProcessor {
                             action = reset();
                         } else if (isEmojiStyle(codePoint)) {
                             action = ACTION_ADVANCE_END;
-                        } else if (mCurrentNode.getData() != null) {
-                            if (mCurrentDepth == 1) {
-                                if (shouldUseEmojiPresentationStyleForSingleCodepoint()) {
-                                    mFlushNode = mCurrentNode;
+                        } else {
+                            if (mCurrentNodeData != null) {
+                                if (mCurrentDepth == 1) {
+                                    if (shouldUseEmojiPresentationStyleForSingleCodepoint()) {
+                                        mFlushNodeData = mCurrentNodeData;
+                                        action = ACTION_FLUSH;
+                                        reset();
+                                    } else {
+                                        action = reset();
+                                    }
+                                } else {
+                                    mFlushNodeData = mCurrentNodeData;
                                     action = ACTION_FLUSH;
                                     reset();
-                                } else {
-                                    action = reset();
                                 }
                             } else {
-                                mFlushNode = mCurrentNode;
-                                action = ACTION_FLUSH;
-                                reset();
+                                action = reset();
                             }
-                        } else {
-                            action = reset();
                         }
                     }
                     break;
                 case STATE_DEFAULT:
                 default:
-                    if (node == null) {
+                    if (nextNodeOffset == -1) {
                         action = reset();
                     } else {
                         mState = STATE_WALKING;
-                        mCurrentNode = node;
+                        mCurrentNodeOffset = nextNodeOffset;
+                        mCurrentNodeData = mMetadataRepo.getNodeData(nextNodeOffset);
                         mCurrentDepth = 1;
                         action = ACTION_ADVANCE_END;
                     }
@@ -829,7 +836,8 @@ final class EmojiProcessor {
         @Action
         private int reset() {
             mState = STATE_DEFAULT;
-            mCurrentNode = mRootNode;
+            mCurrentNodeOffset = ROOT_OFFSET;
+            mCurrentNodeData = null;
             mCurrentDepth = 0;
             return ACTION_ADVANCE_BOTH;
         }
@@ -838,14 +846,14 @@ final class EmojiProcessor {
          * @return the metadata node when ACTION_FLUSH is returned
          */
         TypefaceEmojiRasterizer getFlushMetadata() {
-            return mFlushNode.getData();
+            return mFlushNodeData;
         }
 
         /**
          * @return current pointer to the metadata node in the trie
          */
         TypefaceEmojiRasterizer getCurrentMetadata() {
-            return mCurrentNode.getData();
+            return mCurrentNodeData;
         }
 
         /**
@@ -856,29 +864,30 @@ final class EmojiProcessor {
          * @return whether the current state requires an emoji to be added
          */
         boolean isInFlushableState() {
-            return mState == STATE_WALKING && mCurrentNode.getData() != null
+            if (mState != STATE_WALKING || mCurrentNodeOffset == ROOT_OFFSET) {
+                return false;
+            }
+            return mCurrentNodeData != null
                     && (mCurrentDepth > 1 || shouldUseEmojiPresentationStyleForSingleCodepoint());
         }
 
         private boolean shouldUseEmojiPresentationStyleForSingleCodepoint() {
-            if (mCurrentNode.getData().isDefaultEmoji()) {
-                // The codepoint is emoji style by default.
+            if (mCurrentNodeData == null) {
+                return false;
+            }
+            if (mCurrentNodeData.isDefaultEmoji()) {
                 return true;
             }
             if (isEmojiStyle(mLastCodepoint)) {
-                // The codepoint was followed by the emoji style variation selector.
                 return true;
             }
             if (mUseEmojiAsDefaultStyle) {
-                // Emoji presentation style for text style default emojis is enabled. We have
-                // to check that the current codepoint is not an exception.
                 if (mEmojiAsDefaultStyleExceptions == null) {
                     return true;
                 }
-                final int codepoint = mCurrentNode.getData().getCodepointAt(0);
+                final int codepoint = mCurrentNodeData.getCodepointAt(0);
                 final int index = Arrays.binarySearch(mEmojiAsDefaultStyleExceptions, codepoint);
                 if (index < 0) {
-                    // Index is negative, so the codepoint was not found in the array of exceptions.
                     return true;
                 }
             }
