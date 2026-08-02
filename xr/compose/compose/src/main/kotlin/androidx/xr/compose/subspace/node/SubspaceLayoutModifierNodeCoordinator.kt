@@ -24,9 +24,11 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.SubspacePlaceable
+import androidx.xr.compose.subspace.layout.metersToPx
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.Space
 
 /**
  * A [SubspaceMeasurable] and [SubspacePlaceable] object that is used to measure and lay out the
@@ -74,6 +76,22 @@ internal class SubspaceLayoutModifierNodeCoordinator(
      */
     override val poseInRoot: Pose
         get() = parentCoordinates?.poseInRoot?.compose(pose) ?: pose
+
+    /**
+     * The pose of this layout modifier node relative to ActivitySpace, with translation in pixels.
+     */
+    override val poseInActivitySpace: Pose
+        get() {
+            // Nodes under the subspace root have a parentCoordinates value.
+            parentCoordinates?.let {
+                return it.poseInActivitySpace.compose(pose)
+            }
+
+            // For the subspace root, return its pose in ActivitySpace.
+            val pixelDensity = layoutNode?.coreEntity?.pixelDensity ?: return Pose.Identity
+            return layoutNode?.coreEntity?.getPose(Space.ACTIVITY)?.metersToPx(pixelDensity)
+                ?: Pose.Identity
+        }
 
     /**
      * The coordinates of the immediate parent in the layout hierarchy.
