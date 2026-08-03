@@ -27,7 +27,6 @@ import androidx.health.platform.client.proto.DataProto
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 internal fun Record.isWithin(filter: TimeRangeFilter, clock: Clock): Boolean {
     val proto: DataProto.DataPoint = toProto()
@@ -35,13 +34,11 @@ internal fun Record.isWithin(filter: TimeRangeFilter, clock: Clock): Boolean {
 
     if (timeRangeFilter.isLocalBasedFilter()) {
         if (proto.hasInstantTimeMillis()) {
-            val time =
-                LocalDateTime.ofInstant(proto.time, proto.zoneOffset ?: ZoneId.systemDefault())
+            val time = LocalDateTime.ofInstant(proto.time, proto.zoneOffset ?: clock.zone)
             return !time.isBefore(timeRangeFilter.localStartTime!!) &&
                 timeRangeFilter.localEndTime!!.isAfter(time)
         }
-        val startTime =
-            LocalDateTime.ofInstant(proto.startTime, proto.zoneOffset ?: ZoneId.systemDefault())
+        val startTime = LocalDateTime.ofInstant(proto.startTime, proto.zoneOffset ?: clock.zone)
         return !startTime.isBefore(timeRangeFilter.localStartTime!!) &&
             timeRangeFilter.localEndTime!!.isAfter(startTime)
     }
@@ -58,10 +55,8 @@ internal fun Record.isWithin(filter: TimeRangeFilter, clock: Clock): Boolean {
 private fun TimeRangeFilter.sanitize(clock: Clock): TimeRangeFilter {
     if (isLocalBasedFilter()) {
         return TimeRangeFilter.between(
-            startTime =
-                localStartTime ?: LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.systemDefault()),
-            endTime =
-                localEndTime ?: LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault()),
+            startTime = localStartTime ?: LocalDateTime.ofInstant(Instant.EPOCH, clock.zone),
+            endTime = localEndTime ?: LocalDateTime.ofInstant(clock.instant(), clock.zone),
         )
     }
     return TimeRangeFilter.between(
