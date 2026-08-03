@@ -97,8 +97,7 @@ internal class ComposePaintContext(
         if (androidContext.mRemoteComposeState.containsId(imageId)) {
             val bitmap = androidContext.mRemoteComposeState.getFromId(imageId) as Bitmap?
             bitmap?.let {
-                @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-                val nativePaint = paint.asFrameworkPaint()
+                @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
                 nativeCanvas()
                     .drawBitmap(
                         bitmap,
@@ -187,7 +186,7 @@ internal class ComposePaintContext(
             val bitmap = androidContext.mRemoteComposeState.getFromId(id) as Bitmap?
             val src = Rect(0, 0, bitmap!!.getWidth(), bitmap.getHeight())
             val dst = RectF(left, top, right, bottom)
-            @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+            @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
             nativeCanvas().drawBitmap(bitmap, src, dst, nativePaint)
         }
     }
@@ -221,8 +220,7 @@ internal class ComposePaintContext(
     }
 
     override fun replacePaint(paint: PaintBundle) {
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-        val nativePaint = this.paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val nativePaint = this.paint.asFrameworkPaint()
         nativePaint.reset()
         applyPaint(paint)
     }
@@ -239,7 +237,7 @@ internal class ComposePaintContext(
     }
 
     override fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
         nativeCanvas()
             .drawTextOnPath(
                 getText(textId)!!,
@@ -258,7 +256,7 @@ internal class ComposePaintContext(
                 str!!.length
             } else end
 
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val paint = paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val paint = paint.asFrameworkPaint()
         if (cachedFontMetrics == null) {
             cachedFontMetrics = paint.getFontMetrics()
         }
@@ -315,7 +313,7 @@ internal class ComposePaintContext(
             } else end
 
         val textPaint = TextPaint()
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
         textPaint.set(nativePaint)
         val staticLayoutBuilder =
             StaticLayout.Builder.obtain(str, start, endSanitized, textPaint, maxWidth.toInt())
@@ -378,7 +376,7 @@ internal class ComposePaintContext(
             textToPaint = textToPaint.substring(start, end)
         }
 
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
         nativeCanvas().drawText(textToPaint, x, y, nativePaint)
     }
 
@@ -502,7 +500,7 @@ internal class ComposePaintContext(
     }
 
     override fun reset() {
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val nativePaint = paint.asFrameworkPaint()
+        @Suppress("DEPRECATION") val nativePaint = paint.asFrameworkPaint()
         with(nativePaint) {
             // With out calling setTypeface before or after paint is reset()
             // Variable type fonts corrupt memory resulting in a
