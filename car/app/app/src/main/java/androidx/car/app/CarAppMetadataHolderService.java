@@ -22,10 +22,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
-import android.os.Build;
 import android.os.IBinder;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
@@ -50,25 +48,12 @@ public class CarAppMetadataHolderService extends Service {
     /**
      * Returns the {@link ServiceInfo} for the declared {@link CarAppMetadataHolderService}.
      */
-    @SuppressWarnings("deprecation") // GET_DISABLED_COMPONENTS, getServiceInfo
+    @SuppressWarnings("deprecation") // getServiceInfo
     public static @NonNull ServiceInfo getServiceInfo(@NonNull Context context) throws
             PackageManager.NameNotFoundException {
-        int flags = PackageManager.GET_META_DATA;
-        // The service is marked as disabled so we need to include the following flags.
-        if (Build.VERSION.SDK_INT >= 24) {
-            flags |= Api24Impl.getDisabledComponentFlag();
-        } else {
-            flags |= PackageManager.GET_DISABLED_COMPONENTS;
-        }
+        int flags = PackageManager.GET_META_DATA | PackageManager.MATCH_DISABLED_COMPONENTS;
 
         return context.getPackageManager().getServiceInfo(
                 new ComponentName(context, CarAppMetadataHolderService.class), flags);
-    }
-
-    @RequiresApi(24)
-    private static class Api24Impl {
-        static int getDisabledComponentFlag() {
-            return PackageManager.MATCH_DISABLED_COMPONENTS;
-        }
     }
 }
