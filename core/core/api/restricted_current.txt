@@ -3581,6 +3581,8 @@ package androidx.core.util {
     method public static int hashCode(Object?);
     method public static <T> T requireNonNull(T?);
     method public static <T> T requireNonNull(T?, String);
+    method public static <T> T requireNonNullElse(T?, T);
+    method public static <T> T requireNonNullElseGet(T?, androidx.core.util.Supplier<? extends T>);
     method public static String? toString(Object?, String?);
   }
 
