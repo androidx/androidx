@@ -183,6 +183,66 @@ public fun WideNavigationRail(
     )
 }
 
+/**
+ * Material design wide navigation rail.
+ *
+ * Wide navigation rails provide access to primary destinations in apps when using tablet and
+ * desktop screens.
+ *
+ * The wide navigation rail should be used to display multiple [WideNavigationRailItem]s, each
+ * representing a singular app destination, and, optionally, a header containing a menu button, a
+ * [FloatingActionButton], and/or a logo. Each destination is typically represented by an icon and a
+ * text label.
+ *
+ * The [WideNavigationRail] is collapsed by default, but it also supports being expanded via a
+ * [WideNavigationRailState]. When collapsed, the rail should display three to seven navigation
+ * items. When expanded, the rail should display at least three navigation items.
+ *
+ * For a modal variation of the wide navigation rail, see [ModalWideNavigationRail].
+ *
+ * See [WideNavigationRailItem] for configuration specific to each item, and not the overall
+ * [WideNavigationRail] component.
+ *
+ * @param modifier the [Modifier] to be applied to this wide navigation rail
+ * @param state the [WideNavigationRailState] of this wide navigation rail
+ * @param shape defines the shape of this wide navigation rail's container.
+ * @param colors [WideNavigationRailColors] that will be used to resolve the colors used for this
+ *   wide navigation rail. See [WideNavigationRailDefaults.colors]
+ * @param header optional header that may hold a [FloatingActionButton] or a logo
+ * @param windowInsets a window insets of the wide navigation rail
+ * @param arrangement the [Arrangement.Vertical] of this wide navigation rail for its content. Note
+ *   that if there's a header present, the items will be arranged on the remaining space below it,
+ *   except for the center arrangement which considers the entire height of the container
+ * @param content the content of this wide navigation rail, typically [WideNavigationRailItem]s
+ */
+@Deprecated(
+    message = "Deprecated in favor of function with contentPadding parameter",
+    level = DeprecationLevel.HIDDEN,
+)
+@Composable
+public fun WideNavigationRail(
+    modifier: Modifier = Modifier,
+    state: WideNavigationRailState = rememberWideNavigationRailState(),
+    shape: Shape = WideNavigationRailDefaults.shape,
+    colors: WideNavigationRailColors = WideNavigationRailDefaults.colors(),
+    header: @Composable (() -> Unit)? = null,
+    windowInsets: WindowInsets = WideNavigationRailDefaults.windowInsets,
+    arrangement: Arrangement.Vertical = WideNavigationRailDefaults.arrangement,
+    content: @Composable () -> Unit,
+) {
+    WideNavigationRail(
+        modifier = modifier,
+        state = state,
+        shape = shape,
+        colors = colors,
+        header = header,
+        windowInsets = windowInsets,
+        arrangement = arrangement,
+        contentPadding = WideNavigationRailDefaults.ContentPadding,
+        content = content,
+    )
+}
+
 @Composable
 private fun WideNavigationRailLayout(
     modifier: Modifier,
