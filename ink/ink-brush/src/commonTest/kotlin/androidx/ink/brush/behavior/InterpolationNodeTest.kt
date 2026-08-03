@@ -133,7 +133,6 @@ class InterpolationNodeTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(Interpolation.LERP.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(Interpolation.LERP.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

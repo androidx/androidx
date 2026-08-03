@@ -206,7 +206,6 @@ class TargetNodeTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(Target.WIDTH_MULTIPLIER.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(Target.WIDTH_MULTIPLIER.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

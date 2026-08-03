@@ -23,25 +23,25 @@ class VersionTest {
 
     @Test
     fun constants_areCorrect() {
-        assertThat(Version.MAX_SUPPORTED).isGreaterThan(Version.V0_JETPACK1_0_0)
-        assertThat(Version.MAX_SUPPORTED).isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+        assertThat(Version.MAX_SUPPORTED).isGreaterThan(Version.V0)
+        assertThat(Version.MAX_SUPPORTED).isEqualTo(Version.V1)
         assertThat(Version.DEVELOPMENT).isGreaterThan(Version.MAX_SUPPORTED)
     }
 
     @Test
     fun compareTo_isCorrect() {
-        assertThat(Version.V0_JETPACK1_0_0).isLessThan(Version.V1_JETPACK1_1_0_ALPHA01)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isGreaterThan(Version.V0_JETPACK1_0_0)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isAtLeast(Version.V1_JETPACK1_1_0_ALPHA01)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isAtLeast(Version.V0_JETPACK1_0_0)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isAtMost(Version.V1_JETPACK1_1_0_ALPHA01)
-        assertThat(Version.V1_JETPACK1_1_0_ALPHA01).isAtMost(Version.DEVELOPMENT)
+        assertThat(Version.V0).isLessThan(Version.V1)
+        assertThat(Version.V1).isGreaterThan(Version.V0)
+        assertThat(Version.V1).isEqualTo(Version.V1)
+        assertThat(Version.V1).isAtLeast(Version.V1)
+        assertThat(Version.V1).isAtLeast(Version.V0)
+        assertThat(Version.V1).isAtMost(Version.V1)
+        assertThat(Version.V1).isAtMost(Version.DEVELOPMENT)
     }
 
     @Test
     fun toString_isCorrect() {
-        assertThat(Version.V0_JETPACK1_0_0.toString()).isEqualTo("v0")
+        assertThat(Version.V0.toString()).isEqualTo("v0")
         assertThat(Version.DEVELOPMENT.toString()).isEqualTo("experimental")
     }
 }

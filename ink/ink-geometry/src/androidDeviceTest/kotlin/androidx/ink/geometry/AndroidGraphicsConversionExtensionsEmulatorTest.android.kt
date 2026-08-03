@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @OptIn(InkInternalOnlyApi::class)
 class AndroidGraphicsConversionExtensionsEmulatorTest {
     @Test

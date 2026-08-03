@@ -195,10 +195,9 @@ class BrushFamilyTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(BrushFamily().calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(BrushFamily().calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
         assertThat(InputModel.PASSTHROUGH_MODEL.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
     }
 
     @Test
@@ -225,8 +224,7 @@ class BrushFamilyTest {
                 )
             )
         val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
-        assertThat(family.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V1)
     }
 
     @Test
@@ -246,8 +244,7 @@ class BrushFamilyTest {
                 )
             )
         val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
-        assertThat(family.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V1)
     }
 
     @Test
@@ -267,7 +264,7 @@ class BrushFamilyTest {
                 )
             )
         val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
-        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 
     @Test
@@ -287,8 +284,7 @@ class BrushFamilyTest {
                 )
             )
         val family = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
-        assertThat(family.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+        assertThat(family.calculateMinimumRequiredVersion()).isEqualTo(Version.V1)
     }
 
     @Test

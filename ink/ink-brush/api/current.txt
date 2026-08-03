@@ -545,16 +545,16 @@ package androidx.ink.brush {
     field public static final androidx.ink.brush.Version.Companion Companion;
     field public static final androidx.ink.brush.Version DEVELOPMENT;
     field public static final androidx.ink.brush.Version MAX_SUPPORTED;
-    field public static final androidx.ink.brush.Version V0_JETPACK1_0_0;
-    field public static final androidx.ink.brush.Version V1_JETPACK1_1_0_ALPHA01;
+    field public static final androidx.ink.brush.Version V0;
+    field public static final androidx.ink.brush.Version V1;
     field public final int value;
   }
 
   public static final class Version.Companion {
     property public androidx.ink.brush.Version DEVELOPMENT;
     property public androidx.ink.brush.Version MAX_SUPPORTED;
-    property public androidx.ink.brush.Version V0_JETPACK1_0_0;
-    property public androidx.ink.brush.Version V1_JETPACK1_1_0_ALPHA01;
+    property public androidx.ink.brush.Version V0;
+    property public androidx.ink.brush.Version V1;
   }
 
 }
