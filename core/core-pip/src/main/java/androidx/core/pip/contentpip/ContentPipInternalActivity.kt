@@ -17,15 +17,20 @@
 package androidx.core.pip.contentpip
 
 import android.app.Activity
+import android.app.PictureInPictureParams
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 
 /** An internal translucent Activity that serves as the PiP container in a separate task. */
 internal class ContentPipInternalActivity : ComponentActivity() {
     private var callback: ContentPipCallback? = null
-    private var hasEnteredPip = false
+    private var hasRequestedEnterPip = false
     private var isStopped = false
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var pictureInPictureParams: PictureInPictureParams =
+        PictureInPictureParams.Builder().build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +54,29 @@ internal class ContentPipInternalActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (!hasEnteredPip) {
-            hasEnteredPip = true
+        if (!hasRequestedEnterPip) {
+            hasRequestedEnterPip = true
             // Trigger PiP from the backgrounded state
-            @Suppress("DEPRECATION") enterPictureInPictureMode()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val entered = enterPictureInPictureMode(pictureInPictureParams)
+                if (!entered) {
+                    // The enterPictureInPictureMode attempt failed, finish content PiP process
+                    // as if PiP is closed.
+                    ContentPipManager.onTeardown(true)
+                    finishAndRemoveTask()
+                    return
+                }
+            } else {
+                @Suppress("DEPRECATION") enterPictureInPictureMode()
+            }
         }
         isStopped = false
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun setPictureInPictureParams(params: PictureInPictureParams) {
+        super.setPictureInPictureParams(params)
+        pictureInPictureParams = params
     }
 
     override fun onPictureInPictureModeChanged(

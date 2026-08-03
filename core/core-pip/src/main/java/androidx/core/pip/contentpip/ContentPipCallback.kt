@@ -49,7 +49,7 @@ public interface ContentPipCallback {
     public fun onAttachContentPip(pipActivity: ComponentActivity)
 
     /**
-     * Called when the PiP task is finishing.
+     * Called when the PiP task is finishing or the enter PiP attempt is failed.
      *
      * For instance, a video app can use [isDismissed] to determine if it needs to stop playback.
      * This is `true` when the user dismisses or closes the PiP, and `false` when the user expands
