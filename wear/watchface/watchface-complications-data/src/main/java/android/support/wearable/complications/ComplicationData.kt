@@ -2515,15 +2515,49 @@ private constructor(
                     // executes,
                     // mitigating CWE-502 arbitrary gadget instantiation from malformed payloads.
                     val array =
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            bundle.getParcelableArray(key, Bundle::class.java)
-                        } else {
-                            @Suppress("deprecation") bundle.getParcelableArray(key)
+                        try {
+                            if (Build.VERSION.SDK_INT >= 33) {
+                                bundle.getParcelableArray(key, Bundle::class.java)
+                            } else {
+                                @Suppress("deprecation") bundle.getParcelableArray(key)
+                            }
+                        } catch (e: BadParcelableException) {
+                            Log.w(TAG, "Could not unparcel ComplicationData array: $key", e)
+                            null
+                        } catch (e: RuntimeException) {
+                            Log.w(
+                                TAG,
+                                "RuntimeException unparceling ComplicationData array: $key",
+                                e,
+                            )
+                            null
                         }
-                    array?.map {
-                        val it = it as Bundle
-                        it.classLoader = ComplicationData::class.java.classLoader
-                        ComplicationData(it.getInt(entryTypeKey, type), it, depth + 1)
+                    array?.mapNotNull { element ->
+                        val entryBundle = element as? Bundle
+                        if (entryBundle == null) {
+                            Log.w(
+                                TAG,
+                                "Timeline/list entry in $key is not a Bundle, skipping: " +
+                                    (element?.javaClass?.name ?: "null"),
+                            )
+                            null
+                        } else {
+                            try {
+                                entryBundle.classLoader = ComplicationData::class.java.classLoader
+                                ComplicationData(
+                                    entryBundle.getInt(entryTypeKey, type),
+                                    entryBundle,
+                                    depth + 1,
+                                )
+                            } catch (e: RuntimeException) {
+                                Log.w(
+                                    TAG,
+                                    "Could not unparcel ComplicationData array entry in $key",
+                                    e,
+                                )
+                                null
+                            }
+                        }
                     }
                 }
             }
