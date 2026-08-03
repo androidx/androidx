@@ -107,25 +107,10 @@ internal class PlatformAppFunctionReader(
             .firstOrNull()
     }
 
+    // TODO(b/494238383): support activity ids.
     override suspend fun getAppFunctionStates(
         appFunctionNames: List<AppFunctionName>
-    ): List<AppFunctionState> = suspendCancellableCoroutine { cont ->
-        appFunctionManager.getAppFunctionStates(
-            appFunctionNames.map { it.toPlatformAppFunctionName() },
-            Runnable::run,
-            object : OutcomeReceiver<List<android.app.appfunctions.AppFunctionState>, Exception> {
-                override fun onResult(result: List<android.app.appfunctions.AppFunctionState>) {
-                    val mappedResults =
-                        result.map { AppFunctionState.fromPlatformAppFunctionState(it) }
-                    cont.resume(mappedResults)
-                }
-
-                override fun onError(error: Exception) {
-                    cont.resumeWithException(error)
-                }
-            },
-        )
-    }
+    ): List<AppFunctionState> = appSearchReader.getAppFunctionStates(appFunctionNames)
 
     override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> =
         callbackFlow {
