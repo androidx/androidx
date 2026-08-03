@@ -37,9 +37,10 @@ import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 public class ComplicationDataTest {
     @get:Rule val expect = Expect.create()
 
@@ -1310,6 +1311,200 @@ public class ComplicationDataTest {
         // Truncation happens when unmarshalling depth MAX_NESTING_DEPTH's child, returning empty
         // map. Therefore, we traverse MAX_NESTING_DEPTH + 1 placeholders.
         assertThat(placeholderDepth).isEqualTo(ComplicationData.MAX_NESTING_DEPTH + 1)
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testCreateFromParcel_nonBundleInTimelineEntries_sdk30_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putParcelableArray("TIMELINE", arrayOf<Parcelable>(Intent("ACTION")))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.timelineEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_nonBundleInTimelineEntries_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putParcelableArray("TIMELINE", arrayOf<Parcelable>(Intent("ACTION")))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.timelineEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testCreateFromParcel_nullInTimelineEntries_sdk30_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putParcelableArray("TIMELINE", arrayOfNulls<Parcelable>(1))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.timelineEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_nullInTimelineEntries_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putParcelableArray("TIMELINE", arrayOfNulls<Parcelable>(1))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.timelineEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testCreateFromParcel_nonBundleInListEntries_sdk30_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.EXP_TYPE_LIST)
+                putParcelableArray("EXP_LIST_ENTRIES", arrayOf<Parcelable>(Intent("ACTION")))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.EXP_TYPE_LIST)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.listEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_nonBundleInListEntries_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.EXP_TYPE_LIST)
+                putParcelableArray("EXP_LIST_ENTRIES", arrayOf<Parcelable>(Intent("ACTION")))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.EXP_TYPE_LIST)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.listEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testCreateFromParcel_nullInListEntries_sdk30_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.EXP_TYPE_LIST)
+                putParcelableArray("EXP_LIST_ENTRIES", arrayOfNulls<Parcelable>(1))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.EXP_TYPE_LIST)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.listEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    fun testCreateFromParcel_nullInListEntries_doesNotCrash() {
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.EXP_TYPE_LIST)
+                putParcelableArray("EXP_LIST_ENTRIES", arrayOfNulls<Parcelable>(1))
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.EXP_TYPE_LIST)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.listEntries.orEmpty()).isEmpty()
+        parcel.recycle()
+    }
+
+    @Test
+    @Config(sdk = [30])
+    fun testCreateFromParcel_mixedElementsInTimelineEntries_preservesValidEntries() {
+        val validEntry =
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortText(plainText("Valid"))
+                .build()
+        val entryParcel =
+            Parcel.obtain().apply {
+                validEntry.writeToParcel(this, 0)
+                setDataPosition(0)
+                readInt() // Skip type
+            }
+        val entryBundle = entryParcel.readBundle(ComplicationData::class.java.classLoader)!!
+        entryParcel.recycle()
+
+        val bundle =
+            Bundle().apply {
+                putInt("TYPE", ComplicationData.TYPE_SHORT_TEXT)
+                putParcelableArray(
+                    "TIMELINE",
+                    arrayOf<Parcelable?>(null, entryBundle, Intent("ACTION")),
+                )
+            }
+        val parcel =
+            Parcel.obtain().apply {
+                writeInt(ComplicationData.TYPE_SHORT_TEXT)
+                writeBundle(bundle)
+                setDataPosition(0)
+            }
+
+        val data = ComplicationData.CREATOR.createFromParcel(parcel)
+        assertThat(data.timelineEntries).hasSize(1)
+        assertThat(data.timelineEntries!!.first().shortText!!.getTextAt(mResources, 0))
+            .isEqualTo("Valid")
+        parcel.recycle()
     }
 
     private companion object {
