@@ -134,5 +134,3 @@ dependencies {
     debugImplementation(project(":compose:ui:ui-test-manifest"))
     androidTestImplementation(project(":window:window"))
 }
-
-androidx.deviceTests.minSdkForFtlOverride = 25 // b/539514196

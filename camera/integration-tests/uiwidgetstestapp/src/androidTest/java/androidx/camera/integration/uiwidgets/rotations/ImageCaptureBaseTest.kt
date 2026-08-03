@@ -26,6 +26,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.RequireForegroundRule
@@ -61,11 +62,15 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
     val requireForegroundRule = RequireForegroundRule {
-        // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
-        //  related to the attached bug.
+        // TODO(b/147448711, b/539514196) Cuttlefish and API 24 emulators have issues handling
+        //  rotation.
         assumeFalse(
             "Cuttlefish does not correctly handle rotating. Unable to test.",
             Build.MODEL.contains("Cuttlefish"),
+        )
+        assumeFalse(
+            "API 24 emulators do not correctly handle image capture rotation. Unable to test.",
+            AndroidUtil.isEmulator(24),
         )
         assumeFalse(
             "Known issue on this device. Please see b/199115443",
