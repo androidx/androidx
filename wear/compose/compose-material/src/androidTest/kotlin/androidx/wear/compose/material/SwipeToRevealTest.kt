@@ -500,7 +500,7 @@ class SwipeToRevealTest {
     fun stateToRevealing_onAboveVelocityThresholdLongDistanceSwipe() {
         verifyGesture(
             revealValue = RevealValue.RightRevealing,
-            gesture = { swipeLeft(endX = right - 300, durationMillis = 100L) },
+            gesture = { swipeLeft(endX = right - (width * 0.5f), durationMillis = 100L) },
         )
     }
 
@@ -508,7 +508,7 @@ class SwipeToRevealTest {
     fun stateToRevealing_onBelowVelocityThresholdLongDistanceSwipe() {
         verifyGesture(
             revealValue = RevealValue.RightRevealing,
-            gesture = { swipeLeft(endX = right - 300, durationMillis = 1000L) },
+            gesture = { swipeLeft(endX = right - (width * 0.5f), durationMillis = 1000L) },
         )
     }
 
