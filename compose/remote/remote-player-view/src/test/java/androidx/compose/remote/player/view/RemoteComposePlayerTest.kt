@@ -102,6 +102,19 @@ class RemoteComposePlayerTest {
     }
 
     @Test
+    fun player_limiterConfig_andTouchBoost_updatesProperly() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val player = RemoteComposePlayer(context)
+        player.maxFps = 90
+        org.junit.Assert.assertEquals(90, player.maxFps)
+        player.maxAvgFps = 12
+        org.junit.Assert.assertEquals(12, player.maxAvgFps)
+        player.fpsWindow = 8
+        org.junit.Assert.assertEquals(8, player.fpsWindow)
+        player.touchBoost()
+    }
+
+    @Test
     fun nonInteractiveComponent_allowsParentIntercept_soDragIsPropagatedToHost() {
         val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = false)
 

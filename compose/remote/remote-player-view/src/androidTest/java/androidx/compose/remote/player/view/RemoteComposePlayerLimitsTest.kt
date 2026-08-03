@@ -64,6 +64,7 @@ class RemoteComposePlayerLimitsTest {
         val player = RemoteComposePlayer(context)
         player.setMaxFps(144)
         assertEquals(144, Limits.MAX_FPS)
+        assertEquals(144, player.maxFps)
     }
 
     @Test
@@ -72,5 +73,24 @@ class RemoteComposePlayerLimitsTest {
         val player = RemoteComposePlayer(context)
         player.setDefaultMaxFps(30)
         assertEquals(30, Limits.DEFAULT_MAX_FPS)
+        assertEquals(30, player.maxFps)
+    }
+
+    @Test
+    fun testSetDefaultMaxAvgFps() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val player = RemoteComposePlayer(context)
+        player.setDefaultMaxAvgFps(15)
+        assertEquals(15, Limits.DEFAULT_MAX_AVG_FPS)
+        assertEquals(15, player.maxAvgFps)
+    }
+
+    @Test
+    fun testSetDefaultFpsWindow() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val player = RemoteComposePlayer(context)
+        player.setDefaultFpsWindow(5)
+        assertEquals(5, Limits.DEFAULT_WINDOW_SEC)
+        assertEquals(5, player.fpsWindow)
     }
 }

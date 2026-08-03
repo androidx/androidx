@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.LayoutCallback;
+import androidx.compose.remote.core.Limiter;
 import androidx.compose.remote.core.Limits;
 import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
@@ -95,6 +96,7 @@ public class RemoteComposeView extends FrameLayout
     float mDensity = Float.NaN;
     long mStart;
 
+    private final Limiter mLimiter = new Limiter();
     long mLastFrameDelay = 1;
     float mMaxFrameRate = Limits.DEFAULT_MAX_FPS; // frames per seconds
     long mMaxFrameDelay = (long) (1000 / mMaxFrameRate);
@@ -274,7 +276,11 @@ public class RemoteComposeView extends FrameLayout
         if (mPatternCallback != null) {
             mDocument.getDocument().setMacroCallback(mPatternCallback);
         }
+        mLimiter.setMaxFps(Limits.DEFAULT_MAX_FPS);
+        mLimiter.setMaxAvgFps(Limits.DEFAULT_MAX_AVG_FPS);
+        mLimiter.setWindow(Limits.DEFAULT_WINDOW_SEC);
         mMaxFrameRate = Limits.DEFAULT_MAX_FPS;
+        mMaxFrameDelay = (long) (1000 / mMaxFrameRate);
         mDocument.initializeContext(mARContext, mResolvedData);
         mDisable = false;
         if (mDocument.getDocument().bitmapMemory() > Limits.MAX_BITMAP_MEMORY) {
@@ -317,14 +323,15 @@ public class RemoteComposeView extends FrameLayout
         }
         Integer fps = (Integer) mDocument.getDocument().getProperty(Header.DOC_DESIRED_FPS);
         if (fps != null && fps > 0) {
-            mMaxFrameRate = Math.min(fps, Limits.MAX_FPS);
-            mMaxFrameDelay = (long) (1000 / mMaxFrameRate);
+            setMaxFps(Math.min(fps, Limits.MAX_FPS));
         }
+        mLimiter.reset();
     }
 
     @Override
     public void onViewAttachedToWindow(@NonNull View view) {
         mIsAttached = true;
+        mLimiter.reset();
         if (mChoreographer == null) {
             mChoreographer = Choreographer.getInstance();
             mChoreographer.postFrameCallback(mFrameCallback);
@@ -395,6 +402,7 @@ public class RemoteComposeView extends FrameLayout
     @Override
     public void onViewDetachedFromWindow(@NonNull View view) {
         mIsAttached = false;
+        mLimiter.reset();
         updateGlobalLayoutListener();
         if (mChoreographer != null) {
             mChoreographer.removeFrameCallback(mFrameCallback);
@@ -626,6 +634,43 @@ public class RemoteComposeView extends FrameLayout
         mARContext.setUseChoreographer(value);
     }
 
+    /** Set the instantaneous maximum frame rate (e.g. 60 or 120 fps). */
+    public void setMaxFps(int maxFps) {
+        mLimiter.setMaxFps(maxFps);
+        mMaxFrameRate = mLimiter.getMaxFps();
+        mMaxFrameDelay = (long) (1000 / mMaxFrameRate);
+    }
+
+    /** Returns the instantaneous maximum frame rate. */
+    public int getMaxFps() {
+        return mLimiter.getMaxFps();
+    }
+
+    /** Set the sustained average frame rate limit over the sliding window (e.g. 10 fps). */
+    public void setMaxAvgFps(int maxAvgFps) {
+        mLimiter.setMaxAvgFps(maxAvgFps);
+    }
+
+    /** Returns the sustained average frame rate limit. */
+    public int getMaxAvgFps() {
+        return mLimiter.getMaxAvgFps();
+    }
+
+    /** Set the duration of the rolling average window in seconds. */
+    public void setFpsWindow(int windowSeconds) {
+        mLimiter.setWindow(windowSeconds);
+    }
+
+    /** Returns the duration of the rolling average window in seconds. */
+    public int getFpsWindow() {
+        return mLimiter.getWindow();
+    }
+
+    /** Temporarily boost the frame rate back to maxFps (clears window throttling). */
+    public void touchBoost() {
+        mLimiter.touchBoost();
+    }
+
     /** Returns the current RemoteContext */
     public @NonNull RemoteContext getRemoteContext() {
         return mARContext;
@@ -713,6 +758,7 @@ public class RemoteComposeView extends FrameLayout
 
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    mLimiter.touchBoost();
                     mDownTime = time;
                     mDownX = x;
                     mDownY = y;
@@ -766,6 +812,7 @@ public class RemoteComposeView extends FrameLayout
                     return false;
 
                 case MotionEvent.ACTION_UP:
+                    mLimiter.touchBoost();
                     mInActionDown = false;
                     mActionCurrentPoint.x = (int) x;
                     mActionCurrentPoint.y = (int) y;
@@ -803,6 +850,7 @@ public class RemoteComposeView extends FrameLayout
                     return handled;
 
                 case MotionEvent.ACTION_MOVE:
+                    mLimiter.touchBoost();
                     if (!mHasMoved) {
                         float dx = x - mDownX;
                         float dy = y - mDownY;
@@ -1017,6 +1065,7 @@ public class RemoteComposeView extends FrameLayout
         } // REMOVE IN PLATFORM
         try {
             long nanoStart = mClock.nanoTime();
+            mLimiter.recordDrawStart(nanoStart);
             long start = mEvalTime ? nanoStart : 0; // measure execution of commands
             float animationTime = (nanoStart - mStart) * 1E-9f;
             mARContext.setAnimationTime(animationTime);
@@ -1062,10 +1111,14 @@ public class RemoteComposeView extends FrameLayout
             }
 
             if (nextFrame > 0) {
-                if (mMaxFrameRate >= POST_TO_NEXT_FRAME_THRESHOLD) {
+
+                long actualDelayNs = mLimiter.computeDelay(nextFrame, nanoStart);
+                // if it is faster than we want just use the next frame
+                if (actualDelayNs <= mLimiter.getMinIntervalNs()
+                        && mLimiter.getMaxFps() >= POST_TO_NEXT_FRAME_THRESHOLD) {
                     mLastFrameDelay = nextFrame;
-                } else {
-                    mLastFrameDelay = Math.max(mMaxFrameDelay, nextFrame);
+                } else { // otherwise use the actual delay
+                    mLastFrameDelay = (actualDelayNs + 999_999L) / 1_000_000L;
                 }
                 if (mChoreographer != null) {
                     if (mDebug == 1) {
@@ -1079,12 +1132,18 @@ public class RemoteComposeView extends FrameLayout
                                         + ", "
                                         + " max framerate is "
                                         + mMaxFrameRate
+                                        + ", avg limit "
+                                        + mLimiter.getMaxAvgFps()
                                         + ")");
                     }
                     mChoreographer.postFrameCallbackDelayed(mFrameCallback, mLastFrameDelay);
                 }
                 if (!mARContext.getUseChoreographer()) {
-                    invalidate();
+                    if (mLastFrameDelay > 1) {
+                        postInvalidateDelayed(mLastFrameDelay);
+                    } else {
+                        invalidate();
+                    }
                 }
             } else {
                 if (mChoreographer != null) {
