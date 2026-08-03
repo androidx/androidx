@@ -62,6 +62,11 @@ object Names {
             val RememberInComposition = Name(PackageName, "RememberInComposition")
             val DoNotRetain = Name(PackageName, "DoNotRetain")
         }
+
+        object Snapshots {
+            val PackageName = Package(Runtime.PackageName, "snapshots")
+            val SnapshotStateList = Name(PackageName, "SnapshotStateList")
+        }
     }
 
     object Ui {
@@ -94,6 +99,10 @@ object Names {
             val PackageName = Package(Ui.PackageName, "node")
             val ModifierNodeElement = Name(PackageName, "ModifierNodeElement")
             val CurrentValueOf = Name(PackageName, "currentValueOf")
+        }
+
+        object Util {
+            val PackageName = Package(Ui.PackageName, "util")
         }
     }
 

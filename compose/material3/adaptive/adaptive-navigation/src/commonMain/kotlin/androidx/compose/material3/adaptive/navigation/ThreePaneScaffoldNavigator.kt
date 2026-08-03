@@ -488,7 +488,7 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
             val destinationItemSaver = destinationItemSaver<T>()
             return listSaver(
                 save = {
-                    it.destinationHistory.fastMap { destination ->
+                    it.destinationHistory.toList().fastMap { destination ->
                         with(destinationItemSaver) { save(destination) }
                     }
                 },

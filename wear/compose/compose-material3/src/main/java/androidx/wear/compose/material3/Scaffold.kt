@@ -129,7 +129,7 @@ internal class ScreenContent(private val appTimeText: State<@Composable () -> Un
     private fun currentContent(): Pair<ScreenContentData?, @Composable (() -> Unit)> {
         var resultTimeText: @Composable (() -> Unit)? = null
         var resultContent: ScreenContentData? = null
-        contentItems.fastForEach {
+        contentItems.toList().fastForEach {
             if (it.timeText.value != null) {
                 resultTimeText = it.timeText.value
             }

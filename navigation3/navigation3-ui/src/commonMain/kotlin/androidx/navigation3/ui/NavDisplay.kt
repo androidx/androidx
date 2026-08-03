@@ -674,7 +674,12 @@ public fun <T : Any> NavDisplay(
     LaunchedEffect(overlayScenes) {
         // we want a unique set of overlay scenes, but it needs to be ordered to preserve z-order
         overlayScenes.fastForEach {
-            if (!currentOverlayScenes.fastMap { currScene -> currScene.key }.contains(it.key)) {
+            if (
+                !currentOverlayScenes
+                    .toList()
+                    .fastMap { currScene -> currScene.key }
+                    .contains(it.key)
+            ) {
                 currentOverlayScenes.add(it)
             }
         }
@@ -862,7 +867,7 @@ public fun <T : Any> NavDisplay(
     }
 
     // Show all OverlayScene instances above the AnimatedContent
-    currentOverlayScenes.fastForEachReversed { overlayScene ->
+    currentOverlayScenes.toList().fastForEachReversed { overlayScene ->
         key(overlayScene) {
             val overlaySceneLifecycleOwner =
                 rememberLifecycleOwner(

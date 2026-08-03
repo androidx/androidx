@@ -89,7 +89,7 @@ class ContainerState {
     }
 
     internal fun drawInOverlay(drawScope: DrawScope) {
-        renderers.fastForEach { it.drawInOverlay(drawScope) }
+        renderers.toList().fastForEach { it.drawInOverlay(drawScope) }
     }
 }
 
