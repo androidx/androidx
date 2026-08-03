@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
+import androidx.navigation3.defaultContentKey
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
@@ -109,16 +110,17 @@ internal class SceneStateTest {
         assertThat(sceneState.overlayScenes.size).isEqualTo(1)
         assertThat(sceneState.overlayScenes.first().entries.size).isEqualTo(1)
         assertThat(sceneState.overlayScenes.first().entries.first().contentKey)
-            .isEqualTo(Third.toString())
+            .isEqualTo(Third.defaultContentKey())
 
         assertThat(sceneState.currentScene).isInstanceOf<SinglePaneScene<Any>>()
         assertThat(sceneState.currentScene.entries.size).isEqualTo(1)
-        assertThat(sceneState.currentScene.entries.first().contentKey).isEqualTo(Second.toString())
+        assertThat(sceneState.currentScene.entries.first().contentKey)
+            .isEqualTo(Second.defaultContentKey())
 
         assertThat(sceneState.previousScenes.size).isEqualTo(1)
         assertThat(sceneState.previousScenes.first().entries.size).isEqualTo(1)
         assertThat(sceneState.previousScenes.first().entries.first().contentKey)
-            .isEqualTo(First.toString())
+            .isEqualTo(First.defaultContentKey())
     }
 
     @Suppress("DEPRECATION")

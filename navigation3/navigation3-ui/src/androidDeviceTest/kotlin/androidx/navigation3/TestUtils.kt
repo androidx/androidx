@@ -62,3 +62,6 @@ const val first = "first"
 const val second = "second"
 const val third = "third"
 const val fourth = "fourth"
+
+// copied from nav3-runtime `NavEntry.kt`
+fun Any.defaultContentKey(): Pair<String, String> = Pair("$this", "${this::class}")
