@@ -66,6 +66,7 @@ public final class SetSchemaStats extends BaseStats {
     private final int mNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis;
     private final int mNativeIndexRestorationLatencyMillis;
     private final int mNativeScorablePropertyCacheRegenerationLatencyMillis;
+    private final int mNativeSchemaStoreReinitializationLatencyMillis;
     private final int mVisibilitySettingLatencyMillis;
     private final int mConvertToResponseLatencyMillis;
     private final int mDispatchChangeNotificationsLatencyMillis;
@@ -111,6 +112,8 @@ public final class SetSchemaStats extends BaseStats {
         mNativeIndexRestorationLatencyMillis = builder.mNativeIndexRestorationLatencyMillis;
         mNativeScorablePropertyCacheRegenerationLatencyMillis =
                 builder.mNativeScorablePropertyCacheRegenerationLatencyMillis;
+        mNativeSchemaStoreReinitializationLatencyMillis =
+                builder.mNativeSchemaStoreReinitializationLatencyMillis;
         mVisibilitySettingLatencyMillis = builder.mVisibilitySettingLatencyMillis;
         mConvertToResponseLatencyMillis = builder.mConvertToResponseLatencyMillis;
         mDispatchChangeNotificationsLatencyMillis =
@@ -282,6 +285,11 @@ public final class SetSchemaStats extends BaseStats {
         return mNativeScorablePropertyCacheRegenerationLatencyMillis;
     }
 
+    /** Gets latency for native schema store reinitialization in milliseconds. */
+    public int getNativeSchemaStoreReinitializationLatencyMillis() {
+        return mNativeSchemaStoreReinitializationLatencyMillis;
+    }
+
     /** Gets latency for the dispatch change notification action in milliseconds. */
     public int getDispatchChangeNotificationsLatencyMillis() {
         return mDispatchChangeNotificationsLatencyMillis;
@@ -369,6 +377,7 @@ public final class SetSchemaStats extends BaseStats {
                         + "  nativeDocumentStoreOptimizedUpdateSchemaLatencyMillis=%d,\n"
                         + "  nativeIndexRestorationLatencyMillis=%d,\n"
                         + "  nativeScorablePropertyCacheRegenerationLatencyMillis=%d,\n"
+                        + "  nativeSchemaStoreReinitializationLatencyMillis=%d,\n"
                         + "  visibilitySettingLatencyMillis=%d,\n"
                         + "  convertToResponseLatencyMillis=%d,\n"
                         + "  dispatchChangeNotificationsLatencyMillis=%d,\n"
@@ -409,6 +418,7 @@ public final class SetSchemaStats extends BaseStats {
                 mNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis,
                 mNativeIndexRestorationLatencyMillis,
                 mNativeScorablePropertyCacheRegenerationLatencyMillis,
+                mNativeSchemaStoreReinitializationLatencyMillis,
                 mVisibilitySettingLatencyMillis,
                 mConvertToResponseLatencyMillis,
                 mDispatchChangeNotificationsLatencyMillis,
@@ -451,6 +461,7 @@ public final class SetSchemaStats extends BaseStats {
         int mNativeDocumentStoreOptimizedUpdateSchemaLatencyMillis;
         int mNativeIndexRestorationLatencyMillis;
         int mNativeScorablePropertyCacheRegenerationLatencyMillis;
+        int mNativeSchemaStoreReinitializationLatencyMillis;
         int mVisibilitySettingLatencyMillis;
         int mConvertToResponseLatencyMillis;
         int mDispatchChangeNotificationsLatencyMillis;
@@ -655,6 +666,15 @@ public final class SetSchemaStats extends BaseStats {
                 int nativeScorablePropertyCacheRegenerationLatencyMillis) {
             mNativeScorablePropertyCacheRegenerationLatencyMillis =
                     nativeScorablePropertyCacheRegenerationLatencyMillis;
+            return this;
+        }
+
+        /** Sets latency for native schema store reinitialization in milliseconds. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeSchemaStoreReinitializationLatencyMillis(
+                int nativeSchemaStoreReinitializationLatencyMillis) {
+            mNativeSchemaStoreReinitializationLatencyMillis =
+                    nativeSchemaStoreReinitializationLatencyMillis;
             return this;
         }
 
