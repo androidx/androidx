@@ -392,7 +392,7 @@ class BrushTipTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(BrushTip().calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(BrushTip().calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
         assertThat(
                 BrushTip(
                         behaviors =
@@ -415,6 +415,6 @@ class BrushTipTest {
                     )
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V1_JETPACK1_1_0_ALPHA01)
+            .isEqualTo(Version.V1)
     }
 }

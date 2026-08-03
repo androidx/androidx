@@ -227,15 +227,13 @@ class BrushFamilyExtensionsTest {
         // Just testing that we can pass the optional maxVersion parameter.
         val original = BrushFamily()
         val encoded = original.encode()
-        assertThat(BrushFamily.decode(encoded, maxVersion = Version.V0_JETPACK1_0_0))
-            .isEqualTo(original)
+        assertThat(BrushFamily.decode(encoded, maxVersion = Version.V0)).isEqualTo(original)
     }
 
     @Test
     fun encode_decode_roundTrip_maxVersion_rejectsHigherVersion() {
-        // Create a BrushFamily with a min_version of V1_JETPACK1_0_0_ALPHA01 and try to decode it
-        // with
-        // a maxVersion of V0_JETPACK1_0_0.
+        // Create a BrushFamily with a min_version of V1_ALPHA01 and try to decode it with
+        // a maxVersion of V0.
         val behavior =
             BrushBehavior(
                 TargetNode(
@@ -255,7 +253,7 @@ class BrushFamilyExtensionsTest {
         val original = BrushFamily(tip = BrushTip(behaviors = listOf(behavior)))
         val encoded = original.encode()
         assertFailsWith<IllegalArgumentException> {
-            BrushFamily.decode(encoded, maxVersion = Version.V0_JETPACK1_0_0)
+            BrushFamily.decode(encoded, maxVersion = Version.V0)
         }
     }
 
@@ -316,11 +314,11 @@ class BrushFamilyExtensionsTest {
         assertThat(decoded[1].hasFallbacks).isFalse()
 
         // Test fallbacks
-        val decoded1 = BrushFamily.decode(encoded, maxVersion = Version.V0_JETPACK1_0_0)
+        val decoded1 = BrushFamily.decode(encoded, maxVersion = Version.V0)
         assertThat(decoded1).isEqualTo(family1)
         assertThat(decoded1.hasFallbacks).isTrue()
         val encoded1 = decoded1.encode()
-        val decoded2 = BrushFamily.decode(encoded1, maxVersion = Version.V1_JETPACK1_1_0_ALPHA01)
+        val decoded2 = BrushFamily.decode(encoded1, maxVersion = Version.V1)
         assertThat(decoded2).isEqualTo(family2)
         assertThat(decoded2.hasFallbacks).isTrue()
         val encoded2 = decoded2.encode()
@@ -359,7 +357,7 @@ class BrushFamilyExtensionsTest {
         val encoded = families.encodeMultiple()
 
         assertFailsWith<IllegalArgumentException> {
-            BrushFamily.decodeMultiple(encoded, maxVersion = Version.V0_JETPACK1_0_0)
+            BrushFamily.decodeMultiple(encoded, maxVersion = Version.V0)
         }
     }
 
@@ -387,7 +385,7 @@ class BrushFamilyExtensionsTest {
 
         val encoded = families.encodeMultiple()
 
-        val decoded = BrushFamily.decode(encoded, maxVersion = Version.V0_JETPACK1_0_0)
+        val decoded = BrushFamily.decode(encoded, maxVersion = Version.V0)
         assertThat(decoded).isEqualTo(family1)
         assertThat(decoded.hasFallbacks).isTrue()
         val copied = decoded.copy(developerComment = "copied")

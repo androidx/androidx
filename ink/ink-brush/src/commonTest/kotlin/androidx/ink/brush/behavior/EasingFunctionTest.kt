@@ -359,22 +359,22 @@ class EasingFunctionTest {
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
         assertThat(EasingFunction.Predefined.LINEAR.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         assertThat(
                 EasingFunction.Linear(listOf(ImmutableVec(0.5f, 0.5f)))
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         assertThat(
                 EasingFunction.CubicBezier(0.1f, 0.2f, 0.3f, 0.4f).calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         assertThat(
                 EasingFunction.Steps(1, EasingFunction.StepPosition.JUMP_START)
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         assertThat(EasingFunction.StepPosition.JUMP_START.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
     }
 }

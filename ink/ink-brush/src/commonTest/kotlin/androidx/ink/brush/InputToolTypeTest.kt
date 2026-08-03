@@ -44,7 +44,6 @@ class InputToolTypeTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(InputToolType.STYLUS.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(InputToolType.STYLUS.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

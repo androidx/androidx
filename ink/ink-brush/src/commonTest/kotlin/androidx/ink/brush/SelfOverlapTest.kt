@@ -49,7 +49,6 @@ class SelfOverlapTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(SelfOverlap.ANY.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(SelfOverlap.ANY.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

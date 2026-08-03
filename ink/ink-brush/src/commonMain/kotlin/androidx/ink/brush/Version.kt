@@ -23,10 +23,12 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
- * A [Version] represents a version of the Ink library's brush customization format.
+ * A [Version] represents a version of the Ink library's custom brush serialization format.
  *
- * This is independent of the Jetpack version. A Jetpack version may have multiple brush version
- * increments, or none at all (supporting only previously released brush versions).
+ * This is independent of the Jetpack version. A Jetpack release may have multiple brush version
+ * increments, or none at all (supporting only previously released brush versions). [Version] is
+ * used to determine compatibility of serialized brushes which may be shared across apps using
+ * different releases of this library.
  */
 public class Version private constructor(@JvmField public val value: Int) : Comparable<Version> {
     init {
@@ -47,14 +49,20 @@ public class Version private constructor(@JvmField public val value: Int) : Comp
         public fun fromInt(value: Int): Version =
             checkNotNull(VALUE_TO_INSTANCE[value]) { "Invalid Version value: $value" }
 
-        /** Included with Jetpack 1.1.0-alpha01. */
-        @JvmField public val V1_JETPACK1_1_0_ALPHA01: Version = Version(1)
+        /**
+         * Included with
+         * [Jetpack 1.1.0-alpha01](https://developer.android.com/jetpack/androidx/releases/ink#1.1.0-alpha01).
+         */
+        @JvmField public val V1: Version = Version(1)
 
-        /** Included with Jetpack 1.0.0. */
-        @JvmField public val V0_JETPACK1_0_0: Version = Version(0)
+        /**
+         * Included with
+         * [Jetpack 1.0.0](https://developer.android.com/jetpack/androidx/releases/ink#1.0.0).
+         */
+        @JvmField public val V0: Version = Version(0)
 
         /** The maximum version supported by this library. */
-        @JvmField public val MAX_SUPPORTED: Version = V1_JETPACK1_1_0_ALPHA01
+        @JvmField public val MAX_SUPPORTED: Version = V1
 
         /**
          * A version that is always rejected by the deserializer by default. This is used for
