@@ -22,10 +22,16 @@ import android.content.Context
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionNames
+import androidx.appfunctions.internal.runWithActivityAppFunctionManager
+import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeNotNull
 import org.junit.Before
@@ -156,5 +162,175 @@ class GetAppFunctionStatesTest {
                 )
             }
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun getAppFunctionState_dynamicRegistrationAfterRegisterThenUnregister() {
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(ExecuteAppFunctionResponse.Success(AppFunctionData.EMPTY))
+            }
+            val functionName =
+                AppFunctionName(
+                    context.packageName,
+                    AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                )
+            val stateBeforeRegistering =
+                appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+            assertThat(stateBeforeRegistering.isEnabled).isFalse()
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+            try {
+                val stateAfterRegistering =
+                    appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                assertThat(stateAfterRegistering.isEnabled).isTrue()
+
+                registration.unregister()
+
+                val stateAfterUnregistering =
+                    appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                assertThat(stateAfterUnregistering.isEnabled).isFalse()
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun getAppFunctionStates_registerFromActivity_reportsActivityId() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val functionName = AppFunctionName("androidx.appfunctions.test", functionId)
+        val expectedResult = "self_execution_result"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult))
+            }
+
+            val state1 = appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+            assertThat(state1.isEnabled).isFalse()
+            assertThat(state1.activityIds).isNull()
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+
+            try {
+                val state2 = appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                assertThat(state2.isEnabled).isTrue()
+                assertThat(state2.activityIds).isNotNull()
+                assertThat(state2.activityIds).hasSize(1)
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun getAppFunctionStates_registerFromActivity_canBeExecutedWithActivityId() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val functionName = AppFunctionName("androidx.appfunctions.test", functionId)
+        val expectedResult = "self_execution_result"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult))
+            }
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+
+            try {
+                val state = appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                assertThat(state.isEnabled).isTrue()
+                assertThat(state.activityIds).isNotNull()
+                assertThat(state.activityIds).hasSize(1)
+
+                val platformManager =
+                    context.getSystemService(
+                        android.app.appfunctions.AppFunctionManager::class.java
+                    )!!
+                val platformRequest =
+                    android.app.appfunctions.ExecuteAppFunctionRequest.Builder(
+                            context.packageName,
+                            functionId,
+                        )
+                        .setActivityId(state.activityIds!!.first())
+                        .build()
+
+                val response =
+                    kotlinx.coroutines.suspendCancellableCoroutine { cont ->
+                        platformManager.executeAppFunction(
+                            platformRequest,
+                            context.mainExecutor,
+                            android.os.CancellationSignal(),
+                            object :
+                                android.os.OutcomeReceiver<
+                                    android.app.appfunctions.ExecuteAppFunctionResponse,
+                                    android.app.appfunctions.AppFunctionException,
+                                > {
+                                override fun onResult(
+                                    result: android.app.appfunctions.ExecuteAppFunctionResponse
+                                ) {
+                                    cont.resume(result)
+                                }
+
+                                override fun onError(
+                                    error: android.app.appfunctions.AppFunctionException
+                                ) {
+                                    cont.resumeWithException(error)
+                                }
+                            },
+                        )
+                    }
+
+                assertThat(
+                        response.resultDocument.getPropertyString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo(expectedResult)
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    private fun createReturnStringResponse(
+        returnValue: String
+    ): ExecuteAppFunctionResponse.Success {
+        val responseType =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE to
+                            AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                required = emptyList(),
+                qualifiedName = "androidx.appfunctions.test#noSchema_executionSucceedResponse",
+                isNullable = false,
+            )
+        val responseData =
+            AppFunctionData.Builder(responseType, AppFunctionComponentsMetadata(emptyMap()))
+                .setString(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE, returnValue)
+                .build()
+        return ExecuteAppFunctionResponse.Success(responseData)
     }
 }
