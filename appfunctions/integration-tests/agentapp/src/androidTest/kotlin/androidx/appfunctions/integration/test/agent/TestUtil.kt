@@ -57,10 +57,20 @@ internal object TestUtil {
         throw lastError!!
     }
 
-    suspend fun Context.awaitAppFunctionsIndexed(targetPackage: String) {
+    suspend fun Context.awaitAppFunctionsIndexed(
+        targetPackage: String,
+        expectedFunctionIds: Set<String> = emptySet(),
+        unexpectedFunctionIds: Set<String> = emptySet(),
+    ) {
         retryAssert {
             val functionIds = AppSearchMetadataHelper.collectFunctionIds(this, targetPackage)
             assertThat(functionIds).isNotEmpty()
+            if (expectedFunctionIds.isNotEmpty()) {
+                assertThat(functionIds).containsAtLeastElementsIn(expectedFunctionIds)
+            }
+            if (unexpectedFunctionIds.isNotEmpty()) {
+                assertThat(functionIds).containsNoneIn(unexpectedFunctionIds)
+            }
         }
     }
 

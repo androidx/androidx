@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@ apply from: "../testapp-common.gradle"
 android {
     sourceSets {
         main {
-            kotlin.srcDirs += ['src/baseService/kotlin']
+            manifest.srcFile '../app/src/main/AndroidManifest.xml'
+            res.srcDirs = ['../app/src/main/res']
+            assets.srcDirs = ['../app/src/main/assets']
+            kotlin.srcDirs = ['../app/src/main/kotlin', 'src/main/kotlin']
         }
     }
 }

@@ -10,6 +10,8 @@ plugins {
 }
 
 def targetAppApkName = "TargetApp.apk"
+def targetAppApkNameV2 = "TargetAppV2.apk"
+def targetAppApkNameV3 = "TargetAppV3.apk"
 
 // This task copies the apks provided by the `apkAssets` configuration and places them in the
 // resources folder. This allows a build time generation of the sample apps.
@@ -56,6 +58,8 @@ android {
         minSdk { version = release(33) }
 
         testInstrumentationRunnerArgument("TARGET_APP_APK", targetAppApkName)
+        testInstrumentationRunnerArgument("TARGET_APP_APK_V2", targetAppApkNameV2)
+        testInstrumentationRunnerArgument("TARGET_APP_APK_V3", targetAppApkNameV3)
     }
 }
 
@@ -72,6 +76,40 @@ configurations {
             )
         }
     }
+    apkAssetsV2 {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+            )
+        }
+    }
+    apkAssetsV3 {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+            )
+        }
+    }
+}
+
+def prepareTargetApkV2TaskProvider = tasks.register("prepareTargetApkV2", PrepareTargetApkTask) {
+    description = "Copies the apks provided by appfunctions-integrationTest-multi-module-app-v2 projects into the Java resources."
+    apkAssetsFolders.from(configurations.named("apkAssetsV2").get().incoming.files)
+    outputDir.set(layout.buildDirectory.dir("intermediates/appfunction-integrationTest-resources-v2"))
+    apkFileName.set(targetAppApkNameV2)
+}
+
+def prepareTargetApkV3TaskProvider = tasks.register("prepareTargetApkV3", PrepareTargetApkTask) {
+    description = "Copies the apks provided by appfunctions-integrationTest-multi-module-app-v3 projects into the Java resources."
+    apkAssetsFolders.from(configurations.named("apkAssetsV3").get().incoming.files)
+    outputDir.set(layout.buildDirectory.dir("intermediates/appfunction-integrationTest-resources-v3"))
+    apkFileName.set(targetAppApkNameV3)
 }
 
 androidComponents {
@@ -81,6 +119,12 @@ androidComponents {
             if (testVariant != null) {
                 testVariant.sources.resources.addGeneratedSourceDirectory(
                         prepareTargetApkTaskProvider, PrepareTargetApkTask::getOutputDir
+                )
+                testVariant.sources.resources.addGeneratedSourceDirectory(
+                        prepareTargetApkV2TaskProvider, PrepareTargetApkTask::getOutputDir
+                )
+                testVariant.sources.resources.addGeneratedSourceDirectory(
+                        prepareTargetApkV3TaskProvider, PrepareTargetApkTask::getOutputDir
                 )
             }
         }
@@ -103,6 +147,8 @@ dependencies {
     androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.kotlinTest)
     apkAssets(project(":appfunctions:integration-tests:multi-modules-testapp:app"))
+    apkAssetsV2(project(":appfunctions:integration-tests:multi-modules-testapp:app-v2"))
+    apkAssetsV3(project(":appfunctions:integration-tests:multi-modules-testapp:app-v3"))
 }
 
 ksp {
