@@ -26,6 +26,8 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.ACTION
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_GRANTED_PERMISSIONS_STRING
 import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_REQUESTED_PERMISSIONS_STRING
+import androidx.health.platform.client.utils.isPackageInstalled
+import androidx.health.platform.client.utils.isTargetSignatureValid
 
 /**
  * An [ActivityResultContract] to request Health Connect permissions from the HealthConnect APK.
@@ -39,6 +41,15 @@ internal class HealthPermissionsRequestAppContract(
 ) : ActivityResultContract<Set<String>, Set<String>>() {
 
     override fun createIntent(context: Context, input: Set<String>): Intent {
+        require(providerPackageName.isNotEmpty()) { "providerPackageName can't be empty" }
+        if (
+            isPackageInstalled(context.packageManager, providerPackageName) &&
+                !isTargetSignatureValid(context.packageManager, providerPackageName)
+        ) {
+            throw SecurityException(
+                "Package $providerPackageName is installed but signature is invalid!"
+            )
+        }
         val protoPermissionList =
             input
                 .asSequence()
@@ -51,9 +62,7 @@ internal class HealthPermissionsRequestAppContract(
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Requesting ${input.size} permissions.")
         return Intent(ACTION_REQUEST_PERMISSIONS).apply {
             putParcelableArrayListExtra(KEY_REQUESTED_PERMISSIONS_STRING, protoPermissionList)
-            if (providerPackageName.isNotEmpty()) {
-                setPackage(providerPackageName)
-            }
+            setPackage(providerPackageName)
         }
     }
 

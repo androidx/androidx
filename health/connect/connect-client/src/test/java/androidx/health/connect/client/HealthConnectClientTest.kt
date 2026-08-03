@@ -313,8 +313,9 @@ class HealthConnectClientTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
     fun getHealthConnectManageDataAction_noProvider_returnsDefaultIntent() {
-        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
-            .isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+        val intent = HealthConnectClient.getHealthConnectManageDataIntent(context)
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+        assertThat(intent.`package`).isNull()
     }
 
     @Test
@@ -327,8 +328,9 @@ class HealthConnectClientTest {
             enabled = true,
         )
 
-        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
-            .isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+        val intent = HealthConnectClient.getHealthConnectManageDataIntent(context)
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+        assertThat(intent.`package`).isNull()
     }
 
     @Test
@@ -343,8 +345,44 @@ class HealthConnectClientTest {
         installDataManagementHandler(context, DEFAULT_PROVIDER_PACKAGE_NAME)
         installService(context, DEFAULT_PROVIDER_PACKAGE_NAME)
 
-        assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
-            .isEqualTo("androidx.health.ACTION_MANAGE_HEALTH_DATA")
+        val intent = HealthConnectClient.getHealthConnectManageDataIntent(context)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_MANAGE_HEALTH_DATA")
+        assertThat(intent.`package`).isEqualTo(DEFAULT_PROVIDER_PACKAGE_NAME)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun getHealthConnectManageDataAction_supportedClient_customProvider() {
+        val customPackage = "com.custom.provider"
+        installPackage(
+            context,
+            customPackage,
+            versionCode = HealthDataServiceConstants.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true,
+        )
+        installDataManagementHandler(context, customPackage)
+        installService(context, customPackage)
+
+        val intent = HealthConnectClient.getHealthConnectManageDataIntent(context, customPackage)
+        assertThat(intent.action).isEqualTo("androidx.health.ACTION_MANAGE_HEALTH_DATA")
+        assertThat(intent.`package`).isEqualTo(customPackage)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun getHealthConnectManageDataAction_supportedClient_noManageDataHandler_returnsSettingsIntentWithPackage() {
+        installPackage(
+            context,
+            DEFAULT_PROVIDER_PACKAGE_NAME,
+            versionCode = HealthDataServiceConstants.DEFAULT_PROVIDER_MIN_VERSION_CODE,
+            enabled = true,
+        )
+        // Do NOT installDataManagementHandler
+        installService(context, DEFAULT_PROVIDER_PACKAGE_NAME)
+
+        val intent = HealthConnectClient.getHealthConnectManageDataIntent(context)
+        assertThat(intent.action).isEqualTo(HealthConnectClient.ACTION_HEALTH_CONNECT_SETTINGS)
+        assertThat(intent.`package`).isEqualTo(DEFAULT_PROVIDER_PACKAGE_NAME)
     }
 
     @Test
