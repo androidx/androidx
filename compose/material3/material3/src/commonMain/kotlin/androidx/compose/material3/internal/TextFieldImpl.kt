@@ -17,9 +17,12 @@
 package androidx.compose.material3.internal
 
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -53,6 +56,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -2109,6 +2113,37 @@ private fun Transition<InputPhase>.labelContentColor(labelColor: Color): State<C
         label = "LabelContentColor",
         targetValueByState = { labelColor },
     )
+}
+
+@Composable
+internal fun animateBorderStrokeAsState(
+    enabled: Boolean,
+    isError: Boolean,
+    focused: Boolean,
+    colors: TextFieldColors,
+    focusedBorderThickness: Dp,
+    unfocusedBorderThickness: Dp,
+): State<BorderStroke> {
+    // TODO Load the motionScheme tokens from the component tokens file
+    val targetColor = colors.indicatorColor(enabled, isError, focused)
+    val colorAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
+    val indicatorColor =
+        if (enabled) {
+            animateColorAsState(targetColor, colorAnimationSpec)
+        } else {
+            rememberUpdatedState(targetColor)
+        }
+
+    val thicknessAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
+    val thickness =
+        if (enabled) {
+            val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
+            animateDpAsState(targetThickness, thicknessAnimationSpec)
+        } else {
+            rememberUpdatedState(unfocusedBorderThickness)
+        }
+
+    return rememberUpdatedState(BorderStroke(thickness.value, indicatorColor.value))
 }
 
 /** An internal state used to animate a label and an indicator. */
