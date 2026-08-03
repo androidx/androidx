@@ -177,12 +177,31 @@ class CameraUseCaseAdapterTest {
         shadowOf(getMainLooper()).idle()
     }
 
-    @Test(expected = CameraException::class)
-    fun attachTwoPreviews_streamSharingNotEnabled() {
-        // Arrange: bind 2 previews with an ImageCapture. Request fails without enabling
-        // StreamSharing because StreamSharing only allows one use case per type.
+    @Test
+    fun attachTwoPreviews_streamSharingEnabled() {
+        // Arrange: bind 2 previews with an ImageCapture. StreamSharing wraps the two previews.
         val preview2 = Preview.Builder().build()
         adapter.addUseCases(setOf(preview, preview2, image))
+        // Assert: StreamSharing is used for the two Previews.
+        adapter.cameraUseCases.hasExactTypes(StreamSharing::class.java, ImageCapture::class.java)
+    }
+
+    @Test
+    fun attachTwoPreviewsWithOverlayEffect_streamSharingEnabled() {
+        // Arrange: assign an effect with PREVIEW target and OUTPUT_OPTION_ONE_FOR_ALL_TARGETS (like
+        // OverlayEffect).
+        adapter.effects = listOf(previewEffect)
+
+        // Act: bind 2 previews.
+        val preview2 = Preview.Builder().build()
+        adapter.addUseCases(setOf(preview, preview2))
+
+        // Assert: StreamSharing is created to share the effect across both Previews.
+        val streamSharing = adapter.getStreamSharing()
+        assertThat(streamSharing.children).containsExactly(preview, preview2)
+        assertThat(streamSharing.effect).isEqualTo(previewEffect)
+        assertThat(preview.effect).isNull()
+        assertThat(preview2.effect).isNull()
     }
 
     @Test
@@ -590,10 +609,9 @@ class CameraUseCaseAdapterTest {
     @Test
     fun isUseCasesCombinationSupported_returnFalseWhenNotSupported() {
         // Arrange
-        val preview2 = Preview.Builder().build()
-        // Assert: double preview use cases should not be supported even with stream sharing.
-        assertThat(adapter.isUseCasesCombinationSupported(preview, preview2, video, image))
-            .isFalse()
+        val video2 = createFakeVideoCaptureUseCase()
+        // Assert: double video capture use cases should not be supported even with stream sharing.
+        assertThat(adapter.isUseCasesCombinationSupported(preview, video, video2, image)).isFalse()
     }
 
     @Test

@@ -315,11 +315,13 @@ public class StreamSharing extends UseCase {
     }
 
     /**
-     * StreamSharing supports [PREVIEW, VIDEO_CAPTURE] or [PREVIEW, VIDEO_CAPTURE, IMAGE_CAPTURE].
+     * StreamSharing supports [PREVIEW], [PREVIEW, VIDEO_CAPTURE] or [PREVIEW, VIDEO_CAPTURE,
+     * IMAGE_CAPTURE].
      */
     @Override
     public @NonNull Set<Integer> getSupportedEffectTargets() {
         Set<Integer> targets = new HashSet<>();
+        targets.add(PREVIEW);
         targets.add(PREVIEW | VIDEO_CAPTURE);
         return targets;
     }
