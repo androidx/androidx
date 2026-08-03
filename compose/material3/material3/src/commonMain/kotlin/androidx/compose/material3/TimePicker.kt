@@ -62,6 +62,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.formatString
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.rememberAccessibilityServiceState
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
@@ -1730,6 +1731,15 @@ private fun TimeScrollImpl(
         val errorHandler = rememberTimeInputErrorHandler(a11yServicesEnabled)
         val hourSelectionDescription = getString(Strings.TimePickerHourSelection)
         val minuteSelectionDescription = getString(Strings.TimePickerMinuteSelection)
+        val hourSuffix =
+            getString(
+                if (state.is24hour) {
+                    Strings.TimePicker24HourSuffix
+                } else {
+                    Strings.TimePickerHourSuffix
+                }
+            )
+        val minuteSuffix = getString(Strings.TimePickerMinuteSuffix)
 
         CompositionLocalProvider(
             LocalTextStyle provides textStyle,
@@ -1740,6 +1750,9 @@ private fun TimeScrollImpl(
                 state = hourState,
                 contentDescription = hourSelectionDescription,
                 modifier = Modifier.size(width = 100.dp, height = 120.dp),
+                fieldAccessibilityDescription = { index ->
+                    formatString(hourSuffix, if (state.is24hour) index else index + 1)
+                },
                 field = { index, selected ->
                     ScrollFieldDefaults.Item(
                         index = if (state.is24hour) index else index + 1,
@@ -1759,6 +1772,7 @@ private fun TimeScrollImpl(
                 state = minuteState,
                 contentDescription = minuteSelectionDescription,
                 modifier = Modifier.size(width = 100.dp, height = 120.dp),
+                fieldAccessibilityDescription = { index -> formatString(minuteSuffix, index) },
             )
         }
 
