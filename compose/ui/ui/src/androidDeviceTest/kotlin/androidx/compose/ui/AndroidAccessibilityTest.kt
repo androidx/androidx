@@ -40,6 +40,7 @@ import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_TRAVERSED_AT
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
 import android.view.accessibility.AccessibilityManager
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_RENDERING_INFO_KEY
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
@@ -742,12 +743,19 @@ class AndroidAccessibilityTest {
                         AccessibilityActionCompat(ACTION_FOCUS, null),
                         AccessibilityActionCompat(ACTION_ACCESSIBILITY_FOCUS, null),
                     )
-                if (Build.VERSION.SDK_INT >= 26) {
+
+                if (Build.VERSION.SDK_INT >= 37) {
                     assertThat(availableExtraData)
                         .containsExactly(
                             "androidx.compose.ui.semantics.id",
-                            // TODO(b/272068594): This looks like a bug. This should be
-                            //  AccessibilityNodeInfoCompat.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+                            "androidx.compose.ui.semantics.testTag",
+                            EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY,
+                            EXTRA_DATA_RENDERING_INFO_KEY,
+                        )
+                } else if (Build.VERSION.SDK_INT >= 26) {
+                    assertThat(availableExtraData)
+                        .containsExactly(
+                            "androidx.compose.ui.semantics.id",
                             EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY,
                             "androidx.compose.ui.semantics.testTag",
                         )
