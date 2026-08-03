@@ -258,4 +258,12 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".release_schema_cache_after_initialization");
     }
+
+    @Test
+    public void testFlagValue_removeSchemaStoreMoveAssignment() {
+        assertThat(Flags.FLAG_REMOVE_SCHEMA_STORE_MOVE_ASSIGNMENT)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".remove_schema_store_move_assignment");
+    }
 }
