@@ -1016,9 +1016,51 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
                 // jars. We want to handle sample jars separately, so filter by the name.
                 .partition { name -> "samples" !in name }
 
-        fileSystemOperations.sync {
+        // Sync all multiplatform metadata files.
+        sources.forEach { (name, fileTree) ->
+            fileSystemOperations.sync {
+                it.from(fileTree)
+                it.into(metadataOutput.file(name))
+                it.include("META-INF/*")
+            }
+        }
+
+        val gson = DokkaUtils.createGson()
+        // For each project, check whether the `commonMain` source set is actually jvm-only.
+        val (sourceWithOnlyJvm, sourcesWithNonJvm) =
+            sources.partition { name ->
+                val metadataFile =
+                    metadataOutput
+                        .file("$name/META-INF/$PROJECT_STRUCTURE_METADATA_FILENAME")
+                        .get()
+                        .asFile
+                val metadata =
+                    gson.fromJson(metadataFile.readText(), ProjectStructureMetadata::class.java)
+                metadata.sourceSets.singleOrNull { it.name == "commonMain" }?.analysisPlatform ==
+                    DokkaAnalysisPlatform.JVM
+            }
+
+        fileSystemOperations.copy {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
-            it.from(sources.values)
+            it.from(sourcesWithNonJvm.values)
+            it.into(sourceOutput)
+            it.exclude("META-INF/*")
+            it.rewriteSamplesTags()
+            it.filterColGroup()
+        }
+
+        // For projects which are jvm-only, move the "commonMain" files to "jvmAndAndroidMain".
+        // This is to enable those files to use jvm dependencies in the merged source sets sent to
+        // dackka. Otherwise, any references to jvm dependencies from these files would be
+        // unresolved because "commonMain" has the common analysis platform.
+        fileSystemOperations.copy {
+            it.duplicatesStrategy = DuplicatesStrategy.FAIL
+            it.from(sourceWithOnlyJvm.values).eachFile { fileCopyDetails ->
+                if (fileCopyDetails.path.startsWith("commonMain/")) {
+                    fileCopyDetails.path =
+                        fileCopyDetails.path.replaceFirst("commonMain/", "jvmAndAndroidMain/")
+                }
+            }
             it.into(sourceOutput)
             it.exclude("META-INF/*")
             it.rewriteSamplesTags()
@@ -1033,13 +1075,6 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
             it.from(samples.values)
             it.into(samplesOutput)
             it.exclude("META-INF/*")
-        }
-        sources.forEach { (name, fileTree) ->
-            fileSystemOperations.sync {
-                it.from(fileTree)
-                it.into(metadataOutput.file(name))
-                it.include("META-INF/*")
-            }
         }
     }
 }
