@@ -161,8 +161,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
             "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success"
         const val DYNAMIC_REGISTRATION_RETURN_SUCCESS_2 =
             "androidx.appfunctions.test.FakeClass#dynamic_registration_return_success_2"
-        const val ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS =
-            "androidx.appfunctions.test.FakeClass#activity_dynamic_registration_return_success"
 
         const val ADDITIONAL_LEGACY_CREATE_NOTE =
             "com.example.android.architecture.blueprints.todoapp#NoteFunctions_createNote"

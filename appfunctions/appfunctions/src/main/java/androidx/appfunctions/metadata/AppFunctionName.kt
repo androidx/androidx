@@ -49,10 +49,6 @@ constructor(
         return "AppFunctionName(packageName='$packageName', functionIdentifier='$functionIdentifier')"
     }
 
-    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    internal fun toPlatformAppFunctionName(): android.app.appfunctions.AppFunctionName =
-        android.app.appfunctions.AppFunctionName(packageName, functionIdentifier)
-
     internal companion object {
         internal fun fromQualifiedId(qualifiedFunctionId: String): AppFunctionName {
             val parts = qualifiedFunctionId.split('/', limit = 2)
