@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import java.util.ArrayList
 import java.util.HashMap
+import java.util.LinkedHashMap
 
 /**
  * Represents a pending matrix transformation operation that can potentially be optimized.
@@ -714,8 +715,8 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
     internal var spanTreeRoot = Span(null, 0)
     internal var insertPoint = spanTreeRoot
     private val operationMap = HashMap<RemoteStateCacheKey, SpanOp>()
-    private val usageMap = HashMap<RemoteStateCacheKey, ArrayList<SpanOp>>()
-    private val expressionMap = HashMap<RemoteStateCacheKey, BaseRemoteState<*>>()
+    private val usageMap = LinkedHashMap<RemoteStateCacheKey, ArrayList<SpanOp>>()
+    private val expressionMap = LinkedHashMap<RemoteStateCacheKey, BaseRemoteState<*>>()
     internal var lastRenderingOp: SpanOp? = null
 
     /**

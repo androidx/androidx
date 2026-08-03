@@ -163,7 +163,14 @@ internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStat
         return true
     }
 
-    override fun hashCodeImpl(): Int = value?.hashCode() ?: 0
+    override fun hashCodeImpl(): Int =
+        when (value) {
+            // Enums inherit java.lang.Object.hashCode() (identity hash code), which is
+            // non-deterministic across JVM executions. We hash the declaring class name and
+            // constant name to ensure determinism.
+            is Enum<*> -> value.declaringJavaClass.name.hashCode() + value.name.hashCode()
+            else -> value?.hashCode() ?: 0
+        }
 
     override fun toString(): String = "RemoteConstantCacheKey(value=$value)"
 
@@ -318,7 +325,10 @@ internal class RemoteOperationCacheKey(
     }
 
     override fun hashCodeImpl(): Int {
-        var result = op.hashCode()
+        // Enums inherit java.lang.Object.hashCode() (identity hash code), which is
+        // non-deterministic across JVM executions. We hash the declaring class name and
+        // constant name to ensure determinism.
+        var result = op.declaringJavaClass.name.hashCode() + op.name.hashCode()
         result = 31 * result + args.hashCode()
         return result
     }
