@@ -137,7 +137,7 @@ class BrushCoatTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(BrushCoat().calculateMinimumRequiredVersion()).isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(BrushCoat().calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 
     /** Brush behavior with every field different from default values. */

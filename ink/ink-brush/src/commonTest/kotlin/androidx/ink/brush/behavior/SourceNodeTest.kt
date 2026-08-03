@@ -216,6 +216,6 @@ class SourceNodeTest {
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
         assertThat(Source.NORMALIZED_PRESSURE.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
     }
 }
