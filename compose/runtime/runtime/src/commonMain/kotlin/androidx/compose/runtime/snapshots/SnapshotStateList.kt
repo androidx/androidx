@@ -286,11 +286,12 @@ private fun invalidIteratorSet(): Nothing =
             "or immediately after a call to add() or remove()"
     )
 
-internal class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int) :
+internal class StateListIterator<T>(val stateList: SnapshotStateList<T>, offset: Int) :
     MutableListIterator<T> {
     private var index = offset - 1
     private var lastRequested = -1
-    private var structure = list.structure
+    private var list = stateList.toList()
+    private var structure = stateList.structure
 
     override fun hasPrevious() = index >= 0
 
@@ -307,10 +308,11 @@ internal class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int)
 
     override fun add(element: T) {
         validateModification()
-        list.add(index + 1, element)
+        stateList.add(index + 1, element)
         lastRequested = -1
         index++
-        structure = list.structure
+        list = stateList.toList()
+        structure = stateList.structure
     }
 
     override fun hasNext() = index < list.size - 1
@@ -325,21 +327,23 @@ internal class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int)
 
     override fun remove() {
         validateModification()
-        list.removeAt(lastRequested)
+        stateList.removeAt(lastRequested)
         index--
         lastRequested = -1
-        structure = list.structure
+        list = stateList.toList()
+        structure = stateList.structure
     }
 
     override fun set(element: T) {
         validateModification()
         if (lastRequested < 0) invalidIteratorSet()
-        list.set(lastRequested, element)
-        structure = list.structure
+        stateList.set(lastRequested, element)
+        list = stateList.toList()
+        structure = stateList.structure
     }
 
     private fun validateModification() {
-        if (list.structure != structure) {
+        if (stateList.structure != structure) {
             throw ConcurrentModificationException()
         }
     }
