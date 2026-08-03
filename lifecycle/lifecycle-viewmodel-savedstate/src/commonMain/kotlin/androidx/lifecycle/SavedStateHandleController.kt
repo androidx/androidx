@@ -82,6 +82,9 @@ private constructor(
 
     private var _stateHolder: StateHolder? = null
 
+    private var restoredState: SavedState? = null
+    private var isRestored = false
+
     /** Holds active [SavedStateHandle] instances. */
     private val stateHolder: StateHolder
         get() {
@@ -112,7 +115,7 @@ private constructor(
     override fun saveState(): SavedState {
         return savedState {
             // Retain restored state for any ViewModels that have not been recreated yet.
-            stateHolder.restoredState?.let { putAll(it) }
+            restoredState?.let { putAll(it) }
 
             // Prefer the state of active ViewModels over the restored state.
             for ((key, handle) in stateHolder.handles) {
@@ -123,20 +126,19 @@ private constructor(
             }
 
             // Allow restoring state a second time after saving.
-            stateHolder.isRestored = false
+            isRestored = false
         }
     }
 
     /** Restores the state from the [SavedStateRegistry] if not already restored. */
     fun performRestore() {
-        val holder = stateHolder
-        if (!holder.isRestored) {
+        if (!isRestored) {
             val newState = savedStateRegistry.consumeRestoredStateForKey(SAVED_STATE_KEY)
-            holder.restoredState = savedState {
-                holder.restoredState?.let { putAll(it) }
+            restoredState = savedState {
+                restoredState?.let { putAll(it) }
                 newState?.let { putAll(it) }
             }
-            holder.isRestored = true
+            isRestored = true
 
             // Eagerly evaluate the ViewModel provider. This ensures we can still retrieve the VM
             // during state saving even if the lifecycle reaches DESTROYED.
@@ -152,14 +154,13 @@ private constructor(
      */
     fun consumeRestoredStateForKey(key: String): SavedState? {
         performRestore()
-        val holder = stateHolder
-        val state = holder.restoredState ?: return null
+        val state = restoredState ?: return null
         if (!state.read { contains(key) }) return null
 
         val result = state.read { getSavedStateOrNull(key) ?: savedState() }
         state.write { remove(key) }
         if (state.read { isEmpty() }) {
-            holder.restoredState = null
+            restoredState = null
         }
         return result
     }
@@ -188,8 +189,6 @@ private constructor(
      */
     private class StateHolder : ViewModel() {
         val handles = mutableMapOf<String, SavedStateHandle>()
-        var restoredState: SavedState? = null
-        var isRestored = false
         var isCleared = false
             private set
 
