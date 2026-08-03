@@ -113,8 +113,8 @@ internal object MetalavaTasks {
                 project.tasks.register("ignoreApiChanges", IgnoreApiChangesTask::class.java) { task
                     ->
                     task.metalavaClasspath.from(metalavaClasspath)
-                    task.referenceApi.set(checkApiRelease!!.flatMap { it.referenceApi })
-                    task.baselines.set(checkApiRelease!!.flatMap { it.baselines })
+                    task.referenceApi.set(checkApiRelease.flatMap { it.referenceApi })
+                    task.baselines.set(checkApiRelease.flatMap { it.baselines })
                     task.api.set(builtApiLocation)
                     task.version.set(version)
                     task.dependencyClasspath = compilationInputs.dependencyClasspath

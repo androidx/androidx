@@ -249,7 +249,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
         // not set by the user.
         val enabledRulesNotSet =
             !project.gradle.startParameter.projectProperties.any {
-                it.key!!.contentEquals(PROP_ENABLED_RULES)
+                it.key.contentEquals(PROP_ENABLED_RULES)
             }
 
         // If this is a benchmark variant sets the instrumentation runner argument to run only
