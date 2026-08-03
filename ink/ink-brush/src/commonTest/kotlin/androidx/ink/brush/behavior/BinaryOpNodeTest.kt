@@ -83,7 +83,6 @@ class BinaryOpNodeTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun calculateMinimumRequiredVersion_returnsExpectedValue() {
-        assertThat(BinaryOp.SUM.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(BinaryOp.SUM.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

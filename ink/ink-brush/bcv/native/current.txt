@@ -913,10 +913,10 @@ final class androidx.ink.brush/Version : kotlin/Comparable<androidx.ink.brush/Ve
             final fun <get-DEVELOPMENT>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.DEVELOPMENT.<get-DEVELOPMENT>|<get-DEVELOPMENT>(){}[0]
         final val MAX_SUPPORTED // androidx.ink.brush/Version.Companion.MAX_SUPPORTED|{}MAX_SUPPORTED[0]
             final fun <get-MAX_SUPPORTED>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.MAX_SUPPORTED.<get-MAX_SUPPORTED>|<get-MAX_SUPPORTED>(){}[0]
-        final val V0_JETPACK1_0_0 // androidx.ink.brush/Version.Companion.V0_JETPACK1_0_0|{}V0_JETPACK1_0_0[0]
-            final fun <get-V0_JETPACK1_0_0>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.V0_JETPACK1_0_0.<get-V0_JETPACK1_0_0>|<get-V0_JETPACK1_0_0>(){}[0]
-        final val V1_JETPACK1_1_0_ALPHA01 // androidx.ink.brush/Version.Companion.V1_JETPACK1_1_0_ALPHA01|{}V1_JETPACK1_1_0_ALPHA01[0]
-            final fun <get-V1_JETPACK1_1_0_ALPHA01>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.V1_JETPACK1_1_0_ALPHA01.<get-V1_JETPACK1_1_0_ALPHA01>|<get-V1_JETPACK1_1_0_ALPHA01>(){}[0]
+        final val V0 // androidx.ink.brush/Version.Companion.V0|{}V0[0]
+            final fun <get-V0>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.V0.<get-V0>|<get-V0>(){}[0]
+        final val V1 // androidx.ink.brush/Version.Companion.V1|{}V1[0]
+            final fun <get-V1>(): androidx.ink.brush/Version // androidx.ink.brush/Version.Companion.V1.<get-V1>|<get-V1>(){}[0]
     }
 }
 

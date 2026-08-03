@@ -254,6 +254,6 @@ class PolarTargetNodeTest {
                 PolarTarget.POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
     }
 }

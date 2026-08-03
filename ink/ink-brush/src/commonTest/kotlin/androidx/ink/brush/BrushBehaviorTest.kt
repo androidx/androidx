@@ -178,11 +178,10 @@ class BrushBehaviorTest {
                 BrushBehavior(createTestStepBehaviorTerminalNode())
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         // Test ProgressDomain, OutOfRange, and Node (via subtypes), which don't otherwise
         // have a good testing home.
-        assertThat(ConstantNode(0.0f).calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+        assertThat(ConstantNode(0.0f).calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
         assertThat(
                 TargetNode(
                         target = Target.WIDTH_MULTIPLIER,
@@ -192,10 +191,9 @@ class BrushBehaviorTest {
                     )
                     .calculateMinimumRequiredVersion()
             )
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
         assertThat(ProgressDomain.DISTANCE_IN_CENTIMETERS.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
-        assertThat(OutOfRange.CLAMP.calculateMinimumRequiredVersion())
-            .isEqualTo(Version.V0_JETPACK1_0_0)
+            .isEqualTo(Version.V0)
+        assertThat(OutOfRange.CLAMP.calculateMinimumRequiredVersion()).isEqualTo(Version.V0)
     }
 }

@@ -31,6 +31,11 @@ import java.util.WeakHashMap
 /**
  * Hold onto [Mesh] instances referenced by the returned buffers so those are not GCed while a live
  * buffer points at the underlying native memory.
+ *
+ * This approach works reasonably well for `Mesh` because it's immutable, so its buffers remain
+ * valid and can be cached during rendering. The same approach is avoided for `InProgressStroke`
+ * because that constaintly requires new buffers as it is updated (the buffer objects cannot be
+ * modified / resized).
  */
 @VisibleForTesting
 @GuardedBy("meshesReferencedByBuffers")

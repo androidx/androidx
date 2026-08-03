@@ -66,7 +66,7 @@ import kotlin.math.floor
  * handling and rendering are frozen.
  *
  * @param mainView The [View] within which the front buffer should be constructed.
- * @property callback How to render the desired content within the front buffer.
+ * @param callback How to render the desired content within the front buffer.
  * @param renderer Draws individual stroke objects using [Canvas].
  * @param uiThreadExecutor Replace the default for testing only.
  */

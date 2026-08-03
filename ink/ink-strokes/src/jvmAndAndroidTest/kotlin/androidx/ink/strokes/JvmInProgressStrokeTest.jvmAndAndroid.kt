@@ -23,7 +23,6 @@ import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import androidx.kruth.assertThat
 import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
-import java.util.WeakHashMap
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -157,45 +156,6 @@ class JvmInProgressStrokeTest {
             .isGreaterThan(stroke.getRawVertexBuffer(0, 1).capacity())
         // The dry stroke has all the inputs added.
         assertThat(stroke.toImmutable().inputs.size).isEqualTo(stroke.getInputCount())
-    }
-
-    @Test
-    fun rawVertexData_retainsWeakReferenceToInProgressStrokeFromOriginalDirectBuffer() {
-        val stroke = InProgressStroke()
-        stroke.start(makeBrush())
-        val unused = stroke.getRawVertexBuffer(0, 0)
-        assertThat(inProgressStrokesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
-        // Unfortunately, we need to map from the _original_ direct buffer to the InProgressStroke,
-        // not
-        // the wrapped buffer that's ultimately returned by this getter. The internals of
-        // DirectByteBuffer ensure that methods which slice or duplicate the buffer retain a
-        // reference
-        // to the original buffer, but not any intermediate copies. So retaining a weak reference to
-        // the
-        // original ensures that any further copies/slices also do the right thing. But this
-        // reference
-        // back to the original buffer isn't in the public API, so we can't assert about it.
-        assertThat(inProgressStrokesReferencedByBuffers.values).contains(stroke)
-        val reversedMap =
-            inProgressStrokesReferencedByBuffers.entries.associate { (k, v) -> v to k }
-        val originalDirectBuffer = reversedMap[stroke]!!
-        assertThat(originalDirectBuffer.isDirect()).isTrue()
-    }
-
-    @Test
-    fun rawIndexData_retainsWeakReferenceToInProgressStrokeFromOriginalDirectBuffer() {
-        val stroke = InProgressStroke()
-        stroke.start(makeBrush())
-        val unused = stroke.getRawTriangleIndexBuffer(0, 0)
-        assertThat(inProgressStrokesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
-        // See comment above about why this entry maps to the original direct buffer, not the
-        // wrapped
-        // one.
-        assertThat(inProgressStrokesReferencedByBuffers.values).contains(stroke)
-        val reversedMap =
-            inProgressStrokesReferencedByBuffers.entries.associate { (k, v) -> v to k }
-        val originalDirectBuffer = reversedMap[stroke]!!
-        assertThat(originalDirectBuffer.isDirect()).isTrue()
     }
 
     private fun makeBrush() = Brush(family = StockBrushes.marker(), size = 10f, epsilon = 0.1f)

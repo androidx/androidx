@@ -18,25 +18,14 @@
 
 package androidx.ink.strokes
 
-import androidx.annotation.GuardedBy
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativeLoader
 import androidx.ink.nativeloader.UsedByNative
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.ShortBuffer
-import java.util.WeakHashMap
-
-/**
- * Hold onto [InProgressStroke] instances referenced by the returned buffers so those are not GCed
- * while a live buffer points at the underlying native memory.
- */
-@VisibleForTesting
-@GuardedBy("inProgressStrokesReferencedByBuffers")
-internal val inProgressStrokesReferencedByBuffers = WeakHashMap<ByteBuffer, InProgressStroke>()
 
 /**
  * Gets the vertices of the mesh at [partitionIndex] for brush coat [coatIndex] which must be less
@@ -64,9 +53,6 @@ public fun InProgressStroke.getRawVertexBuffer(
         .also {
             check(it.isDirect) {
                 "getUnsafelyMutableInProgressStrokeOwnedRawVertexData returned a non-direct buffer."
-            }
-            synchronized(inProgressStrokesReferencedByBuffers) {
-                inProgressStrokesReferencedByBuffers.put(it, this)
             }
         }
         .asReadOnlyBuffer()
@@ -102,9 +88,6 @@ public fun InProgressStroke.getRawTriangleIndexBuffer(
         .also {
             check(it.isDirect) {
                 "getUnsafelyMutableInProgressStrokeOwnedRawTriangleIndexData returned a non-direct buffer."
-            }
-            synchronized(inProgressStrokesReferencedByBuffers) {
-                inProgressStrokesReferencedByBuffers.put(it, this)
             }
         }
         .order(ByteOrder.nativeOrder())
