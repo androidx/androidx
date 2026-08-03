@@ -482,7 +482,7 @@ class StreamSharingTest {
             )
             .isTrue()
         assertThat(streamSharing.isEffectTargetsSupported(IMAGE_CAPTURE)).isFalse()
-        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW)).isFalse()
+        assertThat(streamSharing.isEffectTargetsSupported(PREVIEW)).isTrue()
         assertThat(streamSharing.isEffectTargetsSupported(VIDEO_CAPTURE)).isFalse()
     }
 
