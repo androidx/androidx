@@ -67,6 +67,7 @@ public class Camera2Interop private constructor() {
          */
         @JvmStatic
         @OptIn(ExperimentalCamera2Interop::class)
+        @Suppress("DEPRECATION")
         public fun getCameraId(cameraInfo: CameraInfo): String {
             return Camera2CameraInfo.from(cameraInfo).cameraId
         }
@@ -300,8 +301,19 @@ public class Camera2Interop private constructor() {
      * @param T the type being built by the extendable builder.
      * @param baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
+     * @deprecated Use [Camera2Interop.forUseCase], [Camera2Interop.forImageCapture], or
+     *   [Camera2Interop.forSessionConfig] in Java, or the `camera2Interop` extension function in
+     *   Kotlin instead (e.g. `UseCase.Builder.camera2Interop` for physical camera ID or
+     *   `SessionConfig.Builder.camera2Interop` for capture request options and callbacks).
      */
+    @Deprecated(
+        message =
+            "Use the camera2Interop extension function on UseCase.Builder (e.g., " +
+                "'builder.camera2Interop { setPhysicalCameraId(physicalCameraId) }') " +
+                "or SessionConfig.Builder for capture request options and callbacks instead."
+    )
     @ExperimentalCamera2Interop
+    @Suppress("DEPRECATION")
     public class Extender<T>(private var baseBuilder: ExtendableBuilder<T>) {
 
         /**

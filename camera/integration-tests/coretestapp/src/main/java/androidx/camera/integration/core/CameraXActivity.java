@@ -2054,6 +2054,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressWarnings("deprecation")
     private <T> void setCaptureCallback(androidx.camera.core.ExtendableBuilder<T> builder) {
         new Camera2Interop.Extender<>(builder).setSessionCaptureCallback(mCaptureCallback);
     }
@@ -3109,6 +3110,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressWarnings("deprecation")
     private static boolean isCamera2LegacyDevice(@NonNull CameraInfo cameraInfo) {
         return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
@@ -3120,6 +3122,7 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressWarnings("deprecation")
     private static @NonNull String getCamera2CameraId(@NonNull CameraInfo cameraInfo) {
         return Camera2CameraInfo.from(cameraInfo).getCameraId();
     }

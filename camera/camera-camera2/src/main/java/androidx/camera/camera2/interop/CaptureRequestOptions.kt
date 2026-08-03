@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.camera2.interop
 
 import android.hardware.camera2.CaptureRequest
@@ -32,9 +34,17 @@ import androidx.camera.core.impl.ReadableConfig
  *
  * @constructor Creates a CaptureRequestOptions for reading Camera2 capture request options from the
  *   given [config].
+ * @deprecated Use [Camera2Interop.forUseCase], [Camera2Interop.forImageCapture],
+ *   [Camera2Interop.forSessionConfig], or [Camera2Interop.forCameraControl] in Java, or the
+ *   [camera2Interop] / [applyCamera2Interop] extension functions in Kotlin instead.
  */
 @Suppress("HiddenSuperclass")
 @ExperimentalCamera2Interop
+@Deprecated(
+    message =
+        "Use the camera2Interop or applyCamera2Interop extension functions instead, e.g., " +
+            "'builder.camera2Interop { setCaptureRequestOption(key, value) }'."
+)
 public open class CaptureRequestOptions
 private constructor(private val config: Config, @Suppress("UNUSED_PARAMETER") unused: Boolean) :
     ReadableConfig {
