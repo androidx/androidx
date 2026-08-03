@@ -10,10 +10,6 @@ open annotation class androidx.compose.material3.adaptive/ExperimentalMaterial3A
     constructor <init>() // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveApi.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi : kotlin/Annotation { // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi|null[0]
-    constructor <init>() // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi.<init>|<init>(){}[0]
-}
-
 final class androidx.compose.material3.adaptive/HingeInfo { // androidx.compose.material3.adaptive/HingeInfo|null[0]
     constructor <init>(androidx.compose.ui.geometry/Rect, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean) // androidx.compose.material3.adaptive/HingeInfo.<init>|<init>(androidx.compose.ui.geometry.Rect;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
 
