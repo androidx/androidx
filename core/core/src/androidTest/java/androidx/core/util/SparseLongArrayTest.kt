@@ -223,4 +223,12 @@ class SparseLongArrayTest {
         assertEquals(10L, arrayWithValues.get(1))
         assertEquals(20L, arrayWithValues.get(2))
     }
+
+    @Test
+    fun getOrPut() {
+        val array = SparseLongArray()
+        assertEquals(10L, array.getOrPut(1) { 10L })
+        assertEquals(10L, array.get(1))
+        assertEquals(10L, array.getOrPut(1) { fail() })
+    }
 }

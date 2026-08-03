@@ -67,6 +67,21 @@ public inline fun SparseBooleanArray.getOrDefault(key: Int, defaultValue: Boolea
 public inline fun SparseBooleanArray.getOrElse(key: Int, defaultValue: () -> Boolean): Boolean =
     indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
+/**
+ * Return the value corresponding to [key], or put the [defaultValue] into the collection when not
+ * present.
+ */
+public inline fun SparseBooleanArray.getOrPut(key: Int, defaultValue: () -> Boolean): Boolean {
+    val index = indexOfKey(key)
+    return if (index >= 0) {
+        valueAt(index)
+    } else {
+        val answer = defaultValue()
+        put(key, answer)
+        answer
+    }
+}
+
 /** Return true when the collection contains no elements. */
 public inline fun SparseBooleanArray.isEmpty(): Boolean = size() == 0
 

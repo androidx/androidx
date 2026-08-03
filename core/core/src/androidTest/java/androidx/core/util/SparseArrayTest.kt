@@ -219,4 +219,12 @@ class SparseArrayTest {
         assertEquals("one", arrayWithValues.get(1))
         assertEquals("two", arrayWithValues.get(2))
     }
+
+    @Test
+    fun getOrPut() {
+        val array = SparseArray<String>()
+        assertEquals("one", array.getOrPut(1) { "one" })
+        assertEquals("one", array.get(1))
+        assertEquals("one", array.getOrPut(1) { fail() })
+    }
 }

@@ -3696,6 +3696,7 @@ package androidx.core.util {
     method public static inline <T> void forEach(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
     method public static inline <T> T getOrDefault(android.util.SparseArray<T>, int key, T defaultValue);
     method public static inline <T> T getOrElse(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> T getOrPut(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method @InaccessibleFromKotlin public static inline <T> int getSize(android.util.SparseArray<T>);
     method public static inline <T> boolean isEmpty(android.util.SparseArray<T>);
     method public static inline <T> boolean isNotEmpty(android.util.SparseArray<T>);
@@ -3717,6 +3718,7 @@ package androidx.core.util {
     method public static inline void forEach(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> action);
     method public static inline boolean getOrDefault(android.util.SparseBooleanArray, int key, boolean defaultValue);
     method public static inline boolean getOrElse(android.util.SparseBooleanArray, int key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
+    method public static inline boolean getOrPut(android.util.SparseBooleanArray, int key, kotlin.jvm.functions.Function0<java.lang.Boolean> defaultValue);
     method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseBooleanArray);
     method public static inline boolean isEmpty(android.util.SparseBooleanArray);
     method public static inline boolean isNotEmpty(android.util.SparseBooleanArray);
@@ -3738,6 +3740,7 @@ package androidx.core.util {
     method public static inline void forEach(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit> action);
     method public static inline int getOrDefault(android.util.SparseIntArray, int key, int defaultValue);
     method public static inline int getOrElse(android.util.SparseIntArray, int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
+    method public static inline int getOrPut(android.util.SparseIntArray, int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseIntArray);
     method public static inline boolean isEmpty(android.util.SparseIntArray);
     method public static inline boolean isNotEmpty(android.util.SparseIntArray);
@@ -3759,6 +3762,7 @@ package androidx.core.util {
     method public static inline void forEach(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> action);
     method public static inline long getOrDefault(android.util.SparseLongArray, int key, long defaultValue);
     method public static inline long getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public static inline long getOrPut(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method @InaccessibleFromKotlin public static inline int getSize(android.util.SparseLongArray);
     method public static inline boolean isEmpty(android.util.SparseLongArray);
     method public static inline boolean isNotEmpty(android.util.SparseLongArray);

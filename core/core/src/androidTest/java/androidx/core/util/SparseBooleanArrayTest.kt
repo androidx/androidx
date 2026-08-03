@@ -223,4 +223,12 @@ class SparseBooleanArrayTest {
         assertTrue(arrayWithValues.get(1))
         assertFalse(arrayWithValues.get(2))
     }
+
+    @Test
+    fun getOrPut() {
+        val array = SparseBooleanArray()
+        assertTrue(array.getOrPut(1) { true })
+        assertTrue(array.get(1))
+        assertTrue(array.getOrPut(1) { fail() })
+    }
 }

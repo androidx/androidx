@@ -66,6 +66,21 @@ public inline fun SparseIntArray.getOrDefault(key: Int, defaultValue: Int): Int 
 public inline fun SparseIntArray.getOrElse(key: Int, defaultValue: () -> Int): Int =
     indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
+/**
+ * Return the value corresponding to [key], or put the [defaultValue] into the collection when not
+ * present.
+ */
+public inline fun SparseIntArray.getOrPut(key: Int, defaultValue: () -> Int): Int {
+    val index = indexOfKey(key)
+    return if (index >= 0) {
+        valueAt(index)
+    } else {
+        val answer = defaultValue()
+        put(key, answer)
+        answer
+    }
+}
+
 /** Return true when the collection contains no elements. */
 public inline fun SparseIntArray.isEmpty(): Boolean = size() == 0
 

@@ -67,6 +67,21 @@ public inline fun <T> SparseArray<T>.getOrDefault(key: Int, defaultValue: T): T 
 public inline fun <T> SparseArray<T>.getOrElse(key: Int, defaultValue: () -> T): T =
     get(key) ?: defaultValue()
 
+/**
+ * Return the value corresponding to [key], or put the [defaultValue] into the collection when not
+ * present.
+ */
+public inline fun <T> SparseArray<T>.getOrPut(key: Int, defaultValue: () -> T): T {
+    val value = get(key)
+    return if (value == null) {
+        val answer = defaultValue()
+        put(key, answer)
+        answer
+    } else {
+        value
+    }
+}
+
 /** Return true when the collection contains no elements. */
 public inline fun <T> SparseArray<T>.isEmpty(): Boolean = size() == 0
 
