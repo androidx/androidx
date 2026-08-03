@@ -2903,19 +2903,43 @@ public class RemoteComposeBuffer {
      *     this version and profile will be used by default.
      */
     public void setVersion(
-            int documentApiLevel, int profileMask, @Nullable Set<Integer> supportedOperations) {
+            int documentApiLevel,
+            int profileMask,
+            @Nullable Set<@NonNull Integer> supportedOperations) {
         mApiLevel = documentApiLevel;
         mProfileMask = profileMask;
-        Operations.UniqueIntMap<CompanionOperation> map =
-                Operations.getOperations(documentApiLevel, profileMask);
-        if (map != null) {
-            mMap = map;
-            if (supportedOperations == null) {
+        if (supportedOperations != null) {
+            // When explicit supported operations are provided, look up companion operation
+            // readers for each opcode across registered operations and build a custom map.
+            Operations.UniqueIntMap<CompanionOperation> allOps =
+                    Operations.getAllKnownOperations(documentApiLevel);
+            Operations.UniqueIntMap<CompanionOperation> filteredMap =
+                    new Operations.UniqueIntMap<>();
+            if (allOps != null) {
+                for (Integer opId : supportedOperations) {
+                    if (opId != null) {
+                        int opcode = opId;
+                        CompanionOperation companion = allOps.get(opcode);
+                        if (companion != null) {
+                            filteredMap.put(opcode, companion);
+                        }
+                    }
+                }
+            }
+            mMap = filteredMap;
+            mIsCustomMap = true;
+            mBuffer.setValidOperations(supportedOperations);
+        } else {
+            // Default behavior: look up operation companion readers defined for profile bitmask.
+            Operations.UniqueIntMap<CompanionOperation> map =
+                    Operations.getOperations(documentApiLevel, profileMask);
+            if (map != null) {
+                mMap = map;
                 supportedOperations = map.keySet();
             }
-        }
-        if (supportedOperations != null) {
-            mBuffer.setValidOperations(supportedOperations);
+            if (supportedOperations != null) {
+                mBuffer.setValidOperations(supportedOperations);
+            }
         }
     }
 
