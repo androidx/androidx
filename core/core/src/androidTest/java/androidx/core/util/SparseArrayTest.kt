@@ -208,4 +208,54 @@ class SparseArrayTest {
         assertEquals("six", iterator.next())
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun builder() {
+        val array = sparseArrayOf<String>()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseArrayOf(1 to "one", 2 to "two")
+        assertEquals(2, arrayWithValues.size)
+        assertEquals("one", arrayWithValues.get(1))
+        assertEquals("two", arrayWithValues.get(2))
+    }
+
+    @Test
+    fun getOrPut() {
+        val array = SparseArray<String>()
+        assertEquals("one", array.getOrPut(1) { "one" })
+        assertEquals("one", array.get(1))
+        assertEquals("one", array.getOrPut(1) { fail() })
+    }
+
+    @Test
+    fun any() {
+        val array = SparseArray<String>()
+        assertFalse(array.any { _, _ -> true })
+
+        array.put(1, "one")
+        assertTrue(array.any { key, value -> key == 1 && value == "one" })
+        assertFalse(array.any { key, value -> key == 2 || value == "two" })
+    }
+
+    @Test
+    fun all() {
+        val array = SparseArray<String>()
+        assertTrue(array.all { _, _ -> false })
+
+        array.put(1, "one")
+        array.put(2, "two")
+        assertTrue(array.all { key, value -> key > 0 && value.isNotEmpty() })
+        assertFalse(array.all { key, _ -> key == 1 })
+    }
+
+    @Test
+    fun none() {
+        val array = SparseArray<String>()
+        assertTrue(array.none { _, _ -> true })
+
+        array.put(1, "one")
+        assertTrue(array.none { key, value -> key == 2 && value == "two" })
+        assertFalse(array.none { key, value -> key == 1 && value == "one" })
+    }
 }

@@ -20,6 +20,19 @@
 package androidx.core.util
 
 import android.util.SparseLongArray
+import kotlin.Pair
+
+/** Returns an empty [SparseLongArray]. */
+public fun sparseLongArrayOf(): SparseLongArray = SparseLongArray()
+
+/** Returns a new [SparseLongArray] filled with the specified [pairs]. */
+public fun sparseLongArrayOf(vararg pairs: Pair<Int, Long>): SparseLongArray {
+    val array = SparseLongArray(pairs.size)
+    for (pair in pairs) {
+        array.put(pair.first, pair.second)
+    }
+    return array
+}
 
 /** Returns the number of key/value entries in the collection. */
 public inline val SparseLongArray.size: Int
@@ -53,6 +66,21 @@ public inline fun SparseLongArray.getOrDefault(key: Int, defaultValue: Long): Lo
 public inline fun SparseLongArray.getOrElse(key: Int, defaultValue: () -> Long): Long =
     indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
+/**
+ * Return the value corresponding to [key], or put the [defaultValue] into the collection when not
+ * present.
+ */
+public inline fun SparseLongArray.getOrPut(key: Int, defaultValue: () -> Long): Long {
+    val index = indexOfKey(key)
+    return if (index >= 0) {
+        valueAt(index)
+    } else {
+        val answer = defaultValue()
+        put(key, answer)
+        answer
+    }
+}
+
 /** Return true when the collection contains no elements. */
 public inline fun SparseLongArray.isEmpty(): Boolean = size() == 0
 
@@ -77,6 +105,30 @@ public inline fun SparseLongArray.forEach(action: (key: Int, value: Long) -> Uni
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
     }
+}
+
+/** Returns `true` if at least one entry matches the given [predicate]. */
+public inline fun SparseLongArray.any(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return true
+    }
+    return false
+}
+
+/** Returns `true` if all entries match the given [predicate]. */
+public inline fun SparseLongArray.all(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (!predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
+/** Returns `true` if no entries match the given [predicate]. */
+public inline fun SparseLongArray.none(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
 }
 
 /** Return an iterator over the collection's keys. */

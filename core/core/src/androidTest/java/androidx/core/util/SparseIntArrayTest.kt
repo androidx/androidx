@@ -212,4 +212,54 @@ class SparseIntArrayTest {
         assertEquals(66, iterator.nextInt())
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun builder() {
+        val array = sparseIntArrayOf()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseIntArrayOf(1 to 10, 2 to 20)
+        assertEquals(2, arrayWithValues.size)
+        assertEquals(10, arrayWithValues.get(1))
+        assertEquals(20, arrayWithValues.get(2))
+    }
+
+    @Test
+    fun getOrPut() {
+        val array = SparseIntArray()
+        assertEquals(10, array.getOrPut(1) { 10 })
+        assertEquals(10, array.get(1))
+        assertEquals(10, array.getOrPut(1) { fail() })
+    }
+
+    @Test
+    fun any() {
+        val array = SparseIntArray()
+        assertFalse(array.any { _, _ -> true })
+
+        array.put(1, 10)
+        assertTrue(array.any { key, value -> key == 1 && value == 10 })
+        assertFalse(array.any { key, value -> key == 2 || value == 20 })
+    }
+
+    @Test
+    fun all() {
+        val array = SparseIntArray()
+        assertTrue(array.all { _, _ -> false })
+
+        array.put(1, 10)
+        array.put(2, 20)
+        assertTrue(array.all { key, value -> key > 0 && value > 0 })
+        assertFalse(array.all { key, _ -> key == 1 })
+    }
+
+    @Test
+    fun none() {
+        val array = SparseIntArray()
+        assertTrue(array.none { _, _ -> true })
+
+        array.put(1, 10)
+        assertTrue(array.none { key, value -> key == 2 && value == 20 })
+        assertFalse(array.none { key, value -> key == 1 && value == 10 })
+    }
 }
