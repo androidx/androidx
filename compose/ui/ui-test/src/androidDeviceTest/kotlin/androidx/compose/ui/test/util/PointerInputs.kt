@@ -17,6 +17,8 @@
 package androidx.compose.ui.test.util
 
 import android.view.MotionEvent
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
@@ -36,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectorInfo
@@ -163,6 +166,7 @@ class SinglePointerInputRecorderNode(
     var events: MutableList<DataPoint>,
     var velocityTracker: VelocityTracker,
 ) : Modifier.Node(), PointerInputModifierNode, IndirectPointerInputModifierNode {
+    @OptIn(ExperimentalComposeUiApi::class)
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -171,7 +175,11 @@ class SinglePointerInputRecorderNode(
         if (pass == PointerEventPass.Initial) {
             pointerEvent.changes.forEach {
                 events.add(DataPoint(it, pointerEvent))
-                velocityTracker.addPosition(it.uptimeMillis, it.position)
+                if (AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled) {
+                    velocityTracker.addPointerInputChange(it)
+                } else {
+                    velocityTracker.addPosition(it.uptimeMillis, it.position)
+                }
             }
         }
     }

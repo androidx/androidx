@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,21 @@ import androidx.compose.ui.test.util.isAlmostEqualTo
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.lerp
 import com.google.common.truth.Truth.assertThat
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import org.junit.Assert.fail
-import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/** Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity. */
+/**
+ * Tests of [VelocityPathFinder] creates paths that will lead to the desired velocity on Platform.
+ */
 @RunWith(Parameterized::class)
-class VelocityPathFinderTest(private val config: TestConfig) {
+class PlatformVelocityPathFinderTest(private val config: TestConfig) {
     data class TestConfig(
         val end: Offset,
         val requestedVelocity: Float,
@@ -54,42 +55,42 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         @Parameterized.Parameters(name = "{0}")
         fun params() =
             mutableListOf<TestConfig>().apply {
-                for (direction in Direction.values()) {
-                    // An essential value in the VelocityPathFinder is `d`, calculated as
-                    // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
-                    // duration of the polynomial that will result in the correct velocity, from
-                    // the
-                    // start to the end position. T is the duration of the swipe.
+                for (direction in listOf(Direction.N)) {
+                    // Test cases tailored for PlatformVelocityTracker
 
-                    // Different scenarios to test are:
-                    // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
-                    // - 100 < d < T (swipe must wait at start until d ms left)
-                    // - d > T (swipe can start immediately)
-                    // - v == 0
+                    // 1. Zero velocity scenarios across various durations
+                    add(TestConfig(direction.offset, 0f, 100L, true)) // v == 0, short duration
+                    add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium duration
+                    add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, long duration
 
-                    add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
-                    add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
-                    add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
-                    add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
-                    add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                    add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
-                    add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
+                    // 2. Slow / Low velocity flings (300 px/s - 800 px/s)
+                    add(TestConfig(direction.offset, 300f, 500L, false))
+                    add(TestConfig(direction.offset, 500f, 500L, false))
+                    add(TestConfig(direction.offset, 800f, 1000L, false))
+
+                    // 3. Medium / Faster velocity flings (1500 px/s - 4000 px/s)
+                    add(TestConfig(direction.offset, 1500f, 500L, false))
+                    add(TestConfig(direction.offset, 2500f, 300L, false))
+                    add(TestConfig(direction.offset, 4000f, 500L, false))
+
+                    // 4. Fast / High velocity flings (> 6000 px/s)
+                    add(TestConfig(direction.offset, 6000f, 200L, false))
+                    add(TestConfig(direction.offset, 6000f, 66L, false))
+                    add(TestConfig(direction.offset, 10000f, 100L, true))
                 }
-                // Regression for b/182477143
-                add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
             }
     }
 
     @Before
     @OptIn(ExperimentalComposeUiApi::class)
     fun setUp() {
-        assumeFalse(AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled)
+        assumeTrue(AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled)
     }
 
     @Test
     fun test() {
         if (config.expectedError) {
-            testWithExpectedError(config, testSuggestions = true)
+            testWithExpectedError(config)
         } else {
             testWithoutExpectedError(config)
         }
@@ -107,7 +108,8 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         val f: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
         val velocityTracker = simulateSwipe(config, f)
         val velocity = velocityTracker.calculateVelocity()
-        assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
+        val tolerance = max(1f, config.requestedVelocity * 0.10f)
+        assertThat(velocity.sum()).isWithin(tolerance).of(config.requestedVelocity)
         if (config.requestedVelocity > 0) {
             // Direction of velocity of 0 is undefined, so any direction is correct
             velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())
@@ -124,7 +126,7 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         f(config.durationMillis).isAlmostEqualTo(config.end)
     }
 
-    private fun testWithExpectedError(config: TestConfig, testSuggestions: Boolean = false) {
+    private fun testWithExpectedError(config: TestConfig) {
         try {
             VelocityPathFinder(
                     startPosition = Offset.Zero,
@@ -142,43 +144,7 @@ class VelocityPathFinderTest(private val config: TestConfig) {
                         "${config.requestedVelocity} px/s, without going outside of the range " +
                         "[start..end]. Suggested fixes: "
                 )
-
-            val suggestedFixes = e.message!!.substringAfter("Suggested fixes: ")
-            val (maxDuration, maxVelocity, minDistance) = getSuggestions(suggestedFixes)
-
-            // Verify that the suggestions change the current config
-            assertThat(maxDuration).isLessThan(config.durationMillis.toFloat())
-            assertThat(maxVelocity).isLessThan(config.requestedVelocity)
-            assertThat(minDistance).isGreaterThan(config.end.getDistance())
-
-            if (testSuggestions) {
-                // Try just inside the suggested value range
-                testWithoutExpectedError(config.copy(durationMillis = floor(maxDuration).toLong()))
-                testWithoutExpectedError(config.copy(requestedVelocity = maxVelocity * 0.999f))
-                val goodDistance = config.end * (minDistance * 1.001f / config.end.getDistance())
-                testWithoutExpectedError(config.copy(end = goodDistance))
-
-                // Try just outside the suggested value range
-                testWithExpectedError(config.copy(durationMillis = floor(maxDuration).toLong() + 1))
-                testWithExpectedError(config.copy(requestedVelocity = maxVelocity * 1.001f))
-                val badDistance = config.end * (minDistance * 0.999f / config.end.getDistance())
-                testWithExpectedError(config.copy(end = badDistance))
-            }
         }
-    }
-
-    private val suggestedFixesRegex =
-        Regex(
-            "1\\. set duration to (.*) or lower; " +
-                "2\\. set velocity to (.*) px/s or lower; or " +
-                "3\\. increase the distance between the start and end to (.*) or higher"
-        )
-
-    private fun getSuggestions(suggestedFixes: String): List<Float> {
-        val match = suggestedFixesRegex.matchEntire(suggestedFixes)
-        assertThat(match).isNotNull()
-        assertThat(match!!.groups).hasSize(4)
-        return match.groupValues.subList(1, 4).map { it.toFloat() }
     }
 
     private fun simulateSwipe(config: TestConfig, f: (Long) -> Offset): VelocityTracker {

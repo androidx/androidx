@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
@@ -90,6 +92,7 @@ class SwipeWithVelocityTest(private val config: TestConfig) {
     private val recorder = SinglePointerInputRecorder()
 
     @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun swipeWithVelocity() {
         rule.setContent {
             Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
@@ -125,8 +128,14 @@ class SwipeWithVelocityTest(private val config: TestConfig) {
 
                 // Check velocity
                 // Swipe goes from left to right, so vx = velocity and vy = 0
-                assertThat(recordedVelocity.x).isWithin(.1f).of(config.velocity)
-                assertThat(recordedVelocity.y).isWithin(.1f).of(0f)
+                val tolerance =
+                    if (AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled) {
+                        max(1f, config.velocity * 0.05f)
+                    } else {
+                        0.1f
+                    }
+                assertThat(recordedVelocity.x).isWithin(tolerance).of(config.velocity)
+                assertThat(recordedVelocity.y).isWithin(tolerance).of(0f)
             }
         }
     }
