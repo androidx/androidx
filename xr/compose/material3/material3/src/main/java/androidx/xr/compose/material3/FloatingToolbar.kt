@@ -83,10 +83,10 @@ import androidx.xr.compose.unit.DpVolumeOffset
  *
  * TODO(kmost): Add a @sample tag and create a new sample project for XR.
  */
-@ExperimentalMaterial3XrApi
 @ExperimentalMaterial3ExpressiveApi
+@ExperimentalMaterial3XrApi
 @Composable
-public fun HorizontalFloatingToolbar(
+public fun SpatialHorizontalFloatingToolbar(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     colors: FloatingToolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(),
@@ -96,7 +96,7 @@ public fun HorizontalFloatingToolbar(
     trailingContent: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    HorizontalOrbiter(LocalHorizontalFloatingToolbarOrbiterProperties.current) {
+    HorizontalOrbiter(LocalSpatialHorizontalFloatingToolbarOrbiterProperties.current) {
         Row(
             modifier =
                 Modifier.then(scrollBehavior?.floatingScrollBehaviorModifier ?: Modifier)
@@ -175,10 +175,10 @@ public fun HorizontalFloatingToolbar(
  * @param content the main content of this floating toolbar. The default layout here is a [Row], so
  *   content inside will be placed horizontally.
  */
-@ExperimentalMaterial3XrApi
 @ExperimentalMaterial3ExpressiveApi
+@ExperimentalMaterial3XrApi
 @Composable
-public fun HorizontalFloatingToolbar(
+public fun SpatialHorizontalFloatingToolbar(
     expanded: Boolean,
     floatingActionButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -191,7 +191,7 @@ public fun HorizontalFloatingToolbar(
     content: @Composable RowScope.() -> Unit,
 ) {
     HorizontalOrbiter(
-        LocalHorizontalFloatingToolbarOrbiterProperties.current.copy(
+        LocalSpatialHorizontalFloatingToolbarOrbiterProperties.current.copy(
             shape = SpatialRoundedCornerShape(CornerSize(percent = 0))
         )
     ) {
@@ -279,7 +279,7 @@ public fun HorizontalFloatingToolbar(
 @ExperimentalMaterial3ExpressiveApi
 @ExperimentalMaterial3XrApi
 @Composable
-public fun VerticalFloatingToolbar(
+public fun SpatialVerticalFloatingToolbar(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     colors: FloatingToolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(),
@@ -289,7 +289,7 @@ public fun VerticalFloatingToolbar(
     trailingContent: @Composable (ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val orbiterProperties = LocalVerticalFloatingToolbarOrbiterProperties.current
+    val orbiterProperties = LocalSpatialVerticalFloatingToolbarOrbiterProperties.current
     VerticalOrbiter(properties = orbiterProperties) {
         Column(
             modifier =
@@ -360,7 +360,7 @@ public fun VerticalFloatingToolbar(
 @ExperimentalMaterial3ExpressiveApi
 @ExperimentalMaterial3XrApi
 @Composable
-public fun VerticalFloatingToolbar(
+public fun SpatialVerticalFloatingToolbar(
     expanded: Boolean,
     floatingActionButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -373,7 +373,7 @@ public fun VerticalFloatingToolbar(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     VerticalOrbiter(
-        LocalVerticalFloatingToolbarOrbiterProperties.current.copy(
+        LocalSpatialVerticalFloatingToolbarOrbiterProperties.current.copy(
             shape = SpatialRoundedCornerShape(CornerSize(percent = 0))
         )
     ) {
@@ -443,11 +443,11 @@ private object XrFloatingToolbarTokens {
 }
 
 /**
- * The default [OrbiterProperties] used by [HorizontalFloatingToolbar] if none is specified in
- * [LocalHorizontalFloatingToolbarOrbiterProperties].
+ * The default [OrbiterProperties] used by [SpatialHorizontalFloatingToolbar] if none is specified
+ * in [LocalSpatialHorizontalFloatingToolbarOrbiterProperties].
  */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val DefaultHorizontalFloatingToolbarOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialHorizontalFloatingToolbarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.BottomCenter(
@@ -462,20 +462,20 @@ public val DefaultHorizontalFloatingToolbarOrbiterProperties: OrbiterProperties 
         shape = XrTokens.ContainerShape,
     )
 
-/** The [OrbiterProperties] used by [HorizontalFloatingToolbar]. */
+/** The [OrbiterProperties] used by [SpatialHorizontalFloatingToolbar]. */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val LocalHorizontalFloatingToolbarOrbiterProperties:
+public val LocalSpatialHorizontalFloatingToolbarOrbiterProperties:
     ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultHorizontalFloatingToolbarOrbiterProperties
+        DefaultSpatialHorizontalFloatingToolbarOrbiterProperties
     }
 
 /**
- * The default [OrbiterProperties] used by [VerticalFloatingToolbar] if none is specified in
- * [LocalVerticalFloatingToolbarOrbiterProperties].
+ * The default [OrbiterProperties] used by [SpatialVerticalFloatingToolbar] if none is specified in
+ * [LocalSpatialVerticalFloatingToolbarOrbiterProperties].
  */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val DefaultVerticalFloatingToolbarOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialVerticalFloatingToolbarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.CenterEnd(
@@ -490,10 +490,10 @@ public val DefaultVerticalFloatingToolbarOrbiterProperties: OrbiterProperties =
         shape = XrTokens.ContainerShape,
     )
 
-/** The [OrbiterProperties] used by [VerticalFloatingToolbar]. */
+/** The [OrbiterProperties] used by [SpatialVerticalFloatingToolbar]. */
 @OptIn(ExperimentalMaterial3XrApi::class)
-public val LocalVerticalFloatingToolbarOrbiterProperties:
+public val LocalSpatialVerticalFloatingToolbarOrbiterProperties:
     ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultVerticalFloatingToolbarOrbiterProperties
+        DefaultSpatialVerticalFloatingToolbarOrbiterProperties
     }

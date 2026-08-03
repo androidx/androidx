@@ -54,11 +54,11 @@ import androidx.xr.compose.unit.DpVolumeOffset
  * Navigation bars offer a persistent and convenient way to switch between primary destinations in
  * an app.
  *
- * [NavigationBar] should contain three to five [NavigationBarItem]s, each representing a singular
- * destination.
+ * [SpatialNavigationBar] should contain three to five [NavigationBarItem]s, each representing a
+ * singular destination.
  *
  * See [NavigationBarItem] for configuration specific to each item, and not the overall
- * [NavigationBar] component.
+ * [SpatialNavigationBar] component.
  *
  * @param modifier the [Modifier] to be applied to this navigation bar
  * @param containerColor the color used for the background of this navigation bar. Use
@@ -75,14 +75,14 @@ import androidx.xr.compose.unit.DpVolumeOffset
 // TODO(brandonjiang): Add a @sample tag and create a new sample project for XR.
 @ExperimentalMaterial3XrApi
 @Composable
-public fun NavigationBar(
+public fun SpatialNavigationBar(
     modifier: Modifier = Modifier,
     containerColor: Color = NavigationBarDefaults.containerColor,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = NavigationBarDefaults.Elevation,
     content: @Composable RowScope.() -> Unit,
 ) {
-    HorizontalOrbiter(LocalNavigationBarOrbiterProperties.current) {
+    HorizontalOrbiter(LocalSpatialNavigationBarOrbiterProperties.current) {
         Surface(
             color = containerColor,
             contentColor = contentColor,
@@ -113,11 +113,11 @@ internal object XrNavigationBarTokens {
 }
 
 /**
- * The default [OrbiterProperties] used by [NavigationBar] if none is specified in
- * [LocalNavigationBarOrbiterProperties].
+ * The default [OrbiterProperties] used by [SpatialNavigationBar] if none is specified in
+ * [LocalSpatialNavigationBarOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultNavigationBarOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialNavigationBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.BottomCenter(
@@ -132,9 +132,10 @@ public val DefaultNavigationBarOrbiterProperties: OrbiterProperties =
         shape = XrTokens.ContainerShape,
     )
 
-/** The [OrbiterProperties] used by [NavigationBar]. */
+/** The [OrbiterProperties] used by [SpatialNavigationBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalNavigationBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
+public val LocalSpatialNavigationBarOrbiterProperties:
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultNavigationBarOrbiterProperties
+        DefaultSpatialNavigationBarOrbiterProperties
     }
