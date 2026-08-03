@@ -830,7 +830,7 @@ class GraphicsLayerTest {
         rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
             assertColor(Color.Red, 0, 0)
             assertColor(Color.Red, 0, height - 1)
-            assertColor(Color.Red, width / 2 - 10, height / 2)
+            assertColor(Color.Red, width / 2, height / 2)
         }
     }
 
@@ -855,7 +855,7 @@ class GraphicsLayerTest {
         rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
             assertColor(Color.Red, 0, 0)
             assertColor(Color.Red, 0, height - 1)
-            assertColor(Color.Red, width / 2 - 10, height / 2)
+            assertColor(Color.Red, width / 2, height / 2)
         }
     }
 
@@ -878,7 +878,7 @@ class GraphicsLayerTest {
         rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
             assertColor(Color.Yellow, 0, 0)
             assertColor(Color.Yellow, 0, height - 1)
-            assertColor(Color.Yellow, width / 2 - 10, height / 2)
+            assertColor(Color.Yellow, width / 2, height / 2)
         }
     }
 
@@ -901,7 +901,7 @@ class GraphicsLayerTest {
         rule.onNodeWithTag(testTag).captureToImage().asAndroidBitmap().apply {
             assertColor(Color.Yellow, 0, 0)
             assertColor(Color.Yellow, 0, height - 1)
-            assertColor(Color.Yellow, width / 2 - 10, height / 2)
+            assertColor(Color.Yellow, width / 2, height / 2)
         }
     }
 
