@@ -42,7 +42,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A page indicator for {@link ViewPager} based on {@link
+ * A page indicator for {@link ViewPager} based on {@code
  * androidx.wear.view.DotsPageIndicator} which identifies the current page in relation to
  * all available pages. Pages are represented as dots. The current page can be highlighted with a
  * different color or size dot.
