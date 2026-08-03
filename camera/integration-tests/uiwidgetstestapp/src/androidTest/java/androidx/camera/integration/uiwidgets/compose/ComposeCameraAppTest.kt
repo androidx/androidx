@@ -19,6 +19,7 @@ package androidx.camera.integration.uiwidgets.compose
 import android.os.Build
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.DEFAULT_LENS_FACING
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.view.PreviewView
@@ -52,6 +53,11 @@ class ComposeCameraAppTest {
 
     @Before
     fun setup() {
+        // Skip test for b/539514196
+        Assume.assumeFalse(
+            "API 24 emulators crash due to SwiftShader driver defects. Unable to test.",
+            AndroidUtil.isEmulator(24),
+        )
         // Skip test for b/168175357
         Assume.assumeFalse(
             "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",

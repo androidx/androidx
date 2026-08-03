@@ -121,5 +121,3 @@ dependencies {
 
 // Publish the APK to dist/apk for testing.
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
-
-androidx.deviceTests.minSdkForFtlOverride = 25 // b/539514196
