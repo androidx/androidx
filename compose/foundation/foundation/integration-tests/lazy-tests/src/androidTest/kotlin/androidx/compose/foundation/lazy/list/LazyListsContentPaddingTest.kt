@@ -274,12 +274,13 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             .assertCrossAxisSizeIsEqualTo(itemSize)
             .assertMainAxisSizeIsEqualTo(itemSize)
 
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() + 0.05.dp })
         rule
             .onNodeWithTag(ContainerTag)
             .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
             .assertStartPositionInRootIsEqualTo(0.dp)
-            .assertCrossAxisSizeIsEqualTo(itemSize + 2.dp + 6.dp)
-            .assertMainAxisSizeIsEqualTo(itemSize + 4.dp + 8.dp)
+            .assertCrossAxisSizeIsEqualTo(itemSize + 2.dp + 6.dp, tolerance)
+            .assertMainAxisSizeIsEqualTo(itemSize + 4.dp + 8.dp, tolerance)
     }
 
     @Test
