@@ -184,7 +184,7 @@ public interface CameraControls3A {
                 CaptureRequest.CONTROL_AWB_REGIONS,
                 CaptureRequest.CONTROL_AE_LOCK,
                 CaptureRequest.CONTROL_AWB_LOCK,
-                CaptureRequest.CONTROL_MODE,
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
             )
     }
 }
