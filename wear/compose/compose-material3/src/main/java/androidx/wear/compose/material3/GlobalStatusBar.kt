@@ -25,7 +25,7 @@ import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.ui.platform.LocalContext
 
 /** [CompositionLocal] to determine if the global status bar is enabled. */
-public val LocalGlobalStatusBarEnabled: ProvidableCompositionLocal<Boolean> =
+internal val LocalGlobalStatusBarEnabled: ProvidableCompositionLocal<Boolean> =
     compositionLocalWithComputedDefaultOf {
         val context = LocalContext.currentValue.applicationContext
         val checker = GlobalStatusBarChecker()
