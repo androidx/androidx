@@ -55,5 +55,6 @@ class ExerciseRouteRequestContractTest {
     fun requestExerciseRoute_createIntent_hasApkIntentAction() {
         val intent = ExerciseRouteRequestContract().createIntent(context, "sessionId")
         assertThat(intent.action).isEqualTo(HealthDataServiceConstants.ACTION_REQUEST_ROUTE)
+        assertThat(intent.`package`).isEqualTo("com.google.android.apps.healthdata")
     }
 }

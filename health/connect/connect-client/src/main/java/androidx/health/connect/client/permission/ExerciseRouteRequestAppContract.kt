@@ -24,6 +24,8 @@ import androidx.health.connect.client.impl.converters.records.toExerciseRouteDat
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.service.HealthDataServiceConstants
+import androidx.health.platform.client.utils.isPackageInstalled
+import androidx.health.platform.client.utils.isTargetSignatureValid
 
 /**
  * An [ActivityResultContract] to request a route associated with an {@code ExerciseSessionRecord}
@@ -31,10 +33,23 @@ import androidx.health.platform.client.service.HealthDataServiceConstants
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-internal class ExerciseRouteRequestAppContract : ActivityResultContract<String, ExerciseRoute?>() {
+internal class ExerciseRouteRequestAppContract(
+    private val providerPackageName: String =
+        HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
+) : ActivityResultContract<String, ExerciseRoute?>() {
     override fun createIntent(context: Context, input: String): Intent {
+        require(providerPackageName.isNotEmpty()) { "providerPackageName can't be empty" }
+        if (
+            isPackageInstalled(context.packageManager, providerPackageName) &&
+                !isTargetSignatureValid(context.packageManager, providerPackageName)
+        ) {
+            throw SecurityException(
+                "Package $providerPackageName is installed but signature is invalid!"
+            )
+        }
         return Intent(HealthDataServiceConstants.ACTION_REQUEST_ROUTE).apply {
             putExtra(HealthDataServiceConstants.EXTRA_SESSION_ID, input)
+            setPackage(providerPackageName)
         }
     }
 
