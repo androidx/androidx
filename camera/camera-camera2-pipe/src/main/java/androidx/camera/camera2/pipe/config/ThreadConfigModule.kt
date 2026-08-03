@@ -32,6 +32,7 @@ import dagger.Provides
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -116,7 +117,15 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
                 ?: {
                     if (threadConfig.defaultCameraHandler == null) {
                         val handlerThread =
-                            HandlerThread("CXCP-Camera-H", cameraThreadPriority).also { it.start() }
+                            HandlerThread("CXCP-Camera-H", cameraThreadPriority).also { thread ->
+                                thread.uncaughtExceptionHandler =
+                                    Thread.UncaughtExceptionHandler { _, throwable ->
+                                        if (throwable is CancellationException) {
+                                            return@UncaughtExceptionHandler
+                                        }
+                                    }
+                                thread.start()
+                            }
                         cameraPipeLifetime.addShutdownAction(
                             CameraPipeLifetime.ShutdownType.THREAD
                         ) {
