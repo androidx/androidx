@@ -55,6 +55,11 @@ import kotlinx.coroutines.withContext
  * Sample demonstrating a gesture indicator applied to a [androidx.wear.compose.material3.Button]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration the specification for the one-handed gesture
  * @param state The state object used to synchronize the indicator visibility.
  * @param modifier The [Modifier] to be applied to the [OneHandedGestureClickIndicator] layout.
