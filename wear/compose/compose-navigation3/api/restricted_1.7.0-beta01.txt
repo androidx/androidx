@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.wear.compose.navigation3 {
+
+  public final class SwipeDismissableSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
+    ctor public SwipeDismissableSceneStrategy();
+    ctor public SwipeDismissableSceneStrategy(optional boolean isUserSwipeEnabled);
+    ctor @BytecodeOnly public SwipeDismissableSceneStrategy(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    method @InaccessibleFromKotlin public boolean isUserSwipeEnabled();
+    property public boolean isUserSwipeEnabled;
+  }
+
+  public final class SwipeDismissableSceneStrategyKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T> rememberSwipeDismissableSceneStrategy(optional boolean isUserSwipeEnabled);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T> rememberSwipeDismissableSceneStrategy(boolean, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
