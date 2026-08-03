@@ -21,7 +21,9 @@
  * modifying its settings.
  */
 
+import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 plugins {
     id("AndroidXPlugin")
@@ -29,10 +31,42 @@ plugins {
 }
 
 dependencies {
+    api(project(":xr:scenecore:scenecore-runtime"))
+
+    implementation("androidx.annotation:annotation:1.8.1")
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(project(":xr:scenecore:scenecore-testing"))
+
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
 }
 
 android {
+    defaultConfig {
+        minSdk { version = release(24) }
+        compileSdk { version = release(36) }
+    }
     namespace = "androidx.xr.scenecore.openxr"
+}
+
+androidComponents {
+    def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-openxr/android").absolutePath
+    def testSceneCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-openxr/androidTest").absolutePath
+
+    onVariants(selector().all()) { variant ->
+        variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testSceneCoreNativePath)
+    }
 }
 
 androidx {
@@ -40,4 +74,5 @@ androidx {
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
     inceptionYear = "2026"
     description = "OpenXR runtime implementation of SceneCore for Jetpack XR."
+    enableRobolectric()
 }
