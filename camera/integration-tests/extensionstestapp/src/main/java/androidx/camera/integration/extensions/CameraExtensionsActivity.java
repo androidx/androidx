@@ -273,6 +273,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     @OptIn(markerClass = {ExperimentalCamera2Interop.class})
+    @SuppressWarnings("deprecation")
     boolean bindUseCasesWithCurrentExtensionMode() {
         if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector,
                 mCurrentExtensionMode)) {

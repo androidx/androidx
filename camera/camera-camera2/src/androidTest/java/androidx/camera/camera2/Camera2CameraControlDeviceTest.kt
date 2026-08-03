@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.camera.camera2
 
@@ -350,7 +351,6 @@ class Camera2CameraControlDeviceTest {
     }
 
     @SdkSuppress(minSdkVersion = 28)
-    @Suppress("DEPRECATION")
     @Test
     fun canSetPhysicalCameraId() = runBlocking {
         val physicalCameraIds =

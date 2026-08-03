@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:Suppress("DEPRECATION")
 
 package androidx.camera.integration.core
 
