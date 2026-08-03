@@ -212,4 +212,15 @@ class SparseIntArrayTest {
         assertEquals(66, iterator.nextInt())
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun builder() {
+        val array = sparseIntArrayOf()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseIntArrayOf(1 to 10, 2 to 20)
+        assertEquals(2, arrayWithValues.size)
+        assertEquals(10, arrayWithValues.get(1))
+        assertEquals(20, arrayWithValues.get(2))
+    }
 }

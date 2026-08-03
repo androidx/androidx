@@ -208,4 +208,15 @@ class SparseArrayTest {
         assertEquals("six", iterator.next())
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun builder() {
+        val array = sparseArrayOf<String>()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseArrayOf(1 to "one", 2 to "two")
+        assertEquals(2, arrayWithValues.size)
+        assertEquals("one", arrayWithValues.get(1))
+        assertEquals("two", arrayWithValues.get(2))
+    }
 }

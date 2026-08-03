@@ -212,4 +212,15 @@ class SparseBooleanArrayTest {
         assertTrue(iterator.nextBoolean())
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun builder() {
+        val array = sparseBooleanArrayOf()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseBooleanArrayOf(1 to true, 2 to false)
+        assertEquals(2, arrayWithValues.size)
+        assertTrue(arrayWithValues.get(1))
+        assertFalse(arrayWithValues.get(2))
+    }
 }

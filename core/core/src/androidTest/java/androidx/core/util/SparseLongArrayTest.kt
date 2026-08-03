@@ -209,7 +209,18 @@ class SparseLongArrayTest {
         assertTrue(iterator.hasNext())
         assertEquals(22, iterator.nextLong())
         assertTrue(iterator.hasNext())
-        assertEquals(66, iterator.nextLong())
+        assertEquals(66L, iterator.nextLong())
         assertFalse(iterator.hasNext())
+    }
+
+    @Test
+    fun builder() {
+        val array = sparseLongArrayOf()
+        assertEquals(0, array.size)
+
+        val arrayWithValues = sparseLongArrayOf(1 to 10L, 2 to 20L)
+        assertEquals(2, arrayWithValues.size)
+        assertEquals(10L, arrayWithValues.get(1))
+        assertEquals(20L, arrayWithValues.get(2))
     }
 }

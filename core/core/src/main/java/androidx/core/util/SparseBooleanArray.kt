@@ -20,6 +20,19 @@
 package androidx.core.util
 
 import android.util.SparseBooleanArray
+import kotlin.Pair
+
+/** Returns an empty [SparseBooleanArray]. */
+public fun sparseBooleanArrayOf(): SparseBooleanArray = SparseBooleanArray()
+
+/** Returns a new [SparseBooleanArray] filled with the specified [pairs]. */
+public fun sparseBooleanArrayOf(vararg pairs: Pair<Int, Boolean>): SparseBooleanArray {
+    val array = SparseBooleanArray(pairs.size)
+    for (pair in pairs) {
+        array.put(pair.first, pair.second)
+    }
+    return array
+}
 
 /** Returns the number of key/value pairs in the collection. */
 public inline val SparseBooleanArray.size: Int

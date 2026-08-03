@@ -20,6 +20,19 @@
 package androidx.core.util
 
 import android.util.SparseIntArray
+import kotlin.Pair
+
+/** Returns an empty [SparseIntArray]. */
+public fun sparseIntArrayOf(): SparseIntArray = SparseIntArray()
+
+/** Returns a new [SparseIntArray] filled with the specified [pairs]. */
+public fun sparseIntArrayOf(vararg pairs: Pair<Int, Int>): SparseIntArray {
+    val array = SparseIntArray(pairs.size)
+    for (pair in pairs) {
+        array.put(pair.first, pair.second)
+    }
+    return array
+}
 
 /** Returns the number of key/value pairs in the collection. */
 public inline val SparseIntArray.size: Int
