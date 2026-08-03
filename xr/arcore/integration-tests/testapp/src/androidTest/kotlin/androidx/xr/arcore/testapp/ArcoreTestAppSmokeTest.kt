@@ -24,6 +24,7 @@ import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
 import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
 import androidx.xr.arcore.testapp.handtracking.HandTrackingActivity
+import androidx.xr.arcore.testapp.helloar.HelloArAugmentedImageActivity
 import androidx.xr.arcore.testapp.helloar.HelloArObjectActivity
 import androidx.xr.arcore.testapp.helloar.HelloArPlaneActivity
 import androidx.xr.arcore.testapp.helloar.HelloArQrCodeActivity
@@ -63,9 +64,7 @@ class ArCoreTestAppSmokeTest(activityClass: Class<out Activity>) : TestAppSmokeT
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                // TODO b/515469379 - Re-enable when the test is fixed.
-                // arrayOf(HelloArAugmentedImageActivity::class.java),
-                // arrayOf(NativeDataActivity::class.java),
+                arrayOf(HelloArAugmentedImageActivity::class.java),
                 arrayOf(MainActivity::class.java),
                 arrayOf(CapabilitiesActivity::class.java),
                 arrayOf(DepthActivity::class.java),
