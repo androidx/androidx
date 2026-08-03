@@ -47,8 +47,8 @@ public interface CameraControls3A {
      *   [CaptureRequest.CONTROL_AWB_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AWB_MODE).
      *   If `null`, the current AWB mode is not modified.
      * @param controlMode the desired overall mode of 3A. Corresponds to
-     *   [CaptureRequest.CONTROL_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_MODE.
-     *   If `null`, the current flash mode is not modified.
+     *   [CaptureRequest.CONTROL_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_MODE).
+     *   If `null`, the current control mode is not modified.
      * @param flashMode the desired flash mode. Corresponds to
      *   [CaptureRequest.FLASH_MODE](https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#FLASH_MODE).
      *   If `null`, the current flash mode is not modified.
@@ -150,7 +150,7 @@ public interface CameraControls3A {
      * AE mode after the torch control has been used. The [setTorchOff] or [update3A] method can be
      * used to restore the AE state to a previous value.
      *
-     * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
+     * @return the FrameNumber at which the torch was fully turned on if switch was ON, or the
      *   FrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOn(): Deferred<Result3A>
@@ -160,7 +160,7 @@ public interface CameraControls3A {
      *
      * @param aeMode The [AeMode] to set while disabling the torch value. If null which is the
      *   default value, the current AE mode is used.
-     * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
+     * @return the FrameNumber at which the torch was fully turned on if switch was ON, or the
      *   FrameNumber at which it was completely turned off when the switch was OFF.
      */
     public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>

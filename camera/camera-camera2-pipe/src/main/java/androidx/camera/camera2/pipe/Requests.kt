@@ -72,13 +72,13 @@ public class Request(
      * to the [CameraGraph]. Listeners will be invoked on background threads at high speed, and
      * should avoid blocking work or accessing synchronized resources if possible. [Listener]s used
      * in a repeating request may be issued multiple times within the same session, and should not
-     * rely on [onRequestSequenceSubmitted] from being invoked only once.
+     * rely on [onRequestSequenceSubmitted] being invoked only once.
      */
     @JvmDefaultWithCompatibility
     public interface Listener {
         /**
          * This event indicates that the camera sensor has started exposing the frame associated
-         * with this Request. The timestamp will either be the beginning or end of the sensors
+         * with this Request. The timestamp will either be the beginning or end of the sensor's
          * exposure time depending on the device, and may be in a different timebase from the
          * timestamps that are returned from the underlying buffers.
          *
@@ -131,13 +131,13 @@ public class Request(
         /**
          * This event indicates that all of the metadata associated with this frame has been
          * produced. If [onPartialCaptureResult] was invoked, the values returned in the
-         * totalCaptureResult map be a superset of the values produced from the
+         * totalCaptureResult may be a superset of the values produced from the
          * [onPartialCaptureResult] calls.
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
          * @param totalCaptureResult the final android capture result for this exposure
-         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureStarted
+         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureCompleted
          */
         public fun onTotalCaptureResult(
             requestMetadata: RequestMetadata,
@@ -163,7 +163,7 @@ public class Request(
          * onFailed occurs when a CaptureRequest failed in some way and the frame will not receive
          * the [onTotalCaptureResult] callback.
          *
-         * Surfaces may not received images if "wasImagesCaptured" is set to false.
+         * Surfaces may not receive images if [RequestFailure.wasImageCaptured] is set to false.
          *
          * @param requestMetadata the data about the camera2 request that was sent to the camera.
          * @param frameNumber the android frame number for this exposure
