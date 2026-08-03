@@ -271,4 +271,32 @@ class RemoteStateCacheKeyTest {
         val t = assertFails { RemoteConstantCacheKey(nan1) }
         assertThat(t.message).isEqualTo("Double constant value cannot be NaN")
     }
+
+    /**
+     * Verifies that [RemoteOperationCacheKey] produces a deterministic hash code based on the
+     * enum's declaring class name and constant name rather than identity hash code.
+     */
+    @Test
+    fun remoteOperationCacheKey_HashCode_IsDeterministic() {
+        val op = RemoteFloat.OperationKey.Plus
+        val key = RemoteOperationCacheKey.create(op, 10f.rf, 5f.rf)
+        val expectedOpHash = op.declaringJavaClass.name.hashCode() + op.name.hashCode()
+        val expectedHash =
+            (31 * expectedOpHash + key.args.hashCode()).let { if (it == 0) 1 else it }
+        assertThat(key.hashCode()).isEqualTo(expectedHash)
+    }
+
+    /**
+     * Verifies that [RemoteConstantCacheKey] produces a deterministic hash code for enum values.
+     */
+    @Test
+    fun remoteConstantCacheKey_Enum_HashCode_IsDeterministic() {
+        val op = RemoteFloat.OperationKey.Plus
+        val key = RemoteConstantCacheKey(op)
+        val expectedHash =
+            (op.declaringJavaClass.name.hashCode() + op.name.hashCode()).let {
+                if (it == 0) 1 else it
+            }
+        assertThat(key.hashCode()).isEqualTo(expectedHash)
+    }
 }

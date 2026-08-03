@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.cacheKey
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.Size
 import com.google.common.truth.Truth.assertThat
@@ -154,5 +155,71 @@ class CanvasOperationBufferTest {
 
         // Verify buffer string before flush shows Skew transform
         assertThat(canvas.buffer.toString()).contains("Transform(Skew)")
+    }
+
+    /**
+     * Tests that variable IDs generated for hoisted common sub-expressions are deterministic and
+     * strictly preserve the order in which expressions were recorded.
+     *
+     * How this detects non-determinism: If ID generation depended on non-deterministic factors
+     * (such as object hash codes, memory addresses, or collection bucket layouts), the relative ID
+     * ordering between two independent expressions would be dictated by those factors rather than
+     * recording order. By evaluating the buffer under two inverted recording orders:
+     * 1. Recording (exp1, exp2) asserts id(exp1) < id(exp2)
+     * 2. Recording (exp2, exp1) asserts id(exp2) < id(exp1) any ordering mechanism driven by key
+     *    hashes or unordered collections would produce a fixed or non-deterministic order that
+     *    fails one of the two assertions.
+     */
+    @Test
+    fun testCommonSubExpressionEliminationDeterministicOrder() {
+        val v1 = MutableRemoteFloat(1f)
+        val v2 = MutableRemoteFloat(2f)
+        val v3 = MutableRemoteFloat(3f)
+        val v4 = MutableRemoteFloat(4f)
+
+        val exp1 = v1 + v2
+        val exp2 = v3 + v4
+
+        // Case 1: Record exp1 before exp2 -> exp1 must receive a lower variable ID
+        run {
+            val buffer = CanvasOperationBuffer()
+            val creationState =
+                RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+
+            val op1 = buffer.recordRenderingOp(CanvasOp.Draw {})
+            buffer.addRoots(op1, exp1, exp2)
+            val op2 = buffer.recordRenderingOp(CanvasOp.Draw {})
+            buffer.addRoots(op2, exp1, exp2)
+
+            buffer.flush(creationState)
+
+            val id1 = creationState.remoteVariableToId.getOrDefault(exp1.cacheKey, -1)
+            val id2 = creationState.remoteVariableToId.getOrDefault(exp2.cacheKey, -1)
+
+            assertThat(id1).isNotEqualTo(-1)
+            assertThat(id2).isNotEqualTo(-1)
+            assertThat(id1).isLessThan(id2)
+        }
+
+        // Case 2: Record exp2 before exp1 -> exp2 must receive a lower variable ID
+        run {
+            val buffer = CanvasOperationBuffer()
+            val creationState =
+                RemoteComposeCreationState(RcPlatformServices.None, Size(100f, 100f))
+
+            val op1 = buffer.recordRenderingOp(CanvasOp.Draw {})
+            buffer.addRoots(op1, exp2, exp1)
+            val op2 = buffer.recordRenderingOp(CanvasOp.Draw {})
+            buffer.addRoots(op2, exp2, exp1)
+
+            buffer.flush(creationState)
+
+            val id1 = creationState.remoteVariableToId.getOrDefault(exp1.cacheKey, -1)
+            val id2 = creationState.remoteVariableToId.getOrDefault(exp2.cacheKey, -1)
+
+            assertThat(id1).isNotEqualTo(-1)
+            assertThat(id2).isNotEqualTo(-1)
+            assertThat(id2).isLessThan(id1)
+        }
     }
 }
