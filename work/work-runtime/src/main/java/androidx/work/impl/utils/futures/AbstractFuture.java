@@ -44,11 +44,11 @@ import java.util.logging.Logger;
  *
  * An abstract implementation of {@link ListenableFuture}, intended for advanced users only. More
  * common ways to create a {@code ListenableFuture} include instantiating a {@link SettableFuture},
- * submitting a task to a {@link ListeningExecutorService}, and deriving a {@code Future} from an
- * existing one, typically using methods like {@link Futures#transform(ListenableFuture,
- * com.google.common.base.Function, Executor) Futures.transform} and {@link
- * Futures#catching(ListenableFuture, Class, com.google.common.base.Function,
- * Executor) Futures.catching}.
+ * submitting a task to a {@link com.google.common.util.concurrent.ListeningExecutorService},
+ * and deriving a {@code Future} from an existing one, typically using methods like
+ * {@link com.google.common.util.concurrent.Futures#transform(com.google.common.util.concurrent.ListenableFuture, com.google.common.base.Function, Executor)}
+ * and
+ * {@link com.google.common.util.concurrent.Futures#catching(com.google.common.util.concurrent.ListenableFuture, Class, com.google.common.base.Function, Executor)}.
  *
  * <p>This class implements all methods in {@code ListenableFuture}. Subclasses should provide a way
  * to set the result of the computation through the protected methods {@link #set(Object)}, {@link
