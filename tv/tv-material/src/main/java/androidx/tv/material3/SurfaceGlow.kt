@@ -90,10 +90,7 @@ private class SurfaceGlowElement(
     }
 }
 
-@Suppress(
-    "DEPRECATION",
-    "DEPRECATION_ERROR",
-) // Reason: https://paste.googleplex.com/5371292946661376#l=14
+@Suppress("DEPRECATION") // Reason: https://paste.googleplex.com/5371292946661376#l=14
 private class SurfaceGlowNode(
     private var shape: Shape,
     private var glowBlurRadiusPx: Float,

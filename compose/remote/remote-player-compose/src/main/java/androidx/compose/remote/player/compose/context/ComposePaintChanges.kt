@@ -444,7 +444,7 @@ internal class ComposePaintChanges(
         getNativePaint().setColorFilter(PorterDuffColorFilter(color, porterDuffMode))
     }
 
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+    @Suppress("DEPRECATION")
     private fun getNativePaint(): android.graphics.Paint = getPaint().asFrameworkPaint()
 
     private fun getShaderData(id: Int): ShaderData? {
