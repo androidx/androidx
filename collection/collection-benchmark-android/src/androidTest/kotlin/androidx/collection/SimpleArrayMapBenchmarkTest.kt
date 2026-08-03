@@ -51,7 +51,7 @@ class SimpleArrayMapBenchmarkTest(size: Int, sparse: Boolean) {
         @JvmStatic
         @Parameters(name = "size={0},sparse={1}")
         fun parameters() =
-            buildParameters(
+            buildParameters<Any>(
                 // Slow tests, so only run the suite up to 1000 elements.
                 listOf(10, 100, 1_000),
                 listOf(true, false),

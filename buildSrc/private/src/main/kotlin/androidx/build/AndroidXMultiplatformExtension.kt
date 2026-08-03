@@ -266,8 +266,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     ) {
         createCinterop(
             kotlinNativeCompilation =
-                nativeTarget.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                    as KotlinNativeCompilation,
+                nativeTarget.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME),
             nativeCompilation = nativeCompilation,
             cinteropName = cinteropName,
         )
