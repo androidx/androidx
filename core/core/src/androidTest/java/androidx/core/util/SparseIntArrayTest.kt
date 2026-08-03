@@ -231,4 +231,35 @@ class SparseIntArrayTest {
         assertEquals(10, array.get(1))
         assertEquals(10, array.getOrPut(1) { fail() })
     }
+
+    @Test
+    fun any() {
+        val array = SparseIntArray()
+        assertFalse(array.any { _, _ -> true })
+
+        array.put(1, 10)
+        assertTrue(array.any { key, value -> key == 1 && value == 10 })
+        assertFalse(array.any { key, value -> key == 2 || value == 20 })
+    }
+
+    @Test
+    fun all() {
+        val array = SparseIntArray()
+        assertTrue(array.all { _, _ -> false })
+
+        array.put(1, 10)
+        array.put(2, 20)
+        assertTrue(array.all { key, value -> key > 0 && value > 0 })
+        assertFalse(array.all { key, _ -> key == 1 })
+    }
+
+    @Test
+    fun none() {
+        val array = SparseIntArray()
+        assertTrue(array.none { _, _ -> true })
+
+        array.put(1, 10)
+        assertTrue(array.none { key, value -> key == 2 && value == 20 })
+        assertFalse(array.none { key, value -> key == 1 && value == 10 })
+    }
 }

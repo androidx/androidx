@@ -3690,6 +3690,8 @@ package androidx.core.util {
   }
 
   public final class SparseArrayKt {
+    method public static inline <T> boolean all(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,java.lang.Boolean> predicate);
+    method public static inline <T> boolean any(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,java.lang.Boolean> predicate);
     method public static inline operator <T> boolean contains(android.util.SparseArray<T>, int key);
     method public static inline <T> boolean containsKey(android.util.SparseArray<T>, int key);
     method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T value);
@@ -3701,6 +3703,7 @@ package androidx.core.util {
     method public static inline <T> boolean isEmpty(android.util.SparseArray<T>);
     method public static inline <T> boolean isNotEmpty(android.util.SparseArray<T>);
     method public static <T> kotlin.collections.IntIterator keyIterator(android.util.SparseArray<T>);
+    method public static inline <T> boolean none(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,java.lang.Boolean> predicate);
     method public static operator <T> android.util.SparseArray<T> plus(android.util.SparseArray<T>, android.util.SparseArray<T> other);
     method public static <T> void putAll(android.util.SparseArray<T>, android.util.SparseArray<T> other);
     method public static <T> boolean remove(android.util.SparseArray<T>, int key, T value);
@@ -3712,6 +3715,8 @@ package androidx.core.util {
   }
 
   public final class SparseBooleanArrayKt {
+    method public static inline boolean all(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> predicate);
+    method public static inline boolean any(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> predicate);
     method public static inline operator boolean contains(android.util.SparseBooleanArray, int key);
     method public static inline boolean containsKey(android.util.SparseBooleanArray, int key);
     method public static inline boolean containsValue(android.util.SparseBooleanArray, boolean value);
@@ -3723,6 +3728,7 @@ package androidx.core.util {
     method public static inline boolean isEmpty(android.util.SparseBooleanArray);
     method public static inline boolean isNotEmpty(android.util.SparseBooleanArray);
     method public static kotlin.collections.IntIterator keyIterator(android.util.SparseBooleanArray);
+    method public static inline boolean none(android.util.SparseBooleanArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,java.lang.Boolean> predicate);
     method public static operator android.util.SparseBooleanArray plus(android.util.SparseBooleanArray, android.util.SparseBooleanArray other);
     method public static void putAll(android.util.SparseBooleanArray, android.util.SparseBooleanArray other);
     method public static boolean remove(android.util.SparseBooleanArray, int key, boolean value);
@@ -3734,6 +3740,8 @@ package androidx.core.util {
   }
 
   public final class SparseIntArrayKt {
+    method public static inline boolean all(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public static inline boolean any(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public static inline operator boolean contains(android.util.SparseIntArray, int key);
     method public static inline boolean containsKey(android.util.SparseIntArray, int key);
     method public static inline boolean containsValue(android.util.SparseIntArray, int value);
@@ -3745,6 +3753,7 @@ package androidx.core.util {
     method public static inline boolean isEmpty(android.util.SparseIntArray);
     method public static inline boolean isNotEmpty(android.util.SparseIntArray);
     method public static kotlin.collections.IntIterator keyIterator(android.util.SparseIntArray);
+    method public static inline boolean none(android.util.SparseIntArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Boolean> predicate);
     method public static operator android.util.SparseIntArray plus(android.util.SparseIntArray, android.util.SparseIntArray other);
     method public static void putAll(android.util.SparseIntArray, android.util.SparseIntArray other);
     method public static boolean remove(android.util.SparseIntArray, int key, int value);
@@ -3756,6 +3765,8 @@ package androidx.core.util {
   }
 
   public final class SparseLongArrayKt {
+    method public static inline boolean all(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
+    method public static inline boolean any(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
     method public static inline operator boolean contains(android.util.SparseLongArray, int key);
     method public static inline boolean containsKey(android.util.SparseLongArray, int key);
     method public static inline boolean containsValue(android.util.SparseLongArray, long value);
@@ -3767,6 +3778,7 @@ package androidx.core.util {
     method public static inline boolean isEmpty(android.util.SparseLongArray);
     method public static inline boolean isNotEmpty(android.util.SparseLongArray);
     method public static kotlin.collections.IntIterator keyIterator(android.util.SparseLongArray);
+    method public static inline boolean none(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,java.lang.Boolean> predicate);
     method public static operator android.util.SparseLongArray plus(android.util.SparseLongArray, android.util.SparseLongArray other);
     method public static void putAll(android.util.SparseLongArray, android.util.SparseLongArray other);
     method public static boolean remove(android.util.SparseLongArray, int key, long value);

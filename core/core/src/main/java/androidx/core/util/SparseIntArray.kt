@@ -107,6 +107,30 @@ public inline fun SparseIntArray.forEach(action: (key: Int, value: Int) -> Unit)
     }
 }
 
+/** Returns `true` if at least one entry matches the given [predicate]. */
+public inline fun SparseIntArray.any(predicate: (key: Int, value: Int) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return true
+    }
+    return false
+}
+
+/** Returns `true` if all entries match the given [predicate]. */
+public inline fun SparseIntArray.all(predicate: (key: Int, value: Int) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (!predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
+/** Returns `true` if no entries match the given [predicate]. */
+public inline fun SparseIntArray.none(predicate: (key: Int, value: Int) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
 /** Return an iterator over the collection's keys. */
 public fun SparseIntArray.keyIterator(): IntIterator =
     object : IntIterator() {

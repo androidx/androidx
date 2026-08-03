@@ -107,6 +107,30 @@ public inline fun SparseLongArray.forEach(action: (key: Int, value: Long) -> Uni
     }
 }
 
+/** Returns `true` if at least one entry matches the given [predicate]. */
+public inline fun SparseLongArray.any(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return true
+    }
+    return false
+}
+
+/** Returns `true` if all entries match the given [predicate]. */
+public inline fun SparseLongArray.all(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (!predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
+/** Returns `true` if no entries match the given [predicate]. */
+public inline fun SparseLongArray.none(predicate: (key: Int, value: Long) -> Boolean): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
 /** Return an iterator over the collection's keys. */
 public fun SparseLongArray.keyIterator(): IntIterator =
     object : IntIterator() {
