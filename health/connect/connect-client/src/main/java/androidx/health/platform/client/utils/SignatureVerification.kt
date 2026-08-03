@@ -15,21 +15,23 @@
  */
 
 @file:JvmName("SignatureVerification")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
 package androidx.health.platform.client.utils
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_DEV_CERT_SHA256
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_RELEASE_CERT_SHA256
 
-@VisibleForTesting @JvmField internal var sBypassSignatureCheckForTesting = false
+@VisibleForTesting @JvmField var sBypassSignatureCheckForTesting = false
 
 /** Returns whether the target package's signature is valid. */
-internal fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
+fun isTargetSignatureValid(packageManager: PackageManager, packageName: String): Boolean {
     if (sBypassSignatureCheckForTesting) {
         return true
     }
