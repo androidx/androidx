@@ -20,6 +20,19 @@
 package androidx.core.util
 
 import android.util.SparseBooleanArray
+import kotlin.Pair
+
+/** Returns an empty [SparseBooleanArray]. */
+public fun sparseBooleanArrayOf(): SparseBooleanArray = SparseBooleanArray()
+
+/** Returns a new [SparseBooleanArray] filled with the specified [pairs]. */
+public fun sparseBooleanArrayOf(vararg pairs: Pair<Int, Boolean>): SparseBooleanArray {
+    val array = SparseBooleanArray(pairs.size)
+    for (pair in pairs) {
+        array.put(pair.first, pair.second)
+    }
+    return array
+}
 
 /** Returns the number of key/value pairs in the collection. */
 public inline val SparseBooleanArray.size: Int
@@ -54,6 +67,21 @@ public inline fun SparseBooleanArray.getOrDefault(key: Int, defaultValue: Boolea
 public inline fun SparseBooleanArray.getOrElse(key: Int, defaultValue: () -> Boolean): Boolean =
     indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }
 
+/**
+ * Return the value corresponding to [key], or put the [defaultValue] into the collection when not
+ * present.
+ */
+public inline fun SparseBooleanArray.getOrPut(key: Int, defaultValue: () -> Boolean): Boolean {
+    val index = indexOfKey(key)
+    return if (index >= 0) {
+        valueAt(index)
+    } else {
+        val answer = defaultValue()
+        put(key, answer)
+        answer
+    }
+}
+
 /** Return true when the collection contains no elements. */
 public inline fun SparseBooleanArray.isEmpty(): Boolean = size() == 0
 
@@ -79,6 +107,36 @@ public inline fun SparseBooleanArray.forEach(action: (key: Int, value: Boolean) 
     for (index in 0 until size()) {
         action(keyAt(index), valueAt(index))
     }
+}
+
+/** Returns `true` if at least one entry matches the given [predicate]. */
+public inline fun SparseBooleanArray.any(
+    predicate: (key: Int, value: Boolean) -> Boolean
+): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return true
+    }
+    return false
+}
+
+/** Returns `true` if all entries match the given [predicate]. */
+public inline fun SparseBooleanArray.all(
+    predicate: (key: Int, value: Boolean) -> Boolean
+): Boolean {
+    for (index in 0 until size()) {
+        if (!predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
+}
+
+/** Returns `true` if no entries match the given [predicate]. */
+public inline fun SparseBooleanArray.none(
+    predicate: (key: Int, value: Boolean) -> Boolean
+): Boolean {
+    for (index in 0 until size()) {
+        if (predicate(keyAt(index), valueAt(index))) return false
+    }
+    return true
 }
 
 /** Return an iterator over the collection's keys. */
