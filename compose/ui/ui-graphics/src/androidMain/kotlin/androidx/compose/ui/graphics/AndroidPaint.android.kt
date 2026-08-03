@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 @Deprecated(
     message = "Use android.graphics.Paint directly instead",
     replaceWith = ReplaceWith("android.graphics.Paint"),
-    level = DeprecationLevel.ERROR,
 )
 public actual typealias NativePaint = android.graphics.Paint
 
@@ -68,7 +67,6 @@ public class AndroidPaint(internal var internalPaint: android.graphics.Paint) : 
     @Deprecated(
         message = "Use [nativePaint] extension instead",
         replaceWith = ReplaceWith("nativePaint"),
-        level = DeprecationLevel.ERROR,
     )
     override fun asFrameworkPaint(): android.graphics.Paint = internalPaint
 
