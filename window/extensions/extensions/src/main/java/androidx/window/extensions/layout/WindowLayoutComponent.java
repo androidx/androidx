@@ -66,7 +66,8 @@ public interface WindowLayoutComponent {
 
     /**
      * Adds a listener interested in receiving updates to {@link WindowLayoutInfo}.
-     * Use {@link WindowLayoutComponent#removeWindowLayoutInfoListener} to remove listener.
+     * Use {@link WindowLayoutComponent#removeWindowLayoutInfoListener(Consumer)} to remove
+     * listener.
      * <p>
      * A {@link Context} or a Consumer instance can only be registered once.
      * Registering the same {@link Context} or Consumer more than once will result in
