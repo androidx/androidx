@@ -45,16 +45,8 @@ public final class BannerElement {
     /** Type indicating the element is an {@link Action}. */
     public static final int TYPE_ACTION = 1;
 
-    /**
-     * Type indicating the element is a {@link CarIcon} meant to be displayed as an icon (a
-     * tintable, padded image).
-     * @deprecated Use TYPE_IMAGE instead.
-     */
-    @Deprecated
-    public static final int TYPE_ICON = 2;
-
     /** Type indicating the element is an image/icon. */
-    public static final int TYPE_IMAGE = 3;
+    public static final int TYPE_IMAGE = 2;
 
     private final @ElementType int mType;
     private final @Banner.BannerImageType int mImageType;
@@ -82,7 +74,7 @@ public final class BannerElement {
         mImage = image;
     }
 
-    BannerElement(@ElementType int type, @Nullable Action action, @Nullable CarIcon image) {
+    private BannerElement(@ElementType int type, @Nullable Action action, @Nullable CarIcon image) {
         mType = type;
         mImageType = Banner.IMAGE_TYPE_SMALL;
         mAction = action;
@@ -127,19 +119,6 @@ public final class BannerElement {
         return mImage;
     }
 
-    /**
-     * Returns the {@link CarIcon} in this element, or {@code null} if not set.
-     *
-     * <p>The host should check {@link #getType()} and {@link #getImageType()} to determine
-     * whether this should be rendered as an icon or an image.
-     *
-     * @deprecated Use {@link #getImage()} instead.
-     */
-    @Deprecated
-    public @Nullable CarIcon getIcon() {
-        return getImage();
-    }
-
     @Override
     public int hashCode() {
         return Objects.hash(mType, mImageType, mAction, mImage);
@@ -169,7 +148,7 @@ public final class BannerElement {
     }
 
     @RestrictTo(LIBRARY)
-    @IntDef(value = {TYPE_ACTION, TYPE_ICON, TYPE_IMAGE})
+    @IntDef(value = {TYPE_ACTION, TYPE_IMAGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ElementType {
     }
