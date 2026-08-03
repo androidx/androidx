@@ -1,0 +1,173 @@
+// Signature format: 4.0
+package androidx.security.state {
+
+  public class SecurityPatchState {
+    ctor public SecurityPatchState(android.content.Context context);
+    ctor @BytecodeOnly public SecurityPatchState(android.content.Context!, java.util.List!, androidx.security.state.SecurityStateManagerCompat!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat, optional String? vulnerabilityReportJsonString);
+    method public final boolean areCvesPatched(java.util.List<java.lang.String> cveList);
+    method public final suspend Object? fetchAvailableSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, optional long timeoutMillis, kotlin.coroutines.Continuation<? super androidx.security.state.SecurityPatchState.SecurityPatchLevel>);
+    method @BytecodeOnly public static Object! fetchAvailableSecurityPatchLevel$default(androidx.security.state.SecurityPatchState!, String!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.security.state.SecurityPatchState.SecurityPatchLevel> fetchAvailableSecurityPatchLevelAsync(@androidx.security.state.SecurityPatchState.Component String component);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.security.state.SecurityPatchState.SecurityPatchLevel> fetchAvailableSecurityPatchLevelAsync(@androidx.security.state.SecurityPatchState.Component String component, optional long timeoutMillis);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! fetchAvailableSecurityPatchLevelAsync$default(androidx.security.state.SecurityPatchState!, String!, long, int, Object!);
+    method public static final androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, String securityPatchLevel);
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component);
+    method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.Set<java.lang.String>> getPatchedCves(@androidx.security.state.SecurityPatchState.Component String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
+    method public java.util.List<androidx.security.state.SecurityPatchState.SecurityPatchLevel> getPublishedSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component);
+    method @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl();
+    method @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    method public final boolean isDeviceFullyUpdated();
+    method @WorkerThread public final void loadVulnerabilityReport(String jsonString);
+    method public final suspend Object? queryAllAvailableUpdates(optional long timeoutMillis, kotlin.coroutines.Continuation<? super java.util.List<androidx.security.state.UpdateCheckResult>>);
+    method @BytecodeOnly public static Object! queryAllAvailableUpdates$default(androidx.security.state.SecurityPatchState!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method public final com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.security.state.UpdateCheckResult>> queryAllAvailableUpdatesAsync();
+    method public final com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.security.state.UpdateCheckResult>> queryAllAvailableUpdatesAsync(optional long timeoutMillis);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! queryAllAvailableUpdatesAsync$default(androidx.security.state.SecurityPatchState!, long, int, Object!);
+    field public static final String COMPONENT_KERNEL = "KERNEL";
+    field public static final String COMPONENT_SYSTEM = "SYSTEM";
+    field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";
+    field public static final androidx.security.state.SecurityPatchState.Companion Companion;
+    field public static final java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
+    field public static final String DEFAULT_VULNERABILITY_REPORTS_URL = "https://storage.googleapis.com/osv-android-api";
+    field public static final long UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS = 5000L; // 0x1388L
+  }
+
+  public static final class SecurityPatchState.Companion {
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, String securityPatchLevel);
+    method @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl();
+    method @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    method @BytecodeOnly @RequiresApi(26) public static android.net.Uri! getVulnerabilityReportUrl$default(androidx.security.state.SecurityPatchState.Companion!, android.net.Uri!, int, Object!);
+    property public static String COMPONENT_KERNEL;
+    property public static String COMPONENT_SYSTEM;
+    property public static String COMPONENT_SYSTEM_MODULES;
+    property public java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
+    property public static String DEFAULT_VULNERABILITY_REPORTS_URL;
+    property public static long UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS;
+  }
+
+  @StringDef(open=true, value={androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM, androidx.security.state.SecurityPatchState.COMPONENT_SYSTEM_MODULES, androidx.security.state.SecurityPatchState.COMPONENT_KERNEL, androidx.security.state.SecurityPatchState.COMPONENT_VENDOR}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface SecurityPatchState.Component {
+  }
+
+  public static final class SecurityPatchState.DateBasedSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
+    ctor public SecurityPatchState.DateBasedSecurityPatchLevel(int year, int month, int day);
+    method public int compareTo(androidx.security.state.SecurityPatchState.SecurityPatchLevel other);
+    method public static androidx.security.state.SecurityPatchState.DateBasedSecurityPatchLevel fromString(String value);
+    method public int getDay();
+    method public int getMonth();
+    method public int getYear();
+    field public static final androidx.security.state.SecurityPatchState.DateBasedSecurityPatchLevel.Companion Companion;
+  }
+
+  public static final class SecurityPatchState.DateBasedSecurityPatchLevel.Companion {
+    method public androidx.security.state.SecurityPatchState.DateBasedSecurityPatchLevel fromString(String value);
+  }
+
+  public static final class SecurityPatchState.GenericStringSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
+    ctor public SecurityPatchState.GenericStringSecurityPatchLevel(String patchLevel);
+    method public int compareTo(androidx.security.state.SecurityPatchState.SecurityPatchLevel other);
+  }
+
+  public abstract static class SecurityPatchState.SecurityPatchLevel implements java.lang.Comparable<androidx.security.state.SecurityPatchState.SecurityPatchLevel> {
+    ctor public SecurityPatchState.SecurityPatchLevel();
+    method public abstract String toString();
+  }
+
+  public enum SecurityPatchState.Severity {
+    enum_constant public static final androidx.security.state.SecurityPatchState.Severity CRITICAL;
+    enum_constant public static final androidx.security.state.SecurityPatchState.Severity HIGH;
+    enum_constant public static final androidx.security.state.SecurityPatchState.Severity LOW;
+    enum_constant public static final androidx.security.state.SecurityPatchState.Severity MODERATE;
+  }
+
+  public static final class SecurityPatchState.VersionedSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
+    ctor public SecurityPatchState.VersionedSecurityPatchLevel(int majorVersion, int minorVersion, optional int buildVersion, optional int patchVersion);
+    ctor @BytecodeOnly public SecurityPatchState.VersionedSecurityPatchLevel(int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int compareTo(androidx.security.state.SecurityPatchState.SecurityPatchLevel other);
+    method public static androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel fromString(String value);
+    method public int getBuildVersion();
+    method public int getMajorVersion();
+    method public int getMinorVersion();
+    method public int getPatchVersion();
+    field public static final androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel.Companion Companion;
+  }
+
+  public static final class SecurityPatchState.VersionedSecurityPatchLevel.Companion {
+    method public androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel fromString(String value);
+  }
+
+  public class SecurityStateManagerCompat {
+    ctor public SecurityStateManagerCompat(android.content.Context context);
+    ctor public SecurityStateManagerCompat(android.content.Context context, optional String[] systemSupplementalPatchConfigFiles);
+    ctor public SecurityStateManagerCompat(android.content.Context context, optional String[] systemSupplementalPatchConfigFiles, optional String[] vendorSupplementalPatchConfigFiles);
+    ctor @BytecodeOnly public SecurityStateManagerCompat(android.content.Context!, String![]!, String![]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public android.os.Bundle getGlobalSecurityState();
+    method public android.os.Bundle getGlobalSecurityState(optional String moduleMetadataProviderPackageName);
+    method @BytecodeOnly public static android.os.Bundle! getGlobalSecurityState$default(androidx.security.state.SecurityStateManagerCompat!, String!, int, Object!);
+    field public static final androidx.security.state.SecurityStateManagerCompat.Companion Companion;
+    field public static final String KEY_KERNEL_VERSION = "kernel_version";
+    field public static final String KEY_SYSTEM_SPL = "system_spl";
+    field public static final String KEY_SYSTEM_SUPPLEMENTAL_PATCHES = "system_supplemental_security_patches";
+    field public static final String KEY_VENDOR_SPL = "vendor_spl";
+    field public static final String KEY_VENDOR_SUPPLEMENTAL_PATCHES = "vendor_supplemental_security_patches";
+  }
+
+  public static final class SecurityStateManagerCompat.Companion {
+    property public static String KEY_KERNEL_VERSION;
+    property public static String KEY_SYSTEM_SPL;
+    property public static String KEY_SYSTEM_SUPPLEMENTAL_PATCHES;
+    property public static String KEY_VENDOR_SPL;
+    property public static String KEY_VENDOR_SUPPLEMENTAL_PATCHES;
+  }
+
+  public final class UpdateCheckResult implements android.os.Parcelable {
+    ctor public UpdateCheckResult(String providerPackageName, java.util.List<androidx.security.state.UpdateInfo> updates, long lastCheckTimeMillis);
+    method public int describeContents();
+    method @InaccessibleFromKotlin public long getLastCheckTimeMillis();
+    method @InaccessibleFromKotlin public String getProviderPackageName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.security.state.UpdateInfo> getUpdates();
+    method public void writeToParcel(android.os.Parcel parcel, int flags);
+    property public long lastCheckTimeMillis;
+    property public String providerPackageName;
+    property public java.util.List<androidx.security.state.UpdateInfo> updates;
+    field public static final android.os.Parcelable.Creator<androidx.security.state.UpdateCheckResult> CREATOR;
+    field public static final androidx.security.state.UpdateCheckResult.Companion Companion;
+  }
+
+  public static final class UpdateCheckResult.Companion {
+    property public android.os.Parcelable.Creator<androidx.security.state.UpdateCheckResult> CREATOR;
+  }
+
+  public final class UpdateInfo implements android.os.Parcelable {
+    ctor public UpdateInfo(String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel, long publishedDateMillis, long lastCheckTimeMillis);
+    method public int describeContents();
+    method @InaccessibleFromKotlin @androidx.security.state.SecurityPatchState.Component public String getComponent();
+    method @InaccessibleFromKotlin public long getLastCheckTimeMillis();
+    method @InaccessibleFromKotlin public long getPublishedDateMillis();
+    method @InaccessibleFromKotlin public androidx.security.state.SecurityPatchState.SecurityPatchLevel getSecurityPatchLevel();
+    method public void writeToParcel(android.os.Parcel parcel, int flags);
+    property @androidx.security.state.SecurityPatchState.Component public String component;
+    property public long lastCheckTimeMillis;
+    property public long publishedDateMillis;
+    property public androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel;
+    field public static final android.os.Parcelable.Creator<androidx.security.state.UpdateInfo> CREATOR;
+    field public static final androidx.security.state.UpdateInfo.Companion Companion;
+  }
+
+  public static final class UpdateInfo.Builder {
+    ctor public UpdateInfo.Builder();
+    method public androidx.security.state.UpdateInfo build();
+    method public androidx.security.state.UpdateInfo.Builder setComponent(String component);
+    method public androidx.security.state.UpdateInfo.Builder setLastCheckTimeMillis(long lastCheckTimeMillis);
+    method public androidx.security.state.UpdateInfo.Builder setPublishedDateMillis(long publishedDateMillis);
+    method public androidx.security.state.UpdateInfo.Builder setSecurityPatchLevel(androidx.security.state.SecurityPatchState.SecurityPatchLevel securityPatchLevel);
+  }
+
+  public static final class UpdateInfo.Companion {
+    property public android.os.Parcelable.Creator<androidx.security.state.UpdateInfo> CREATOR;
+  }
+
+}
+
