@@ -49,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.xr.compose.material3.DefaultNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.DefaultNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.DefaultWideNavigationRailOrbiterProperties
-import androidx.xr.compose.material3.EnableXrComponentOverrides
 import androidx.xr.compose.material3.ExperimentalMaterial3XrApi
 import androidx.xr.compose.material3.LocalNavigationBarOrbiterProperties
 import androidx.xr.compose.material3.LocalNavigationRailOrbiterProperties
@@ -60,7 +59,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { EnableXrComponentOverrides { Content() } }
+        setContent { Content() }
     }
 }
 
