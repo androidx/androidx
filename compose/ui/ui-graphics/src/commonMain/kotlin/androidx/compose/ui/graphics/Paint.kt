@@ -19,20 +19,14 @@ package androidx.compose.ui.graphics
 /** Default alpha value used on [Paint]. This value will draw source content fully opaque. */
 public const val DefaultAlpha: Float = 1.0f
 
-@Deprecated(
-    message = "Use direct reference to platform type instead of typealias",
-    level = DeprecationLevel.ERROR,
-)
+@Deprecated("Use direct reference to platform type instead of typealias")
 public expect class NativePaint
 
 public expect fun Paint(): Paint
 
 public interface Paint {
-    @Suppress("DEPRECATION_ERROR")
-    @Deprecated(
-        message = "Use platform-specific extension to get platform reference",
-        level = DeprecationLevel.ERROR,
-    )
+    @Suppress("DEPRECATION")
+    @Deprecated("Use platform-specific extension to get platform reference")
     public fun asFrameworkPaint(): NativePaint {
         throw NotImplementedError()
     }
