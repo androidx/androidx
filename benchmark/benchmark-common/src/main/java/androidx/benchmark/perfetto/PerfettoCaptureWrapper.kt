@@ -27,7 +27,6 @@ import androidx.benchmark.PropOverride
 import androidx.benchmark.ShellFile
 import androidx.benchmark.UserFile
 import androidx.benchmark.UserInfo
-import androidx.benchmark.VirtualFile
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture.TracingLibraryConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
@@ -164,7 +163,7 @@ class PerfettoCaptureWrapper {
                 check(tracesPath != null) {
                     "Unexpected trace output path for ${config.targetPackage}"
                 }
-                val relativeTracePaths = VirtualFile.fromPath(tracesPath).listFiles()
+                val relativeTracePaths = ShellFile(absolutePath = tracesPath).listFiles()
                 relativeTracePaths.map { "$tracesPath/$it" }
             }
         }
