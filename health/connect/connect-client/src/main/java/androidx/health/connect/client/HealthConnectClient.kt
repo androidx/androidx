@@ -76,6 +76,7 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataService
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_MIN_VERSION_CODE
 import androidx.health.platform.client.service.HealthDataServiceConstants.DEFAULT_PROVIDER_PACKAGE_NAME
+import androidx.health.platform.client.utils.getPackageInfoCompat
 import androidx.health.platform.client.utils.isTargetSignatureValid
 import kotlin.reflect.KClass
 
@@ -954,6 +955,7 @@ interface HealthConnectClient {
          *   implementation
          * @return Intent to open Health Connect data management screen.
          */
+        // TODO(b/540757251): Support signature checks for custom provider package names.
         @JvmOverloads
         @JvmStatic
         fun getHealthConnectManageDataIntent(
@@ -962,6 +964,12 @@ interface HealthConnectClient {
         ): Intent {
             val pm = context.packageManager
             val manageDataIntent = Intent(ACTION_HEALTH_CONNECT_MANAGE_DATA)
+            if (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                    providerPackageName.isNotEmpty()
+            ) {
+                manageDataIntent.setPackage(providerPackageName)
+            }
 
             return if (
                 getSdkStatus(context, providerPackageName) == SDK_AVAILABLE &&
@@ -969,7 +977,15 @@ interface HealthConnectClient {
             ) {
                 manageDataIntent
             } else {
-                Intent(ACTION_HEALTH_CONNECT_SETTINGS)
+                Intent(ACTION_HEALTH_CONNECT_SETTINGS).apply {
+                    if (
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                            providerPackageName.isNotEmpty() &&
+                            getSdkStatus(context, providerPackageName) == SDK_AVAILABLE
+                    ) {
+                        setPackage(providerPackageName)
+                    }
+                }
             }
         }
 
@@ -979,12 +995,8 @@ interface HealthConnectClient {
             versionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE,
         ): Int {
             val packageInfo: PackageInfo =
-                try {
-                    @Suppress("Deprecation") // getPackageInfo deprecated in T
-                    packageManager.getPackageInfo(packageName, /* flags= */ 0)
-                } catch (e: PackageManager.NameNotFoundException) {
-                    return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-                }
+                getPackageInfoCompat(packageManager, packageName)
+                    ?: return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
             if (packageInfo.applicationInfo?.enabled != true) {
                 return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
             }
