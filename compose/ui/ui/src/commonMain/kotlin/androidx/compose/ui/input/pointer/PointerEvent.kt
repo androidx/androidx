@@ -417,10 +417,14 @@ public value class PointerEventType private constructor(internal val value: Int)
  *   status of the change use [isConsumed]
  * @param type The device type that produced the event, such as [mouse][PointerType.Mouse], or
  *   [touch][PointerType.Touch].
- * @param scrollDelta The amount of scroll wheel movement in the horizontal and vertical directions.
- *   Note that this is not an offset in pixel coordinates, but is instead an offset in a platform
- *   specific mouse wheel tick units. Also consider handling [panOffset], which represents a similar
- *   action from trackpads.
+ * @param scrollDelta The change in scroll position along the horizontal and vertical axes. Note
+ *   that this value is platform-dependent and is not normalized to pixel coordinates:
+ *     - **Desktop & Android**: Measured in platform-specific mouse wheel tick units.
+ *     - **Web**: Raw delta values directly from the browser's `WheelEvent`.
+ *     - **iOS**: Native scroll gesture delta.
+ *
+ *   Also consider handling [panOffset], which represents trackpad scroll gestures.
+ *
  * @param scaleFactor A multiplicative scale factor indicating the amount of scale to perform as
  *   part of this pointer input change. A value of `1f` indicates no scale, a value less than `1f`
  *   indicates a scale down, commonly causing a zoom out, and a value greater than `1f` indicates a
