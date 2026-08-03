@@ -315,6 +315,10 @@ public final class AppSearchLoggerHelper {
                         fromProto
                                 .getSetSchemaStats()
                                 .getScorablePropertyCacheRegenerationLatencyMs())
+                .setNativeSchemaStoreReinitializationLatencyMillis(
+                        fromProto
+                                .getSetSchemaStats()
+                                .getSchemaStoreReinitializationLatencyMs())
                 .setNativeSchemaProtoByteSize(
                         fromProto.getSetSchemaStats().getSchemaProtoByteSize())
                 .addGetVmLatencyMillis(fromProto.getGetVmLatencyMs());

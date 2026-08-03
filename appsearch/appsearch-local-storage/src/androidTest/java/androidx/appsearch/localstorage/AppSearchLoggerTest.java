@@ -594,6 +594,7 @@ public class AppSearchLoggerTest {
         int indexRestorationLatencyMillis = 5;
         int scorablePropertyCacheRegenerationLatencyMillis = 6;
         long schemaProtoByteSize = 7;
+        int schemaStoreReinitializationLatencyMillis = 8;
 
         SetSchemaResultProto setSchemaResultProto = SetSchemaResultProto.newBuilder()
                 .addAllNewSchemaTypes(newSchemaTypeChangeList)
@@ -618,7 +619,9 @@ public class AppSearchLoggerTest {
                         .setIndexRestorationLatencyMs(indexRestorationLatencyMillis)
                         .setScorablePropertyCacheRegenerationLatencyMs(
                                 scorablePropertyCacheRegenerationLatencyMillis)
-                        .setSchemaProtoByteSize(schemaProtoByteSize))
+                        .setSchemaProtoByteSize(schemaProtoByteSize)
+                        .setSchemaStoreReinitializationLatencyMs(
+                                schemaStoreReinitializationLatencyMillis))
                 .build();
         SetSchemaStats.Builder sBuilder = new SetSchemaStats.Builder(PACKAGE_NAME, DATABASE);
 
@@ -653,6 +656,8 @@ public class AppSearchLoggerTest {
         assertThat(sStats.getNativeScorablePropertyCacheRegenerationLatencyMillis()).isEqualTo(
                 scorablePropertyCacheRegenerationLatencyMillis);
         assertThat(sStats.getNativeSchemaProtoByteSize()).isEqualTo(schemaProtoByteSize);
+        assertThat(sStats.getNativeSchemaStoreReinitializationLatencyMillis()).isEqualTo(
+                schemaStoreReinitializationLatencyMillis);
     }
 
     //

@@ -755,6 +755,7 @@ public class AppSearchStatsTest {
         int nativeIndexRestorationLatencyMillis = 28;
         int nativeScorablePropertyCacheRegenerationLatencyMillis = 29;
         long schemaProtoByteSize = 30;
+        int nativeSchemaStoreReinitializationLatencyMillis = 31;
         SetSchemaStats sStats = new SetSchemaStats.Builder(TEST_PACKAGE_NAME, TEST_DATA_BASE)
                 .setStatusCode(TEST_STATUS_CODE)
                 .setTotalLatencyMillis(TEST_TOTAL_LATENCY_MILLIS)
@@ -786,6 +787,8 @@ public class AppSearchStatsTest {
                 .setNativeScorablePropertyCacheRegenerationLatencyMillis(
                         nativeScorablePropertyCacheRegenerationLatencyMillis)
                 .setNativeSchemaProtoByteSize(schemaProtoByteSize)
+                .setNativeSchemaStoreReinitializationLatencyMillis(
+                        nativeSchemaStoreReinitializationLatencyMillis)
                 .setVisibilitySettingLatencyMillis(visibilitySettingLatencyMillis)
                 .setConvertToResponseLatencyMillis(convertToResponseLatencyMillis)
                 .setDispatchChangeNotificationsLatencyMillis(
@@ -847,6 +850,8 @@ public class AppSearchStatsTest {
         assertThat(sStats.getNativeScorablePropertyCacheRegenerationLatencyMillis()).isEqualTo(
                 nativeScorablePropertyCacheRegenerationLatencyMillis);
         assertThat(sStats.getNativeSchemaProtoByteSize()).isEqualTo(schemaProtoByteSize);
+        assertThat(sStats.getNativeSchemaStoreReinitializationLatencyMillis()).isEqualTo(
+                nativeSchemaStoreReinitializationLatencyMillis);
         assertThat(sStats.getVisibilitySettingLatencyMillis()).isEqualTo(
                 visibilitySettingLatencyMillis);
         assertThat(sStats.getConvertToResponseLatencyMillis()).isEqualTo(
@@ -896,6 +901,7 @@ public class AppSearchStatsTest {
                 + "  nativeDocumentStoreOptimizedUpdateSchemaLatencyMillis=27,\n"
                 + "  nativeIndexRestorationLatencyMillis=28,\n"
                 + "  nativeScorablePropertyCacheRegenerationLatencyMillis=29,\n"
+                + "  nativeSchemaStoreReinitializationLatencyMillis=31,\n"
                 + "  visibilitySettingLatencyMillis=12,\n"
                 + "  convertToResponseLatencyMillis=13,\n"
                 + "  dispatchChangeNotificationsLatencyMillis=14,\n"
