@@ -508,6 +508,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
 
     @SuppressLint("RestrictedApiAndroidX")
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressWarnings("deprecation")
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
@@ -669,6 +670,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    @SuppressWarnings("deprecation")
     private boolean isPrimaryCamera(@NonNull CameraInfo info) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             return true;

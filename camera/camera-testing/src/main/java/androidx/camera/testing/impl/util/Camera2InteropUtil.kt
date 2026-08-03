@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.testing.impl.util
 
 import android.hardware.camera2.CameraCaptureSession
