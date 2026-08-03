@@ -32,7 +32,6 @@ import androidx.compose.material3.OutlinedToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
-import androidx.compose.material3.ToggleButtonShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,22 +46,6 @@ import androidx.compose.ui.tooling.preview.Preview
 fun ToggleButtonSample() {
     var checked by remember { mutableStateOf(false) }
     ToggleButton(checked = checked, onCheckedChange = { checked = it }) { Text("Button") }
-}
-
-@Preview
-@Sampled
-@Composable
-fun SquareToRoundToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
-    val shapes =
-        ToggleButtonShapes(
-            shape = ToggleButtonDefaults.squareShape,
-            pressedShape = ToggleButtonDefaults.pressedShape,
-            checkedShape = ToggleButtonDefaults.roundShape,
-        )
-    ToggleButton(checked = checked, onCheckedChange = { checked = it }, shapes = shapes) {
-        Text("Button")
-    }
 }
 
 @Preview

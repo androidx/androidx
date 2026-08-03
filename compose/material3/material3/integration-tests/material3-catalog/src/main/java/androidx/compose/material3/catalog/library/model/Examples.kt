@@ -287,7 +287,6 @@ import androidx.compose.material3.samples.SplitButtonWithIconSample
 import androidx.compose.material3.samples.SplitButtonWithTextSample
 import androidx.compose.material3.samples.SplitButtonWithUnCheckableTrailingButtonSample
 import androidx.compose.material3.samples.SquareButtonSample
-import androidx.compose.material3.samples.SquareToRoundToggleButtonSample
 import androidx.compose.material3.samples.StandardListItems
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
@@ -2203,14 +2202,6 @@ val ToggleButtonsExamples =
             isExpressive = true,
         ) {
             ToggleButtonSample()
-        },
-        Example(
-            name = "SquareToRoundToggleButtonSample",
-            description = ToggleButtonsExampleDescription,
-            sourceUrl = ToggleButtonsExampleSourceUrl,
-            isExpressive = true,
-        ) {
-            SquareToRoundToggleButtonSample()
         },
         Example(
             name = "ElevatedToggleButtonSample",
