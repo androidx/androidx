@@ -53,6 +53,7 @@ import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasImeAction
+import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isFocused
@@ -1322,6 +1323,60 @@ class TimePickerTest {
             .assertExists()
         rule
             .onNode(hasText("21") and hasAnyAncestor(isSelected()), useUnmergedTree = true)
+            .assertExists()
+    }
+
+    @Test
+    fun timeScroll_12hour_semanticsStateDescription() {
+        val state = TimePickerState(initialHour = 12, initialMinute = 30, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeScroll(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        val expectedHourDescription =
+            rule.runOnIdle {
+                val res = InstrumentationRegistry.getInstrumentation().context.resources
+                res.getString(R.string.m3c_time_picker_hour_suffix, 12)
+            }
+        val expectedMinuteDescription =
+            rule.runOnIdle {
+                val res = InstrumentationRegistry.getInstrumentation().context.resources
+                res.getString(R.string.m3c_time_picker_minute_suffix, 30)
+            }
+
+        rule
+            .onNode(hasStateDescription(expectedHourDescription), useUnmergedTree = true)
+            .assertExists()
+        rule
+            .onNode(hasStateDescription(expectedMinuteDescription), useUnmergedTree = true)
+            .assertExists()
+    }
+
+    @Test
+    fun timeScroll_24hour_semanticsStateDescription() {
+        val state = TimePickerState(initialHour = 0, initialMinute = 5, is24Hour = true)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TimeScroll(state, shapes = TimePickerDefaults.shapes())
+        }
+
+        val expectedHourDescription =
+            rule.runOnIdle {
+                val res = InstrumentationRegistry.getInstrumentation().context.resources
+                res.getString(R.string.m3c_time_picker_hour_24h_suffix, 0)
+            }
+        val expectedMinuteDescription =
+            rule.runOnIdle {
+                val res = InstrumentationRegistry.getInstrumentation().context.resources
+                res.getString(R.string.m3c_time_picker_minute_suffix, 5)
+            }
+
+        rule
+            .onNode(hasStateDescription(expectedHourDescription), useUnmergedTree = true)
+            .assertExists()
+        rule
+            .onNode(hasStateDescription(expectedMinuteDescription), useUnmergedTree = true)
             .assertExists()
     }
 }
