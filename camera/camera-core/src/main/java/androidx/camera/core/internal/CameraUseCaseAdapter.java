@@ -835,7 +835,7 @@ public final class CameraUseCaseAdapter implements Camera {
     private @NonNull Set<UseCase> getStreamSharingChildren(@NonNull Collection<UseCase> appUseCases,
             boolean forceSharingToPreviewAndVideo) {
         Set<UseCase> children = new HashSet<>();
-        int sharingTargets = getSharingTargets(forceSharingToPreviewAndVideo);
+        int sharingTargets = getSharingTargets(forceSharingToPreviewAndVideo, appUseCases);
         for (UseCase useCase : appUseCases) {
             checkArgument(!isStreamSharing(useCase), "Only support one level of sharing for now.");
             if (useCase.isEffectTargetsSupported(sharingTargets)) {
@@ -846,12 +846,13 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     @CameraEffect.Targets
-    private int getSharingTargets(boolean forceSharingToPreviewAndVideo) {
+    private int getSharingTargets(boolean forceSharingToPreviewAndVideo,
+            @NonNull Collection<UseCase> appUseCases) {
         synchronized (mLock) {
-            // Find the only effect that has more than one targets.
+            // Find the only effect that requires sharing across multiple targets/use cases.
             CameraEffect sharingEffect = null;
             for (CameraEffect effect : mEffects) {
-                if (getNumberOfTargets(effect.getTargets()) > 1) {
+                if (isSharingEffect(effect, appUseCases)) {
                     checkState(sharingEffect == null, "Can only have one sharing effect.");
                     sharingEffect = effect;
                 }
@@ -864,6 +865,20 @@ public final class CameraUseCaseAdapter implements Camera {
             }
             return sharingTargets;
         }
+    }
+
+    private static boolean isSharingEffect(@NonNull CameraEffect effect,
+            @NonNull Collection<UseCase> appUseCases) {
+        if (getNumberOfTargets(effect.getTargets()) > 1) {
+            return true;
+        }
+        int matchingUseCases = 0;
+        for (UseCase useCase : appUseCases) {
+            if (useCase.isEffectTargetsSupported(effect.getTargets())) {
+                matchingUseCases++;
+            }
+        }
+        return matchingUseCases > 1;
     }
 
     /**
@@ -917,8 +932,9 @@ public final class CameraUseCaseAdapter implements Camera {
         for (UseCase child : children) {
             for (int type : validChildrenTypes) {
                 if (child.isEffectTargetsSupported(type)) {
-                    if (childrenTypes.contains(type)) {
-                        // Return false if there are 2 use case supporting the same type.
+                    if (type != PREVIEW && childrenTypes.contains(type)) {
+                        // Return false if there are 2 use case supporting the same type except
+                        // Preview.
                         return false;
                     }
                     childrenTypes.add(type);
