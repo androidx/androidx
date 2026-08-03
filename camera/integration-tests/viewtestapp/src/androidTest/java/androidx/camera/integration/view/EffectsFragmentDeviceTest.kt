@@ -26,6 +26,7 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.integration.view.TestUtil.assertPreviewStreamingState
 import androidx.camera.integration.view.TestUtil.getFragment
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
@@ -54,6 +55,7 @@ class EffectsFragmentDeviceTest(
 ) {
     @get:Rule
     val requireForegroundRule = RequireForegroundRule {
+        assumeFalse("Test fails on API 24 emulator (b/539514196)", AndroidUtil.isEmulator(24))
         assumeFalse(
             "Test fails on cuttlefish (b/465855844)",
             MODEL.contains("Cuttlefish", ignoreCase = true),
