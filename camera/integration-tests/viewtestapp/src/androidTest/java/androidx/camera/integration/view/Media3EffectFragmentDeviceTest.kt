@@ -61,7 +61,10 @@ class Media3EffectFragmentDeviceTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
-    val requireForegroundRule = RequireForegroundRule { CoreAppTestUtil.assumeCompatibleDevice() }
+    val requireForegroundRule = RequireForegroundRule {
+        assumeFalse("Test fails on API 24 emulator (b/539514196)", AndroidUtil.isEmulator(24))
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
 
     @get:Rule
     val useCameraRule =
