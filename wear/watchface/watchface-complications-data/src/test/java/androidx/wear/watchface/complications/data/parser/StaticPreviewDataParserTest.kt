@@ -40,6 +40,7 @@ import androidx.wear.watchface.complications.data.test.R
 import com.google.common.truth.Expect
 import java.time.Instant
 import java.util.Locale
+import java.util.TimeZone
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -54,10 +55,11 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.stub
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 import org.robolectric.util.ReflectionHelpers
 
 @RunWith(SharedRobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 @SuppressLint("NewApi")
 class StaticPreviewDataParserTest {
     @Rule @JvmField val expect = Expect.create()
@@ -767,15 +769,27 @@ class StaticPreviewDataParserTest {
         }
     }
 
-    private fun runTestForLocale(locale: Locale, testLogic: (Context) -> Unit) {
-        Locale.setDefault(locale)
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val config = Configuration(baseContext.resources.configuration)
-        config.setLocale(locale)
-        val localeContext = baseContext.createConfigurationContext(config)
-        val finalContext = spy(localeContext)
-        whenever(finalContext.packageManager).thenReturn(packageManager)
-        testLogic(finalContext)
+    private fun runTestForLocale(
+        locale: Locale,
+        timeZone: TimeZone = TimeZone.getTimeZone("GMT"),
+        testLogic: (Context) -> Unit,
+    ) {
+        val originalLocale = Locale.getDefault()
+        val originalTimeZone = TimeZone.getDefault()
+        try {
+            Locale.setDefault(locale)
+            TimeZone.setDefault(timeZone)
+            val baseContext = ApplicationProvider.getApplicationContext<Context>()
+            val config = Configuration(baseContext.resources.configuration)
+            config.setLocale(locale)
+            val localeContext = baseContext.createConfigurationContext(config)
+            val finalContext = spy(localeContext)
+            whenever(finalContext.packageManager).thenReturn(packageManager)
+            testLogic(finalContext)
+        } finally {
+            Locale.setDefault(originalLocale)
+            TimeZone.setDefault(originalTimeZone)
+        }
     }
 
     @Test
