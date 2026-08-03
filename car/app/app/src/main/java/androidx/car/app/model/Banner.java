@@ -160,7 +160,7 @@ public final class Banner implements Item {
      * <p>This is currently restricted to icons and images only.
      *
      * @see Builder#setLeadingImage(CarIcon)
-     * @see Builder#setLeadingIcon(CarIcon)
+     * @see Builder#setLeadingImage(CarIcon, int)
      */
     public @Nullable BannerElement getLeadingElement() {
         return mLeadingElement;
@@ -170,8 +170,8 @@ public final class Banner implements Item {
      * Returns the list of trailing elements of the banner.
      *
      * @see Builder#addTrailingAction(Action)
-     * @see Builder#addTrailingIcon(CarIcon)
      * @see Builder#addTrailingImage(CarIcon)
+     * @see Builder#addTrailingImage(CarIcon, int)
      */
     public @NonNull List<BannerElement> getTrailingElements() {
         return mTrailingElements;
@@ -320,34 +320,13 @@ public final class Banner implements Item {
             return this;
         }
 
-        /**
-         * Sets the leading element in this banner to be a {@link CarIcon} displayed as an icon.
-         *
-         * <p>Only a single leading icon or image can be set, so this will overwrite calls to
-         * {@link #setLeadingImage(CarIcon)}.
-         *
-         * <p>This is visually distinct from {@link #setLeadingImage(CarIcon)} as icons are smaller
-         * due to added padding, and are expected to be tinted.
-         *
-         * @throws NullPointerException if {@code icon} is {@code null}
-         * @deprecated Use {@link #setLeadingImage(CarIcon, int)} with {@link #IMAGE_TYPE_ICON}
-         */
-        @Deprecated
-        @SuppressLint("MissingGetterMatchingBuilder")
-        public @NonNull Builder setLeadingIcon(@NonNull CarIcon icon) {
-            mLeadingElement = new BannerElement(
-                    BannerElement.TYPE_ICON, /* action= */ null, requireNonNull(icon));
-            return this;
-        }
 
         /**
-         * Sets the leading element in this banner to be a {@link CarIcon} displayed as an image.
+         * Sets the leading element in this banner to be a {@link CarIcon} displayed as an
+         * {@link #IMAGE_TYPE_SMALL} image, not expected to be tinted.
          *
-         * <p>Only a single leading icon or image can be set, so this will overwrite calls to
-         * {@link #setLeadingIcon(CarIcon)}.
-         *
-         * <p>This is visually distinct from {@link #setLeadingIcon(CarIcon)} as images have no
-         * added padding, and are not expected to be tinted.
+         * <p>Only a single leading image can be set. Subsequent calls will overwrite
+         * previous calls.
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
@@ -359,14 +338,16 @@ public final class Banner implements Item {
         /**
          * Sets the leading element in this banner to be a {@link CarIcon} displayed as an image.
          *
-         * <p>Only a single leading icon or image can be set, so this will overwrite calls to
-         * {@link #setLeadingIcon(CarIcon)}.
+         * <p>Only a single leading icon or image can be set. Subsequent calls will overwrite
+         * previous calls.
          *
          * <p>A large image cannot be used in combination with
          * {@link Builder#addBelowAction(Action)}.
          *
          * @param image     the {@link CarIcon} for the leading image
-         * @param imageType the {@link BannerImageType} for the leading image
+         * @param imageType one of {@link Banner#IMAGE_TYPE_ICON}, {@link Banner#IMAGE_TYPE_SMALL},
+         * {@link Banner#IMAGE_TYPE_LARGE}
+         *
          * @throws NullPointerException if {@code image} is {@code null}
          */
         @SuppressLint("MissingGetterMatchingBuilder")
@@ -396,27 +377,8 @@ public final class Banner implements Item {
         }
 
         /**
-         * Adds a {@link CarIcon} to be displayed as an icon to the trailing part of the banner.
-         *
-         * <p>A banner can have at most 2 trailing elements.
-         *
-         * @throws NullPointerException     if {@code icon} is {@code null}
-         * @throws IllegalArgumentException if there are already 2 trailing elements
-         * @deprecated Use {@link #addTrailingImage(CarIcon, int)} with {@link #IMAGE_TYPE_ICON}
-         */
-        @Deprecated
-        @SuppressLint("MissingGetterMatchingBuilder")
-        public @NonNull Builder addTrailingIcon(@NonNull CarIcon icon) {
-            BannerElement element =
-                    new BannerElement(
-                            BannerElement.TYPE_ICON, /* action= */ null, requireNonNull(icon));
-            validateNewTrailingElement(element);
-            mTrailingElements.add(element);
-            return this;
-        }
-
-        /**
-         * Adds a {@link CarIcon} to be displayed as an image to the trailing part of the banner.
+         * Adds a {@link CarIcon} to be displayed as an {@link #IMAGE_TYPE_SMALL} image at the
+         * trailing part of the Banner, not expected to be tinted.
          *
          * <p>A banner can have at most 2 trailing elements.
          *
@@ -440,7 +402,8 @@ public final class Banner implements Item {
          * another large trailing image.
          *
          * @param image     the {@link CarIcon} for the trailing image
-         * @param imageType the {@link BannerImageType} for the trailing image
+         * @param imageType one of {@link Banner#IMAGE_TYPE_ICON}, {@link Banner#IMAGE_TYPE_SMALL},
+         * {@link Banner#IMAGE_TYPE_LARGE}
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if there are already 2 trailing elements
          * @throws IllegalArgumentException if a large trailing image is combined with anything
@@ -482,9 +445,6 @@ public final class Banner implements Item {
          * @throws IllegalArgumentException if the title is null or empty
          * @throws IllegalArgumentException if below actions are used in combination with a large
          *                                  image
-         * @throws IllegalStateException    if there are more than 4 elements across the banner's
-         *                                  leading and trailing elements lists OR more than 2 of
-         *                                  these elements are {@link Action}s
          */
         public @NonNull Banner build() {
             if (CarText.isNullOrEmpty(mTitle)) {
