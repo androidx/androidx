@@ -594,7 +594,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
      * Returns a ComplicationText object that will display the given {@code text} for any input
      * time.
      *
-     * <p>If the text contains spans, some of them may not be rendered by {@link
+     * <p>If the text contains spans, some of them may not be rendered by {@code
      * androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans are
      * {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
      * SuperscriptSpan}, {@link StyleSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and
@@ -709,7 +709,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
          *
          * <p>To use the {@code ^} character within the text, escape it as {@code ^^}.
          *
-         * <p>If the text contains spans, some of them may not be rendered by {@link
+         * <p>If the text contains spans, some of them may not be rendered by {@code
          * androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans
          * are {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
          * SuperscriptSpan}, {@link StyleSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and
@@ -823,7 +823,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
          *
          * <p>To use the {@code ^} character within the text, escape it as {@code ^^}.
          *
-         * <p>If the text contains spans, some of them may not be rendered by {@link
+         * <p>If the text contains spans, some of them may not be rendered by {@code
          * androidx.wear.watchface.complications.rendering.ComplicationDrawable}. Supported spans
          * are {@link ForegroundColorSpan}, {@link LocaleSpan}, {@link SubscriptSpan}, {@link
          * SuperscriptSpan}, {@link StyleSpan}, {@link StrikethroughSpan}, {@link TypefaceSpan} and

@@ -228,7 +228,7 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
          *
          * <p>If not specified, the texts will be concatenated together, separated by spaces.
          *
-         * <p>If the text contains spans, some of them may not be rendered by {@link
+         * <p>If the text contains spans, some of them may not be rendered by {@code
          * ComplicationDrawable}. Supported spans are {@link ForegroundColorSpan}, {@link
          * LocaleSpan}, {@link SubscriptSpan}, {@link SuperscriptSpan}, {@link StyleSpan}, {@link
          * StrikethroughSpan}, {@link TypefaceSpan} and {@link UnderlineSpan}.
