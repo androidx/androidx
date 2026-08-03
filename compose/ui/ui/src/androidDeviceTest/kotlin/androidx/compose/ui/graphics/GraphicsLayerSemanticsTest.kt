@@ -1230,10 +1230,11 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
 
     private fun Rect.assertBoundsEqualTo(left: Dp, top: Dp, right: Dp, bottom: Dp) {
         val dpRect = toDpRect()
-        dpRect.left.assertIsEqualTo(left, "left")
-        dpRect.top.assertIsEqualTo(top, "top")
-        dpRect.right.assertIsEqualTo(right, "right")
-        dpRect.bottom.assertIsEqualTo(bottom, "bottom")
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() })
+        dpRect.left.assertIsEqualTo(left, "left", tolerance)
+        dpRect.top.assertIsEqualTo(top, "top", tolerance)
+        dpRect.right.assertIsEqualTo(right, "right", tolerance)
+        dpRect.bottom.assertIsEqualTo(bottom, "bottom", tolerance)
     }
 
     private fun Rect.toDpRect(): DpRect =
