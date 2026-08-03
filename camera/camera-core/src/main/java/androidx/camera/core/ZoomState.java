@@ -16,15 +16,15 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * An interface which contains the zoom related information from a camera.
  *
  * <p>Applications can retrieve an instance via {@link CameraInfo#getZoomState()}.
  */
 public interface ZoomState {
-    /**
-     * Returns the zoom ratio. The value is 1.0 by default.
-     */
+    /** Returns the zoom ratio. The value is 1.0 by default. */
     float getZoomRatio();
 
     /** Returns the maximum zoom ratio. */
@@ -44,4 +44,39 @@ public interface ZoomState {
      * <p>LinearZoom 0 represents the minimum zoom while linearZoom 1.0 represents the maximum zoom.
      */
     float getLinearZoom();
+
+    /**
+     * Returns the intrinsic zoom ratio of the active physical lens.
+     *
+     * <p>On logical multi-camera devices, the hardware may dynamically transition between physical
+     * lenses as the zoom ratio changes via {@link CameraControl#setZoomRatio(float)}. This value
+     * reflects the {@link CameraInfo#getIntrinsicZoomRatio() intrinsic zoom ratio} of the physical
+     * lens currently capturing frames. Note that requesting a specific zoom ratio does not
+     * guarantee that the camera will switch to a particular physical lens (see
+     * <a href="https://developer.android.com/media/camera/camera2/multi-camera">Multi-camera API</a>).
+     *
+     * <p>Applications can observe {@link CameraInfo#getZoomState()} to update UI indicators when
+     * the active lens transitions:
+     *
+     * <pre>{@code
+     * cameraInfo.getZoomState().observe(lifecycleOwner, zoomState -> {
+     *     float activeRatio = zoomState.getActiveIntrinsicZoomRatio();
+     *     if (activeRatio < 1.0f) {
+     *         updateZoomIndicator("0.5x");
+     *     } else if (activeRatio > 1.0f) {
+     *         updateZoomIndicator("3x");
+     *     } else {
+     *         updateZoomIndicator("1x");
+     *     }
+     * });
+     * }</pre>
+     *
+     * <p>If the camera is not a logical multi-camera, or on API levels lower than {@link
+     * android.os.Build.VERSION_CODES#Q}, this value is always {@code 1.0}.
+     */
+    // TODO: b/317468002 - Make this public in next alpha
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default float getActiveIntrinsicZoomRatio() {
+        return 1.0f;
+    }
 }
