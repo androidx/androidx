@@ -47,6 +47,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
+import androidx.collection.ArraySet;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider.RouteController;
@@ -62,7 +63,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
@@ -309,6 +312,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 continue;
             }
             MediaRouteDescriptor existingDescriptor = descriptorMap.get(desc.getId());
+            if (existingDescriptor != null) {
+                checkAndLogOverlappingClientVersions(existingDescriptor, desc);
+            }
             if (existingDescriptor == null
                     || desc.getMaxClientVersion() >= existingDescriptor.getMaxClientVersion()) {
                 // If duplicate IDs exist, the new descriptor overrides the existing one if it
@@ -317,21 +323,31 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
 
-        List<SessionRecord> staticSessions = new ArrayList<>();
+        List<SessionRecord> sessionRecords;
+        Set<String> availableRouteIds = descriptorMap.keySet();
         synchronized (mLock) {
-            for (SessionRecord sessionRecord : mSessionRecords.values()) {
-                if ((sessionRecord.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0) {
-                    staticSessions.add(sessionRecord);
-                }
-            }
+            sessionRecords = new ArrayList<>(mSessionRecords.values());
         }
-        for (SessionRecord sessionRecord : staticSessions) {
-            DynamicGroupRouteControllerProxy controller =
-                    (DynamicGroupRouteControllerProxy) sessionRecord.getGroupController();
-            if (descriptorMap.containsKey(controller.getRouteId())) {
-                sessionRecord.updateSessionInfo(
-                        descriptorMap.get(controller.getRouteId()),
-                        /* dynamicRouteDescriptors= */ null);
+        for (SessionRecord sessionRecord : sessionRecords) {
+            RoutingSessionInfo sessionInfo = sessionRecord.mSessionInfo;
+            if ((sessionRecord.getFlags() & SessionRecord.SESSION_FLAG_DYNAMIC) == 0) {
+                DynamicGroupRouteControllerProxy controller =
+                        (DynamicGroupRouteControllerProxy) sessionRecord.getGroupController();
+                if (descriptorMap.containsKey(controller.getRouteId())) {
+                    sessionRecord.updateSessionInfo(
+                            descriptorMap.get(controller.getRouteId()),
+                            /* dynamicRouteDescriptors= */ null);
+                } else {
+                    Log.w(
+                            TAG,
+                            String.format(
+                                    Locale.ROOT,
+                                    "Session with id: '%s' has invalid route id: '%s'.",
+                                    sessionInfo != null ? sessionInfo.getId() : "null",
+                                    controller.getRouteId()));
+                }
+            } else if (sessionInfo != null) {
+                checkAndLogInvalidSessionState(availableRouteIds, sessionInfo);
             }
         }
 
@@ -501,6 +517,86 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             return null;
         }
         return service.getMediaRouteProvider();
+    }
+
+    private static void checkAndLogOverlappingClientVersions(
+            MediaRouteDescriptor existingDescriptor, MediaRouteDescriptor newDescriptor) {
+        int greaterMinClientVersion =
+                Math.max(
+                        newDescriptor.getMinClientVersion(),
+                        existingDescriptor.getMinClientVersion());
+        int smallerMaxClientVersion =
+                Math.min(
+                        newDescriptor.getMaxClientVersion(),
+                        existingDescriptor.getMaxClientVersion());
+        boolean isClientVersionOverlapping = greaterMinClientVersion <= smallerMaxClientVersion;
+        if (isClientVersionOverlapping) {
+            String message =
+                    String.format(
+                            Locale.ROOT,
+                            "Found two route descriptors with matching id: '%s' and"
+                                    + " overlapping client versions: [%d, %d], [%d, %d]",
+                            existingDescriptor.getId(),
+                            existingDescriptor.getMinClientVersion(),
+                            existingDescriptor.getMaxClientVersion(),
+                            newDescriptor.getMinClientVersion(),
+                            newDescriptor.getMaxClientVersion());
+            Log.w(TAG, message);
+        }
+    }
+
+    /**
+     * Logs a warning for each route in {@code sessionInfo} that's not in the given set of available
+     * route ids.
+     *
+     * <p>This helps route providers detect invalid states where an active session lists routes that
+     * don't exist according to the latest {@link
+     * MediaRouteProvider#setDescriptor(MediaRouteProviderDescriptor)} call.
+     */
+    private static void checkAndLogInvalidSessionState(
+            Set<String> availableRouteIds, RoutingSessionInfo sessionInfo) {
+        String sessionId = sessionInfo.getId();
+        checkAndLogInvalidRouteIds(
+                sessionId, "selected", availableRouteIds, sessionInfo.getSelectedRoutes());
+        checkAndLogInvalidRouteIds(
+                sessionId, "selectable", availableRouteIds, sessionInfo.getSelectableRoutes());
+        checkAndLogInvalidRouteIds(
+                sessionId, "deselectable", availableRouteIds, sessionInfo.getDeselectableRoutes());
+        checkAndLogInvalidRouteIds(
+                sessionId, "transferable", availableRouteIds, sessionInfo.getTransferableRoutes());
+    }
+
+    private static void checkAndLogInvalidRouteIds(
+            String sessionId,
+            String routeSetName,
+            Set<String> availableRouteIds,
+            List<String> routeIdsToCheck) {
+        for (String routeId : routeIdsToCheck) {
+            if (!availableRouteIds.contains(routeId)) {
+                String message =
+                        String.format(
+                                Locale.ROOT,
+                                "Session with id: '%s' contains invalid %s route id:" + " '%s'.",
+                                sessionId,
+                                routeSetName,
+                                routeId);
+                Log.w(TAG, message);
+            }
+        }
+    }
+
+    /** Returns the ids of available routes in the given provider descriptor. */
+    private static Set<String> getAvailableRouteIds(
+            MediaRouteProviderDescriptor providerDescriptor) {
+        List<MediaRouteDescriptor> routes =
+                providerDescriptor != null
+                        ? providerDescriptor.getRoutes()
+                        : Collections.emptyList();
+        Set<String> availableRouteIds = new ArraySet<>();
+        for (MediaRouteDescriptor desc : routes) {
+            availableRouteIds.add(desc.getId());
+        }
+        return availableRouteIds;
     }
 
     private String assignSessionId(SessionRecord sessionRecord) {
@@ -722,8 +818,12 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 builder.clearDeselectableRoutes();
                 builder.clearTransferableRoutes();
 
+                Set<String> dynamicDescriptorsRouteIds = new ArraySet<>();
                 for (DynamicRouteDescriptor descriptor : dynamicRouteDescriptors) {
                     String routeId = descriptor.getRouteDescriptor().getId();
+                    if (!dynamicDescriptorsRouteIds.add(routeId)) {
+                        Log.w(TAG, "Found duplicate route ID in dynamic routes: " + routeId);
+                    }
                     if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
                             || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
                         builder.addSelectedRoute(routeId);
@@ -759,6 +859,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                         mSessionInfo,
                         RouteControllerOptions.EMPTY);
             }
+
+            checkAndLogInvalidSessionState(getAvailableRouteIds(mProviderDescriptor), mSessionInfo);
 
             if (!mIsCreated) {
                 notifySessionCreated();
