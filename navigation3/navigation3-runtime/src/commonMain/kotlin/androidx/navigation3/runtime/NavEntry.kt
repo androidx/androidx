@@ -34,6 +34,13 @@ import androidx.compose.runtime.Immutable
  *    contentKey type must be saveable (i.e. on Android, it should be saveable via Android).
  *    Defaults to [key].toString().
  *
+ *    **IMPORTANT for JS platform** Make sure to override the default contentKey for hierarchical
+ *    keys. ContentKey defaults to a [Pair] of `key.toString()` and `key::class`. On JS,
+ *    `key::class` returns the simple class name because fully qualified names are not supported.
+ *    This means that certain hierarchical keys, such as same class names with different parent
+ *    interfaces will share the same default contentKey - `A.Home` & `B.Home` will both have
+ *    `Pair("Home", "class Home") as contentKey.
+ *
  * @param metadata provides information to the display
  * @param content content for this entry to be displayed when this entry is active
  */
@@ -89,4 +96,4 @@ public class NavEntry<T : Any>(
     }
 }
 
-@PublishedApi internal fun defaultContentKey(key: Any): Any = key.toString()
+@PublishedApi internal fun defaultContentKey(key: Any): Any = Pair("$key", "${key::class}")

@@ -36,6 +36,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.kruth.assertThat
+import androidx.navigation3.defaultContentKey
 import androidx.navigation3.first
 import androidx.navigation3.fourth
 import androidx.navigation3.runtime.NavBackStack
@@ -776,7 +777,7 @@ class NavDisplayTest {
                     "in the previously active backstack"
             )
             .that(poppedKeys)
-            .containsExactly(first, third)
+            .containsExactly(first.defaultContentKey(), third.defaultContentKey())
     }
 
     @Test
@@ -841,7 +842,7 @@ class NavDisplayTest {
         // It should be popped even if it's hidden!
         assertWithMessage("onPop SHOULD be called when an entry is removed from a hidden backstack")
             .that(poppedKeys1)
-            .containsExactly(first)
+            .containsExactly(first.defaultContentKey())
     }
 
     @Test
