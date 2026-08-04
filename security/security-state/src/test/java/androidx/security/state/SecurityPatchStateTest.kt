@@ -252,7 +252,7 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(invalidJson)
     }
 
-    @Suppress("DEPRECATION_ERROR")
+    @Suppress("DEPRECATION")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
     @Test
@@ -281,7 +281,7 @@ class SecurityPatchStateTest {
         assertEquals(expectedUrl, actualUrl)
     }
 
-    @Suppress("DEPRECATION_ERROR")
+    @Suppress("DEPRECATION")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
     @Test
