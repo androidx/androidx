@@ -19,6 +19,7 @@ package androidx.health.connect.client.testing
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import java.util.concurrent.CopyOnWriteArraySet
 
 /**
  * A fake [PermissionController] that enables full control of permissions in tests for a
@@ -27,8 +28,15 @@ import androidx.health.connect.client.permission.HealthPermission
  * @param grantAll grants all permissions on creation
  */
 public class FakePermissionController(grantAll: Boolean = true) : PermissionController {
+    /**
+     * Used to override or intercept responses to emulate scenarios that [FakePermissionController]
+     * doesn't support directly, such as throwing an exception or applying custom logic to the
+     * responses.
+     */
+    public val overrides: FakePermissionControllerOverrides = FakePermissionControllerOverrides()
+
     private val grantedPermissions =
-        if (grantAll) HealthPermission.ALL_PERMISSIONS.toMutableSet() else mutableSetOf()
+        CopyOnWriteArraySet(if (grantAll) HealthPermission.ALL_PERMISSIONS else emptySet())
 
     /** Replaces the set of permissions returned by [getGrantedPermissions] with a new set. */
     public fun replaceGrantedPermissions(permissions: Set<String>) {
@@ -55,11 +63,17 @@ public class FakePermissionController(grantAll: Boolean = true) : PermissionCont
 
     /** Returns a fake set of permissions. */
     override suspend fun getGrantedPermissions(): Set<String> {
+        overrides.getGrantedPermissions?.next(Unit)?.let {
+            return it
+        }
         return grantedPermissions.toSet()
     }
 
     /** Clears the set of permissions returned by [getGrantedPermissions]. */
     override suspend fun revokeAllPermissions() {
+        overrides.revokeAllPermissions?.next(Unit)?.let {
+            return
+        }
         grantedPermissions.clear()
     }
 }
