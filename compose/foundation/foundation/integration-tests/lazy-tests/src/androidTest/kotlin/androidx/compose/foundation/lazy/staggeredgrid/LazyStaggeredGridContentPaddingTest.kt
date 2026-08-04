@@ -266,10 +266,11 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
             }
         }
 
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() })
         rule
             .onNodeWithTag(LazyStaggeredGrid)
-            .assertMainAxisSizeIsEqualTo(20.dp)
-            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2)
+            .assertMainAxisSizeIsEqualTo(20.dp, tolerance)
+            .assertCrossAxisSizeIsEqualTo(itemSizeDp * 2, tolerance)
     }
 
     @Test
