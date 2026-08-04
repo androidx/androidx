@@ -111,7 +111,7 @@ public class CameraSurfaceManager {
 
     internal fun registerSurface(surface: Surface): AutoCloseable {
         if (!surface.isValid) {
-            Log.warn { "registerSurface: Surface $surface isn't valid!" }
+            Log.warn { "registerSurface: Surface $surface is invalid!" }
         }
         val surfaceToken: SurfaceToken
         var listenersToInvoke: List<SurfaceListener>? = null
