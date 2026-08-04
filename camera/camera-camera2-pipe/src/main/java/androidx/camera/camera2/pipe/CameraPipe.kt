@@ -74,7 +74,7 @@ public interface CameraPipe {
     public fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph>
 
     /**
-     * [FrameGraph] extends [CameraGraph] and provides tools to more easily interact with [Frame]'s,
+     * [FrameGraph] extends [CameraGraph] and provides tools to more easily interact with [Frame]s,
      * images, and metadata from the camera, while maintaining the capabilities of [CameraGraph].
      *
      * This creates a new [FrameGraph] that can be used to interact with a single Camera on the
@@ -177,6 +177,7 @@ public interface CameraPipe {
      * will be used to run asynchronous background work across [CameraPipe].
      * - [defaultLightweightExecutor] is used to run fast, non-blocking, lightweight tasks.
      * - [defaultBackgroundExecutor] is used to run blocking and/or io bound tasks.
+     * - [defaultBlockingExecutor] is used for tasks that may block threads, such as disk or I/O.
      * - [defaultCameraExecutor] is used on newer API versions to interact with CameraAPIs. This is
      *   split into a separate field since many camera operations are extremely latency sensitive.
      * - [defaultCameraHandler] is used on older API versions to interact with CameraAPIs. This is

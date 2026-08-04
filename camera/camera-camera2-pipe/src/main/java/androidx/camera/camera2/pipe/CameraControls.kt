@@ -177,12 +177,8 @@ public value class FlashMode(public val value: Int) {
 /**
  * Enum to turn the torch on/off.
  *
- * <https://developer.android.com/reference/android/hardware/camera2/CameraMetadata
- *
- * #CONTROL_AE_MODE_OFF
- * https://developer.android.com/reference/android/hardware/camera2/CameraMetadata
- *
- * #CONTROL_AE_MODE_ON
+ * https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_OFF
+ * https://developer.android.com/reference/android/hardware/camera2/CameraMetadata#CONTROL_AE_MODE_ON
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TorchState private constructor() {
@@ -221,7 +217,7 @@ public value class Lock3ABehavior private constructor(public val value: Int) {
     }
 }
 
-/** Requirement to converging auto exposure, autofocus and auto while balance. */
+/** Requirement to converging auto exposure, autofocus and auto white balance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class Converge3ABehavior private constructor(public val value: Int) {
@@ -241,7 +237,7 @@ public value class Converge3ABehavior private constructor(public val value: Int)
  * @param frameMetadata [FrameMetadata] of the latest frame at which the method succeeded or was
  *   aborted. The metadata reflects CaptureResult or TotalCaptureResult for that frame. It can so
  *   happen that the [CaptureResult] itself has all the key-value pairs needed to determine the
- *   completion of the method, in that case this frameMetadata may not contain all the kay value
+ *   completion of the method, in that case this frameMetadata may not contain all the key-value
  *   pairs associated with the final result i.e. [TotalCaptureResult] of this frame.
  * @param frameInfo [FrameInfo] i.e. the TotalCaptureResult for the frame at which the method
  *   succeeded or was aborted. Note that to optimize for latency we complete the [status] and
@@ -256,7 +252,7 @@ public data class Result3A(
 ) {
     /**
      * Enum to know the status of 3A operation in case the method returns before the desired
-     * operation is complete. The reason could be that the operation was talking a lot longer and an
+     * operation is complete. The reason could be that the operation was taking a lot longer and an
      * enforced frame or time limit was reached, submitting the desired request to camera failed
      * etc.
      */
