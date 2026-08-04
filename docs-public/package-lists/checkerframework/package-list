@@ -133,7 +133,6 @@ org.checkerframework.framework.util.typeinference8.constraint
 org.checkerframework.framework.util.typeinference8.types
 org.checkerframework.framework.util.typeinference8.util
 org.checkerframework.javacutil
-org.checkerframework.javacutil.javacparse
 org.checkerframework.javacutil.trees
 org.checkerframework.taglet
 org.jmlspecs.annotation

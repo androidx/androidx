@@ -28,11 +28,14 @@ android.app.blob
 android.app.jank
 android.app.job
 android.app.people
+android.app.permissionui
+android.app.privatecompute
 android.app.role
 android.app.sdksandbox
 android.app.sdksandbox.sdkprovider
 android.app.slice
 android.app.usage
+android.app.voiceinteraction
 android.app.wallpaper
 android.appwidget
 android.bluetooth
@@ -43,6 +46,7 @@ android.content
 android.content.om
 android.content.pm
 android.content.pm.verify.domain
+android.content.pm.webapp
 android.content.res
 android.content.res.loader
 android.credentials
@@ -67,8 +71,10 @@ android.hardware.biometrics
 android.hardware.camera2
 android.hardware.camera2.params
 android.hardware.display
+android.hardware.hid
 android.hardware.input
 android.hardware.lights
+android.hardware.serial
 android.hardware.usb
 android.health.connect
 android.health.connect.changelog
@@ -124,6 +130,9 @@ android.os.ext
 android.os.flagging
 android.os.health
 android.os.storage
+android.os.storage.operations
+android.os.storage.operations.sources
+android.os.storage.operations.targets
 android.os.strictmode
 android.os.vibrator
 android.preference
@@ -147,6 +156,7 @@ android.security
 android.security.advancedprotection
 android.security.identity
 android.security.keystore
+android.security.net.config
 android.service.assist.classification
 android.service.autofill
 android.service.carrier
@@ -157,6 +167,7 @@ android.service.controls.templates
 android.service.credentials
 android.service.dreams
 android.service.media
+android.service.messaging
 android.service.notification
 android.service.persistentdata
 android.service.quickaccesswallet
