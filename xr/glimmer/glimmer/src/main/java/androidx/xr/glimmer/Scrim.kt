@@ -18,6 +18,7 @@ package androidx.xr.glimmer
 
 import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -28,9 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.util.fastCoerceAtMost
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Applies a gradient scrim (a fade effect) to the edges of the content. This scrim is not visible
@@ -51,149 +54,127 @@ internal fun Modifier.edgeScrim(
     maxScrimSize: Dp,
     orientation: Orientation,
 ): Modifier {
-    require(maxScrimSize.value >= 0f) { "Scrim size can't be negative: $maxScrimSize" }
-    if (maxScrimSize.value == 0f) {
-        return this
-    }
+    if (maxScrimSize.value == 0f) return this
+    require(maxScrimSize.value > 0f) { "Scrim size can't be negative: $maxScrimSize" }
 
-    // Offscreen composition strategy is used because below scrim uses DstOut blend mode,
-    // which cuts out the content of the list and keeps only the background behind.
     val modifier = graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
     return if (orientation == Orientation.Vertical) {
-        modifier.drawVerticalScrim(
-            state = state,
-            scrimHeight = maxScrimSize,
-            gradientStops = DefaultGradientStops,
-        )
+        modifier.drawWithCache {
+            val maxScrimHeight = (size.height / 2f).coerceAtMost(maxScrimSize.toPx())
+            onDrawWithContent {
+                drawContent()
+                drawScrims(
+                    left = 0f,
+                    top = state.scrollOffset.toFloat().coerceAtMost(maxScrimHeight),
+                    right = 0f,
+                    bottom = state.scrollEndOffset().toFloat().coerceAtMost(maxScrimHeight),
+                )
+            }
+        }
     } else {
-        modifier.drawHorizontalScrim(
-            state = state,
-            scrimWidth = maxScrimSize,
-            gradientStops = DefaultGradientStops,
+        modifier.drawWithCache {
+            val maxScrimWidth = (size.width / 2f).coerceAtMost(maxScrimSize.toPx())
+            onDrawWithContent {
+                drawContent()
+                val start = state.scrollOffset.toFloat().coerceAtMost(maxScrimWidth)
+                val end = state.scrollEndOffset().toFloat().coerceAtMost(maxScrimWidth)
+                drawScrims(
+                    left = if (layoutDirection == LayoutDirection.Ltr) start else end,
+                    top = 0f,
+                    right = if (layoutDirection == LayoutDirection.Ltr) end else start,
+                    bottom = 0f,
+                )
+            }
+        }
+    }
+}
+
+private fun ScrollIndicatorState.scrollEndOffset() = contentSize - scrollOffset - viewportSize
+
+/**
+ * Applies a gradient scrim (a fade effect) to the edges of the content.
+ *
+ * The returned [PaddingValues] defines how far inset into the content the scrim will be.
+ */
+internal fun Modifier.edgeScrim(scrims: Density.(Size) -> PaddingValues): Modifier =
+    graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen).drawWithCache {
+        onDrawWithContent {
+            val scrims = scrims(this, size)
+            drawContent()
+            if (scrims != PaddingValues.Zero) {
+                drawScrims(
+                    left = scrims.calculateLeftPadding(layoutDirection).toPx(),
+                    top = scrims.calculateTopPadding().toPx(),
+                    right = scrims.calculateRightPadding(layoutDirection).toPx(),
+                    bottom = scrims.calculateBottomPadding().toPx(),
+                )
+            }
+        }
+    }
+
+private fun DrawScope.drawScrims(left: Float, top: Float, right: Float, bottom: Float) {
+    val contentSize = size
+    if (left > 0f) {
+        scale(scaleX = left, scaleY = contentSize.height, pivot = Offset.Zero) {
+            drawScrimRect(ScrimUnitBrushes.Left)
+        }
+    }
+    if (top > 0f) {
+        scale(scaleX = contentSize.width, scaleY = top, pivot = Offset.Zero) {
+            drawScrimRect(ScrimUnitBrushes.Top)
+        }
+    }
+    if (right > 0f) {
+        withTransform({
+            translate(left = contentSize.width - right)
+            scale(scaleX = right, scaleY = contentSize.height, pivot = Offset.Zero)
+        }) {
+            drawScrimRect(ScrimUnitBrushes.Right)
+        }
+    }
+    if (bottom > 0f) {
+        withTransform({
+            translate(top = contentSize.height - bottom)
+            scale(scaleX = contentSize.width, scaleY = bottom, pivot = Offset.Zero)
+        }) {
+            drawScrimRect(ScrimUnitBrushes.Bottom)
+        }
+    }
+}
+
+private fun DrawScope.drawScrimRect(brush: Brush) {
+    // we are already scaled and translated before drawing this, so just draw a 1x1 rect
+    drawRect(brush = brush, size = Size(1f, 1f), blendMode = BlendMode.DstOut)
+}
+
+/**
+ * "Unit" brushes, which apply a scrim properly to a 1x1 square.
+ *
+ * Before using these, use [DrawScope.withTransform] to translate and scale appropriately.
+ */
+private object ScrimUnitBrushes {
+    val Left =
+        Brush.horizontalGradient(
+            colors = listOf(Color.Black, Color.Transparent),
+            startX = 0f,
+            endX = 1f,
         )
-    }
+    val Top =
+        Brush.verticalGradient(
+            colors = listOf(Color.Black, Color.Transparent),
+            startY = 0f,
+            endY = 1f,
+        )
+    val Right =
+        Brush.horizontalGradient(
+            colors = listOf(Color.Transparent, Color.Black),
+            startX = 0f,
+            endX = 1f,
+        )
+    val Bottom =
+        Brush.verticalGradient(
+            colors = listOf(Color.Transparent, Color.Black),
+            startY = 0f,
+            endY = 1f,
+        )
 }
-
-/** Please see [edgeScrim] for documentation. */
-private fun Modifier.drawVerticalScrim(
-    state: ScrollIndicatorState,
-    scrimHeight: Dp,
-    gradientStops: Array<Pair<Float, Color>>,
-): Modifier {
-    return drawWithCache {
-        val scrimHeightPx = minOf(scrimHeight.toPx(), size.height / 2)
-
-        val topBrush =
-            Brush.verticalGradient(colorStops = gradientStops, startY = 0f, endY = scrimHeightPx)
-        val bottomBrush =
-            Brush.verticalGradient(
-                colorStops = gradientStops,
-                startY = size.height,
-                endY = size.height - scrimHeightPx,
-            )
-        val scrimSize = size.copy(height = scrimHeightPx)
-        val bottomOffset = Offset(x = 0f, y = size.height - scrimHeightPx)
-        val bottomPivot = Offset(x = 0f, y = size.height)
-
-        onDrawWithContent {
-            drawContent()
-            drawScrim(
-                state = state,
-                orientation = Orientation.Vertical,
-                scrimMaxSizePx = scrimHeightPx,
-                scrimSize = scrimSize,
-                startBrush = topBrush,
-                endBrush = bottomBrush,
-                endPivot = bottomPivot,
-                endOffset = bottomOffset,
-            )
-        }
-    }
-}
-
-/** Please see [edgeScrim] for documentation. */
-private fun Modifier.drawHorizontalScrim(
-    state: ScrollIndicatorState,
-    scrimWidth: Dp,
-    gradientStops: Array<Pair<Float, Color>>,
-): Modifier {
-    return drawWithCache {
-        val scrimWidthPx = minOf(scrimWidth.toPx(), size.width / 2)
-
-        val leftBrush =
-            Brush.horizontalGradient(colorStops = gradientStops, startX = 0f, endX = scrimWidthPx)
-        val rightBrush =
-            Brush.horizontalGradient(
-                colorStops = gradientStops,
-                startX = size.width,
-                endX = size.width - scrimWidthPx,
-            )
-
-        val scrimSize = size.copy(width = scrimWidthPx)
-        val rightOffset = Offset(x = size.width - scrimWidthPx, y = 0f)
-        val rightPivot = Offset(x = size.width, y = 0f)
-
-        onDrawWithContent {
-            drawContent()
-            drawScrim(
-                state = state,
-                orientation = Orientation.Horizontal,
-                scrimMaxSizePx = scrimWidthPx,
-                scrimSize = scrimSize,
-                startBrush = leftBrush,
-                endBrush = rightBrush,
-                endPivot = rightPivot,
-                endOffset = rightOffset,
-            )
-        }
-    }
-}
-
-private fun DrawScope.drawScrim(
-    state: ScrollIndicatorState,
-    orientation: Orientation,
-    scrimMaxSizePx: Float,
-    scrimSize: Size,
-    startBrush: Brush,
-    endBrush: Brush,
-    endPivot: Offset,
-    endOffset: Offset,
-) {
-    val startScrollOffsetPx = state.scrollOffset
-    val endScrollOffsetPx = state.contentSize - state.viewportSize - startScrollOffsetPx
-
-    val startScrimScale = (startScrollOffsetPx / scrimMaxSizePx).fastCoerceAtMost(1f)
-    val endScrimScale = (endScrollOffsetPx / scrimMaxSizePx).fastCoerceAtMost(1f)
-
-    if (startScrimScale > 0f) {
-        scale(
-            scaleX = if (orientation == Orientation.Vertical) 1f else startScrimScale,
-            scaleY = if (orientation == Orientation.Vertical) startScrimScale else 1f,
-            pivot = Offset.Zero,
-        ) {
-            drawRect(
-                brush = startBrush,
-                topLeft = Offset.Zero,
-                size = scrimSize,
-                blendMode = BlendMode.DstOut,
-            )
-        }
-    }
-    if (endScrimScale > 0f) {
-        scale(
-            scaleX = if (orientation == Orientation.Vertical) 1f else endScrimScale,
-            scaleY = if (orientation == Orientation.Vertical) endScrimScale else 1f,
-            pivot = endPivot,
-        ) {
-            drawRect(
-                brush = endBrush,
-                topLeft = endOffset,
-                size = scrimSize,
-                blendMode = BlendMode.DstOut,
-            )
-        }
-    }
-}
-
-private val DefaultGradientStops: Array<Pair<Float, Color>> =
-    arrayOf(0.00f to Color.Black, 1.00f to Color.Transparent)
