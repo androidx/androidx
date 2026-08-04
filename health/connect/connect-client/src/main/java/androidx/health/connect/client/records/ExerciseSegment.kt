@@ -17,7 +17,9 @@
 package androidx.health.connect.client.records
 
 import android.os.Build
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.platform.records.toPlatformExerciseSegment
 import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseTypes
@@ -40,7 +42,7 @@ constructor(
     /** Type of segment (e.g. biking, plank). */
     @property:ExerciseSegmentTypes public val segmentType: Int,
     /** Number of repetitions in the segment. Must be non-negative. */
-    public val repetitions: Int = 0,
+    @IntRange(from = 0) @get:IntRange(from = 0) public val repetitions: Int = 0,
     /** Weight used in the segment. Must be non-negative. */
     public val weight: Mass? = null,
     @Suppress("AutoBoxing")
@@ -64,6 +66,8 @@ constructor(
      *
      * Must be non-negative.
      */
+    @IntRange(from = 0)
+    @get:IntRange(from = 0)
     public val setIndex: Int? = null,
     @Suppress("AutoBoxing")
     @get:Suppress("AutoBoxing")
@@ -79,6 +83,8 @@ constructor(
      * - 8-9: Very hard
      * - 10: Maximum effort
      */
+    @FloatRange(from = 0.0, to = 10.0)
+    @get:FloatRange(from = 0.0, to = 10.0)
     public val rateOfPerceivedExertion: Float? = null,
 ) {
 

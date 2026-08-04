@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import android.os.Build
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -76,6 +77,8 @@ internal constructor(
      *
      * See [ExerciseSegment.rateOfPerceivedExertion]
      */
+    @FloatRange(from = 0.0, to = 10.0)
+    @get:FloatRange(from = 0.0, to = 10.0)
     val rateOfPerceivedExertion: Float? = null,
 ) : IntervalRecord {
 
@@ -102,6 +105,7 @@ internal constructor(
         plannedExerciseSessionId: String? = null,
         @Suppress("AutoBoxing")
         /** Rate of perceived exertion (RPE) for the session. Must be between 0 and 10. */
+        @FloatRange(from = 0.0, to = 10.0)
         rateOfPerceivedExertion: Float? = null,
     ) : this(
         startTime,
