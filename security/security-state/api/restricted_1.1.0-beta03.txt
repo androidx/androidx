@@ -8,6 +8,8 @@ package androidx.security.state {
     ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat);
     ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModulePackageNames, optional androidx.security.state.SecurityStateManagerCompat? customSecurityStateManagerCompat, optional String? vulnerabilityReportJsonString);
     method public final boolean areCvesPatched(java.util.List<java.lang.String> cveList);
+    method @RequiresApi(26) public static final android.net.Uri createVulnerabilityReportUrl();
+    method @RequiresApi(26) public static final android.net.Uri createVulnerabilityReportUrl(optional android.net.Uri serverUrl);
     method public final suspend Object? fetchAvailableSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, optional long timeoutMillis, kotlin.coroutines.Continuation<? super androidx.security.state.SecurityPatchState.SecurityPatchLevel>);
     method @BytecodeOnly public static Object! fetchAvailableSecurityPatchLevel$default(androidx.security.state.SecurityPatchState!, String!, long, kotlin.coroutines.Continuation!, int, Object!);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.security.state.SecurityPatchState.SecurityPatchLevel> fetchAvailableSecurityPatchLevelAsync(@androidx.security.state.SecurityPatchState.Component String component);
@@ -17,8 +19,8 @@ package androidx.security.state {
     method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component);
     method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.Set<java.lang.String>> getPatchedCves(@androidx.security.state.SecurityPatchState.Component String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
     method public java.util.List<androidx.security.state.SecurityPatchState.SecurityPatchLevel> getPublishedSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component);
-    method @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl();
-    method @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    method @Deprecated @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl();
+    method @Deprecated @RequiresApi(26) public static final android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
     method public final boolean isDeviceFullyUpdated();
     method @WorkerThread public final void loadVulnerabilityReport(String jsonString);
     method public final suspend Object? queryAllAvailableUpdates(optional long timeoutMillis, kotlin.coroutines.Continuation<? super java.util.List<androidx.security.state.UpdateCheckResult>>);
@@ -31,20 +33,23 @@ package androidx.security.state {
     field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";
     field public static final androidx.security.state.SecurityPatchState.Companion Companion;
     field public static final java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
-    field public static final String DEFAULT_VULNERABILITY_REPORTS_URL = "https://storage.googleapis.com/osv-android-api";
+    field @Deprecated public static final String DEFAULT_VULNERABILITY_REPORTS_URL = "https://storage.googleapis.com/osv-android-api";
     field public static final long UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS = 5000L; // 0x1388L
   }
 
   public static final class SecurityPatchState.Companion {
+    method @RequiresApi(26) public android.net.Uri createVulnerabilityReportUrl();
+    method @RequiresApi(26) public android.net.Uri createVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    method @BytecodeOnly @RequiresApi(26) public static android.net.Uri! createVulnerabilityReportUrl$default(androidx.security.state.SecurityPatchState.Companion!, android.net.Uri!, int, Object!);
     method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(@androidx.security.state.SecurityPatchState.Component String component, String securityPatchLevel);
-    method @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl();
-    method @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
-    method @BytecodeOnly @RequiresApi(26) public static android.net.Uri! getVulnerabilityReportUrl$default(androidx.security.state.SecurityPatchState.Companion!, android.net.Uri!, int, Object!);
+    method @Deprecated @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl();
+    method @Deprecated @RequiresApi(26) public android.net.Uri getVulnerabilityReportUrl(optional android.net.Uri serverUrl);
+    method @BytecodeOnly @Deprecated @RequiresApi(26) public static android.net.Uri! getVulnerabilityReportUrl$default(androidx.security.state.SecurityPatchState.Companion!, android.net.Uri!, int, Object!);
     property public static String COMPONENT_KERNEL;
     property public static String COMPONENT_SYSTEM;
     property public static String COMPONENT_SYSTEM_MODULES;
     property public java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
-    property public static String DEFAULT_VULNERABILITY_REPORTS_URL;
+    property @Deprecated public static String DEFAULT_VULNERABILITY_REPORTS_URL;
     property public static long UPDATE_INFO_SERVICE_BINDING_TIMEOUT_MS;
   }
 

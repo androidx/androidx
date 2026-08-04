@@ -134,8 +134,15 @@ constructor(
             )
 
         /** URL for the Google-provided data of vulnerabilities from Android Security Bulletin. */
+        @Deprecated(
+            message = "This URL will stop working. Use createVulnerabilityReportUrl instead.",
+            replaceWith = ReplaceWith("SecurityPatchState.createVulnerabilityReportUrl()"),
+            level = DeprecationLevel.ERROR,
+        )
         public const val DEFAULT_VULNERABILITY_REPORTS_URL: String =
             "https://storage.googleapis.com/osv-android-api"
+
+        private const val OSV_VULNERABILITY_REPORTS_URL: String = "https://android-api.osv.dev"
 
         /**
          * Timeout in milliseconds to wait for an [IUpdateInfoService] implementation to bind.
@@ -214,6 +221,30 @@ constructor(
          * @return A fully constructed URL pointing to the specific vulnerability report for this
          *   device.
          */
+        @JvmOverloads
+        @JvmStatic
+        @RequiresApi(26)
+        public fun createVulnerabilityReportUrl(
+            serverUrl: Uri = Uri.parse(OSV_VULNERABILITY_REPORTS_URL)
+        ): Uri {
+            val newEndpoint = "v1/android_sdk_${Build.VERSION.SDK_INT}.json"
+            return serverUrl.buildUpon().appendEncodedPath(newEndpoint).build()
+        }
+
+        /**
+         * Constructs a URL for fetching vulnerability reports based on the device's Android
+         * version.
+         *
+         * @param serverUrl The base URL of the server where vulnerability reports are stored.
+         * @return A fully constructed URL pointing to the specific vulnerability report for this
+         *   device.
+         */
+        @Suppress("DEPRECATION_ERROR")
+        @Deprecated(
+            message = "Use createVulnerabilityReportUrl instead.",
+            replaceWith = ReplaceWith("SecurityPatchState.createVulnerabilityReportUrl()"),
+            level = DeprecationLevel.ERROR,
+        )
         @JvmOverloads
         @JvmStatic
         @RequiresApi(26)
