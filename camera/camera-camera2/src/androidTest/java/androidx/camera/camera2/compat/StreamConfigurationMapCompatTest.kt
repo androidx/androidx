@@ -23,7 +23,6 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.compat.quirk.PixelJpegRSupportedQuirk
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.CameraSelector
@@ -60,10 +59,7 @@ class StreamConfigurationMapCompatTest {
         val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(CameraId(cameraId))!!
         streamConfigurationMap = cameraMetadata[SCALER_STREAM_CONFIGURATION_MAP]!!
         streamConfigurationMapCompat =
-            StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
-            )
+            StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata)
     }
 
     @After

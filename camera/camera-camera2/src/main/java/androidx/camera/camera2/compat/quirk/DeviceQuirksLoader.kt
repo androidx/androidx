@@ -191,6 +191,14 @@ public object DeviceQuirksLoader {
             quirks.add(CaptureSessionOnClosedNotCalledQuirk())
         }
         if (
+            quirkSettings.shouldEnableQuirk(
+                UnsupportedFormatsQuirk::class.java,
+                UnsupportedFormatsQuirk.isEnabled(),
+            )
+        ) {
+            quirks.add(UnsupportedFormatsQuirk())
+        }
+        if (
             quirkSettings.shouldEnableQuirk(ZslDisablerQuirk::class.java, ZslDisablerQuirk.load())
         ) {
             quirks.add(ZslDisablerQuirk())

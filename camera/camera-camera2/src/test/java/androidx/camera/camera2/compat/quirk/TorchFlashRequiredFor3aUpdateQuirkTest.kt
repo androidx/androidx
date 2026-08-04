@@ -19,7 +19,6 @@ package androidx.camera.camera2.compat.quirk
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.Quirks
@@ -85,16 +84,8 @@ class TorchFlashRequiredFor3AUpdateQuirkTest(
                 characteristicsOverrides = characteristicsMap,
             )
 
-        return CameraQuirks(
-                cameraMetadata,
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        cameraMetadata,
-                        StreamConfigurationMapBuilder.newBuilder().build(),
-                    ),
-                ),
-            )
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
+        return CameraQuirks(cameraMetadata, StreamConfigurationMapCompat(map, cameraMetadata))
             .quirks
     }
 

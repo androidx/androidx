@@ -46,7 +46,6 @@ import androidx.camera.camera2.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.CameraConfig
@@ -794,10 +793,7 @@ class UseCaseManagerTest {
                 ComboRequestListener(),
             )
         val cameraQuirks =
-            CameraQuirks(
-                fakeCameraMetadata,
-                StreamConfigurationMapCompat(null, OutputSizesCorrector(fakeCameraMetadata, null)),
-            )
+            CameraQuirks(fakeCameraMetadata, StreamConfigurationMapCompat(null, fakeCameraMetadata))
         val configProvider =
             CameraGraphConfigProvider(
                 callbackMap = CameraCallbackMap(),

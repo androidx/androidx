@@ -23,7 +23,6 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.AttachedSurfaceInfo
@@ -52,7 +51,7 @@ public class HighSpeedResolver(private val cameraMetadata: CameraMetadata) {
         val map =
             cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
                 ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
-        StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata, map))
+        StreamConfigurationMapCompat(map, cameraMetadata)
     }
 
     private val supportedSizes: List<Size> by lazy {
