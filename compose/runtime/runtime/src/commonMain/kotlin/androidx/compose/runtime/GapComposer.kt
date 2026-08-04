@@ -1318,7 +1318,7 @@ internal class GapComposer(
 
         updateCompositeKeyWhenWeEnterGroup(key, rGroupIndex, objectKey, data)
 
-        if (objectKey == null) rGroupIndex++
+        if (objectKey == null || (key == providerKey && objectKey == provider)) rGroupIndex++
 
         // Check for the insert fast path. If we are already inserting (creating nodes) then
         // there is no need to track insert, deletes and moves with a pending changes object.
