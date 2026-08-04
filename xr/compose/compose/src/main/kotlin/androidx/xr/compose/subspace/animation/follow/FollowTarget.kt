@@ -17,18 +17,14 @@
 package androidx.xr.compose.subspace.animation.follow
 
 import androidx.annotation.RestrictTo
+import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorSpace
-import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
-import java.lang.Runnable
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 
 /**
@@ -38,11 +34,16 @@ import kotlinx.coroutines.flow.map
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class FollowTarget
 internal constructor(
-    public val behavior: FollowBehavior,
-    public val dimensions: TrackedDimensions,
+    internal val behavior: FollowBehavior,
+    internal val dimensions: TrackedDimensions,
 ) {
-    internal suspend fun start(trailingEntity: CoreGroupEntity) {
-        behavior.start(trailingEntity = trailingEntity, target = this, dimensions = dimensions)
+    internal suspend fun start(session: Session, trailingEntity: CoreGroupEntity) {
+        behavior.start(
+            session = session,
+            trailingEntity = trailingEntity,
+            target = this,
+            dimensions = dimensions,
+        )
     }
 
     public companion object {
@@ -50,11 +51,6 @@ internal constructor(
          * By designating content to follow the AR device, it will keep that content near the device
          * camera and typically within the field of view, even as the device moves around.
          *
-         * The [Session] is required to access the device's tracking state and to perform pose
-         * transformations between coordinate spaces.
-         *
-         * @param session the current [Session] instance used to track the device and transform
-         *   poses.
          * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
          *   target. It can be made to move faster and be more responsive. The default is
          *   [FollowBehavior.Soft()].
@@ -65,17 +61,16 @@ internal constructor(
          *   user moves vertically up and down.
          */
         public fun ArDevice(
-            session: Session,
             behavior: FollowBehavior = FollowBehavior.Soft(),
             dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = ArDeviceTarget(session, behavior, dimensions)
+        ): FollowTarget = ArDeviceTarget(behavior, dimensions)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
          *
-         * @param anchorSpace represents the anchor which this
-         *   [androidx.xr.compose.spatial.Subspace] will be tethered to. As the anchor moves, so
-         *   will the [androidx.xr.compose.spatial.Subspace]
+         * @param anchor represents the anchor which this [androidx.xr.compose.spatial.Subspace]
+         *   will be tethered to. As the anchor moves, so will the
+         *   [androidx.xr.compose.spatial.Subspace]
          * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
          *   target. It can be made to move faster and be more responsive. The default is
          *   [FollowBehavior.Tight].
@@ -86,28 +81,27 @@ internal constructor(
          *   user moves vertically up and down.
          */
         public fun Anchor(
-            anchorSpace: AnchorSpace,
+            anchor: Anchor,
             behavior: FollowBehavior = FollowBehavior.Tight,
             dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = AnchorTarget(anchorSpace, behavior, dimensions)
+        ): FollowTarget = AnchorTarget(anchor, behavior, dimensions)
     }
 }
 
 internal interface FollowTargetFlow {
-    val poseUpdates: Flow<Pose>
+    fun poseUpdates(session: Session): Flow<Pose>
 }
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ArDeviceTarget(
-    private val session: Session,
     behavior: FollowBehavior = FollowBehavior.Soft(),
     dimensions: TrackedDimensions = TrackedDimensions.All,
 ) : FollowTarget(behavior, dimensions), FollowTargetFlow {
     // Distance to stay away from the target when following it.
     val offset: Pose = DEFAULT_OFFSET
 
-    override val poseUpdates: Flow<Pose> =
+    override fun poseUpdates(session: Session): Flow<Pose> =
         ArDevice.getInstance(session = session).state.map { state ->
             session.scene.perceptionSpace.transformPoseTo(
                 pose = state.devicePose,
@@ -119,7 +113,6 @@ internal class ArDeviceTarget(
         if (this === other) return true
         if (other !is ArDeviceTarget) return false
 
-        if (session != other.session) return false
         if (behavior != other.behavior) return false
         if (dimensions != other.dimensions) return false
 
@@ -127,8 +120,7 @@ internal class ArDeviceTarget(
     }
 
     override fun hashCode(): Int {
-        var result = session.hashCode()
-        result = 31 * result + behavior.hashCode()
+        var result = behavior.hashCode()
         result = 31 * result + dimensions.hashCode()
         return result
     }
@@ -140,49 +132,29 @@ internal class ArDeviceTarget(
 }
 
 /**
- * A Trackable Anchor entity that wraps an [AnchorSpace] from SceneCore and implements
- * [FollowTarget] to provide a stream of pose updates.
- *
- * This implementation is designed to be constructed directly from an existing [AnchorSpace]
- * instance provided by the developer.
+ * A Trackable Anchor entity that wraps an [Anchor] from ARCore for Jetpack XR to provide a stream
+ * of pose updates.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class AnchorTarget(
-    val anchorSpace: AnchorSpace,
+    val anchor: Anchor,
     behavior: FollowBehavior = FollowBehavior.Tight,
     dimensions: TrackedDimensions = TrackedDimensions.All,
 ) : FollowTarget(behavior, dimensions), FollowTargetFlow {
-    private val pose: Pose
-        get() = anchorSpace.getPose(Space.ACTIVITY)
 
-    /**
-     * A Flow that emits the latest pose updates whenever the underlying [AnchorSpace] is updated by
-     * the system's perception stack.
-     */
-    override val poseUpdates: Flow<Pose> = callbackFlow {
-        // Send the initial pose immediately upon collection.
-        trySend(element = pose)
-
-        val updateListener = Runnable { trySend(pose) }
-        anchorSpace.addOriginChangedListener(updateListener)
-
-        // Unregister the listener when the collector cancels or finishes.
-        awaitClose {
-            try {
-                if (!anchorSpace.isDisposed) {
-                    anchorSpace.removeOriginChangedListener(updateListener)
-                }
-            } catch (_: RuntimeException) {
-                // The anchor was disposed before we could remove the listener.
-            }
+    override fun poseUpdates(session: Session): Flow<Pose> =
+        anchor.state.map { state ->
+            session.scene.perceptionSpace.transformPoseTo(
+                pose = state.pose,
+                destination = session.scene.activitySpace,
+            )
         }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AnchorTarget) return false
 
-        if (anchorSpace != other.anchorSpace) return false
+        if (anchor != other.anchor) return false
         if (behavior != other.behavior) return false
         if (dimensions != other.dimensions) return false
 
@@ -190,7 +162,7 @@ internal class AnchorTarget(
     }
 
     override fun hashCode(): Int {
-        var result = anchorSpace.hashCode()
+        var result = anchor.hashCode()
         result = 31 * result + behavior.hashCode()
         result = 31 * result + dimensions.hashCode()
         return result

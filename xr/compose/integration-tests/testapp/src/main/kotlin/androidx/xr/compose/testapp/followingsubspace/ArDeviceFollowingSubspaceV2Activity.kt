@@ -123,7 +123,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
 
         Subspace(
-            follow = FollowTarget.ArDevice(session, behavior = FollowBehavior.Static),
+            follow = FollowTarget.ArDevice(behavior = FollowBehavior.Static),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -153,7 +153,6 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         Subspace(
             follow =
                 FollowTarget.ArDevice(
-                    session = session,
                     behavior = selectedBehavior,
                     dimensions =
                         TrackedDimensions(
@@ -237,7 +236,6 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         Subspace(
             follow =
                 FollowTarget.ArDevice(
-                    session = session,
                     behavior = FollowBehavior.Soft(durationMs = softFollowDuration),
                     dimensions =
                         TrackedDimensions(
