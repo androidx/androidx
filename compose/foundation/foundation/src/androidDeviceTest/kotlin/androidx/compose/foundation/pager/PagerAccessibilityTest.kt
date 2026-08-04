@@ -542,7 +542,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
         )
         // Arrange
         createPager(
-            modifier = Modifier.size(200.dp),
+            modifier = Modifier.size(210.dp), // make sure one page is halfway shown
             pageCount = { DefaultPageCount },
             pageSize = { PageSize.Fixed(50.dp) },
             pageContent = { page ->
@@ -565,6 +565,7 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
         )
 
         rule.runOnUiThread { focusRequesters[3]?.requestFocus() }
+        rule.waitForIdle()
 
         // Act: move forward
         val resultForward = rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
