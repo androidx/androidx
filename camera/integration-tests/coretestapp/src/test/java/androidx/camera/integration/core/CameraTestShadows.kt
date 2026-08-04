@@ -54,6 +54,14 @@ private fun getAgent(): ShadowCameraAgent =
 @Implements(CameraManager::class)
 class TestShadowCameraManager : ShadowCameraManager() {
 
+    private fun incrementOpenAttempts() {
+        try {
+            getAgent().incrementOpenAttempts()
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "ShadowCameraAgent not ready, cannot increment open attempts.")
+        }
+    }
+
     /**
      * This wrapper intercepts callbacks from the base shadow, notifies our agent, and then passes
      * the call to the real CameraX callback.
@@ -138,6 +146,7 @@ class TestShadowCameraManager : ShadowCameraManager() {
         uid: Int,
         oomScoreOffset: Int,
     ): CameraDevice {
+        incrementOpenAttempts()
         // Return mock device if an error is injected
         handlePendingError(cameraId, callback, executor)?.let {
             return it
@@ -163,6 +172,7 @@ class TestShadowCameraManager : ShadowCameraManager() {
         executor: Executor,
         uid: Int,
     ): CameraDevice {
+        incrementOpenAttempts()
         // Return mock device if an error is injected
         handlePendingError(cameraId, callback, executor)?.let {
             return it
@@ -187,6 +197,7 @@ class TestShadowCameraManager : ShadowCameraManager() {
         handler: Handler,
         uid: Int,
     ): CameraDevice {
+        incrementOpenAttempts()
         val executor = Executor { handler.post(it) }
 
         // Return mock device if an error is injected
@@ -212,6 +223,7 @@ class TestShadowCameraManager : ShadowCameraManager() {
         callback: CameraDevice.StateCallback,
         handler: Handler,
     ): CameraDevice {
+        incrementOpenAttempts()
         val executor = Executor { handler.post(it) }
 
         // Return mock device if an error is injected
