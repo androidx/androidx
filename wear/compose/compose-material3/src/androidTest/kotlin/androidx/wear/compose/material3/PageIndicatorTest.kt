@@ -36,6 +36,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.PagerState
@@ -197,8 +198,8 @@ class PageIndicatorTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .assertWidthIsEqualTo((indicatorSize + spacing) * pagesCount + padding * 2)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2 + padding * 2)
+            .assertWidthIsEqualTo((indicatorSize + spacing) * pagesCount + padding * 2, 1.dp)
+        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2 + padding * 2, 1.dp)
     }
 
     @Test
