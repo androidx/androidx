@@ -17,8 +17,12 @@
 package androidx.compose.ui.test.failure
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.printToString
+import androidx.compose.ui.util.fastDistinctBy
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import androidx.test.espresso.util.HumanReadables
 import androidx.test.platform.io.PlatformTestStorageRegistry
 import java.io.OutputStreamWriter
@@ -33,73 +37,106 @@ internal interface UiHierarchyHandler {
  * Implementation of [UiHierarchyHandler] that generates a human-readable text dump of the current
  * UI state.
  *
- * The output file contains two distinct sections:
- * 1. The View hierarchy, generated via Espresso's `HumanReadables`.
- * 2. The Compose Semantics trees for all provided Compose roots.
- *
- * The combined output is written directly to the
- * [androidx.test.platform.io.PlatformTestStorageRegistry].
+ * The output file contains an interleaved mixture of the Android View hierarchy and Compose
+ * Semantics trees. Starting from the root windows, as each View is traversed and printed (via
+ * Espresso's [HumanReadables]), any Compose Semantics trees hosted by that View are indented and
+ * printed directly as children in the hierarchy.
  */
-@Suppress("VisibleForTests", "UnsafeOptInUsageError")
+@Suppress("VisibleForTests")
 internal class AndroidUiHierarchyHandler : UiHierarchyHandler {
-    @Suppress("ListIterator")
     override fun export(fileName: String, roots: Set<ViewRootForTest>) {
         val storage = PlatformTestStorageRegistry.getInstance()
 
         storage.openOutputFile(fileName).use { stream ->
             PrintWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                val uniqueWindows = roots.map { getRootParent(it.view) }.distinct()
+                val uniqueWindows = roots.map { getRootParent(it.view) }.fastDistinctBy { it }
 
                 if (uniqueWindows.isEmpty()) {
                     writer.println("====================================================")
-                    writer.println("--- No Android View hierarchy found ---")
+                    writer.println("--- No UI hierarchy found ---")
                     writer.println("====================================================")
                     writer.println()
                 } else {
                     writer.println("====================================================")
-                    writer.println("--- Android View Hierarchy ---")
+                    writer.println("--- View and Compose Hierarchy ---")
                     writer.println("====================================================")
-                    uniqueWindows.forEachIndexed { index, window ->
+                    val rootsByView = roots.groupBy { it.view }
+                    val visitedRoots = mutableSetOf<ViewRootForTest>()
+
+                    uniqueWindows.fastForEachIndexed { index, window ->
+                        writer.println("Window (index = $index)")
+                        writer.println()
                         try {
-                            writer.println(
-                                HumanReadables.getViewHierarchyErrorMessage(
-                                    window,
-                                    null,
-                                    "Window (index = $index)",
-                                    null,
-                                    Int.MAX_VALUE,
-                                )
-                            )
+                            dumpViewHierarchy(writer, window, rootsByView, visitedRoots, depth = 0)
                         } catch (t: Throwable) {
-                            writer.println("Failed to dump View hierarchy: ${t.message}")
+                            writer.println("Failed to dump UI hierarchy: ${t.message}")
                         }
                         writer.println()
                     }
-                }
 
-                if (roots.isEmpty()) {
-                    writer.println("====================================================")
-                    writer.println("--- No Compose roots found ---")
-                    writer.println("====================================================")
-                    writer.println()
-                } else {
-                    writer.println("====================================================")
-                    writer.println("--- Compose Semantics Trees ---")
-                    writer.println("====================================================")
-                    roots.forEachIndexed { index, root ->
-                        writer.println("--- Compose Root $index ---")
-                        try {
-                            val rootNode = root.semanticsOwner.rootSemanticsNode
-                            writer.println(listOf(rootNode).printToString(maxDepth = Int.MAX_VALUE))
-                        } catch (t: Throwable) {
-                            writer.println("Failed to dump semantics: ${t.message}")
+                    val unvisited = roots - visitedRoots
+                    if (unvisited.isNotEmpty()) {
+                        writer.println("--- Unattached Compose Roots ---")
+                        unvisited.forEachIndexed { index, root ->
+                            writer.println("--- Unattached Root $index ---")
+                            dumpComposeSemantics(writer, root, depth = 0)
+                            writer.println()
                         }
-                        writer.println()
                     }
                 }
             }
         }
     }
+
+    private fun dumpViewHierarchy(
+        writer: PrintWriter,
+        view: View,
+        rootsByView: Map<View, List<ViewRootForTest>>,
+        visitedRoots: MutableSet<ViewRootForTest>,
+        depth: Int,
+    ) {
+        if (depth > 0) {
+            writer.println("|")
+        }
+        writer.println("${getPrefix(depth)}${HumanReadables.describe(view)}")
+
+        rootsByView[view]?.let { viewRoots ->
+            viewRoots.fastForEach { root ->
+                visitedRoots.add(root)
+                writer.println("|")
+                dumpComposeSemantics(writer, root, depth + 1)
+            }
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val child = view.getChildAt(i) ?: continue
+                dumpViewHierarchy(writer, child, rootsByView, visitedRoots, depth + 1)
+            }
+        }
+    }
+
+    private fun dumpComposeSemantics(writer: PrintWriter, root: ViewRootForTest, depth: Int) {
+        try {
+            val rootNode = root.semanticsOwner.rootSemanticsNode
+            val dump = listOf(rootNode).printToString(maxDepth = Int.MAX_VALUE)
+            val lines = dump.lines()
+            val prefix = getPrefix(depth)
+            val indent = " ".repeat(prefix.length)
+            lines.fastForEachIndexed { index, line ->
+                if (index == lines.lastIndex && line.isEmpty()) return@fastForEachIndexed
+                if (index == 0) {
+                    writer.println("$prefix$line")
+                } else {
+                    writer.println("$indent$line")
+                }
+            }
+        } catch (t: Throwable) {
+            writer.println("${getPrefix(depth)}Failed to dump semantics: ${t.message}")
+        }
+    }
+
+    private fun getPrefix(depth: Int): String = "+" + "-".repeat(depth) + ">"
 
     private fun getRootParent(view: View): View {
         var current = view

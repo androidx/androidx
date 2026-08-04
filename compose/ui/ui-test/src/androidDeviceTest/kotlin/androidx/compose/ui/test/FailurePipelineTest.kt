@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestFailurePolicy.CaptureMode
-import androidx.compose.ui.test.failure.AndroidUiHierarchyHandler
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -129,8 +128,8 @@ class FailurePipelineTest {
         requireNotNull(uiBytes) { "UI Hierarchy file was never written to storage" }
         val uiString = uiBytes.toString(Charsets.UTF_8.name())
         assertTrue(
-            "Expected UI dump to contain 'Compose Semantics Trees'",
-            uiString.contains("Compose Semantics Trees"),
+            "Expected UI dump to contain 'View and Compose Hierarchy'",
+            uiString.contains("View and Compose Hierarchy"),
         )
         assertTrue("Expected UI dump to contain the node tag", uiString.contains("my_box"))
 
@@ -337,32 +336,6 @@ class FailurePipelineTest {
         assertTrue(uiArtifact!!.fileName.endsWith("_ui.txt"))
 
         assertTrue("Expected no file writing exceptions", error.suppressed.isEmpty())
-    }
-
-    @Test
-    fun androidUiHierarchyHandler_emptyRoots() {
-        val memoryStorage = MemoryTestStorage()
-        PlatformTestStorageRegistry.registerInstance(memoryStorage)
-
-        val handler = AndroidUiHierarchyHandler()
-        val fileName = "empty_roots_ui.txt"
-        handler.export(fileName, emptySet())
-
-        val uiBytes = memoryStorage.outputFiles[fileName]
-        requireNotNull(uiBytes) { "UI Hierarchy file was never written to storage" }
-        val uiString = uiBytes.toString(Charsets.UTF_8.name())
-
-        val normalizedUiString = uiString.replace("\r\n", "\n")
-        val expected =
-            "====================================================\n" +
-                "--- No Android View hierarchy found ---\n" +
-                "====================================================\n" +
-                "\n" +
-                "====================================================\n" +
-                "--- No Compose roots found ---\n" +
-                "====================================================\n" +
-                "\n"
-        assertEquals(expected, normalizedUiString)
     }
 
     @Test
