@@ -21,11 +21,7 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.startup.Initializer
-import androidx.tracing.Tracer
-import androidx.tracing.profiler.ConnectedProfilerTracingInitializer
-
-// The category being used for Recomposition tracing.
-internal const val COMPOSE_TRACING_CATEGORY = "androidx.compose"
+import androidx.tracing.perfetto.PerfettoSdkTrace
 
 /**
  * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific information
@@ -36,30 +32,15 @@ public class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Composer.setTracer(
             object : CompositionTracer {
-                @JvmField val closeables = Stack<AutoCloseable>()
+                override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =
+                    PerfettoSdkTrace.beginSection(info)
 
-                override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) {
-                    closeables +=
-                        Tracer.global.beginSection(
-                            category = COMPOSE_TRACING_CATEGORY,
-                            name = info,
-                            isRoot = false,
-                            token = null,
-                            metadataBlock = {},
-                        )
-                }
+                override fun traceEventEnd() = PerfettoSdkTrace.endSection()
 
-                override fun traceEventEnd() {
-                    closeables.removeLastOrNull()?.close()
-                }
-
-                override fun isTraceInProgress(): Boolean =
-                    Tracer.global.isCategoryEnabled(COMPOSE_TRACING_CATEGORY)
+                override fun isTraceInProgress(): Boolean = PerfettoSdkTrace.isEnabled
             }
         )
     }
 
-    override fun dependencies(): List<Class<out Initializer<*>>> {
-        return listOf(ConnectedProfilerTracingInitializer::class.java)
-    }
+    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
 }
