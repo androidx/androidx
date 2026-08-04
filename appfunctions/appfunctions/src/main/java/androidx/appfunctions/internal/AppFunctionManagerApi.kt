@@ -21,6 +21,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
@@ -61,6 +62,12 @@ public interface AppFunctionManagerApi {
         functionId: String,
         @AppFunctionManager.EnabledState newEnabledState: Int,
     )
+
+    /** Returns the [AppFunctionActivityState]s for the specified activities. */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    public suspend fun getAppFunctionActivityStates(
+        activityIds: Set<android.app.appfunctions.AppFunctionActivityId>
+    ): List<AppFunctionActivityState>
 
     /** Registers multiple callback-based runtime implementations of app functions. */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)

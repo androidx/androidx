@@ -16,10 +16,12 @@
 
 package androidx.appfunctions.testing.internal
 
+import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.AppFunctionServiceDelegate
 import androidx.appfunctions.ExecuteAppFunctionRequest
@@ -77,6 +79,15 @@ internal class FakeAppFunctionManagerApi(
                         enabled = newEnabledState
                     )
             ),
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    override suspend fun getAppFunctionActivityStates(
+        activityIds: Set<AppFunctionActivityId>
+    ): List<AppFunctionActivityState> {
+        throw UnsupportedOperationException(
+            "Dynamic registration is not supported in testing fake yet"
         )
     }
 
