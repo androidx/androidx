@@ -1017,6 +1017,7 @@ includeProject(":navigation:navigation-ui-ktx", [BuildType.MAIN, BuildType.FLAN]
 includeProject(":navigation3:navigation3-runtime", [BuildType.COMPOSE])
 includeProject(":navigation3:navigation3-runtime:navigation3-runtime-samples", "navigation3/navigation3-runtime/samples", [BuildType.COMPOSE])
 includeProject(":navigation3:navigation3-ui", [BuildType.COMPOSE])
+includeProject(":navigation3:navigation3-ui-lint", [BuildType.COMPOSE])
 includeProject(":navigation3:navigation3-ui:navigation3-ui-samples", "navigation3/navigation3-ui/samples", [BuildType.COMPOSE])
 includeProject(":navigation3:navigation3-ui:integration-tests:navigation3-demos", [BuildType.COMPOSE])
 includeProject(":navigation3:navigation3-benchmark", [BuildType.COMPOSE])

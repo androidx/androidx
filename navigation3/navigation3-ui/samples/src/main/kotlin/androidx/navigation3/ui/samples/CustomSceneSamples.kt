@@ -89,7 +89,7 @@ private class DefaultSceneTransitionsSceneStrategy<T : Any>() : SceneStrategy<T>
     }
 }
 
-private class DefaultSceneTransitionsScene<T : Any>(
+private data class DefaultSceneTransitionsScene<T : Any>(
     val currentEntry: NavEntry<T>,
     override val previousEntries: List<NavEntry<T>>,
 ) : Scene<T> {
@@ -135,7 +135,7 @@ private class SceneOverrideEntryTransitionsSceneStrategy<T : Any>() : SceneStrat
     }
 }
 
-private class SceneOverrideEntryTransitionsScene<T : Any>(
+private data class SceneOverrideEntryTransitionsScene<T : Any>(
     val currentEntry: NavEntry<T>,
     override val previousEntries: List<NavEntry<T>>,
 ) : Scene<T> {

@@ -33,7 +33,7 @@ import androidx.navigation3.scene.SceneStrategyScope
 import kotlin.collections.plus
 
 /** Regular un-animated Dual pane scene */
-class TestTwoPaneScene<T : Any>(
+data class TestTwoPaneScene<T : Any>(
     override val key: Any,
     override val entries: List<NavEntry<T>>,
     override val previousEntries: List<NavEntry<T>>,
@@ -78,7 +78,7 @@ class TestAnimatedTwoPaneSceneStrategy<T : Any>(
     }
 }
 
-class TestAnimatedTwoPaneScene<T : Any>(
+data class TestAnimatedTwoPaneScene<T : Any>(
     val durationMillis: Int,
     val overrideEntryAnimations: Boolean,
     override val key: Any,
