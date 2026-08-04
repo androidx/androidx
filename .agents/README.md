@@ -9,7 +9,8 @@ task. For the repo-wide build/test/commit/upload workflow, start from the root
 
 | Skill | Use when |
 | --- | --- |
-| [`manage_commits`](skills/manage_commits/SKILL.md) | Formatting, updating APIs, drafting the commit message, and uploading a CL to Gerrit. |
+| [`manage_cl_workspaces`](skills/manage_cl_workspaces/SKILL.md) | Provisioning isolated CoG or Git worktree session environments, isolating build outputs, and syncing refs. |
+| [`manage_commits`](skills/manage_commits/SKILL.md) | Formatting code, updating APIs, drafting commit messages, and committing/uploading changes to Gerrit within a workspace. |
 | [`run_tests`](skills/run_tests/SKILL.md) | Finding and running unit, connected (instrumentation), or Firebase Test Lab tests for a module. |
 | [`api_review`](skills/api_review/SKILL.md) | Reviewing pending public-API changes against the Jetpack API guidelines. |
 | [`benchmark`](skills/benchmark/SKILL.md) | Running, analyzing, or writing Compose micro/macrobenchmarks. |
