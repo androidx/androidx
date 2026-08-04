@@ -806,6 +806,18 @@ class SnapshotStateListTests {
         assertTrue(modified.isEmpty())
     }
 
+    @Test
+    fun stateList_forEach_singleRead() {
+        val list = mutableStateListOf(0, 1, 2, 3)
+        var count = 0
+        var readCount = 0
+        val snapshot = Snapshot.takeSnapshot { readCount++ }
+        snapshot.enter { list.forEach { count++ } }
+        snapshot.dispose()
+        assertEquals(list.size, count)
+        assertEquals(1, readCount)
+    }
+
     private fun <T> validate(list: MutableList<T>, block: (list: MutableList<T>) -> Unit) {
         val normalList = list.toMutableList()
         block(normalList)
