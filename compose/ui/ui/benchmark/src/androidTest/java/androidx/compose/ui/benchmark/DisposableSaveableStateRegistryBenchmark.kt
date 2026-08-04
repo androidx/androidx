@@ -18,6 +18,8 @@
 
 package androidx.compose.ui.benchmark
 
+import android.os.Bundle
+import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -26,6 +28,7 @@ import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.platform.DisposableSaveableStateRegistry
+import androidx.compose.ui.platform.ParcelableMapHolder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Assert.assertTrue
@@ -52,6 +55,50 @@ class DisposableSaveableStateRegistryBenchmark {
 
                 // Measure performSave because it runs canBeSaved checks for rememberSaveable.
                 measureRepeatedOnUiThread { registry!!.performSave() }
+            }
+        }
+    }
+
+    @Test
+    fun benchmarkToBundle() {
+        with(benchmarkRule) {
+            runBenchmarkFor({ RegistryTestCase() }) {
+                runOnUiThread { doFramesUntilNoChangesPending() }
+                var registry: SaveableStateRegistry? = null
+                runOnUiThread { registry = getTestCase().registry }
+                assertTrue(registry is DisposableSaveableStateRegistry)
+
+                var state: Map<String, List<Any?>>? = null
+                runOnUiThread { state = registry!!.performSave() }
+
+                measureRepeated {
+                    Bundle().apply { putParcelable("values", ParcelableMapHolder(state!!)) }
+                }
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun benchmarkToMap() {
+        with(benchmarkRule) {
+            runBenchmarkFor({ RegistryTestCase() }) {
+                runOnUiThread { doFramesUntilNoChangesPending() }
+                var registry: SaveableStateRegistry? = null
+                runOnUiThread { registry = getTestCase().registry }
+                assertTrue(registry is DisposableSaveableStateRegistry)
+
+                var state: Map<String, List<Any?>>? = null
+                runOnUiThread { state = registry!!.performSave() }
+
+                val bundle =
+                    Bundle().apply { putParcelable("values", ParcelableMapHolder(state!!)) }
+
+                measureRepeated {
+                    val serializedState =
+                        bundle.getParcelable<Parcelable>("values") as? ParcelableMapHolder
+                    serializedState
+                }
             }
         }
     }
