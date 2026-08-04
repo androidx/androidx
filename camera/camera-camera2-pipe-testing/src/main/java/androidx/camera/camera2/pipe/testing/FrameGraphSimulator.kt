@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.StreamId
 public class FrameGraphSimulator(
     private val realFrameGraph: FrameGraph,
     private val cameraSimulator: CameraSimulator,
+    private val testThreadScope: TestThreadScope? = null,
 ) : FrameGraph by realFrameGraph, AutoCloseable, CameraSimulator by cameraSimulator {
 
     public val setSurfaceResults: MutableMap<StreamId, Surface?> =

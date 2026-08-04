@@ -53,6 +53,7 @@ internal constructor(
     private val fakeImageSources: FakeImageSources,
     private val realCameraGraph: CameraGraph,
     public val config: CameraGraph.Config,
+    private val testThreadScope: TestThreadScope? = null,
 ) : CameraGraph by realCameraGraph, AutoCloseable, CameraSimulator {
 
     @Deprecated("CameraGraphSimulator directly implements CameraGraph")

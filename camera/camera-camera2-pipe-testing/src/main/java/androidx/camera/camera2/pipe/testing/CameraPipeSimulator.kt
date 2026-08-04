@@ -47,6 +47,7 @@ private constructor(
     public val fakeSurfaces: FakeSurfaces,
     public val fakeImageReaders: FakeImageReaders,
     public val fakeImageSources: FakeImageSources,
+    private val testThreadScope: TestThreadScope?,
 ) : CameraPipe, AutoCloseable {
     private val closed = atomic(false)
     private val _cameraGraphs = mutableListOf<CameraGraphSimulator>()
@@ -95,7 +96,8 @@ private constructor(
                 cameraGraph = cameraGraph,
             )
 
-        val frameGraphSimulator = FrameGraphSimulator(frameGraph, cameraGraphSimulator)
+        val frameGraphSimulator =
+            FrameGraphSimulator(frameGraph, cameraGraphSimulator, testThreadScope)
         _frameGraphs.add(frameGraphSimulator)
         return frameGraphSimulator
     }
@@ -179,6 +181,7 @@ private constructor(
                 fakeImageSources,
                 cameraGraph,
                 cameraGraphConfig,
+                testThreadScope,
             )
         _cameraGraphs.add(cameraGraphSimulator)
         return cameraGraphSimulator
@@ -204,6 +207,7 @@ private constructor(
             testThreads: CameraPipe.ThreadConfig,
             testCameras: List<CameraMetadata>,
             memoryEstimator: MemoryEstimator = MemoryEstimator.create(),
+            testThreadScope: TestThreadScope? = null,
         ): CameraPipeSimulator {
             val fakeSurfaces = FakeSurfaces()
             val fakeImageReaders = FakeImageReaders(fakeSurfaces)
@@ -228,6 +232,7 @@ private constructor(
                 fakeSurfaces,
                 fakeImageReaders,
                 fakeImageSources,
+                testThreadScope,
             )
         }
 
@@ -254,11 +259,15 @@ private constructor(
                     },
                     testOnlyScope = testScope,
                 )
+
+            val testThreadScope = TestThreadScope.from(testScope)
+
             return create(
                 testContext = testContext,
                 testThreads = testScopeThreadConfig,
                 testCameras = fakeCameras,
                 memoryEstimator = memoryEstimator,
+                testThreadScope = testThreadScope,
             )
         }
     }
