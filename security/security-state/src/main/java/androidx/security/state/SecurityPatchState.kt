@@ -82,7 +82,7 @@ import kotlinx.serialization.json.Json
  * update security states.
  *
  * Recommended pattern of usage:
- * - call [getVulnerabilityReportUrl] and make a request to download the JSON file containing
+ * - call [createVulnerabilityReportUrl] and make a request to download the JSON file containing
  *   vulnerability report data
  * - create SecurityPatchState object, passing in the downloaded JSON as a [String]
  * - call [getPublishedSecurityPatchLevel] or other APIs
@@ -137,7 +137,7 @@ constructor(
         @Deprecated(
             message = "This URL will stop working. Use createVulnerabilityReportUrl instead.",
             replaceWith = ReplaceWith("SecurityPatchState.createVulnerabilityReportUrl()"),
-            level = DeprecationLevel.ERROR,
+            level = DeprecationLevel.WARNING,
         )
         public const val DEFAULT_VULNERABILITY_REPORTS_URL: String =
             "https://storage.googleapis.com/osv-android-api"
@@ -239,11 +239,11 @@ constructor(
          * @return A fully constructed URL pointing to the specific vulnerability report for this
          *   device.
          */
-        @Suppress("DEPRECATION_ERROR")
+        @Suppress("DEPRECATION")
         @Deprecated(
             message = "Use createVulnerabilityReportUrl instead.",
             replaceWith = ReplaceWith("SecurityPatchState.createVulnerabilityReportUrl()"),
-            level = DeprecationLevel.ERROR,
+            level = DeprecationLevel.WARNING,
         )
         @JvmOverloads
         @JvmStatic
