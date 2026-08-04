@@ -47,7 +47,6 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.compose.ui:ui-unit:1.7.5")
-    implementation("com.google.ar:core:1.55.0")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
 
     compileOnly(libs.androidExtensionsXr)
