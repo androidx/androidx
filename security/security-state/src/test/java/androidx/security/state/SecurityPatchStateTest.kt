@@ -252,15 +252,45 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(invalidJson)
     }
 
+    @Suppress("DEPRECATION_ERROR")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
     @Test
-    fun testGetVulnerabilityReportUrl_validSdkVersion_returnsCorrectUrl() {
+    fun testCreateVulnerabilityReportUrl_validSdkVersion_returnsCorrectUrl() {
         val sdkVersion = 34 // Android 14
-        val baseUrl = SecurityPatchState.DEFAULT_VULNERABILITY_REPORTS_URL
-        val expectedUrl = "$baseUrl/v1/android_sdk_$sdkVersion.json"
+        val expectedUrl = "https://android-api.osv.dev/v1/android_sdk_$sdkVersion.json"
 
-        val actualUrl = SecurityPatchState.getVulnerabilityReportUrl(Uri.parse(baseUrl)).toString()
+        val actualUrl = SecurityPatchState.createVulnerabilityReportUrl().toString()
+        assertEquals(
+            "https://storage.googleapis.com/osv-android-api",
+            SecurityPatchState.DEFAULT_VULNERABILITY_REPORTS_URL,
+        )
+        assertEquals(expectedUrl, actualUrl)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    @Test
+    fun testCreateVulnerabilityReportUrl_customServerUrlOverride_returnsOverriddenUrl() {
+        val sdkVersion = 34 // Android 14
+        val customUrl = "https://custom.example.com"
+        val expectedUrl = "$customUrl/v1/android_sdk_$sdkVersion.json"
+
+        val actualUrl =
+            SecurityPatchState.createVulnerabilityReportUrl(Uri.parse(customUrl)).toString()
+        assertEquals(expectedUrl, actualUrl)
+    }
+
+    @Suppress("DEPRECATION_ERROR")
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    @Test
+    fun testGetVulnerabilityReportUrl_deprecatedServerUrl_returnsLegacyUrl() {
+        val sdkVersion = 34 // Android 14
+        val expectedUrl =
+            "https://storage.googleapis.com/osv-android-api/v1/android_sdk_$sdkVersion.json"
+
+        val actualUrl = SecurityPatchState.getVulnerabilityReportUrl().toString()
         assertEquals(expectedUrl, actualUrl)
     }
 
