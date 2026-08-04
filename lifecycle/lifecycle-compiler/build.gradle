@@ -67,5 +67,5 @@ androidx {
     name = "Lifecycles Compiler"
     type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
-    description = "Android Lifecycles annotation processor"
+    description = "Android Lifecycles annotation processor (Deprecated)"
 }

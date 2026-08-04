@@ -146,6 +146,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
     generateKeepRule(adapter.type, processingEnv)
 }
 
+@Suppress("DEPRECATION")
 private fun addGeneratedAnnotationIfAvailable(
     adapterTypeSpecBuilder: TypeSpec.Builder,
     processingEnv: ProcessingEnvironment,

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.lifecycle.utils
 
 import androidx.lifecycle.LifecycleProcessor
