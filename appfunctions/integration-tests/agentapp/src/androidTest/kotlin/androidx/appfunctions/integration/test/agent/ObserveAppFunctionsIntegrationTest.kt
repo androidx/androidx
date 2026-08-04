@@ -33,6 +33,7 @@ import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.Fu
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SENTINEL_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.TARGET_APP_PACKAGE
 import androidx.appfunctions.integration.test.agent.AppSearchMetadataHelper.isDynamicIndexerAvailable
+import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEnabledState
 import androidx.appfunctions.integration.test.agent.TestUtil.awaitAppFunctionsIndexed
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
@@ -126,13 +127,10 @@ class ObserveAppFunctionsIntegrationTest {
                     AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
                 )
                 retryAssert {
-                    assertThat(
-                            appFunctionManager.isAppFunctionEnabled(
-                                TARGET_APP_PACKAGE,
-                                ENABLED_BY_DEFAULT_FUNCTION_ID,
-                            )
-                        )
-                        .isFalse()
+                    appFunctionManager.assertAppFunctionEnabledState(
+                        enabledByDefaultFunction,
+                        false,
+                    )
                 }
 
                 retryAssert {
@@ -171,13 +169,10 @@ class ObserveAppFunctionsIntegrationTest {
                     AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
                 )
                 retryAssert {
-                    assertThat(
-                            appFunctionManager.isAppFunctionEnabled(
-                                TARGET_APP_PACKAGE,
-                                CREATE_NOTE_FUNCTION_ID,
-                            )
-                        )
-                        .isFalse()
+                    appFunctionManager.assertAppFunctionEnabledState(
+                        enabledByDefaultFunction,
+                        false,
+                    )
                 }
 
                 retryAssert {
@@ -217,13 +212,10 @@ class ObserveAppFunctionsIntegrationTest {
                 )
 
                 retryAssert {
-                    assertThat(
-                            appFunctionManager.isAppFunctionEnabled(
-                                TARGET_APP_PACKAGE,
-                                DISABLED_BY_DEFAULT_FUNCTION_ID,
-                            )
-                        )
-                        .isTrue()
+                    appFunctionManager.assertAppFunctionEnabledState(
+                        disabledByDefaultFunction,
+                        true,
+                    )
                 }
 
                 retryAssert {
@@ -286,13 +278,10 @@ class ObserveAppFunctionsIntegrationTest {
                 )
 
                 retryAssert {
-                    assertThat(
-                            appFunctionManager.isAppFunctionEnabled(
-                                TARGET_APP_PACKAGE,
-                                CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID,
-                            )
-                        )
-                        .isTrue()
+                    appFunctionManager.assertAppFunctionEnabledState(
+                        disabledByDefaultFunction,
+                        true,
+                    )
                 }
 
                 retryAssert {
@@ -438,10 +427,17 @@ class ObserveAppFunctionsIntegrationTest {
                 functionIdentifier = SENTINEL_FUNCTION_ID,
             )
         val currentState =
-            appFunctionManager.isAppFunctionEnabled(
-                sentinelFunctionName.packageName,
-                sentinelFunctionName.functionIdentifier,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            sentinelFunctionName.packageName,
+                            sentinelFunctionName.functionIdentifier,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         val targetState =
             if (currentState) {
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED
@@ -465,7 +461,7 @@ class ObserveAppFunctionsIntegrationTest {
         }
     }
 
-    private suspend fun drainEvents(
+    private fun drainEvents(
         eventChannel: Channel<ObserveAppFunctionsEvent>,
         receivedEvents: MutableList<ObserveAppFunctionsEvent>,
     ) {

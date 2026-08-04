@@ -379,10 +379,18 @@ class ObserveAppFunctionsTest {
         expectedEnabled: Boolean,
     ) {
         val isEnabled =
-            appFunctionManager.isAppFunctionEnabled(
-                targetFunctionName.packageName,
-                targetFunctionName.functionIdentifier,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    appFunctionNames =
+                        listOf(
+                            AppFunctionName(
+                                targetFunctionName.packageName,
+                                targetFunctionName.functionIdentifier,
+                            )
+                        )
+                )
+                .single()
+                .isEnabled
         assertThat(isEnabled).isEqualTo(expectedEnabled)
     }
 
@@ -430,10 +438,17 @@ class ObserveAppFunctionsTest {
                 functionIdentifier = AppFunctionMetadataTestHelper.FunctionIds.NOTES_SCHEMA_PRINT,
             )
         val currentState =
-            appFunctionManager.isAppFunctionEnabled(
-                sentinelFunctionName.packageName,
-                sentinelFunctionName.functionIdentifier,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            sentinelFunctionName.packageName,
+                            sentinelFunctionName.functionIdentifier,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         val targetState =
             if (currentState) {
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED
