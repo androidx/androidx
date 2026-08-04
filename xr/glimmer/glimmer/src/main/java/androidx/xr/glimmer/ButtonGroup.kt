@@ -116,6 +116,7 @@ public fun ButtonGroup(
     Row(
         modifier
             .then(state.awaitFirstLayoutModifier)
+            .edgeScrim { contentPadding }
             .scrollableArea(
                 state = state,
                 orientation = Orientation.Horizontal,
