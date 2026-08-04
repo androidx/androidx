@@ -24,7 +24,9 @@ com.google.android.material.elevation
 com.google.android.material.expandable
 com.google.android.material.floatingactionbutton
 com.google.android.material.floatingtoolbar
+com.google.android.material.focus
 com.google.android.material.imageview
+com.google.android.material.listitem
 com.google.android.material.lists
 com.google.android.material.loadingindicator
 com.google.android.material.materialswitch
@@ -32,6 +34,7 @@ com.google.android.material.math
 com.google.android.material.motion
 com.google.android.material.navigation
 com.google.android.material.navigationrail
+com.google.android.material.overflow
 com.google.android.material.progressindicator
 com.google.android.material.radiobutton
 com.google.android.material.resources
@@ -53,4 +56,3 @@ com.google.android.material.timepicker
 com.google.android.material.transformation
 com.google.android.material.transition
 com.google.android.material.transition.platform
-
