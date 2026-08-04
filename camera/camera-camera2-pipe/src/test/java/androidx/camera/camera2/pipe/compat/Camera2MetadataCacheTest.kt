@@ -16,7 +16,12 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics
+import android.hardware.camera2.CameraManager
+import android.os.Build
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.testing.FakeThreads
@@ -27,6 +32,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -94,5 +104,56 @@ internal class Camera2MetadataCacheTest {
         assertThat(metadata1.physicalCameraIds).isNotNull()
         assertThat(metadata1.physicalRequestKeys).isNotNull()
         assertThat(metadata1[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]).isEqualTo(3)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.S)
+    fun cameraExtensionMetadataIsCachedSeparately() = runTest {
+        val mockContext = mock<Context>()
+        val mockCameraManager = mock<CameraManager>()
+        val mockExtensionCharacteristics = mock<CameraExtensionCharacteristics>()
+
+        whenever(mockContext.getSystemService(Context.CAMERA_SERVICE)).thenReturn(mockCameraManager)
+        whenever(mockCameraManager.getCameraExtensionCharacteristics(any()))
+            .thenReturn(mockExtensionCharacteristics)
+
+        val cache =
+            Camera2MetadataCache(
+                mockContext,
+                FakeThreads.fromTestScope(this),
+                Permissions(mockContext),
+                SystemTimeSource(),
+            )
+
+        val camera0 = CameraId("0")
+        val metadataBokeh =
+            cache.awaitCameraExtensionMetadata(
+                camera0,
+                CameraExtensionCharacteristics.EXTENSION_BOKEH,
+            )
+        val metadataHdr =
+            cache.awaitCameraExtensionMetadata(
+                camera0,
+                CameraExtensionCharacteristics.EXTENSION_HDR,
+            )
+
+        assertThat(metadataBokeh).isNotNull()
+        assertThat(metadataHdr).isNotNull()
+        assertThat(metadataBokeh.cameraExtension)
+            .isEqualTo(CameraExtensionCharacteristics.EXTENSION_BOKEH)
+        assertThat(metadataHdr.cameraExtension)
+            .isEqualTo(CameraExtensionCharacteristics.EXTENSION_HDR)
+        assertThat(metadataBokeh).isNotEqualTo(metadataHdr)
+
+        // Verify Caching: same instance returned for same extension
+        val metadataBokeh2 =
+            cache.awaitCameraExtensionMetadata(
+                camera0,
+                CameraExtensionCharacteristics.EXTENSION_BOKEH,
+            )
+        assertThat(metadataBokeh).isSameInstanceAs(metadataBokeh2)
+
+        // Verify Characteristics Caching: mock was only called once for camera0.value
+        verify(mockCameraManager, times(1)).getCameraExtensionCharacteristics(camera0.value)
     }
 }
