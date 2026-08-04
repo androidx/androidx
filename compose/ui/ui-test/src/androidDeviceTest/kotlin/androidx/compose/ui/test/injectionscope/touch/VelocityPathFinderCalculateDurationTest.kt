@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test.injectionscope.touch
 
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -145,6 +147,7 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
     }
 
     @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun test() {
         if (config.expectedError != null) {
             testWithExpectedError(config, testSuggestions = config.expectSuggestions)
@@ -153,6 +156,7 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun testWithoutExpectedError(config: TestConfig) {
         val actualDuration =
             VelocityPathFinder.calculateDefaultDuration(
@@ -174,7 +178,13 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         val velocityTracker = simulateSwipe(f, actualDuration)
         val velocity = velocityTracker.calculateVelocity()
 
-        assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
+        val tolerance =
+            if (AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled) {
+                max(0.1f, config.requestedVelocity * 0.1f)
+            } else {
+                0.1f
+            }
+        assertThat(velocity.sum()).isWithin(tolerance).of(config.requestedVelocity)
         if (config.requestedVelocity > 0) {
             // Direction of velocity of 0 is undefined, so any direction is correct
             velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())
