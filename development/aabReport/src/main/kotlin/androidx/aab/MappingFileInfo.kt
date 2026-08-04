@@ -115,7 +115,7 @@ data class MappingFileInfo(
             return firstOrNull { it.startsWith(prefix) }?.removePrefix(prefix)?.substringBefore("'")
         }
 
-        private val classMappingRegex = """^([\w-.$]+)\s+->\s+([\w-.$]+):\s*$""".toRegex()
+        private val classMappingRegex = """^([\S]+)\s+->\s+([^:\s]+):\s*$""".toRegex()
 
         fun from(zis: ZipInputStream): MappingFileInfo {
             val sequence = zis.bufferedReader().lineSequence()
