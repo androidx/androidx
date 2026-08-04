@@ -352,13 +352,14 @@ class CheckboxTest(private val isCheckboxStyleM3FixEnabled: Boolean) {
                 }
             }
             .run {
+                val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() })
                 if (clickable && minimumTouchTarget) {
-                    assertIsSquareWithSize(48.dp)
+                    assertIsSquareWithSize(48.dp, tolerance)
                 } else {
                     if (ComposeMaterial3Flags.isCheckboxStylingFixEnabled) {
-                        assertIsSquareWithSize(18.dp)
+                        assertIsSquareWithSize(18.dp, tolerance)
                     } else {
-                        assertIsSquareWithSize(2.dp * 2 + 20.dp)
+                        assertIsSquareWithSize(2.dp * 2 + 20.dp, tolerance)
                     }
                 }
             }

@@ -92,8 +92,8 @@ fun SemanticsNodeInteraction.getFirstBaselinePosition() = getAlignmentLinePositi
 
 fun SemanticsNodeInteraction.getLastBaselinePosition() = getAlignmentLinePosition(LastBaseline)
 
-fun SemanticsNodeInteraction.assertIsSquareWithSize(expectedSize: Dp) =
-    assertWidthIsEqualTo(expectedSize).assertHeightIsEqualTo(expectedSize)
+fun SemanticsNodeInteraction.assertIsSquareWithSize(expectedSize: Dp, tolerance: Dp = 0.5.dp) =
+    assertWidthIsEqualTo(expectedSize, tolerance).assertHeightIsEqualTo(expectedSize, tolerance)
 
 fun ComposeTestRule.rootWidth(): Dp = onRoot().getUnclippedBoundsInRoot().width
 
