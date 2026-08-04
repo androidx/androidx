@@ -30,6 +30,8 @@ class WearWidgetIssueRegistry : IssueRegistry() {
             WearWidgetServiceAssociationDetector.SERVICE_ASSOCIATION_ANNOTATION_ISSUE,
             WearWidgetBackgroundDetector.EMPTY_BACKGROUND_ISSUE,
             WearWidgetBackgroundDetector.INVALID_BACKGROUND_ISSUE,
+            WearWidgetProviderXmlDetector.XML_MISSING_CONTAINER_ISSUE,
+            WearWidgetProviderXmlDetector.XML_MISSING_PREVIEW_IMAGE_ISSUE,
         )
 
     override val vendor =
