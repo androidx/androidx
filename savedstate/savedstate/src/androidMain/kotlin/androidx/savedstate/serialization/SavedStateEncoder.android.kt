@@ -44,16 +44,20 @@ internal actual fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
             DefaultJavaSerializableSerializer.serialize(this, value as JavaSerializable)
         polymorphicIBinderDescriptor -> IBinderSerializer.serialize(this, value as IBinder)
         charSequenceArrayDescriptor,
-        polymorphicCharSequenceArrayDescriptor ->
+        polymorphicCharSequenceArrayDescriptor,
+        nullablePolymorphicCharSequenceArrayDescriptor ->
             CharSequenceArraySerializer.serialize(this, value as Array<CharSequence>)
         charSequenceListDescriptor,
-        polymorphicCharSequenceListDescriptor ->
+        polymorphicCharSequenceListDescriptor,
+        nullablePolymorphicCharSequenceListDescriptor ->
             CharSequenceListSerializer.serialize(this, value as List<CharSequence>)
         parcelableArrayDescriptor,
-        polymorphicParcelableArrayDescriptor ->
+        polymorphicParcelableArrayDescriptor,
+        nullablePolymorphicParcelableArrayDescriptor ->
             ParcelableArraySerializer.serialize(this, value as Array<Parcelable>)
         parcelableListDescriptor,
-        polymorphicParcelableListDescriptor ->
+        polymorphicParcelableListDescriptor,
+        nullablePolymorphicParcelableListDescriptor ->
             ParcelableListSerializer.serialize(this, value as List<Parcelable>)
         sparseParcelableArrayDescriptor,
         polymorphicSparseParcelableArrayDescriptor,
