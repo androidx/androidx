@@ -16,6 +16,7 @@
 
 package androidx.xr.projected.platform;
 
+import android.app.PendingIntent;
 import androidx.xr.projected.platform.IBatteryStateListener;
 import androidx.xr.projected.platform.IProjectedDeviceStateListener;
 import androidx.xr.projected.platform.IProjectedInputEventListener;
@@ -36,4 +37,6 @@ interface IProjectedService {
   void unregisterBatteryStateListener(in IBatteryStateListener listener);
   void launchProjectedPermissionRequest(in ProjectedPermissionRequestData data, in IProjectedPermissionRequestCallback callback);
   void finishProjectedPermissionRequest();
+  void setActivityAsInputReceiver(in PendingIntent intent);
+  void clearActivityAsInputReceiver();
 }
