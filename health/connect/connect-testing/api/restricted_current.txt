@@ -83,11 +83,25 @@ package androidx.health.connect.client.testing {
     ctor public FakePermissionController(optional boolean grantAll);
     ctor @BytecodeOnly public FakePermissionController(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<java.lang.String>>);
+    method @InaccessibleFromKotlin public androidx.health.connect.client.testing.FakePermissionControllerOverrides getOverrides();
     method public void grantPermission(String permission);
     method public void grantPermissions(java.util.Set<java.lang.String> permission);
     method public void replaceGrantedPermissions(java.util.Set<java.lang.String> permissions);
     method public suspend Object? revokeAllPermissions(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void revokePermission(String permission);
+    property public androidx.health.connect.client.testing.FakePermissionControllerOverrides overrides;
+  }
+
+  public final class FakePermissionControllerOverrides {
+    ctor public FakePermissionControllerOverrides();
+    ctor @BytecodeOnly public FakePermissionControllerOverrides(androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakePermissionControllerOverrides(optional androidx.health.connect.client.testing.stubs.Stub<? super kotlin.Unit,? extends java.util.Set<java.lang.String>>? getGrantedPermissions, optional androidx.health.connect.client.testing.stubs.Stub<? super kotlin.Unit,kotlin.Unit>? revokeAllPermissions);
+    method @InaccessibleFromKotlin public androidx.health.connect.client.testing.stubs.Stub<kotlin.Unit,java.util.Set<java.lang.String>>? getGetGrantedPermissions();
+    method @InaccessibleFromKotlin public androidx.health.connect.client.testing.stubs.Stub<kotlin.Unit,kotlin.Unit>? getRevokeAllPermissions();
+    method @InaccessibleFromKotlin public void setGetGrantedPermissions(androidx.health.connect.client.testing.stubs.Stub<? super kotlin.Unit,? extends java.util.Set<java.lang.String>>?);
+    method @InaccessibleFromKotlin public void setRevokeAllPermissions(androidx.health.connect.client.testing.stubs.Stub<? super kotlin.Unit,kotlin.Unit>?);
+    property public androidx.health.connect.client.testing.stubs.Stub<kotlin.Unit,java.util.Set<java.lang.String>>? getGrantedPermissions;
+    property public androidx.health.connect.client.testing.stubs.Stub<kotlin.Unit,kotlin.Unit>? revokeAllPermissions;
   }
 
   public final class MetadataTestHelper {
