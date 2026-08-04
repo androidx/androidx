@@ -17,88 +17,69 @@
 package androidx.compose.integration.macrobenchmark
 
 import android.content.Intent
-import androidx.benchmark.DeviceInfo
+import android.os.Build
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.InProcessTracingMode
-import androidx.benchmark.Outputs
-import androidx.benchmark.ShellFile
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
+import androidx.benchmark.macro.TraceSectionMetric
+import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoCaptureWrapper
-import androidx.benchmark.runSingleSessionServer
-import androidx.benchmark.traceprocessor.TraceProcessor
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.uiautomator.uiAutomator
+import androidx.test.filters.SdkSuppress
 import junit.framework.TestCase.assertTrue
-import org.junit.Assert.assertEquals
-import org.junit.Assume.assumeTrue
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 /**
  * End-to-end test for compose-runtime-tracing verifying that names of Composables show up in a
  * Perfetto trace.
  */
-@OptIn(
-    ExperimentalMetricApi::class,
-    ExperimentalBenchmarkConfigApi::class,
-    ExperimentalPerfettoCaptureApi::class,
-)
-class TrivialPerfettoSdkBenchmark {
+@OptIn(ExperimentalMetricApi::class, ExperimentalBenchmarkConfigApi::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+class TrivialPerfettoSdkBenchmark(private val composableName: String) {
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
-    @Before
-    fun checkDeviceSupport() {
-        assumeTrue(DeviceInfo.expectedToSupportTracingInTests)
-    }
-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     @Test
     fun test_composable_names_present_in_trace() {
-        val traceFiles =
-            trace(packageName = PACKAGE_NAME) {
-                uiAutomator {
-                    val intent = Intent(ACTION).apply { setPackage(PACKAGE_NAME) }
-                    startActivityIntent(intent)
-                }
-            }
-        assertTrue(traceFiles.isNotEmpty())
-        assertEquals(1, traceFiles.size)
-        val traceFile = traceFiles.first()
-        // Copy the file to a directory usable by the test.
-        val copiedPath =
-            Outputs.writeFile("temp.pb") { file ->
-                val bytes = ShellFile(traceFile).readBytes()
-                file.writeBytes(bytes)
-            }
-        val sliceNames = COMPOSABLE_NAMES.map { name -> "%$PACKAGE_NAME.$name %$FILE_NAME:%" }
-        val slices =
-            TraceProcessor.runSingleSessionServer(copiedPath) {
-                querySlices(*sliceNames.toTypedArray(), packageName = null).map { it.name }
-            }
-        assertTrue(slices.isNotEmpty())
-        assertEquals(3, slices.size)
-    }
-
-    internal inline fun trace(packageName: String, block: () -> Unit): List<String> {
-        val wrapper = PerfettoCaptureWrapper()
-        val config =
-            PerfettoCapture.TracingLibraryConfig(
-                targetPackage = packageName,
-                inProcessTracingMode = InProcessTracingMode.Require,
+        val metrics =
+            listOf(
+                TraceSectionMetric(
+                    "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
+                    TraceSectionMetric.Mode.First,
+                )
             )
-        val start = wrapper.startInProcessTracing(config = config)
-        assertTrue("Unable to start in-process tracing for $packageName", start.isSuccess())
-        block()
-        val traceFiles = wrapper.stopInProcessTracing(config)
-        return traceFiles
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = metrics,
+            iterations = 1, // we are only verifying the presence of entries (not the timing data)
+            setupBlock = {
+                PerfettoCapture()
+                    .enableAndroidxTracingPerfetto(
+                        PerfettoCapture.TracingLibraryConfig(
+                            PACKAGE_NAME,
+                            PerfettoCapture.TracingLibraryConfig.InitialProcessState.Alive,
+                        )
+                    )
+                    .let { (resultCode, _) ->
+                        assertTrue(
+                            "Ensuring Perfetto SDK is enabled",
+                            resultCode in arrayOf(1, 2), // 1 = success, 2 = already enabled
+                        )
+                    }
+            },
+        ) {
+            startActivityAndWait(Intent(ACTION))
+        }
     }
 
     companion object {
         private const val PACKAGE_NAME = "androidx.compose.integration.macrobenchmark.target"
+
         private const val ACTION =
             "androidx.compose.integration.macrobenchmark.target.TRIVIAL_TRACING_ACTIVITY"
 
@@ -110,5 +91,7 @@ class TrivialPerfettoSdkBenchmark {
                 "Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9",
                 "Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8",
             )
+
+        @JvmStatic @Parameters(name = "{0}") fun parameters() = COMPOSABLE_NAMES
     }
 }
