@@ -78,6 +78,7 @@ dependencies {
     kmpDocs(project(":compose:material3:adaptive:adaptive-navigation"))
     kmpDocs(project(":compose:material3:adaptive:adaptive-navigation3"))
     kmpDocs(project(":compose:material3:material3"))
+    docs(project(":compose:material3:material3-a2ui"))
     kmpDocs(project(":compose:material3:material3-adaptive-navigation-suite"))
     kmpDocs(project(":compose:material3:material3-window-size-class"))
     kmpDocs(project(":compose:material3:material3-ripple"))
