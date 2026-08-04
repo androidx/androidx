@@ -834,24 +834,24 @@ package androidx.health.connect.client.records {
 
   public final class ExerciseSegment {
     ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType);
-    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional int repetitions);
-    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional int repetitions, optional androidx.health.connect.client.units.Mass? weight);
-    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional int repetitions, optional androidx.health.connect.client.units.Mass? weight, optional Integer? setIndex);
-    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional int repetitions, optional androidx.health.connect.client.units.Mass? weight, optional Integer? setIndex, optional Float? rateOfPerceivedExertion);
+    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional @IntRange(from=0L) int repetitions);
+    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional @IntRange(from=0L) int repetitions, optional androidx.health.connect.client.units.Mass? weight);
+    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional @IntRange(from=0L) int repetitions, optional androidx.health.connect.client.units.Mass? weight, optional @IntRange(from=0L) Integer? setIndex);
+    ctor public ExerciseSegment(java.time.Instant startTime, java.time.Instant endTime, int segmentType, optional @IntRange(from=0L) int repetitions, optional androidx.health.connect.client.units.Mass? weight, optional @IntRange(from=0L) Integer? setIndex, optional @FloatRange(from=0.0, to=10.0) Float? rateOfPerceivedExertion);
     ctor @BytecodeOnly public ExerciseSegment(java.time.Instant!, java.time.Instant!, int, int, androidx.health.connect.client.units.Mass!, Integer!, Float!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public java.time.Instant getEndTime();
-    method @InaccessibleFromKotlin public Float? getRateOfPerceivedExertion();
-    method @InaccessibleFromKotlin public int getRepetitions();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=10.0) public Float? getRateOfPerceivedExertion();
+    method @InaccessibleFromKotlin @IntRange(from=0L) public int getRepetitions();
     method @InaccessibleFromKotlin public int getSegmentType();
-    method @InaccessibleFromKotlin public Integer? getSetIndex();
+    method @InaccessibleFromKotlin @IntRange(from=0L) public Integer? getSetIndex();
     method @InaccessibleFromKotlin public java.time.Instant getStartTime();
     method @InaccessibleFromKotlin public androidx.health.connect.client.units.Mass? getWeight();
     method public static boolean isSegmentTypeCompatibleWithSessionType(int segmentType, int sessionType);
     property public java.time.Instant endTime;
-    property public Float? rateOfPerceivedExertion;
-    property public int repetitions;
+    property @FloatRange(from=0.0, to=10.0) public Float? rateOfPerceivedExertion;
+    property @IntRange(from=0L) public int repetitions;
     property public int segmentType;
-    property public Integer? setIndex;
+    property @IntRange(from=0L) public Integer? setIndex;
     property public java.time.Instant startTime;
     property public androidx.health.connect.client.units.Mass? weight;
     field public static final androidx.health.connect.client.records.ExerciseSegment.Companion Companion;
@@ -1006,7 +1006,7 @@ package androidx.health.connect.client.records {
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int exerciseType, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int exerciseType, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute);
     ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int exerciseType, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute, optional String? plannedExerciseSessionId);
-    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int exerciseType, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute, optional String? plannedExerciseSessionId, optional Float? rateOfPerceivedExertion);
+    ctor public ExerciseSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int exerciseType, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments, optional java.util.List<androidx.health.connect.client.records.ExerciseLap> laps, optional androidx.health.connect.client.records.ExerciseRoute? exerciseRoute, optional String? plannedExerciseSessionId, optional @FloatRange(from=0.0, to=10.0) Float? rateOfPerceivedExertion);
     method @InaccessibleFromKotlin public java.time.Instant getEndTime();
     method @InaccessibleFromKotlin public java.time.ZoneOffset? getEndZoneOffset();
     method @InaccessibleFromKotlin public androidx.health.connect.client.records.ExerciseRouteResult getExerciseRouteResult();
@@ -1015,7 +1015,7 @@ package androidx.health.connect.client.records {
     method @InaccessibleFromKotlin public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method @InaccessibleFromKotlin public String? getNotes();
     method @InaccessibleFromKotlin public String? getPlannedExerciseSessionId();
-    method @InaccessibleFromKotlin public Float? getRateOfPerceivedExertion();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=10.0) public Float? getRateOfPerceivedExertion();
     method @InaccessibleFromKotlin public java.util.List<androidx.health.connect.client.records.ExerciseSegment> getSegments();
     method @InaccessibleFromKotlin public java.time.Instant getStartTime();
     method @InaccessibleFromKotlin public java.time.ZoneOffset? getStartZoneOffset();
@@ -1028,7 +1028,7 @@ package androidx.health.connect.client.records {
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public String? notes;
     property public String? plannedExerciseSessionId;
-    property public Float? rateOfPerceivedExertion;
+    property @FloatRange(from=0.0, to=10.0) public Float? rateOfPerceivedExertion;
     property public java.util.List<androidx.health.connect.client.records.ExerciseSegment> segments;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
