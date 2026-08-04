@@ -54,7 +54,12 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
     ) {
         var retry = 0
         while (retry < RETRY_LIMIT) {
-            if (appFunctionManager.isAppFunctionEnabled(functionId)) {
+            val isEnabled =
+                appFunctionManager
+                    .getAppFunctionStates(listOf(AppFunctionName(TEST_PACKAGE_NAME, functionId)))
+                    .single()
+                    .isEnabled
+            if (isEnabled) {
                 return
             }
             delay(RETRY_DELAY_MS)
