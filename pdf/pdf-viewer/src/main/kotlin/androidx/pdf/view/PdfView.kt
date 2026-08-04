@@ -1178,12 +1178,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 toViewCoord(
                     pageLocation.left + pdfPoint.x,
                     zoom,
-                    scroll = if (accountForScroll) scrollX else 0,
+                    scroll = if (accountForScroll) scrollX - paddingLeft else -paddingLeft,
                 ),
                 toViewCoord(
                     pageLocation.top + pdfPoint.y,
                     zoom,
-                    scroll = if (accountForScroll) scrollY else 0,
+                    scroll = if (accountForScroll) scrollY - paddingTop else -paddingTop,
                 ),
             )
         return ret
