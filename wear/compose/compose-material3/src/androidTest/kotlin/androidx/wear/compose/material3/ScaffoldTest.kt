@@ -589,8 +589,9 @@ class ScaffoldTest {
         rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeUp() } }
         rule.waitForIdle()
 
-        // Use floats so we can specify a pixel of tolerance.
-        assertThat(spaceAvailable.toFloat()).isWithin(1f).of(expectedSpace)
+        // Use floats so we can specify a pixel of tolerance. SLC is less precise with respect to
+        // contentPadding, hence the tolerance is higher.
+        assertThat(spaceAvailable.toFloat()).isWithin(1.5f).of(expectedSpace)
     }
 
     @Test
