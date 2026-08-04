@@ -37,6 +37,10 @@ sealed class DumperSample(val name: String) {
 @Suppress("RestrictedApiAndroidX")
 val AllSamples =
     listOf(
+        DumperSample.ComposableSample(
+            "NotificationListDemo",
+            @Composable @RemoteComposable { NotificationListDemo() },
+        ),
         DumperSample.ComposableSample("Clock", @Composable @RemoteComposable { RcSimpleClock1() }),
         DumperSample.Context("Cube") { cube3d() },
         DumperSample.Context("Timer") { RemoteComposeContext(basicTimer()) },
