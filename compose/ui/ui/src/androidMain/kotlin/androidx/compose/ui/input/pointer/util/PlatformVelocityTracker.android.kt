@@ -38,6 +38,7 @@ internal actual fun PlatformVelocityTracker(): PlatformVelocityTracker =
 internal class FrameworkVelocityTracker : PlatformVelocityTracker {
     private lateinit var velocityTracker: VelocityTracker
 
+    private var isTrackingStarted = false
     private var lastEventTimeMillis = 0L
 
     override fun addPointerInputChange(event: PointerInputChange, offset: Offset) {
@@ -97,11 +98,20 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
         }
     }
 
-    override fun addPosition(timeMillis: Long, position: Offset) =
-        addMovement(timeMillis, MotionEvent.ACTION_MOVE, position)
+    override fun addPosition(timeMillis: Long, position: Offset) {
+        val action =
+            if (!isTrackingStarted) {
+                isTrackingStarted = true
+                MotionEvent.ACTION_DOWN
+            } else {
+                MotionEvent.ACTION_MOVE
+            }
+        addMovement(timeMillis, action, position)
+    }
 
-    internal fun addMovement(timeMillis: Long, action: Int, position: Offset) =
+    internal fun addMovement(timeMillis: Long, action: Int, position: Offset) {
         consumeMotionEvent(obtainMotionEvent(timeMillis, action, position))
+    }
 
     internal fun obtainMotionEvent(timeMillis: Long, action: Int, position: Offset) =
         MotionEvent.obtain(
@@ -114,6 +124,9 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
         )
 
     internal fun consumeMotionEvent(motionEvent: MotionEvent) {
+        if (!this::velocityTracker.isInitialized) {
+            velocityTracker = VelocityTracker.obtain()
+        }
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             // On older versions of Android, this test exists in VelocityTracker, but is not
             // implemented consistently.
@@ -122,9 +135,6 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
                 resetTracking()
             }
             lastEventTimeMillis = motionEvent.eventTime
-        }
-        if (!this::velocityTracker.isInitialized) {
-            velocityTracker = VelocityTracker.obtain()
         }
         velocityTracker.addMovement(motionEvent)
         motionEvent.recycle()
@@ -148,5 +158,7 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
         if (this::velocityTracker.isInitialized) {
             velocityTracker.clear()
         }
+        isTrackingStarted = false
+        lastEventTimeMillis = 0L
     }
 }

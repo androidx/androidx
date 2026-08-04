@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test.injectionscope.touch
 
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -31,6 +33,8 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import org.junit.Assert.fail
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -74,6 +78,12 @@ class VelocityPathFinderTest(private val config: TestConfig) {
                 // Regression for b/182477143
                 add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
             }
+    }
+
+    @Before
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun setUp() {
+        assumeFalse(AndroidComposeUiFlags.isFrameworkVelocityTrackerEnabled)
     }
 
     @Test

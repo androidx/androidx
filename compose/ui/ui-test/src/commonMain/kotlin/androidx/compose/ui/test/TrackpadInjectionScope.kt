@@ -702,7 +702,7 @@ public fun TrackpadInjectionScope.panWithVelocity(
             "velocity requires at least 3 input events"
     }
 
-    val pathFinder = VelocityPathFinder(Offset.Zero, offset, endVelocity, durationMillis)
+    val pathFinder = LegacyVelocityPathFinder(Offset.Zero, offset, endVelocity, durationMillis)
     val swipeFunction: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
     pan(swipeFunction, durationMillis)
 }

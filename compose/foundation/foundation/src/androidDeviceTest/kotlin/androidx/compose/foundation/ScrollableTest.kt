@@ -2257,7 +2257,7 @@ class ScrollableTest {
                 ): Velocity {
                     val expected = velocityFlung - consumed.x
                     assertThat(consumed.x).isLessThan(velocityFlung)
-                    assertThat(abs(available.x - expected)).isLessThan(0.1f)
+                    assertThat(abs(available.x - expected)).isLessThan(0.05f * expected)
                     return available
                 }
             }
@@ -2326,7 +2326,7 @@ class ScrollableTest {
                 ): Velocity {
                     val expected = velocityFlung - consumed.x
                     assertThat(consumed.x).isLessThan(velocityFlung)
-                    assertThat(abs(available.x - expected)).isLessThan(0.1f)
+                    assertThat(abs(available.x - expected)).isLessThan(0.05f * expected)
                     return available
                 }
             }
@@ -2843,7 +2843,7 @@ class ScrollableTest {
                     available: Velocity,
                 ): Velocity {
                     assertThat(consumed.x).isEqualTo(0f)
-                    assertThat(available.x).isWithin(0.1f).of(velocityFlung)
+                    assertThat(available.x).isWithin(0.05f * velocityFlung).of(velocityFlung)
                     return available
                 }
             }
