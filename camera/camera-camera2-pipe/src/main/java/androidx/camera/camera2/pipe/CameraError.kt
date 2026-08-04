@@ -90,7 +90,7 @@ public value class CameraError private constructor(public val value: Int) {
          * The camera has been disconnected for one of the following potential causes:
          * - The camera has been disconnected from the Android device.
          * - The camera ID is no longer valid.
-         * - The camera has been taken for a higher-priority process.
+         * - The camera has been taken by a higher-priority process.
          */
         public val ERROR_CAMERA_DISCONNECTED: CameraError = CameraError(6)
 
