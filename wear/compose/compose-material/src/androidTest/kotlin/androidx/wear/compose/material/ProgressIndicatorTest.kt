@@ -220,14 +220,16 @@ class CircularDeterminateProgressIndicatorTest {
             )
         }
         rule.waitForIdle()
+        // Anti-aliasing on low DPI devices (<320 dpi) causes fewer pixels to have pure color
+        val minPercent = if (rule.density.density < 2f) 4.5f else 5f
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 5f..7f)
+            .assertColorInPercentageRange(Color.Yellow, minPercent..7f)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 5f..7f)
+            .assertColorInPercentageRange(Color.Red, minPercent..7f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
