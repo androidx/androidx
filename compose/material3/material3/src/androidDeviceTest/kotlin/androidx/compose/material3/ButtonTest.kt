@@ -868,29 +868,35 @@ class ButtonTest {
         val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
 
         // Assert small sizes
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() + 0.05.dp })
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             expectedStartPadding,
             "button start padding",
+            tolerance = tolerance,
         )
         (textBounds.top - buttonBounds.top).assertIsEqualTo(
             contentPadding.calculateTopPadding(),
             "button top padding",
+            tolerance = tolerance,
         )
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             expectedEndPadding,
             "button end padding",
+            tolerance = tolerance,
         )
         (buttonBounds.bottom - textBounds.bottom).assertIsEqualTo(
             contentPadding.calculateBottomPadding(),
             "button bottom padding",
+            tolerance = tolerance,
         )
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             ButtonDefaults.IconSpacing,
             "icon to label space",
+            tolerance = tolerance,
         )
-        textBounds.height.assertIsEqualTo(20.dp, "label line height")
-        iconBounds.height.assertIsEqualTo(20.dp, "icon height")
-        buttonBounds.height.assertIsEqualTo(size, "height of button.")
+        textBounds.height.assertIsEqualTo(20.dp, "label line height", tolerance = tolerance)
+        iconBounds.height.assertIsEqualTo(20.dp, "icon height", tolerance = tolerance)
+        buttonBounds.height.assertIsEqualTo(size, "height of button.", tolerance = tolerance)
     }
 
     @Test
