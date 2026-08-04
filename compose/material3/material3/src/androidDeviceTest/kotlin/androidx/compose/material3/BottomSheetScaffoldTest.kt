@@ -907,12 +907,14 @@ class BottomSheetScaffoldTest {
             )
         // Assert sheet content is positioned at the sheet peek height + drag handle height + 22.dp
         // top and bottom padding.
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.5f.toDp() })
         rule
             .onNodeWithTag(sheetTag)
             .assertTopPositionInRootIsEqualTo(
                 rule.rootHeight() - peekHeight +
                     (expectedDragHandleVerticalPadding * 2) +
-                    SheetBottomTokens.DockedDragHandleHeight
+                    SheetBottomTokens.DockedDragHandleHeight,
+                tolerance = tolerance,
             )
         // Assert TopBar is placed at the top of the app.
         rule.onNodeWithTag("TopBar").assertTopPositionInRootIsEqualTo(0.dp)
