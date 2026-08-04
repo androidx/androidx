@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="POSITION">%1$d</xliff:g> ከ<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"ምንም የሚመሳሰሉ ውጤቶች የሉም"</string>
     <string name="action_edit" msgid="5882082700509010966">"ፋይል አርትዕ"</string>
-    <string name="action_search" msgid="1044074359976464346">"ፋይል ፈልግ"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"መሸብለያ አሞሌ"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ለመክፈት የይለፍ ቃል ያስገቡ"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"እንደገና ሞክር"</string>
