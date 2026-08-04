@@ -92,4 +92,19 @@ constructor(
     override fun toString(): String {
         return "AppFunctionState(functionName=$functionName, isEnabled=$isEnabled, activityIds=$activityIds)"
     }
+
+    internal companion object {
+        @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+        internal fun fromPlatformAppFunctionState(
+            platformAppFunctionState: android.app.appfunctions.AppFunctionState
+        ): AppFunctionState =
+            AppFunctionState(
+                functionName =
+                    AppFunctionName.fromPlatformAppFunctionName(
+                        platformAppFunctionState.functionName
+                    ),
+                isEnabled = platformAppFunctionState.isEnabled,
+                activityIds = platformAppFunctionState.activityIds,
+            )
+    }
 }

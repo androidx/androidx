@@ -77,6 +77,7 @@ public constructor(
      * @throws IllegalArgumentException If the [functionId] is not available in caller's package.
      */
     // TODO(b/539865222): Remove this API completely after migrating usages.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun isAppFunctionEnabled(functionId: String): Boolean {
         return isAppFunctionEnabled(packageName = context.packageName, functionId = functionId)
     }
@@ -92,6 +93,7 @@ public constructor(
      * @throws IllegalArgumentException If the [functionId] is not available under [packageName].
      */
     // TODO(b/539865222): Remove this API completely after migrating usages.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresPermission(value = "android.permission.EXECUTE_APP_FUNCTIONS", conditional = true)
     public suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean {
         return appFunctionManagerApi.isAppFunctionEnabled(
@@ -323,8 +325,6 @@ public constructor(
             ],
         conditional = true,
     )
-    // TODO(b/494238383): Remove annotation after supporting activityIds in CINNAMON_BUN+.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public suspend fun getAppFunctionStates(
         appFunctionNames: List<AppFunctionName>
     ): List<AppFunctionState> {

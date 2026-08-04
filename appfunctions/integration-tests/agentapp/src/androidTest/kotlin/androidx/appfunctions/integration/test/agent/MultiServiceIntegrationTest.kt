@@ -49,7 +49,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -93,9 +92,7 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
 
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id == "androidx.appfunctions.integration.testapp.CustomAppFunctionService#add"
@@ -125,9 +122,7 @@ class MultiServiceIntegrationTest {
     fun executeAppFunction_echoProxyTypes_succeed() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id ==
@@ -184,9 +179,7 @@ class MultiServiceIntegrationTest {
     fun executeAppFunction_appThrows_fail() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id ==
@@ -217,9 +210,7 @@ class MultiServiceIntegrationTest {
     fun executeAppFunction_enumValueFunction_validParam_executesService() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id ==
@@ -249,9 +240,7 @@ class MultiServiceIntegrationTest {
     fun executeAppFunction_getFilesData_uriAccessGranted() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id ==
@@ -291,9 +280,7 @@ class MultiServiceIntegrationTest {
     fun executeAppFunction_createNote_success() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
         val targetFunction =
             appFunctions.single {
                 it.id ==
@@ -339,9 +326,7 @@ class MultiServiceIntegrationTest {
     fun observeAppFunctions_shouldGetCorrectDescription() = doBlocking {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
-            appFunctionManager.observeAppFunctions(searchFunctionSpec).first().flatMap {
-                it.appFunctions
-            }
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
 
         val targetFunction =
             appFunctions.single {

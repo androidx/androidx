@@ -25,8 +25,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -49,13 +47,10 @@ class BaseSimpleAppFunctionServiceTest {
 
         val appFunctionIds =
             appFunctionManager
-                .observeAppFunctions(
+                .searchAppFunctions(
                     AppFunctionSearchSpec(packageNames = setOf(targetContext.packageName))
                 )
-                .firstOrNull()
-                ?.single { it.packageName == targetContext.packageName }
-                ?.appFunctions
-                ?.map { it.id }
+                .map { it.id }
 
         assertThat(appFunctionIds).isNotNull()
         assertThat(appFunctionIds).contains(generatedId)
