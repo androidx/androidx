@@ -365,6 +365,7 @@ internal fun NavigationItem(
                     colors = colors,
                     enabled = enabled,
                     isIconPositionTop = iconPosition == NavigationItemIconPosition.Top,
+                    animateColor = false,
                     content = label,
                 )
             }
@@ -504,6 +505,7 @@ internal fun AnimatedNavigationItem(
                         colors = colors,
                         enabled = enabled,
                         isIconPositionTop = isIconPositionTop,
+                        animateColor = true,
                         content = label,
                     )
                 }
@@ -1202,19 +1204,23 @@ private fun StyledLabel(
     colors: NavigationItemColors,
     enabled: Boolean,
     isIconPositionTop: Boolean,
+    animateColor: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
-    val textColor by
-        animateColorAsState(
-            targetValue =
-                colors.textColor(
-                    selected = selected,
-                    enabled = enabled,
-                    isIconPositionTop = isIconPositionTop,
-                ),
-            animationSpec = colorAnimationSpec,
+    val targetTextColor =
+        colors.textColor(
+            selected = selected,
+            enabled = enabled,
+            isIconPositionTop = isIconPositionTop,
         )
+    val textColor =
+        if (animateColor) {
+            val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
+            animateColorAsState(targetValue = targetTextColor, animationSpec = colorAnimationSpec)
+                .value
+        } else {
+            targetTextColor
+        }
     ProvideContentColorTextStyle(
         contentColor = textColor,
         textStyle = labelTextStyle,
