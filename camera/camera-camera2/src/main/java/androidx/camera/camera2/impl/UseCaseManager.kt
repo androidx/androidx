@@ -93,7 +93,7 @@ public class UseCaseManager
 constructor(
     private val cameraPipe: CameraPipe,
     @GuardedBy("lock") private val cameraCoordinator: CameraCoordinator,
-    private val builder: UseCaseCameraComponent.Builder,
+    private val builder: Provider<UseCaseCameraComponent.Builder>,
     private val zslControl: ZslControl,
     private val lowLightBoostControl: LowLightBoostControl,
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
@@ -414,6 +414,7 @@ constructor(
             }
         }
         sessionProcessor?.deInitSession()
+        deferredUseCaseCameraConfig = null
     }
 
     @GuardedBy("lock")
@@ -439,7 +440,7 @@ constructor(
     @GuardedBy("lock")
     private fun beginComponentCreation(useCaseCameraConfig: UseCaseCameraConfig) {
         // Create and configure the new camera component.
-        _activeComponent = builder.config(useCaseCameraConfig).build()
+        _activeComponent = builder.get().config(useCaseCameraConfig).build()
 
         val newUseCaseCamera = checkNotNull(camera)
         newUseCaseCamera.start()

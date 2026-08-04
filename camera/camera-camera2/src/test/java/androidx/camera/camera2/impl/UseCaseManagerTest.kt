@@ -50,6 +50,7 @@ import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.CameraConfig
+import androidx.camera.camera2.config.UseCaseCameraComponent
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
@@ -74,12 +75,15 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
+import javax.inject.Provider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
@@ -294,7 +298,10 @@ class UseCaseManagerTest {
         initializeUseCaseThreads(this)
         val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
         val useCaseManager =
-            createUseCaseManager(useCaseCameraComponentBuilder = useCaseCameraBuilder)
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
 
         val preview = createPreview()
         val imageCapture = createImageCapture()
@@ -333,7 +340,10 @@ class UseCaseManagerTest {
         initializeUseCaseThreads(this)
         val useCaseCameraBuilder = FakeUseCaseCameraComponentBuilder()
         val useCaseManager =
-            createUseCaseManager(useCaseCameraComponentBuilder = useCaseCameraBuilder)
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { useCaseCameraBuilder }
+            )
 
         val imageCapture = createImageCapture()
         useCaseManager.attach(listOf(imageCapture))
@@ -751,8 +761,7 @@ class UseCaseManagerTest {
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun createUseCaseManager(
         controls: Set<UseCaseCameraControl> = emptySet(),
-        useCaseCameraComponentBuilder: FakeUseCaseCameraComponentBuilder =
-            FakeUseCaseCameraComponentBuilder(),
+        useCaseCameraComponentBuilderProvider: Provider<UseCaseCameraComponent.Builder>? = null,
         templateParamsOverride: TemplateParamsOverride = NoOpTemplateParamsOverride,
         characteristicsMap: Map<CameraCharacteristics.Key<*>, Any?> =
             mapOf(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap),
@@ -800,10 +809,13 @@ class UseCaseManagerTest {
                 cameraMetadata = fakeCameraMetadata,
                 cameraXConfig = cameraXConfig,
             )
+        val builderProvider: Provider<UseCaseCameraComponent.Builder> =
+            useCaseCameraComponentBuilderProvider
+                ?: Provider<UseCaseCameraComponent.Builder> { FakeUseCaseCameraComponentBuilder() }
         return UseCaseManager(
                 cameraPipe = cameraPipe,
                 cameraCoordinator = CameraCoordinatorAdapter(cameraPipe, cameraPipe.cameras()),
-                builder = useCaseCameraComponentBuilder,
+                builder = builderProvider,
                 zslControl = ZslControlNoOpImpl(),
                 lowLightBoostControl = lowLightBoostControl,
                 controls = controls as java.util.Set<UseCaseCameraControl>,
@@ -887,5 +899,74 @@ class UseCaseManagerTest {
             ),
         )
         updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build(), null)
+    }
+
+    @Test
+    fun useCase_isGarbageCollectedAfterDetach_normalMode() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        var useCase: Preview? = createPreview()
+        val weakRef = WeakReference(useCase)
+
+        useCaseManager.attach(listOf(useCase!!))
+        useCaseManager.activate(useCase!!)
+
+        useCaseManager.deactivate(useCase!!)
+        useCaseManager.detach(listOf(useCase!!))
+
+        useCaseList.remove(useCase!!)
+        useCase = null
+        ShadowLooper.idleMainLooper()
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(weakRef.get()).isNull()
+    }
+
+    @Test
+    fun useCase_isGarbageCollectedAfterDetach_deferredMode() = runTest {
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        useCaseManager.setCameraGraphCreationMode(false)
+        var useCase: Preview? = createPreview()
+        val weakRef = WeakReference(useCase)
+
+        useCaseManager.attach(listOf(useCase!!))
+        useCaseManager.activate(useCase!!)
+
+        useCaseManager.deactivate(useCase!!)
+        useCaseManager.detach(listOf(useCase!!))
+
+        useCaseList.remove(useCase!!)
+        useCase = null
+        ShadowLooper.idleMainLooper()
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(weakRef.get()).isNull()
+    }
+
+    @Test
+    fun useCase_isLeaked_whenBuilderIsReused() = runTest {
+        initializeUseCaseThreads(this)
+        val sharedBuilder = FakeUseCaseCameraComponentBuilder()
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider =
+                    Provider<UseCaseCameraComponent.Builder> { sharedBuilder }
+            )
+        var useCase: Preview? = createPreview()
+        val weakRef = WeakReference(useCase)
+
+        useCaseManager.attach(listOf(useCase!!))
+        useCaseManager.activate(useCase!!)
+
+        useCaseManager.deactivate(useCase!!)
+        useCaseManager.detach(listOf(useCase!!))
+
+        useCaseList.remove(useCase!!)
+        useCase = null
+        ShadowLooper.idleMainLooper()
+        GarbageCollectionUtil.runFinalization()
+
+        assertThat(weakRef.get()).isNotNull()
     }
 }
