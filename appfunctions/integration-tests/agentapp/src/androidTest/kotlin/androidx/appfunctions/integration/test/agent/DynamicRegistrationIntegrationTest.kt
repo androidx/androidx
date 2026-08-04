@@ -26,12 +26,14 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEnabledState
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.retryAssert
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.startService
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -380,12 +382,10 @@ class DynamicRegistrationIntegrationTest {
 
         try {
             retryAssert {
-                val isEnabled =
-                    appFunctionManager.isAppFunctionEnabled(
-                        TARGET_APP_PACKAGE,
-                        GLOBAL_SIGNATURE_FORMAT_MESSAGE,
-                    )
-                assertThat(isEnabled).isTrue()
+                appFunctionManager.assertAppFunctionEnabledState(
+                    AppFunctionName(TARGET_APP_PACKAGE, GLOBAL_SIGNATURE_FORMAT_MESSAGE),
+                    true,
+                )
             }
 
             // 2. Execute dynamically registered signature app function
@@ -447,9 +447,10 @@ class DynamicRegistrationIntegrationTest {
         try {
             // 2. Wait for the app function to be indexed and enabled
             retryAssert {
-                val isEnabled =
-                    appFunctionManager.isAppFunctionEnabled(TARGET_APP_PACKAGE, targetFunctionId)
-                assertThat(isEnabled).isTrue()
+                appFunctionManager.assertAppFunctionEnabledState(
+                    AppFunctionName(TARGET_APP_PACKAGE, targetFunctionId),
+                    true,
+                )
             }
 
             block()

@@ -21,6 +21,7 @@ import android.app.UiAutomation
 import android.content.Context
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
+import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -84,62 +85,23 @@ class AppFunctionManagerTest {
     }
 
     @Test
-    fun testSelfIsAppFunctionEnabled_defaultEnabledState() {
-        val isEnabled = runBlocking {
-            appFunctionManager.isAppFunctionEnabled(
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT
-            )
-        }
-
-        assertThat(isEnabled).isTrue()
-    }
-
-    @Test
-    fun testSelfIsAppFunctionEnabled_defaultDisabledState() {
-        val isEnabled = runBlocking {
-            appFunctionManager.isAppFunctionEnabled(
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT
-            )
-        }
-
-        assertThat(isEnabled).isFalse()
-    }
-
-    @Test
-    fun testIsAppFunctionEnabled_defaultEnabledState() {
-        val isEnabled = runBlocking {
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
-            )
-        }
-
-        assertThat(isEnabled).isTrue()
-    }
-
-    @Test
-    fun testIsAppFunctionEnabled_defaultDisabledState() {
-        val isEnabled = runBlocking {
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
-            )
-        }
-
-        assertThat(isEnabled).isFalse()
-    }
-
-    @Test
     fun testSetAppFunctionEnabled_overrideToDisable() {
         val isEnabled = runBlocking {
             appFunctionManager.setAppFunctionEnabled(
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DISABLED,
             )
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            context.packageName,
+                            AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         }
 
         assertThat(isEnabled).isFalse()
@@ -152,10 +114,17 @@ class AppFunctionManagerTest {
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
             )
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            context.packageName,
+                            AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         }
 
         assertThat(isEnabled).isTrue()
@@ -172,10 +141,17 @@ class AppFunctionManagerTest {
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            context.packageName,
+                            AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         }
 
         assertThat(isEnabled).isTrue()
@@ -192,10 +168,17 @@ class AppFunctionManagerTest {
                 AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
                 AppFunctionManager.APP_FUNCTION_STATE_DEFAULT,
             )
-            appFunctionManager.isAppFunctionEnabled(
-                context.packageName,
-                AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
-            )
+            appFunctionManager
+                .getAppFunctionStates(
+                    listOf(
+                        AppFunctionName(
+                            context.packageName,
+                            AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
+                        )
+                    )
+                )
+                .single()
+                .isEnabled
         }
 
         assertThat(isEnabled).isFalse()
