@@ -93,18 +93,24 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         }
     }
 
-    fun SemanticsNodeInteraction.assertMainAxisSizeIsEqualTo(expectedSize: Dp) =
+    fun SemanticsNodeInteraction.assertMainAxisSizeIsEqualTo(
+        expectedSize: Dp,
+        tolerance: Dp = 0.5.dp,
+    ) =
         if (vertical) {
-            assertHeightIsEqualTo(expectedSize)
+            assertHeightIsEqualTo(expectedSize, tolerance)
         } else {
-            assertWidthIsEqualTo(expectedSize)
+            assertWidthIsEqualTo(expectedSize, tolerance)
         }
 
-    fun SemanticsNodeInteraction.assertCrossAxisSizeIsEqualTo(expectedSize: Dp) =
+    fun SemanticsNodeInteraction.assertCrossAxisSizeIsEqualTo(
+        expectedSize: Dp,
+        tolerance: Dp = 0.5.dp,
+    ) =
         if (vertical) {
-            assertWidthIsEqualTo(expectedSize)
+            assertWidthIsEqualTo(expectedSize, tolerance)
         } else {
-            assertHeightIsEqualTo(expectedSize)
+            assertHeightIsEqualTo(expectedSize, tolerance)
         }
 
     fun SemanticsNodeInteraction.assertStartPositionIsAlmost(expected: Dp) {
