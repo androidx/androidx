@@ -81,6 +81,11 @@ import kotlinx.coroutines.withContext
  * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration the specification for the one-handed gesture
  * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param scrollState The state object of the
@@ -150,6 +155,11 @@ public fun OneHandedGestureScrollIndicator(
  * [androidx.wear.compose.foundation.lazy.ScalingLazyColumn]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureScalingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration the specification for the one-handed gesture
  * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param scrollState The state object of the

@@ -1399,6 +1399,11 @@ public object ButtonDefaults {
      * Example of a [ButtonDefaults.Content] layout with OneHandedGestureIndicator:
      *
      * @sample androidx.wear.compose.material3.samples.ButtonContentWithOneHandedGestureSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_ButtonContentWithOneHandedGestureSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param modifier Modifier to be applied to the button content layout.
      * @param secondaryLabel A slot for providing the button's secondary label. By default,
      *   ButtonDefaults.Content applies Material3 UX guidelines, so that `Text` will be start
@@ -2256,6 +2261,11 @@ public object CompactButtonDefaults {
      * Example of a [CompactButtonDefaults.Content] layout with OneHandedGestureIndicator:
      *
      * @sample androidx.wear.compose.material3.samples.CompactButtonContentWithOneHandedGestureSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_CompactButtonContentWithOneHandedGestureSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param modifier Modifier to be applied to the compact button content layout.
      * @param icon A slot for providing the button's icon. The contents are expected to be a
      *   horizontally and vertically center-aligned icon of size

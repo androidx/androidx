@@ -37,6 +37,10 @@ import androidx.compose.runtime.compositionLocalOf
  * Sample demonstrating how to disable gesture:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureDisableButtonSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureDisableButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
  */
 public val LocalOneHandedGestureEnabled: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
     true
