@@ -663,6 +663,26 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     )
             }
 
+        arrayOf<CharSequence?>("foo", null, "bar").encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getCharSequenceArray(""))
+                .isEqualTo(arrayOf<CharSequence?>("foo", null, "bar"))
+        }
+        arrayOf<Parcelable?>(MyParcelable(3, "foo", 3.14), null).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getParcelableArray<Parcelable>(""))
+                .isEqualTo(arrayOf<Parcelable?>(MyParcelable(3, "foo", 3.14), null))
+        }
+        listOf<CharSequence?>("foo", null, "bar").encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getCharSequenceList("")).isEqualTo(listOf<CharSequence?>("foo", null, "bar"))
+        }
+        listOf<Parcelable?>(MyParcelable(3, "foo", 3.14), null).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getParcelableList<Parcelable>(""))
+                .isEqualTo(listOf<Parcelable?>(MyParcelable(3, "foo", 3.14), null))
+        }
+
         SparseArray<Parcelable?>()
             .apply {
                 append(1, MyParcelable(3, "foo", 3.14))
