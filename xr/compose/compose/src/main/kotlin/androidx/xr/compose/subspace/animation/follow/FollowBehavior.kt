@@ -20,7 +20,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
-import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -33,9 +32,8 @@ import kotlinx.coroutines.Dispatchers
  * "static", which does not continuously follow the target.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public sealed class FollowBehavior protected constructor() {
-    internal abstract suspend fun configure(
-        session: Session,
+public abstract class FollowBehavior internal constructor() {
+    internal abstract suspend fun start(
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions = TrackedDimensions.All,
