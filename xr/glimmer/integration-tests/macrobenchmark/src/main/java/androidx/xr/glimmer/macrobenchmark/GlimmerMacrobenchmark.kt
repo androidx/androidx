@@ -58,15 +58,16 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
 
             // Scroll through the list.
             trace("J<ScrollList>") {
-                simulateIndirectSwipeVertical(uiAutomation, 0f, 2000f, 150)
+                simulateIndirectSwipeVertical(uiAutomation, distanceDp = 450f)
                 device.waitForIdle()
             }
 
-            // Verify we scrolled to an intermediate item and did not hit start or end bounds.
-            device.waitOrThrow(Until.hasObject(By.text("Item: 5")), TIMEOUT_MS)
+            // Verify we scrolled down the list: Item: 0 has scrolled off screen, Item: 4 is
+            // visible, and we did not overscroll to the end.
             check(!device.hasObject(By.text("Item: 0"))) {
                 "List did not scroll past the start bound."
             }
+            check(device.hasObject(By.text("Item: 4"))) { "Item: 4 is not visible on screen." }
             check(!device.hasObject(By.text("Item: 19"))) {
                 "List scrolled to the end bound (overscroll)."
             }
@@ -82,23 +83,26 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
             setupBlock = { launchTargetScreen(DESTINATION_PAGER) },
         ) {
             val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val distanceDp = device.displayWidth / density
 
             device.waitOrThrow(Until.hasObject(By.text("Page: 0")), TIMEOUT_MS)
 
             // Swipe to Page 1.
             trace("J<SwipeToPage1>") {
-                simulateIndirectSwipeHorizontal(uiAutomation, 0f, 2000f, 150)
+                simulateIndirectSwipeHorizontal(uiAutomation, distanceDp = distanceDp)
                 device.waitForIdle()
             }
 
+            // Verify the state after first swipe: Page 1 is visible.
             device.waitOrThrow(Until.hasObject(By.text("Page: 1")), TIMEOUT_MS)
 
             // Swipe to Page 2.
             trace("J<SwipeToPage2>") {
-                simulateIndirectSwipeHorizontal(uiAutomation, 0f, 2000f, 150)
+                simulateIndirectSwipeHorizontal(uiAutomation, distanceDp = distanceDp)
                 device.waitForIdle()
             }
 
+            // Verify the state after second swipe: Page 2 is visible.
             device.waitOrThrow(Until.hasObject(By.text("Page: 2")), TIMEOUT_MS)
         }
 
@@ -112,12 +116,13 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
             setupBlock = { launchTargetScreen(DESTINATION_STACK) },
         ) {
             val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val distanceDp = device.displayHeight / density
 
             device.waitOrThrow(Until.hasObject(By.text("Stack: 0")), TIMEOUT_MS)
 
             // Swipe to Stack 1.
             trace("J<SwipeToStack1>") {
-                simulateIndirectSwipeVertical(uiAutomation, 0f, 2000f, 150)
+                simulateIndirectSwipeVertical(uiAutomation, distanceDp = distanceDp)
                 device.waitForIdle()
             }
 
@@ -126,7 +131,7 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
 
             // Swipe to Stack 2.
             trace("J<SwipeToStack2>") {
-                simulateIndirectSwipeVertical(uiAutomation, 0f, 2000f, 150)
+                simulateIndirectSwipeVertical(uiAutomation, distanceDp = distanceDp)
                 device.waitForIdle()
             }
 
@@ -193,17 +198,39 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
 
     private fun simulateIndirectSwipeVertical(
         uiAutomation: UiAutomation,
-        fromY: Float,
-        toY: Float,
-        durationMs: Long,
-    ) = simulateIndirectSwipe(uiAutomation, 0f, 0f, fromY, toY, durationMs)
+        distanceDp: Float,
+        durationMs: Long = 150L,
+    ) {
+        val distancePx = distanceDp * density
+        val fromY = if (distanceDp < 0) distancePx else 0f
+        val toY = if (distanceDp < 0) 0f else distancePx
+        simulateIndirectSwipe(
+            uiAutomation,
+            fromX = 0f,
+            toX = 0f,
+            fromY = fromY,
+            toY = toY,
+            durationMs = durationMs,
+        )
+    }
 
     private fun simulateIndirectSwipeHorizontal(
         uiAutomation: UiAutomation,
-        fromX: Float,
-        toX: Float,
-        durationMs: Long,
-    ) = simulateIndirectSwipe(uiAutomation, fromX, toX, 0f, 0f, durationMs)
+        distanceDp: Float,
+        durationMs: Long = 150L,
+    ) {
+        val distancePx = distanceDp * density
+        val fromX = if (distanceDp < 0) distancePx else 0f
+        val toX = if (distanceDp < 0) 0f else distancePx
+        simulateIndirectSwipe(
+            uiAutomation,
+            fromX = fromX,
+            toX = toX,
+            fromY = 0f,
+            toY = 0f,
+            durationMs = durationMs,
+        )
+    }
 
     companion object {
         private const val PACKAGE_NAME = "androidx.xr.glimmer.macrobenchmark.target"
@@ -219,3 +246,7 @@ class GlimmerMacrobenchmark(private val compilationMode: CompilationMode) {
         fun parameters(): List<Array<Any>> = createCompilationParams()
     }
 }
+
+private val density: Float
+    get() =
+        InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.density
