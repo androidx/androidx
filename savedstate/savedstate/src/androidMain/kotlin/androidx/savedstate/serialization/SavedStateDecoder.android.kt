@@ -45,17 +45,23 @@ internal actual fun <T> SavedStateDecoder.decodeFormatSpecificTypesOnPlatform(
         polymorphicJavaSerializableDescriptor -> DefaultJavaSerializableSerializer.deserialize(this)
         polymorphicIBinderDescriptor -> IBinderSerializer.deserialize(this)
         charSequenceArrayDescriptor,
-        polymorphicCharSequenceArrayDescriptor -> CharSequenceArraySerializer.deserialize(this)
+        polymorphicCharSequenceArrayDescriptor,
+        nullablePolymorphicCharSequenceArrayDescriptor ->
+            CharSequenceArraySerializer.deserialize(this)
         charSequenceListDescriptor,
-        polymorphicCharSequenceListDescriptor -> CharSequenceListSerializer.deserialize(this)
+        polymorphicCharSequenceListDescriptor,
+        nullablePolymorphicCharSequenceListDescriptor ->
+            CharSequenceListSerializer.deserialize(this)
         parcelableArrayDescriptor -> {
             val parcelableArr = ParcelableArraySerializer.deserialize(this)
             val arrayKClass = getArrayKClass(strategy)
             Arrays.copyOf(parcelableArr, parcelableArr.size, arrayKClass.java)
         }
-        polymorphicParcelableArrayDescriptor -> ParcelableArraySerializer.deserialize(this)
+        polymorphicParcelableArrayDescriptor,
+        nullablePolymorphicParcelableArrayDescriptor -> ParcelableArraySerializer.deserialize(this)
         parcelableListDescriptor,
-        polymorphicParcelableListDescriptor -> ParcelableListSerializer.deserialize(this)
+        polymorphicParcelableListDescriptor,
+        nullablePolymorphicParcelableListDescriptor -> ParcelableListSerializer.deserialize(this)
         sparseParcelableArrayDescriptor,
         polymorphicSparseParcelableArrayDescriptor,
         nullablePolymorphicSparseParcelableArrayDescriptor ->
