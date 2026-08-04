@@ -35,6 +35,18 @@ class ShadowCameraAgent(val testHandler: Handler) {
 
     private var listenerRegisteredLatch = CountDownLatch(1)
     private var nextOpenError: DeviceOpenError? = null
+    var openAttempts = 0
+        private set
+
+    private var persistentOpenError: DeviceOpenError? = null
+
+    fun incrementOpenAttempts() {
+        openAttempts++
+    }
+
+    fun failAllOpenCallsWith(error: DeviceOpenError?) {
+        persistentOpenError = error
+    }
 
     private data class OpenCameraInfo(
         val device: CameraDevice,
@@ -155,6 +167,9 @@ class ShadowCameraAgent(val testHandler: Handler) {
      * This is called by the shadow to inject the failure.
      */
     fun consumeNextOpenError(): DeviceOpenError? {
+        if (persistentOpenError != null) {
+            return persistentOpenError
+        }
         val error = nextOpenError
         nextOpenError = null
         return error
