@@ -233,7 +233,7 @@ class LazyColumnMouseHoverTest {
             }
         }
 
-        val mousePointer = Offset(10f, 10f)
+        val mousePointer = with(rule.density) { Offset(5.dp.toPx(), 5.dp.toPx()) }
 
         // Hover over the first item in list
         rule.onNodeWithTag("lazyList").performMouseInput { enter(mousePointer) }
