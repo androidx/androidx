@@ -28,6 +28,7 @@ import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -1155,6 +1156,54 @@ class CompositionLocalTests {
         // subtree
         assertEquals(2, recomposeWithoutRead)
         assertEquals(2, recomposeWithRead)
+    }
+
+    @Test
+    fun withCompositionLocalRememberObserverOrdering() = compositionTest {
+        val events = mutableListOf<String>()
+        var show by mutableStateOf(true)
+        val local = compositionLocalOf { 0 }
+
+        fun createRememberObserver(name: String) =
+            object : RememberObserver {
+                override fun onRemembered() {
+                    events += "Remember($name)"
+                }
+
+                override fun onForgotten() {
+                    events += "Forget($name)"
+                }
+
+                override fun onAbandoned() {
+                    events += "Abandon($name)"
+                }
+            }
+
+        compose {
+            if (show) {
+                remember<RememberObserver> { createRememberObserver("before") }
+                withCompositionLocal(local provides 100) {
+                    remember<RememberObserver> { createRememberObserver("inner") }
+                }
+                remember<RememberObserver> { createRememberObserver("after") }
+            }
+        }
+
+        assertContentEquals(
+            actual = events,
+            expected = listOf("Remember(before)", "Remember(inner)", "Remember(after)"),
+            message = "Initial composition had unexpected remember sequence",
+        )
+
+        events.clear()
+        show = false
+        advance()
+
+        assertContentEquals(
+            actual = events,
+            expected = listOf("Forget(after)", "Forget(inner)", "Forget(before)"),
+            message = "Content removal had unexpected remember sequence",
+        )
     }
 }
 
