@@ -88,7 +88,7 @@ data class BundleInfo(
 
                 while (entry != null) {
                     when {
-                        entry.name.contains("/dex/classes") && entry.name.endsWith(".dex") -> {
+                        entry.name.endsWith(".dex") -> {
                             deferredDexFiles.add(
                                 DexInfo.DeferredDexFile(
                                     entryName = entry.name,
