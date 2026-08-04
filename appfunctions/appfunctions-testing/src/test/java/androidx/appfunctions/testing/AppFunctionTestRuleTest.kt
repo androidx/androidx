@@ -33,15 +33,10 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.timeout
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -69,137 +64,51 @@ class AppFunctionTestRuleTest {
     private val appFunctionManager: AppFunctionManager = appFunctionTestRule.getAppFunctionManager()
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_noFilter_returnsAllAppFunctions() =
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_noFilter_returnsAllAppFunctions() =
         runBlocking<Unit> {
-            val results =
-                appFunctionManager
-                    .observeAppFunctions(AppFunctionSearchSpec())
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
+            val results = appFunctionManager.searchAppFunctions(AppFunctionSearchSpec())
 
-            assertThat(results.single().single().appFunctions).hasSize(8)
+            assertThat(results).hasSize(8)
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_returnsNewValueOnUpdate() =
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterBySchemaName_success() =
         runBlocking<Unit> {
-            val functionIdToTest = "androidx.appfunctions.testing.TestFunctions#disabledByDefault"
-            val appFunctionSearchFlow =
-                appFunctionManager.observeAppFunctions(
+            val results =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(
+                        packageNames = setOf(context.packageName),
+                        schemaName = "createNote",
+                    )
+                )
+
+            assertThat(results.map { it.id })
+                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByPackageName_success() =
+        runBlocking<Unit> {
+            val results =
+                appFunctionManager.searchAppFunctions(
                     AppFunctionSearchSpec(packageNames = setOf(context.packageName))
                 )
-            val emittedValues =
-                appFunctionSearchFlow.shareIn(
-                    scope = CoroutineScope(Dispatchers.Default),
-                    started = SharingStarted.Eagerly,
-                    replay = 10,
+
+            assertThat(results).hasSize(8)
+        }
+
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterBySchemaCategory_success() =
+        runBlocking<Unit> {
+            val results =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(
+                        packageNames = setOf(context.packageName),
+                        schemaCategory = "myNotes",
+                    )
                 )
-            emittedValues.first() // Allow emitting initial value and registering callback.
 
-            // Modify the runtime document.
-            appFunctionManager.setAppFunctionEnabled(
-                functionIdToTest,
-                AppFunctionManager.APP_FUNCTION_STATE_ENABLED,
-            )
-
-            // Collect in a separate scope to avoid deadlock within the testcase.
-            runBlocking(Dispatchers.Default) {
-                emittedValues.timeout(FLOW_COLLECTION_TIMEOUT).take(2).collect {}
-            }
-            assertThat(emittedValues.replayCache).hasSize(2)
-            // Assert first result to be default value.
-            assertThat(
-                    emittedValues.replayCache[0]
-                        .flatMap { it.appFunctions }
-                        .single { it.id == functionIdToTest }
-                        .isEnabled
-                )
-                .isFalse()
-            // Assert next update has updated value.
-            assertThat(
-                    emittedValues.replayCache[1]
-                        .flatMap { it.appFunctions }
-                        .single { it.id == functionIdToTest }
-                        .isEnabled
-                )
-                .isTrue()
-        }
-
-    @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterBySchemaName_success() =
-        runBlocking<Unit> {
-            val results =
-                appFunctionManager
-                    .observeAppFunctions(
-                        AppFunctionSearchSpec(
-                            packageNames = setOf(context.packageName),
-                            schemaName = "createNote",
-                        )
-                    )
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
-
-            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
-        }
-
-    @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByPackageName_success() =
-        runBlocking<Unit> {
-            val results =
-                appFunctionManager
-                    .observeAppFunctions(
-                        AppFunctionSearchSpec(packageNames = setOf(context.packageName))
-                    )
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
-
-            assertThat(results.single().single().appFunctions).hasSize(8)
-        }
-
-    @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterBySchemaCategory_success() =
-        runBlocking<Unit> {
-            val results =
-                appFunctionManager
-                    .observeAppFunctions(
-                        AppFunctionSearchSpec(
-                            packageNames = setOf(context.packageName),
-                            schemaCategory = "myNotes",
-                        )
-                    )
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
-
-            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
-                .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
-        }
-
-    @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByFunctionName_success() =
-        runBlocking<Unit> {
-            val results =
-                appFunctionManager
-                    .observeAppFunctions(
-                        AppFunctionSearchSpec(
-                            functionNames =
-                                setOf(
-                                    AppFunctionName(
-                                        context.packageName,
-                                        "androidx.appfunctions.testing.NotesFunctions#createNote",
-                                    )
-                                )
-                        )
-                    )
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
-
-            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
+            assertThat(results.map { it.id })
                 .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
         }
 
@@ -224,21 +133,17 @@ class AppFunctionTestRuleTest {
         }
 
     @Test(timeout = 5000)
-    fun returnedAppFunctionManagerCompat_legacyObserveApi_filterByMinSchemaVersion_success() =
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByMinSchemaVersion_success() =
         runBlocking<Unit> {
             val results =
-                appFunctionManager
-                    .observeAppFunctions(
-                        AppFunctionSearchSpec(
-                            packageNames = setOf(context.packageName),
-                            minSchemaVersion = 2,
-                        )
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(
+                        packageNames = setOf(context.packageName),
+                        minSchemaVersion = 2,
                     )
-                    .timeout(FLOW_COLLECTION_TIMEOUT)
-                    .take(1)
-                    .toList()
+                )
 
-            assertThat(results.single().flatMap { it.appFunctions }.map { it.id })
+            assertThat(results.map { it.id })
                 .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
         }
 
