@@ -701,6 +701,11 @@ public object CardDefaults {
      * Example of a [CardDefaults.TitleCardContent] layout with OneHandedGestureIndicator:
      *
      * @sample androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_TitleCardContentWithOneHandedGestureSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param title A slot for displaying the title of the card, expected to be one or two lines of
      *   text.
      * @param modifier Modifier to be applied to the card.
@@ -793,6 +798,11 @@ public object CardDefaults {
      * Example of an [CardDefaults.AppCardContent] layout with OneHandedGestureIndicator:
      *
      * @sample androidx.wear.compose.material3.samples.AppCardContentWithOneHandedGestureSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_AppCardContentWithOneHandedGestureSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param appName A slot for displaying the application name, expected to be a single line of
      *   start aligned text.
      * @param title A slot for displaying the title of the card, expected to be one or two lines of

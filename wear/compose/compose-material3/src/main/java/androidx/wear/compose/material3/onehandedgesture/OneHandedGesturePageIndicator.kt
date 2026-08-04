@@ -74,6 +74,11 @@ import kotlinx.coroutines.withContext
  * [androidx.wear.compose.foundation.pager.HorizontalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureHorizontalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration the specification for the one-handed gesture
  * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param pagerState The state of the [androidx.wear.compose.foundation.pager.HorizontalPager] that
@@ -139,6 +144,11 @@ public fun OneHandedGestureHorizontalPageIndicator(
  * [androidx.wear.compose.foundation.pager.VerticalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureVerticalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration the specification for the one-handed gesture
  * @param indicatorState The state object used to synchronize the indicator visibility.
  * @param pagerState The state of the [androidx.wear.compose.foundation.pager.VerticalPager] that

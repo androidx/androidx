@@ -60,6 +60,11 @@ public object OneHandedGestureDefaults {
      * Sample demonstrating gesture handling with [TransformingLazyColumnState]:
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureTransformingLazyColumnSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param scrollState The scroll state associated with a transforming lazy column.
      * @param wrapAround Whether to automatically scroll back to the first item when reaching the
      *   end of the content.
@@ -85,6 +90,11 @@ public object OneHandedGestureDefaults {
      * Sample demonstrating gesture handling with [ScalingLazyListState]:
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureScalingLazyColumnSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param scrollState The scroll state associated with a scaling lazy column.
      * @param wrapAround Whether to automatically scroll back to the first item when reaching the
      *   end of the content.
@@ -108,6 +118,11 @@ public object OneHandedGestureDefaults {
      * Sample demonstrating gesture handling with [TransformingLazyColumnState]:
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureTransformingLazyColumnScrollToNextItemSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param scrollState The scroll state associated with a transforming lazy column.
      * @param wrapAround Whether to automatically scroll back to the first item when reaching the
      *   end of the content.
@@ -148,6 +163,11 @@ public object OneHandedGestureDefaults {
      * Sample demonstrating gesture handling with [ScalingLazyListState]:
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureScalingLazyColumnScrollToNextItemSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param scrollState The scroll state associated with a scaling lazy column.
      * @param wrapAround Whether to automatically scroll back to the first item when reaching the
      *   end of the content.
@@ -198,7 +218,17 @@ public object OneHandedGestureDefaults {
      * Samples demonstrating gesture handling with horizontal and vertical pagers:
      *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureHorizontalPagerSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+     *
+     * <video
+     * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureVerticalPagerSample_CompositeImage.mp4
+     * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+     *
      * @param pagerState The state of the pager to be animated.
      * @param wrapAround Determines whether the pager should wrap around to the first page (index 0)
      *   after reaching the last page.

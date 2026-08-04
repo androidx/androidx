@@ -73,6 +73,10 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureButtonSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureButtonSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of adding one-handed gesture handler that is enabled in ambient mode to a
  * [androidx.wear.compose.material3.Button]:
  *
@@ -83,15 +87,28 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureTransformingLazyColumnSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of adding one-handed gesture handler to a
  * [androidx.wear.compose.foundation.pager.HorizontalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSample
  *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureHorizontalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * Example of adding one-handed gesture handler to a
  * [androidx.wear.compose.foundation.pager.VerticalPager]:
  *
  * @sample androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+ *
+ * <video
+ * src=https://developer.android.com/wear/images/design/WearComposeM3_OneHandedGestureVerticalPagerSample_CompositeImage.mp4
+ * autoplay loop muted playsinline style=border-radius:2.4%/6.8%;overflow:hidden; />
+ *
  * @param gestureConfiguration The [OneHandedGestureConfiguration] containing the configuration for
  *   this gesture.
  * @param enabledInAmbient Whether the gesture should remain active in ambient mode.
