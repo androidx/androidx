@@ -21,7 +21,17 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.startup.Initializer
-import androidx.tracing.perfetto.PerfettoSdkTrace
+import androidx.tracing.Tracer
+
+// The category being used for Recomposition tracing.
+internal const val COMPOSE_TRACING_CATEGORY = "androidx.compose"
+
+// This is the initializer responsible in bootstrapping Tracing 2.0.
+// We cannot refer to this class directly, because apps in g3 are not using initializers at all.
+// They are expected to use something like Dagger to bootstrap tracing.
+// This also makes it possible for apps using TikTok tracing to do the right thing.
+internal const val CONNECTED_PROFILER_TRACING_INITIALIZER =
+    "androidx.tracing.profiler.ConnectedProfilerTracingInitializer"
 
 /**
  * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific information
@@ -32,15 +42,34 @@ public class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Composer.setTracer(
             object : CompositionTracer {
-                override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =
-                    PerfettoSdkTrace.beginSection(info)
+                @JvmField val closeables = Stack<AutoCloseable>()
 
-                override fun traceEventEnd() = PerfettoSdkTrace.endSection()
+                override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) {
+                    closeables +=
+                        Tracer.global.beginSection(
+                            category = COMPOSE_TRACING_CATEGORY,
+                            name = info,
+                            isRoot = false,
+                            token = null,
+                            metadataBlock = {},
+                        )
+                }
 
-                override fun isTraceInProgress(): Boolean = PerfettoSdkTrace.isEnabled
+                override fun traceEventEnd() {
+                    closeables.removeLastOrNull()?.close()
+                }
+
+                override fun isTraceInProgress(): Boolean =
+                    Tracer.global.isCategoryEnabled(COMPOSE_TRACING_CATEGORY)
             }
         )
     }
 
-    override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
+    override fun dependencies(): List<Class<out Initializer<*>>> {
+        @Suppress("UNCHECKED_CAST")
+        val klass = Class.forName(CONNECTED_PROFILER_TRACING_INITIALIZER) as Class<Initializer<*>>?
+        // Be graceful when we cannot find the class on the class path.
+        val dependencies = if (klass != null) listOf(klass) else emptyList()
+        return dependencies
+    }
 }
