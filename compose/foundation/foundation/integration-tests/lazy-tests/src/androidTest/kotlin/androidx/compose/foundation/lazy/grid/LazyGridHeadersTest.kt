@@ -471,7 +471,7 @@ class LazyGridHeadersTest(orientation: Orientation) : BaseLazyGridTestWithOrient
             rule.runOnIdle { focusRequesters[0].requestFocus() }
 
             rule.runOnIdle {
-                val headerSizePixels = with(rule.density) { headerSize.toPx() }.toInt()
+                val headerSizePixels = with(rule.density) { headerSize.roundToPx() }
                 assertEquals(
                     headerSizePixels - state.layoutInfo.beforeContentPadding,
                     state.layoutInfo.visibleItemsInfo.find { it.index == 1 }!!.offset.mainAxis,
