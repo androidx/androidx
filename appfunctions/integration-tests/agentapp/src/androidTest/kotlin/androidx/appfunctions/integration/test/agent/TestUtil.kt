@@ -24,6 +24,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -198,6 +199,26 @@ internal object TestUtil {
         intent.putExtra("function_id", appFunctionName.functionIdentifier)
         intent.putExtra("state", state)
         context.sendBroadcast(intent)
+    }
+
+    /** Verifies that the given app function has the given enabled state. */
+    suspend fun AppFunctionManager.assertAppFunctionEnabledState(
+        targetFunctionName: AppFunctionName,
+        expectedEnabled: Boolean,
+    ) {
+        val isEnabled =
+            getAppFunctionStates(
+                    appFunctionNames =
+                        listOf(
+                            AppFunctionName(
+                                targetFunctionName.packageName,
+                                targetFunctionName.functionIdentifier,
+                            )
+                        )
+                )
+                .single()
+                .isEnabled
+        assertThat(isEnabled).isEqualTo(expectedEnabled)
     }
 
     private fun UiAutomation.executeShellCommandSync(command: String): String =
