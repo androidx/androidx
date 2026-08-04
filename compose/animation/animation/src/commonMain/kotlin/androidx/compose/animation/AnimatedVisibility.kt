@@ -36,11 +36,13 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -826,18 +828,25 @@ internal fun <T> AnimatedEnterExitImpl(
         val activeEnter = childTransition.trackActiveEnter(enter, activeMutableState)
         val activeExit = childTransition.trackActiveExit(exit, activeMutableState)
 
+        val shouldDisposeBlockUpdated by rememberUpdatedState(shouldDisposeBlock)
+
         val shouldDisposeAfterExit by
-            remember(childTransition, shouldDisposeBlock) {
-                derivedStateOf {
-                    if (childTransition.exitFinished) {
-                        shouldDisposeBlock(
-                            childTransition.currentState,
-                            childTransition.targetState,
-                        )
-                    } else {
-                        false
+            produceState(
+                initialValue =
+                    shouldDisposeBlock(childTransition.currentState, childTransition.targetState)
+            ) {
+                snapshotFlow { childTransition.exitFinished }
+                    .collect {
+                        value =
+                            if (it) {
+                                shouldDisposeBlockUpdated(
+                                    childTransition.currentState,
+                                    childTransition.targetState,
+                                )
+                            } else {
+                                false
+                            }
                     }
-                }
             }
 
         if (!childTransition.exitFinished || !shouldDisposeAfterExit) {
