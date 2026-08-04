@@ -39,7 +39,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -465,11 +464,7 @@ class DynamicRegistrationIntegrationTest {
     }
 
     private suspend fun findAppFunctionMetadata(id: String): AppFunctionMetadata {
-        return appFunctionManager
-            .observeAppFunctions(AppFunctionSearchSpec())
-            .first()
-            .flatMap { it.appFunctions }
-            .single { it.id == id }
+        return appFunctionManager.searchAppFunctions(AppFunctionSearchSpec()).single { it.id == id }
     }
 
     private suspend fun Context.awaitAppFunctionsIndexed(targetPackage: String) {
