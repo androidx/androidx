@@ -41,6 +41,7 @@ import kotlinx.serialization.serializer
  *
  * Keys must be annotated with [PersistToDataStore] to be saved.
  *
+ * @sample androidx.appstate.datastore.samples.AppStateDataStoreListenerSample
  * @param dataStore the [DataStore] used to save and restore state
  */
 @Suppress("PairedRegistration")
