@@ -21,13 +21,25 @@ import javax.annotation.processing.RoundEnvironment
 import javax.annotation.processing.SupportedAnnotationTypes
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
+import javax.tools.Diagnostic
 
+@Deprecated(
+    "lifecycle-compiler is deprecated. Use DefaultLifecycleObserver or " +
+        "LifecycleEventObserver instead."
+)
 @SupportedAnnotationTypes("androidx.lifecycle.OnLifecycleEvent")
 class LifecycleProcessor : AbstractProcessor() {
     override fun process(
         annotations: MutableSet<out TypeElement>,
         roundEnv: RoundEnvironment,
     ): Boolean {
+        if (annotations.isNotEmpty()) {
+            processingEnv.messager.printMessage(
+                Diagnostic.Kind.WARNING,
+                "lifecycle-compiler is deprecated. Use DefaultLifecycleObserver or " +
+                    "LifecycleEventObserver instead.",
+            )
+        }
         val input = collectAndVerifyInput(processingEnv, roundEnv)
         writeModels(transformToOutput(processingEnv, input), processingEnv)
         return true
