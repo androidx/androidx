@@ -24,6 +24,7 @@ import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -61,6 +62,19 @@ class DisposableSaveableStateRegistryTest {
         registry = DisposableSaveableStateRegistry(ContainerKey, owner2)
         val restoredValue = registry.consumeRestored(SaveKey)
         assertEquals(SaveValue, restoredValue)
+    }
+
+    @UiThreadTest
+    @Test
+    fun performSaveResultPassesCanBeSaved() {
+        val platformRegistry = DisposableSaveableStateRegistry(ContainerKey, TestOwner())
+
+        val registry = SaveableStateRegistry(null) { true }
+        registry.registerProvider(SaveKey) { SaveValue }
+
+        val savedState = registry.performSave()
+
+        assertTrue(platformRegistry.canBeSaved(savedState))
     }
 
     @UiThreadTest
