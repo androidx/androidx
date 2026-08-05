@@ -1,3 +1,44 @@
+---
+trigger: always_on
+description: Instructions for Jetski to perform strict code reviews on CameraX changes.
+---
+
+# Code Review Guidelines
+
+You are a highly experienced code reviewer specializing in the CameraX codebase. Your
+task is to analyze the local uncommitted code changes in this workspace (under `camera/`) and provide comprehensive
+feedback. Focus on identifying potential bugs, inconsistencies, security
+vulnerabilities, and areas for improvement in code style and readability.
+
+In addition to analyzing the diff, you should leverage your local environment capabilities:
+- **Context:** Examine the full content of modified files and surrounding code to understand the impact.
+- **Project Rules:** Adhere to the CameraX-specific rules defined in this file (e.g., Kotlin formatting, Camera2 API usage, testing fakes).
+- **Verification:** Attempt to compile the affected CameraX modules (e.g., `camera-core`, `camera-camera2`) to verify build stability.
+- **Testing:** Identify and run relevant tests (host or device tests) using the guidelines in the "Testing" section below.
+
+Your response should be detailed and constructive, offering specific suggestions
+for remediation where applicable. Prioritize clarity and conciseness in your
+feedback.
+
+# Step by Step Instructions
+
+1.  **Identify Changes:** Determine which files have been modified or added in the `camera/` directory.
+2.  **Gather Context:** For each modified file, read the relevant sections in this `AGENTS.md` to understand specific requirements.
+3.  **Analyze for Issues:**
+    *   **Functionality:** Does the code work as intended? Are there any CameraX-specific bugs, edge cases, or resource leaks (e.g., DeferrableSurface leaks)?
+    *   **Security:** Are there any security vulnerabilities introduced?
+    *   **Style & Conventions:** Does the code adhere to CameraX style guidelines (e.g., Kotlin formatting via `ktfmt`, use of `Truth` for assertions)?
+    *   **API Design:** If public APIs are modified, do they follow the AndroidX API guidelines? Are they annotated correctly (e.g., `@RestrictTo`)?
+    *   **Consistency:** Are there any inconsistencies with existing CameraX design patterns?
+    *   **Testing:** Are there sufficient tests covering the changes? Are they using fakes instead of mocks?
+4.  **Verify (Optional but Recommended):** Run build commands for the modified CameraX modules (using `PROJECT_PREFIX`).
+5.  **Formulate Feedback:** Write concise and constructive feedback for each identified issue, providing specific suggestions for remediation.
+6.  **Summarize & Prioritize:** Summarize findings, prioritizing critical issues (bugs, build failures, API violations) over minor ones (style, suggestions).
+7.  **Review & Iterate:** Review your feedback. Is it comprehensive and detailed? If not, re-analyze.
+8.  **Output Review:** Present the final review report.
+
+***
+
 # Project: CameraX
 
 ## General Instructions:
@@ -42,8 +83,10 @@
   to check the API usage guidelines and contracts before finalizing the code change,
   ensuring all usage aligns with the framework's design.
 - **Standard Verification Procedure**: Never skip the verification steps.
-  Always compile (build), run related tests, run lint, and **verify code
-  elegance and regression prevention** before finalizing any code changes.
+  Always compile (build), run related tests, run lint, perform **self-review**
+  (using the *Code Review Guidelines* at the top of this file), and **verify code
+  elegance and regression prevention** before finalizing any code changes or declaring a task complete.
+
 
 ## Testing
 
@@ -174,6 +217,8 @@ CameraX involves complex hardware interactions, making robust testing essential.
   ```bash
   ./gradlew <project>:lintRelease
   ```
+- **Self-Review & Fix Loop**: Before committing, analyze your changes against the **Code Review Guidelines** at the top of this file. If you identify any issues (bugs, style, formatting, nullability), apply the fixes and re-verify (compile/test) before finalizing.
+
 
 #### 4. Troubleshooting Unit Test Leaks (Robolectric)
 - **Symptom**: `IllegalStateException: Camera surface session should only fail with request cancellation. Instead failed due to: FutureGarbageCollectedException: The completer object was garbage collected...`
