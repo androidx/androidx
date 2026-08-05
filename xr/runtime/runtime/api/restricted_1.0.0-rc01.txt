@@ -1,0 +1,1016 @@
+// Signature format: 4.0
+package androidx.xr.runtime {
+
+  public final class AnchorPersistenceMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.AnchorPersistenceMode.Companion Companion;
+    field public static final androidx.xr.runtime.AnchorPersistenceMode DISABLED;
+    field public static final androidx.xr.runtime.AnchorPersistenceMode LOCAL;
+  }
+
+  public static final class AnchorPersistenceMode.Companion {
+    property public androidx.xr.runtime.AnchorPersistenceMode DISABLED;
+    property public androidx.xr.runtime.AnchorPersistenceMode LOCAL;
+  }
+
+  public final class AugmentedImageDatabase {
+    ctor public AugmentedImageDatabase();
+    method public int addAugmentedImageDatabaseEntry(androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode, android.graphics.Bitmap bitmap);
+    method public int addAugmentedImageDatabaseEntry(androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode, android.graphics.Bitmap bitmap, optional float widthInMeters);
+    method @BytecodeOnly public static int addAugmentedImageDatabaseEntry$default(androidx.xr.runtime.AugmentedImageDatabase!, androidx.xr.runtime.AugmentedImageDatabaseEntryMode!, android.graphics.Bitmap!, float, int, Object!);
+    method public androidx.xr.runtime.AugmentedImageDatabase copy();
+    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.AugmentedImageDatabaseEntry> getEntries();
+    property public java.util.List<androidx.xr.runtime.AugmentedImageDatabaseEntry> entries;
+  }
+
+  public final class AugmentedImageDatabaseEntry {
+    ctor public AugmentedImageDatabaseEntry(android.graphics.Bitmap bitmap, optional androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode, optional float widthInMeters);
+    ctor @BytecodeOnly public AugmentedImageDatabaseEntry(android.graphics.Bitmap!, androidx.xr.runtime.AugmentedImageDatabaseEntryMode!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.runtime.AugmentedImageDatabaseEntry copy();
+    method public androidx.xr.runtime.AugmentedImageDatabaseEntry copy(optional android.graphics.Bitmap bitmap);
+    method public androidx.xr.runtime.AugmentedImageDatabaseEntry copy(optional android.graphics.Bitmap bitmap, optional androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode);
+    method public androidx.xr.runtime.AugmentedImageDatabaseEntry copy(optional android.graphics.Bitmap bitmap, optional androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode, optional float widthInMeters);
+    method @BytecodeOnly public static androidx.xr.runtime.AugmentedImageDatabaseEntry! copy$default(androidx.xr.runtime.AugmentedImageDatabaseEntry!, android.graphics.Bitmap!, androidx.xr.runtime.AugmentedImageDatabaseEntryMode!, float, int, Object!);
+    method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedImageDatabaseEntryMode getMode();
+    method @InaccessibleFromKotlin public float getWidthInMeters();
+    property public android.graphics.Bitmap bitmap;
+    property public androidx.xr.runtime.AugmentedImageDatabaseEntryMode mode;
+    property public float widthInMeters;
+  }
+
+  public final class AugmentedImageDatabaseEntryMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.AugmentedImageDatabaseEntryMode.Companion Companion;
+    field public static final androidx.xr.runtime.AugmentedImageDatabaseEntryMode DYNAMIC;
+    field public static final androidx.xr.runtime.AugmentedImageDatabaseEntryMode STATIC;
+  }
+
+  public static final class AugmentedImageDatabaseEntryMode.Companion {
+    property public androidx.xr.runtime.AugmentedImageDatabaseEntryMode DYNAMIC;
+    property public androidx.xr.runtime.AugmentedImageDatabaseEntryMode STATIC;
+  }
+
+  public final class AugmentedObjectCategory {
+    field public static final androidx.xr.runtime.AugmentedObjectCategory.Companion Companion;
+    field public static final androidx.xr.runtime.AugmentedObjectCategory KEYBOARD;
+    field public static final androidx.xr.runtime.AugmentedObjectCategory LAPTOP;
+    field public static final androidx.xr.runtime.AugmentedObjectCategory MOUSE;
+    field public static final androidx.xr.runtime.AugmentedObjectCategory UNKNOWN;
+  }
+
+  public static final class AugmentedObjectCategory.Companion {
+    property public androidx.xr.runtime.AugmentedObjectCategory KEYBOARD;
+    property public androidx.xr.runtime.AugmentedObjectCategory LAPTOP;
+    property public androidx.xr.runtime.AugmentedObjectCategory MOUSE;
+    property public androidx.xr.runtime.AugmentedObjectCategory UNKNOWN;
+  }
+
+  public final class Config {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.AnchorPersistenceMode getAnchorPersistence();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedImageDatabase? getAugmentedImageDatabase();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> getAugmentedObjectCategories();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.DepthEstimationMode getDepthEstimation();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.DeviceTrackingMode getDeviceTracking();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.EyeTrackingMode getEyeTracking();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.FaceTrackingMode getFaceTracking();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.GeospatialMode getGeospatial();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.HandTrackingMode getHandTracking();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.PlaneTrackingMode getPlaneTracking();
+    method @InaccessibleFromKotlin public float getQrCodeSizeMeters();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.QrCodeTrackingMode getQrCodeTracking();
+    property public androidx.xr.runtime.AnchorPersistenceMode anchorPersistence;
+    property public androidx.xr.runtime.AugmentedImageDatabase? augmentedImageDatabase;
+    property public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
+    property public androidx.xr.runtime.DepthEstimationMode depthEstimation;
+    property public androidx.xr.runtime.DeviceTrackingMode deviceTracking;
+    property public androidx.xr.runtime.EyeTrackingMode eyeTracking;
+    property public androidx.xr.runtime.FaceTrackingMode faceTracking;
+    property public androidx.xr.runtime.GeospatialMode geospatial;
+    property public androidx.xr.runtime.HandTrackingMode handTracking;
+    property public androidx.xr.runtime.PlaneTrackingMode planeTracking;
+    property public float qrCodeSizeMeters;
+    property public androidx.xr.runtime.QrCodeTrackingMode qrCodeTracking;
+  }
+
+  public static final class Config.Builder {
+    ctor public Config.Builder();
+    ctor public Config.Builder(androidx.xr.runtime.Config config);
+    method public androidx.xr.runtime.Config build();
+    method public androidx.xr.runtime.Config.Builder setAnchorPersistence(androidx.xr.runtime.AnchorPersistenceMode anchorPersistence);
+    method public androidx.xr.runtime.Config.Builder setAugmentedImageDatabase(androidx.xr.runtime.AugmentedImageDatabase? augmentedImageDatabase);
+    method public androidx.xr.runtime.Config.Builder setAugmentedObjectCategories(java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories);
+    method public androidx.xr.runtime.Config.Builder setDepthEstimation(androidx.xr.runtime.DepthEstimationMode depthEstimation);
+    method public androidx.xr.runtime.Config.Builder setDeviceTracking(androidx.xr.runtime.DeviceTrackingMode deviceTracking);
+    method public androidx.xr.runtime.Config.Builder setEyeTracking(androidx.xr.runtime.EyeTrackingMode eyeTracking);
+    method public androidx.xr.runtime.Config.Builder setFaceTracking(androidx.xr.runtime.FaceTrackingMode faceTracking);
+    method public androidx.xr.runtime.Config.Builder setGeospatial(androidx.xr.runtime.GeospatialMode geospatial);
+    method public androidx.xr.runtime.Config.Builder setHandTracking(androidx.xr.runtime.HandTrackingMode handTracking);
+    method public androidx.xr.runtime.Config.Builder setPlaneTracking(androidx.xr.runtime.PlaneTrackingMode planeTracking);
+    method public androidx.xr.runtime.Config.Builder setQrCodeSizeMeters(float qrCodeSizeMeters);
+    method public androidx.xr.runtime.Config.Builder setQrCodeTracking(androidx.xr.runtime.QrCodeTrackingMode qrCodeTracking);
+  }
+
+  public final class CoreState {
+    ctor public CoreState(kotlin.time.ComparableTimeMark timeMark);
+    method @InaccessibleFromKotlin public kotlin.time.ComparableTimeMark getTimeMark();
+    property public kotlin.time.ComparableTimeMark timeMark;
+  }
+
+  public final class DepthEstimationMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.DepthEstimationMode.Companion Companion;
+    field public static final androidx.xr.runtime.DepthEstimationMode DISABLED;
+    field public static final androidx.xr.runtime.DepthEstimationMode RAW_ONLY;
+    field public static final androidx.xr.runtime.DepthEstimationMode SMOOTH_AND_RAW;
+    field public static final androidx.xr.runtime.DepthEstimationMode SMOOTH_ONLY;
+  }
+
+  public static final class DepthEstimationMode.Companion {
+    property public androidx.xr.runtime.DepthEstimationMode DISABLED;
+    property public androidx.xr.runtime.DepthEstimationMode RAW_ONLY;
+    property public androidx.xr.runtime.DepthEstimationMode SMOOTH_AND_RAW;
+    property public androidx.xr.runtime.DepthEstimationMode SMOOTH_ONLY;
+  }
+
+  public final class DeviceTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
+    field @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL;
+    field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL;
+  }
+
+  public static final class DeviceTrackingMode.Companion {
+    property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
+    property @SuppressCompatibility @androidx.xr.runtime.ExperimentalInertialTrackingApi public androidx.xr.runtime.DeviceTrackingMode INERTIAL;
+    property public androidx.xr.runtime.DeviceTrackingMode SPATIAL;
+  }
+
+  public final class DisplayBlendMode {
+    field public static final androidx.xr.runtime.DisplayBlendMode ADDITIVE;
+    field public static final androidx.xr.runtime.DisplayBlendMode ALPHA_BLEND;
+    field public static final androidx.xr.runtime.DisplayBlendMode.Companion Companion;
+    field public static final androidx.xr.runtime.DisplayBlendMode NO_DISPLAY;
+  }
+
+  public static final class DisplayBlendMode.Companion {
+    property public androidx.xr.runtime.DisplayBlendMode ADDITIVE;
+    property public androidx.xr.runtime.DisplayBlendMode ALPHA_BLEND;
+    property public androidx.xr.runtime.DisplayBlendMode NO_DISPLAY;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ExperimentalInertialTrackingApi {
+  }
+
+  public final class EyeTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.EyeTrackingMode COARSE_TRACKING;
+    field public static final androidx.xr.runtime.EyeTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.EyeTrackingMode DISABLED;
+    field public static final androidx.xr.runtime.EyeTrackingMode FINE_TRACKING;
+  }
+
+  public static final class EyeTrackingMode.Companion {
+    property public androidx.xr.runtime.EyeTrackingMode COARSE_TRACKING;
+    property public androidx.xr.runtime.EyeTrackingMode DISABLED;
+    property public androidx.xr.runtime.EyeTrackingMode FINE_TRACKING;
+  }
+
+  public final class FaceTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.FaceTrackingMode BLEND_SHAPES;
+    field public static final androidx.xr.runtime.FaceTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.FaceTrackingMode DISABLED;
+  }
+
+  public static final class FaceTrackingMode.Companion {
+    property public androidx.xr.runtime.FaceTrackingMode BLEND_SHAPES;
+    property public androidx.xr.runtime.FaceTrackingMode DISABLED;
+  }
+
+  public final class GeospatialMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.GeospatialMode.Companion Companion;
+    field public static final androidx.xr.runtime.GeospatialMode DISABLED;
+    field public static final androidx.xr.runtime.GeospatialMode INERTIAL;
+    field public static final androidx.xr.runtime.GeospatialMode SPATIAL;
+  }
+
+  public static final class GeospatialMode.Companion {
+    property public androidx.xr.runtime.GeospatialMode DISABLED;
+    property public androidx.xr.runtime.GeospatialMode INERTIAL;
+    property public androidx.xr.runtime.GeospatialMode SPATIAL;
+  }
+
+  public final class HandTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.HandTrackingMode BOTH;
+    field public static final androidx.xr.runtime.HandTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.HandTrackingMode DISABLED;
+  }
+
+  public static final class HandTrackingMode.Companion {
+    property public androidx.xr.runtime.HandTrackingMode BOTH;
+    property public androidx.xr.runtime.HandTrackingMode DISABLED;
+  }
+
+  public final class NativeDataExt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.NativeInstanceData getNativeInstanceData(androidx.xr.runtime.XrDevice, android.content.Context context);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NativeInstanceData {
+    method @InaccessibleFromKotlin public long getFunctionTablePointer();
+    method @InaccessibleFromKotlin public long getInstancePointer();
+    property public long functionTablePointer;
+    property public long instancePointer;
+  }
+
+  public final class PlaneTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.PlaneTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.PlaneTrackingMode DISABLED;
+    field public static final androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
+  }
+
+  public static final class PlaneTrackingMode.Companion {
+    property public androidx.xr.runtime.PlaneTrackingMode DISABLED;
+    property public androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi {
+  }
+
+  public final class QrCodeTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.QrCodeTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.QrCodeTrackingMode DISABLED;
+    field public static final androidx.xr.runtime.QrCodeTrackingMode DYNAMIC;
+    field public static final androidx.xr.runtime.QrCodeTrackingMode STATIC;
+  }
+
+  public static final class QrCodeTrackingMode.Companion {
+    property public androidx.xr.runtime.QrCodeTrackingMode DISABLED;
+    property public androidx.xr.runtime.QrCodeTrackingMode DYNAMIC;
+    property public androidx.xr.runtime.QrCodeTrackingMode STATIC;
+  }
+
+  public final class RenderingMode {
+    field public static final androidx.xr.runtime.RenderingMode.Companion Companion;
+    field public static final androidx.xr.runtime.RenderingMode MONO;
+    field public static final androidx.xr.runtime.RenderingMode STEREO;
+  }
+
+  public static final class RenderingMode.Companion {
+    property public androidx.xr.runtime.RenderingMode MONO;
+    property public androidx.xr.runtime.RenderingMode STEREO;
+  }
+
+  public final class RequiredCalibrationType {
+    field public static final androidx.xr.runtime.RequiredCalibrationType.Companion Companion;
+    field public static final androidx.xr.runtime.RequiredCalibrationType REQUIRED_CALIBRATION_TYPE_FACE_TRACKING;
+  }
+
+  public static final class RequiredCalibrationType.Companion {
+    property public androidx.xr.runtime.RequiredCalibrationType REQUIRED_CALIBRATION_TYPE_FACE_TRACKING;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.CLASS}) public @interface RequiresSpatialApi {
+    ctor @KotlinOnly public RequiresSpatialApi(int value);
+    method @InaccessibleFromKotlin public abstract int value();
+    property public abstract int value;
+  }
+
+  public final class Session {
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity);
+    ctor @BytecodeOnly @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity!, java.util.List!, java.util.List!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors, optional java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors, optional java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes, optional kotlinx.coroutines.CoroutineScope coroutineScope);
+    method public androidx.xr.runtime.SessionConfigureResult configure(androidx.xr.runtime.Config config);
+    method public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public static suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public static suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
+    method @InaccessibleFromKotlin public android.content.Context getContext();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getCoroutineScope();
+    method @InaccessibleFromKotlin public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.internal.JxrRuntime> getRuntimes();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.SessionConnector> getSessionConnectors();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> getState();
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.StateExtender> getStateExtenders();
+    property public androidx.xr.runtime.Config config;
+    property public android.content.Context context;
+    property public kotlinx.coroutines.CoroutineScope coroutineScope;
+    property public androidx.lifecycle.LifecycleOwner lifecycleOwner;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.internal.JxrRuntime> runtimes;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.SessionConnector> sessionConnectors;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.runtime.CoreState> state;
+    property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public java.util.List<androidx.xr.runtime.StateExtender> stateExtenders;
+    field public static final androidx.xr.runtime.Session.Companion Companion;
+  }
+
+  public static final class Session.Companion {
+    method public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method public suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.runtime.SessionCreateResult>);
+    method @BytecodeOnly public static Object! create$default(androidx.xr.runtime.Session.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, androidx.lifecycle.LifecycleOwner!, kotlin.coroutines.Continuation!, int, Object!);
+  }
+
+  public final class SessionConfigureCalibrationRequired extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureCalibrationRequired(androidx.xr.runtime.RequiredCalibrationType calibrationType);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.RequiredCalibrationType getCalibrationType();
+    property public androidx.xr.runtime.RequiredCalibrationType calibrationType;
+  }
+
+  public final class SessionConfigureLibraryNotLinked extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureLibraryNotLinked(String libraryName);
+    method @InaccessibleFromKotlin public String getLibraryName();
+    property public String libraryName;
+  }
+
+  public abstract sealed nonexhaustive class SessionConfigureResult {
+  }
+
+  public final class SessionConfigureSuccess extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureSuccess();
+  }
+
+  public final class SessionConfigureUnknownError extends androidx.xr.runtime.SessionConfigureResult {
+    ctor public SessionConfigureUnknownError(String errorMessage);
+    method @InaccessibleFromKotlin public String getErrorMessage();
+    property public String errorMessage;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SessionConnector {
+    method public void close();
+    method public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
+  }
+
+  public final class SessionCreateApkRequired extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateApkRequired(String requiredApk);
+    method @InaccessibleFromKotlin public String getRequiredApk();
+    property public String requiredApk;
+  }
+
+  public abstract sealed nonexhaustive class SessionCreateResult {
+  }
+
+  public final class SessionCreateSuccess extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateSuccess(androidx.xr.runtime.Session session);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.Session getSession();
+    property public androidx.xr.runtime.Session session;
+  }
+
+  public final class SessionCreateTimedOut extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateTimedOut();
+  }
+
+  public final class SessionCreateUnknownError extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateUnknownError(String errorMessage);
+    method @InaccessibleFromKotlin public String getErrorMessage();
+    property public String errorMessage;
+  }
+
+  public final class SessionCreateUnsupportedDevice extends androidx.xr.runtime.SessionCreateResult {
+    ctor public SessionCreateUnsupportedDevice();
+  }
+
+  public final class SpatialApiVersionHelper {
+    method @InaccessibleFromKotlin public static int getSpatialApiVersion();
+    property public static int spatialApiVersion;
+    field public static final androidx.xr.runtime.SpatialApiVersionHelper INSTANCE;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SpatialApiVersionProvider {
+    method @InaccessibleFromKotlin public int getPreviewSpatialApiVersion();
+    method @InaccessibleFromKotlin public int getSpatialApiVersion();
+    property public abstract int previewSpatialApiVersion;
+    property public abstract int spatialApiVersion;
+  }
+
+  public final class SpatialApiVersions {
+    property public static int SPATIAL_API_V1;
+    property public static int SPATIAL_API_V2;
+    property public static int SPATIAL_API_V3;
+    property public static int UNKNOWN;
+    field public static final androidx.xr.runtime.SpatialApiVersions INSTANCE;
+    field public static final int SPATIAL_API_V1 = 1; // 0x1
+    field public static final int SPATIAL_API_V2 = 2; // 0x2
+    field public static final int SPATIAL_API_V3 = 3; // 0x3
+    field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface StateExtender {
+    method public void close();
+    method public suspend Object? extend(androidx.xr.runtime.CoreState coreState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
+  }
+
+  public final class XrDevice {
+    method public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context);
+    method public static androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.xr.runtime.DisplayBlendMode getPreferredDisplayBlendMode();
+    method public boolean isDepthEstimationModeSupported(androidx.xr.runtime.DepthEstimationMode mode);
+    method public boolean isEyeTrackingModeSupported(androidx.xr.runtime.EyeTrackingMode mode);
+    method public boolean isGeospatialModeSupported(androidx.xr.runtime.GeospatialMode mode);
+    method public boolean isHandTrackingModeSupported(androidx.xr.runtime.HandTrackingMode mode);
+    method public static boolean isProjectedServiceAvailable(android.content.Context context);
+    method public boolean isRenderingModeSupported(androidx.xr.runtime.RenderingMode mode);
+    field public static final androidx.xr.runtime.XrDevice.Companion Companion;
+  }
+
+  public static final class XrDevice.Companion {
+    method public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context);
+    method public androidx.xr.runtime.XrDevice getCurrentDevice(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method @BytecodeOnly public static androidx.xr.runtime.XrDevice! getCurrentDevice$default(androidx.xr.runtime.XrDevice.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method public boolean isProjectedServiceAvailable(android.content.Context context);
+  }
+
+}
+
+package androidx.xr.runtime.internal {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ApkCheckAvailabilityErrorException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public ApkCheckAvailabilityErrorException(String requiredApk);
+    method @InaccessibleFromKotlin public String getRequiredApk();
+    property public String requiredApk;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ApkCheckAvailabilityInProgressException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public ApkCheckAvailabilityInProgressException(String requiredApk);
+    method @InaccessibleFromKotlin public String getRequiredApk();
+    property public String requiredApk;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ApkNotInstalledException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public ApkNotInstalledException(String requiredApk);
+    method @InaccessibleFromKotlin public String getRequiredApk();
+    property public String requiredApk;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FaceTrackingNotCalibratedException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public FaceTrackingNotCalibratedException();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface JxrRuntime {
+    method public default void configure(androidx.xr.runtime.Config config);
+    method public default void destroy();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
+    method @InaccessibleFromKotlin public default Long? getSessionPointer();
+    method public default void initialize();
+    method public default void pause();
+    method public default void resume();
+    method public default suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark?>);
+    property public abstract androidx.xr.runtime.Config config;
+    property public default Long? sessionPointer;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class LibraryNotLinkedException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public LibraryNotLinkedException(String libraryName, optional Throwable? cause);
+    ctor @BytecodeOnly public LibraryNotLinkedException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getLibraryName();
+    property public String libraryName;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LifecycleException extends java.lang.Exception {
+    ctor public LifecycleException(String message, optional Throwable? cause);
+    ctor @BytecodeOnly public LifecycleException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntimeFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.internal.JxrRuntime createRuntime(android.content.Context context, kotlinx.coroutines.CoroutineScope coroutineScope);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface RenderingRuntimeFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.internal.JxrRuntime create(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes, android.app.Activity activity);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SceneRuntimeFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.internal.JxrRuntime create(android.app.Activity activity);
+    method public androidx.xr.runtime.internal.JxrRuntime create(android.app.Activity activity, boolean unscaledGravityAlignedActivitySpace);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class UnsupportedDeviceException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public UnsupportedDeviceException();
+  }
+
+}
+
+package androidx.xr.runtime.math {
+
+  public final class BoundingBox {
+    method public static androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
+    method public static androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getCenter();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getHalfExtents();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getMax();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getMin();
+    property public androidx.xr.runtime.math.Vector3 center;
+    property public androidx.xr.runtime.math.FloatSize3d halfExtents;
+    property public androidx.xr.runtime.math.Vector3 max;
+    property public androidx.xr.runtime.math.Vector3 min;
+    field public static final androidx.xr.runtime.math.BoundingBox.Companion Companion;
+  }
+
+  public static final class BoundingBox.Companion {
+    method public androidx.xr.runtime.math.BoundingBox fromCenterAndHalfExtents(androidx.xr.runtime.math.Vector3 center, androidx.xr.runtime.math.FloatSize3d halfExtents);
+    method public androidx.xr.runtime.math.BoundingBox fromMinMax(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+  }
+
+  public final class FieldOfView {
+    ctor public FieldOfView();
+    ctor public FieldOfView(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    ctor @BytecodeOnly public FieldOfView(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.runtime.math.FieldOfView copy();
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
+    method public androidx.xr.runtime.math.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    method @BytecodeOnly public static androidx.xr.runtime.math.FieldOfView! copy$default(androidx.xr.runtime.math.FieldOfView!, float, float, float, float, int, Object!);
+    method @InaccessibleFromKotlin public float getAngleDown();
+    method @InaccessibleFromKotlin public float getAngleLeft();
+    method @InaccessibleFromKotlin public float getAngleRight();
+    method @InaccessibleFromKotlin public float getAngleUp();
+    property public float angleDown;
+    property public float angleLeft;
+    property public float angleRight;
+    property public float angleUp;
+  }
+
+  public final class FloatSize2d {
+    ctor public FloatSize2d();
+    ctor public FloatSize2d(optional float width, optional float height);
+    ctor @BytecodeOnly public FloatSize2d(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public operator androidx.xr.runtime.math.FloatSize2d div(float divisor);
+    method public operator androidx.xr.runtime.math.FloatSize2d div(int divisor);
+    method @InaccessibleFromKotlin public float getHeight();
+    method @InaccessibleFromKotlin public float getWidth();
+    method public operator androidx.xr.runtime.math.FloatSize2d times(float scalar);
+    method public operator androidx.xr.runtime.math.FloatSize2d times(int scalar);
+    method public androidx.xr.runtime.math.FloatSize3d to3d();
+    method public androidx.xr.runtime.math.FloatSize3d to3d(optional float depth);
+    method @BytecodeOnly public static androidx.xr.runtime.math.FloatSize3d! to3d$default(androidx.xr.runtime.math.FloatSize2d!, float, int, Object!);
+    property public float height;
+    property public float width;
+  }
+
+  public final class FloatSize3d {
+    ctor public FloatSize3d();
+    ctor public FloatSize3d(optional float width, optional float height, optional float depth);
+    ctor @BytecodeOnly public FloatSize3d(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public operator androidx.xr.runtime.math.FloatSize3d div(float divisor);
+    method public operator androidx.xr.runtime.math.FloatSize3d div(int divisor);
+    method public static androidx.xr.runtime.math.FloatSize3d fromVector3(androidx.xr.runtime.math.Vector3 vector);
+    method @InaccessibleFromKotlin public float getDepth();
+    method @InaccessibleFromKotlin public float getHeight();
+    method @InaccessibleFromKotlin public float getWidth();
+    method public operator androidx.xr.runtime.math.FloatSize3d times(float scalar);
+    method public operator androidx.xr.runtime.math.FloatSize3d times(int scalar);
+    method public androidx.xr.runtime.math.FloatSize2d to2d();
+    property public float depth;
+    property public float height;
+    property public float width;
+    field public static final androidx.xr.runtime.math.FloatSize3d.Companion Companion;
+  }
+
+  public static final class FloatSize3d.Companion {
+    method public androidx.xr.runtime.math.FloatSize3d fromVector3(androidx.xr.runtime.math.Vector3 vector);
+  }
+
+  public final class GeospatialPose {
+    ctor public GeospatialPose();
+    ctor public GeospatialPose(optional double latitude, optional double longitude, optional double altitude, optional androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);
+    ctor @BytecodeOnly public GeospatialPose(double, double, double, androidx.xr.runtime.math.Quaternion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public double getAltitude();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getEastUpSouthQuaternion();
+    method @InaccessibleFromKotlin public double getLatitude();
+    method @InaccessibleFromKotlin public double getLongitude();
+    property public double altitude;
+    property public androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion;
+    property public double latitude;
+    property public double longitude;
+  }
+
+  public final class IntSize2d {
+    ctor public IntSize2d();
+    ctor public IntSize2d(optional int width, optional int height);
+    ctor @BytecodeOnly public IntSize2d(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getHeight();
+    method @InaccessibleFromKotlin public int getWidth();
+    property public int height;
+    property public int width;
+  }
+
+  public final class MathHelper {
+    method public static float clamp(float x, float min, float max);
+    method public static float lerp(float a, float b, float t);
+    method public static float toDegrees(float angleInRadians);
+    method public static float toRadians(float angleInDegrees);
+  }
+
+  public final class Matrix3 {
+    ctor public Matrix3(androidx.xr.runtime.math.Matrix3 other);
+    ctor public Matrix3(float[] dataToCopy);
+    method public androidx.xr.runtime.math.Matrix3 copy();
+    method public androidx.xr.runtime.math.Matrix3 copy(optional float[] data);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Matrix3! copy$default(androidx.xr.runtime.math.Matrix3!, float[]!, int, Object!);
+    method public static androidx.xr.runtime.math.Matrix3 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
+    method public static androidx.xr.runtime.math.Matrix3 fromScale(androidx.xr.runtime.math.Vector3 scale);
+    method public static androidx.xr.runtime.math.Matrix3 fromScale(float scale);
+    method @InaccessibleFromKotlin public float[] getData();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix3 getInverse();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getRotation();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getScale();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix3 getTranspose();
+    method @InaccessibleFromKotlin public boolean isTrs();
+    method public operator androidx.xr.runtime.math.Matrix3 times(androidx.xr.runtime.math.Matrix3 other);
+    property public float[] data;
+    property public androidx.xr.runtime.math.Matrix3 inverse;
+    property public boolean isTrs;
+    property public androidx.xr.runtime.math.Quaternion rotation;
+    property public androidx.xr.runtime.math.Vector3 scale;
+    property public androidx.xr.runtime.math.Matrix3 transpose;
+    field public static final androidx.xr.runtime.math.Matrix3.Companion Companion;
+    field public static final androidx.xr.runtime.math.Matrix3 IDENTITY;
+    field public static final androidx.xr.runtime.math.Matrix3 ZERO;
+  }
+
+  public static final class Matrix3.Companion {
+    method public androidx.xr.runtime.math.Matrix3 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
+    method public androidx.xr.runtime.math.Matrix3 fromScale(androidx.xr.runtime.math.Vector3 scale);
+    method public androidx.xr.runtime.math.Matrix3 fromScale(float scale);
+    property public androidx.xr.runtime.math.Matrix3 IDENTITY;
+    property public androidx.xr.runtime.math.Matrix3 ZERO;
+  }
+
+  public final class Matrix4 {
+    ctor public Matrix4(androidx.xr.runtime.math.Matrix4 other);
+    ctor public Matrix4(float[] dataToCopy);
+    method public androidx.xr.runtime.math.Matrix4 copy();
+    method public androidx.xr.runtime.math.Matrix4 copy(optional float[] data);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Matrix4! copy$default(androidx.xr.runtime.math.Matrix4!, float[]!, int, Object!);
+    method public static androidx.xr.runtime.math.Matrix4 fromPose(androidx.xr.runtime.math.Pose pose);
+    method public static androidx.xr.runtime.math.Matrix4 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
+    method public static androidx.xr.runtime.math.Matrix4 fromScale(androidx.xr.runtime.math.Vector3 scale);
+    method public static androidx.xr.runtime.math.Matrix4 fromScale(float scale);
+    method public static androidx.xr.runtime.math.Matrix4 fromTranslation(androidx.xr.runtime.math.Vector3 translation);
+    method public static androidx.xr.runtime.math.Matrix4 fromTrs(androidx.xr.runtime.math.Vector3 translation, androidx.xr.runtime.math.Quaternion rotation, androidx.xr.runtime.math.Vector3 scale);
+    method @InaccessibleFromKotlin public float[] getData();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix4 getInverse();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getRotation();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getScale();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getTranslation();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Matrix4 getTranspose();
+    method @InaccessibleFromKotlin public boolean isTrs();
+    method public operator androidx.xr.runtime.math.Matrix4 times(androidx.xr.runtime.math.Matrix4 other);
+    method public androidx.xr.runtime.math.Pose toPose();
+    method public androidx.xr.runtime.math.Matrix4 unscaled();
+    property public float[] data;
+    property public androidx.xr.runtime.math.Matrix4 inverse;
+    property public boolean isTrs;
+    property public androidx.xr.runtime.math.Quaternion rotation;
+    property public androidx.xr.runtime.math.Vector3 scale;
+    property public androidx.xr.runtime.math.Vector3 translation;
+    property public androidx.xr.runtime.math.Matrix4 transpose;
+    field public static final androidx.xr.runtime.math.Matrix4.Companion Companion;
+    field public static final androidx.xr.runtime.math.Matrix4 Identity;
+    field public static final androidx.xr.runtime.math.Matrix4 Zero;
+  }
+
+  public static final class Matrix4.Companion {
+    method public androidx.xr.runtime.math.Matrix4 fromPose(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.runtime.math.Matrix4 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
+    method public androidx.xr.runtime.math.Matrix4 fromScale(androidx.xr.runtime.math.Vector3 scale);
+    method public androidx.xr.runtime.math.Matrix4 fromScale(float scale);
+    method public androidx.xr.runtime.math.Matrix4 fromTranslation(androidx.xr.runtime.math.Vector3 translation);
+    method public androidx.xr.runtime.math.Matrix4 fromTrs(androidx.xr.runtime.math.Vector3 translation, androidx.xr.runtime.math.Quaternion rotation, androidx.xr.runtime.math.Vector3 scale);
+    property public androidx.xr.runtime.math.Matrix4 Identity;
+    property public androidx.xr.runtime.math.Matrix4 Zero;
+  }
+
+  public final class Pose {
+    ctor public Pose();
+    ctor public Pose(androidx.xr.runtime.math.Pose other);
+    ctor public Pose(optional androidx.xr.runtime.math.Vector3 translation);
+    ctor public Pose(optional androidx.xr.runtime.math.Vector3 translation, optional androidx.xr.runtime.math.Quaternion rotation);
+    ctor @BytecodeOnly public Pose(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Quaternion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public infix androidx.xr.runtime.math.Pose compose(androidx.xr.runtime.math.Pose other);
+    method public androidx.xr.runtime.math.Pose copy();
+    method public androidx.xr.runtime.math.Pose copy(optional androidx.xr.runtime.math.Vector3 translation);
+    method public androidx.xr.runtime.math.Pose copy(optional androidx.xr.runtime.math.Vector3 translation, optional androidx.xr.runtime.math.Quaternion rotation);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Pose! copy$default(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Quaternion!, int, Object!);
+    method public static float distance(androidx.xr.runtime.math.Pose lhs, androidx.xr.runtime.math.Pose rhs);
+    method public static androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target);
+    method public static androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target, optional androidx.xr.runtime.math.Vector3 up);
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getBackward();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getDown();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getForward();
+    method public androidx.xr.runtime.math.Quaternion getForwardVectorToUpRotation(androidx.xr.runtime.math.Pose other);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getInverse();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getLeft();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getRight();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getRotation();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getTranslation();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Vector3 getUp();
+    method public androidx.xr.runtime.math.Quaternion getUpVectorToUpRotation(androidx.xr.runtime.math.Pose other);
+    method public static androidx.xr.runtime.math.Pose lerp(androidx.xr.runtime.math.Pose start, androidx.xr.runtime.math.Pose end, float ratio);
+    method public androidx.xr.runtime.math.Pose rotate(androidx.xr.runtime.math.Quaternion rotation);
+    method public infix androidx.xr.runtime.math.Vector3 transformPoint(androidx.xr.runtime.math.Vector3 point);
+    method public infix androidx.xr.runtime.math.Vector3 transformVector(androidx.xr.runtime.math.Vector3 vector);
+    method public androidx.xr.runtime.math.Pose translate(androidx.xr.runtime.math.Vector3 translation);
+    property public inline androidx.xr.runtime.math.Vector3 backward;
+    property public inline androidx.xr.runtime.math.Vector3 down;
+    property public inline androidx.xr.runtime.math.Vector3 forward;
+    property public androidx.xr.runtime.math.Pose inverse;
+    property public inline androidx.xr.runtime.math.Vector3 left;
+    property public inline androidx.xr.runtime.math.Vector3 right;
+    property public androidx.xr.runtime.math.Quaternion rotation;
+    property public androidx.xr.runtime.math.Vector3 translation;
+    property public inline androidx.xr.runtime.math.Vector3 up;
+    field public static final androidx.xr.runtime.math.Pose.Companion Companion;
+    field public static final androidx.xr.runtime.math.Pose Identity;
+  }
+
+  public static final class Pose.Companion {
+    method public float distance(androidx.xr.runtime.math.Pose lhs, androidx.xr.runtime.math.Pose rhs);
+    method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target);
+    method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target, optional androidx.xr.runtime.math.Vector3 up);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Pose! fromLookAt$default(androidx.xr.runtime.math.Pose.Companion!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, Object!);
+    method public androidx.xr.runtime.math.Pose lerp(androidx.xr.runtime.math.Pose start, androidx.xr.runtime.math.Pose end, float ratio);
+    property public androidx.xr.runtime.math.Pose Identity;
+  }
+
+  public final class Quaternion {
+    ctor public Quaternion();
+    ctor public Quaternion(androidx.xr.runtime.math.Quaternion other);
+    ctor public Quaternion(optional float x);
+    ctor public Quaternion(optional float x, optional float y);
+    ctor public Quaternion(optional float x, optional float y, optional float z);
+    ctor public Quaternion(optional float x, optional float y, optional float z, optional float w);
+    ctor @BytecodeOnly public Quaternion(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static float angle(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end);
+    method public androidx.xr.runtime.math.Quaternion copy();
+    method public androidx.xr.runtime.math.Quaternion copy(optional float x);
+    method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y);
+    method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y, optional float z);
+    method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y, optional float z, optional float w);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Quaternion! copy$default(androidx.xr.runtime.math.Quaternion!, float, float, float, float, int, Object!);
+    method public inline infix float dot(androidx.xr.runtime.math.Quaternion other);
+    method public static float dot(androidx.xr.runtime.math.Quaternion lhs, androidx.xr.runtime.math.Quaternion rhs);
+    method public static androidx.xr.runtime.math.Quaternion fromAxisAngle(androidx.xr.runtime.math.Vector3 axis, float degrees);
+    method public static androidx.xr.runtime.math.Quaternion fromEulerAngles(androidx.xr.runtime.math.Vector3 eulerAngles);
+    method public static androidx.xr.runtime.math.Quaternion fromEulerAngles(float pitch, float yaw, float roll);
+    method public static androidx.xr.runtime.math.Quaternion fromLookTowards(androidx.xr.runtime.math.Vector3 forward, androidx.xr.runtime.math.Vector3 up);
+    method public static androidx.xr.runtime.math.Quaternion fromRotation(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end);
+    method public static androidx.xr.runtime.math.Quaternion fromRotation(androidx.xr.runtime.math.Vector3 start, androidx.xr.runtime.math.Vector3 end);
+    method @InaccessibleFromKotlin public kotlin.Pair<androidx.xr.runtime.math.Vector3,java.lang.Float> getAxisAngle();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getEulerAngles();
+    method @InaccessibleFromKotlin public inline androidx.xr.runtime.math.Quaternion getInverse();
+    method @InaccessibleFromKotlin public float getW();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    method @InaccessibleFromKotlin public float getZ();
+    method public static androidx.xr.runtime.math.Quaternion lerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
+    method public inline operator androidx.xr.runtime.math.Quaternion minus(androidx.xr.runtime.math.Quaternion other);
+    method public inline operator androidx.xr.runtime.math.Quaternion plus(androidx.xr.runtime.math.Quaternion other);
+    method public static androidx.xr.runtime.math.Quaternion slerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
+    method public inline operator androidx.xr.runtime.math.Quaternion times(androidx.xr.runtime.math.Quaternion other);
+    method public inline operator androidx.xr.runtime.math.Vector3 times(androidx.xr.runtime.math.Vector3 src);
+    method public inline operator androidx.xr.runtime.math.Quaternion unaryMinus();
+    property public kotlin.Pair<androidx.xr.runtime.math.Vector3,java.lang.Float> axisAngle;
+    property public androidx.xr.runtime.math.Vector3 eulerAngles;
+    property public inline androidx.xr.runtime.math.Quaternion inverse;
+    property public float w;
+    property public float x;
+    property public float y;
+    property public float z;
+    field public static final androidx.xr.runtime.math.Quaternion.Companion Companion;
+    field public static final androidx.xr.runtime.math.Quaternion Identity;
+  }
+
+  public static final class Quaternion.Companion {
+    method public float angle(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end);
+    method public float dot(androidx.xr.runtime.math.Quaternion lhs, androidx.xr.runtime.math.Quaternion rhs);
+    method public androidx.xr.runtime.math.Quaternion fromAxisAngle(androidx.xr.runtime.math.Vector3 axis, float degrees);
+    method public androidx.xr.runtime.math.Quaternion fromEulerAngles(androidx.xr.runtime.math.Vector3 eulerAngles);
+    method public androidx.xr.runtime.math.Quaternion fromEulerAngles(float pitch, float yaw, float roll);
+    method public androidx.xr.runtime.math.Quaternion fromLookTowards(androidx.xr.runtime.math.Vector3 forward, androidx.xr.runtime.math.Vector3 up);
+    method public androidx.xr.runtime.math.Quaternion fromRotation(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end);
+    method public androidx.xr.runtime.math.Quaternion fromRotation(androidx.xr.runtime.math.Vector3 start, androidx.xr.runtime.math.Vector3 end);
+    method public androidx.xr.runtime.math.Quaternion lerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
+    method public androidx.xr.runtime.math.Quaternion slerp(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end, float ratio);
+    property public androidx.xr.runtime.math.Quaternion Identity;
+  }
+
+  public final class Ray {
+    ctor public Ray();
+    ctor public Ray(androidx.xr.runtime.math.Ray other);
+    ctor public Ray(optional androidx.xr.runtime.math.Vector3 origin, optional androidx.xr.runtime.math.Vector3 direction);
+    ctor @BytecodeOnly public Ray(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getDirection();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getOrigin();
+    property public androidx.xr.runtime.math.Vector3 direction;
+    property public androidx.xr.runtime.math.Vector3 origin;
+  }
+
+  public final class Vector2 {
+    ctor public Vector2();
+    ctor public Vector2(androidx.xr.runtime.math.Vector2 other);
+    ctor public Vector2(optional float x);
+    ctor public Vector2(optional float x, optional float y);
+    ctor @BytecodeOnly public Vector2(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.xr.runtime.math.Vector2 abs(androidx.xr.runtime.math.Vector2 vector);
+    method public static float angularDistance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
+    method public androidx.xr.runtime.math.Vector2 clamp(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
+    method public inline androidx.xr.runtime.math.Vector2 copy();
+    method public inline androidx.xr.runtime.math.Vector2 copy(optional float x);
+    method public inline androidx.xr.runtime.math.Vector2 copy(optional float x, optional float y);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector2! copy$default(androidx.xr.runtime.math.Vector2!, float, float, int, Object!);
+    method public inline infix float cross(androidx.xr.runtime.math.Vector2 other);
+    method public static float distance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
+    method public inline operator androidx.xr.runtime.math.Vector2 div(float c);
+    method public inline infix float dot(androidx.xr.runtime.math.Vector2 other);
+    method @InaccessibleFromKotlin public inline float getLength();
+    method @InaccessibleFromKotlin public inline float getLengthSquared();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    method public androidx.xr.runtime.math.Vector2 inverse();
+    method public static androidx.xr.runtime.math.Vector2 lerp(androidx.xr.runtime.math.Vector2 start, androidx.xr.runtime.math.Vector2 end, float ratio);
+    method public inline operator androidx.xr.runtime.math.Vector2 minus(androidx.xr.runtime.math.Vector2 other);
+    method public operator androidx.xr.runtime.math.Vector2 plus(androidx.xr.runtime.math.Vector2 other);
+    method public inline androidx.xr.runtime.math.Vector2 scale(androidx.xr.runtime.math.Vector2 other);
+    method public inline operator androidx.xr.runtime.math.Vector2 times(float c);
+    method public androidx.xr.runtime.math.Vector2 toNormalized();
+    method public inline operator androidx.xr.runtime.math.Vector2 unaryMinus();
+    property public inline float length;
+    property public inline float lengthSquared;
+    property public float x;
+    property public float y;
+    field public static final androidx.xr.runtime.math.Vector2.Companion Companion;
+    field public static final androidx.xr.runtime.math.Vector2 Down;
+    field public static final androidx.xr.runtime.math.Vector2 Left;
+    field public static final androidx.xr.runtime.math.Vector2 One;
+    field public static final androidx.xr.runtime.math.Vector2 Right;
+    field public static final androidx.xr.runtime.math.Vector2 Up;
+    field public static final androidx.xr.runtime.math.Vector2 Zero;
+  }
+
+  public static final class Vector2.Companion {
+    method public androidx.xr.runtime.math.Vector2 abs(androidx.xr.runtime.math.Vector2 vector);
+    method public float angularDistance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
+    method public float distance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
+    method public androidx.xr.runtime.math.Vector2 lerp(androidx.xr.runtime.math.Vector2 start, androidx.xr.runtime.math.Vector2 end, float ratio);
+    property public androidx.xr.runtime.math.Vector2 Down;
+    property public androidx.xr.runtime.math.Vector2 Left;
+    property public androidx.xr.runtime.math.Vector2 One;
+    property public androidx.xr.runtime.math.Vector2 Right;
+    property public androidx.xr.runtime.math.Vector2 Up;
+    property public androidx.xr.runtime.math.Vector2 Zero;
+  }
+
+  public final class Vector3 {
+    ctor public Vector3();
+    ctor public Vector3(androidx.xr.runtime.math.Vector3 other);
+    ctor public Vector3(optional float x);
+    ctor public Vector3(optional float x, optional float y);
+    ctor public Vector3(optional float x, optional float y, optional float z);
+    ctor @BytecodeOnly public Vector3(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.xr.runtime.math.Vector3 abs(androidx.xr.runtime.math.Vector3 vector);
+    method public static float angleBetween(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
+    method public androidx.xr.runtime.math.Vector3 clamp(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
+    method public androidx.xr.runtime.math.Vector3 copy();
+    method public androidx.xr.runtime.math.Vector3 copy(optional float x);
+    method public androidx.xr.runtime.math.Vector3 copy(optional float x, optional float y);
+    method public androidx.xr.runtime.math.Vector3 copy(optional float x, optional float y, optional float z);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector3! copy$default(androidx.xr.runtime.math.Vector3!, float, float, float, int, Object!);
+    method public infix androidx.xr.runtime.math.Vector3 cross(androidx.xr.runtime.math.Vector3 other);
+    method public static float distance(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
+    method public operator androidx.xr.runtime.math.Vector3 div(float c);
+    method public infix float dot(androidx.xr.runtime.math.Vector3 other);
+    method public static androidx.xr.runtime.math.Vector3 fromValue(float value);
+    method @InaccessibleFromKotlin public inline float getLength();
+    method @InaccessibleFromKotlin public inline float getLengthSquared();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    method @InaccessibleFromKotlin public float getZ();
+    method public androidx.xr.runtime.math.Vector3 inverse();
+    method public static androidx.xr.runtime.math.Vector3 lerp(androidx.xr.runtime.math.Vector3 start, androidx.xr.runtime.math.Vector3 end, float ratio);
+    method public static androidx.xr.runtime.math.Vector3 max(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
+    method public static androidx.xr.runtime.math.Vector3 min(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
+    method public operator androidx.xr.runtime.math.Vector3 minus(androidx.xr.runtime.math.Vector3 other);
+    method public operator androidx.xr.runtime.math.Vector3 plus(androidx.xr.runtime.math.Vector3 other);
+    method public static androidx.xr.runtime.math.Vector3 projectOnPlane(androidx.xr.runtime.math.Vector3 vector, androidx.xr.runtime.math.Vector3 planeNormal);
+    method public androidx.xr.runtime.math.Vector3 scale(androidx.xr.runtime.math.Vector3 other);
+    method public operator androidx.xr.runtime.math.Vector3 times(float c);
+    method public androidx.xr.runtime.math.Vector3 toNormalized();
+    method public operator androidx.xr.runtime.math.Vector3 unaryMinus();
+    property public inline float length;
+    property public inline float lengthSquared;
+    property public float x;
+    property public float y;
+    property public float z;
+    field public static final androidx.xr.runtime.math.Vector3 Backward;
+    field public static final androidx.xr.runtime.math.Vector3.Companion Companion;
+    field public static final androidx.xr.runtime.math.Vector3 Down;
+    field public static final androidx.xr.runtime.math.Vector3 Forward;
+    field public static final androidx.xr.runtime.math.Vector3 Left;
+    field public static final androidx.xr.runtime.math.Vector3 One;
+    field public static final androidx.xr.runtime.math.Vector3 Right;
+    field public static final androidx.xr.runtime.math.Vector3 Up;
+    field public static final androidx.xr.runtime.math.Vector3 Zero;
+  }
+
+  public static final class Vector3.Companion {
+    method public androidx.xr.runtime.math.Vector3 abs(androidx.xr.runtime.math.Vector3 vector);
+    method public float angleBetween(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
+    method public float distance(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
+    method public androidx.xr.runtime.math.Vector3 fromValue(float value);
+    method public androidx.xr.runtime.math.Vector3 lerp(androidx.xr.runtime.math.Vector3 start, androidx.xr.runtime.math.Vector3 end, float ratio);
+    method public androidx.xr.runtime.math.Vector3 max(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
+    method public androidx.xr.runtime.math.Vector3 min(androidx.xr.runtime.math.Vector3 a, androidx.xr.runtime.math.Vector3 b);
+    method public androidx.xr.runtime.math.Vector3 projectOnPlane(androidx.xr.runtime.math.Vector3 vector, androidx.xr.runtime.math.Vector3 planeNormal);
+    property public androidx.xr.runtime.math.Vector3 Backward;
+    property public androidx.xr.runtime.math.Vector3 Down;
+    property public androidx.xr.runtime.math.Vector3 Forward;
+    property public androidx.xr.runtime.math.Vector3 Left;
+    property public androidx.xr.runtime.math.Vector3 One;
+    property public androidx.xr.runtime.math.Vector3 Right;
+    property public androidx.xr.runtime.math.Vector3 Up;
+    property public androidx.xr.runtime.math.Vector3 Zero;
+  }
+
+  public final class Vector4 {
+    ctor public Vector4();
+    ctor public Vector4(androidx.xr.runtime.math.Vector4 other);
+    ctor public Vector4(optional float x);
+    ctor public Vector4(optional float x, optional float y);
+    ctor public Vector4(optional float x, optional float y, optional float z);
+    ctor public Vector4(optional float x, optional float y, optional float z, optional float w);
+    ctor @BytecodeOnly public Vector4(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public static androidx.xr.runtime.math.Vector4 abs(androidx.xr.runtime.math.Vector4 vector);
+    method public static float angleBetween(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
+    method public androidx.xr.runtime.math.Vector4 clamp(androidx.xr.runtime.math.Vector4 min, androidx.xr.runtime.math.Vector4 max);
+    method public androidx.xr.runtime.math.Vector4 copy();
+    method public androidx.xr.runtime.math.Vector4 copy(optional float x);
+    method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y);
+    method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y, optional float z);
+    method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y, optional float z, optional float w);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector4! copy$default(androidx.xr.runtime.math.Vector4!, float, float, float, float, int, Object!);
+    method public static float distance(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
+    method public operator androidx.xr.runtime.math.Vector4 div(float c);
+    method public infix float dot(androidx.xr.runtime.math.Vector4 other);
+    method public static androidx.xr.runtime.math.Vector4 fromValue(float value);
+    method @InaccessibleFromKotlin public inline float getLength();
+    method @InaccessibleFromKotlin public inline float getLengthSquared();
+    method @InaccessibleFromKotlin public float getW();
+    method @InaccessibleFromKotlin public float getX();
+    method @InaccessibleFromKotlin public float getY();
+    method @InaccessibleFromKotlin public float getZ();
+    method public androidx.xr.runtime.math.Vector4 inverse();
+    method public static androidx.xr.runtime.math.Vector4 lerp(androidx.xr.runtime.math.Vector4 start, androidx.xr.runtime.math.Vector4 end, float ratio);
+    method public static androidx.xr.runtime.math.Vector4 max(androidx.xr.runtime.math.Vector4 a, androidx.xr.runtime.math.Vector4 b);
+    method public static androidx.xr.runtime.math.Vector4 min(androidx.xr.runtime.math.Vector4 a, androidx.xr.runtime.math.Vector4 b);
+    method public operator androidx.xr.runtime.math.Vector4 minus(androidx.xr.runtime.math.Vector4 other);
+    method public operator androidx.xr.runtime.math.Vector4 plus(androidx.xr.runtime.math.Vector4 other);
+    method public androidx.xr.runtime.math.Vector4 scale(androidx.xr.runtime.math.Vector4 other);
+    method public operator androidx.xr.runtime.math.Vector4 times(float c);
+    method public androidx.xr.runtime.math.Vector4 toNormalized();
+    method public operator androidx.xr.runtime.math.Vector4 unaryMinus();
+    property public inline float length;
+    property public inline float lengthSquared;
+    property public float w;
+    property public float x;
+    property public float y;
+    property public float z;
+    field public static final androidx.xr.runtime.math.Vector4.Companion Companion;
+    field public static final androidx.xr.runtime.math.Vector4 One;
+    field public static final androidx.xr.runtime.math.Vector4 Zero;
+  }
+
+  public static final class Vector4.Companion {
+    method public androidx.xr.runtime.math.Vector4 abs(androidx.xr.runtime.math.Vector4 vector);
+    method public float angleBetween(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
+    method public float distance(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
+    method public androidx.xr.runtime.math.Vector4 fromValue(float value);
+    method public androidx.xr.runtime.math.Vector4 lerp(androidx.xr.runtime.math.Vector4 start, androidx.xr.runtime.math.Vector4 end, float ratio);
+    method public androidx.xr.runtime.math.Vector4 max(androidx.xr.runtime.math.Vector4 a, androidx.xr.runtime.math.Vector4 b);
+    method public androidx.xr.runtime.math.Vector4 min(androidx.xr.runtime.math.Vector4 a, androidx.xr.runtime.math.Vector4 b);
+    property public androidx.xr.runtime.math.Vector4 One;
+    property public androidx.xr.runtime.math.Vector4 Zero;
+  }
+
+}
+
