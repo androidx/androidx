@@ -817,6 +817,234 @@ WARN: Couldn't resolve link: \[androidx\.xr\.scenecore\.guava\.hitTestAsync\] in
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
 ERROR: An attempt to write .*\/reference\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
 ERROR: An attempt to write .*\/reference\/kotlin\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
+# https://github.com/Kotlin/dokka/issues/4554
+WARN: `java\.io\.Serializable` is unresolved in .*
+# b/493983427
+WARN: `ArrayMap` is unresolved in .*
+# b/527069050
+WARN: Couldn't resolve JavaDoc link '.*' in .*\/build\/unzippedJvmSources\/org\/chromium\/.*
+WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzipped(Jvm|Multiplatform)Sources\/(androidMain\/)?androidx\/(?!media3)(?!test).*
+WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/android\/.*
+WARN: Couldn't resolve link: \[left\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[top\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scaledPageWidth\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scaledPageHeight\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[pageWidth\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[pageHeight\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV29\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV33\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in androidx\.test\.espresso\.device\.controller\.emulator\/EmulatorController\/\/#\/PointingToDeclaration\/
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorController\.kt:[0-9]+:[0-9]+
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorGrpcConn\.kt:[0-9]+:[0-9]+
+WARN: `EmulatorControllerGrpc\.EmulatorControllerBlockingStub` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/device\/controller\/emulator\/EmulatorGrpcConnImpl\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in androidx\.room\/MultiInstanceInvalidationService\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationClient\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationCallback` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationService\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationService\.Stub` is unresolved in androidx\.room\/MultiInstanceInvalidationService\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationService\.Stub` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationService\.android\.kt:[0-9]+:[0-9]+
+WARN: `IMultiInstanceInvalidationService` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#\/PointingToDeclaration\/
+WARN: `IMultiInstanceInvalidationService` is unresolved in androidx\.room\/MultiInstanceInvalidationClient\/\/#<ERROR CLASS> ERROR CLASS: Symbol not found for IMultiInstanceInvalidationService\?\?\/PointingToCallableParameters\(0\)\/
+WARN: `IMultiInstanceInvalidationService` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/room\/MultiInstanceInvalidationClient\.android\.kt:[0-9]+:[0-9]+
+WARN: `java\.lang\.AutoCloseable` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/sqlite\/driver\/bundled\/BundledSQLiteConnection\.native\.kt:[0-9]+:[0-9]+
+WARN: `java\.lang\.AutoCloseable` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/sqlite\/driver\/bundled\/BundledSQLiteStatement\.native\.kt:[0-9]+:[0-9]+
+WARN: `java\.lang\.AutoCloseable` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/sqlite\/driver\/NativeSQLiteConnection\.kt:[0-9]+:[0-9]+
+WARN: `java\.lang\.AutoCloseable` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/sqlite\/driver\/NativeSQLiteStatement\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.guava\/LimitOffsetListenableFuturePagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.rxjava2\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in androidx\.room\.paging\.rxjava3\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/guava\/GuavaRoom\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/guava\/LimitOffsetListenableFuturePagingSource\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/rxjava2\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `RoomSQLiteQuery` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `scrollable_tool_tray_container` is unresolved in androidx\.pdf\.ink\.view\.layout\/ToolTrayScrollerManager\/\/#\/PointingToDeclaration\/
+WARN: `scrollable_tool_tray_container` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/ink\/view\/layout\/ToolTrayScrollerManager\.kt:[0-9]+:[0-9]+
+WARN: `serializer` is unresolved in androidx\.savedstate\.serialization\.serializers\/SparseArraySerializer\/\/#\/PointingToDeclaration\/
+WARN: `serializer` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/savedstate\/serialization\/serializers\/BuiltInSerializer\.android\.kt:[0-9]+:[0-9]+
+WARN: `T` is unresolved in androidx\.room\.coroutines\/PassthroughConnectionPool\/\/#\/PointingToDeclaration\/
+WARN: `T` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/coroutines\/PassthroughConnectionPool\.kt:[0-9]+:[0-9]+
+WARN: `T` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/room\/RoomConnectionManager\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.guava\/LimitOffsetListenableFuturePagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.rxjava2\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in androidx\.room\.paging\.rxjava3\/LimitOffsetRxPagingSource\/\/#\/PointingToDeclaration\/
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/guava\/LimitOffsetListenableFuturePagingSource\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/rxjava2\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `ThreadSafeInvalidationObserver` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/room\/paging\/rxjava3\/LimitOffsetRxPagingSource\.kt:[0-9]+:[0-9]+
+WARN: `V` is unresolved in androidx\.glance\.appwidget\/\/\/#\/PointingToDeclaration\/
+WARN: `V` is unresolved in androidx\.savedstate\.serialization\.serializers\/\/\/#\/PointingToDeclaration\/
+WARN: `V` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/appwidget\/LayoutSelection\.kt:[0-9]+:[0-9]+
+WARN: `V` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/serializers\/SavedStateSerializer\.kt:[0-9]+:[0-9]+
+WARN: \$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/core\/telecom\/CallsManager\.kt:[0-9]+ Link does not resolve for @throws androidx\.core\.telecom\.CallException\.ERROR_OPERATION_TIMED_OUT in DFunction addCall\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/arcore\/Anchor\.kt:[0-9]+ Link does not resolve for @throws AnchorCreateResourcesExhausted in DFunction load\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/arcore\/Anchor\.kt:[0-9]+ Link does not resolve for @throws AnchorCreateResourcesExhausted in DFunction create\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: \$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/arcore\/Anchor\.kt:[0-9]+ Link does not resolve for @throws AnchorCreateTrackingUnavailable in DFunction create\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: Couldn't resolve link: \[activityOptions\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[AnchorCreateResourcesExhausted\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/arcore\/Anchor\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[AnchorCreateTrackingUnavailable\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/arcore\/Anchor\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[androidx\.core\.telecom\.CallException\.ERROR_OPERATION_TIMED_OUT\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/core\/telecom\/CallsManager\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[annotationRecordsHistory\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/annotation\/history\/AnnotationRecordsHistoryManager\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[AutoCloseable\.close\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/tracing\/Tracer\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
+WARN: Couldn't resolve link: \[backgroundColor\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[bounds\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/testing\/internal\/FakeActivitySpace\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV29\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV33\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[content\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[contentColor\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[context\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/core\/i18n\/DateTimeFormatter\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[context\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[context\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/projected\/binding\/ProjectedServiceConnection\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[drag\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/Slider\.kt:[0-9]+:[0-9]+ \(androidx\/commonMain\)
+WARN: Couldn't resolve link: \[enabled\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/material\/Button\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[enabled\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/material\/Chip\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[entity\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/compose\/subspace\/node\/ComposeSubspaceNode\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[entityRegistry\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/SurfaceEntity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[hapticFeedbackEnabled\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/foundation\/rotary\/RotaryScrollable\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRule\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRuleLegacy\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[layoutInfoProvider\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/foundation\/rotary\/RotaryScrollable\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[left\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[measurePolicy\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/compose\/subspace\/node\/ComposeSubspaceNode\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[mergedHistory\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/navigationevent\/NavigationEventHistory\.kt:[0-9]+:[0-9]+ \(androidx\/commonMain\)
+WARN: Couldn't resolve link: \[modifier\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/compose\/subspace\/node\/ComposeSubspaceNode\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[NodeHolder\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/SubspaceNodeEntity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[pageHeight\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[pagerState\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/foundation\/rotary\/RotaryScrollable\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[pageWidth\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[parameters\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/action\/StartActivityAction\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[parent\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/runtime\/Entity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[parent\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/testing\/FakeEntity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[parent\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/testing\/internal\/FakeEntity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[Point\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/util\/CompatUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[produceFile\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/datastore\/guava\/GuavaDataStore\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[renderParams\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/SandboxedPdfDocument\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scaledPageHeight\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scaledPageWidth\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scaleWithDistanceMode\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/runtime\/MovableComponent\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[sceneRuntime\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/xr\/scenecore\/SurfaceEntity\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[scrollableState\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/foundation\/rotary\/RotaryScrollable\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[securePolicy\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material3\/ModalBottomSheet\.android\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[SharedAssetsT\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[shouldDismissOnBackPress\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material3\/ModalBottomSheet\.android\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[size\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[snapOffset\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/wear\/compose\/foundation\/rotary\/RotaryScrollable\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[state\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/glance\/wear\/tiles\/GlanceWearTiles\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[state\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/commonMain\/androidx\/lifecycle\/LifecycleRegistry\.kt:[0-9]+:[0-9]+ \(androidx\/commonMain\)
+WARN: Couldn't resolve link: \[tagKey\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/runtime\/ViewTreeHostDefaultKey\.android\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
+WARN: Couldn't resolve link: \[top\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/pdf\/utils\/RenderingUtils\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[Value\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvmAndAndroid\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
+# b/542222706
+WARN: Couldn't resolve JavaDoc link 'RangeMap' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/audio\/DefaultGainProvider\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'immediateVoidFuture' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/SimpleBasePlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'BackgroundColorSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'StrikethroughSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'UnderlineSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CacheControl' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Call\.Factory' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OkHttpClient' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/datasource\/okhttp\/OkHttpDataSource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OUTPUT_LAYOUT_BINAURAL' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/audio\/IamfUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ComponentListener#' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/AdTagLoader\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getContentProgress' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/AdTagLoader\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'pauseAd' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/AdTagLoader\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'playAd' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/AdTagLoader\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '        a  position discontinuity' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AdsManager' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'current  period' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'DISCONTINUITY_REASON_REMOVE' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'estimated ad duration' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'the  ad being exited' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/ima\/ImaUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Looper' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/rtsp\/RtspClient\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'formatFrameRate' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/exoplayer\/video\/VideoFrameReleaseHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'trun' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/muxer\/Boxes\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onError' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/test\/utils\/TestTransformerBuilder\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Dispatcher' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'okhttp3\.mockwebserver\.MockWebServer' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'RecordedRequest' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/test\/utils\/WebServerDispatcher\.java:[0-9]+:[0-9]+
+# b/542221398
+WARN: Couldn't resolve JavaDoc link 'allAsList' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/core\/app\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'successfulAsList' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/core\/app\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'MotionEvent\.ACTION_DOWN' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/core\/view\/MotionEventBuilder\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isDisplayingAtLeast' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/action\/ViewActions\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'JELLY_BEAN_MR1' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/base\/PerformExceptionHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.support\.v7\.widget\.PopupMenu' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/base\/RootViewPicker\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.espresso\.contrib\.CountingIdlingResource' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/idling\/net\/UriIdlingResource\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getActivityResultFunctionForIntent' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/ActivityResultFunction\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Intents\.init' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/Intents\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'intended' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'intending' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'gatherAnyResult' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/InteractionResultsHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isViewIdGenerated' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'View\.VISIBLE' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'FieldDescriptor' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/remote\/annotation\/RemoteMsgConstructor\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'isViewIdGenerated' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/util\/HumanReadables\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link '  Futures\.catching' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Futures\.transform' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ListeningExecutorService' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SettableFuture' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/AbstractFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'allAsList' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'successfulAsList' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/web\/util\/concurrent\/ListFuture\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION\.CODENAME' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/filters\/SdkSuppress\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.os\.Build\.VERSION\.SDK_INT' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/filters\/SdkSuppress\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.OrchestratorService' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/OrchestratedInstrumentationListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestCase' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestDiscoveryEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'addTests' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClient\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.OrchestratorService' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClient\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'connect' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClientConnectListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OrchestratorConnection' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestEventClientConnectListener\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.Failure' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestRunEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestCase' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/events\/client\/TestRunEventService\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'M' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/platform\/content\/PermissionGranter\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ServiceLoader' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/platform\/util\/TestOutputHandler\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getCurrentProcessName' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/util\/LogUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.platform\.reflect\.ReflectiveMethod' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/util\/ReflectionUtil\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'sendTestNotification' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/orchestrator\/callback\/BundleConverter\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.AndroidTestOrchestrator' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/orchestrator\/junit\/BundleJUnitUtils\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStorage' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/io\/PlatformTestStorageRegistry\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'forceEnableAppTracing' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/tracing\/AndroidXTracer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'android\.viee\.inspector\.WindowInspector' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/view\/inspector\/WindowInspectorCompat\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'ActivityTestRule' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getTargetContext' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onActivity' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OnResumed' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/rule\/ActivityTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'AndroidTestOrchestrator' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'OrchestratorService' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/runner_aidl\/runner\/android_junit_runner\/java\/androidx\/test\/orchestrator\/callback\/OrchestratorCallback\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/discovery\/ITestDiscoveryEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/platform\/ITestPlatformEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Instrumentation' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/events_aidl\/services\/events\/java\/androidx\/test\/services\/events\/run\/ITestRunEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStatus\.Status\.CANCELLED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseFinishedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'TestStatus\.Status\.IGNORED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseFinishedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestStatus\.Status\.CANCELLED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseStartedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'androidx\.test\.services\.events\.TestStatus\.Status\.IGNORED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/platform\/TestCaseStartedEvent\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'CANCELLED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/TestStatus\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SKIPPED' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/services\/events\/TestStatus\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'getDisplayId' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/uiautomator\/BySelector\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'validate' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/uiautomator\/Configurator\.java:[0-9]+:[0-9]+
+# b/530213736
+WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/leanback\/.*
+# https://github.com/Kotlin/dokka/issues/4560
+WARN: Couldn't resolve JavaDoc link 'equals' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/appsearch\/.*
+# b/542186112
+WARN: `.*_.*` is unresolved in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/nativeMain\/androidx\/ink\/.*
+WARN: Couldn't resolve JavaDoc link 'CombinationQuery' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/camera\/featurecombinationquery\/playservices\/PlayServicesCameraDeviceSetupCompatProvider\.java:[0-9]+:[0-9]+
+# b/537719836
+WARN: Couldn't resolve JavaDoc link 'checkMarkTint(Mode)?' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/appcompat\/widget\/AppCompatCheckedTextView\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'menu' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/appcompat\/widget\/Toolbar\.java:[0-9]+:[0-9]+
+# b/537731050
+WARN: Couldn't resolve JavaDoc link 'content_limit_(grid|list|pane|place_list|route_list)' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/car\/app\/constraints\/ConstraintManager\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'onGetItem' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/car\/app\/mediaextensions\/MetadataExtras\.java:[0-9]+:[0-9]+
+# https://github.com/Kotlin/dokka/issues/4516
+WARN: Couldn't resolve JavaDoc link 'CoroutineDispatcher' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/work\/impl\/utils\/taskexecutor\/TaskExecutor\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'kotlinx\.coroutines\.test\..*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/work\/testing\/WorkManagerTestInitHelper\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRule\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+WARN: Couldn't resolve link: \[java\.lang\.Throwable\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/benchmark\/junit4\/BenchmarkRuleLegacy\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
+# b/542187847
+WARN: Couldn't resolve JavaDoc link 'navigate' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/navigation\/package-info\.java:[0-9]+:[0-9]+
+# b/541328985
+WARN: Couldn't resolve JavaDoc link 'layout_boxedEdges' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/R\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'BoxInsetLayout Layout Attributes' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/BoxInsetLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'layout_boxedEdges' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/BoxInsetLayout\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'clipEnabled' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'radius' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidDeviceTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
