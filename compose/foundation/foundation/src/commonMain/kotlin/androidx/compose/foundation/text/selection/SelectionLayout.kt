@@ -52,34 +52,24 @@ import androidx.compose.ui.util.fastForEachIndexed
  * ```
  *
  * ## Mappings:
- * The `X` represents an impossible slot assignment The `|`, `/`, and `\` represent a slot mapping.
+ * The `|`, `/`, and `\` represent a slot mapping.
  *
  * ### Mapping minimum slot:
  * ```
  * slot value  0  1  2  3  4  5  6  7  8  9  10
- *              \ |   \ |   \ |   \ |   \ | X
+ *              \ |   \ |   \ |   \ |   \ | /
  * info index     0     1     2     3     4
  *
  * min-slot index = slot / 2
  * ```
  *
- * Minimum slot cannot be after the final `Text` (index `4`).
- *
  * ### Mapping maximum slot:
  * ```
  * slot value  0  1  2  3  4  5  6  7  8  9  10
- *              X | /   | /   | /   | /   | /
+ *              \ | /   | /   | /   | /   | /
  * info index     0     1     2     3     4
  * max-slot index = (slot - 1) / 2
  * ```
- *
- * Maximum slot cannot be before the first `Text` (index `0`).
- *
- * ## Assertions
- * * The non-dragging slot should always be directly on a text (odd) because the non-dragging handle
- *   must be anchored somewhere.
- *     * Because of this, we can determine that if `startSlot == endSlot` then it also follows that
- *       `startSlot` and `endSlot` are even.
  */
 internal interface SelectionLayout {
     /** The number of [SelectableInfo]s in this [SelectionLayout]. */
@@ -176,12 +166,9 @@ private class MultiSelectionLayout(
             when {
                 startSlot < endSlot -> CrossStatus.NOT_CROSSED
                 startSlot > endSlot -> CrossStatus.CROSSED
-                // because one of the slots is not-dragging, it must be on a text directly
-                // because one of the slots is on a text directly and the start/end slots are equal,
-                // they both must be odd. Given this, dividing the slot by 2 should give us the
-                // correct
-                // info index.
-                else -> infoList[startSlot / 2].rawCrossStatus
+                // startSlot == endSlot from here on
+                (startSlot % 2) == 0 -> CrossStatus.COLLAPSED // Both are between texts
+                else -> infoList[startSlot / 2].rawCrossStatus // Both are on a text
             }
 
     override val startInfo: SelectableInfo
@@ -288,22 +275,22 @@ private class MultiSelectionLayout(
             }
         })"
 
-    private fun startOrEndSlotToIndex(slot: Int, isStartSlot: Boolean): Int =
-        slotToIndex(
-            slot = slot,
-            isMinimumSlot =
-                when (crossStatus) {
-                    // collapsed: doesn't matter whether true or false, it will result in the same
-                    // index
-                    CrossStatus.COLLAPSED -> true
-                    CrossStatus.NOT_CROSSED -> isStartSlot
-                    CrossStatus.CROSSED -> !isStartSlot
-                },
-        )
-
-    private fun slotToIndex(slot: Int, isMinimumSlot: Boolean): Int {
-        val slotAdjustment = if (isMinimumSlot) 0 else 1
-        return (slot - slotAdjustment) / 2
+    private fun startOrEndSlotToIndex(slot: Int, isStartSlot: Boolean): Int {
+        // Map slots to selectable indices to return the most compact range of selectables.
+        // For slots on a selectable, the rounding/adjustment doesn't change the result because
+        // they're odd.
+        // For slots between selectables return the index of the selectable after the slot for
+        // the start one and the selectable before the slot for the end one.
+        // When both slots are equal and are between selectables, return the index of the selectable
+        // before them.
+        val roundDown =
+            when (crossStatus) {
+                CrossStatus.COLLAPSED -> true // Collapsed implies startSlot==endSlot, so round down
+                CrossStatus.NOT_CROSSED -> !isStartSlot // Round down for end slot (it's larger)
+                CrossStatus.CROSSED -> isStartSlot // Round down for start slot (it's larger)
+            }
+        val adjustment = if (roundDown) 1 else 0
+        return (slot - adjustment) / 2
     }
 
     private fun getInfoListIndexBySelectableId(id: Long): Int =
@@ -337,12 +324,23 @@ private class SingleSelectionLayout(
         get() = 1
 
     override val crossStatus: CrossStatus
-        get() =
-            when {
+        get() {
+            val rawCrossStatus = info.rawCrossStatus
+            return when {
+                // When the rawCrossStatus is not collapsed, return it instead of relying on
+                // startSlot/endSlot. Dragging from inside a selectable up and then to the
+                // right and outside, we get endSlot=startSlot+1 (because the endHandle is now
+                // AFTER the selectable) but the handles *are* crossed.
+                // On the other hand, we can't just return rawCrossStatus because when it is
+                // collapsed, the slots can determine the cross status. For example, dragging from
+                // a one-letter selectable to above it will have both raw handle offsets 0, but
+                // startSlot will be 0 and endSlot will be 1
+                rawCrossStatus != CrossStatus.COLLAPSED -> rawCrossStatus
                 startSlot < endSlot -> CrossStatus.NOT_CROSSED
                 startSlot > endSlot -> CrossStatus.CROSSED
-                else -> info.rawCrossStatus
+                else -> rawCrossStatus
             }
+        }
 
     override val startInfo: SelectableInfo
         get() = info
@@ -503,13 +501,17 @@ internal class SelectionLayoutBuilder(
     private var endSlot: Int = UNASSIGNED_SLOT
     private var currentSlot: Int = UNASSIGNED_SLOT
 
+    /** Whether no selection infos have been added yet */
+    val isEmpty: Boolean
+        get() = infoList.isEmpty()
+
     /**
      * Finishes building the [SelectionLayout] and returns it.
      *
      * @return the [SelectionLayout] or null if no [SelectableInfo]s were added.
      */
     fun build(): SelectionLayout? {
-        val lastSlot = currentSlot + 1
+        val lastSlot = currentSlot + 1 // The "empty" slot after the last text
         return when (infoList.size) {
             0 -> {
                 null

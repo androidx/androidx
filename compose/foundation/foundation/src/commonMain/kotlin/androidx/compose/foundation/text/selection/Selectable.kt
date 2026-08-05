@@ -59,10 +59,13 @@ internal interface Selectable {
     val bringIntoViewRequester: BringIntoViewRequester?
 
     /**
-     * A function which adds [SelectableInfo] representing this [Selectable] to the
-     * [SelectionLayoutBuilder].
+     * Adds [SelectableInfo] representing this [Selectable] to the [SelectionLayoutBuilder].
+     *
+     * @param builder The builder to add the [SelectableInfo] to.
+     * @param isLast Whether this is the last selectable in the sequence of appends to the builder
+     *   before [SelectionLayoutBuilder.build] is called.
      */
-    fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder)
+    fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder, isLast: Boolean)
 
     /**
      * Returns selectAll [Selection] information for a selectable composable. If no selection can be
