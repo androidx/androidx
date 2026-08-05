@@ -423,24 +423,26 @@ final class EmojiProcessor {
         while (currentOffset < end && addedCount < maxEmojiCount && keepProcessing) {
             // Bypass state machine for non-candidate ASCII (letters, spaces, punctuation)
             if (sm == null || sm.isInDefaultState()) {
-                while (currentOffset < end) {
-                    final char c = charSequence.charAt(currentOffset);
-                    if (c < Character.MIN_HIGH_SURROGATE) {
-                        if (!MetadataRepo.isEmojiCandidate(c)) {
-                            currentOffset++;
-                            continue;
+                if (!MetadataRepo.isEmojiCandidate(codePoint)) {
+                    currentOffset += startCharCount;
+                    while (currentOffset < end) {
+                        final char c = charSequence.charAt(currentOffset);
+                        if (c < Character.MIN_HIGH_SURROGATE) {
+                            if (!MetadataRepo.isEmojiCandidate(c)) {
+                                currentOffset++;
+                                continue;
+                            }
+                            codePoint = c;
+                            startCharCount = 1;
+                        } else {
+                            final int cp = Character.codePointAt(charSequence, currentOffset);
+                            if (!MetadataRepo.isEmojiCandidate(cp)) {
+                                currentOffset += Character.charCount(cp);
+                                continue;
+                            }
+                            codePoint = cp;
+                            startCharCount = Character.charCount(cp);
                         }
-                        codePoint = c;
-                        startCharCount = 1;
-                        break;
-                    } else {
-                        final int cp = Character.codePointAt(charSequence, currentOffset);
-                        if (!MetadataRepo.isEmojiCandidate(cp)) {
-                            currentOffset += Character.charCount(cp);
-                            continue;
-                        }
-                        codePoint = cp;
-                        startCharCount = Character.charCount(cp);
                         break;
                     }
                 }
