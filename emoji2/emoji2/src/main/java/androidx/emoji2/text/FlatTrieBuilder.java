@@ -31,27 +31,37 @@ import org.jspecify.annotations.NonNull;
  *
  * A single node at index {@code offset} in {@code mTrieArray} has the following structure:
  * <pre>
- *  Index:     [offset + 0]     [offset + 1]     [offset + 2]     ...
- *  Value:    +-----------------+  +------------+   +------------+   +--
- *            |  packedHeader   |  |codepoint_0 |   |childOffset0|   | ...
- *            +-----------------+  +------------+   +------------+   +--
- *  Concept:   dataIndex (16-bit)   Key transition      Child node index
- *             childrenCount(16-bit)  (Sorted)            in mTrieArray
+ *  Index:     [offset + 0]         [offset + 1]         [offset + 2]         ...
+ *  Value:    +---------------------+  +---------------------+   +---------------------+
+ *            |    packedHeader     |  |    child_entry_0    |   |    child_entry_1    |   ...
+ *            +---------------------+  +---------------------+   +---------------------+
+ *  Concept:   childrenCount (0-15)     childOffset (0-31)        childOffset (0-31)
+ *             dataIndex+1   (16-31)    codepoint   (32-63)       codepoint   (32-63)
+ *             compatAdded   (32-47)
+ *             isDefault     (48)
  * </pre>
  *
  * <ul>
- *   <li><b>packedHeader</b>: Packs the {@code dataIndex + 1} in the upper 16 bits and the
- *       {@code childrenCount} in the lower 16 bits.
+ *   <li><b>packedHeader</b> (64-bit):
  *       <ul>
- *         <li><b>dataIndex</b>: Index of the TypefaceEmojiRasterizer in {@code mEmojiCache},
- *             or -1 if the node is not a valid emoji end state. (Packed as {@code dataIndex + 1},
- *             so 0 represents -1). Note: This 16-bit packing limits the maximum number of
- *             emojis to 65,534.</li>
- *         <li><b>childrenCount</b>: Number of outgoing transitions from this node.</li>
+ *         <li><b>childrenCount</b> (bits 0-15): Number of outgoing transitions from this node.</li>
+ *         <li><b>dataIndex+1</b> (bits 16-31): Index of the
+ *             TypefaceEmojiRasterizer in {@code mEmojiCache} plus 1,
+ *             or 0 if the node is not a terminal emoji state.</li>
+ *         <li><b>compatAdded</b> (bits 32-47): Metadata compat version
+ *             required to render this emoji.</li>
+ *         <li><b>isDefault</b> (bit 48): Whether the emoji should use
+ *             emoji style presentation by default (1 = true).</li>
  *       </ul>
  *   </li>
- *   <li><b>Transitions</b>: Pairs of [codepoint, childOffset] sorted by codepoint key. Because
- *       they are sorted, we can binary search the transitions of a node.</li>
+ *   <li><b>child_entry</b> (64-bit):
+ *       <ul>
+ *         <li><b>childOffset</b> (bits 0-31): Offset of the child node in {@code mTrieArray}.</li>
+ *         <li><b>codepoint</b> (bits 32-63): Codepoint transition key.</li>
+ *       </ul>
+ *       Because child entries are sorted by codepoint, we can binary
+ *       search the transitions of a node.
+ *   </li>
  * </ul>
  *
  * <h3>Root Node Optimization</h3>
@@ -71,13 +81,13 @@ import org.jspecify.annotations.NonNull;
 final class FlatTrieBuilder {
 
     static final class Result {
-        public final int @NonNull [] trieArray;
+        public final long @NonNull [] trieArray;
         public final int @NonNull [] rootPlane1DirectOffset;
         public final int @NonNull [] rootPlane0DirectOffset;
         public final int @NonNull [] rootSparseKeys;
         public final int @NonNull [] rootSparseOffsets;
 
-        Result(int @NonNull [] trieArray, int @NonNull [] rootPlane1DirectOffset,
+        Result(long @NonNull [] trieArray, int @NonNull [] rootPlane1DirectOffset,
                 int @NonNull [] rootPlane0DirectOffset, int @NonNull [] rootSparseKeys,
                 int @NonNull [] rootSparseOffsets) {
             this.trieArray = trieArray;
@@ -103,7 +113,7 @@ final class FlatTrieBuilder {
     private final int mEmojiCacheSize;
 
     // Build session state
-    private int[] mTrieArray;
+    private long[] mTrieArray;
     private int mTrieSize;
 
     FlatTrieBuilder(@NonNull MetadataList metadataList,
@@ -141,7 +151,7 @@ final class FlatTrieBuilder {
             exactSize += countTrieSize(indices, childStart, scan, 1, serItem);
         }
 
-        mTrieArray = new int[exactSize];
+        mTrieArray = new long[exactSize];
         mTrieSize = 0;
 
         return buildFlatTrie(indices, serItem, rootChildrenCount);
@@ -173,7 +183,7 @@ final class FlatTrieBuilder {
      * @param end The ending index (exclusive) of this node's children in sortedIndices.
      * @param depth The current codepoint depth of the trie node.
      * @param item Reusable MetadataItem to avoid allocations.
-     * @return The number of integers needed to pack this node and all of its descendants.
+     * @return The number of longs needed to pack this node and all of its descendants.
      */
     private int countTrieSize(int[] sortedIndices, int start, int end, int depth,
             MetadataItem item) {
@@ -189,7 +199,7 @@ final class FlatTrieBuilder {
         while (scan < end) {
             int cp = getCodepoint(sortedIndices[scan], depth, item);
             int childStart = scan;
-            size += 2; // 2 ints per child transition
+            size += 1; // 1 long per child transition
             while (scan < end && getCodepoint(sortedIndices[scan], depth, item) == cp) {
                 scan++;
             }
@@ -212,7 +222,7 @@ final class FlatTrieBuilder {
             int rootChildrenCount) {
         int length = sortedIndices.length;
         if (length == 0) {
-            return new Result(new int[0], new int[0], new int[0], new int[0], new int[0]);
+            return new Result(new long[0], new int[0], new int[0], new int[0], new int[0]);
         }
 
         int[] rootCps = new int[rootChildrenCount];
@@ -301,17 +311,25 @@ final class FlatTrieBuilder {
                     + ". Flat Trie serialization supports at most 65,534 emojis.");
         }
         int nodeOffset = mTrieSize;
-        int packedHeader = ((dataIndex + 1) << 16) | (childrenCount & 0xFFFF);
-        writeInt(packedHeader);
+        long packedHeader = (((long) (dataIndex + 1)) << 16) | (childrenCount & 0xFFFF);
+        if (dataIndex >= 0) {
+            long compatAdded = getCompatAdded(dataIndex, item);
+            long isDefault = isDefaultEmoji(dataIndex, item) ? 1L : 0L;
+            packedHeader |= ((compatAdded & 0xFFFFL) << 32);
+            packedHeader |= (isDefault << 48);
+        }
+        writeLong(packedHeader);
         for (int i = 0; i < childrenCount; i++) {
             int entryOffset = stackPointer + i * 4;
-            writeInt(scratchStack.mArray[entryOffset + 0]); // childCp
-            writeInt(scratchStack.mArray[entryOffset + 3]); // childOffset
+            long cp = scratchStack.mArray[entryOffset + 0];
+            long offset = scratchStack.mArray[entryOffset + 3];
+            long entry = (cp << 32) | (offset & 0xFFFFFFFFL);
+            writeLong(entry);
         }
         return nodeOffset;
     }
 
-    private void writeInt(int val) {
+    private void writeLong(long val) {
         mTrieArray[mTrieSize++] = val;
     }
 
@@ -378,5 +396,21 @@ final class FlatTrieBuilder {
 
         return new Result(mTrieArray, rootPlane1DirectOffset, rootPlane0DirectOffset,
                 rootSparseKeys, rootSparseOffsets);
+    }
+
+    private short getCompatAdded(int emojiIndex, MetadataItem item) {
+        if (emojiIndex < mEmojiCacheSize && mEmojiCache[emojiIndex] != null) {
+            return mEmojiCache[emojiIndex].getCompatAdded();
+        }
+        mMetadataList.list(item, emojiIndex);
+        return item.compatAdded();
+    }
+
+    private boolean isDefaultEmoji(int emojiIndex, MetadataItem item) {
+        if (emojiIndex < mEmojiCacheSize && mEmojiCache[emojiIndex] != null) {
+            return mEmojiCache[emojiIndex].isDefaultEmoji();
+        }
+        mMetadataList.list(item, emojiIndex);
+        return item.emojiStyle();
     }
 }

@@ -47,24 +47,26 @@ public class FlatTrieBuilderTest {
         FlatTrieBuilder.Result result = builder.build();
 
         // Expected trie content (compiled from trace analysis):
-        // Offset 0: Node [1, 2] -> dataIndex 1, children 0 -> packed: 0x00020000
-        // Offset 1: Node [1]    -> dataIndex 0, children 1 -> packed: 0x00010001
-        // Offset 2: Transition cp -> 2
-        // Offset 3: Transition offset -> 0 (points to Node [1, 2])
-        // Offset 4: Node [2]    -> dataIndex 2, children 0 -> packed: 0x00030000
-        int[] expectedTrie = new int[] {
-                0x00020000,
-                0x00010001,
-                2,
-                0,
-                0x00030000
+        // Offset 0: Node [1, 2] -> dataIndex 1, children 0, defaultEmoji
+        //           -> packed: 0x0001000000020000L
+        // Offset 1: Node [1]    -> dataIndex 0, children 1, defaultEmoji
+        //           -> packed: 0x0001000000010001L
+        // Offset 2: Transition cp -> 2 (bits 32-63), offset -> 0 (bits 0-31)
+        //           -> packed: 0x0000000200000000L
+        // Offset 3: Node [2]    -> dataIndex 2, children 0, defaultEmoji
+        //           -> packed: 0x0001000000030000L
+        long[] expectedTrie = new long[] {
+                0x0001000000020000L,
+                0x0001000000010001L,
+                0x0000000200000000L,
+                0x0001000000030000L
         };
         assertArrayEquals(expectedTrie, result.trieArray);
 
         // Since codepoints 1 and 2 are not in Plane 0 (0x2600-0x27BF) or Plane 1
         // (0x1F300-0x1FFFF) direct ranges, they must go to sparse tables.
         int[] expectedSparseKeys = new int[] {1, 2};
-        int[] expectedSparseOffsets = new int[] {1, 4};
+        int[] expectedSparseOffsets = new int[] {1, 3};
         assertArrayEquals(expectedSparseKeys, result.rootSparseKeys);
         assertArrayEquals(expectedSparseOffsets, result.rootSparseOffsets);
 

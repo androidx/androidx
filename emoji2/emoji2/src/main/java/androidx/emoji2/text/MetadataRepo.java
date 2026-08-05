@@ -117,26 +117,32 @@ public final class MetadataRepo {
     // Flat Trie representation.
     // =========================================================================
     //
-    // The entire trie is serialized into a single primitive int array (mTrieArray)
+    // The entire trie is serialized into a single primitive long array (mTrieArray)
     // and a flat array of data references (mEmojiCache).
     //
     // A single node at index `offset` in `mTrieArray` has the following structure:
     //
-    //  Index:     [offset + 0]     [offset + 1]     [offset + 2]     ...
-    //  Value:    +-----------------+  +------------+   +------------+   +--
-    //            |  packedHeader   |  |codepoint_0 |   |childOffset0|   | ...
-    //            +-----------------+  +------------+   +------------+   +--
-    //  Concept:   dataIndex (16-bit)   Key transition      Child node index
-    //             childrenCount(16-bit)  (Sorted)            in mTrieArray
+    //  Index:     [offset + 0]         [offset + 1]         [offset + 2]         ...
+    //  Value:    +---------------------+  +---------------------+   +---------------------+
+    //            |    packedHeader     |  |    child_entry_0    |   |    child_entry_1    |   ...
+    //            +---------------------+  +---------------------+   +---------------------+
+    //  Concept:   childrenCount (0-15)     childOffset (0-31)        childOffset (0-31)
+    //             dataIndex+1   (16-31)    codepoint   (32-63)       codepoint   (32-63)
+    //             compatAdded   (32-47)
+    //             isDefault     (48)
     //
-    //  - packedHeader: Packs the dataIndex + 1 in the upper 16 bits and the childrenCount
-    //    in the lower 16 bits.
-    //     - dataIndex: Index of the TypefaceEmojiRasterizer in `mEmojiCache`, or -1 if the node
-    //       is not a valid emoji end state. (Packed as dataIndex + 1, so 0 represents -1).
-    //       Note: This 16-bit packing limits the maximum number of emojis to 65,534.
-    //     - childrenCount: Number of outgoing transitions from this node.
-    //  - Transitions: Pairs of [codepoint, childOffset] sorted by codepoint key. Because
-    //    they are sorted, we can binary search the transitions of a node.
+    //  - packedHeader (64-bit):
+    //     - childrenCount (bits 0-15): Number of outgoing transitions from this node.
+    //     - dataIndex+1 (bits 16-31): Index of the TypefaceEmojiRasterizer in `mEmojiCache` plus 1,
+    //       or 0 if the node is not a terminal emoji state.
+    //     - compatAdded (bits 32-47): Metadata compat version required to render this emoji.
+    //     - isDefault (bit 48): Whether the emoji should use emoji style presentation by
+    //       default (1 = true).
+    //  - child_entry (64-bit):
+    //     - childOffset (bits 0-31): Offset of the child node in `mTrieArray`.
+    //     - codepoint (bits 32-63): Codepoint transition key.
+    //    Because child entries are sorted by codepoint, we can binary search the
+    //    transitions of a node.
     //
     // Root Node Optimization:
     // Because the root node has a very high branching factor (~900 children), binary searching
@@ -146,7 +152,7 @@ public final class MetadataRepo {
     //  - mRootPlane1DirectOffset: Direct offset lookup for Plane 1 codepoints (0x1F300 to max).
     //  - mRootPlane0DirectOffset: Direct offset lookup for Plane 0 codepoints (0x2600 to 0x27BF).
     //  - mRootSparseKeys / mRootSparseOffsets: Sorted key-value arrays for remaining root children.
-    private int[] mTrieArray;
+    private long[] mTrieArray;
     private TypefaceEmojiRasterizer[] mEmojiCache;
     private int mEmojiCacheSize;
     private int[] mRootPlane1DirectOffset;
@@ -165,7 +171,7 @@ public final class MetadataRepo {
         mTypeface = typeface;
         mMetadataList = metadataList;
         mEmojiCharArray = new char[mMetadataList.listLength() * 2];
-        mTrieArray = new int[0];
+        mTrieArray = new long[0];
         mEmojiCache = new TypefaceEmojiRasterizer[0];
         mEmojiCacheSize = 0;
         mRootPlane1DirectOffset = new int[0];
@@ -387,8 +393,9 @@ public final class MetadataRepo {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getChildOffset(int nodeOffset, int codepoint) {
-        int header = mTrieArray[nodeOffset];
-        int childrenCount = header & 0xFFFF;
+        final long[] trie = mTrieArray;
+        long header = trie[nodeOffset];
+        int childrenCount = (int) (header & 0xFFFF);
         if (childrenCount == 0) {
             return -1;
         }
@@ -406,11 +413,12 @@ public final class MetadataRepo {
         //  - Therefore, we optimize for the 99.34% of nodes by performing a fast linear
         //    scan for <= 8 children, and fallback to binary search only for these 5 nodes.
         if (childrenCount <= 8) {
-            int end = start + 2 * childrenCount;
-            for (int i = start; i < end; i += 2) {
-                int key = mTrieArray[i];
+            int end = start + childrenCount;
+            for (int i = start; i < end; i++) {
+                long entry = trie[i];
+                int key = (int) (entry >>> 32);
                 if (key == codepoint) {
-                    return mTrieArray[i + 1];
+                    return (int) entry;
                 } else if (key > codepoint) {
                     break;
                 }
@@ -422,13 +430,14 @@ public final class MetadataRepo {
         int high = childrenCount - 1;
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            int midKey = mTrieArray[start + 2 * mid];
-            if (midKey < codepoint) {
+            long entry = trie[start + mid];
+            int key = (int) (entry >>> 32);
+            if (key < codepoint) {
                 low = mid + 1;
-            } else if (midKey > codepoint) {
+            } else if (key > codepoint) {
                 high = mid - 1;
             } else {
-                return mTrieArray[start + 2 * mid + 1];
+                return (int) entry;
             }
         }
         return -1;
@@ -442,12 +451,62 @@ public final class MetadataRepo {
         if (nodeOffset < 0) {
             return null;
         }
-        int header = mTrieArray[nodeOffset];
-        int dataIdx = (header >>> 16) - 1;
+        int dataIdx = getEmojiIndex(mTrieArray[nodeOffset]);
         if (dataIdx == -1) {
             return null;
         }
         return getOrCreateEmojiRasterizer(dataIdx);
+    }
+    /**
+     * Returns the data index for a node at a given offset, or -1 if the node is not terminal.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public int getNodeDataIdx(int nodeOffset) {
+        if (nodeOffset < 0) {
+            return -1;
+        }
+        return getEmojiIndex(mTrieArray[nodeOffset]);
+    }
+
+    /**
+     * Unpacks the emoji index from a raw trie header.
+     * Returns -1 if the node is not terminal (does not map to an emoji).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static int getEmojiIndex(long header) {
+        return (((int) (header >>> 16)) & 0xFFFF) - 1;
+    }
+
+    /**
+     * Returns true if the raw trie header represents a terminal node (an emoji).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static boolean isTerminal(long header) {
+        return ((header >>> 16) & 0xFFFFL) != 0;
+    }
+
+    /**
+     * Unpacks the compatAdded version from a raw trie header.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static int getCompatAdded(long header) {
+        return (int) ((header >>> 32) & 0xFFFF);
+    }
+
+    /**
+     * Unpacks whether the emoji should use emoji style by default from a raw trie header.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static boolean isDefaultEmoji(long header) {
+        return ((header >>> 48) & 1L) != 0;
+    }
+
+    /**
+     * Returns the raw 64-bit header of the node at the given offset.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public long getTrieHeader(int nodeOffset) {
+        return mTrieArray[nodeOffset];
     }
 
     /**
@@ -457,7 +516,8 @@ public final class MetadataRepo {
      * @param index The index of the emoji in the cache.
      * @return The cached or newly created {@link TypefaceEmojiRasterizer}.
      */
-    private @NonNull TypefaceEmojiRasterizer getOrCreateEmojiRasterizer(int index) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull TypefaceEmojiRasterizer getOrCreateEmojiRasterizer(int index) {
         TypefaceEmojiRasterizer emoji = mEmojiCache[index];
         if (emoji == null) {
             synchronized (mLock) {

@@ -154,15 +154,21 @@ final class EmojiProcessor {
         while (currentOffset < end) {
             final int codePoint = Character.codePointAt(charSequence, currentOffset);
             final int action = sm.check(codePoint);
-            TypefaceEmojiRasterizer currentNode = sm.getCurrentMetadata();
+
+            boolean isTerminal = false;
+            int compatAdded = -1;
+
             switch (action) {
                 case ACTION_FLUSH: {
                     // this happens when matching new unknown ZWJ sequences that are comprised of
                     // known emoji
-                    currentNode = sm.getFlushMetadata();
-                    if (currentNode.getCompatAdded() <= metadataVersion) {
+                    TypefaceEmojiRasterizer flushed = sm.getFlushMetadata();
+                    int flushedCompat = flushed.getCompatAdded();
+                    if (flushedCompat <= metadataVersion) {
                         subsequenceMatch++;
                     }
+                    isTerminal = true;
+                    compatAdded = flushedCompat;
                     break;
                 }
                 case ACTION_ADVANCE_BOTH: {
@@ -172,10 +178,12 @@ final class EmojiProcessor {
                     break;
                 } case ACTION_ADVANCE_END: {
                     currentOffset += Character.charCount(codePoint);
+                    isTerminal = sm.isCurrentNodeTerminal();
+                    compatAdded = isTerminal ? sm.getCurrentCompatAdded() : -1;
                     break;
                 }
             }
-            if (currentNode != null && currentNode.getCompatAdded() <= metadataVersion) {
+            if (isTerminal && compatAdded <= metadataVersion) {
                 potentialSubsequenceMatch++;
             }
         }
@@ -189,8 +197,7 @@ final class EmojiProcessor {
         if (sm.isInFlushableState()) {
             // We matched exactly one emoji
             // EmojiCompat can completely handle this sequence
-            TypefaceEmojiRasterizer exactMatch = sm.getCurrentMetadata();
-            if (exactMatch.getCompatAdded() <= metadataVersion) {
+            if (sm.getCurrentCompatAdded() <= metadataVersion) {
                 return EmojiCompat.EMOJI_SUPPORTED;
             }
         }
@@ -737,7 +744,11 @@ final class EmojiProcessor {
 
         private int mCurrentNodeOffset = ROOT_OFFSET;
 
-        private TypefaceEmojiRasterizer mCurrentNodeData;
+        /**
+         * Cached raw 64-bit trie header of the node at {@link #mCurrentNodeOffset}.
+         * Avoids repeated array reads in {@link MetadataRepo}.
+         */
+        private long mCurrentNodeHeader;
 
         private TypefaceEmojiRasterizer mFlushNodeData;
 
@@ -774,6 +785,28 @@ final class EmojiProcessor {
             return mState == STATE_DEFAULT;
         }
 
+        /**
+         * Returns whether the current node represents a complete emoji character sequence.
+         */
+        boolean isCurrentNodeTerminal() {
+            return MetadataRepo.isTerminal(mCurrentNodeHeader);
+        }
+
+        /**
+         * Returns the metadata compat version required to render the current emoji sequence,
+         * or -1 if the current node is not terminal.
+         */
+        int getCurrentCompatAdded() {
+            return MetadataRepo.getCompatAdded(mCurrentNodeHeader);
+        }
+
+        /**
+         * Returns whether the current emoji sequence uses emoji style presentation by default.
+         */
+        private boolean getCurrentIsDefaultEmoji() {
+            return MetadataRepo.isDefaultEmoji(mCurrentNodeHeader);
+        }
+
         @Action
         int check(final int codePoint) {
             final int action;
@@ -788,7 +821,7 @@ final class EmojiProcessor {
                 case STATE_WALKING:
                     if (nextNodeOffset != -1) {
                         mCurrentNodeOffset = nextNodeOffset;
-                        mCurrentNodeData = mMetadataRepo.getNodeData(nextNodeOffset);
+                        mCurrentNodeHeader = mMetadataRepo.getTrieHeader(nextNodeOffset);
                         mCurrentDepth += 1;
                         action = ACTION_ADVANCE_END;
                     } else {
@@ -797,17 +830,19 @@ final class EmojiProcessor {
                         } else if (isEmojiStyle(codePoint)) {
                             action = ACTION_ADVANCE_END;
                         } else {
-                            if (mCurrentNodeData != null) {
+                            if (isCurrentNodeTerminal()) {
                                 if (mCurrentDepth == 1) {
                                     if (shouldUseEmojiPresentationStyleForSingleCodepoint()) {
-                                        mFlushNodeData = mCurrentNodeData;
+                                        mFlushNodeData = mMetadataRepo.getOrCreateEmojiRasterizer(
+                                                MetadataRepo.getEmojiIndex(mCurrentNodeHeader));
                                         action = ACTION_FLUSH;
                                         reset();
                                     } else {
                                         action = reset();
                                     }
                                 } else {
-                                    mFlushNodeData = mCurrentNodeData;
+                                    mFlushNodeData = mMetadataRepo.getOrCreateEmojiRasterizer(
+                                            MetadataRepo.getEmojiIndex(mCurrentNodeHeader));
                                     action = ACTION_FLUSH;
                                     reset();
                                 }
@@ -824,7 +859,7 @@ final class EmojiProcessor {
                     } else {
                         mState = STATE_WALKING;
                         mCurrentNodeOffset = nextNodeOffset;
-                        mCurrentNodeData = mMetadataRepo.getNodeData(nextNodeOffset);
+                        mCurrentNodeHeader = mMetadataRepo.getTrieHeader(nextNodeOffset);
                         mCurrentDepth = 1;
                         action = ACTION_ADVANCE_END;
                     }
@@ -839,7 +874,7 @@ final class EmojiProcessor {
         private int reset() {
             mState = STATE_DEFAULT;
             mCurrentNodeOffset = ROOT_OFFSET;
-            mCurrentNodeData = null;
+            mCurrentNodeHeader = 0;
             mCurrentDepth = 0;
             return ACTION_ADVANCE_BOTH;
         }
@@ -855,7 +890,8 @@ final class EmojiProcessor {
          * @return current pointer to the metadata node in the trie
          */
         TypefaceEmojiRasterizer getCurrentMetadata() {
-            return mCurrentNodeData;
+            int idx = MetadataRepo.getEmojiIndex(mCurrentNodeHeader);
+            return idx == -1 ? null : mMetadataRepo.getOrCreateEmojiRasterizer(idx);
         }
 
         /**
@@ -869,15 +905,15 @@ final class EmojiProcessor {
             if (mState != STATE_WALKING || mCurrentNodeOffset == ROOT_OFFSET) {
                 return false;
             }
-            return mCurrentNodeData != null
+            return isCurrentNodeTerminal()
                     && (mCurrentDepth > 1 || shouldUseEmojiPresentationStyleForSingleCodepoint());
         }
 
         private boolean shouldUseEmojiPresentationStyleForSingleCodepoint() {
-            if (mCurrentNodeData == null) {
+            if (!isCurrentNodeTerminal()) {
                 return false;
             }
-            if (mCurrentNodeData.isDefaultEmoji()) {
+            if (getCurrentIsDefaultEmoji()) {
                 return true;
             }
             if (isEmojiStyle(mLastCodepoint)) {
@@ -887,7 +923,7 @@ final class EmojiProcessor {
                 if (mEmojiAsDefaultStyleExceptions == null) {
                     return true;
                 }
-                final int codepoint = mCurrentNodeData.getCodepointAt(0);
+                final int codepoint = mLastCodepoint;
                 final int index = Arrays.binarySearch(mEmojiAsDefaultStyleExceptions, codepoint);
                 if (index < 0) {
                     return true;
