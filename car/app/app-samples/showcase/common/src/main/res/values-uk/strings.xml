@@ -387,8 +387,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Карта з демоверсіями контенту"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Карта з демоверсією шаблона повідомлення"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Карта з демоверсією шаблона у формі сітки"</string>
-    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Карта зі списком об’єктів із розділами"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"Демонстрація банера"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Демонстрація покращеного заголовка"</string>
 </resources>
