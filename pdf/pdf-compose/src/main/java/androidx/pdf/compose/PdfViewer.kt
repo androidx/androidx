@@ -24,6 +24,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,6 +45,9 @@ import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.view.PdfView
 import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * A [Composable] that presents PDF content, provided as [PdfDocument]
@@ -105,6 +109,9 @@ public fun PdfViewer(
     // Create and remember an ID for PdfView so that it retains state across compositions and
     // recreations
     val pdfViewId = rememberSaveable { Random(System.currentTimeMillis()).nextInt() }
+
+    val coroutineScope = rememberCoroutineScope()
+
     // Only reload fast scroll resources when we need to, i.e. when the developer provides new
     // values or when our Context changes.
     val context = LocalContext.current
@@ -131,9 +138,46 @@ public fun PdfViewer(
     AndroidView(
         modifier = modifier,
         factory = { context ->
+            var interactionJob: Job? = null
             PdfView(context).apply {
                 this.id = pdfViewId
+                coroutineScope.launch(Dispatchers.Unconfined) { state.cancelOngoingNavigations() }
                 state.pdfView = this
+
+                addOnGestureStateChangedListener(
+                    object : PdfView.OnGestureStateChangedListener {
+                        override fun onGestureStateChanged(newState: Int) {
+                            state.gestureState = newState
+                            when (newState) {
+                                PdfView.GESTURE_STATE_IDLE -> {
+                                    interactionJob?.cancel()
+                                    interactionJob = null
+                                }
+                                PdfView.GESTURE_STATE_INTERACTING -> {
+                                    interactionJob?.cancel()
+                                    // Using Dispatchers.Unconfined guarantees this block runs
+                                    // synchronously up to the first suspend point (mutate),
+                                    // preventing race conditions.
+                                    interactionJob =
+                                        coroutineScope.launch(Dispatchers.Unconfined) {
+                                            // Lock out Default priority mutations while the user is
+                                            // interacting This will cancel any ongoing
+                                            // Default-priority mutations as well as any ongoing
+                                            // UserInput mutations in case a previous
+                                            // UserInteractionSession was not properly closed.
+                                            state.lockZoomScrollOnUserInteraction()
+                                        }
+                                }
+                                PdfView.GESTURE_STATE_SETTLING -> {
+                                    // GESTURE_STATE_SETTLING is an intermediate value and we don't
+                                    // need to take any action other than updating our own state.
+                                    // Other values are unexpected.
+                                }
+                            }
+                        }
+                    }
+                )
+
                 if (contentPadding != NoPadding) {
                     with(density) {
                         setPadding(

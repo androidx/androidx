@@ -23,11 +23,13 @@ import androidx.annotation.IntRange
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.core.util.keyIterator
@@ -39,11 +41,7 @@ import androidx.pdf.compose.PdfViewerState.Companion.GESTURE_STATE_SETTLING
 import androidx.pdf.selection.Selection
 import androidx.pdf.view.PdfView
 import kotlin.math.roundToInt
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.launch
 
 /** Scope used for suspending scroll blocks */
 public interface PdfZoomScrollScope {
@@ -58,13 +56,17 @@ public interface PdfZoomScrollScope {
     public fun zoomTo(zoomLevel: Float)
 }
 
+/** Creates and remembers a [PdfViewerState]. */
+@Composable
+public fun rememberPdfViewerState(): PdfViewerState {
+    return remember { PdfViewerState() }
+}
+
 /**
  * A state object that can be hoisted to observe and control [PdfViewer] zoom, scroll, and content
  * position.
- *
- * @param coroutineScope the [CoroutineScope] used for managing background tasks within this state.
  */
-public class PdfViewerState(private val coroutineScope: CoroutineScope) {
+public class PdfViewerState() {
     private val zoomScrollMutex = MutatorMutex()
 
     internal var pdfView: PdfView? = null
@@ -72,7 +74,6 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
             if (field === value) return
             pdfViewObserver?.let {
                 field?.removeOnViewportChangedListener(it)
-                field?.removeOnGestureStateChangedListener(it)
                 field?.removeOnSelectionChangedListener(it)
             }
             firstVisiblePage = pdfView?.firstVisiblePage ?: 0
@@ -81,17 +82,11 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
             zoom = pdfView?.zoom ?: PdfView.DEFAULT_INIT_ZOOM
             visiblePageOffsets.clear()
             currentSelection = pdfView?.currentSelection
-            // Cancel any in-progress mutations to release the mutex. MutatorMutex only supports
-            // cancellation by enqueuing higher-priority mutations.
-            coroutineScope.launch {
-                zoomScrollMutex.mutate(priority = MutatePriority.PreventUserInput) {}
-            }
             field = value
             field?.let { pdfView ->
                 pdfViewObserver =
                     PdfViewObserver().also { observer ->
                         pdfView.addOnViewportChangedListener(observer)
-                        pdfView.addOnGestureStateChangedListener(observer)
                         pdfView.addOnSelectionChangedListener(observer)
                     }
                 pdfViewPositioner = PdfViewPositioner(pdfView)
@@ -127,7 +122,7 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
      * [GESTURE_STATE_SETTLING], or [GESTURE_STATE_INTERACTING]
      */
     public var gestureState: Int by mutableIntStateOf(GESTURE_STATE_IDLE)
-        private set
+        internal set
 
     /** The currently-selected content in the PDF, or null if nothing is selected */
     public var currentSelection: Selection? by mutableStateOf(null)
@@ -175,6 +170,18 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
         zoomScrollMutex.mutate { pdfView?.scrollToPosition(position) }
     }
 
+    internal suspend fun cancelOngoingNavigations() {
+        zoomScrollMutex.mutate(priority = MutatePriority.PreventUserInput) {}
+    }
+
+    internal suspend fun lockZoomScrollOnUserInteraction() {
+        zoomScrollMutex.mutate(priority = MutatePriority.UserInput) {
+            // it's canceled  when the user stops interacting with the PDF. This releases the mutex
+            // and unblocks programmatic scrolling.
+            awaitCancellation()
+        }
+    }
+
     /**
      * Call this function to take control of zoom and scroll, and gain the ability to send zoom and
      * / or scroll events via [PdfZoomScrollScope]. All actions that change the logical zoom and /
@@ -204,10 +211,7 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
 
     /** Listens to [PdfView] state to update the containing PdfViewerState. */
     private inner class PdfViewObserver() :
-        PdfView.OnViewportChangedListener,
-        PdfView.OnGestureStateChangedListener,
-        PdfView.OnSelectionChangedListener {
-        private var interactionSession: Job? = null
+        PdfView.OnViewportChangedListener, PdfView.OnSelectionChangedListener {
 
         override fun onViewportChanged(
             firstVisiblePage: Int,
@@ -229,45 +233,6 @@ public class PdfViewerState(private val coroutineScope: CoroutineScope) {
             // Add or update new or existing pages
             for (page in pageLocations.keyIterator()) {
                 visiblePageOffsets.put(page, pageLocations.get(page).toOffset())
-            }
-        }
-
-        override fun onGestureStateChanged(newState: Int) {
-            when (newState) {
-                PdfView.GESTURE_STATE_IDLE -> {
-                    interactionSession?.cancel()
-                    interactionSession = null
-                    gestureState = GESTURE_STATE_IDLE
-                }
-                PdfView.GESTURE_STATE_INTERACTING -> {
-                    gestureState = GESTURE_STATE_INTERACTING
-
-                    // Using Dispatchers.Unconfined guarantees this block runs synchronously
-                    // up to the first suspend point (mutate), preventing race conditions.
-                    interactionSession =
-                        coroutineScope.launch(Dispatchers.Unconfined) {
-
-                            // Lock out Default priority mutations while the user is interacting
-                            // This will cancel any ongoing Default-priority mutations as well as
-                            // any
-                            // ongoing UserInput mutations in case a previous UserInteractionSession
-                            // was not properly closed.
-                            zoomScrollMutex.mutate(priority = MutatePriority.UserInput) {
-                                // This Job is captured just above, and it's cancelled when this
-                                // listener receives notice the user is no longer interacting with
-                                // the
-                                // PDF. Thus, when the user is no longer interacting with the PDF,
-                                // the
-                                // mutex is released and programmatic scrolling is unblocked.
-                                awaitCancellation()
-                            }
-                        }
-                }
-                PdfView.GESTURE_STATE_SETTLING -> {
-                    // GESTURE_STATE_SETTLING is an intermediate value and we don't need to take
-                    // any action other than updating our own state. Other values are unexpected.
-                    gestureState = GESTURE_STATE_SETTLING
-                }
             }
         }
 
