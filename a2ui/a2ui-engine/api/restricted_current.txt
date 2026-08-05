@@ -114,3 +114,15 @@ package androidx.a2ui.engine.processor {
 
 }
 
+package androidx.a2ui.engine.schema {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class A2uiCoreSchemaValidator {
+    ctor public A2uiCoreSchemaValidator();
+    ctor public A2uiCoreSchemaValidator(optional androidx.a2ui.engine.catalog.A2uiCoreCatalog? catalog);
+    ctor @BytecodeOnly public A2uiCoreSchemaValidator(androidx.a2ui.engine.catalog.A2uiCoreCatalog!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void validateSchema(Object? payload, androidx.a2ui.model.schema.A2uiSchema schema, optional String basePath);
+    method @BytecodeOnly public static void validateSchema$default(androidx.a2ui.engine.schema.A2uiCoreSchemaValidator!, Object!, androidx.a2ui.model.schema.A2uiSchema!, String!, int, Object!);
+  }
+
+}
+

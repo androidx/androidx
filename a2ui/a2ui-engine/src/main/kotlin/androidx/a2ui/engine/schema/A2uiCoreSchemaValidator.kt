@@ -32,13 +32,15 @@ import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.annotation.RestrictTo
 
 /**
  * A stateless utility for validating raw JSON against A2UI Schema definitions. This class ensures
  * that incoming JSON payloads from the agent structurally conform to the expected UI component
  * schemas *before* they are allowed into the reactive data models.
  */
-internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
 
     // TODO(nimrodp): remove this once functions expose their own schema
     private val anyFunctionSchema: A2uiSchema =
@@ -68,7 +70,7 @@ internal class A2uiCoreSchemaValidator(catalog: A2uiCoreCatalog? = null) {
      * @throws A2uiException.A2uiValidationException if the payload violates the schema rules or
      *   JSON is malformed.
      */
-    internal fun validateSchema(payload: Any?, schema: A2uiSchema, basePath: String = "/") {
+    public fun validateSchema(payload: Any?, schema: A2uiSchema, basePath: String = "/") {
         validateSchemaInternal(payload, schema, basePath)
     }
 
