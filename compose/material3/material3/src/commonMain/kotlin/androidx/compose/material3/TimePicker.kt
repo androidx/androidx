@@ -197,6 +197,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -206,6 +207,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
@@ -343,6 +345,36 @@ public fun TimeInput(
     TimeInputImpl(modifier, colors, state, shapes)
 }
 
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows an uncontained rich time input that allows the user to enter the time via two text fields,
+ * one for minutes and one for hours Subscribe to updates through [TimePickerState]. Use this
+ * variant to implement time input with an input mode toggle, otherwise use the variant without
+ * toggle parameter.
+ *
+ * @sample androidx.compose.material3.samples.UncontainedTimePickerSample
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
+ *   input in different states.
+ * @param toggle toggle to switch between different picker modes, e.g., switching between
+ *   [TimeInput] and [TimeScroll].
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimeInputColors] that will be used to resolve the colors used for this time
+ *   input in different states. See [TimeInputDefaults.richColors].
+ */
+@Composable
+public fun TimeInput(
+    state: TimePickerState,
+    shapes: TimePickerShapes,
+    toggle: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: TimeInputColors = TimeInputDefaults.richColors(),
+) {
+    TimeInputImpl(modifier, colors, state, shapes, toggle)
+}
+
 @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 public fun TimeInput(
@@ -376,7 +408,37 @@ public fun TimeScroll(
     modifier: Modifier = Modifier,
     colors: TimePickerColors = TimePickerDefaults.richColors(),
 ) {
-    TimeScrollImpl(modifier, colors, state, shapes)
+    TimeScrollImpl(modifier, colors, state, shapes, null)
+}
+
+/**
+ * Time pickers help users select and set a specific time.
+ *
+ * Shows an uncontained rich time scroll picker that allows the user to enter the time via two
+ * [ScrollField's], one for minutes and one for hours Subscribe to updates through
+ * [TimePickerState]. Use this variant to implement time scroll with an input mode toggle, otherwise
+ * use the variant without toggle parameter.
+ *
+ * @sample androidx.compose.material3.samples.UncontainedTimePickerSample
+ * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
+ *   and [TimePickerState.minute], and set the initial time for this picker.
+ * @param shapes the [TimePickerShapes] that will be used to resolve the shapes used for this time
+ *   input in different states.
+ * @param toggle optional toggle to switch between different picker modes, e.g., switching between
+ *   [TimeInput] and [TimeScroll].
+ * @param modifier the [Modifier] to be applied to this time input
+ * @param colors colors [TimePickerColors] that will be used to resolve the colors used for this
+ *   time input in different states. See [TimePickerDefaults.richColors].
+ */
+@Composable
+public fun TimeScroll(
+    state: TimePickerState,
+    shapes: TimePickerShapes,
+    toggle: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: TimePickerColors = TimePickerDefaults.richColors(),
+) {
+    TimeScrollImpl(modifier, colors, state, shapes, toggle)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1216,6 +1278,8 @@ private val RichPeriodToggleWidth
     get() = 56.dp
 private val RichPeriodToggleHeight
     get() = 120.dp
+private val UncontainedTimeFieldHeight
+    get() = 140.dp
 private val RichPeriodToggleHorizontalHeight
     get() = 48.dp
 private val RichPeriodTogglePadding
@@ -1784,6 +1848,7 @@ private fun TimeInputImpl(
     colors: TimeInputColors,
     state: TimePickerState,
     shapes: TimePickerShapes? = null,
+    toggle: @Composable (() -> Unit)? = null,
 ) {
     fun hourTextValue() =
         if (state.isHourInputValid) {
@@ -1822,6 +1887,8 @@ private fun TimeInputImpl(
         userOverride.value = true
     }
 
+    val hasSideControlColumn = toggle != null
+    val fieldHeight = if (hasSideControlColumn) UncontainedTimeFieldHeight else RichTimeFieldHeight
     Row(
         modifier =
             modifier
@@ -1888,11 +1955,12 @@ private fun TimeInputImpl(
                         ),
                     colors = colors,
                     shapes = shapes,
+                    richHeight = fieldHeight,
                 )
                 DisplaySeparator(
                     Modifier.size(
                         shapes.orRich(DisplaySeparatorWidth, RichSeparatorWidth),
-                        shapes.orRich(PeriodSelectorContainerHeight, RichTimeFieldHeight),
+                        shapes.orRich(PeriodSelectorContainerHeight, fieldHeight),
                     )
                 )
                 TimePickerTextField(
@@ -1923,6 +1991,7 @@ private fun TimeInputImpl(
                         ),
                     colors = colors,
                     shapes = shapes,
+                    richHeight = fieldHeight,
                 )
             }
         }
@@ -1931,7 +2000,19 @@ private fun TimeInputImpl(
             if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
             else PeriodTogglePaddingOld
 
-        if (!state.is24hour) {
+        if (toggle != null) {
+            SideControlColumn(
+                modifier =
+                    Modifier.padding(
+                            start = shapes.orRich(startPadding, RichPeriodToggleLargePadding)
+                        )
+                        .size(width = 48.dp, height = fieldHeight),
+                state = state,
+                colors = colors,
+                shapes = shapes,
+                toggle = toggle,
+            )
+        } else if (!state.is24hour) {
             Box(
                 Modifier.padding(start = shapes.orRich(startPadding, RichPeriodToggleLargePadding))
             ) {
@@ -1956,6 +2037,7 @@ private fun TimeScrollImpl(
     colors: TimePickerColors,
     state: TimePickerState,
     shapes: TimePickerShapes? = null,
+    toggle: @Composable (() -> Unit)? = null,
 ) {
     val hourState =
         rememberScrollFieldState(
@@ -1995,6 +2077,8 @@ private fun TimeScrollImpl(
         }
     }
 
+    val hasSideControlColumn = toggle != null
+    val fieldHeight = if (hasSideControlColumn) UncontainedTimeFieldHeight else RichTimeFieldHeight
     Row(
         modifier =
             modifier
@@ -2032,7 +2116,7 @@ private fun TimeScrollImpl(
             ScrollField(
                 state = hourState,
                 contentDescription = hourSelectionDescription,
-                modifier = Modifier.size(width = 100.dp, height = 120.dp),
+                modifier = Modifier.size(width = 100.dp, height = fieldHeight),
                 fieldAccessibilityDescription = { index ->
                     formatString(hourSuffix, if (state.is24hour) index else index + 1)
                 },
@@ -2047,14 +2131,14 @@ private fun TimeScrollImpl(
             DisplaySeparator(
                 Modifier.size(
                     shapes.orRich(DisplaySeparatorWidth, RichSeparatorWidth),
-                    shapes.orRich(PeriodSelectorContainerHeight, RichTimeFieldHeight),
+                    shapes.orRich(PeriodSelectorContainerHeight, fieldHeight),
                 )
             )
 
             ScrollField(
                 state = minuteState,
                 contentDescription = minuteSelectionDescription,
-                modifier = Modifier.size(width = 100.dp, height = 120.dp),
+                modifier = Modifier.size(width = 100.dp, height = fieldHeight),
                 fieldAccessibilityDescription = { index -> formatString(minuteSuffix, index) },
             )
         }
@@ -2063,7 +2147,17 @@ private fun TimeScrollImpl(
             if (ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled) PeriodTogglePaddingSmall
             else PeriodTogglePaddingOld
 
-        if (!state.is24hour) {
+        if (toggle != null) {
+            SideControlColumn(
+                modifier =
+                    Modifier.padding(start = shapes.orRich(startPadding, PeriodTogglePaddingLarge))
+                        .size(width = 48.dp, height = fieldHeight),
+                state = state,
+                colors = colors.toTimeInputColors(),
+                shapes = shapes,
+                toggle = toggle,
+            )
+        } else if (!state.is24hour) {
             Box(Modifier.padding(start = shapes.orRich(startPadding, PeriodTogglePaddingLarge))) {
                 VerticalPeriodToggle(
                     modifier =
@@ -2394,6 +2488,50 @@ private fun VerticalPeriodToggle(
 }
 
 @Composable
+private fun SideControlColumn(
+    modifier: Modifier,
+    state: TimePickerState,
+    colors: TimeInputColors,
+    shapes: TimePickerShapes? = null,
+    toggle: @Composable (() -> Unit)? = null,
+) {
+    val measurePolicy = MeasurePolicy { measurables, constraints ->
+        val items =
+            measurables.fastMap { item ->
+                item.measure(Constraints.fixed(48.dp.roundToPx(), 48.dp.roundToPx()))
+            }
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            val tapTargetHeight = 48.dp.roundToPx()
+            val totalHeight = items.size * tapTargetHeight
+            var y = (constraints.maxHeight - totalHeight) / 2
+            if (items.size == 3) {
+                // For 3 items (AM, PM, Switch) in 140dp:
+                // We want 8dp gap between AM/PM visual (40dp) and 16dp between PM/Switch visual
+                // (24dp icon).
+                // This is achieved by placing 48dp tap targets at y=1dp, 49dp, 97dp.
+                // (140 - 144) / 2 = -2. Adding 3dp gives y=1dp.
+                y += 3.dp.roundToPx()
+            }
+            items.fastForEach {
+                it.place((constraints.maxWidth - it.width) / 2, y)
+                y += tapTargetHeight
+            }
+        }
+    }
+
+    PeriodToggleImpl(
+        modifier = modifier,
+        state = state,
+        colors = colors,
+        measurePolicy = measurePolicy,
+        startShape = CircleShape,
+        endShape = CircleShape,
+        shapes = shapes,
+        toggle = toggle,
+    )
+}
+
+@Composable
 private fun PeriodToggleImpl(
     modifier: Modifier,
     state: TimePickerState,
@@ -2402,11 +2540,13 @@ private fun PeriodToggleImpl(
     startShape: Shape,
     endShape: Shape,
     shapes: TimePickerShapes? = null,
+    toggle: @Composable (() -> Unit)? = null,
 ) {
     val style = PeriodSelectorLabelTextFont.value
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     val useUpdatedToggle =
         ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes.orRich(false, true)
+    val hasSideControlColumn = toggle != null
 
     Layout(
         modifier =
@@ -2440,39 +2580,82 @@ private fun PeriodToggleImpl(
         measurePolicy = measurePolicy,
         content = {
             if (useUpdatedToggle) {
-                ToggleItem(
-                    checked = !state.isPm,
-                    onClick = {
-                        if (state.isPm && state.isHourInputValid) {
-                            state.hour -= 12
+                if (!state.is24hour) {
+                    if (hasSideControlColumn) {
+                        SideControlItem(
+                            checked = !state.isPm,
+                            onClick = {
+                                if (state.isPm && state.isHourInputValid) {
+                                    state.hour -= 12
+                                }
+                            },
+                            colors = colors,
+                        ) {
+                            Text(
+                                // If checked (AM is active), copy the style with Bold weight
+                                style =
+                                    if (!state.isPm) style.copy(fontWeight = FontWeight.Bold)
+                                    else style,
+                                text = getString(string = Strings.TimePickerAM),
+                            )
                         }
-                    },
-                    colors = colors,
-                    shapes = shapes,
-                ) {
-                    Text(
-                        // If checked (AM is active), copy the style with Bold weight
-                        style =
-                            if (!state.isPm) style.copy(fontWeight = FontWeight.Bold) else style,
-                        text = getString(string = Strings.TimePickerAM),
-                    )
-                }
-                ToggleItem(
-                    checked = state.isPm,
-                    onClick = {
-                        if (!state.isPm && state.isHourInputValid) {
-                            state.hour += 12
+                        SideControlItem(
+                            checked = state.isPm,
+                            onClick = {
+                                if (!state.isPm && state.isHourInputValid) {
+                                    state.hour += 12
+                                }
+                            },
+                            colors = colors,
+                        ) {
+                            Text(
+                                // If checked (PM is active), copy the style with Bold weight
+                                style =
+                                    if (state.isPm) style.copy(fontWeight = FontWeight.Bold)
+                                    else style,
+                                text = getString(string = Strings.TimePickerPM),
+                            )
                         }
-                    },
-                    colors = colors,
-                    shapes = shapes,
-                ) {
-                    Text(
-                        // If checked (PM is active), copy the style with Bold weight
-                        style = if (state.isPm) style.copy(fontWeight = FontWeight.Bold) else style,
-                        text = getString(string = Strings.TimePickerPM),
-                    )
+                    } else {
+                        ToggleItem(
+                            checked = !state.isPm,
+                            onClick = {
+                                if (state.isPm && state.isHourInputValid) {
+                                    state.hour -= 12
+                                }
+                            },
+                            colors = colors,
+                            shapes = shapes,
+                        ) {
+                            Text(
+                                // If checked (AM is active), copy the style with Bold weight
+                                style =
+                                    if (!state.isPm) style.copy(fontWeight = FontWeight.Bold)
+                                    else style,
+                                text = getString(string = Strings.TimePickerAM),
+                            )
+                        }
+                        ToggleItem(
+                            checked = state.isPm,
+                            onClick = {
+                                if (!state.isPm && state.isHourInputValid) {
+                                    state.hour += 12
+                                }
+                            },
+                            colors = colors,
+                            shapes = shapes,
+                        ) {
+                            Text(
+                                // If checked (PM is active), copy the style with Bold weight
+                                style =
+                                    if (state.isPm) style.copy(fontWeight = FontWeight.Bold)
+                                    else style,
+                                text = getString(string = Strings.TimePickerPM),
+                            )
+                        }
+                    }
                 }
+                toggle?.invoke()
             } else {
                 ToggleItem(
                     checked = !state.isPm,
@@ -2507,6 +2690,45 @@ private fun PeriodToggleImpl(
             }
         },
     )
+}
+
+@Composable
+private fun SideControlItem(
+    checked: Boolean,
+    onClick: () -> Unit,
+    colors: TimeInputColors,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val toggleButtonColors =
+        ToggleButtonDefaults.colors(
+            containerColor = colors.periodSelectorUnselectedContainerColor,
+            contentColor = colors.periodSelectorUnselectedContentColor,
+            checkedContainerColor = colors.periodSelectorSelectedContainerColor,
+            checkedContentColor = colors.periodSelectorSelectedContentColor,
+        )
+    val toggleButtonShapes =
+        ToggleButtonShapes(
+            shape = CircleShape,
+            pressedShape = RoundedCornerShape(12.dp),
+            checkedShape = RoundedCornerShape(12.dp),
+        )
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 48.dp) {
+        Box(modifier = modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            ToggleButton(
+                checked = checked,
+                onCheckedChange = { onClick() },
+                modifier =
+                    Modifier.zIndex(if (checked) 0f else 1f).size(40.dp).semantics {
+                        selected = checked
+                    },
+                shapes = toggleButtonShapes,
+                colors = toggleButtonColors,
+                contentPadding = PaddingValues(0.dp),
+                content = content,
+            )
+        }
+    }
 }
 
 @Composable
@@ -3317,6 +3539,7 @@ private fun TimePickerTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     colors: TimeInputColors,
     shapes: TimePickerShapes? = null,
+    richHeight: Dp = RichTimeFieldHeight,
 ) {
     val focusRequester = remember { FocusRequester() }
     val containerColor = MaterialTheme.colorScheme.errorContainer
@@ -3339,7 +3562,7 @@ private fun TimePickerTextField(
     val size =
         shapes.orRich(
             Modifier.size(TimeFieldContainerWidth, TimeFieldContainerHeight),
-            Modifier.size(RichTimeFieldWidth, RichTimeFieldHeight),
+            Modifier.size(RichTimeFieldWidth, richHeight),
         )
 
     Column(modifier = modifier.width(IntrinsicSize.Min)) {
