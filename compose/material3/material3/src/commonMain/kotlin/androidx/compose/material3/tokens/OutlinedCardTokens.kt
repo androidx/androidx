@@ -21,22 +21,55 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object OutlinedCardTokens {
-    val ContainerColor = ColorSchemeKeyTokens.Surface
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val DisabledContainerElevation = ElevationTokens.Level0
-    val DisabledOutlineColor = ColorSchemeKeyTokens.Outline
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val DisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
     const val DisabledOutlineOpacity = 0.12f
-    val DraggedContainerElevation = ElevationTokens.Level3
-    val DraggedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val FocusContainerElevation = ElevationTokens.Level0
-    val FocusOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val HoverContainerElevation = ElevationTokens.Level1
-    val HoverOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val IconColor = ColorSchemeKeyTokens.Primary
-    val IconSize = 24.0.dp
-    val OutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val OutlineWidth = 1.0.dp
-    val PressedContainerElevation = ElevationTokens.Level0
-    val PressedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
+    inline val DraggedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val DraggedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val FocusContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val FocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HoverContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val HoverOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val OutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val OutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val PressedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
 }

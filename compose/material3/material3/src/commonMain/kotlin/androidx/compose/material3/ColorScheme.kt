@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.material3.tokens.ColorDarkTokens
 import androidx.compose.material3.tokens.ColorLightTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
+import androidx.compose.material3.tokens.ColorToken
 import androidx.compose.material3.tokens.PaletteTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -1478,8 +1479,7 @@ public fun darkColorScheme(
  * Helper function for component color tokens. Here is an example on how to use component color
  * tokens: ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
-@Stable
-internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
+internal fun ColorScheme.fromToken(value: ColorToken): Color {
     return when (value) {
         ColorSchemeKeyTokens.Background -> background
         ColorSchemeKeyTokens.Error -> error
@@ -1529,6 +1529,7 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
         ColorSchemeKeyTokens.TertiaryFixedDim -> tertiaryFixedDim
         ColorSchemeKeyTokens.OnTertiaryFixed -> onTertiaryFixed
         ColorSchemeKeyTokens.OnTertiaryFixedVariant -> onTertiaryFixedVariant
+        else -> Color.Unspecified
     }
 }
 
@@ -1541,8 +1542,8 @@ internal const val DisabledAlpha = 0.38f
  * Converts a color token key to the local color scheme provided by the theme The color is
  * subscribed to [MaterialTheme.colorScheme] changes.
  */
-internal val ColorSchemeKeyTokens.value: Color
-    @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.fromToken(this)
+internal val ColorToken.value: Color
+    @Composable @ReadOnlyComposable get() = MaterialTheme.colorScheme.fromToken(this)
 
 /**
  * Returns [ColorScheme.surfaceColorAtElevation] with the provided elevation if

@@ -21,17 +21,42 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FloatingToolbarTokens {
-    val ContainerBetweenSpace = 4.0.dp
-    val ContainerExternalPadding = 16.0.dp
-    val ContainerHeight = 64.0.dp
-    val ContainerLeadingSpace = 8.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
-    val ContainerTrailingSpace = 8.0.dp
-    val StandardContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val VibrantButtonSelectedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val VibrantButtonSelectedIconColor = ColorSchemeKeyTokens.OnSurface
-    val VibrantButtonSelectedTextColor = ColorSchemeKeyTokens.OnSurface
-    val VibrantButtonUnselectedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val VibrantButtonUnselectedTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val VibrantContainerColor = ColorSchemeKeyTokens.PrimaryContainer
+    inline val ContainerBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val ContainerExternalPadding: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val ContainerLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val StandardContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val VibrantButtonSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val VibrantButtonSelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val VibrantButtonSelectedTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val VibrantButtonUnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val VibrantButtonUnselectedTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val VibrantContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.PrimaryContainer
 }

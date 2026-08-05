@@ -21,21 +21,54 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SnackbarTokens {
-    val ActionFocusLabelTextColor = ColorSchemeKeyTokens.InversePrimary
-    val ActionHoverLabelTextColor = ColorSchemeKeyTokens.InversePrimary
-    val ActionLabelTextColor = ColorSchemeKeyTokens.InversePrimary
-    val ActionLabelTextFont = TypographyKeyTokens.LabelLarge
-    val ActionPressedLabelTextColor = ColorSchemeKeyTokens.InversePrimary
-    val ContainerColor = ColorSchemeKeyTokens.InverseSurface
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val IconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val FocusIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val HoverIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val PressedIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val IconSize = 24.0.dp
-    val SupportingTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SupportingTextFont = TypographyKeyTokens.BodyMedium
-    val SingleLineContainerHeight = 48.0.dp
-    val TwoLinesContainerHeight = 68.0.dp
+    inline val ActionFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InversePrimary
+
+    inline val ActionHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InversePrimary
+
+    inline val ActionLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InversePrimary
+
+    inline val ActionLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val ActionPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InversePrimary
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseSurface
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val FocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val HoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val PressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val SupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyMedium
+
+    inline val SingleLineContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val TwoLinesContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 68.0.dp
 }

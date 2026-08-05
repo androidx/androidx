@@ -21,6 +21,9 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ButtonGroupSmallTokens {
-    val BetweenSpace = 12.0.dp
-    val ContainerHeight = 40.0.dp
+    inline val BetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
 }

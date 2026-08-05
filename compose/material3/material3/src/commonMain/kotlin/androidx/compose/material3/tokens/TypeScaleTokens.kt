@@ -21,155 +21,454 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.sp
 
 internal object TypeScaleTokens {
-    val BodyLargeFont = TypefaceTokens.Plain
-    val BodyLargeLineHeight = 24.0.sp
-    val BodyLargeSize = 16.sp
-    val BodyLargeTracking = 0.5.sp
-    val BodyLargeWeight = TypefaceTokens.WeightRegular
-    val BodyMediumFont = TypefaceTokens.Plain
-    val BodyMediumLineHeight = 20.0.sp
-    val BodyMediumSize = 14.sp
-    val BodyMediumTracking = 0.2.sp
-    val BodyMediumWeight = TypefaceTokens.WeightRegular
-    val BodySmallFont = TypefaceTokens.Plain
-    val BodySmallLineHeight = 16.0.sp
-    val BodySmallSize = 12.sp
-    val BodySmallTracking = 0.4.sp
-    val BodySmallWeight = TypefaceTokens.WeightRegular
-    val DisplayLargeFont = TypefaceTokens.Brand
-    val DisplayLargeLineHeight = 64.0.sp
-    val DisplayLargeSize = 57.sp
-    val DisplayLargeTracking = -0.2.sp
-    val DisplayLargeWeight = TypefaceTokens.WeightRegular
-    val DisplayMediumFont = TypefaceTokens.Brand
-    val DisplayMediumLineHeight = 52.0.sp
-    val DisplayMediumSize = 45.sp
-    val DisplayMediumTracking = 0.0.sp
-    val DisplayMediumWeight = TypefaceTokens.WeightRegular
-    val DisplaySmallFont = TypefaceTokens.Brand
-    val DisplaySmallLineHeight = 44.0.sp
-    val DisplaySmallSize = 36.sp
-    val DisplaySmallTracking = 0.0.sp
-    val DisplaySmallWeight = TypefaceTokens.WeightRegular
-    val HeadlineLargeFont = TypefaceTokens.Brand
-    val HeadlineLargeLineHeight = 40.0.sp
-    val HeadlineLargeSize = 32.sp
-    val HeadlineLargeTracking = 0.0.sp
-    val HeadlineLargeWeight = TypefaceTokens.WeightRegular
-    val HeadlineMediumFont = TypefaceTokens.Brand
-    val HeadlineMediumLineHeight = 36.0.sp
-    val HeadlineMediumSize = 28.sp
-    val HeadlineMediumTracking = 0.0.sp
-    val HeadlineMediumWeight = TypefaceTokens.WeightRegular
-    val HeadlineSmallFont = TypefaceTokens.Brand
-    val HeadlineSmallLineHeight = 32.0.sp
-    val HeadlineSmallSize = 24.sp
-    val HeadlineSmallTracking = 0.0.sp
-    val HeadlineSmallWeight = TypefaceTokens.WeightRegular
-    val LabelLargeFont = TypefaceTokens.Plain
-    val LabelLargeLineHeight = 20.0.sp
-    val LabelLargeSize = 14.sp
-    val LabelLargeTracking = 0.1.sp
-    val LabelLargeWeight = TypefaceTokens.WeightMedium
-    val LabelMediumFont = TypefaceTokens.Plain
-    val LabelMediumLineHeight = 16.0.sp
-    val LabelMediumSize = 12.sp
-    val LabelMediumTracking = 0.5.sp
-    val LabelMediumWeight = TypefaceTokens.WeightMedium
-    val LabelSmallFont = TypefaceTokens.Plain
-    val LabelSmallLineHeight = 16.0.sp
-    val LabelSmallSize = 11.sp
-    val LabelSmallTracking = 0.5.sp
-    val LabelSmallWeight = TypefaceTokens.WeightMedium
-    val TitleLargeFont = TypefaceTokens.Brand
-    val TitleLargeLineHeight = 28.0.sp
-    val TitleLargeSize = 22.sp
-    val TitleLargeTracking = 0.0.sp
-    val TitleLargeWeight = TypefaceTokens.WeightRegular
-    val TitleMediumFont = TypefaceTokens.Plain
-    val TitleMediumLineHeight = 24.0.sp
-    val TitleMediumSize = 16.sp
-    val TitleMediumTracking = 0.2.sp
-    val TitleMediumWeight = TypefaceTokens.WeightMedium
-    val TitleSmallFont = TypefaceTokens.Plain
-    val TitleSmallLineHeight = 20.0.sp
-    val TitleSmallSize = 14.sp
-    val TitleSmallTracking = 0.1.sp
-    val TitleSmallWeight = TypefaceTokens.WeightMedium
+    inline val BodyLargeFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodyLargeLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 24.0.sp
+
+    inline val BodyLargeSize: androidx.compose.ui.unit.TextUnit
+        get() = 16.sp
+
+    inline val BodyLargeTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.5.sp
+
+    inline val BodyLargeWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val BodyMediumFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodyMediumLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val BodyMediumSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val BodyMediumTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.2.sp
+
+    inline val BodyMediumWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val BodySmallFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodySmallLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val BodySmallSize: androidx.compose.ui.unit.TextUnit
+        get() = 12.sp
+
+    inline val BodySmallTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.4.sp
+
+    inline val BodySmallWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val DisplayLargeFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplayLargeLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 64.0.sp
+
+    inline val DisplayLargeSize: androidx.compose.ui.unit.TextUnit
+        get() = 57.sp
+
+    inline val DisplayLargeTracking: androidx.compose.ui.unit.TextUnit
+        get() = -0.2.sp
+
+    inline val DisplayLargeWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val DisplayMediumFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplayMediumLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 52.0.sp
+
+    inline val DisplayMediumSize: androidx.compose.ui.unit.TextUnit
+        get() = 45.sp
+
+    inline val DisplayMediumTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val DisplayMediumWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val DisplaySmallFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplaySmallLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 44.0.sp
+
+    inline val DisplaySmallSize: androidx.compose.ui.unit.TextUnit
+        get() = 36.sp
+
+    inline val DisplaySmallTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val DisplaySmallWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val HeadlineLargeFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineLargeLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 40.0.sp
+
+    inline val HeadlineLargeSize: androidx.compose.ui.unit.TextUnit
+        get() = 32.sp
+
+    inline val HeadlineLargeTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val HeadlineLargeWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val HeadlineMediumFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineMediumLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 36.0.sp
+
+    inline val HeadlineMediumSize: androidx.compose.ui.unit.TextUnit
+        get() = 28.sp
+
+    inline val HeadlineMediumTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val HeadlineMediumWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val HeadlineSmallFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineSmallLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 32.0.sp
+
+    inline val HeadlineSmallSize: androidx.compose.ui.unit.TextUnit
+        get() = 24.sp
+
+    inline val HeadlineSmallTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val HeadlineSmallWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val LabelLargeFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelLargeLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val LabelLargeSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val LabelLargeTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.1.sp
+
+    inline val LabelLargeWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val LabelMediumFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelMediumLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val LabelMediumSize: androidx.compose.ui.unit.TextUnit
+        get() = 12.sp
+
+    inline val LabelMediumTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.5.sp
+
+    inline val LabelMediumWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val LabelSmallFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelSmallLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val LabelSmallSize: androidx.compose.ui.unit.TextUnit
+        get() = 11.sp
+
+    inline val LabelSmallTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.5.sp
+
+    inline val LabelSmallWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val TitleLargeFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val TitleLargeLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 28.0.sp
+
+    inline val TitleLargeSize: androidx.compose.ui.unit.TextUnit
+        get() = 22.sp
+
+    inline val TitleLargeTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.0.sp
+
+    inline val TitleLargeWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightRegular
+
+    inline val TitleMediumFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val TitleMediumLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 24.0.sp
+
+    inline val TitleMediumSize: androidx.compose.ui.unit.TextUnit
+        get() = 16.sp
+
+    inline val TitleMediumTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.2.sp
+
+    inline val TitleMediumWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val TitleSmallFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val TitleSmallLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val TitleSmallSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val TitleSmallTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.1.sp
+
+    inline val TitleSmallWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
     // TODO update with the generated tokens once available
-    val BodyLargeEmphasizedFont = TypefaceTokens.Plain
-    val BodyLargeEmphasizedLineHeight = 24.0.sp
-    val BodyLargeEmphasizedSize = 16.sp
-    val BodyLargeEmphasizedTracking = 0.15.sp
-    val BodyLargeEmphasizedWeight = TypefaceTokens.WeightMedium
-    val BodyMediumEmphasizedFont = TypefaceTokens.Plain
-    val BodyMediumEmphasizedLineHeight = 20.0.sp
-    val BodyMediumEmphasizedSize = 14.sp
-    val BodyMediumEmphasizedTracking = 0.25.sp
-    val BodyMediumEmphasizedWeight = TypefaceTokens.WeightMedium
-    val BodySmallEmphasizedFont = TypefaceTokens.Plain
-    val BodySmallEmphasizedLineHeight = 16.0.sp
-    val BodySmallEmphasizedSize = 12.sp
-    val BodySmallEmphasizedTracking = 0.4.sp
-    val BodySmallEmphasizedWeight = TypefaceTokens.WeightMedium
-    val DisplayLargeEmphasizedFont = TypefaceTokens.Brand
-    val DisplayLargeEmphasizedLineHeight = 64.0.sp
-    val DisplayLargeEmphasizedSize = 57.sp
-    val DisplayLargeEmphasizedTracking = 0.sp
-    val DisplayLargeEmphasizedWeight = TypefaceTokens.WeightMedium
-    val DisplayMediumEmphasizedFont = TypefaceTokens.Brand
-    val DisplayMediumEmphasizedLineHeight = 52.0.sp
-    val DisplayMediumEmphasizedSize = 45.sp
-    val DisplayMediumEmphasizedTracking = 0.sp
-    val DisplayMediumEmphasizedWeight = TypefaceTokens.WeightMedium
-    val DisplaySmallEmphasizedFont = TypefaceTokens.Brand
-    val DisplaySmallEmphasizedLineHeight = 44.0.sp
-    val DisplaySmallEmphasizedSize = 36.sp
-    val DisplaySmallEmphasizedTracking = 0.sp
-    val DisplaySmallEmphasizedWeight = TypefaceTokens.WeightMedium
-    val HeadlineLargeEmphasizedFont = TypefaceTokens.Brand
-    val HeadlineLargeEmphasizedLineHeight = 40.0.sp
-    val HeadlineLargeEmphasizedSize = 32.sp
-    val HeadlineLargeEmphasizedTracking = 0.sp
-    val HeadlineLargeEmphasizedWeight = TypefaceTokens.WeightMedium
-    val HeadlineMediumEmphasizedFont = TypefaceTokens.Brand
-    val HeadlineMediumEmphasizedLineHeight = 36.0.sp
-    val HeadlineMediumEmphasizedSize = 28.sp
-    val HeadlineMediumEmphasizedTracking = 0.sp
-    val HeadlineMediumEmphasizedWeight = TypefaceTokens.WeightMedium
-    val HeadlineSmallEmphasizedFont = TypefaceTokens.Brand
-    val HeadlineSmallEmphasizedLineHeight = 32.0.sp
-    val HeadlineSmallEmphasizedSize = 24.sp
-    val HeadlineSmallEmphasizedTracking = 0.sp
-    val HeadlineSmallEmphasizedWeight = TypefaceTokens.WeightMedium
-    val LabelLargeEmphasizedFont = TypefaceTokens.Plain
-    val LabelLargeEmphasizedLineHeight = 20.0.sp
-    val LabelLargeEmphasizedSize = 14.sp
-    val LabelLargeEmphasizedTracking = 0.1.sp
-    val LabelLargeEmphasizedWeight = TypefaceTokens.WeightBold
-    val LabelMediumEmphasizedFont = TypefaceTokens.Plain
-    val LabelMediumEmphasizedLineHeight = 16.0.sp
-    val LabelMediumEmphasizedSize = 12.sp
-    val LabelMediumEmphasizedTracking = 0.5.sp
-    val LabelMediumEmphasizedWeight = TypefaceTokens.WeightBold
-    val LabelSmallEmphasizedFont = TypefaceTokens.Plain
-    val LabelSmallEmphasizedLineHeight = 16.0.sp
-    val LabelSmallEmphasizedSize = 11.sp
-    val LabelSmallEmphasizedTracking = 0.5.sp
-    val LabelSmallEmphasizedWeight = TypefaceTokens.WeightBold
-    val TitleLargeEmphasizedFont = TypefaceTokens.Brand
-    val TitleLargeEmphasizedLineHeight = 28.0.sp
-    val TitleLargeEmphasizedSize = 22.sp
-    val TitleLargeEmphasizedTracking = 0.sp
-    val TitleLargeEmphasizedWeight = TypefaceTokens.WeightMedium
-    val TitleMediumEmphasizedFont = TypefaceTokens.Plain
-    val TitleMediumEmphasizedLineHeight = 24.0.sp
-    val TitleMediumEmphasizedSize = 16.sp
-    val TitleMediumEmphasizedTracking = 0.15.sp
-    val TitleMediumEmphasizedWeight = TypefaceTokens.WeightBold
-    val TitleSmallEmphasizedFont = TypefaceTokens.Plain
-    val TitleSmallEmphasizedLineHeight = 20.0.sp
-    val TitleSmallEmphasizedSize = 14.sp
-    val TitleSmallEmphasizedTracking = 0.1.sp
-    val TitleSmallEmphasizedWeight = TypefaceTokens.WeightBold
+    inline val BodyLargeEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodyLargeEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 24.0.sp
+
+    inline val BodyLargeEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 16.sp
+
+    inline val BodyLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.15.sp
+
+    inline val BodyLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val BodyMediumEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodyMediumEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val BodyMediumEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val BodyMediumEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.25.sp
+
+    inline val BodyMediumEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val BodySmallEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val BodySmallEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val BodySmallEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 12.sp
+
+    inline val BodySmallEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.4.sp
+
+    inline val BodySmallEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val DisplayLargeEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplayLargeEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 64.0.sp
+
+    inline val DisplayLargeEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 57.sp
+
+    inline val DisplayLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val DisplayLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val DisplayMediumEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplayMediumEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 52.0.sp
+
+    inline val DisplayMediumEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 45.sp
+
+    inline val DisplayMediumEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val DisplayMediumEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val DisplaySmallEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val DisplaySmallEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 44.0.sp
+
+    inline val DisplaySmallEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 36.sp
+
+    inline val DisplaySmallEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val DisplaySmallEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val HeadlineLargeEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineLargeEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 40.0.sp
+
+    inline val HeadlineLargeEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 32.sp
+
+    inline val HeadlineLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val HeadlineLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val HeadlineMediumEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineMediumEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 36.0.sp
+
+    inline val HeadlineMediumEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 28.sp
+
+    inline val HeadlineMediumEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val HeadlineMediumEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val HeadlineSmallEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val HeadlineSmallEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 32.0.sp
+
+    inline val HeadlineSmallEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 24.sp
+
+    inline val HeadlineSmallEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val HeadlineSmallEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val LabelLargeEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelLargeEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val LabelLargeEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val LabelLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.1.sp
+
+    inline val LabelLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightBold
+
+    inline val LabelMediumEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelMediumEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val LabelMediumEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 12.sp
+
+    inline val LabelMediumEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.5.sp
+
+    inline val LabelMediumEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightBold
+
+    inline val LabelSmallEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val LabelSmallEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 16.0.sp
+
+    inline val LabelSmallEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 11.sp
+
+    inline val LabelSmallEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.5.sp
+
+    inline val LabelSmallEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightBold
+
+    inline val TitleLargeEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Brand
+
+    inline val TitleLargeEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 28.0.sp
+
+    inline val TitleLargeEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 22.sp
+
+    inline val TitleLargeEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.sp
+
+    inline val TitleLargeEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightMedium
+
+    inline val TitleMediumEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val TitleMediumEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 24.0.sp
+
+    inline val TitleMediumEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 16.sp
+
+    inline val TitleMediumEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.15.sp
+
+    inline val TitleMediumEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightBold
+
+    inline val TitleSmallEmphasizedFont: androidx.compose.ui.text.font.FontFamily
+        get() = TypefaceTokens.Plain
+
+    inline val TitleSmallEmphasizedLineHeight: androidx.compose.ui.unit.TextUnit
+        get() = 20.0.sp
+
+    inline val TitleSmallEmphasizedSize: androidx.compose.ui.unit.TextUnit
+        get() = 14.sp
+
+    inline val TitleSmallEmphasizedTracking: androidx.compose.ui.unit.TextUnit
+        get() = 0.1.sp
+
+    inline val TitleSmallEmphasizedWeight: androidx.compose.ui.text.font.FontWeight
+        get() = TypefaceTokens.WeightBold
 }

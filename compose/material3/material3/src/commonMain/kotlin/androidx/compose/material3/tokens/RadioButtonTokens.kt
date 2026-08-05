@@ -21,18 +21,41 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object RadioButtonTokens {
-    val DisabledSelectedIconColor = ColorSchemeKeyTokens.OnSurface
+    inline val DisabledSelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
     const val DisabledSelectedIconOpacity = 0.38f
-    val DisabledUnselectedIconColor = ColorSchemeKeyTokens.OnSurface
+    inline val DisabledUnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
     const val DisabledUnselectedIconOpacity = 0.38f
-    val IconSize = 20.0.dp
-    val SelectedFocusIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedHoverIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.Primary
-    val StateLayerSize = 40.0.dp
-    val UnselectedFocusIconColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedHoverIconColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSurface
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val SelectedFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val StateLayerSize: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val UnselectedFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
 }

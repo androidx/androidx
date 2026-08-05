@@ -21,11 +21,22 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailVerticalItemTokens {
-    val ActiveIndicatorHeight = 32.0.dp
-    val ActiveIndicatorWidth = 56.0.dp
-    val IconLabelSpace = 4.0.dp
-    val LeadingSpace = 16.0.dp
-    val TrailingSpace = 16.0.dp
+    inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ActiveIndicatorWidth: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
     // TODO: Update this file to include the following missing tokens:
-    val LabelTextFont = TypographyKeyTokens.LabelMedium
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelMedium
 }

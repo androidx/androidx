@@ -19,6 +19,8 @@
 package androidx.compose.material3.tokens
 
 internal object ScrimTokens {
-    val ContainerColor = ColorSchemeKeyTokens.Scrim
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Scrim
+
     const val ContainerOpacity = 0.32f
 }

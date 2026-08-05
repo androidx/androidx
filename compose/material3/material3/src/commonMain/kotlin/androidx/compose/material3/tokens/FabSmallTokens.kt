@@ -21,8 +21,15 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FabSmallTokens {
-    val ContainerHeight = 40.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val ContainerWidth = 40.0.dp
-    val IconSize = 24.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

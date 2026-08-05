@@ -21,18 +21,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DialogTokens {
-    val ActionFocusLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionHoverLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionLabelTextFont = TypographyKeyTokens.LabelLarge
-    val ActionPressedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val HeadlineColor = ColorSchemeKeyTokens.OnSurface
-    val HeadlineFont = TypographyKeyTokens.HeadlineSmall
-    val SupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SupportingTextFont = TypographyKeyTokens.BodyMedium
-    val IconColor = ColorSchemeKeyTokens.Secondary
-    val IconSize = 24.0.dp
+    inline val ActionFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val ActionPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val HeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.HeadlineSmall
+
+    inline val SupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyMedium
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

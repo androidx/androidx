@@ -21,40 +21,111 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object TimeInputTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val HeadlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeadlineFont = TypographyKeyTokens.LabelMedium
-    val PeriodSelectorContainerHeight = 72.0.dp
-    val PeriodSelectorContainerShape = ShapeKeyTokens.CornerSmall
-    val PeriodSelectorContainerWidth = 52.0.dp
-    val PeriodSelectorLabelTextFont = TypographyKeyTokens.TitleMedium
-    val PeriodSelectorOutlineColor = ColorSchemeKeyTokens.Outline
-    val PeriodSelectorOutlineWidth = 1.0.dp
-    val PeriodSelectorSelectedContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val PeriodSelectorSelectedFocusLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedHoverLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorUnselectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TimeFieldContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
-    val TimeFieldContainerHeight = 72.0.dp
-    val TimeFieldContainerShape = ShapeKeyTokens.CornerSmall
-    val TimeFieldContainerWidth = 96.0.dp
-    val TimeFieldFocusContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val TimeFieldFocusLabelTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val TimeFieldFocusOutlineColor = ColorSchemeKeyTokens.Primary
-    val TimeFieldFocusOutlineWidth = 2.0.dp
-    val TimeFieldHoverLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val TimeFieldLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val TimeFieldLabelTextFont = TypographyKeyTokens.DisplayMedium
-    val TimeFieldSeparatorColor = ColorSchemeKeyTokens.OnSurface
-    val TimeFieldSeparatorFont = TypographyKeyTokens.DisplayLarge
-    val TimeFieldSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TimeFieldSupportingTextFont = TypographyKeyTokens.BodySmall
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val HeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.LabelMedium
+
+    inline val PeriodSelectorContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val PeriodSelectorContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val PeriodSelectorContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val PeriodSelectorLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.TitleMedium
+
+    inline val PeriodSelectorOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
+    inline val PeriodSelectorOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PeriodSelectorSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    inline val PeriodSelectorSelectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorUnselectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TimeFieldContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHighest
+
+    inline val TimeFieldContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val TimeFieldContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val TimeFieldContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val TimeFieldFocusContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.PrimaryContainer
+
+    inline val TimeFieldFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val TimeFieldFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val TimeFieldFocusOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val TimeFieldHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeFieldLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeFieldLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.DisplayMedium
+
+    inline val TimeFieldSeparatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeFieldSeparatorFont: TypographyToken
+        get() = TypographyKeyTokens.DisplayLarge
+
+    inline val TimeFieldSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TimeFieldSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodySmall
 }

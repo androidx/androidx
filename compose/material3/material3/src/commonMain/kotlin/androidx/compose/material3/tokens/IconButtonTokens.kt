@@ -19,18 +19,43 @@
 package androidx.compose.material3.tokens
 
 internal object StandardIconButtonTokens {
-    val DisabledColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledOpacity = 0.38f
-    val FocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val Color = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SelectedFocusedColor = ColorSchemeKeyTokens.Primary
-    val SelectedHoveredColor = ColorSchemeKeyTokens.Primary
-    val SelectedColor = ColorSchemeKeyTokens.Primary
-    val SelectedPressedColor = ColorSchemeKeyTokens.Primary
-    val UnselectedFocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val DisabledColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledOpacity = 0.38f
+    inline val FocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val Color: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SelectedFocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedHoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedPressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedFocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

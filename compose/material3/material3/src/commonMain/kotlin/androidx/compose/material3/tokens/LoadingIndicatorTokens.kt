@@ -21,11 +21,24 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object LoadingIndicatorTokens {
-    val ActiveIndicatorColor = ColorSchemeKeyTokens.Primary
-    val ActiveSize = 38.0.dp
-    val ContainedActiveColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val ContainedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val ContainerHeight = 48.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
-    val ContainerWidth = 48.0.dp
+    inline val ActiveIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActiveSize: androidx.compose.ui.unit.Dp
+        get() = 38.0.dp
+
+    inline val ContainedActiveColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val ContainedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.PrimaryContainer
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
 }

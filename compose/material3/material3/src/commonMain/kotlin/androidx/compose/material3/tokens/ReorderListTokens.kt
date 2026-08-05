@@ -19,13 +19,30 @@
 package androidx.compose.material3.tokens
 
 internal object ReorderListTokens {
-    val ItemContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val ItemDropZoneColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ItemLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemOverlineColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemShape = ShapeKeyTokens.CornerLarge
-    val ItemSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
+    inline val ItemContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    inline val ItemDropZoneColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ItemLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemOverlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val ItemSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
 }

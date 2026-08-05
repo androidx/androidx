@@ -21,20 +21,49 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DragHandleTokens {
-    val Color = ColorSchemeKeyTokens.Outline
-    val ContainerWidth = 24.0.dp
-    val DraggedColor = ColorSchemeKeyTokens.OnSurface
-    val DraggedElevation = ElevationTokens.Level0
-    val DraggedHeight = 52.0.dp
-    val DraggedShape = ShapeKeyTokens.CornerMedium
-    val DraggedWidth = 12.0.dp
+    inline val Color: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val DraggedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val DraggedElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val DraggedHeight: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val DraggedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val DraggedWidth: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
     val Elevation = ElevationTokens.Level0
-    val Height = 48.0.dp
-    val PressedColor = ColorSchemeKeyTokens.OnSurface
-    val PressedElevation = ElevationTokens.Level0
-    val PressedHeight = 52.0.dp
-    val PressedShape = ShapeKeyTokens.CornerMedium
-    val PressedWidth = 12.0.dp
-    val Shape = ShapeKeyTokens.CornerFull
-    val Width = 4.0.dp
+    inline val Height: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val PressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val PressedElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val PressedHeight: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val PressedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val PressedWidth: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val Shape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val Width: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
 }

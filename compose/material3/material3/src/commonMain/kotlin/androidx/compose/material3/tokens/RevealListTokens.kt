@@ -19,13 +19,30 @@
 package androidx.compose.material3.tokens
 
 internal object RevealListTokens {
-    val ItemActionButtonIconIconColor = ColorSchemeKeyTokens.OnPrimary
-    val ItemActionIconButtonContainerColor = ColorSchemeKeyTokens.Primary
-    val ItemButtonIconIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemContainerColor = ColorSchemeKeyTokens.Surface
-    val ItemContainerShape = ShapeKeyTokens.CornerLarge
-    val ItemIconButtonActionContainerShape = ShapeKeyTokens.CornerLarge
-    val ItemIconButtonContainerColor = ColorSchemeKeyTokens.SecondaryContainer
-    val ItemIconButtonContainerShape = ShapeKeyTokens.CornerFull
-    val ItemSegmentedContainerShape = ShapeKeyTokens.CornerLarge
+    inline val ItemActionButtonIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val ItemActionIconButtonContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ItemButtonIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ItemContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val ItemIconButtonActionContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val ItemIconButtonContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val ItemIconButtonContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ItemSegmentedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
 }
