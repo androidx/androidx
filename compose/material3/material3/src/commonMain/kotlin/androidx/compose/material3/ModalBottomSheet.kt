@@ -173,7 +173,17 @@ public fun ModalBottomSheet(
         }
     }
     if (sheetState.hasExpandedState) {
-        LaunchedEffect(sheetState) { sheetState.show() }
+        LaunchedEffect(sheetState) {
+            val shouldShow =
+                if (ComposeMaterial3Flags.isModalBottomSheetStateRestorationFixEnabled) {
+                    sheetState.targetValue == Hidden
+                } else {
+                    true
+                }
+            if (shouldShow) {
+                sheetState.show()
+            }
+        }
     }
 }
 

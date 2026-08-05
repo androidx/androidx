@@ -584,8 +584,8 @@ class SheetStateTest {
 
         hasSheetContent = true // Recompose with sheet content
         rule.waitForIdle()
-        assertThat(state.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
-        assertThat(state.requireOffset()).isWithin(1f).of(rule.rootHeightPx() * 0.5f)
+        assertThat(state.currentValue).isEqualTo(SheetValue.Expanded)
+        assertThat(state.requireOffset()).isWithin(1f).of(rule.rootHeightPx() * 0.4f)
     }
 
     @Test
