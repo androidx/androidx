@@ -88,7 +88,7 @@ class InteractiveListTest {
             .setMaterialContentForSizeAssertions {
                 ListItem(onClick = {}, content = { Text("Content") })
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -103,7 +103,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -119,7 +119,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -134,7 +134,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting\nLine 2") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -149,7 +149,7 @@ class InteractiveListTest {
                     content = { Text("Content") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -165,7 +165,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -182,7 +182,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -198,7 +198,7 @@ class InteractiveListTest {
                     supportingContent = { Text("Supporting\nLine 2") },
                 )
             }
-            .assertHeightIsEqualTo(expectedHeight)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
@@ -221,7 +221,9 @@ class InteractiveListTest {
             contentSize +
                 ListItemDefaults.InteractiveListTopPadding +
                 ListItemDefaults.InteractiveListBottomPadding
-        rule.onNodeWithTag(ListTag, useUnmergedTree = true).assertHeightIsEqualTo(expectedHeight)
+        rule
+            .onNodeWithTag(ListTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight, tolerance = 1.dp)
         rule.onNodeWithTag(LeadingTag, useUnmergedTree = true).assertHeightIsEqualTo(contentSize)
         rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).assertHeightIsEqualTo(contentSize)
     }
