@@ -139,4 +139,16 @@ public object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isExpressiveListItemHeightBasedOnTextLinesFixEnabled: Boolean = true
+
+    /**
+     * When true (default), ModalBottomSheet will only trigger its initial entrance animation when
+     * [SheetState.targetValue] is [SheetValue.Hidden], preserving restored state (e.g. expanded
+     * state) across configuration changes or process recreation.
+     *
+     * When false, the legacy behavior is used where show() is called unconditionally.
+     */
+    // TODO: b/539999255
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isModalBottomSheetStateRestorationFixEnabled: Boolean = true
 }
