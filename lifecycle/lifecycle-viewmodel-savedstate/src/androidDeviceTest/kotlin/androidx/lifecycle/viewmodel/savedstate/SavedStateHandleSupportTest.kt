@@ -190,4 +190,68 @@ class SavedStateHandleSupportTest {
     }
 
     class TestViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+
+    @UiThreadTest
+    @Test
+    fun testRestoredStateLifecycleOnStoreClear() {
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val handle1 = component.createSavedStateHandle("vm1")
+        handle1.set("key1", "value1")
+        val handle2 = component.createSavedStateHandle("vm2")
+        handle2.set("key2", "value2")
+
+        val recreated = component.recreate(keepingViewModels = false)
+        recreated.enableSavedStateHandles()
+
+        val restoredHandle1 = recreated.createSavedStateHandle("vm1")
+        // Consume the state for VM1. This consumes and clears its restored state.
+        assertThat(restoredHandle1.get<String>("key1")).isEqualTo("value1")
+
+        // Clear the ViewModelStore. This clears the StateHolder, forcing recreation.
+        recreated.viewModelStore.clear()
+
+        // Verify that the restored state of VM1 is not restored again because it was
+        // already consumed and cleared.
+        val restoredHandle1Again = recreated.createSavedStateHandle("vm1")
+        assertThat(restoredHandle1Again.get<String>("key1")).isNull()
+
+        // Verify that the restored state of VM2 is still restored because it was
+        // not yet consumed and cleared.
+        val restoredHandle2 = recreated.createSavedStateHandle("vm2")
+        assertThat(restoredHandle2.get<String>("key2")).isEqualTo("value2")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRestoredStateLifecycleOnStoreClearWithRotation() {
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val handle1 = component.createSavedStateHandle("vm1")
+        handle1.set("key1", "value1")
+        val handle2 = component.createSavedStateHandle("vm2")
+        handle2.set("key2", "value2")
+
+        // Rotate component (keeping view models)
+        val recreated = component.recreate(keepingViewModels = true)
+        recreated.enableSavedStateHandles()
+
+        // Consume VM1
+        val restoredHandle1 = recreated.createSavedStateHandle("vm1")
+        // Consume the state for VM1. This consumes and clears its restored state.
+        assertThat(restoredHandle1.get<String>("key1")).isEqualTo("value1")
+
+        // Clear VM store after rotation
+        recreated.viewModelStore.clear()
+
+        // Verify that the restored state of VM1 is restored again because it was re-imported
+        // from the OS bundle on rotation (original behavior).
+        val restoredHandle1Again = recreated.createSavedStateHandle("vm1")
+        assertThat(restoredHandle1Again.get<String>("key1")).isEqualTo("value1")
+
+        // Verify that the restored state of VM2 is still restored because it was
+        // not yet consumed and cleared.
+        val restoredHandle2 = recreated.createSavedStateHandle("vm2")
+        assertThat(restoredHandle2.get<String>("key2")).isEqualTo("value2")
+    }
 }
