@@ -152,8 +152,6 @@
     <!-- Content description for edit fab button -->
     <string name="action_edit">Edit file</string>
 
-    <!-- Content description for search fab button -->
-    <string name="action_search">Search file</string>
 
     <!-- Content description for scroll bar -->
     <string name="scrollbar_description">Scrollbar</string>

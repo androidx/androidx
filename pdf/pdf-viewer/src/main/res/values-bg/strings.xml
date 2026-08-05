@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="POSITION">%1$d</xliff:g> от <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"Няма съответстващи резултати"</string>
     <string name="action_edit" msgid="5882082700509010966">"Редактиране на файла"</string>
-    <string name="action_search" msgid="1044074359976464346">"Търсене на файл"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"Лента за превъртане"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Въведете паролата, за да отключите"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Нов опит"</string>
