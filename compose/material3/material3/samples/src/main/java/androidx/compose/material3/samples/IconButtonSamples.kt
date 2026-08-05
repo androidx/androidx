@@ -44,7 +44,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -279,7 +279,7 @@ fun TintedIconButtonSample() {
 @Sampled
 @Composable
 fun IconToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable() { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -314,7 +314,7 @@ fun IconToggleButtonSample() {
 @Sampled
 @Composable
 fun IconToggleButtonWithAnimatedShapeSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -413,7 +413,7 @@ fun FilledIconButtonWithAnimatedShapeSample() {
 @Sampled
 @Composable
 fun FilledIconToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -448,7 +448,7 @@ fun FilledIconToggleButtonSample() {
 @Sampled
 @Composable
 fun FilledIconToggleButtonWithAnimatedShapeSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -550,7 +550,7 @@ fun FilledTonalIconButtonWithAnimatedShapeSample() {
 @Sampled
 @Composable
 fun FilledTonalIconToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -585,7 +585,7 @@ fun FilledTonalIconToggleButtonSample() {
 @Sampled
 @Composable
 fun FilledTonalIconToggleButtonWithAnimatedShapeSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -687,7 +687,7 @@ fun OutlinedIconButtonWithAnimatedShapeSample() {
 @Sampled
 @Composable
 fun OutlinedIconToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(
@@ -722,7 +722,7 @@ fun OutlinedIconToggleButtonSample() {
 @Sampled
 @Composable
 fun OutlinedIconToggleButtonWithAnimatedShapeSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val description = "Localized description"
     // Icon button should have a tooltip associated with it for a11y.
     TooltipBox(

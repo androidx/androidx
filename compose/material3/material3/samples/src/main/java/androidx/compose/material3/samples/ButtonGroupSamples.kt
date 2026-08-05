@@ -54,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +91,7 @@ fun ButtonGroupWithCustomItemSample() {
     val options = listOf("Work", "Restaurant", "Home")
     val unCheckedIcons = listOf(Icons.Outlined.Work, Icons.Outlined.Restaurant, Icons.Outlined.Home)
     val checkedIcons = listOf(Icons.Filled.Work, Icons.Filled.Restaurant, Icons.Filled.Home)
-    val checked = remember { mutableStateListOf(false, false, false) }
+    val checked = rememberSaveable { mutableStateListOf(false, false, false) }
     val interactionSources = remember { List(options.size) { MutableInteractionSource() } }
     ButtonGroup(
         overflowIndicator = { menuState ->
@@ -169,7 +170,7 @@ fun SingleSelectConnectedButtonGroupSample() {
             Icons.Filled.Search,
             Icons.Filled.Home,
         )
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     FlowRow(
         Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
@@ -220,7 +221,7 @@ fun MultiSelectConnectedButtonGroupSample() {
             Icons.Filled.Search,
             Icons.Filled.Home,
         )
-    val checked = remember { mutableStateListOf(false, false, false, false, false) }
+    val checked = rememberSaveable { mutableStateListOf(false, false, false, false, false) }
 
     FlowRow(
         Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
@@ -255,7 +256,7 @@ fun MultiSelectConnectedButtonGroupSample() {
 @Composable
 fun VerticalButtonGroupSample() {
     val options = listOf("Button 1", "Button 2", "Button 3", "Button 4", "Button 5")
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Column(verticalArrangement = Arrangement.spacedBy((-6).dp)) {
         options.forEachIndexed { index, label ->
