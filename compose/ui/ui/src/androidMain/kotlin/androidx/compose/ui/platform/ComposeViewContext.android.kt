@@ -362,16 +362,8 @@ private constructor(
     private var hasAccessibilityListener = false
 
     private var _soundEffect: SoundEffect? = null
-    @OptIn(ExperimentalComposeUiApi::class)
     internal val soundEffect: SoundEffect
-        get() =
-            _soundEffect
-                ?: if (AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
-                        AndroidSoundEffect(view)
-                    } else {
-                        NoSoundEffect
-                    }
-                    .also { _soundEffect = it }
+        get() = _soundEffect ?: AndroidSoundEffect(view).also { _soundEffect = it }
 
     /**
      * A single callback that handles observing configuration changes, memory calls, window focus
