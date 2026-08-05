@@ -54,5 +54,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Provides a persistence bridge between AppState and DataStore."
+    samples(project(":appstate:appstate-datastore:appstate-datastore-samples"))
     kotlinTarget = KotlinTarget.KOTLIN_2_3
 }

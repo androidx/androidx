@@ -1,0 +1,47 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+dependencies {
+    compileOnly(project(":annotation:annotation-sampled"))
+    implementation(project(":appstate:appstate-datastore"))
+    implementation(project(":appstate:appstate"))
+    implementation("androidx.compose.runtime:runtime:1.6.0")
+    implementation(libs.kotlinSerializationCore)
+    implementation(libs.kotlinSerializationJson)
+}
+
+androidx {
+    name = "AppState DataStore Samples"
+    type = SoftwareType.SAMPLES
+    inceptionYear = "2026"
+    description = "Samples for AppState DataStore integration"
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
+}
+
+android {
+    compileSdk { version = release(37) }
+    namespace = "androidx.appstate.datastore.samples"
+}
