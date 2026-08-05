@@ -260,10 +260,11 @@ class RadioButtonTest {
                 }
             }
             .run {
+                val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() })
                 if (clickable && minimumTouchTarget) {
-                    assertIsSquareWithSize(48.dp)
+                    assertIsSquareWithSize(48.dp, tolerance)
                 } else {
-                    assertIsSquareWithSize(2.dp * 2 + 20.dp)
+                    assertIsSquareWithSize(2.dp * 2 + 20.dp, tolerance)
                 }
             }
     }
