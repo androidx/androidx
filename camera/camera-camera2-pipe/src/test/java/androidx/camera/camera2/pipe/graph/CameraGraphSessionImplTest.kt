@@ -130,12 +130,10 @@ internal class CameraGraphSessionImplTest {
             simulator.start()
             simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
-            advanceUntilIdle()
             simulator.simulateNextFrame()
 
             val session = simulator.acquireSession()
             val result = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
-            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
             frame.simulateTotalCaptureResult(
@@ -155,7 +153,6 @@ internal class CameraGraphSessionImplTest {
             simulator.start()
             simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
-            advanceUntilIdle()
             simulator.simulateNextFrame()
 
             // Stop repeating

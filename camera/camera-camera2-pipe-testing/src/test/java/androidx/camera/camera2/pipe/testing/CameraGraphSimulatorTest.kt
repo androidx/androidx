@@ -108,7 +108,6 @@ class CameraGraphSimulatorTest {
             simulator.start()
             simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
-            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
 
@@ -213,7 +212,6 @@ class CameraGraphSimulatorTest {
             simulator.start()
             simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
-            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
             assertThat(frame.request).isSameInstanceAs(request)
@@ -237,7 +235,6 @@ class CameraGraphSimulatorTest {
             simulator.start()
             simulator.initializeSurfaces()
             simulator.simulateCameraStarted()
-            advanceUntilIdle()
 
             val frame1 = simulator.simulateNextFrame()
             val frame2 = simulator.simulateNextFrame()
@@ -437,7 +434,6 @@ class CameraGraphSimulatorTest {
 
             val request = Request(listOf(cameraStream.id))
             simulator.acquireSession().use { it.submit(request) }
-            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
             frame.simulateImages()
