@@ -3834,6 +3834,10 @@ package androidx.core.view {
     method @Deprecated public static void setQuickScaleEnabled(Object!, boolean);
   }
 
+  public final class ScreenOrientationCompat {
+    method public static int getScreenOrientationFromRotation(@UiContext android.content.Context, int);
+  }
+
   public class ScrollFeedbackProviderCompat {
     method public static androidx.core.view.ScrollFeedbackProviderCompat createProvider(android.view.View);
     method public void onScrollLimit(int, int, int, boolean);
