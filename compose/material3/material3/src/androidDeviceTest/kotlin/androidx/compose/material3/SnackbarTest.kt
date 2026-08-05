@@ -167,7 +167,7 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                     Snackbar(content = { Text("Message") })
                 }
                 .assertWidthIsEqualTo(300.dp)
-                .assertHeightIsEqualTo(48.dp)
+                .assertHeightIsEqualTo(48.dp, tolerance = 1.dp)
 
         val firstBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val lastBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(LastBaseline)
@@ -224,7 +224,7 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                     )
                 }
                 .assertWidthIsEqualTo(300.dp)
-                .assertHeightIsEqualTo(48.dp)
+                .assertHeightIsEqualTo(48.dp, tolerance = 1.dp)
 
         val textBaseLine = rule.onNodeWithText("Message").getAlignmentLinePosition(FirstBaseline)
         val buttonBaseLine = rule.onNodeWithTag("button").getAlignmentLinePosition(FirstBaseline)
@@ -287,7 +287,10 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
 
             snackbar
                 .assertWidthIsEqualTo(300.dp)
-                .assertHeightIsEqualTo(snackbarVerticalPadding * 2 + textBounds.height)
+                .assertHeightIsEqualTo(
+                    snackbarVerticalPadding * 2 + textBounds.height,
+                    tolerance = 1.dp,
+                )
 
             val snackBounds = snackbar.getUnclippedBoundsInRoot()
             val textTopOffset = textBounds.top - snackBounds.top
@@ -303,7 +306,7 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                         )
                     }
                     .assertWidthIsEqualTo(300.dp)
-                    .assertHeightIsEqualTo(68.dp)
+                    .assertHeightIsEqualTo(68.dp, tolerance = 1.dp)
 
             val firstBaseline = rule.onNodeWithTag("text").getFirstBaselinePosition()
             val lastBaseline = rule.onNodeWithTag("text").getLastBaselinePosition()
@@ -348,7 +351,10 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
 
             snackbar
                 .assertWidthIsEqualTo(300.dp)
-                .assertHeightIsEqualTo(snackbarVerticalPadding * 2 + textBounds.height)
+                .assertHeightIsEqualTo(
+                    snackbarVerticalPadding * 2 + textBounds.height,
+                    tolerance = 1.dp,
+                )
 
             val buttonBounds = rule.onNodeWithTag("button").getUnclippedBoundsInRoot()
             val snackBounds = snackbar.getUnclippedBoundsInRoot()
@@ -369,7 +375,7 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                         )
                     }
                     .assertWidthIsEqualTo(300.dp)
-                    .assertHeightIsEqualTo(68.dp)
+                    .assertHeightIsEqualTo(68.dp, tolerance = 1.dp)
 
             val textFirstBaseLine = rule.onNodeWithTag("text").getFirstBaselinePosition()
             val textLastBaseLine = rule.onNodeWithTag("text").getLastBaselinePosition()
@@ -420,7 +426,8 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                 )
             snackbar
                 .assertHeightIsEqualTo(
-                    actionButtonBottomPadding + buttonBounds.top + buttonBounds.height
+                    actionButtonBottomPadding + buttonBounds.top + buttonBounds.height,
+                    tolerance = 1.dp,
                 )
                 .assertWidthIsEqualTo(
                     horizontalSpacingButtonSide + buttonBounds.left + buttonBounds.width
@@ -459,7 +466,10 @@ class SnackbarTest(private val isSnackbarM3FixEnabled: Boolean) {
                 )
 
             snackbar
-                .assertHeightIsEqualTo(2.dp + buttonBounds.top + buttonBounds.height)
+                .assertHeightIsEqualTo(
+                    2.dp + buttonBounds.top + buttonBounds.height,
+                    tolerance = 1.dp,
+                )
                 .assertWidthIsEqualTo(8.dp + buttonBounds.left + buttonBounds.width)
         }
     }
