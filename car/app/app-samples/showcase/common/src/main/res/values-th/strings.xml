@@ -387,8 +387,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"การสาธิตแผนที่พร้อมเนื้อหา"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"การสาธิตแผนที่พร้อมเทมเพลตข้อความ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"การสาธิตแผนที่พร้อมเทมเพลตตารางกริด"</string>
-    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"แผนที่พร้อมชุดรายการแบบแยกส่วน"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"เดโมแบนเนอร์"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"ตัวอย่างส่วนหัวแบบปรับปรุง"</string>
 </resources>
