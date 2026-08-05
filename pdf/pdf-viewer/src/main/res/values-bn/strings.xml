@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="TOTAL">%2$d</xliff:g>-এর মধ্যে <xliff:g id="POSITION">%1$d</xliff:g> নম্বর"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"কোনও ফলাফল মিলছে না"</string>
     <string name="action_edit" msgid="5882082700509010966">"ফাইল এডিট করুন"</string>
-    <string name="action_search" msgid="1044074359976464346">"ফাইলে খুঁজুন"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"স্ক্রলবার"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"আনলক করতে পাসওয়ার্ড লিখুন"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"আবার চেষ্টা করুন"</string>

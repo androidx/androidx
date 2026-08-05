@@ -2,6 +2,7 @@
     <string name="app_name">PDF Viewer Sample App</string>
     <string name="launch_string">Open</string>
     <string name="search_string">Search</string>
+    <string name="pdf_search_button">Search file</string>
     <string name="save_string">Save</string>
     <string name="undo_string">Undo</string>
     <string name="redo_string">Redo</string>
