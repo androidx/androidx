@@ -97,7 +97,25 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface Session : CameraGraph.Session
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Session : CameraGraph.Session {
+        /**
+         * Submit the [Request] to the camera, and aggregate the results into a [FrameCapture],
+         * which can be used to wait for the [Frame] to start using [FrameCapture.awaitFrame].
+         *
+         * The [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        public fun capture(request: Request): FrameCapture
+
+        /**
+         * Submit the [Request]s to the camera, and aggregate the results into a list of
+         * [FrameCapture]s, which can be used to wait for the associated [Frame] using
+         * [FrameCapture.awaitFrame].
+         *
+         * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        public fun capture(requests: List<Request>): List<FrameCapture>
+    }
 
     public companion object {
         private const val DEFAULT_FRAME_BUFFER_CAPACITY = 1

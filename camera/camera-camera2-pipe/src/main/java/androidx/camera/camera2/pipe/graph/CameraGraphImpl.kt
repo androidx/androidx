@@ -357,14 +357,7 @@ constructor(
     override fun toString(): String = id.toString()
 
     private fun createSessionFromToken(token: Token) =
-        CameraGraphSessionImpl(
-            token,
-            graphProcessor,
-            controller3A,
-            frameCaptureQueue,
-            parameters,
-            listeners,
-        )
+        CameraGraphSessionImpl(token, graphProcessor, controller3A, parameters, listeners)
 
     /**
      * Acquires a [GraphSessionLock] token and executes the given code block. The code block(s) will

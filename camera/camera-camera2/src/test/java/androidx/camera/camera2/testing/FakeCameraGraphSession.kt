@@ -140,13 +140,13 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         submittedRequests.addAll(requests)
     }
 
-    override fun capture(request: Request): FrameCapture {
+    fun capture(request: Request): FrameCapture {
         val capture = FakeFrameCapture(request)
         submit(request)
         return capture
     }
 
-    override fun capture(requests: List<Request>): List<FrameCapture> {
+    fun capture(requests: List<Request>): List<FrameCapture> {
         val captures = requests.map { FakeFrameCapture(it) }
         submit(requests)
         return captures
