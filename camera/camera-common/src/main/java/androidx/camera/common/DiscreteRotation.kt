@@ -17,6 +17,18 @@
 package androidx.camera.common
 
 import android.view.Surface
+import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+
+/**
+ * Annotation for integer values representing discrete rotation degrees.
+ *
+ * Valid values are: 0, 90, 180, 270.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(0, 90, 180, 270)
+public annotation class DiscreteRotationDegrees
 
 /**
  * A value class representing a rotation constrained to 90-degree increments (0, 90, 180, or 270
@@ -29,7 +41,9 @@ import android.view.Surface
  */
 @JvmInline
 @Suppress("NOTHING_TO_INLINE", "ValueClassDefinition")
-public value class DiscreteRotation @PublishedApi internal constructor(public val degrees: Int) {
+public value class DiscreteRotation
+@PublishedApi
+internal constructor(@get:DiscreteRotationDegrees public val degrees: Int) {
     /**
      * Adds another [DiscreteRotation] to this rotation.
      *
@@ -53,7 +67,8 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
      *   or 270).
      */
     @Suppress("ValueClassUsageWithoutJvmName")
-    public inline operator fun plus(degrees: Int): DiscreteRotation = this.plus(from(degrees))
+    public inline operator fun plus(@DiscreteRotationDegrees degrees: Int): DiscreteRotation =
+        this.plus(from(degrees))
 
     /**
      * Subtracts another [DiscreteRotation] from this rotation.
@@ -79,7 +94,8 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
      *   or 270).
      */
     @Suppress("ValueClassUsageWithoutJvmName")
-    public inline operator fun minus(degrees: Int): DiscreteRotation = this.minus(from(degrees))
+    public inline operator fun minus(@DiscreteRotationDegrees degrees: Int): DiscreteRotation =
+        this.minus(from(degrees))
 
     override fun toString(): String = "$degrees°"
 
@@ -115,7 +131,7 @@ public value class DiscreteRotation @PublishedApi internal constructor(public va
          */
         @JvmStatic
         @JvmName("from")
-        public fun from(degrees: Int): DiscreteRotation {
+        public fun from(@DiscreteRotationDegrees degrees: Int): DiscreteRotation {
             require(degrees == 0 || degrees == 90 || degrees == 180 || degrees == 270) {
                 "Unexpected rotation: $degrees. Value must be one of 0, 90, 180, 270"
             }
