@@ -358,8 +358,7 @@ private fun GestureScrollIndicator(
 
     // Gesture manager needs to know whether this indicator draws outside the boundary of its UI
     // element as that affects the frequency with which it is shown.
-    // TODO - SHOULD BE isOverlay = TRUE
-    gestureManager.registerGestureIndicator(gestureConfiguration, isFloating = false, duration)
+    gestureManager.registerGestureIndicator(gestureConfiguration, isFloating = true, duration)
 
     // Initialise internal State variables
     state.gestureConfiguration = gestureConfiguration
