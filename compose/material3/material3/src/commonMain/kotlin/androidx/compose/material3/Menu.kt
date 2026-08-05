@@ -369,7 +369,10 @@ public expect fun DropdownMenuItem(
  * @param supportingText optional supporting text of the menu item.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
  *   not respond to user input.
- * @param colors [MenuItemColors] that will be used to resolve the colors for this menu item.
+ * @param colors [SelectableMenuItemColors] that will be used to resolve the colors for this menu
+ *   item. There are two predefined [SelectableMenuItemColors] at
+ *   [MenuDefaults.selectableItemColors] and [MenuDefaults.selectableItemVibrantColors] which you
+ *   can use or modify.
  * @param horizontalArrangement the horizontal arrangement of the menu item's children.
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -386,7 +389,7 @@ public fun DropdownMenuItem(
     trailingContent: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.itemColors(),
+    colors: SelectableMenuItemColors = MenuDefaults.selectableItemColors(),
     horizontalArrangement: Arrangement.Horizontal =
         MenuDefaults.DropdownMenuItemHorizontalArrangement,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
@@ -454,16 +457,18 @@ public fun DropdownMenuItemLegacy(
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItem(
-        onClick = onClick,
+    DropdownMenuItemContent(
         text = text,
-        shape = shape,
+        selected = false,
+        onClick = onClick,
         modifier = modifier.semantics { role = Role.Button },
         supportingText = supportingText,
         leadingIcon = leadingIcon,
         trailingContent = trailingIcon,
+        selectedLeadingIcon = null,
         enabled = enabled,
         colors = colors,
+        shapes = MenuDefaults.itemShapes(shape = shape),
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -502,9 +507,10 @@ public fun DropdownMenuItemLegacy(
  * @param supportingText optional supporting text of the menu item.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
  *   not respond to user input.
- * @param colors [MenuItemColors] that will be used to resolve the colors for this menu item. There
- *   are two predefined [MenuItemColors] at [MenuDefaults.selectableItemColors] and
- *   [MenuDefaults.selectableItemVibrantColors] which you can use or modify.
+ * @param colors [SelectableMenuItemColors] that will be used to resolve the colors for this menu
+ *   item. There are two predefined [SelectableMenuItemColors] at
+ *   [MenuDefaults.selectableItemColors] and [MenuDefaults.selectableItemVibrantColors] which you
+ *   can use or modify.
  * @param horizontalArrangement the horizontal arrangement of the menu item's children.
  * @param contentPadding the padding applied to the content of this menu item.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -523,7 +529,7 @@ public fun DropdownMenuItem(
     trailingContent: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    colors: SelectableMenuItemColors = MenuDefaults.selectableItemColors(),
     horizontalArrangement: Arrangement.Horizontal =
         MenuDefaults.DropdownMenuItemHorizontalArrangement,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
@@ -594,24 +600,24 @@ public fun DropdownMenuItemLegacy(
     trailingIcon: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    colors: MenuItemColors = MenuDefaults.selectableItemColorsLegacy(),
     horizontalArrangement: Arrangement.Horizontal =
         MenuDefaults.DropdownMenuItemHorizontalArrangement,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItem(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
+    DropdownMenuItemContent(
         text = text,
-        shapes = shapes,
-        modifier = modifier,
-        leadingIcon = leadingIcon,
-        checkedLeadingIcon = checkedLeadingIcon,
-        trailingContent = trailingIcon,
+        selected = checked,
+        onClick = { onCheckedChange(!checked) },
+        modifier = modifier.semantics { role = Role.Checkbox },
         supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        trailingContent = trailingIcon,
+        selectedLeadingIcon = checkedLeadingIcon,
         enabled = enabled,
         colors = colors,
+        shapes = shapes,
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -671,7 +677,7 @@ public fun DropdownMenuItem(
     trailingContent: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    colors: SelectableMenuItemColors = MenuDefaults.selectableItemColors(),
     horizontalArrangement: Arrangement.Horizontal =
         MenuDefaults.DropdownMenuItemHorizontalArrangement,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
@@ -742,24 +748,24 @@ public fun DropdownMenuItemLegacy(
     trailingIcon: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    colors: MenuItemColors = MenuDefaults.selectableItemColors(),
+    colors: MenuItemColors = MenuDefaults.selectableItemColorsLegacy(),
     horizontalArrangement: Arrangement.Horizontal =
         MenuDefaults.DropdownMenuItemHorizontalArrangement,
     contentPadding: PaddingValues = MenuDefaults.DropdownMenuSelectableItemContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    DropdownMenuItem(
+    DropdownMenuItemContent(
+        text = text,
         selected = selected,
         onClick = onClick,
-        text = text,
-        shapes = shapes,
-        modifier = modifier,
-        leadingIcon = leadingIcon,
-        selectedLeadingIcon = selectedLeadingIcon,
-        trailingContent = trailingIcon,
+        modifier = modifier.semantics { role = Role.RadioButton },
         supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        trailingContent = trailingIcon,
+        selectedLeadingIcon = selectedLeadingIcon,
         enabled = enabled,
         colors = colors,
+        shapes = shapes,
         horizontalArrangement = horizontalArrangement,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
@@ -787,59 +793,46 @@ public fun DropdownMenuItemLegacy(
 public class MenuItemColors(
     public val textColor: Color,
     public val leadingIconColor: Color,
-    @Deprecated("Use trailingContentColor instead.", ReplaceWith("trailingContentColor"))
     public val trailingIconColor: Color,
     public val disabledTextColor: Color,
     public val disabledLeadingIconColor: Color,
-    @Deprecated(
-        "Use disabledTrailingContentColor instead.",
-        ReplaceWith("disabledTrailingContentColor"),
-    )
     public val disabledTrailingIconColor: Color,
 ) {
 
-    /** The container color of this menu item when enabled and unselected. */
+    /** The container color of this menu item when enabled. */
     public var containerColor: Color = Color.Unspecified
         internal set
 
-    /** The container color of this menu item when not enabled */
+    /** The container color of this menu item when not enabled. */
     public var disabledContainerColor: Color = Color.Unspecified
         internal set
 
     /** The container color of this menu item when enabled and selected. */
-    public var selectedContainerColor: Color = Color.Unspecified
-        internal set
+    @Deprecated("Use SelectableMenuItemColors instead.")
+    public val selectedContainerColor: Color
+        get() = containerColor
 
     /** The text color of this menu item when enabled and selected. */
-    public var selectedTextColor: Color = Color.Unspecified
-        internal set
+    @Deprecated("Use SelectableMenuItemColors instead.")
+    public val selectedTextColor: Color
+        get() = textColor
 
     /** The leading icon color of this menu item when enabled and selected. */
-    public var selectedLeadingIconColor: Color = Color.Unspecified
-        internal set
-
-    /** The trailing content color of this menu item when enabled and selected. */
-    public var selectedTrailingContentColor: Color = Color.Unspecified
-        internal set
+    @Deprecated("Use SelectableMenuItemColors instead.")
+    public val selectedLeadingIconColor: Color
+        get() = leadingIconColor
 
     /** The trailing icon color of this menu item when enabled and selected. */
-    @Deprecated(
-        "Use selectedTrailingContentColor instead.",
-        ReplaceWith("selectedTrailingContentColor"),
-        level = DeprecationLevel.HIDDEN,
-    )
+    @Deprecated("Use SelectableMenuItemColors instead.")
     public val selectedTrailingIconColor: Color
-        get() = selectedTrailingContentColor
+        get() = trailingIconColor
 
-    /** The trailing content color of this menu item when enabled and unselected. */
-    public val trailingContentColor: Color
-        @Suppress("DEPRECATION") get() = trailingIconColor
+    /** The trailing content color of this menu item when enabled and selected. */
+    @Deprecated("Use SelectableMenuItemColors instead.")
+    public val selectedTrailingContentColor: Color
+        get() = trailingIconColor
 
-    /** The trailing content color of this menu item when not enabled. */
-    public val disabledTrailingContentColor: Color
-        @Suppress("DEPRECATION") get() = disabledTrailingIconColor
-
-    // Secondary constructor to initialize all 12 properties
+    // Secondary constructor to initialize all 8 properties
     public constructor(
         textColor: Color,
         leadingIconColor: Color,
@@ -849,10 +842,6 @@ public class MenuItemColors(
         disabledTrailingIconColor: Color,
         containerColor: Color,
         disabledContainerColor: Color,
-        selectedTextColor: Color,
-        selectedLeadingIconColor: Color,
-        selectedTrailingIconColor: Color,
-        selectedContainerColor: Color,
     ) : this(
         textColor = textColor,
         leadingIconColor = leadingIconColor,
@@ -863,11 +852,57 @@ public class MenuItemColors(
     ) {
         this.containerColor = containerColor
         this.disabledContainerColor = disabledContainerColor
-        this.selectedTextColor = selectedTextColor
-        this.selectedContainerColor = selectedContainerColor
-        this.selectedLeadingIconColor = selectedLeadingIconColor
-        this.selectedTrailingContentColor = selectedTrailingIconColor
     }
+
+    @Deprecated(
+        "MenuItemColors no longer supports selected colors. Use SelectableMenuItemColors instead."
+    )
+    public constructor(
+        textColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledTextColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
+        selectedTextColor: Color = Color.Unspecified,
+        selectedContainerColor: Color = Color.Unspecified,
+        selectedLeadingIconColor: Color = Color.Unspecified,
+        selectedTrailingIconColor: Color = Color.Unspecified,
+    ) : this(
+        textColor = textColor,
+        leadingIconColor = leadingIconColor,
+        trailingIconColor = trailingIconColor,
+        disabledTextColor = disabledTextColor,
+        disabledLeadingIconColor = disabledLeadingIconColor,
+        disabledTrailingIconColor = disabledTrailingIconColor,
+    )
+
+    @Deprecated(
+        "MenuItemColors no longer supports selected colors. Use SelectableMenuItemColors instead."
+    )
+    public constructor(
+        textColor: Color,
+        leadingIconColor: Color,
+        trailingIconColor: Color,
+        disabledTextColor: Color,
+        disabledLeadingIconColor: Color,
+        disabledTrailingIconColor: Color,
+        containerColor: Color,
+        disabledContainerColor: Color,
+        selectedTextColor: Color,
+        selectedContainerColor: Color,
+        selectedLeadingIconColor: Color,
+        selectedTrailingIconColor: Color,
+    ) : this(
+        textColor = textColor,
+        leadingIconColor = leadingIconColor,
+        trailingIconColor = trailingIconColor,
+        disabledTextColor = disabledTextColor,
+        disabledLeadingIconColor = disabledLeadingIconColor,
+        disabledTrailingIconColor = disabledTrailingIconColor,
+        containerColor = containerColor,
+        disabledContainerColor = disabledContainerColor,
+    )
 
     /**
      * Returns a copy of this MenuItemColors, optionally overriding some of the values. This uses
@@ -875,55 +910,21 @@ public class MenuItemColors(
      */
     @JvmName("copy-tNS2XkQ")
     @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    public fun copyLegacy(
+    public fun copy(
         textColor: Color = this.textColor,
         leadingIconColor: Color = this.leadingIconColor,
-        trailingIconColor: Color = this.trailingContentColor,
+        trailingIconColor: Color = this.trailingIconColor,
         disabledTextColor: Color = this.disabledTextColor,
         disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
-        disabledTrailingIconColor: Color = this.disabledTrailingContentColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
     ): MenuItemColors =
         copy(
             textColor = textColor,
             leadingIconColor = leadingIconColor,
-            trailingContentColor = trailingIconColor,
+            trailingIconColor = trailingIconColor,
             disabledTextColor = disabledTextColor,
             disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingContentColor = disabledTrailingIconColor,
-        )
-
-    /**
-     * Returns a copy of this MenuItemColors, optionally overriding some of the values. This uses
-     * the Color.Unspecified to mean “use the value from the source”
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    public fun copyLegacy(
-        textColor: Color = this.textColor,
-        containerColor: Color = this.containerColor,
-        leadingIconColor: Color = this.leadingIconColor,
-        trailingIconColor: Color = this.trailingContentColor,
-        disabledTextColor: Color = this.disabledTextColor,
-        disabledContainerColor: Color = this.disabledContainerColor,
-        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
-        disabledTrailingIconColor: Color = this.disabledTrailingContentColor,
-        selectedTextColor: Color = this.selectedTextColor,
-        selectedContainerColor: Color = this.selectedContainerColor,
-        selectedLeadingIconColor: Color = this.selectedLeadingIconColor,
-        selectedTrailingIconColor: Color = this.selectedTrailingContentColor,
-    ): MenuItemColors =
-        MenuItemColors(
-            textColor.takeOrElse { this.textColor },
-            leadingIconColor.takeOrElse { this.leadingIconColor },
-            trailingContentColor.takeOrElse { this.trailingContentColor },
-            disabledTextColor.takeOrElse { this.disabledTextColor },
-            disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
-            disabledTrailingIconColor.takeOrElse { this.disabledTrailingContentColor },
-            containerColor.takeOrElse { this.containerColor },
-            disabledContainerColor.takeOrElse { this.disabledContainerColor },
-            selectedTextColor.takeOrElse { this.selectedTextColor },
-            selectedLeadingIconColor.takeOrElse { this.selectedLeadingIconColor },
-            selectedTrailingIconColor.takeOrElse { this.selectedTrailingContentColor },
-            selectedContainerColor.takeOrElse { this.selectedContainerColor },
+            disabledTrailingIconColor = disabledTrailingIconColor,
         )
 
     /**
@@ -931,6 +932,171 @@ public class MenuItemColors(
      * the Color.Unspecified to mean “use the value from the source”
      */
     @JvmName("copyNew")
+    public fun copy(
+        textColor: Color = this.textColor,
+        containerColor: Color = this.containerColor,
+        leadingIconColor: Color = this.leadingIconColor,
+        trailingIconColor: Color = this.trailingIconColor,
+        disabledTextColor: Color = this.disabledTextColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
+    ): MenuItemColors =
+        MenuItemColors(
+            textColor = textColor.takeOrElse { this.textColor },
+            leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
+            trailingIconColor = trailingIconColor.takeOrElse { this.trailingIconColor },
+            disabledTextColor = disabledTextColor.takeOrElse { this.disabledTextColor },
+            disabledLeadingIconColor =
+                disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+            disabledTrailingIconColor =
+                disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
+            containerColor = containerColor.takeOrElse { this.containerColor },
+            disabledContainerColor =
+                disabledContainerColor.takeOrElse { this.disabledContainerColor },
+        )
+
+    /**
+     * Returns a copy of this MenuItemColors, optionally overriding some of the values. This uses
+     * the Color.Unspecified to mean “use the value from the source”
+     */
+    @JvmName("copySelectable")
+    @Deprecated(
+        "MenuItemColors no longer supports selected colors. Use SelectableMenuItemColors instead."
+    )
+    public fun copy(
+        textColor: Color = this.textColor,
+        containerColor: Color = this.containerColor,
+        leadingIconColor: Color = this.leadingIconColor,
+        trailingIconColor: Color = this.trailingIconColor,
+        disabledTextColor: Color = this.disabledTextColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
+        selectedTextColor: Color = Color.Unspecified,
+        selectedContainerColor: Color = Color.Unspecified,
+        selectedLeadingIconColor: Color = Color.Unspecified,
+        selectedTrailingIconColor: Color = Color.Unspecified,
+    ): MenuItemColors =
+        copy(
+            textColor = textColor,
+            containerColor = containerColor,
+            leadingIconColor = leadingIconColor,
+            trailingIconColor = trailingIconColor,
+            disabledTextColor = disabledTextColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+        )
+
+    /**
+     * Represents the text color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Stable
+    internal fun textColor(enabled: Boolean): Color {
+        return if (enabled) textColor else disabledTextColor
+    }
+
+    /**
+     * Represents the leading icon color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Stable
+    internal fun leadingIconColor(enabled: Boolean): Color {
+        return if (enabled) leadingIconColor else disabledLeadingIconColor
+    }
+
+    /**
+     * Represents the trailing icon color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled
+     */
+    @Stable
+    internal fun trailingIconColor(enabled: Boolean): Color {
+        return if (enabled) trailingIconColor else disabledTrailingIconColor
+    }
+
+    /**
+     * Represents the container color for a menu item, depending on its [enabled] state.
+     *
+     * @param enabled whether the menu item is enabled.
+     */
+    @Stable
+    internal fun containerColor(enabled: Boolean): Color {
+        return if (enabled) containerColor else disabledContainerColor
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is MenuItemColors) return false
+
+        if (textColor != other.textColor) return false
+        if (containerColor != other.containerColor) return false
+        if (leadingIconColor != other.leadingIconColor) return false
+        if (trailingIconColor != other.trailingIconColor) return false
+        if (disabledTextColor != other.disabledTextColor) return false
+        if (disabledLeadingIconColor != other.disabledLeadingIconColor) return false
+        if (disabledTrailingIconColor != other.disabledTrailingIconColor) return false
+        if (disabledContainerColor != other.disabledContainerColor) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = textColor.hashCode()
+        result = 31 * result + containerColor.hashCode()
+        result = 31 * result + leadingIconColor.hashCode()
+        result = 31 * result + trailingIconColor.hashCode()
+        result = 31 * result + disabledTextColor.hashCode()
+        result = 31 * result + disabledLeadingIconColor.hashCode()
+        result = 31 * result + disabledTrailingIconColor.hashCode()
+        result = 31 * result + disabledContainerColor.hashCode()
+        return result
+    }
+}
+
+/**
+ * Represents the text, icon, and container colors used in a selectable [DropdownMenuItem] at
+ * different states.
+ *
+ * @param textColor the text color of this menu item when enabled and unselected
+ * @param containerColor the container color of this menu item when enabled and unselected
+ * @param leadingIconColor the leading icon color of this menu item when enabled and unselected
+ * @param trailingContentColor the trailing content color of this menu item when enabled and
+ *   unselected
+ * @param disabledTextColor the text color of this menu item when not enabled
+ * @param disabledContainerColor the container color of this menu item when not enabled
+ * @param disabledLeadingIconColor the leading icon color of this menu item when not enabled
+ * @param disabledTrailingContentColor the trailing content color of this menu item when not enabled
+ * @param selectedTextColor the text color of this menu item when enabled and selected
+ * @param selectedContainerColor the container color of this menu item when enabled and selected
+ * @param selectedLeadingIconColor the leading icon color of this menu item when enabled and
+ *   selected
+ * @param selectedTrailingContentColor the trailing content color of this menu item when enabled and
+ *   selected
+ */
+@Immutable
+public class SelectableMenuItemColors(
+    public val textColor: Color,
+    public val containerColor: Color,
+    public val leadingIconColor: Color,
+    public val trailingContentColor: Color,
+    public val disabledTextColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledLeadingIconColor: Color,
+    public val disabledTrailingContentColor: Color,
+    public val selectedTextColor: Color,
+    public val selectedContainerColor: Color,
+    public val selectedLeadingIconColor: Color,
+    public val selectedTrailingContentColor: Color,
+) {
+    /**
+     * Returns a copy of this SelectableMenuItemColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
     public fun copy(
         textColor: Color = this.textColor,
         containerColor: Color = this.containerColor,
@@ -944,64 +1110,37 @@ public class MenuItemColors(
         selectedContainerColor: Color = this.selectedContainerColor,
         selectedLeadingIconColor: Color = this.selectedLeadingIconColor,
         selectedTrailingContentColor: Color = this.selectedTrailingContentColor,
-    ): MenuItemColors =
-        MenuItemColors(
+    ): SelectableMenuItemColors =
+        SelectableMenuItemColors(
             textColor = textColor.takeOrElse { this.textColor },
-            leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
-            trailingIconColor = trailingContentColor.takeOrElse { this.trailingContentColor },
-            disabledTextColor = disabledTextColor.takeOrElse { this.disabledTextColor },
-            disabledLeadingIconColor =
-                disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
-            disabledTrailingIconColor =
-                disabledTrailingContentColor.takeOrElse { this.disabledTrailingContentColor },
             containerColor = containerColor.takeOrElse { this.containerColor },
+            leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
+            trailingContentColor = trailingContentColor.takeOrElse { this.trailingContentColor },
+            disabledTextColor = disabledTextColor.takeOrElse { this.disabledTextColor },
             disabledContainerColor =
                 disabledContainerColor.takeOrElse { this.disabledContainerColor },
+            disabledLeadingIconColor =
+                disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+            disabledTrailingContentColor =
+                disabledTrailingContentColor.takeOrElse { this.disabledTrailingContentColor },
             selectedTextColor = selectedTextColor.takeOrElse { this.selectedTextColor },
-            selectedLeadingIconColor =
-                selectedLeadingIconColor.takeOrElse { this.selectedLeadingIconColor },
-            selectedTrailingIconColor =
-                selectedTrailingContentColor.takeOrElse { this.selectedTrailingContentColor },
             selectedContainerColor =
                 selectedContainerColor.takeOrElse { this.selectedContainerColor },
+            selectedLeadingIconColor =
+                selectedLeadingIconColor.takeOrElse { this.selectedLeadingIconColor },
+            selectedTrailingContentColor =
+                selectedTrailingContentColor.takeOrElse { this.selectedTrailingContentColor },
         )
 
     /**
-     * Returns a copy of this MenuItemColors, optionally overriding some of the values. This uses
-     * the Color.Unspecified to mean “use the value from the source”
-     */
-    @JvmName("copyNew")
-    public fun copy(
-        textColor: Color = this.textColor,
-        leadingIconColor: Color = this.leadingIconColor,
-        trailingContentColor: Color = this.trailingContentColor,
-        disabledTextColor: Color = this.disabledTextColor,
-        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
-        disabledTrailingContentColor: Color = this.disabledTrailingContentColor,
-    ): MenuItemColors =
-        copy(
-            textColor = textColor,
-            leadingIconColor = leadingIconColor,
-            trailingContentColor = trailingContentColor,
-            disabledTextColor = disabledTextColor,
-            disabledLeadingIconColor = disabledLeadingIconColor,
-            disabledTrailingContentColor = disabledTrailingContentColor,
-            containerColor = this.containerColor,
-            disabledContainerColor = this.disabledContainerColor,
-            selectedTextColor = this.selectedTextColor,
-            selectedLeadingIconColor = this.selectedLeadingIconColor,
-            selectedTrailingContentColor = this.selectedTrailingContentColor,
-            selectedContainerColor = this.selectedContainerColor,
-        )
-
-    /**
-     * Represents the text color for a menu item, depending on its [enabled] state.
+     * Represents the text color for a selectable menu item, depending on its [enabled] and
+     * [selected] state.
      *
      * @param enabled whether the menu item is enabled
-     * @param selected whether the menu item is selected.
+     * @param selected whether the menu item is selected
      */
     @Stable
-    internal fun textColor(enabled: Boolean, selected: Boolean = false): Color {
+    internal fun textColor(enabled: Boolean, selected: Boolean): Color {
         return if (enabled) {
             if (selected) {
                 selectedTextColor
@@ -1014,13 +1153,14 @@ public class MenuItemColors(
     }
 
     /**
-     * Represents the leading icon color for a menu item, depending on its [enabled] state.
+     * Represents the leading icon color for a selectable menu item, depending on its [enabled] and
+     * [selected] state.
      *
      * @param enabled whether the menu item is enabled
-     * @param selected whether the menu item is selected.
+     * @param selected whether the menu item is selected
      */
     @Stable
-    internal fun leadingIconColor(enabled: Boolean, selected: Boolean = false): Color {
+    internal fun leadingIconColor(enabled: Boolean, selected: Boolean): Color {
         return if (enabled) {
             if (selected) {
                 selectedLeadingIconColor
@@ -1033,13 +1173,14 @@ public class MenuItemColors(
     }
 
     /**
-     * Represents the trailing content color for a menu item, depending on its [enabled] state.
+     * Represents the trailing content color for a selectable menu item, depending on its [enabled]
+     * and [selected] state.
      *
      * @param enabled whether the menu item is enabled
-     * @param selected whether the menu item is selected.
+     * @param selected whether the menu item is selected
      */
     @Stable
-    internal fun trailingContentColor(enabled: Boolean, selected: Boolean = false): Color {
+    internal fun trailingContentColor(enabled: Boolean, selected: Boolean): Color {
         return if (enabled) {
             if (selected) {
                 selectedTrailingContentColor
@@ -1052,14 +1193,14 @@ public class MenuItemColors(
     }
 
     /**
-     * Represents the container color for a menu item, depending on its [enabled] and [selected]
-     * state.
+     * Represents the container color for a selectable menu item, depending on its [enabled] and
+     * [selected] state.
      *
-     * @param enabled whether the menu item is enabled.
-     * @param selected whether the menu item is selected.
+     * @param enabled whether the menu item is enabled
+     * @param selected whether the menu item is selected
      */
     @Stable
-    internal fun containerColor(enabled: Boolean, selected: Boolean = false): Color {
+    internal fun containerColor(enabled: Boolean, selected: Boolean): Color {
         return if (enabled) {
             if (selected) {
                 selectedContainerColor
@@ -1073,18 +1214,18 @@ public class MenuItemColors(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || other !is MenuItemColors) return false
+        if (other == null || other !is SelectableMenuItemColors) return false
 
         if (textColor != other.textColor) return false
         if (containerColor != other.containerColor) return false
         if (leadingIconColor != other.leadingIconColor) return false
         if (trailingContentColor != other.trailingContentColor) return false
         if (disabledTextColor != other.disabledTextColor) return false
+        if (disabledContainerColor != other.disabledContainerColor) return false
         if (disabledLeadingIconColor != other.disabledLeadingIconColor) return false
         if (disabledTrailingContentColor != other.disabledTrailingContentColor) return false
-        if (disabledContainerColor != other.disabledContainerColor) return false
-        if (selectedContainerColor != other.selectedContainerColor) return false
         if (selectedTextColor != other.selectedTextColor) return false
+        if (selectedContainerColor != other.selectedContainerColor) return false
         if (selectedLeadingIconColor != other.selectedLeadingIconColor) return false
         if (selectedTrailingContentColor != other.selectedTrailingContentColor) return false
 
@@ -1097,11 +1238,11 @@ public class MenuItemColors(
         result = 31 * result + leadingIconColor.hashCode()
         result = 31 * result + trailingContentColor.hashCode()
         result = 31 * result + disabledTextColor.hashCode()
+        result = 31 * result + disabledContainerColor.hashCode()
         result = 31 * result + disabledLeadingIconColor.hashCode()
         result = 31 * result + disabledTrailingContentColor.hashCode()
-        result = 31 * result + disabledContainerColor.hashCode()
-        result = 31 * result + selectedContainerColor.hashCode()
         result = 31 * result + selectedTextColor.hashCode()
+        result = 31 * result + selectedContainerColor.hashCode()
         result = 31 * result + selectedLeadingIconColor.hashCode()
         result = 31 * result + selectedTrailingContentColor.hashCode()
         return result
@@ -1630,6 +1771,85 @@ internal fun DropdownMenuItemContent(
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource?,
 ) {
+    DropdownMenuItemContent(
+        selected = selected,
+        onClick = onClick,
+        text = text,
+        modifier = modifier,
+        supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        selectedLeadingIcon = selectedLeadingIcon,
+        trailingContent = trailingContent,
+        enabled = enabled,
+        containerColor = colors.containerColor(enabled),
+        leadingIconColor = colors.leadingIconColor(enabled),
+        textColor = colors.textColor(enabled),
+        trailingContentColor = colors.trailingIconColor(enabled),
+        shapes = shapes,
+        horizontalArrangement = horizontalArrangement,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    )
+}
+
+@Composable
+internal fun DropdownMenuItemContent(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: @Composable () -> Unit,
+    modifier: Modifier,
+    supportingText: @Composable (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    selectedLeadingIcon: @Composable (() -> Unit)?,
+    trailingContent: @Composable (() -> Unit)?,
+    enabled: Boolean,
+    colors: SelectableMenuItemColors,
+    shapes: MenuItemShapes,
+    horizontalArrangement: Arrangement.Horizontal,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+) {
+    DropdownMenuItemContent(
+        selected = selected,
+        onClick = onClick,
+        text = text,
+        modifier = modifier,
+        supportingText = supportingText,
+        leadingIcon = leadingIcon,
+        selectedLeadingIcon = selectedLeadingIcon,
+        trailingContent = trailingContent,
+        enabled = enabled,
+        containerColor = colors.containerColor(enabled, selected),
+        leadingIconColor = colors.leadingIconColor(enabled, selected),
+        textColor = colors.textColor(enabled, selected),
+        trailingContentColor = colors.trailingContentColor(enabled, selected),
+        shapes = shapes,
+        horizontalArrangement = horizontalArrangement,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    )
+}
+
+@Composable
+private fun DropdownMenuItemContent(
+    selected: Boolean,
+    onClick: () -> Unit,
+    text: @Composable () -> Unit,
+    modifier: Modifier,
+    supportingText: @Composable (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    selectedLeadingIcon: @Composable (() -> Unit)?,
+    trailingContent: @Composable (() -> Unit)?,
+    enabled: Boolean,
+    containerColor: Color,
+    leadingIconColor: Color,
+    textColor: Color,
+    trailingContentColor: Color,
+    shapes: MenuItemShapes,
+    horizontalArrangement: Arrangement.Horizontal,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource?,
+) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
@@ -1639,7 +1859,6 @@ internal fun DropdownMenuItemContent(
     val morphSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
     val colorAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
 
-    val containerColor = colors.containerColor(enabled = enabled, selected = selected)
     val animatedContainerColor by
         animateColorAsState(targetValue = containerColor, animationSpec = colorAnimationSpec)
     val itemShape = shapeByInteraction(shapes, selected, morphSpec)
@@ -1679,9 +1898,7 @@ internal fun DropdownMenuItemContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (hasLeadingIcon) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.leadingIconColor(enabled, selected)
-                    ) {
+                    CompositionLocalProvider(LocalContentColor provides leadingIconColor) {
                         Box(contentAlignment = Alignment.Center) {
                             if (selectedLeadingIcon != null) {
                                 if (leadingIcon == null) {
@@ -1710,9 +1927,7 @@ internal fun DropdownMenuItemContent(
                     }
                 }
 
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.textColor(enabled, selected)
-                ) {
+                CompositionLocalProvider(LocalContentColor provides textColor) {
                     Box(contentAlignment = Alignment.CenterStart) {
                         if (supportingText != null) {
                             LabelWithSupportingText(
@@ -1727,9 +1942,7 @@ internal fun DropdownMenuItemContent(
                 }
 
                 if (hasTrailingContent) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.trailingContentColor(enabled, selected)
-                    ) {
+                    CompositionLocalProvider(LocalContentColor provides trailingContentColor) {
                         Box(
                             modifier =
                                 Modifier.defaultMinSize(
@@ -1823,7 +2036,7 @@ internal fun DropdownMenuItemContent(
             }
             if (trailingIcon != null) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.trailingContentColor(enabled)
+                    LocalContentColor provides colors.trailingIconColor(enabled)
                 ) {
                     Box(Modifier.defaultMinSize(minWidth = ListTokens.ItemTrailingIconSize)) {
                         trailingIcon()
