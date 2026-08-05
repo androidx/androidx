@@ -102,11 +102,16 @@ class OneOfAppFunctionSerializableFactoryCodeBuilder(
                     "to_app_function_data_method" to
                         AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod.METHOD_NAME,
                     "serializable_variable_name" to APP_FUNCTION_SERIALIZABLE_PARAM_NAME,
+                    "spec_param_name" to
+                        AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod
+                            .APP_FUNCTION_DATA_SPEC_PARAM_NAME,
                 )
-            addNamed(
-                "%factory_variable_name:L.%to_app_function_data_method:L(%serializable_variable_name:L)",
-                formatStringMap,
-            )
+            addNamed("%factory_variable_name:L.%to_app_function_data_method:L(\n", formatStringMap)
+            indent()
+            addNamed("%spec_param_name:L,\n", formatStringMap)
+            addNamed("%serializable_variable_name:L", formatStringMap)
+            unindent()
+            add(")\n")
             endControlFlow()
         }
         if (!oneOfClass.supportsExhaustiveWhen()) {

@@ -255,7 +255,10 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
      *
      * The generated `toAppFunctionData` method would look like:
      * ```
-     * override fun toAppFunctionData(appFunctionSerializable: SampleSerializable) : AppFunctionData {
+     * override fun toAppFunctionData(
+     *     spec: AppFunctionDataSpec?,
+     *     appFunctionSerializable: SampleSerializable
+     * ) : AppFunctionData {
      *     val sampleSerializable_appFunctionSerializable = appFunctionSerializable
      *     val longParam = sampleSerializable_appFunctionSerializable.longParam
      *     val doubleParam = sampleSerializable_appFunctionSerializable.doubleParam
@@ -386,9 +389,10 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             add(factoryInitStatements)
             val qualifiedClassName = annotatedClass.jvmQualifiedName
             addStatement(
-                "val builder = %N(%S)",
-                IntrospectionHelper.AppFunctionSerializableFactoryClass.GetAppFunctionDataBuilder
-                    .METHOD_NAME,
+                "val builder = %N(%L, %S)",
+                AppFunctionSerializableFactoryClass.GetAppFunctionDataBuilder.METHOD_NAME,
+                AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod
+                    .APP_FUNCTION_DATA_SPEC_PARAM_NAME,
                 qualifiedClassName,
             )
             for (property in annotatedClass.getProperties()) {
@@ -793,12 +797,26 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 "param_name" to paramName,
                 "factory_name" to factoryName,
                 "setter_name" to getAppFunctionDataSetterName(afType),
+                "spec_param_name" to
+                    AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod
+                        .APP_FUNCTION_DATA_SPEC_PARAM_NAME,
             )
 
+        addNamed("builder.%setter_name:L(\n", formatStringMap)
+        indent()
+        addNamed("\"%param_name:L\",\n", formatStringMap)
+        addNamed("%factory_name:L.toAppFunctionData(\n", formatStringMap)
+        indent()
         addNamed(
-            "builder.%setter_name:L(\"%param_name:L\", %factory_name:L.toAppFunctionData(%param_name:L))\n",
+            "%spec_param_name:L?.getPropertyObjectSpec(%param_name:S, " +
+                "checkNotNull(%param_name:L::class.java.canonicalName)),\n",
             formatStringMap,
         )
+        addNamed("%param_name:L\n", formatStringMap)
+        unindent()
+        add(")\n")
+        unindent()
+        add(")\n")
         return this
     }
 
@@ -814,6 +832,9 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 "factory_name" to factoryInstanceName,
                 "setter_name" to getAppFunctionDataSetterName(afType),
                 "lambda_param_name" to parametrizedItemType.getVariableName(),
+                "spec_param_name" to
+                    AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod
+                        .APP_FUNCTION_DATA_SPEC_PARAM_NAME,
             )
 
         addNamed(
@@ -823,7 +844,16 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 formatStringMap,
             )
             .indent()
-            .addNamed("%factory_name:L.toAppFunctionData(%lambda_param_name:L)\n", formatStringMap)
+            .addNamed("%factory_name:L.toAppFunctionData(\n", formatStringMap)
+            .indent()
+            .addNamed(
+                "%spec_param_name:L?.getPropertyObjectSpec(%param_name:S," +
+                    "checkNotNull(%lambda_param_name:L::class.java.canonicalName)),\n",
+                formatStringMap,
+            )
+            .addNamed("%lambda_param_name:L\n", formatStringMap)
+            .unindent()
+            .add(")\n")
             .unindent()
             .addStatement("})")
         return this
@@ -1202,6 +1232,16 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod.METHOD_NAME
                 )
                 .addModifiers(KModifier.OVERRIDE)
+                .addParameter(
+                    ParameterSpec.builder(
+                            AppFunctionSerializableFactoryClass.ToAppFunctionDataMethod
+                                .APP_FUNCTION_DATA_SPEC_PARAM_NAME,
+                            IntrospectionHelper.AppFunctionDataSpecClass.CLASS_NAME.copy(
+                                nullable = true
+                            ),
+                        )
+                        .build()
+                )
                 .addParameter(
                     ParameterSpec.builder(APP_FUNCTION_SERIALIZABLE_PARAM_NAME, parameterType)
                         .build()

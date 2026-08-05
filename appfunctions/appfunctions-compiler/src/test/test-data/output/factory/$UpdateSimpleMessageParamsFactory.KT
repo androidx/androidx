@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 import kotlin.String
@@ -39,7 +40,7 @@ public class `$UpdateSimpleMessageParamsFactory` : AppFunctionSerializableFactor
     return resultUpdateSimpleMessageParams
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: UpdateSimpleMessageParams): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: UpdateSimpleMessageParams): AppFunctionData {
     val updateSimpleMessageParams_appFunctionSerializable = appFunctionSerializable
     val simpleSetFieldKotlinStringFactory = `$SimpleSetFieldFactory`<String>(
       AppFunctionSerializableFactory.TypeParameter.PrimitiveTypeParameter(String::class.java))
@@ -48,18 +49,36 @@ public class `$UpdateSimpleMessageParamsFactory` : AppFunctionSerializableFactor
     val simpleSetFieldKotlinCollectionsListComTestdataSimplemessageSimpleattachmentFactory = `$SimpleSetFieldFactory`<List<SimpleMessage.SimpleAttachment>>(
       AppFunctionSerializableFactory.TypeParameter.SerializableListTypeParameter(SimpleMessage.SimpleAttachment::class.java, `$SimpleMessage$SimpleAttachmentFactory`()))
 
-    val builder = getAppFunctionDataBuilder("com.testdata.UpdateSimpleMessageParams")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.UpdateSimpleMessageParams")
     val title = updateSimpleMessageParams_appFunctionSerializable.title
     if (title != null) {
-      builder.setAppFunctionData("title", simpleSetFieldKotlinStringFactory.toAppFunctionData(title))
+      builder.setAppFunctionData(
+        "title",
+        simpleSetFieldKotlinStringFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("title", checkNotNull(title::class.java.canonicalName)),
+          title
+        )
+      )
     }
     val content = updateSimpleMessageParams_appFunctionSerializable.content
     if (content != null) {
-      builder.setAppFunctionData("content", simpleSetFieldKotlinStringNullableFactory.toAppFunctionData(content))
+      builder.setAppFunctionData(
+        "content",
+        simpleSetFieldKotlinStringNullableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("content", checkNotNull(content::class.java.canonicalName)),
+          content
+        )
+      )
     }
     val attachments = updateSimpleMessageParams_appFunctionSerializable.attachments
     if (attachments != null) {
-      builder.setAppFunctionData("attachments", simpleSetFieldKotlinCollectionsListComTestdataSimplemessageSimpleattachmentFactory.toAppFunctionData(attachments))
+      builder.setAppFunctionData(
+        "attachments",
+        simpleSetFieldKotlinCollectionsListComTestdataSimplemessageSimpleattachmentFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("attachments", checkNotNull(attachments::class.java.canonicalName)),
+          attachments
+        )
+      )
     }
 
     return builder.build()

@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -16,10 +17,10 @@ public class `$EmptyFactory` : AppFunctionSerializableFactory<Empty> {
     return resultEmpty
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: Empty): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: Empty): AppFunctionData {
     val empty_appFunctionSerializable = appFunctionSerializable
 
-    val builder = getAppFunctionDataBuilder("com.testdata.Empty")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.Empty")
 
     return builder.build()
   }

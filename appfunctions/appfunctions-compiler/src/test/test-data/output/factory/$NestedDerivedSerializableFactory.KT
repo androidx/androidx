@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -30,23 +31,35 @@ public class `$NestedDerivedSerializableFactory` : AppFunctionSerializableFactor
     return resultNestedDerivedSerializable
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: NestedDerivedSerializable): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: NestedDerivedSerializable): AppFunctionData {
     val nestedDerivedSerializable_appFunctionSerializable = appFunctionSerializable
     val nestedBaseSerializableFactory = `$NestedBaseSerializableFactory`()
     val nestedDerivedSerializableFactory = `$NestedDerivedSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.NestedDerivedSerializable")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.NestedDerivedSerializable")
     val stringBaseName = nestedDerivedSerializable_appFunctionSerializable.stringBaseName
     builder.setString("stringBaseName", stringBaseName)
     val nestedBase = nestedDerivedSerializable_appFunctionSerializable.nestedBase
     if (nestedBase != null) {
-      builder.setAppFunctionData("nestedBase", nestedBaseSerializableFactory.toAppFunctionData(nestedBase))
+      builder.setAppFunctionData(
+        "nestedBase",
+        nestedBaseSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nestedBase", checkNotNull(nestedBase::class.java.canonicalName)),
+          nestedBase
+        )
+      )
     }
     val longBaseValue = nestedDerivedSerializable_appFunctionSerializable.longBaseValue
     builder.setLong("longBaseValue", longBaseValue)
     val nestedDerived = nestedDerivedSerializable_appFunctionSerializable.nestedDerived
     if (nestedDerived != null) {
-      builder.setAppFunctionData("nestedDerived", nestedDerivedSerializableFactory.toAppFunctionData(nestedDerived))
+      builder.setAppFunctionData(
+        "nestedDerived",
+        nestedDerivedSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nestedDerived", checkNotNull(nestedDerived::class.java.canonicalName)),
+          nestedDerived
+        )
+      )
     }
 
     return builder.build()

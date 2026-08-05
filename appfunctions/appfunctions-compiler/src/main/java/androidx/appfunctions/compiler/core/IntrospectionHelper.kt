@@ -384,6 +384,7 @@ object IntrospectionHelper {
 
         object ToAppFunctionDataMethod {
             const val METHOD_NAME = "toAppFunctionData"
+            const val APP_FUNCTION_DATA_SPEC_PARAM_NAME = "spec"
             const val APP_FUNCTION_SERIALIZABLE_PARAM_NAME = "appFunctionSerializable"
         }
 
@@ -463,6 +464,10 @@ object IntrospectionHelper {
         object BuilderClass {
             val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionData", "Builder")
         }
+    }
+
+    object AppFunctionDataSpecClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionDataSpec")
     }
 
     object CancellationSignalClass {
