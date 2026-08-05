@@ -21,13 +21,30 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SheetBottomTokens {
-    val DockedContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val DockedContainerShape = ShapeKeyTokens.CornerExtraLargeTop
-    val DockedDragHandleColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DockedDragHandleHeight = 4.0.dp
-    val DockedDragHandleWidth = 32.0.dp
-    val DockedMinimizedContainerShape = ShapeKeyTokens.CornerNone
-    val DockedModalContainerElevation = ElevationTokens.Level1
-    val DockedStandardContainerElevation = ElevationTokens.Level1
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
+    inline val DockedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val DockedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLargeTop
+
+    inline val DockedDragHandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val DockedDragHandleHeight: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val DockedDragHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val DockedMinimizedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val DockedModalContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val DockedStandardContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
 }

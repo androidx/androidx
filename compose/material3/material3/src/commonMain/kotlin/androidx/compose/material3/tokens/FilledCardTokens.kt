@@ -21,17 +21,40 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FilledCardTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val DisabledContainerColor = ColorSchemeKeyTokens.SurfaceVariant
-    val DisabledContainerElevation = ElevationTokens.Level0
-    val DisabledContainerOpacity = 0.38f
-    val DraggedContainerElevation = ElevationTokens.Level3
-    val FocusContainerElevation = ElevationTokens.Level0
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val HoverContainerElevation = ElevationTokens.Level1
-    val IconColor = ColorSchemeKeyTokens.Primary
-    val IconSize = 24.0.dp
-    val PressedContainerElevation = ElevationTokens.Level0
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHighest
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val DisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceVariant
+
+    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    const val DisabledContainerOpacity = 0.38f
+    inline val DraggedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val FocusContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val HoverContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
 }

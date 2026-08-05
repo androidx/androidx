@@ -19,12 +19,27 @@
 package androidx.compose.material3.tokens
 
 internal object MenuTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContainerElevation = ElevationTokens.Level2
-    val ContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val ListItemSelectedContainerColor = ColorSchemeKeyTokens.SecondaryContainer
-    val ListItemSelectedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ListItemSelectedLeadingTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val MenuListItemLeadingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val ListItemSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val ListItemSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ListItemSelectedLeadingTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val MenuListItemLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
 }

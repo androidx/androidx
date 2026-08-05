@@ -21,60 +21,159 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object InputChipTokens {
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerHeight = 32.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerSmall
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledLabelTextOpacity = 0.38f
-    val DisabledSelectedContainerColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledSelectedContainerOpacity = 0.12f
-    val DisabledUnselectedOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledUnselectedOutlineOpacity = 0.12f
-    val DraggedContainerElevation = ElevationTokens.Level4
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val LabelTextFont = TypographyKeyTokens.LabelLarge
-    val SelectedContainerColor = ColorSchemeKeyTokens.SecondaryContainer
-    val SelectedDraggedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedOutlineWidth = 0.0.dp
-    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val UnselectedDraggedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusOutlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedOutlineWidth = 1.0.dp
-    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val AvatarShape = ShapeKeyTokens.CornerFull
-    val AvatarSize = 24.0.dp
-    val DisabledAvatarOpacity = 0.38f
-    val DisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledLeadingIconOpacity = 0.38f
-    val LeadingIconSize = 18.0.dp
-    val SelectedDraggedLeadingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedFocusLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedHoverLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedPressedLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedDraggedLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedHoverLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val DisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledTrailingIconOpacity = 0.38f
-    val SelectedDraggedTrailingIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedFocusTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedHoverTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedPressedTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val TrailingIconSize = 18.0.dp
-    val UnselectedDraggedTrailingIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedFocusTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoverTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val DisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledLabelTextOpacity = 0.38f
+    inline val DisabledSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledSelectedContainerOpacity = 0.12f
+    inline val DisabledUnselectedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledUnselectedOutlineOpacity = 0.12f
+    inline val DraggedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level4
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val SelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val SelectedDraggedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val SelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val UnselectedDraggedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val UnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val AvatarShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val AvatarSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    const val DisabledAvatarOpacity = 0.38f
+    inline val DisabledLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledLeadingIconOpacity = 0.38f
+    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 18.0.dp
+
+    inline val SelectedDraggedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedFocusLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedHoverLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedPressedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedDraggedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedFocusLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedHoverLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val DisabledTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledTrailingIconOpacity = 0.38f
+    inline val SelectedDraggedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedFocusTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedHoverTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedPressedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val SelectedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val TrailingIconSize: androidx.compose.ui.unit.Dp
+        get() = 18.0.dp
+
+    inline val UnselectedDraggedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedFocusTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoverTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

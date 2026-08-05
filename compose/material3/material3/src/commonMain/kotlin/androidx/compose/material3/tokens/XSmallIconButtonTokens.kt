@@ -21,18 +21,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object XSmallIconButtonTokens {
-    val ContainerHeight = 32.0.dp
-    val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerMedium
-    val DefaultLeadingSpace = 6.0.dp
-    val DefaultTrailingSpace = 6.0.dp
-    val IconSize = 20.0.dp
-    val NarrowLeadingSpace = 4.0.dp
-    val NarrowTrailingSpace = 4.0.dp
-    val OutlinedOutlineWidth = 1.0.dp
-    val PressedContainerShape = ShapeKeyTokens.CornerSmall
-    val SelectedContainerShapeRound = ShapeKeyTokens.CornerMedium
-    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerFull
-    val WideLeadingSpace = 10.0.dp
-    val WideTrailingSpace = 10.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val DefaultLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val DefaultTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PressedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val SelectedContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val WideLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 10.0.dp
+
+    inline val WideTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 10.0.dp
 }

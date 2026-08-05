@@ -18,36 +18,39 @@
 
 package androidx.compose.material3.tokens
 
-internal enum class TypographyKeyTokens {
-    BodyLarge,
-    BodyMedium,
-    BodySmall,
-    DisplayLarge,
-    DisplayMedium,
-    DisplaySmall,
-    HeadlineLarge,
-    HeadlineMedium,
-    HeadlineSmall,
-    LabelLarge,
-    LabelMedium,
-    LabelSmall,
-    TitleLarge,
-    TitleMedium,
-    TitleSmall,
-    // TODO update with the generated tokens once available
-    BodyLargeEmphasized,
-    BodyMediumEmphasized,
-    BodySmallEmphasized,
-    DisplayLargeEmphasized,
-    DisplayMediumEmphasized,
-    DisplaySmallEmphasized,
-    HeadlineLargeEmphasized,
-    HeadlineMediumEmphasized,
-    HeadlineSmallEmphasized,
-    LabelLargeEmphasized,
-    LabelMediumEmphasized,
-    LabelSmallEmphasized,
-    TitleLargeEmphasized,
-    TitleMediumEmphasized,
-    TitleSmallEmphasized,
+import kotlin.jvm.JvmInline
+
+@JvmInline internal value class TypographyToken(val id: Int)
+
+internal object TypographyKeyTokens {
+    val BodyLarge = TypographyToken(0)
+    val BodyMedium = TypographyToken(1)
+    val BodySmall = TypographyToken(2)
+    val DisplayLarge = TypographyToken(3)
+    val DisplayMedium = TypographyToken(4)
+    val DisplaySmall = TypographyToken(5)
+    val HeadlineLarge = TypographyToken(6)
+    val HeadlineMedium = TypographyToken(7)
+    val HeadlineSmall = TypographyToken(8)
+    val LabelLarge = TypographyToken(9)
+    val LabelMedium = TypographyToken(10)
+    val LabelSmall = TypographyToken(11)
+    val TitleLarge = TypographyToken(12)
+    val TitleMedium = TypographyToken(13)
+    val TitleSmall = TypographyToken(14)
+    val BodyLargeEmphasized = TypographyToken(15)
+    val BodyMediumEmphasized = TypographyToken(16)
+    val BodySmallEmphasized = TypographyToken(17)
+    val DisplayLargeEmphasized = TypographyToken(18)
+    val DisplayMediumEmphasized = TypographyToken(19)
+    val DisplaySmallEmphasized = TypographyToken(20)
+    val HeadlineLargeEmphasized = TypographyToken(21)
+    val HeadlineMediumEmphasized = TypographyToken(22)
+    val HeadlineSmallEmphasized = TypographyToken(23)
+    val LabelLargeEmphasized = TypographyToken(24)
+    val LabelMediumEmphasized = TypographyToken(25)
+    val LabelSmallEmphasized = TypographyToken(26)
+    val TitleLargeEmphasized = TypographyToken(27)
+    val TitleMediumEmphasized = TypographyToken(28)
+    val TitleSmallEmphasized = TypographyToken(29)
 }

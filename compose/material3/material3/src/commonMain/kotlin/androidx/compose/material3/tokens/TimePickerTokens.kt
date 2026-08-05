@@ -21,57 +21,162 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object TimePickerTokens {
-    val ClockDialColor = ColorSchemeKeyTokens.SurfaceContainerHighest
-    val ClockDialContainerSize = 256.0.dp
-    val ClockDialLabelTextFont = TypographyKeyTokens.BodyLarge
-    val ClockDialSelectedLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val ClockDialSelectorCenterContainerColor = ColorSchemeKeyTokens.Primary
-    val ClockDialSelectorCenterContainerShape = ShapeKeyTokens.CornerFull
-    val ClockDialSelectorCenterContainerSize = 8.0.dp
-    val ClockDialSelectorHandleContainerColor = ColorSchemeKeyTokens.Primary
-    val ClockDialSelectorHandleContainerShape = ShapeKeyTokens.CornerFull
-    val ClockDialSelectorHandleContainerSize = 48.0.dp
-    val ClockDialSelectorTrackContainerColor = ColorSchemeKeyTokens.Primary
-    val ClockDialSelectorTrackContainerWidth = 2.0.dp
-    val ClockDialShape = ShapeKeyTokens.CornerFull
-    val ClockDialUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val HeadlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeadlineFont = TypographyKeyTokens.LabelMedium
-    val PeriodSelectorContainerShape = ShapeKeyTokens.CornerSmall
-    val PeriodSelectorHorizontalContainerHeight = 38.0.dp
-    val PeriodSelectorHorizontalContainerWidth = 216.0.dp
-    val PeriodSelectorLabelTextFont = TypographyKeyTokens.TitleMedium
-    val PeriodSelectorOutlineColor = ColorSchemeKeyTokens.Outline
-    val PeriodSelectorOutlineWidth = 1.0.dp
-    val PeriodSelectorSelectedContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val PeriodSelectorSelectedFocusLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedHoverLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorSelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val PeriodSelectorUnselectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorUnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PeriodSelectorVerticalContainerHeight = 80.0.dp
-    val PeriodSelectorVerticalContainerWidth = 52.0.dp
-    val TimeSelector24HVerticalContainerWidth = 114.0.dp
-    val TimeSelectorContainerHeight = 80.0.dp
-    val TimeSelectorContainerShape = ShapeKeyTokens.CornerSmall
-    val TimeSelectorContainerWidth = 96.0.dp
-    val TimeSelectorLabelTextFont = TypographyKeyTokens.DisplayLarge
-    val TimeSelectorSelectedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val TimeSelectorSelectedFocusLabelTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val TimeSelectorSelectedHoverLabelTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val TimeSelectorSelectedLabelTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val TimeSelectorSelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val TimeSelectorSeparatorColor = ColorSchemeKeyTokens.OnSurface
-    val TimeSelectorSeparatorFont = TypographyKeyTokens.DisplayLarge
-    val TimeSelectorUnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
-    val TimeSelectorUnselectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val TimeSelectorUnselectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val TimeSelectorUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val TimeSelectorUnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurface
+    inline val ClockDialColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHighest
+
+    inline val ClockDialContainerSize: androidx.compose.ui.unit.Dp
+        get() = 256.0.dp
+
+    inline val ClockDialLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val ClockDialSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val ClockDialSelectorCenterContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ClockDialSelectorCenterContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ClockDialSelectorCenterContainerSize: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ClockDialSelectorHandleContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ClockDialSelectorHandleContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ClockDialSelectorHandleContainerSize: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val ClockDialSelectorTrackContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ClockDialSelectorTrackContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val ClockDialShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ClockDialUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val HeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.LabelMedium
+
+    inline val PeriodSelectorContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val PeriodSelectorHorizontalContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 38.0.dp
+
+    inline val PeriodSelectorHorizontalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 216.0.dp
+
+    inline val PeriodSelectorLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.TitleMedium
+
+    inline val PeriodSelectorOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
+    inline val PeriodSelectorOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PeriodSelectorSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    inline val PeriodSelectorSelectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorSelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val PeriodSelectorUnselectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorUnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PeriodSelectorVerticalContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val PeriodSelectorVerticalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 52.0.dp
+
+    inline val TimeSelector24HVerticalContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 114.0.dp
+
+    inline val TimeSelectorContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val TimeSelectorContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val TimeSelectorContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val TimeSelectorLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.DisplayLarge
+
+    inline val TimeSelectorSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.PrimaryContainer
+
+    inline val TimeSelectorSelectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val TimeSelectorSelectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val TimeSelectorSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val TimeSelectorSelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val TimeSelectorSeparatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeSelectorSeparatorFont: TypographyToken
+        get() = TypographyKeyTokens.DisplayLarge
+
+    inline val TimeSelectorUnselectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHighest
+
+    inline val TimeSelectorUnselectedFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeSelectorUnselectedHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeSelectorUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TimeSelectorUnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
 }

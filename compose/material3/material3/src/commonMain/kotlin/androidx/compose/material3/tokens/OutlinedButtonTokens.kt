@@ -19,44 +19,117 @@
 package androidx.compose.material3.tokens
 
 internal object OutlinedButtonTokens {
-    val DisabledContainerOpacity = 0.1f
-    val DisabledIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledIconOpacity = 0.38f
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledLabelTextOpacity = 0.38f
-    val DisabledOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val FocusedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FocusedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FocusedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val HoveredIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HoveredLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HoveredOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val IconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val OutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val PressedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PressedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val SelectedContainerColor = ColorSchemeKeyTokens.InverseSurface
-    val SelectedDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    val SelectedFocusedIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedFocusedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedHoveredIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedHoveredLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val UnselectedDisabledOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedFocusedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedHoveredIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
+    const val DisabledContainerOpacity = 0.1f
+    inline val DisabledIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    const val DisabledIconOpacity = 0.38f
+    inline val DisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    const val DisabledLabelTextOpacity = 0.38f
+    inline val DisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val FocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FocusedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val HoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HoveredOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val LabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val OutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val PressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PressedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val SelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseSurface
+
+    inline val SelectedDisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val SelectedFocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedHoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val UnselectedDisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedFocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedFocusedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedHoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoveredOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedPressedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
 }

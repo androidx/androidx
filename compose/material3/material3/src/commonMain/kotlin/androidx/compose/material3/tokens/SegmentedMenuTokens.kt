@@ -21,50 +21,141 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SegmentedMenuTokens {
-    val ActiveContainerShape = 24.0.dp
-    val ContainerElevation = ElevationTokens.Level2
-    val ContainerShape = ShapeKeyTokens.CornerLarge
-    val GroupContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val GroupPadding = 4.0.dp
-    val GroupShape = ShapeKeyTokens.CornerSmall
-    val HorizontalContainerBottomSpace = 8.0.dp
-    val HorizontalContainerTopSpace = 8.0.dp
-    val HorizontalIconOnlyItemBottomSpace = 16.0.dp
-    val HorizontalIconOnlyItemLeadingSpace = 16.0.dp
-    val HorizontalIconOnlyItemSelectedShape = ShapeKeyTokens.CornerFull
-    val HorizontalIconOnlyItemTopSpace = 16.0.dp
-    val HorizontalIconOnlyItemTrailingSpace = 16.0.dp
-    val HorizontalIconOnlySegmentedGap = 4.0.dp
-    val HorizontalItemBetweenSpace = 12.0.dp
-    val HorizontalItemBottomSpace = 6.0.dp
-    val HorizontalItemFocusedShape = ShapeKeyTokens.CornerMedium
-    val HorizontalItemHoveredShape = ShapeKeyTokens.CornerMedium
-    val HorizontalItemLeadingSpace = 12.0.dp
-    val HorizontalItemPressedShape = ShapeKeyTokens.CornerMedium
-    val HorizontalItemSelectedFocusedShape = ShapeKeyTokens.CornerFull
-    val HorizontalItemSelectedHoveredShape = ShapeKeyTokens.CornerFull
-    val HorizontalItemSelectedPressedShape = ShapeKeyTokens.CornerFull
-    val HorizontalItemTopSpace = 6.0.dp
-    val HorizontalItemTrailingSpace = 12.0.dp
-    val HorizontalSegmentedGap = 2.0.dp
-    val InactiveContainerShape = ShapeKeyTokens.CornerSmall
-    val Item = 44.0.dp
-    val ItemBetweenSpace = 12.0.dp
-    val ItemBottomSpace = 8.0.dp
-    val ItemFirstChildInnerCornerCornerSize = ShapeKeyTokens.CornerExtraSmall
-    val ItemFirstChildShape = ShapeKeyTokens.CornerMedium
-    val ItemFocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val ItemLabelTextFont = TypographyKeyTokens.BodyLarge
-    val ItemLastChildInnerCornerCornerSize = ShapeKeyTokens.CornerExtraSmall
-    val ItemLastChildShape = ShapeKeyTokens.CornerMedium
-    val ItemLeadingIconSize = 20.0.dp
-    val ItemLeadingSpace = 16.0.dp
-    val ItemSelectedShape = ShapeKeyTokens.CornerMedium
-    val ItemShape = ShapeKeyTokens.CornerExtraSmall
-    val ItemSupportingTextFont = TypographyKeyTokens.BodyMedium
-    val ItemTopSpace = 8.0.dp
-    val ItemTrailingIconSize = 20.0.dp
-    val ItemTrailingSpace = 16.0.dp
-    val ItemTrailingSupportingTextFont = TypographyKeyTokens.LabelSmall
-    val SegmentedGap = 2.0.dp
+    inline val ActiveContainerShape: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val GroupContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val GroupPadding: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val GroupShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val HorizontalContainerBottomSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val HorizontalContainerTopSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val HorizontalIconOnlyItemBottomSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val HorizontalIconOnlyItemLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val HorizontalIconOnlyItemSelectedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val HorizontalIconOnlyItemTopSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val HorizontalIconOnlyItemTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val HorizontalIconOnlySegmentedGap: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val HorizontalItemBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val HorizontalItemBottomSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val HorizontalItemFocusedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val HorizontalItemHoveredShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val HorizontalItemLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val HorizontalItemPressedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val HorizontalItemSelectedFocusedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val HorizontalItemSelectedHoveredShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val HorizontalItemSelectedPressedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val HorizontalItemTopSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val HorizontalItemTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val HorizontalSegmentedGap: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val InactiveContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val Item: androidx.compose.ui.unit.Dp
+        get() = 44.0.dp
+
+    inline val ItemBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val ItemBottomSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ItemFirstChildInnerCornerCornerSize: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val ItemFirstChildShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val ItemFocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val ItemLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val ItemLastChildInnerCornerCornerSize: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val ItemLastChildShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val ItemLeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val ItemLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ItemSelectedShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val ItemShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val ItemSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyMedium
+
+    inline val ItemTopSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ItemTrailingIconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val ItemTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ItemTrailingSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelSmall
+
+    inline val SegmentedGap: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
 }

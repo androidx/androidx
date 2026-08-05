@@ -21,6 +21,9 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DividerTokens {
-    val Color = ColorSchemeKeyTokens.OutlineVariant
-    val Thickness = 1.0.dp
+    inline val Color: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val Thickness: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
 }

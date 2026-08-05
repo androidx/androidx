@@ -18,53 +18,57 @@
 
 package androidx.compose.material3.tokens
 
-internal enum class ColorSchemeKeyTokens {
-    Background,
-    Error,
-    ErrorContainer,
-    InverseOnSurface,
-    InversePrimary,
-    InverseSurface,
-    OnBackground,
-    OnError,
-    OnErrorContainer,
-    OnPrimary,
-    OnPrimaryContainer,
-    OnPrimaryFixed,
-    OnPrimaryFixedVariant,
-    OnSecondary,
-    OnSecondaryContainer,
-    OnSecondaryFixed,
-    OnSecondaryFixedVariant,
-    OnSurface,
-    OnSurfaceVariant,
-    OnTertiary,
-    OnTertiaryContainer,
-    OnTertiaryFixed,
-    OnTertiaryFixedVariant,
-    Outline,
-    OutlineVariant,
-    Primary,
-    PrimaryContainer,
-    PrimaryFixed,
-    PrimaryFixedDim,
-    Scrim,
-    Secondary,
-    SecondaryContainer,
-    SecondaryFixed,
-    SecondaryFixedDim,
-    Surface,
-    SurfaceBright,
-    SurfaceContainer,
-    SurfaceContainerHigh,
-    SurfaceContainerHighest,
-    SurfaceContainerLow,
-    SurfaceContainerLowest,
-    SurfaceDim,
-    SurfaceTint,
-    SurfaceVariant,
-    Tertiary,
-    TertiaryContainer,
-    TertiaryFixed,
-    TertiaryFixedDim,
+import kotlin.jvm.JvmInline
+
+@JvmInline internal value class ColorToken(val id: Int)
+
+internal object ColorSchemeKeyTokens {
+    val Background = ColorToken(0)
+    val Error = ColorToken(1)
+    val ErrorContainer = ColorToken(2)
+    val InverseOnSurface = ColorToken(3)
+    val InversePrimary = ColorToken(4)
+    val InverseSurface = ColorToken(5)
+    val OnBackground = ColorToken(6)
+    val OnError = ColorToken(7)
+    val OnErrorContainer = ColorToken(8)
+    val OnPrimary = ColorToken(9)
+    val OnPrimaryContainer = ColorToken(10)
+    val OnPrimaryFixed = ColorToken(11)
+    val OnPrimaryFixedVariant = ColorToken(12)
+    val OnSecondary = ColorToken(13)
+    val OnSecondaryContainer = ColorToken(14)
+    val OnSecondaryFixed = ColorToken(15)
+    val OnSecondaryFixedVariant = ColorToken(16)
+    val OnSurface = ColorToken(17)
+    val OnSurfaceVariant = ColorToken(18)
+    val OnTertiary = ColorToken(19)
+    val OnTertiaryContainer = ColorToken(20)
+    val OnTertiaryFixed = ColorToken(21)
+    val OnTertiaryFixedVariant = ColorToken(22)
+    val Outline = ColorToken(23)
+    val OutlineVariant = ColorToken(24)
+    val Primary = ColorToken(25)
+    val PrimaryContainer = ColorToken(26)
+    val PrimaryFixed = ColorToken(27)
+    val PrimaryFixedDim = ColorToken(28)
+    val Scrim = ColorToken(29)
+    val Secondary = ColorToken(30)
+    val SecondaryContainer = ColorToken(31)
+    val SecondaryFixed = ColorToken(32)
+    val SecondaryFixedDim = ColorToken(33)
+    val Surface = ColorToken(34)
+    val SurfaceBright = ColorToken(35)
+    val SurfaceContainer = ColorToken(36)
+    val SurfaceContainerHigh = ColorToken(37)
+    val SurfaceContainerHighest = ColorToken(38)
+    val SurfaceContainerLow = ColorToken(39)
+    val SurfaceContainerLowest = ColorToken(40)
+    val SurfaceDim = ColorToken(41)
+    val SurfaceTint = ColorToken(42)
+    val SurfaceVariant = ColorToken(43)
+    val Tertiary = ColorToken(44)
+    val TertiaryContainer = ColorToken(45)
+    val TertiaryFixed = ColorToken(46)
+    val TertiaryFixedDim = ColorToken(47)
 }

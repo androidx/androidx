@@ -16,12 +16,15 @@
 
 package androidx.compose.material3.tokens
 
-// TODO - These key-tokens should be generated (similar to the TypographyKeyTokens)
-internal enum class MotionSchemeKeyTokens {
-    DefaultSpatial,
-    FastSpatial,
-    SlowSpatial,
-    DefaultEffects,
-    FastEffects,
-    SlowEffects,
+import kotlin.jvm.JvmInline
+
+@JvmInline internal value class MotionSchemeToken(val id: Int)
+
+internal object MotionSchemeKeyTokens {
+    val DefaultSpatial = MotionSchemeToken(0)
+    val FastSpatial = MotionSchemeToken(1)
+    val SlowSpatial = MotionSchemeToken(2)
+    val DefaultEffects = MotionSchemeToken(3)
+    val FastEffects = MotionSchemeToken(4)
+    val SlowEffects = MotionSchemeToken(5)
 }

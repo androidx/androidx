@@ -21,49 +21,138 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DatePickerModalTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerHeight = 568.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val ContainerWidth = 360.0.dp
-    val DateContainerHeight = 40.0.dp
-    val DateContainerShape = ShapeKeyTokens.CornerFull
-    val DateContainerWidth = 40.0.dp
-    val DateLabelTextFont = TypographyKeyTokens.BodyLarge
-    val DateSelectedContainerColor = ColorSchemeKeyTokens.Primary
-    val DateSelectedLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val DateStateLayerHeight = 40.0.dp
-    val DateStateLayerShape = ShapeKeyTokens.CornerFull
-    val DateStateLayerWidth = 40.0.dp
-    val DateTodayContainerOutlineColor = ColorSchemeKeyTokens.Primary
-    val DateTodayContainerOutlineWidth = 1.0.dp
-    val DateTodayLabelTextColor = ColorSchemeKeyTokens.Primary
-    val DateUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val HeaderContainerHeight = 120.0.dp
-    val HeaderContainerWidth = 360.0.dp
-    val HeaderHeadlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeaderHeadlineFont = TypographyKeyTokens.HeadlineLarge
-    val HeaderSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeaderSupportingTextFont = TypographyKeyTokens.LabelLarge
-    val RangeSelectionActiveIndicatorContainerColor = ColorSchemeKeyTokens.SecondaryContainer
-    val RangeSelectionActiveIndicatorContainerHeight = 40.0.dp
-    val RangeSelectionActiveIndicatorContainerShape = ShapeKeyTokens.CornerFull
-    val RangeSelectionContainerElevation = ElevationTokens.Level0
-    val RangeSelectionContainerShape = ShapeKeyTokens.CornerNone
-    val SelectionDateInRangeLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val RangeSelectionHeaderContainerHeight = 128.0.dp
-    val RangeSelectionHeaderHeadlineFont = TypographyKeyTokens.TitleLarge
-    val RangeSelectionMonthSubheadColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val RangeSelectionMonthSubheadFont = TypographyKeyTokens.TitleSmall
-    val WeekdaysLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val WeekdaysLabelTextFont = TypographyKeyTokens.BodyLarge
-    val SelectionYearContainerHeight = 36.0.dp
-    val SelectionYearContainerWidth = 72.0.dp
-    val SelectionYearLabelTextFont = TypographyKeyTokens.BodyLarge
-    val SelectionYearSelectedContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectionYearSelectedLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectionYearStateLayerHeight = 36.0.dp
-    val SelectionYearStateLayerShape = ShapeKeyTokens.CornerFull
-    val SelectionYearStateLayerWidth = 72.0.dp
-    val SelectionYearUnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 568.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 360.0.dp
+
+    inline val DateContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val DateContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val DateContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val DateLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val DateSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val DateSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val DateStateLayerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val DateStateLayerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val DateStateLayerWidth: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val DateTodayContainerOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val DateTodayContainerOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val DateTodayLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val DateUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 120.0.dp
+
+    inline val HeaderContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 360.0.dp
+
+    inline val HeaderHeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeaderHeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.HeadlineLarge
+
+    inline val HeaderSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeaderSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val RangeSelectionActiveIndicatorContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val RangeSelectionActiveIndicatorContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val RangeSelectionActiveIndicatorContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val RangeSelectionContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val RangeSelectionContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val SelectionDateInRangeLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val RangeSelectionHeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 128.0.dp
+
+    inline val RangeSelectionHeaderHeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.TitleLarge
+
+    inline val RangeSelectionMonthSubheadColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val RangeSelectionMonthSubheadFont: TypographyToken
+        get() = TypographyKeyTokens.TitleSmall
+
+    inline val WeekdaysLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val WeekdaysLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val SelectionYearContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 36.0.dp
+
+    inline val SelectionYearContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val SelectionYearLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val SelectionYearSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectionYearSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectionYearStateLayerHeight: androidx.compose.ui.unit.Dp
+        get() = 36.0.dp
+
+    inline val SelectionYearStateLayerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val SelectionYearStateLayerWidth: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val SelectionYearUnselectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

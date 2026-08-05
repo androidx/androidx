@@ -22,16 +22,31 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SplitButtonXLargeTokens {
-    val BetweenSpace = 2.0.dp
-    val ContainerHeight = 136.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
+    inline val BetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 136.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
     val InnerCornerCornerSize = ShapeTokens.CornerValueMedium
     val InnerHoveredCornerCornerSize = ShapeTokens.CornerValueLargeIncreased
     val InnerPressedCornerCornerSize = ShapeTokens.CornerValueLargeIncreased
-    val LeadingButtonLeadingSpace = 64.0.dp
-    val LeadingButtonTrailingSpace = 64.0.dp
-    val TrailingIconSize = 50.0.dp
-    val TrailingInnerSelectedCornerCornerSizePercent = 50.0f
-    val TrailingButtonLeadingSpace = 43.0.dp
-    val TrailingButtonTrailingSpace = 43.0.dp
+    inline val LeadingButtonLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val LeadingButtonTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val TrailingIconSize: androidx.compose.ui.unit.Dp
+        get() = 50.0.dp
+
+    const val TrailingInnerSelectedCornerCornerSizePercent = 50.0f
+    inline val TrailingButtonLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 43.0.dp
+
+    inline val TrailingButtonTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 43.0.dp
 }

@@ -37,14 +37,33 @@ internal object MotionTokens {
     const val DurationShort2 = 100.0
     const val DurationShort3 = 150.0
     const val DurationShort4 = 200.0
-    val EasingEmphasizedCubicBezier = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
-    val EasingEmphasizedAccelerateCubicBezier = CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f)
-    val EasingEmphasizedDecelerateCubicBezier = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f)
-    val EasingLegacyCubicBezier = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
-    val EasingLegacyAccelerateCubicBezier = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
-    val EasingLegacyDecelerateCubicBezier = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-    val EasingLinearCubicBezier = CubicBezierEasing(0.0f, 0.0f, 1.0f, 1.0f)
-    val EasingStandardCubicBezier = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
-    val EasingStandardAccelerateCubicBezier = CubicBezierEasing(0.3f, 0.0f, 1.0f, 1.0f)
-    val EasingStandardDecelerateCubicBezier = CubicBezierEasing(0.0f, 0.0f, 0.0f, 1.0f)
+    inline val EasingEmphasizedCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
+
+    inline val EasingEmphasizedAccelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f)
+
+    inline val EasingEmphasizedDecelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f)
+
+    inline val EasingLegacyCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
+
+    inline val EasingLegacyAccelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+
+    inline val EasingLegacyDecelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+
+    inline val EasingLinearCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.0f, 0.0f, 1.0f, 1.0f)
+
+    inline val EasingStandardCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
+
+    inline val EasingStandardAccelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.3f, 0.0f, 1.0f, 1.0f)
+
+    inline val EasingStandardDecelerateCubicBezier: CubicBezierEasing
+        get() = CubicBezierEasing(0.0f, 0.0f, 0.0f, 1.0f)
 }

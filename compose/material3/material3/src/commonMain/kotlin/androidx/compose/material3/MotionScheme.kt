@@ -24,6 +24,7 @@ import androidx.compose.material3.MotionScheme.Companion.expressive
 import androidx.compose.material3.MotionScheme.Companion.standard
 import androidx.compose.material3.tokens.ExpressiveMotionTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.MotionSchemeToken
 import androidx.compose.material3.tokens.StandardMotionTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -260,17 +261,12 @@ public interface MotionScheme {
 }
 
 /**
- * Helper function for component motion tokens.
- *
- * Here is an example on how to use component motion tokens:
- * ``MaterialTheme.motionScheme.fromToken(ExtendedFabBranded.ExpandMotion)``
- *
- * The returned [FiniteAnimationSpec] is remembered across compositions.
+ * Converts a motion scheme token key to the animation spec provided by the theme
  *
  * @param value the token's value
  */
 @Stable
-internal fun <T> MotionScheme.fromToken(value: MotionSchemeKeyTokens): FiniteAnimationSpec<T> {
+internal fun <T> MotionScheme.fromToken(value: MotionSchemeToken): FiniteAnimationSpec<T> {
     return when (value) {
         MotionSchemeKeyTokens.DefaultSpatial -> defaultSpatialSpec()
         MotionSchemeKeyTokens.FastSpatial -> fastSpatialSpec()
@@ -278,14 +274,14 @@ internal fun <T> MotionScheme.fromToken(value: MotionSchemeKeyTokens): FiniteAni
         MotionSchemeKeyTokens.DefaultEffects -> defaultEffectsSpec()
         MotionSchemeKeyTokens.FastEffects -> fastEffectsSpec()
         MotionSchemeKeyTokens.SlowEffects -> slowEffectsSpec()
+        else -> defaultSpatialSpec()
     }
 }
 
 /**
- * Converts a [MotionSchemeKeyTokens] key to the [FiniteAnimationSpec] provided by the
- * [MotionScheme].
+ * Converts a [MotionSchemeToken] key to the [FiniteAnimationSpec] provided by the [MotionScheme].
  */
 @Composable
 @ReadOnlyComposable
-internal fun <T> MotionSchemeKeyTokens.value(): FiniteAnimationSpec<T> =
+internal fun <T> MotionSchemeToken.value(): FiniteAnimationSpec<T> =
     MaterialTheme.motionScheme.fromToken(this)

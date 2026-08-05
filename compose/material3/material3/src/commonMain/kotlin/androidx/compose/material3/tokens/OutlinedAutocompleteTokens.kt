@@ -21,68 +21,183 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object OutlinedAutocompleteTokens {
-    val MenuContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val MenuContainerElevation = ElevationTokens.Level2
-    val MenuContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val TextFieldCaretColor = ColorSchemeKeyTokens.Primary
-    val TextFieldContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
-    val TextFieldContainerShape = ShapeKeyTokens.CornerExtraSmall
-    val FieldDisabledInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldDisabledInputTextOpacity = 0.38f
-    val FieldDisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldDisabledLabelTextOpacity = 0.38f
-    val TextFieldDisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val TextFieldDisabledLeadingIconOpacity = 0.38f
-    val TextFieldDisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val TextFieldDisabledOutlineOpacity = 0.12f
-    val TextFieldDisabledOutlineWidth = 1.0.dp
-    val FieldDisabledSupportingTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldDisabledSupportingTextOpacity = 0.38f
-    val TextFieldDisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    val TextFieldDisabledTrailingIconOpacity = 0.38f
-    val TextFieldErrorFocusCaretColor = ColorSchemeKeyTokens.Error
-    val FieldErrorFocusInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldErrorFocusLabelTextColor = ColorSchemeKeyTokens.Error
-    val TextFieldErrorFocusLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldErrorFocusOutlineColor = ColorSchemeKeyTokens.Error
-    val FieldErrorFocusSupportingTextColor = ColorSchemeKeyTokens.Error
-    val TextFieldErrorFocusTrailingIconColor = ColorSchemeKeyTokens.Error
-    val FieldErrorHoverInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldErrorHoverLabelTextColor = ColorSchemeKeyTokens.OnErrorContainer
-    val TextFieldErrorHoverLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldErrorHoverOutlineColor = ColorSchemeKeyTokens.OnErrorContainer
-    val FieldErrorHoverSupportingTextColor = ColorSchemeKeyTokens.Error
-    val TextFieldErrorHoverTrailingIconColor = ColorSchemeKeyTokens.OnErrorContainer
-    val FieldErrorInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldErrorLabelTextColor = ColorSchemeKeyTokens.Error
-    val TextFieldErrorLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldErrorOutlineColor = ColorSchemeKeyTokens.Error
-    val FieldErrorSupportingTextColor = ColorSchemeKeyTokens.Error
-    val TextFieldErrorTrailingIconColor = ColorSchemeKeyTokens.Error
-    val FieldFocusInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldFocusLabelTextColor = ColorSchemeKeyTokens.Primary
-    val TextFieldFocusLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldFocusOutlineColor = ColorSchemeKeyTokens.Primary
-    val TextFieldFocusOutlineWidth = 2.0.dp
-    val FieldFocusSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldFocusTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FieldHoverInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldHoverLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldHoverLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldHoverOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val TextFieldHoverOutlineWidth = 1.0.dp
-    val FieldHoverSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldHoverTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FieldInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val FieldInputTextFont = TypographyKeyTokens.BodyLarge
-    val FieldLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FieldLabelTextFont = TypographyKeyTokens.BodyLarge
-    val TextFieldLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldLeadingIconSize = 24.0.dp
-    val TextFieldOutlineColor = ColorSchemeKeyTokens.Outline
-    val TextFieldOutlineWidth = 1.0.dp
-    val FieldSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FieldSupportingTextFont = TypographyKeyTokens.BodySmall
-    val TextFieldTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TextFieldTrailingIconSize = 24.0.dp
+    inline val MenuContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val MenuContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val MenuContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val TextFieldCaretColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val TextFieldContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHighest
+
+    inline val TextFieldContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraSmall
+
+    inline val FieldDisabledInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val FieldDisabledInputTextOpacity = 0.38f
+    inline val FieldDisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val FieldDisabledLabelTextOpacity = 0.38f
+    inline val TextFieldDisabledLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val TextFieldDisabledLeadingIconOpacity = 0.38f
+    inline val TextFieldDisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val TextFieldDisabledOutlineOpacity = 0.12f
+    inline val TextFieldDisabledOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val FieldDisabledSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val FieldDisabledSupportingTextOpacity = 0.38f
+    inline val TextFieldDisabledTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val TextFieldDisabledTrailingIconOpacity = 0.38f
+    inline val TextFieldErrorFocusCaretColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val FieldErrorFocusInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldErrorFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val TextFieldErrorFocusLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldErrorFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val FieldErrorFocusSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val TextFieldErrorFocusTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val FieldErrorHoverInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldErrorHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnErrorContainer
+
+    inline val TextFieldErrorHoverLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldErrorHoverOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnErrorContainer
+
+    inline val FieldErrorHoverSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val TextFieldErrorHoverTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnErrorContainer
+
+    inline val FieldErrorInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldErrorLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val TextFieldErrorLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldErrorOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val FieldErrorSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val TextFieldErrorTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val FieldFocusInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val TextFieldFocusLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val TextFieldFocusOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val FieldFocusSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldFocusTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FieldHoverInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldHoverLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldHoverOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TextFieldHoverOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val FieldHoverSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldHoverTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FieldInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FieldInputTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val FieldLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FieldLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val TextFieldLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldLeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val TextFieldOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
+    inline val TextFieldOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val FieldSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FieldSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodySmall
+
+    inline val TextFieldTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TextFieldTrailingIconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

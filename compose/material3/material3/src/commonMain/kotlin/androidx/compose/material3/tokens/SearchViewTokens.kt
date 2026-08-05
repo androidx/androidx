@@ -21,17 +21,42 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SearchViewTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val DividerColor = ColorSchemeKeyTokens.Outline
-    val DockedContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val DockedHeaderContainerHeight = 56.0.dp
-    val FullScreenContainerShape = ShapeKeyTokens.CornerNone
-    val FullScreenHeaderContainerHeight = 72.0.dp
-    val HeaderInputTextColor = ColorSchemeKeyTokens.OnSurface
-    val HeaderInputTextFont = TypographyKeyTokens.BodyLarge
-    val HeaderLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val HeaderSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeaderSupportingTextFont = TypographyKeyTokens.BodyLarge
-    val HeaderTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val DividerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Outline
+
+    inline val DockedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val DockedHeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val FullScreenContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val FullScreenHeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val HeaderInputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HeaderInputTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val HeaderLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HeaderSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeaderSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val HeaderTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

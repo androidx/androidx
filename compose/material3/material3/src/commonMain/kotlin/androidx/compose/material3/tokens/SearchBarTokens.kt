@@ -21,19 +21,48 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SearchBarTokens {
-    val AvatarShape = ShapeKeyTokens.CornerFull
-    val AvatarSize = 30.0.dp
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHigh
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerHeight = 56.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val HoverSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val InputTextColor = ColorSchemeKeyTokens.OnSurface
-    val InputTextFont = TypographyKeyTokens.BodyLarge
-    val LeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val PressedSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SupportingTextFont = TypographyKeyTokens.BodyLarge
-    val TrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val AvatarShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val AvatarSize: androidx.compose.ui.unit.Dp
+        get() = 30.0.dp
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerHigh
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val HoverSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val InputTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InputTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val LeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val PressedSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyLarge
+
+    inline val TrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

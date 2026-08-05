@@ -19,13 +19,30 @@
 package androidx.compose.material3.tokens
 
 internal object FabPrimaryContainerTokens {
-    val ContainerColor = ColorSchemeKeyTokens.PrimaryContainer
-    val ContainerElevation = ElevationTokens.Level3
-    val FocusedContainerElevation = ElevationTokens.Level3
-    val FocusedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val HoveredContainerElevation = ElevationTokens.Level4
-    val HoveredIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val IconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val PressedContainerElevation = ElevationTokens.Level3
-    val PressedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.PrimaryContainer
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val FocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level4
+
+    inline val HoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val PressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimaryContainer
 }

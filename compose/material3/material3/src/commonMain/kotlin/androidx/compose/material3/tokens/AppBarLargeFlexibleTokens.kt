@@ -22,8 +22,15 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object AppBarLargeFlexibleTokens {
-    val ContainerHeight = 120.0.dp
-    val SubtitleFont = TypographyKeyTokens.TitleMedium
-    val TitleFont = TypographyKeyTokens.DisplaySmall
-    val LargeContainerHeight = 152.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 120.0.dp
+
+    inline val SubtitleFont: TypographyToken
+        get() = TypographyKeyTokens.TitleMedium
+
+    inline val TitleFont: TypographyToken
+        get() = TypographyKeyTokens.DisplaySmall
+
+    inline val LargeContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 152.0.dp
 }
