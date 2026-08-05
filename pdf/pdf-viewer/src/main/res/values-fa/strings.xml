@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"‫<xliff:g id="POSITION">%1$d</xliff:g> از <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"نتیجه منطبقی پیدا نشد"</string>
     <string name="action_edit" msgid="5882082700509010966">"ویرایش فایل"</string>
-    <string name="action_search" msgid="1044074359976464346">"جستجوی فایل"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"نوار پیمایش"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"گذرواژه را برای بازگشایی قفل وارد کنید"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"امتحان مجدد"</string>

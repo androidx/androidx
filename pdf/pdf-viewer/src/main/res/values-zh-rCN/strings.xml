@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"第 <xliff:g id="POSITION">%1$d</xliff:g> 个（共 <xliff:g id="TOTAL">%2$d</xliff:g> 个）"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"没有符合条件的结果"</string>
     <string name="action_edit" msgid="5882082700509010966">"编辑文件"</string>
-    <string name="action_search" msgid="1044074359976464346">"搜索文件"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"滚动条"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"请输入密码进行解锁"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"重试"</string>

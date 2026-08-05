@@ -59,7 +59,6 @@
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="TOTAL">%2$d</xliff:g>-ൽ <xliff:g id="POSITION">%1$d</xliff:g>"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"പൊരുത്തപ്പെടുന്ന ഫലങ്ങളൊന്നുമില്ല"</string>
     <string name="action_edit" msgid="5882082700509010966">"ഫയൽ എഡിറ്റ് ചെയ്യുക"</string>
-    <string name="action_search" msgid="1044074359976464346">"ഫയൽ തിരയുക"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"സ്‌ക്രോൾബാർ"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"അൺലോക്ക് ചെയ്യാൻ പാസ്‌വേഡ് നൽകുക"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"വീണ്ടും ശ്രമിക്കുക"</string>
