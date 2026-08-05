@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -48,9 +49,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteButtonTwoLineText
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIcon
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndLongLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLongLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithMultilineLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondaryLabel
 import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
@@ -86,6 +92,16 @@ class RemoteButtonTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonEnabled() }
+        }
+    }
+
+    @Test
+    fun button_two_lined_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonTwoLineText() }
         }
     }
 
@@ -344,6 +360,46 @@ class RemoteButtonTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonWithIcon() }
+        }
+    }
+
+    @Test
+    fun button_with_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_multiline_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithMultilineLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_long_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithLongLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_icon_and_long_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithIconAndLongLabel() }
         }
     }
 
