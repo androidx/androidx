@@ -170,6 +170,7 @@ internal class AndroidParagraphIntrinsics(
                 contextFontSize = textPaint.textSize,
                 contextTextStyle = style,
                 annotations = finalSpanStyles,
+                userAnnotations = annotations,
                 placeholders = placeholders,
                 density = density,
                 resolveTypeface = resolveTypeface,

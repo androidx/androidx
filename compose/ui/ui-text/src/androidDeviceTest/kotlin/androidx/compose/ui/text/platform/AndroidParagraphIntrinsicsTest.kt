@@ -20,13 +20,17 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.AndroidComposeUiTextFlags
 import androidx.compose.ui.text.AndroidParagraphIntrinsics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.EmojiSupportMatch
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.ParagraphIntrinsics
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.sp
 import androidx.emoji2.text.EmojiCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -56,6 +60,7 @@ class AndroidParagraphIntrinsicsTest {
     fun setup() {
         originalLineHeightOptimizationEnabled =
             AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
+        AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled = true
     }
 
     @After
@@ -283,5 +288,201 @@ class AndroidParagraphIntrinsicsTest {
                 as AndroidParagraphIntrinsics
 
         assertThat(subject.mayHaveNewLine).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_enabled_noLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isFalse()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_softWrapTrue_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = true,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withNewline_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello\nWorld",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withPlaceholder_hasLineHeightSpan() {
+        val placeholders =
+            listOf(
+                AnnotatedString.Range(
+                    Placeholder(10.sp, 10.sp, PlaceholderVerticalAlign.Center),
+                    0,
+                    1,
+                )
+            )
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = placeholders,
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withTextIndent_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style =
+                    TextStyle(
+                        lineHeight = 24.sp,
+                        textIndent = androidx.compose.ui.text.style.TextIndent(firstLine = 10.sp),
+                    ),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withBaselineShift_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style =
+                    TextStyle(
+                        lineHeight = 24.sp,
+                        baselineShift = androidx.compose.ui.text.style.BaselineShift(0.5f),
+                    ),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Test
+    fun singleLineLineHeightOptimization_withRtlScript_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "مرحبا",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withMetricAffectingSpanStyle_hasLineHeightSpan() {
+        val annotations =
+            listOf(
+                AnnotatedString.Range(androidx.compose.ui.text.SpanStyle(fontSize = 18.sp), 0, 5)
+            )
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = annotations,
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withNonMetricAffectingSpanStyle_noLineHeightSpan() {
+        val annotations =
+            listOf(
+                AnnotatedString.Range(
+                    androidx.compose.ui.text.SpanStyle(
+                        color = androidx.compose.ui.graphics.Color.Red
+                    ),
+                    0,
+                    5,
+                )
+            )
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style = TextStyle(lineHeight = 24.sp),
+                annotations = annotations,
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isFalse()
+    }
+
+    @Test
+    fun singleLineLineHeightOptimization_withIncludeFontPaddingEnabled_hasLineHeightSpan() {
+        val intrinsics =
+            ParagraphIntrinsics(
+                text = "Hello World",
+                style =
+                    TextStyle(
+                        lineHeight = 24.sp,
+                        platformStyle = PlatformTextStyle(includeFontPadding = true),
+                    ),
+                annotations = emptyList(),
+                density = Density(1f),
+                fontFamilyResolver = createFontFamilyResolver(context),
+                softWrap = false,
+                placeholders = emptyList(),
+            )
+        assertThat(intrinsics.hasLineHeightSpan()).isTrue()
+    }
+
+    private fun ParagraphIntrinsics.hasLineHeightSpan(): Boolean {
+        val sequence = (this as AndroidParagraphIntrinsics).charSequence
+        return if (sequence is android.text.Spanned) {
+            sequence
+                .getSpans(0, sequence.length, android.text.style.LineHeightSpan::class.java)
+                .isNotEmpty()
+        } else {
+            false
+        }
     }
 }
