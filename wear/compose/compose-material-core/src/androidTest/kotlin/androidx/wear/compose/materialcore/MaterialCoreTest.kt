@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
-import kotlin.math.round
 
 internal val LocalContentTestData: ProvidableCompositionLocal<Int> = compositionLocalOf { 1 }
 
@@ -109,7 +108,7 @@ internal fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composa
 internal fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50.0f) {
     val histogram = histogram()
 
-    val actualPercent = round(((histogram[expectedColor] ?: 0) * 100f) / (width * height))
+    val actualPercent = ((histogram[expectedColor] ?: 0) * 100f) / (width * height)
     if (actualPercent < minPercent) {
         throw AssertionError(
             "Expected color $expectedColor found $actualPercent%, below threshold $minPercent%"
