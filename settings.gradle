@@ -666,6 +666,7 @@ includeProject(":compose:remote:foundation:foundation", [BuildType.COMPOSE, Buil
 includeProject(":compose:remote:foundation:foundation-samples", "compose/remote/foundation/foundation/samples", [BuildType.COMPOSE, BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:demos", [BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:player-view-demos", [BuildType.MAIN])
+includeProject(":compose:remote:integration-tests:multi-document-demos", [BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:benchmark", [BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:macrobenchmark", [BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:macrobenchmark-target", [BuildType.MAIN])
