@@ -1022,3 +1022,5 @@ WARNING: Logging before InitGoogle\(\) is written to STDERR
 .*in_progress_stroke_native_helper\.cc:[0-9]+\] Triangle index data exceeds 16\-bit limit, attempting to partition into [0-9]+ partitions\.
 # > Task :appfunctions:integration-tests:multi-modules-testapp:app:compileDebugKotlin
 e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols: LookupSymbol\(name=TestFunctions[0-9]+_AppFunctionInventory, scope=androidx\.appfunctions\.integration\.testapp\.library\.\), LookupSymbol\(name=TestFunctions[0-9]+_AppFunctionInvoker, scope=androidx\.appfunctions\.integration\.testapp\.library\.\)
+# Deprecation of lifecycle-compiler annotation processor (b/541926513)
+warning: lifecycle\-compiler is deprecated\. Use DefaultLifecycleObserver or LifecycleEventObserver instead\.

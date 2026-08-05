@@ -16,10 +16,19 @@
 package androidx.lifecycle
 
 /**
- * Marker interface for indicating a class is a [LifecycleObserver].
+ * Marker interface that indicates a class is a [LifecycleObserver].
  *
- * Do not implement this interface directly. Instead, implement either [DefaultLifecycleObserver] or
- * [LifecycleEventObserver] to receive lifecycle events.
+ * This interface is the common type for all lifecycle observer implementations. It allows you to
+ * add any observer type to a [Lifecycle] using [Lifecycle.addObserver].
+ *
+ * **Deprecation Note**: Do not implement this interface directly. The `lifecycle-compiler`
+ * annotation processor and annotating methods with `@OnLifecycleEvent` are deprecated.
+ *
+ * Implement one of the following interfaces instead:
+ * - [DefaultLifecycleObserver] (Recommended): Implement this interface to receive specific
+ *   lifecycle callbacks (such as `onCreate`, `onStart`, and others) using overridden methods.
+ * - [LifecycleEventObserver]: Implement this interface if you need to handle all lifecycle event
+ *   state transitions in a single `onStateChanged` callback.
  *
  * @see Lifecycle for details and usage patterns.
  */
