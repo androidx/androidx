@@ -21,55 +21,146 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SliderTokens {
-    val ActiveContainerOpacity = 1.0f
-    val ActiveHandleHeight = 44.0.dp
-    val ActiveHandleLeadingSpace = 6.0.dp
-    val ActiveHandlePadding = 6.0.dp
-    val ActiveHandleShape = ShapeKeyTokens.CornerFull
-    val ActiveHandleTrailingSpace = 6.0.dp
-    val ActiveHandleWidth = 4.0.dp
-    val ActiveTrackColor = ColorSchemeKeyTokens.Primary
-    val ActiveTrackHeight = 16.0.dp
-    val ActiveTrackShape = ShapeKeyTokens.CornerFull
-    val ActiveTrackShapeLeading = ShapeKeyTokens.CornerFull
-    val DisabledActiveTrackColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledActiveTrackOpacity = 0.38f
-    val DisabledHandleColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledHandleOpacity = 0.38f
-    val DisabledHandleWidth = 4.0.dp
-    val DisabledInactiveTrackColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledInactiveTrackOpacity = 0.12f
-    val DisabledStopColor = ColorSchemeKeyTokens.OnSurface
-    val FocusActiveTrackColor = ColorSchemeKeyTokens.Primary
-    val FocusHandleWidth = 2.0.dp
-    val FocusInactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
-    val FocusStopColor = ColorSchemeKeyTokens.Primary
-    val HandleColor = ColorSchemeKeyTokens.Primary
-    val HandleHeight = 44.0.dp
-    val HandleShape = ShapeKeyTokens.CornerFull
-    val HandleWidth = 4.0.dp
-    val HoverHandleColor = ColorSchemeKeyTokens.Primary
-    val HoverHandleWidth = 4.0.dp
-    val HoverStopColor = ColorSchemeKeyTokens.Primary
-    val InactiveContainerOpacity = 1.0f
-    val InactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
-    val InactiveTrackHeight = 16.0.dp
-    val InactiveTrackShape = ShapeKeyTokens.CornerFull
-    val LabelContainerColor = ColorSchemeKeyTokens.Primary
-    val LabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val PressedActiveTrackColor = ColorSchemeKeyTokens.Primary
-    val PressedHandleColor = ColorSchemeKeyTokens.Primary
-    val PressedHandleWidth = 2.0.dp
-    val PressedInactiveTrackColor = ColorSchemeKeyTokens.SecondaryContainer
-    val PressedStopColor = ColorSchemeKeyTokens.Primary
-    val SliderActiveHandleColor = ColorSchemeKeyTokens.Primary
-    val StopIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
-    val StopIndicatorColorSelected = ColorSchemeKeyTokens.SecondaryContainer
-    val StopIndicatorShape = ShapeKeyTokens.CornerFull
-    val StopIndicatorSize = 4.0.dp
-    val StopIndicatorTrailingSpace = 6.0.dp
-    val ValueIndicatorActiveBottomSpace = 12.0.dp
-    val ValueIndicatorContainerColor = ColorSchemeKeyTokens.InverseSurface
-    val ValueIndicatorLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
-    val ValueIndicatorLabelTextFont = TypographyKeyTokens.LabelLarge
+    const val ActiveContainerOpacity = 1.0f
+    inline val ActiveHandleHeight: androidx.compose.ui.unit.Dp
+        get() = 44.0.dp
+
+    inline val ActiveHandleLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val ActiveHandlePadding: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val ActiveHandleShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ActiveHandleTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val ActiveHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val ActiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActiveTrackHeight: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ActiveTrackShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ActiveTrackShapeLeading: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val DisabledActiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledActiveTrackOpacity = 0.38f
+    inline val DisabledHandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledHandleOpacity = 0.38f
+    inline val DisabledHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val DisabledInactiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledInactiveTrackOpacity = 0.12f
+    inline val DisabledStopColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FocusActiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val FocusHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val FocusInactiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val FocusStopColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HandleHeight: androidx.compose.ui.unit.Dp
+        get() = 44.0.dp
+
+    inline val HandleShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val HandleWidth: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val HoverHandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HoverHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val HoverStopColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    const val InactiveContainerOpacity = 1.0f
+    inline val InactiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val InactiveTrackHeight: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val InactiveTrackShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val LabelContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val LabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val PressedActiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val PressedHandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val PressedHandleWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val PressedInactiveTrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val PressedStopColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SliderActiveHandleColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val StopIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val StopIndicatorColorSelected: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val StopIndicatorShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val StopIndicatorSize: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val StopIndicatorTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val ValueIndicatorActiveBottomSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val ValueIndicatorContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseSurface
+
+    inline val ValueIndicatorLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val ValueIndicatorLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
 }

@@ -22,9 +22,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 
 internal object TypefaceTokens {
-    val Brand = FontFamily.SansSerif
-    val Plain = FontFamily.SansSerif
-    val WeightBold = FontWeight.Bold
-    val WeightMedium = FontWeight.Medium
-    val WeightRegular = FontWeight.Normal
+    inline val Brand: FontFamily
+        get() = FontFamily.SansSerif
+
+    inline val Plain: FontFamily
+        get() = FontFamily.SansSerif
+
+    inline val WeightBold: FontWeight
+        get() = FontWeight.Bold
+
+    inline val WeightMedium: FontWeight
+        get() = FontWeight.Medium
+
+    inline val WeightRegular: FontWeight
+        get() = FontWeight.Normal
 }

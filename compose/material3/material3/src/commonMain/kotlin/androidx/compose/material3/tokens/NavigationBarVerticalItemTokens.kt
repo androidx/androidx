@@ -21,8 +21,15 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationBarVerticalItemTokens {
-    val ActiveIndicatorHeight = 32.0.dp
-    val ActiveIndicatorWidth = 56.0.dp
-    val ContainerBetweenSpace = 6.0.dp
-    val IconSize = 24.0.dp
+    inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ActiveIndicatorWidth: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val ContainerBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

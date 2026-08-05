@@ -21,12 +21,27 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object BadgeTokens {
-    val Color = ColorSchemeKeyTokens.Error
-    val LargeColor = ColorSchemeKeyTokens.Error
-    val LargeLabelTextColor = ColorSchemeKeyTokens.OnError
-    val LargeLabelTextFont = TypographyKeyTokens.LabelSmall
-    val LargeShape = ShapeKeyTokens.CornerFull
-    val LargeSize = 16.0.dp
-    val Shape = ShapeKeyTokens.CornerFull
-    val Size = 6.0.dp
+    inline val Color: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val LargeColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val LargeLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnError
+
+    inline val LargeLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelSmall
+
+    inline val LargeShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val LargeSize: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val Shape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val Size: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
 }

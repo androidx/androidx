@@ -21,10 +21,21 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ElevationTokens {
-    val Level0 = 0.0.dp
-    val Level1 = 1.0.dp
-    val Level2 = 3.0.dp
-    val Level3 = 6.0.dp
-    val Level4 = 8.0.dp
-    val Level5 = 12.0.dp
+    inline val Level0: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val Level1: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val Level2: androidx.compose.ui.unit.Dp
+        get() = 3.0.dp
+
+    inline val Level3: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val Level4: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val Level5: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
 }

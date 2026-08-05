@@ -21,15 +21,36 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ButtonSmallTokens {
-    val ContainerHeight = 40.0.dp
-    val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerMedium
-    val IconLabelSpace = 8.0.dp
-    val IconSize = 20.0.dp
-    val LeadingSpace = 16.0.dp
-    val OutlinedOutlineWidth = 1.0.dp
-    val PressedContainerShape = ShapeKeyTokens.CornerSmall
-    val SelectedContainerShapeRound = ShapeKeyTokens.CornerFull
-    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerMedium
-    val TrailingSpace = 16.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val ContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PressedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val SelectedContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
 }

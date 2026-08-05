@@ -21,12 +21,25 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailCollapsedTokens {
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerShape = ShapeKeyTokens.CornerNone
-    val ContainerWidth = 96.0.dp
-    val ItemVerticalSpace = 4.0.dp
-    val TopSpace = 44.0.dp
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val ItemVerticalSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val TopSpace: androidx.compose.ui.unit.Dp
+        get() = 44.0.dp
+
     // TODO: Update this file to include the following missing tokens:
-    val ContainerColor = ColorSchemeKeyTokens.Surface
-    val NarrowContainerWidth = 80.0.dp
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val NarrowContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
 }

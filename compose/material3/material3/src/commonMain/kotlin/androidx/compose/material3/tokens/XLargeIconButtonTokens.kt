@@ -21,18 +21,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object XLargeIconButtonTokens {
-    val ContainerHeight = 136.0.dp
-    val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerExtraLarge
-    val DefaultLeadingSpace = 48.0.dp
-    val DefaultTrailingSpace = 48.0.dp
-    val IconSize = 40.0.dp
-    val NarrowLeadingSpace = 32.0.dp
-    val NarrowTrailingSpace = 32.0.dp
-    val OutlinedOutlineWidth = 3.0.dp
-    val PressedContainerShape = ShapeKeyTokens.CornerLarge
-    val SelectedContainerShapeRound = ShapeKeyTokens.CornerExtraLarge
-    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerFull
-    val WideLeadingSpace = 72.0.dp
-    val WideTrailingSpace = 72.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 136.0.dp
+
+    inline val ContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val DefaultLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val DefaultTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 3.0.dp
+
+    inline val PressedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val SelectedContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val WideLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
+
+    inline val WideTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 72.0.dp
 }

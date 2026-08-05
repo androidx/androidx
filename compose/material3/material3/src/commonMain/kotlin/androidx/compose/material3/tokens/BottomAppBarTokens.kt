@@ -21,8 +21,15 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object BottomAppBarTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContainerElevation = ElevationTokens.Level2
-    val ContainerHeight = 80.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerNone
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
 }

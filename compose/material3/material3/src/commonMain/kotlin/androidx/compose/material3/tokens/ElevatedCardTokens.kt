@@ -21,17 +21,40 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ElevatedCardTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ContainerElevation = ElevationTokens.Level1
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val DisabledContainerColor = ColorSchemeKeyTokens.Surface
-    val DisabledContainerElevation = ElevationTokens.Level1
-    val DisabledContainerOpacity = 0.38f
-    val DraggedContainerElevation = ElevationTokens.Level4
-    val FocusContainerElevation = ElevationTokens.Level1
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val HoverContainerElevation = ElevationTokens.Level2
-    val IconColor = ColorSchemeKeyTokens.Primary
-    val IconSize = 24.0.dp
-    val PressedContainerElevation = ElevationTokens.Level1
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val DisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    const val DisabledContainerOpacity = 0.38f
+    inline val DraggedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level4
+
+    inline val FocusContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val HoverContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
 }

@@ -21,19 +21,46 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationBarTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContainerElevation = ElevationTokens.Level2
-    val ContainerHeight = 64.0.dp
-    val ItemActiveIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemActiveIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
-    val ItemActiveIndicatorIconLabelSpace = 4.0.dp
-    val ItemActiveIndicatorShape = ShapeKeyTokens.CornerFull
-    val ItemActiveLabelTextColor = ColorSchemeKeyTokens.Secondary
-    val ItemBetweenSpace = 0.0.dp
-    val ItemInactiveIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemInactiveLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val NavShape = ShapeKeyTokens.CornerNone
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val ItemActiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemActiveIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val ItemActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val ItemActiveIndicatorShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ItemActiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val ItemBetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val ItemInactiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemInactiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val NavShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
     // TODO: Update this file to include the following missing tokens:
-    val TallContainerHeight = 80.0.dp
-    val LabelTextFont = TypographyKeyTokens.LabelMedium
+    inline val TallContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 80.0.dp
+
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelMedium
 }

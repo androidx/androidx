@@ -19,42 +19,111 @@
 package androidx.compose.material3.tokens
 
 internal object ElevatedButtonTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ContainerElevation = ElevationTokens.Level1
-    val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledContainerElevation = ElevationTokens.Level0
-    val DisabledContainerOpacity = 0.1f
-    val DisabledIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledIconOpacity = 0.38f
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledLabelTextOpacity = 0.38f
-    val FocusedContainerElevation = ElevationTokens.Level1
-    val FocusedIconColor = ColorSchemeKeyTokens.Primary
-    val FocusedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val HoveredContainerElevation = ElevationTokens.Level2
-    val HoveredIconColor = ColorSchemeKeyTokens.Primary
-    val HoveredLabelTextColor = ColorSchemeKeyTokens.Primary
-    val IconColor = ColorSchemeKeyTokens.Primary
-    val LabelTextColor = ColorSchemeKeyTokens.Primary
-    val LabelTextSelectedColor = ColorSchemeKeyTokens.OnPrimary
-    val LabelTextUnselectedColor = ColorSchemeKeyTokens.Primary
-    val PressedContainerElevation = ElevationTokens.Level1
-    val PressedIconColor = ColorSchemeKeyTokens.Primary
-    val PressedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val SelectedContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectedFocusedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedHoveredIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnPrimary
-    val UnselectedContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val UnselectedFocusedIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedFocusedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val UnselectedHoveredIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedHoveredLabelTextColor = ColorSchemeKeyTokens.Primary
-    val UnselectedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val UnselectedPressedIconColor = ColorSchemeKeyTokens.Primary
-    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.Primary
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val DisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val DisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    const val DisabledContainerOpacity = 0.1f
+    inline val DisabledIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    const val DisabledIconOpacity = 0.38f
+    inline val DisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    const val DisabledLabelTextOpacity = 0.38f
+    inline val FocusedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val FocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val FocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HoveredContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val HoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val IconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val LabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val LabelTextSelectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val LabelTextUnselectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val PressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val PressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val PressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedFocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedHoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val UnselectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val UnselectedFocusedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedHoveredIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val UnselectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val UnselectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
 }
