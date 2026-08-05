@@ -19,8 +19,6 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * Configure whether sound effects are played for interactions (clicks) in the provided [content].
@@ -35,11 +33,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  */
 @Composable
 public fun SoundEffectOnInteraction(enabled: Boolean, content: @Composable () -> Unit) {
-    @OptIn(ExperimentalComposeUiApi::class)
-    if (!AndroidComposeUiFlags.isInteractionSoundEffectsEnabled) {
-        content()
-        return
-    }
     val current = LocalSoundEffect.current
 
     val wrapper =
