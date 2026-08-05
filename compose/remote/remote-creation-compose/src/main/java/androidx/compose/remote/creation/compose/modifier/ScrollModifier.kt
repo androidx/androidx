@@ -13,41 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier as CoreScrollModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteScrollState(
-    public val positionState: MutableRemoteFloat,
-    public val notches: Int,
-) {
-    public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
+/**
+ * Scroll state for remote components.
+ *
+ * @property positionState remote float state tracking scroll position
+ * @property notches The number of equally spaced snap points (notches) along the scroll range. If
+ *   greater than 0, the scroll position will snap to the nearest notch when the scroll gesture
+ *   ends. If 0, scrolling is continuous.
+ */
+public class RemoteScrollState
+@RememberInComposition
+constructor(public val positionState: MutableRemoteFloat, public val notches: Int) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteScrollState) return false
+        if (positionState != other.positionState) return false
+        if (notches != other.notches) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = positionState.hashCode()
+        result = 31 * result + notches
+        return result
+    }
+
+    override fun toString(): String {
+        return "RemoteScrollState(positionState=$positionState, notches=$notches)"
+    }
 }
 
+/**
+ * Creates and remembers a [RemoteScrollState].
+ *
+ * @param notches The number of equally spaced snap points (notches) along the scroll range. If
+ *   greater than 0, the scroll position will snap to the nearest notch when the scroll gesture
+ *   ends. If 0, scrolling is continuous.
+ * @return remembered [RemoteScrollState]
+ */
 @Composable
-public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
+public fun rememberRemoteScrollState(notches: Int = 0): RemoteScrollState {
     val state = LocalRemoteComposeCreationState.current
     val scrollState = remember {
         // TODO(b/520313106) - It shouldn't be writing id at this point.
         val positionId = state.document.nextId()
         val position = MutableRemoteFloat(positionId)
-        RemoteScrollState(position, evenNotches)
+        RemoteScrollState(position, notches)
     }
     return scrollState
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
+internal data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
 
     // Not used
@@ -56,12 +84,29 @@ public data class ScrollModifier(val direction: Int, val state: RemoteScrollStat
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Modify element to allow it to scroll vertically when its content is larger than its constraints.
+ *
+ * @param state The [RemoteScrollState] that tracks and controls the scroll position. It can be
+ *   created and remembered using [rememberRemoteScrollState].
+ * @return The modified [RemoteModifier].
+ * @sample androidx.compose.remote.creation.compose.samples.VerticalScrollSample
+ * @see rememberRemoteScrollState
+ */
 public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Modify element to allow it to scroll horizontally when its content is larger than its
+ * constraints.
+ *
+ * @param state The [RemoteScrollState] that tracks and controls the scroll position. It can be
+ *   created and remembered using [rememberRemoteScrollState].
+ * @return The modified [RemoteModifier].
+ * @sample androidx.compose.remote.creation.compose.samples.HorizontalScrollSample
+ * @see rememberRemoteScrollState
+ */
 public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ClipModifier()).then(ScrollModifier(CoreScrollModifier.HORIZONTAL, state))
 }
