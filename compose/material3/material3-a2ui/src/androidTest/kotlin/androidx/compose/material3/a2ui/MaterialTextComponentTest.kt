@@ -1,0 +1,454 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.compose.material3.a2ui
+
+import androidx.a2ui.compose.runtime.A2uiComponentState
+import androidx.a2ui.compose.runtime.LocalA2uiReadinessEvaluator
+import androidx.a2ui.compose.runtime.observeA2uiComponentState
+import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.asReadinessEvaluator
+import androidx.a2ui.compose.ui.testing.A2uiTestController
+import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
+import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.processor.A2uiSurfaceModel
+import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiException
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import com.google.common.truth.Truth.assertThat
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@OptIn(ExperimentalTestApi::class)
+@RunWith(TestParameterInjector::class)
+class MaterialTextComponentTest {
+
+    private val testCatalog =
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialTextComponent),
+            functions = listOf(A2uiFormatStringFunction.INSTANCE),
+        )
+
+    @Test
+    fun eachVariant_appliesCorrespondingMaterialThemeTextStyle(
+        @TestParameter(value = ["h1", "h2", "h3", "h4", "h5", "caption", "body"])
+        variantToken: String
+    ) = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Sample Styled Text", "variant" to variantToken),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+        lateinit var expectedStyle: TextStyle
+
+        setContent {
+            MaterialTheme {
+                expectedStyle =
+                    when (variantToken) {
+                        "h1" -> MaterialTheme.typography.headlineLarge
+                        "h2" -> MaterialTheme.typography.headlineMedium
+                        "h3" -> MaterialTheme.typography.headlineSmall
+                        "h4" -> MaterialTheme.typography.titleLarge
+                        "h5" -> MaterialTheme.typography.titleMedium
+                        "caption" -> MaterialTheme.typography.labelMedium
+                        "body" -> MaterialTheme.typography.bodyLarge
+                        else -> MaterialTheme.typography.bodyLarge
+                    }
+                A2uiTestSurface(surface)
+            }
+        }
+
+        onNodeWithText("Sample Styled Text").assertIsDisplayed()
+        val results = mutableListOf<TextLayoutResult>()
+        onNodeWithText("Sample Styled Text").performSemanticsAction(
+            SemanticsActions.GetTextLayoutResult
+        ) { action ->
+            action(results)
+        }
+        val actualStyle = results.firstOrNull()?.layoutInput?.style
+        assertThat(actualStyle?.fontSize).isEqualTo(expectedStyle.fontSize)
+        assertThat(actualStyle?.fontWeight).isEqualTo(expectedStyle.fontWeight)
+        assertThat(actualStyle?.lineHeight).isEqualTo(expectedStyle.lineHeight)
+    }
+
+    @Test
+    fun noVariantSpecified_fallsBackToBody() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Default Fallback Text"),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+        lateinit var expectedFallbackStyle: TextStyle
+
+        setContent {
+            MaterialTheme {
+                expectedFallbackStyle = MaterialTheme.typography.bodyLarge
+                A2uiTestSurface(surface)
+            }
+        }
+
+        onNodeWithText("Default Fallback Text").assertIsDisplayed()
+        val results = mutableListOf<TextLayoutResult>()
+        onNodeWithText("Default Fallback Text").performSemanticsAction(
+            SemanticsActions.GetTextLayoutResult
+        ) { action ->
+            action(results)
+        }
+        val actualStyle = results.firstOrNull()?.layoutInput?.style
+        assertThat(actualStyle?.fontSize).isEqualTo(expectedFallbackStyle.fontSize)
+        assertThat(actualStyle?.fontWeight).isEqualTo(expectedFallbackStyle.fontWeight)
+        assertThat(actualStyle?.lineHeight).isEqualTo(expectedFallbackStyle.lineHeight)
+    }
+
+    @Test
+    fun headingVariant_appliesHeadingSemantics(
+        @TestParameter(value = ["h1", "h2", "h3", "h4", "h5"]) variantToken: String
+    ) = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Variant Text", "variant" to variantToken),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Variant Text").assertIsDisplayed()
+        onNodeWithText("Variant Text")
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun nonHeadingVariant_doesNotApplyHeadingSemantics(
+        @TestParameter(value = ["caption", "body"]) variantToken: String
+    ) = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Variant Text", "variant" to variantToken),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Variant Text").assertIsDisplayed()
+        onNodeWithText("Variant Text")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun passedModifier_appliedToUnderlyingText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Tagged Text"),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent {
+            MaterialTheme {
+                A2uiTestSurface(surface = surface, modifier = Modifier.testTag("custom_tag"))
+            }
+        }
+
+        onNode(hasText("Tagged Text") and hasTestTag("custom_tag")).assertIsDisplayed()
+    }
+
+    @Test
+    fun dynamicText_rendersText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to mapOf("path" to "/user/display_name")),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(textPayload),
+                initialData = mapOf("user" to mapOf("display_name" to "Welcome, Developer!")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Welcome, Developer!").assertIsDisplayed()
+    }
+
+    @Test
+    fun transitionsFromLoadingToSuccess_displaysText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to mapOf("path" to "/user/display_name")),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent {
+            MaterialTheme {
+                A2uiTestSurface(
+                    surface = surface,
+                    onLoading = { modifier ->
+                        Text("Loading Text...", modifier = modifier.testTag("custom_loader"))
+                    },
+                )
+            }
+        }
+
+        onNodeWithTag("custom_loader").assertIsDisplayed()
+
+        controller.updateData("/user/display_name", "Developer")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithTag("custom_loader").assertDoesNotExist()
+        onNodeWithText("Developer").assertIsDisplayed()
+    }
+
+    @Test
+    fun isReady_reactiveToDataAdditionAndRemoval() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to mapOf("path" to "/user/display_name")),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Developer").assertDoesNotExist()
+
+        controller.updateData("/user/display_name", "Developer")
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Developer").assertIsDisplayed()
+
+        controller.updateData("/user/display_name", null)
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Developer").assertDoesNotExist()
+    }
+
+    @Test
+    fun isReady_remainsTrueWhenTextIsEmptyString() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(id = "root", type = "Text", properties = mapOf("text" to ""))
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("").assertExists()
+    }
+
+    @Test
+    fun evaluatesFormatExpression_rendersFormattedText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties =
+                    mapOf(
+                        "text" to
+                            mapOf(
+                                "call" to "formatString",
+                                "args" to mapOf("value" to "Hello \${/user/first} \${/user/last}!"),
+                            )
+                    ),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(textPayload),
+                initialData = mapOf("user" to mapOf("first" to "Alice", "last" to "Smith")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Hello Alice Smith!").assertIsDisplayed()
+    }
+
+    @Test
+    fun variantChanges_rendersUpdatedComponent() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Headline Text", "variant" to "h1"),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Headline Text").assertIsDisplayed()
+
+        // 1. Assert Heading semantics key is defined when variant is H1
+        onNodeWithText("Headline Text")
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+
+        controller.updateComponent(
+            id = "root",
+            properties = mapOf("text" to "Headline Text", "variant" to "body"),
+        )
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Headline Text").assertIsDisplayed()
+        // 2. Assert Heading semantics key is NOT defined when variant is body
+        onNodeWithText("Headline Text")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun staticTextPropertyChange_updatesDisplayedText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Old Static Title"),
+            )
+        val controller =
+            A2uiTestController(catalog = testCatalog, initialComponents = listOf(textPayload))
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Old Static Title").assertIsDisplayed()
+
+        controller.updateComponent(id = "root", properties = mapOf("text" to "New Static Title"))
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Old Static Title").assertDoesNotExist()
+        onNodeWithText("New Static Title").assertIsDisplayed()
+    }
+
+    @Test
+    fun staticToDynamicTextChange_updatesDisplayedText() = runComposeUiTest {
+        val textPayload =
+            A2uiComponentPayload(
+                id = "root",
+                type = "Text",
+                properties = mapOf("text" to "Static Placeholder"),
+            )
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents = listOf(textPayload),
+                initialData = mapOf("user" to mapOf("name" to "Dynamic User Name")),
+            )
+        val surface = controller.start()
+
+        setContent { MaterialTheme { A2uiTestSurface(surface) } }
+
+        onNodeWithText("Static Placeholder").assertIsDisplayed()
+
+        controller.updateComponent(
+            id = "root",
+            properties = mapOf("text" to mapOf("path" to "/user/name")),
+        )
+        controller.waitForIdle()
+        waitForIdle()
+
+        onNodeWithText("Static Placeholder").assertDoesNotExist()
+        onNodeWithText("Dynamic User Name").assertIsDisplayed()
+    }
+}
+
+@Composable
+private fun A2uiTestSurface(
+    surface: A2uiSurfaceModel,
+    modifier: Modifier = Modifier,
+    onLoading: @Composable (Modifier) -> Unit = {},
+    onError: @Composable (A2uiException, Modifier) -> Unit = { exception, _ ->
+        throw AssertionError("A2UI surface failed to render: ${exception.message}", exception)
+    },
+) {
+    require(surface is A2uiCoreSurfaceModel) { "A2uiTestSurface requires an A2uiCoreSurfaceModel." }
+
+    val composeCatalog =
+        surface.catalog as? A2uiCatalog
+            ?: throw IllegalArgumentException("Catalog must implement A2uiCatalog.")
+
+    val readinessEvaluator = remember(composeCatalog) { composeCatalog.asReadinessEvaluator() }
+
+    CompositionLocalProvider(LocalA2uiReadinessEvaluator provides readinessEvaluator) {
+        when (val rootState = observeA2uiComponentState(surface = surface)) {
+            is A2uiComponentState.Success -> {
+                A2uiComponent(component = rootState.component, modifier = modifier)
+            }
+            is A2uiComponentState.Error -> {
+                onError(rootState.exception, modifier)
+            }
+            is A2uiComponentState.Loading -> {
+                onLoading(modifier)
+            }
+        }
+    }
+}
