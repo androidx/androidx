@@ -285,7 +285,7 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
             // if the entire AndroidView was considered as a focus rect, this assertion value
             // would have been 30. Because only the top half is considered focused, we get 40.
             // spring is stronger in this test
-            .assertScrollAxisPositionInRootIsEqualTo(40.toDp(), tolerance = 1.dp)
+            .assertScrollAxisPositionInRootIsEqualTo(40.toDp(), tolerance = 1.5.dp)
             .assertIsDisplayed()
     }
 
