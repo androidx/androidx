@@ -1117,7 +1117,7 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
 
     private fun hasAlpha(expectedAlpha: Float, tolerance: Float = 0.001f): SemanticsMatcher =
         SemanticsMatcher("Alpha = '$expectedAlpha' (within $tolerance)") { node ->
-            kotlin.math.abs(node.alpha - expectedAlpha) <= tolerance
+            kotlin.math.abs(node.computeEffectiveAlpha() - expectedAlpha) <= tolerance
         }
 
     private fun Modifier.parameterizedGraphicsLayer(

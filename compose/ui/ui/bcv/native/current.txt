@@ -2214,8 +2214,6 @@ final class androidx.compose.ui.semantics/SemanticsConfiguration : androidx.comp
 }
 
 final class androidx.compose.ui.semantics/SemanticsNode { // androidx.compose.ui.semantics/SemanticsNode|null[0]
-    final val alpha // androidx.compose.ui.semantics/SemanticsNode.alpha|{}alpha[0]
-        final fun <get-alpha>(): kotlin/Float // androidx.compose.ui.semantics/SemanticsNode.alpha.<get-alpha>|<get-alpha>(){}[0]
     final val boundsInRoot // androidx.compose.ui.semantics/SemanticsNode.boundsInRoot|{}boundsInRoot[0]
         final fun <get-boundsInRoot>(): androidx.compose.ui.geometry/Rect // androidx.compose.ui.semantics/SemanticsNode.boundsInRoot.<get-boundsInRoot>|<get-boundsInRoot>(){}[0]
     final val boundsInWindow // androidx.compose.ui.semantics/SemanticsNode.boundsInWindow|{}boundsInWindow[0]
@@ -2247,6 +2245,7 @@ final class androidx.compose.ui.semantics/SemanticsNode { // androidx.compose.ui
     final val touchBoundsInRoot // androidx.compose.ui.semantics/SemanticsNode.touchBoundsInRoot|{}touchBoundsInRoot[0]
         final fun <get-touchBoundsInRoot>(): androidx.compose.ui.geometry/Rect // androidx.compose.ui.semantics/SemanticsNode.touchBoundsInRoot.<get-touchBoundsInRoot>|<get-touchBoundsInRoot>(){}[0]
 
+    final fun computeEffectiveAlpha(): kotlin/Float // androidx.compose.ui.semantics/SemanticsNode.computeEffectiveAlpha|computeEffectiveAlpha(){}[0]
     final fun getAlignmentLinePosition(androidx.compose.ui.layout/AlignmentLine): kotlin/Int // androidx.compose.ui.semantics/SemanticsNode.getAlignmentLinePosition|getAlignmentLinePosition(androidx.compose.ui.layout.AlignmentLine){}[0]
 }
 
