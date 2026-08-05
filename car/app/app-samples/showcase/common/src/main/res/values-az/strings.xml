@@ -387,8 +387,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kontentli xəritə demoları"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj şablonlu xəritə demosu"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Şəbəkə şablonlu xəritə demosu"</string>
-    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Bölməli elementlər siyahısı olan xəritə"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"Banner demosu"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Təkmilləşdirilmiş başlıq demosu"</string>
 </resources>

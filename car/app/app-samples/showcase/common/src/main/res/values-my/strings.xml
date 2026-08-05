@@ -387,8 +387,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"အကြောင်းအရာ သရုပ်ပြချက်များပါသည့် မြေပုံ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"မက်ဆေ့ဂျ်ပုံစံ သရုပ်ပြချက်ပါသည့် မြေပုံ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ဇယားကွက်ပုံစံ သရုပ်ပြချက်ပါသည့် မြေပုံ"</string>
-    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"အပိုင်းခွဲထားသော ဖိုင်စာရင်းပါသည့် မြေပုံ"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"နဖူးစည်း သရုပ်ပြ"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"အရည်အသွေးမြှင့် ခေါင်းစီးသရုပ်ပြ"</string>
 </resources>

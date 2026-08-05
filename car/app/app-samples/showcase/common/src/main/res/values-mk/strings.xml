@@ -387,8 +387,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демоа за карта со содржини"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демоа за шаблон на карта со порака"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демоа за шаблон на карта со мрежа"</string>
-    <!-- no translation found for map_with_sectioned_items_demo_title (8566567348699628797) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Карта со список со поделени ставки"</string>
     <string name="banner_demo_title" msgid="6740573531391394513">"Демо на банер"</string>
     <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Демо на подобрено заглавје"</string>
 </resources>
