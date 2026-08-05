@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
  * Short navigation bars offer a persistent and convenient way to switch between primary
  * destinations in an app.
  *
- * The recommended configuration of the [ShortNavigationBar] in an XR environment is three to six
- * [ShortNavigationBarItem]s, each representing a singular destination.
+ * The recommended configuration of the [SpatialShortNavigationBar] in an XR environment is three to
+ * six [ShortNavigationBarItem]s, each representing a singular destination.
  *
  * See [ShortNavigationBarItem] for configurations specific to each item, and not the overall
- * [ShortNavigationBar] component.
+ * [SpatialShortNavigationBar] component.
  *
  * @param modifier the [Modifier] to be applied to this navigation bar
  * @param containerColor the color used for the background of this navigation bar. Use
@@ -59,13 +59,13 @@ import androidx.compose.ui.unit.dp
 @ExperimentalMaterial3ExpressiveApi
 @ExperimentalMaterial3XrApi
 @Composable
-public fun ShortNavigationBar(
+public fun SpatialShortNavigationBar(
     modifier: Modifier = Modifier,
     containerColor: Color = ShortNavigationBarDefaults.containerColor,
     contentColor: Color = ShortNavigationBarDefaults.contentColor,
     content: @Composable () -> Unit,
 ) {
-    HorizontalOrbiter(LocalShortNavigationBarOrbiterProperties.current) {
+    HorizontalOrbiter(LocalSpatialShortNavigationBarOrbiterProperties.current) {
         Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
             Row(
                 modifier =
@@ -88,9 +88,10 @@ internal object XrShortNavigationBarTokens {
     val PaddingAroundItems: Dp = 32.dp
 }
 
-/** The [OrbiterProperties] used by [ShortNavigationBar]. */
+/** The [OrbiterProperties] used by [SpatialShortNavigationBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalShortNavigationBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
+public val LocalSpatialShortNavigationBarOrbiterProperties:
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultNavigationBarOrbiterProperties
+        DefaultSpatialNavigationBarOrbiterProperties
     }

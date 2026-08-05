@@ -58,8 +58,8 @@ import androidx.xr.compose.unit.DpVolumeOffset
  * `FloatingActionButton` or a logo header. Each destination is typically represented by an icon and
  * an optional text label.
  *
- * [NavigationRail] should contain multiple [NavigationRailItem]s, each representing a singular
- * destination.
+ * [SpatialNavigationRail] should contain multiple [NavigationRailItem]s, each representing a
+ * singular destination.
  *
  * See [NavigationRailItem] for configuration specific to each item, and not the overall
  * NavigationRail component.
@@ -77,7 +77,7 @@ import androidx.xr.compose.unit.DpVolumeOffset
 // TODO(kmost): Add a @sample tag and create a new sample project for XR.
 @ExperimentalMaterial3XrApi
 @Composable
-public fun NavigationRail(
+public fun SpatialNavigationRail(
     modifier: Modifier = Modifier,
     containerColor: Color = NavigationRailDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
@@ -85,7 +85,7 @@ public fun NavigationRail(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val orbiterProperties =
-        LocalNavigationRailOrbiterProperties.current.copy(
+        LocalSpatialNavigationRailOrbiterProperties.current.copy(
             shape = SpatialRoundedCornerShape(CornerSize(percent = 0))
         )
     VerticalOrbiter(orbiterProperties) {
@@ -119,7 +119,7 @@ internal object XrNavigationRailTokens {
     val OrbiterOffset = 24.dp
 
     /**
-     * Vertical padding between the contents of the [NavigationRail] and its top/bottom, and
+     * Vertical padding between the contents of the [SpatialNavigationRail] and its top/bottom, and
      * internally between items.
      *
      * XR-changed value to match desired UX.
@@ -130,11 +130,11 @@ internal object XrNavigationRailTokens {
 }
 
 /**
- * The default [OrbiterProperties] used by [NavigationRail] if none is specified in
- * [LocalNavigationRailOrbiterProperties].
+ * The default [OrbiterProperties] used by [SpatialNavigationRail] if none is specified in
+ * [LocalSpatialNavigationRailOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultNavigationRailOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialNavigationRailOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.CenterStart(
@@ -149,9 +149,10 @@ public val DefaultNavigationRailOrbiterProperties: OrbiterProperties =
         shape = XrTokens.ContainerShape,
     )
 
-/** The [OrbiterProperties] used by [NavigationRail]. */
+/** The [OrbiterProperties] used by [SpatialNavigationRail]. */
 @ExperimentalMaterial3XrApi
-public val LocalNavigationRailOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
+public val LocalSpatialNavigationRailOrbiterProperties:
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultNavigationRailOrbiterProperties
+        DefaultSpatialNavigationRailOrbiterProperties
     }

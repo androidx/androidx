@@ -44,7 +44,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
  */
 @ExperimentalMaterial3XrApi
 @Composable
-public fun ListDetailPaneScaffold(
+public fun SpatialListDetailPaneScaffold(
     listPane: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
     detailPane: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
