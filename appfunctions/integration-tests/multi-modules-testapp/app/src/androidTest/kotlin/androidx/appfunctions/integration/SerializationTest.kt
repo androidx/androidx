@@ -16,28 +16,65 @@
 
 package androidx.appfunctions.integration
 
+import android.content.Context
 import androidx.appfunction.integration.test.sharedschema.IntEnumSerializable
 import androidx.appfunction.integration.test.sharedschema.UriConstraintSerializable
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionManager
+import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionName
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
+import androidx.appsearch.app.GlobalSearchSession
+import androidx.appsearch.app.SearchSpec
+import androidx.appsearch.platformstorage.PlatformStorage
+import androidx.concurrent.futures.await
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlin.test.fail
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import org.junit.Assume.assumeNotNull
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 
 class SerializationTest {
-    // Keeping these tests here since the metadata doesn't become part of the schema inventory which
-    // allows for skipping the validation.
-    // TODO: b/446606781 - Remove or figure out the best place for serialization tests.
+    private val context = InstrumentationRegistry.getInstrumentation().targetContext
+    private lateinit var appFunctionManager: AppFunctionManager
+
+    @Before
+    fun setup() {
+        val nullableAppFunctionManager = AppFunctionManager.getInstance(context)
+        assumeNotNull(nullableAppFunctionManager)
+        appFunctionManager = checkNotNull(nullableAppFunctionManager)
+    }
+
     @Test
-    @Ignore(
-        "b/446606781: Re-enable once serialization no longer relies on aggregation mode to validate"
-    )
-    fun serializeAppFunctionSerializable_failsForInvalidValues() {
+    fun serializeAppFunctionSerializable_failsForInvalidValues() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
+        val (dataType, components) =
+            requireTargetParameterDataTypeMetadata(
+                AppFunctionName(
+                    context.packageName,
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#enumValueFunction",
+                ),
+                "intEnumSerializable",
+            )
+        val resolvedObjectType =
+            components.dataTypes[(dataType as AppFunctionReferenceTypeMetadata).referenceDataType]
+                as AppFunctionObjectTypeMetadata
+
         assertFailsWith<IllegalArgumentException> {
             AppFunctionData.serialize(
+                resolvedObjectType,
+                components,
                 IntEnumSerializable(value = -1),
                 IntEnumSerializable::class.java,
             )
@@ -45,9 +82,24 @@ class SerializationTest {
     }
 
     @Test
-    fun serializeAppFunctionSerializable_success() {
+    fun serializeAppFunctionSerializable_enumMatch_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(context))
+        val (dataType, components) =
+            requireTargetParameterDataTypeMetadata(
+                AppFunctionName(
+                    context.packageName,
+                    "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#enumValueFunction",
+                ),
+                "intEnumSerializable",
+            )
+        val resolvedObjectType =
+            components.dataTypes[(dataType as AppFunctionReferenceTypeMetadata).referenceDataType]
+                as AppFunctionObjectTypeMetadata
+
         val afd =
             AppFunctionData.serialize(
+                resolvedObjectType,
+                components,
                 IntEnumSerializable(value = 10),
                 IntEnumSerializable::class.java,
             )
@@ -130,4 +182,61 @@ class SerializationTest {
         assertThat(deserialized.uri).isEqualTo(uri)
         assertThat(deserialized.numericString).isEqualTo("12345")
     }
+
+    private fun requireTargetParameterDataTypeMetadata(
+        functionName: AppFunctionName,
+        parameterName: String,
+    ): Pair<AppFunctionDataTypeMetadata, AppFunctionComponentsMetadata> {
+        val targetFunctionMetadata =
+            runBlocking {
+                appFunctionManager
+                    .searchAppFunctions(AppFunctionSearchSpec(functionNames = setOf(functionName)))
+                    .singleOrNull()
+            } ?: fail("Unable to find $functionName")
+
+        val targetParameterDataTypeMetadata =
+            targetFunctionMetadata.parameters
+                .singleOrNull { parameterMetadata -> parameterMetadata.name == parameterName }
+                ?.dataType ?: fail("Unable to find $parameterName from $targetFunctionMetadata")
+
+        return Pair(targetParameterDataTypeMetadata, targetFunctionMetadata.components)
+    }
+
+    private suspend fun isDynamicIndexerAvailable(
+        context: Context,
+        packageName: String = "androidx.appfunctions.integration.testapp",
+    ): Boolean =
+        createSearchSession(context).use { session ->
+            val searchResults =
+                session.search(
+                    "",
+                    SearchSpec.Builder()
+                        .addFilterNamespaces("app_functions")
+                        .addFilterPackageNames("android")
+                        .addFilterSchemas("AppFunctionStaticMetadata")
+                        .build(),
+                )
+            var nextPage = searchResults.nextPageAsync.await()
+            while (nextPage.isNotEmpty()) {
+                for (result in nextPage) {
+                    val packageNameProperty =
+                        result.genericDocument.getPropertyString("packageName")
+                    if (packageNameProperty != packageName) {
+                        continue
+                    }
+                    return result.genericDocument.getPropertyDocument("response") != null
+                }
+                nextPage = searchResults.nextPageAsync.await()
+            }
+            throw IllegalStateException("No functions found for package $packageName")
+        }
+
+    private suspend fun createSearchSession(context: Context): GlobalSearchSession {
+        return PlatformStorage.createGlobalSearchSessionAsync(
+                PlatformStorage.GlobalSearchContext.Builder(context).build()
+            )
+            .await()
+    }
+
+    private fun doBlocking(block: suspend CoroutineScope.() -> Unit) = runBlocking(block = block)
 }

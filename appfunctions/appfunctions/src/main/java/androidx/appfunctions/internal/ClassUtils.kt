@@ -17,8 +17,10 @@
 package androidx.appfunctions.internal
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 
 /**
  * Finds the implementation of the given [Class].
@@ -52,5 +54,20 @@ public fun <T : Any> Class<T>.findImpl(prefix: String, suffix: String): T {
         throw RuntimeException("Cannot access the constructor ${this.canonicalName}", e)
     } catch (e: InstantiationException) {
         throw RuntimeException("Failed to create an instance of ${this.canonicalName}", e)
+    }
+}
+
+/**
+ * Gets the [Class] instance based on the qualified name.
+ *
+ * @throws IllegalArgumentException if unable to find the target class.
+ */
+internal fun <T : Any> getClass(qualifiedName: String): Class<T> {
+    return try {
+        @Suppress("UNCHECKED_CAST")
+        Class.forName(qualifiedName) as Class<T>
+    } catch (e: Exception) {
+        Log.d(APP_FUNCTIONS_TAG, "Unable to find class $qualifiedName", e)
+        throw IllegalArgumentException("Unable to find class $qualifiedName")
     }
 }

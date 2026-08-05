@@ -29,6 +29,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.WorkerThread
 import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
+import androidx.appfunctions.internal.getClass
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
@@ -843,7 +844,7 @@ internal constructor(
      */
     @RestrictTo(LIBRARY_GROUP)
     public fun <T : Any> deserialize(qualifiedName: String): T {
-        return deserialize<T>(getSerializableClass(qualifiedName))
+        return deserialize<T>(getClass(qualifiedName))
     }
 
     private fun <T : Any> unsafeGetProperty(key: String, arrayClass: Class<T>): T? {
@@ -1525,17 +1526,6 @@ internal constructor(
         private fun extrasKey(key: String, index: Int) = "property/$key[$index]"
 
         // TODO(b/399823985): Codegen the mapping table to prevent using reflection
-        private fun <T : Any> getSerializableClass(qualifiedName: String): Class<T> {
-            return try {
-                @Suppress("UNCHECKED_CAST")
-                Class.forName(qualifiedName) as Class<T>
-            } catch (e: Exception) {
-                Log.d(APP_FUNCTIONS_TAG, "Unable to find serializable class $qualifiedName", e)
-                throw IllegalArgumentException("Unable to find serializable class $qualifiedName")
-            }
-        }
-
-        // TODO(b/399823985): Codegen the mapping table to prevent using reflection
         private fun <T : Any> getSerializableFactory(
             serializableClass: Class<T>
         ): AppFunctionSerializableFactory<T> {
@@ -1576,6 +1566,109 @@ internal constructor(
         }
 
         /**
+         * Serialize [serializable] to [AppFunctionData] representing an AllOf type object.
+         *
+         * The caller can use this to construct the [AppFunctionData] that conforms with the
+         * provided [metadata].
+         *
+         * @param metadata [AppFunctionAllOfTypeMetadata] defining the AllOf type structure.
+         * @param componentMetadata [AppFunctionComponentsMetadata] that has the shared data types.
+         * @param serializable The serializable that is annotated with [AppFunctionSerializable].
+         * @throws IllegalArgumentException if failed to serialize [serializable].
+         * @see [AppFunctionAllOfTypeMetadata]
+         * @see [AppFunctionComponentsMetadata]
+         */
+        @JvmStatic
+        public inline fun <reified T : Any> serialize(
+            metadata: AppFunctionAllOfTypeMetadata,
+            componentMetadata: AppFunctionComponentsMetadata,
+            serializable: T,
+        ): AppFunctionData {
+            return serialize(metadata, componentMetadata, serializable, T::class.java)
+        }
+
+        /**
+         * Serialize [serializable] to [AppFunctionData] representing an AllOf type object.
+         *
+         * The caller can use this to construct the [AppFunctionData] that conforms with the
+         * provided [metadata].
+         *
+         * @param metadata [AppFunctionAllOfTypeMetadata] defining the AllOf type structure.
+         * @param componentMetadata [AppFunctionComponentsMetadata] that has the shared data types.
+         * @param serializable The serializable that is annotated with [AppFunctionSerializable].
+         * @param serializableClass The class of [serializable].
+         * @throws IllegalArgumentException if failed to serialize [serializable].
+         * @see [AppFunctionAllOfTypeMetadata]
+         * @see [AppFunctionComponentsMetadata]
+         */
+        @JvmStatic
+        public fun <T : Any> serialize(
+            metadata: AppFunctionAllOfTypeMetadata,
+            componentMetadata: AppFunctionComponentsMetadata,
+            serializable: T,
+            serializableClass: Class<T>,
+        ): AppFunctionData {
+            return serialize(
+                AppFunctionDataSpec.create(
+                    metadata.getPseudoObjectTypeMetadata(componentMetadata),
+                    componentMetadata,
+                ),
+                serializable,
+                serializableClass,
+            )
+        }
+
+        /**
+         * Serialize [serializable] to [AppFunctionData] representing an object.
+         *
+         * The caller can use this to construct the [AppFunctionData] that conforms with the
+         * provided [metadata].
+         *
+         * @param metadata [AppFunctionObjectTypeMetadata] defining the object structure.
+         * @param componentMetadata [AppFunctionComponentsMetadata] that has the shared data types.
+         * @param serializable The serializable that is annotated with [AppFunctionSerializable].
+         * @throws IllegalArgumentException if failed to serialize [serializable].
+         * @see [AppFunctionObjectTypeMetadata]
+         * @see [AppFunctionComponentsMetadata]
+         */
+        @JvmStatic
+        public inline fun <reified T : Any> serialize(
+            metadata: AppFunctionObjectTypeMetadata,
+            componentMetadata: AppFunctionComponentsMetadata,
+            serializable: T,
+        ): AppFunctionData {
+            return serialize(metadata, componentMetadata, serializable, T::class.java)
+        }
+
+        /**
+         * Serialize [serializable] to [AppFunctionData] representing an object.
+         *
+         * The caller can use this to construct the [AppFunctionData] that conforms with the
+         * provided [metadata].
+         *
+         * @param metadata [AppFunctionObjectTypeMetadata] defining the object structure.
+         * @param componentMetadata [AppFunctionComponentsMetadata] that has the shared data types.
+         * @param serializable The serializable that is annotated with [AppFunctionSerializable].
+         * @param serializableClass The class of [serializable].
+         * @throws IllegalArgumentException if failed to serialize [serializable].
+         * @see [AppFunctionObjectTypeMetadata]
+         * @see [AppFunctionComponentsMetadata]
+         */
+        @JvmStatic
+        public fun <T : Any> serialize(
+            metadata: AppFunctionObjectTypeMetadata,
+            componentMetadata: AppFunctionComponentsMetadata,
+            serializable: T,
+            serializableClass: Class<T>,
+        ): AppFunctionData {
+            return serialize(
+                AppFunctionDataSpec.create(metadata, componentMetadata),
+                serializable,
+                serializableClass,
+            )
+        }
+
+        /**
          * Serializes [serializable] to an [AppFunctionData].
          *
          * @param serializable The instance of [serializableClass].
@@ -1585,15 +1678,23 @@ internal constructor(
          *   [AppFunctionData].
          * @see [AppFunctionSerializable]
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun <T : Any> serialize(
             serializable: T,
             serializableClass: Class<T>,
         ): AppFunctionData {
+            return serialize(null, serializable, serializableClass)
+        }
+
+        internal fun <T : Any> serialize(
+            spec: AppFunctionDataSpec?,
+            serializable: T,
+            serializableClass: Class<T>,
+        ): AppFunctionData {
             return try {
                 val factory = getSerializableFactory(serializableClass)
-                // TODO(b/446606781): Provide spec from API
-                factory.toAppFunctionData(null, serializable)
+                factory.toAppFunctionData(spec, serializable)
             } catch (e: Exception) {
                 Log.d(
                     APP_FUNCTIONS_TAG,
@@ -1604,21 +1705,6 @@ internal constructor(
                     "Unable to serialize $serializableClass. Is the class annotated with @AppFunctionSerializable?"
                 )
             }
-        }
-
-        /**
-         * Serializes [serializable] to an [AppFunctionData].
-         *
-         * @param serializable The instance of [qualifiedName].
-         * @param qualifiedName The qualified name of the class [serializable].
-         * @return [AppFunctionData] with properties from [serializable].
-         * @throws IllegalArgumentException If unable to serialize [serializable] to an
-         *   [AppFunctionData].
-         * @see [AppFunctionSerializable]
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public fun <T : Any> serialize(serializable: T, qualifiedName: String): AppFunctionData {
-            return serialize(serializable, getSerializableClass<T>(qualifiedName))
         }
 
         /** Represents an empty [AppFunctionData]. */

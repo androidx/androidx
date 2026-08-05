@@ -37,6 +37,7 @@ import androidx.appfunctions.metadata.AppFunctionFloatTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionOneOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParcelableTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
@@ -161,7 +162,10 @@ public fun AppFunctionResponseSpec.unsafeBuildReturnValue(result: Any?): AppFunc
                     builder
                         .setAppFunctionData(
                             ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                            AppFunctionData.serialize(result, checkNotNull(objectQualifiedName)),
+                            AppFunctionData.serialize(
+                                result,
+                                getClass(checkNotNull(objectQualifiedName)),
+                            ),
                         )
                         .build()
                 AppFunctionDataTypeMetadata.TYPE_ARRAY -> buildArrayReturnValue(builder, result)
@@ -235,8 +239,8 @@ private fun AppFunctionResponseSpec.buildArrayReturnValue(
         AppFunctionDataTypeMetadata.TYPE_REFERENCE -> {
             val serializableList = result as List<Any>
             val appFunctionDataList =
-                serializableList.map {
-                    AppFunctionData.serialize(it, checkNotNull(itemQualifiedName))
+                serializableList.map { item ->
+                    AppFunctionData.serialize(item, getClass(checkNotNull(itemQualifiedName)))
                 }
             builder
                 .setAppFunctionDataList(
@@ -337,7 +341,12 @@ private fun AppFunctionDataTypeMetadata.unsafeBuildReturnValue(
             builder
                 .setAppFunctionData(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    AppFunctionData.serialize(result, checkNotNull(this.qualifiedName)),
+                    AppFunctionData.serialize(
+                        this,
+                        componentsMetadata,
+                        result,
+                        getClass(checkNotNull(this.qualifiedName)),
+                    ),
                 )
                 .build()
         }
@@ -345,20 +354,64 @@ private fun AppFunctionDataTypeMetadata.unsafeBuildReturnValue(
             builder
                 .setAppFunctionData(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    AppFunctionData.serialize(result, checkNotNull(this.qualifiedName)),
+                    AppFunctionData.serialize(
+                        this,
+                        componentsMetadata,
+                        result,
+                        getClass(checkNotNull(this.qualifiedName)),
+                    ),
                 )
                 .build()
         }
         is AppFunctionReferenceTypeMetadata -> {
-            builder
-                .setAppFunctionData(
-                    ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    AppFunctionData.serialize(result, checkNotNull(this.referenceDataType)),
-                )
-                .build()
+            when (val resolvedType = componentsMetadata.dataTypes[this.referenceDataType]) {
+                is AppFunctionObjectTypeMetadata -> {
+                    builder
+                        .setAppFunctionData(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
+                            AppFunctionData.serialize(
+                                resolvedType,
+                                componentsMetadata,
+                                result,
+                                getClass(checkNotNull(resolvedType.qualifiedName)),
+                            ),
+                        )
+                        .build()
+                }
+                is AppFunctionAllOfTypeMetadata -> {
+                    builder
+                        .setAppFunctionData(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
+                            AppFunctionData.serialize(
+                                resolvedType,
+                                componentsMetadata,
+                                result,
+                                getClass(checkNotNull(resolvedType.qualifiedName)),
+                            ),
+                        )
+                        .build()
+                }
+                is AppFunctionOneOfTypeMetadata -> {
+                    builder
+                        .setAppFunctionData(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
+                            AppFunctionData.serialize(
+                                resolvedType.getObjectMetadataForOneOfType(
+                                    checkNotNull(result.javaClass.canonicalName),
+                                    componentsMetadata,
+                                ),
+                                componentsMetadata,
+                                result,
+                                getClass(checkNotNull(resolvedType.qualifiedName)),
+                            ),
+                        )
+                        .build()
+                }
+                else -> throw IllegalStateException("Unable to serialize $resolvedType")
+            }
         }
         is AppFunctionArrayTypeMetadata -> {
-            this.unsafeBuildReturnValue(builder, result)
+            this.unsafeBuildReturnValue(builder, componentsMetadata, result)
         }
         else -> {
             throw IllegalStateException("Unknown DataTypeMetadata: ${this::class.java}")
@@ -369,6 +422,7 @@ private fun AppFunctionDataTypeMetadata.unsafeBuildReturnValue(
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun AppFunctionArrayTypeMetadata.unsafeBuildReturnValue(
     builder: AppFunctionData.Builder,
+    componentsMetadata: AppFunctionComponentsMetadata,
     result: Any,
 ): AppFunctionData {
     return when (val castItemType = itemType) {
@@ -446,8 +500,13 @@ private fun AppFunctionArrayTypeMetadata.unsafeBuildReturnValue(
             builder
                 .setAppFunctionDataList(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    (result as List<Any>).map {
-                        AppFunctionData.serialize(it, checkNotNull(castItemType.qualifiedName))
+                    (result as List<Any>).map { item ->
+                        AppFunctionData.serialize(
+                            castItemType,
+                            componentsMetadata,
+                            item,
+                            getClass(checkNotNull(castItemType.qualifiedName)),
+                        )
                     },
                 )
                 .build()
@@ -457,19 +516,54 @@ private fun AppFunctionArrayTypeMetadata.unsafeBuildReturnValue(
             builder
                 .setAppFunctionDataList(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    (result as List<Any>).map {
-                        AppFunctionData.serialize(it, checkNotNull(castItemType.qualifiedName))
+                    (result as List<Any>).map { item ->
+                        AppFunctionData.serialize(
+                            castItemType,
+                            componentsMetadata,
+                            item,
+                            getClass(checkNotNull(castItemType.qualifiedName)),
+                        )
                     },
                 )
                 .build()
         }
         is AppFunctionReferenceTypeMetadata -> {
+            val resolvedType = componentsMetadata.dataTypes[castItemType.referenceDataType]
             @Suppress("UNCHECKED_CAST")
             builder
                 .setAppFunctionDataList(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    (result as List<Any>).map {
-                        AppFunctionData.serialize(it, checkNotNull(castItemType.referenceDataType))
+                    (result as List<Any>).map { item ->
+                        when (resolvedType) {
+                            is AppFunctionObjectTypeMetadata -> {
+                                AppFunctionData.serialize(
+                                    resolvedType,
+                                    componentsMetadata,
+                                    item,
+                                    getClass(checkNotNull(resolvedType.qualifiedName)),
+                                )
+                            }
+                            is AppFunctionAllOfTypeMetadata -> {
+                                AppFunctionData.serialize(
+                                    resolvedType,
+                                    componentsMetadata,
+                                    item,
+                                    getClass(checkNotNull(resolvedType.qualifiedName)),
+                                )
+                            }
+                            is AppFunctionOneOfTypeMetadata -> {
+                                AppFunctionData.serialize(
+                                    resolvedType.getObjectMetadataForOneOfType(
+                                        checkNotNull(item.javaClass.canonicalName),
+                                        componentsMetadata,
+                                    ),
+                                    componentsMetadata,
+                                    item,
+                                    getClass(checkNotNull(resolvedType.qualifiedName)),
+                                )
+                            }
+                            else -> throw IllegalStateException("Unable to process $resolvedType")
+                        }
                     },
                 )
                 .build()

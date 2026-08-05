@@ -78,7 +78,8 @@ package androidx.appfunctions {
     method @InaccessibleFromKotlin public String getQualifiedName();
     method public String? getString(String key);
     method public java.util.List<java.lang.String>? getStringList(String key);
-    method public static <T> androidx.appfunctions.AppFunctionData serialize(T serializable, Class<T> serializableClass);
+    method public static <T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable, Class<T> serializableClass);
+    method public static <T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable, Class<T> serializableClass);
     property public String qualifiedName;
     field public static final androidx.appfunctions.AppFunctionData.Companion Companion;
     field public static final androidx.appfunctions.AppFunctionData EMPTY;
@@ -111,7 +112,10 @@ package androidx.appfunctions {
   }
 
   public static final class AppFunctionData.Companion {
-    method public <T> androidx.appfunctions.AppFunctionData serialize(T serializable, Class<T> serializableClass);
+    method @KotlinOnly public inline <reified T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable);
+    method public <T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable, Class<T> serializableClass);
+    method @KotlinOnly public inline <reified T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable);
+    method public <T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable, Class<T> serializableClass);
     property public androidx.appfunctions.AppFunctionData EMPTY;
   }
 
