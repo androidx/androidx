@@ -478,6 +478,12 @@ package androidx.compose.material3 {
     method @InaccessibleFromKotlin public boolean isShowing();
     method public void show();
     property public boolean isShowing;
+    field public static final androidx.compose.material3.ButtonGroupMenuState.Companion Companion;
+  }
+
+  public static final class ButtonGroupMenuState.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.ButtonGroupMenuState,? extends java.lang.Object?> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.ButtonGroupMenuState,? extends java.lang.Object?> Saver;
   }
 
   public sealed nonexhaustive interface ButtonGroupScope {

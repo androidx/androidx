@@ -140,7 +140,7 @@ public fun ButtonGroup(
     val defaultAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
     val scope: ButtonGroupScopeImpl by
         rememberButtonGroupScopeState(content = content, animationSpec = defaultAnimationSpec)
-    val menuState = remember { ButtonGroupMenuState() }
+    val menuState = rememberSaveable(saver = ButtonGroupMenuState.Saver) { ButtonGroupMenuState() }
     val overflowState = rememberOverflowState()
 
     val measurePolicy =
@@ -349,6 +349,15 @@ public class ButtonGroupMenuState(initialIsShowing: Boolean = false) {
     /** Show the overflow menu. */
     public fun show(): Unit {
         isShowing = true
+    }
+
+    public companion object {
+        /** The default [Saver] implementation for [ButtonGroupMenuState]. */
+        public val Saver: Saver<ButtonGroupMenuState, *> =
+            Saver(
+                save = { it.isShowing },
+                restore = { ButtonGroupMenuState(initialIsShowing = it) },
+            )
     }
 }
 

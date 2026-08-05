@@ -40,6 +40,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -50,7 +51,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -1018,6 +1018,53 @@ class ButtonGroupTest {
         rule.onNodeWithTag("9 MenuItem").assertIsNotDisplayed()
 
         rule.onNodeWithTag(overflowIndicator).performClick()
+
+        rule.onNodeWithTag("9 MenuItem").assertIsDisplayed()
+    }
+
+    @Test
+    fun buttonGroup_restoresOverflowMenuState() {
+        val restorationTester = StateRestorationTester(rule)
+        val numButtons = 10
+        restorationTester.setContent {
+            Box(Modifier.testTag(wrapperTestTag)) {
+                ButtonGroup(
+                    overflowIndicator = { menuState ->
+                        IconButton(
+                            modifier = Modifier.testTag(overflowIndicator),
+                            onClick = {
+                                if (menuState.isShowing) {
+                                    menuState.dismiss()
+                                } else {
+                                    menuState.show()
+                                }
+                            },
+                        ) {}
+                    },
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    for (i in 0 until numButtons) {
+                        customItem(
+                            buttonGroupContent = { Button(onClick = {}) { Text("$i") } },
+                            menuContent = {
+                                DropdownMenuItem(
+                                    enabled = true,
+                                    text = { Text("$i") },
+                                    modifier = Modifier.testTag("$i MenuItem"),
+                                    onClick = {},
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(overflowIndicator).performClick()
+
+        rule.onNodeWithTag("9 MenuItem").assertIsDisplayed()
+
+        restorationTester.emulateSavedInstanceStateRestore()
 
         rule.onNodeWithTag("9 MenuItem").assertIsDisplayed()
     }

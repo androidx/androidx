@@ -502,6 +502,11 @@ final class androidx.compose.material3/ButtonGroupMenuState { // androidx.compos
 
     final fun dismiss() // androidx.compose.material3/ButtonGroupMenuState.dismiss|dismiss(){}[0]
     final fun show() // androidx.compose.material3/ButtonGroupMenuState.show|show(){}[0]
+
+    final object Companion { // androidx.compose.material3/ButtonGroupMenuState.Companion|null[0]
+        final val Saver // androidx.compose.material3/ButtonGroupMenuState.Companion.Saver|{}Saver[0]
+            final fun <get-Saver>(): androidx.compose.runtime.saveable/Saver<androidx.compose.material3/ButtonGroupMenuState, *> // androidx.compose.material3/ButtonGroupMenuState.Companion.Saver.<get-Saver>|<get-Saver>(){}[0]
+    }
 }
 
 final class androidx.compose.material3/ButtonShapes { // androidx.compose.material3/ButtonShapes|null[0]
