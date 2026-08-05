@@ -32,7 +32,6 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
-import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.car.app.validation.HostValidator;
@@ -267,8 +266,8 @@ final class CarAppBinder extends ICarApp.Stub {
                 "getAppTheme",
                 () -> {
                     CarAppService carAppService = mService;
-                    return carAppService != null ? carAppService.getAppTheme()
-                            : CarAppTheme.SYSTEM_THEME;
+                    return carAppService != null ? carAppService.getCarAppThemeSource()
+                            : CarAppService.THEME_SOURCE_SYSTEM;
                 });
     }
 

@@ -56,13 +56,13 @@ public final class ShowcaseService extends CarAppService {
 
     @Override
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public int getAppTheme() {
+    public int getCarAppThemeSource() {
         android.content.SharedPreferences prefs =
                 getSharedPreferences(SHARED_PREF_KEY, android.content.Context.MODE_PRIVATE);
         boolean useAppTheme = prefs.getBoolean(APP_THEME_KEY, false);
         return useAppTheme
-                ? androidx.car.app.theme.CarAppTheme.APP_THEME
-                : androidx.car.app.theme.CarAppTheme.SYSTEM_THEME;
+                ? CarAppService.THEME_SOURCE_APP
+                : CarAppService.THEME_SOURCE_SYSTEM;
     }
 
     @Override

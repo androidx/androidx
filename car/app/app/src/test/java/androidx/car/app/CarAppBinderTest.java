@@ -42,7 +42,6 @@ import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.testing.SessionController;
 import androidx.car.app.testing.TestCarContext;
-import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.validation.HostValidator;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -278,7 +277,7 @@ public class CarAppBinderTest {
 
         verify(mMockOnDoneCallback).onSuccess(mBundleableArgumentCaptor.capture());
         int receivedThemeStyle = (Integer) mBundleableArgumentCaptor.getValue().get();
-        assertThat(receivedThemeStyle).isEqualTo(CarAppTheme.SYSTEM_THEME);
+        assertThat(receivedThemeStyle).isEqualTo(CarAppService.THEME_SOURCE_SYSTEM);
     }
 
     @Test

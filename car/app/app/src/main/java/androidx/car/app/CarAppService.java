@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.utils.LogTags.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
@@ -27,10 +28,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.theme.CarAppTheme;
 import androidx.car.app.validation.HostValidator;
 
 import org.jspecify.annotations.NonNull;
@@ -38,6 +40,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -164,6 +168,16 @@ public abstract class CarAppService extends Service {
     @RequiresCarApi(8)
     public static final String CATEGORY_MEDIA_APP = "androidx.car.app.category.MEDIA";
 
+    /** Respect system/OEM customization (colors, shapes, typography). */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public static final int THEME_SOURCE_SYSTEM = 0;
+
+    /** Request standard/neutral theme experience, bypassing OEM overrides. */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public static final int THEME_SOURCE_APP = 1;
+
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
     private final @NonNull Map<SessionInfo, CarAppBinder> mBinders = new HashMap<>();
@@ -275,6 +289,14 @@ public abstract class CarAppService extends Service {
      */
     public abstract @NonNull HostValidator createHostValidator();
 
+    /* Represents the theme style configuration for the car app. */
+    @IntDef({THEME_SOURCE_SYSTEM, THEME_SOURCE_APP})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(LIBRARY)
+    @ExperimentalCarApi
+    public @interface ThemeSource {
+    }
+
     /**
      * Creates a new {@link Session} for the application.
      *
@@ -341,25 +363,27 @@ public abstract class CarAppService extends Service {
     /**
      * Returns the app-wide theme that should be applied to all templates within this application.
      *
-     * <p>Starting in API 9, by default, this method returns {@link CarAppTheme#SYSTEM_THEME}.
+     * <p>Starting in API 9, by default, this method returns
+     * {@link CarAppService#THEME_SOURCE_SYSTEM}.
      * This means the app will automatically inherit the system-provided theme, which may include
      * dynamic, OEM-specific styling depending on the platform.
      *
      * <p>App developers are expected to override this method and return
-     * {@link CarAppTheme#APP_THEME} if they wish to maintain strict control over their brand
+     * {@link CarAppService#THEME_SOURCE_APP} if they wish to maintain strict control over their
+     * brand
      * visual styling.
      *
      * <p>Below is an example of this method implementation:
      *
      * <pre>
      * &#64;Override
-     * public int getAppTheme() {
-     *     // Return APP_THEME to retain custom app styling with CAL defaults theme,
-     *     // or SYSTEM_THEME to adopt the system styling.
+     * public int getCarAppThemeSource() {
+     *     // Return THEME_SOURCE_APP to retain custom app styling with CAL defaults theme,
+     *     // or THEME_SOURCE_SYSTEM to adopt the system styling.
      *     if (shouldUseCustomBranding()) {
-     *         return CarAppTheme.APP_THEME;
+     *         return CarAppService.THEME_SOURCE_SYSTEM;
      *     } else {
-     *         return CarAppTheme.SYSTEM_THEME;
+     *         return CarAppService.THEME_SOURCE_APP;
      *     }
      * }
      * </pre>
@@ -370,8 +394,8 @@ public abstract class CarAppService extends Service {
     //  Expression opt-in changes in CarApi 9.
     @RequiresCarApi(9)
     @ExperimentalCarApi
-    public @CarAppTheme.Theme int getAppTheme() {
-        return CarAppTheme.SYSTEM_THEME;
+    public @ThemeSource int getCarAppThemeSource() {
+        return THEME_SOURCE_SYSTEM;
     }
 
     /**
