@@ -46,14 +46,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.xr.compose.material3.DefaultNavigationBarOrbiterProperties
-import androidx.xr.compose.material3.DefaultNavigationRailOrbiterProperties
-import androidx.xr.compose.material3.DefaultWideNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.DefaultSpatialNavigationBarOrbiterProperties
+import androidx.xr.compose.material3.DefaultSpatialNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.DefaultSpatialWideNavigationRailOrbiterProperties
 import androidx.xr.compose.material3.ExperimentalMaterial3XrApi
-import androidx.xr.compose.material3.LocalNavigationBarOrbiterProperties
-import androidx.xr.compose.material3.LocalNavigationRailOrbiterProperties
-import androidx.xr.compose.material3.LocalShortNavigationBarOrbiterProperties
-import androidx.xr.compose.material3.LocalWideNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.LocalSpatialNavigationBarOrbiterProperties
+import androidx.xr.compose.material3.LocalSpatialNavigationRailOrbiterProperties
+import androidx.xr.compose.material3.LocalSpatialShortNavigationBarOrbiterProperties
+import androidx.xr.compose.material3.LocalSpatialWideNavigationRailOrbiterProperties
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,20 +72,20 @@ private fun Content() {
     var navSuiteSelectedItem by remember { mutableStateOf(NavSuiteItem.HOME) }
 
     CompositionLocalProvider(
-        LocalNavigationBarOrbiterProperties provides
-            DefaultNavigationBarOrbiterProperties.copy(
+        LocalSpatialNavigationBarOrbiterProperties provides
+            DefaultSpatialNavigationBarOrbiterProperties.copy(
                 alignment = orbiterPosition.toHorizontalAlignment()
             ),
-        LocalNavigationRailOrbiterProperties provides
-            DefaultNavigationRailOrbiterProperties.copy(
+        LocalSpatialNavigationRailOrbiterProperties provides
+            DefaultSpatialNavigationRailOrbiterProperties.copy(
                 alignment = orbiterPosition.toVerticalAlignment()
             ),
-        LocalShortNavigationBarOrbiterProperties provides
-            DefaultNavigationBarOrbiterProperties.copy(
+        LocalSpatialShortNavigationBarOrbiterProperties provides
+            DefaultSpatialNavigationBarOrbiterProperties.copy(
                 alignment = orbiterPosition.toHorizontalAlignment()
             ),
-        LocalWideNavigationRailOrbiterProperties provides
-            DefaultWideNavigationRailOrbiterProperties.copy(
+        LocalSpatialWideNavigationRailOrbiterProperties provides
+            DefaultSpatialWideNavigationRailOrbiterProperties.copy(
                 alignment = orbiterPosition.toVerticalAlignment()
             ),
     ) {

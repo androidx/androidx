@@ -56,12 +56,12 @@ import androidx.xr.compose.unit.DpVolumeOffset
  * [FloatingActionButton], and/or a logo. Each destination is typically represented by an icon and a
  * text label.
  *
- * The [WideNavigationRail] is collapsed by default, but it also supports being expanded via a
- * [WideNavigationRailState]. When collapsed, the rail should display three to seven navigation
+ * The [SpatialWideNavigationRail] is collapsed by default, but it also supports being expanded via
+ * a [WideNavigationRailState]. When collapsed, the rail should display three to seven navigation
  * items.
  *
  * See [WideNavigationRailItem] for configuration specific to each item, and not the overall
- * [WideNavigationRail] component.
+ * [SpatialWideNavigationRail] component.
  *
  * @param modifier the [Modifier] to be applied to this wide navigation rail
  * @param state the [WideNavigationRailState] of this wide navigation rail
@@ -75,7 +75,7 @@ import androidx.xr.compose.unit.DpVolumeOffset
 @ExperimentalMaterial3ExpressiveApi
 @ExperimentalMaterial3XrApi
 @Composable
-public fun WideNavigationRail(
+public fun SpatialWideNavigationRail(
     modifier: Modifier = Modifier,
     state: WideNavigationRailState = rememberWideNavigationRailState(),
     colors: WideNavigationRailColors = WideNavigationRailDefaults.colors(),
@@ -83,7 +83,7 @@ public fun WideNavigationRail(
     content: @Composable () -> Unit,
 ) {
     val orbiterProperties =
-        LocalWideNavigationRailOrbiterProperties.current.copy(
+        LocalSpatialWideNavigationRailOrbiterProperties.current.copy(
             shape = SpatialRoundedCornerShape(CornerSize(percent = 0))
         )
     VerticalOrbiter(orbiterProperties) {
@@ -131,11 +131,11 @@ private object XrWideNavigationRailTokens {
 }
 
 /**
- * The default [OrbiterProperties] used by [WideNavigationRail] if none is specified in
- * [LocalWideNavigationRailOrbiterProperties].
+ * The default [OrbiterProperties] used by [SpatialWideNavigationRail] if none is specified in
+ * [LocalSpatialWideNavigationRailOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultWideNavigationRailOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialWideNavigationRailOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.CenterStart(
@@ -150,9 +150,10 @@ public val DefaultWideNavigationRailOrbiterProperties: OrbiterProperties =
         shape = SpatialRoundedCornerShape(CornerSize(50)),
     )
 
-/** The [OrbiterProperties] used by [WideNavigationRail]. */
+/** The [OrbiterProperties] used by [SpatialWideNavigationRail]. */
 @ExperimentalMaterial3XrApi
-public val LocalWideNavigationRailOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
+public val LocalSpatialWideNavigationRailOrbiterProperties:
+    ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultWideNavigationRailOrbiterProperties
+        DefaultSpatialWideNavigationRailOrbiterProperties
     }

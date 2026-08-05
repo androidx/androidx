@@ -43,7 +43,7 @@ import androidx.xr.compose.spatial.SpatialDialogProperties
  */
 @ExperimentalMaterial3XrApi
 @Composable
-public fun BasicAlertDialog(
+public fun SpatialBasicAlertDialog(
     onDismissRequest: () -> Unit,
     properties: SpatialDialogProperties = SpatialDialogProperties(),
     content: @Composable () -> Unit,
