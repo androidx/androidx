@@ -297,6 +297,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 layoutMaxOffset = 0,
                 coroutineScope = coroutineScope,
                 graphicsContext = graphicsContext,
+                shouldRunItemAnimation = true,
             )
 
             if (!isLookingAhead) {
@@ -950,6 +951,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
             layoutMaxOffset = currentItemOffsets.max() + contentPadding,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
+            shouldRunItemAnimation = true,
         )
 
         if (!isLookingAhead) {
