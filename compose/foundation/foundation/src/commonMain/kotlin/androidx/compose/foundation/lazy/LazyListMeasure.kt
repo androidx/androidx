@@ -99,6 +99,7 @@ internal fun measureLazyList(
             layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext,
+            shouldRunItemAnimation = true,
         )
 
         if (!isLookingAhead) {
@@ -363,24 +364,23 @@ internal fun measureLazyList(
                 density = density,
             )
 
-        if (shouldRunItemAnimation) {
-            itemAnimator.onMeasured(
-                consumedScroll = consumedScroll.toInt(),
-                layoutWidth = layoutWidth,
-                layoutHeight = layoutHeight,
-                positionedItems = positionedItems,
-                keyIndexMap = measuredItemProvider.keyIndexMap,
-                itemProvider = measuredItemProvider,
-                isVertical = isVertical,
-                laneCount = 1,
-                isLookingAhead = isLookingAhead,
-                hasLookaheadOccurred = hasLookaheadOccurred,
-                coroutineScope = coroutineScope,
-                layoutMinOffset = currentFirstItemScrollOffset,
-                layoutMaxOffset = currentMainAxisOffset,
-                graphicsContext = graphicsContext,
-            )
-        }
+        itemAnimator.onMeasured(
+            consumedScroll = consumedScroll.toInt(),
+            layoutWidth = layoutWidth,
+            layoutHeight = layoutHeight,
+            positionedItems = positionedItems,
+            keyIndexMap = measuredItemProvider.keyIndexMap,
+            itemProvider = measuredItemProvider,
+            isVertical = isVertical,
+            laneCount = 1,
+            isLookingAhead = isLookingAhead,
+            hasLookaheadOccurred = hasLookaheadOccurred,
+            coroutineScope = coroutineScope,
+            layoutMinOffset = currentFirstItemScrollOffset,
+            layoutMaxOffset = currentMainAxisOffset,
+            graphicsContext = graphicsContext,
+            shouldRunItemAnimation = shouldRunItemAnimation,
+        )
 
         if (!isLookingAhead) {
             val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems

@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
@@ -64,6 +65,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
      *
      * Note that this method can compose new item and add it into the [positionedItems] list.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun onMeasured(
         consumedScroll: Int,
         layoutWidth: Int,
@@ -79,6 +81,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         layoutMaxOffset: Int,
         coroutineScope: CoroutineScope,
         graphicsContext: GraphicsContext,
+        shouldRunItemAnimation: Boolean,
     ) {
         val previousKeyToIndexMap = this.keyIndexMap
         this.keyIndexMap = keyIndexMap
@@ -113,7 +116,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             if (item.hasAnimations) {
                 val itemInfo = keyToItemInfoMap[item.key]
                 val previousIndex = previousKeyToIndexMap?.getIndex(item.key) ?: -1
-                val shouldAnimateAppearance = previousIndex == -1 && previousKeyToIndexMap != null
+                val shouldAnimateAppearance =
+                    previousIndex == -1 && previousKeyToIndexMap != null && shouldRunItemAnimation
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
                     val newItemInfo = ItemInfo()
@@ -183,7 +187,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         }
 
         val accumulatedOffsetPerLane = IntArray(laneCount)
-        if (shouldSetupAnimation && previousKeyToIndexMap != null) {
+        if (shouldSetupAnimation && previousKeyToIndexMap != null && shouldRunItemAnimation) {
             if (movingInFromStartBound.isNotEmpty()) {
                 movingInFromStartBound.sortByDescending { previousKeyToIndexMap.getIndex(it.key) }
                 movingInFromStartBound.fastForEach { item ->
