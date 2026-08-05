@@ -16,6 +16,7 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -24,13 +25,17 @@ import kotlinx.serialization.json.put
  * Schema representing a number literal.
  *
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
-public class A2uiNumberSchema(public override val description: String? = null) : A2uiSchema() {
+public class A2uiNumberSchema
+@JvmOverloads
+public constructor(
+    public override val description: String? = null,
+    public override val keywords: List<A2uiSchemaKeyword<Number>> = emptyList(),
+) : A2uiSchema() {
     override fun toJsonElement(): JsonElement = buildJsonObject {
         put(KEY_TYPE, TYPE_NUMBER)
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
-        }
+        putCommonKeywords(this@A2uiNumberSchema)
     }
 
     override fun toString(): String {

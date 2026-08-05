@@ -16,9 +16,9 @@
 
 package androidx.a2ui.model.catalog
 
-import androidx.a2ui.model.schema.A2uiConstSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -49,9 +49,13 @@ class A2uiFunctionDefinitionTest(private val returnType: A2uiFunctionReturnType)
                 description = "Validates an email address",
                 properties =
                     mapOf(
-                        "call" to A2uiConstSchema("email"),
+                        "call" to
+                            A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const("email"))),
                         "args" to A2uiStringSchema(),
-                        "returnType" to A2uiConstSchema(returnType.value),
+                        "returnType" to
+                            A2uiStringSchema(
+                                keywords = listOf(A2uiSchemaKeyword.Const(returnType.value))
+                            ),
                     ),
                 required = setOf("call", "args"),
                 isAdditionalPropertiesAllowed = false,

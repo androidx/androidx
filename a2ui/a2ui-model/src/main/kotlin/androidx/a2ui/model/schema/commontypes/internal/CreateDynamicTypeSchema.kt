@@ -16,11 +16,11 @@
 
 package androidx.a2ui.model.schema.commontypes.internal
 
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiConstSchema
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDataBindingSchema
 import androidx.a2ui.model.schema.commontypes.A2uiFunctionCallSchema
 import androidx.a2ui.model.schema.commontypes.FunctionReturnType
@@ -34,21 +34,39 @@ internal fun createDynamicTypeSchema(
     returnType: FunctionReturnType,
     description: String?,
 ): A2uiSchema =
-    A2uiOneOfSchema(
-        schemas =
+    A2uiAnySchema(
+        keywords =
             listOf(
-                literalSchema,
-                A2uiDataBindingSchema.DEFAULT_INSTANCE,
-                A2uiAllOfSchema(
-                    schemas =
-                        listOf(
-                            A2uiFunctionCallSchema.DEFAULT_INSTANCE,
-                            A2uiObjectSchema(
-                                properties =
-                                    mapOf("returnType" to A2uiConstSchema(returnType.value))
-                            ),
-                        )
-                ),
+                A2uiSchemaKeyword.OneOf(
+                    listOf(
+                        literalSchema,
+                        A2uiDataBindingSchema.DEFAULT_INSTANCE,
+                        A2uiObjectSchema(
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.AllOf(
+                                        listOf(
+                                            A2uiFunctionCallSchema.DEFAULT_INSTANCE,
+                                            A2uiObjectSchema(
+                                                properties =
+                                                    mapOf(
+                                                        "returnType" to
+                                                            A2uiStringSchema(
+                                                                keywords =
+                                                                    listOf(
+                                                                        A2uiSchemaKeyword.Const(
+                                                                            returnType.value
+                                                                        )
+                                                                    )
+                                                            )
+                                                    )
+                                            ),
+                                        )
+                                    )
+                                )
+                        ),
+                    )
+                )
             ),
         description = description,
     )

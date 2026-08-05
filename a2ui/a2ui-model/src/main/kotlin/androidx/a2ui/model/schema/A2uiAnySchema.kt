@@ -16,22 +16,24 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 /**
- * Schema representing an unstructured JSON payload.
- *
- * Use sparingly, typically only for generic contexts that bypass strict validation.
+ * Schema representing an unstructured JSON payload or a keyword-only schema.
  *
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
-public class A2uiAnySchema(public override val description: String? = null) : A2uiSchema() {
+public class A2uiAnySchema
+@JvmOverloads
+public constructor(
+    public override val description: String? = null,
+    public override val keywords: List<A2uiSchemaKeyword<Any>> = emptyList(),
+) : A2uiSchema() {
     override fun toJsonElement(): JsonElement = buildJsonObject {
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
-        }
+        putCommonKeywords(this@A2uiAnySchema)
     }
 
     override fun toString(): String {

@@ -17,13 +17,16 @@
 package androidx.a2ui.engine.catalog
 
 import androidx.a2ui.model.catalog.toSchema
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiAnyOfSchema
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
+import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
+import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
+import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -137,18 +140,16 @@ private fun collectLocalDefinitionsFromSchema(
 ): Map<String, A2uiSchema> {
     if (!visited.add(schema)) return result
 
-    if (schema is A2uiCompositeSchema) {
-        if (schema.schemaId == null) {
-            val defName = schema.definitionName
-            if (defName != null) {
-                result.putIfAbsent(defName, schema.getDefinition())
-            }
-            collectLocalDefinitionsFromSchema(schema.getDefinition(), result, visited)
-        }
-        return result
-    }
-
     when (schema) {
+        is A2uiCompositeSchema -> {
+            if (schema.schemaId == null) {
+                val defName = schema.definitionName
+                if (defName != null) {
+                    result.putIfAbsent(defName, schema.getDefinition())
+                }
+                collectLocalDefinitionsFromSchema(schema.getDefinition(), result, visited)
+            }
+        }
         is A2uiObjectSchema -> {
             for (propSchema in schema.properties.values) {
                 collectLocalDefinitionsFromSchema(propSchema, result, visited)
@@ -160,22 +161,37 @@ private fun collectLocalDefinitionsFromSchema(
         is A2uiArraySchema -> {
             schema.items?.let { collectLocalDefinitionsFromSchema(it, result, visited) }
         }
-        is A2uiOneOfSchema -> {
-            for (subSchema in schema.schemas) {
-                collectLocalDefinitionsFromSchema(subSchema, result, visited)
+        is A2uiStringSchema,
+        is A2uiNumberSchema,
+        is A2uiBooleanSchema,
+        is A2uiAnySchema,
+        is A2uiRefSchema -> {}
+    }
+
+    for (keyword in schema.keywords) {
+        when (keyword) {
+            is A2uiSchemaKeyword.OneOf -> {
+                for (subSchema in keyword.schemas) {
+                    collectLocalDefinitionsFromSchema(subSchema, result, visited)
+                }
             }
-        }
-        is A2uiAllOfSchema -> {
-            for (subSchema in schema.schemas) {
-                collectLocalDefinitionsFromSchema(subSchema, result, visited)
+            is A2uiSchemaKeyword.AllOf -> {
+                for (subSchema in keyword.schemas) {
+                    collectLocalDefinitionsFromSchema(subSchema, result, visited)
+                }
             }
-        }
-        is A2uiAnyOfSchema -> {
-            for (subSchema in schema.schemas) {
-                collectLocalDefinitionsFromSchema(subSchema, result, visited)
+            is A2uiSchemaKeyword.AnyOf -> {
+                for (subSchema in keyword.schemas) {
+                    collectLocalDefinitionsFromSchema(subSchema, result, visited)
+                }
             }
+            is A2uiSchemaKeyword.Not -> {
+                collectLocalDefinitionsFromSchema(keyword.schema, result, visited)
+            }
+            is A2uiSchemaKeyword.Default<*>,
+            is A2uiSchemaKeyword.Enum<*>,
+            is A2uiSchemaKeyword.Const<*> -> {}
         }
-        else -> {}
     }
 
     return result

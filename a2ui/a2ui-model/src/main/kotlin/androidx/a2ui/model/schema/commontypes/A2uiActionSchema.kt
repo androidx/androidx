@@ -16,11 +16,12 @@
 
 package androidx.a2ui.model.schema.commontypes
 
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.internal.SCHEMA_ID_COMMON_TYPES
 
@@ -35,52 +36,62 @@ public class A2uiActionSchema(public override val description: String? = null) :
     override val schemaId: String = SCHEMA_ID_COMMON_TYPES
 
     public override fun getDefinition(): A2uiSchema =
-        A2uiOneOfSchema(
-            schemas =
+        A2uiAnySchema(
+            keywords =
                 listOf(
-                    A2uiObjectSchema(
-                        description = "Triggers a server-side event.",
-                        properties =
-                            mapOf(
-                                "event" to
-                                    A2uiObjectSchema(
-                                        description = "The event to dispatch to the server.",
-                                        properties =
-                                            mapOf(
-                                                "name" to
-                                                    A2uiStringSchema(
-                                                        "The name of the action to be dispatched to the server."
+                    A2uiSchemaKeyword.OneOf(
+                        listOf(
+                            A2uiObjectSchema(
+                                description = "Triggers a server-side event.",
+                                properties =
+                                    mapOf(
+                                        "event" to
+                                            A2uiObjectSchema(
+                                                description =
+                                                    "The event to dispatch to the server.",
+                                                properties =
+                                                    mapOf(
+                                                        "name" to
+                                                            A2uiStringSchema(
+                                                                "The name of the action to be dispatched to the server."
+                                                            ),
+                                                        "context" to
+                                                            A2uiObjectSchema(
+                                                                description =
+                                                                    "A JSON object containing the key-value pairs for the action context. Values can be literals or paths. Use literal values unless the value must be dynamically bound to the data model. Do NOT use paths for static IDs.",
+                                                                additionalPropertiesSchema =
+                                                                    A2uiDynamicValueSchema
+                                                                        .DEFAULT_INSTANCE,
+                                                            ),
+                                                        "wantResponse" to
+                                                            A2uiBooleanSchema(
+                                                                description =
+                                                                    "Whether a response is expected for this event."
+                                                            ),
+                                                        "responsePath" to
+                                                            A2uiStringSchema(
+                                                                description =
+                                                                    "The databound path where the response should be stored."
+                                                            ),
                                                     ),
-                                                "context" to
-                                                    A2uiObjectSchema(
-                                                        description =
-                                                            "A JSON object containing the key-value pairs for the action context. Values can be literals or paths. Use literal values unless the value must be dynamically bound to the data model. Do NOT use paths for static IDs.",
-                                                        additionalPropertiesSchema =
-                                                            A2uiDynamicValueSchema.DEFAULT_INSTANCE,
-                                                    ),
-                                                "wantResponse" to
-                                                    A2uiBooleanSchema(
-                                                        "If true, the client expects an actionResponse from the server."
-                                                    ),
-                                                "responsePath" to
-                                                    A2uiStringSchema(
-                                                        "Optional JSON Pointer path where the client should save the response value in its local data model."
-                                                    ),
-                                            ),
-                                        required = setOf("name"),
-                                        isAdditionalPropertiesAllowed = false,
-                                    )
+                                                required = setOf("name"),
+                                                isAdditionalPropertiesAllowed = false,
+                                            )
+                                    ),
+                                required = setOf("event"),
+                                isAdditionalPropertiesAllowed = false,
                             ),
-                        required = setOf("event"),
-                        isAdditionalPropertiesAllowed = false,
-                    ),
-                    A2uiObjectSchema(
-                        description = "Executes a local client-side function.",
-                        properties =
-                            mapOf("functionCall" to A2uiFunctionCallSchema.DEFAULT_INSTANCE),
-                        required = setOf("functionCall"),
-                        isAdditionalPropertiesAllowed = false,
-                    ),
+                            A2uiObjectSchema(
+                                description = "Executes a local client-side function.",
+                                properties =
+                                    mapOf(
+                                        "functionCall" to A2uiFunctionCallSchema.DEFAULT_INSTANCE
+                                    ),
+                                required = setOf("functionCall"),
+                                isAdditionalPropertiesAllowed = false,
+                            ),
+                        )
+                    )
                 ),
             description =
                 "Defines an interaction handler that can either trigger a server-side event or execute a local client-side function.",

@@ -16,11 +16,12 @@
 
 package androidx.a2ui.model.schema.commontypes
 
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.internal.SCHEMA_ID_COMMON_TYPES
 
@@ -35,27 +36,31 @@ public class A2uiChildListSchema(public override val description: String? = null
     override val schemaId: String = SCHEMA_ID_COMMON_TYPES
 
     public override fun getDefinition(): A2uiSchema =
-        A2uiOneOfSchema(
-            schemas =
+        A2uiAnySchema(
+            keywords =
                 listOf(
-                    A2uiArraySchema(
-                        items = A2uiComponentIdSchema.DEFAULT_INSTANCE,
-                        description = "A static list of child component IDs.",
-                    ),
-                    A2uiObjectSchema(
-                        properties =
-                            mapOf(
-                                "componentId" to A2uiComponentIdSchema.DEFAULT_INSTANCE,
-                                "path" to
-                                    A2uiStringSchema(
-                                        "The path to the list of component property objects in the data model."
-                                    ),
+                    A2uiSchemaKeyword.OneOf(
+                        listOf(
+                            A2uiArraySchema(
+                                items = A2uiComponentIdSchema.DEFAULT_INSTANCE,
+                                description = "A static list of child component IDs.",
                             ),
-                        required = setOf("componentId", "path"),
-                        isAdditionalPropertiesAllowed = false,
-                        description =
-                            "A template for generating a dynamic list of children from a data model list. The `componentId` is the component to use as a template.",
-                    ),
+                            A2uiObjectSchema(
+                                properties =
+                                    mapOf(
+                                        "componentId" to A2uiComponentIdSchema.DEFAULT_INSTANCE,
+                                        "path" to
+                                            A2uiStringSchema(
+                                                "The path to the list of component property objects in the data model."
+                                            ),
+                                    ),
+                                required = setOf("componentId", "path"),
+                                isAdditionalPropertiesAllowed = false,
+                                description =
+                                    "A template for generating a dynamic list of children from a data model list. The `componentId` is the component to use as a template.",
+                            ),
+                        )
+                    )
                 )
         )
 

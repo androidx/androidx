@@ -16,11 +16,14 @@
 
 package androidx.a2ui.model.schema.internal
 
+import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.KEY_DESCRIPTION
 import kotlin.collections.iterator
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
 
 internal fun Any?.toJsonElement(): JsonElement =
@@ -40,3 +43,12 @@ internal fun Any?.toJsonElement(): JsonElement =
         }
         else -> throw IllegalArgumentException("Unsupported type: ${this::class}")
     }
+
+internal fun JsonObjectBuilder.putCommonKeywords(schema: A2uiSchema) {
+    for (keyword in schema.keywords) {
+        keyword.addToJsonObject(this)
+    }
+    if (schema.description != null) {
+        put(KEY_DESCRIPTION, JsonPrimitive(schema.description))
+    }
+}

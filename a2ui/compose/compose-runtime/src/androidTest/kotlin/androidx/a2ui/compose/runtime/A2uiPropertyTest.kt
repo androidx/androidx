@@ -19,9 +19,9 @@ package androidx.a2ui.compose.runtime
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
-import androidx.a2ui.model.schema.A2uiEnumSchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiActionSchema
 import androidx.a2ui.model.schema.commontypes.A2uiChildListSchema
@@ -408,7 +408,13 @@ class A2uiPropertyTest {
             A2uiProperty.stringEnum("test", enumValues = emptyList(), description = "Test enum")
 
         assertThat(prop.key).isEqualTo("test")
-        assertThat(prop.schema).isEqualTo(A2uiEnumSchema(emptyList(), "Test enum"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiStringSchema(
+                    description = "Test enum",
+                    keywords = listOf(A2uiSchemaKeyword.Enum(emptyList<String>())),
+                )
+            )
     }
 
     @Test
@@ -424,7 +430,13 @@ class A2uiPropertyTest {
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
-        assertThat(prop.schema).isEqualTo(A2uiEnumSchema(enumValues, "Test enum"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiStringSchema(
+                    description = "Test enum",
+                    keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+                )
+            )
     }
 
     @Test
@@ -445,7 +457,13 @@ class A2uiPropertyTest {
             A2uiProperty.numberEnum("test", enumValues = emptyList(), description = "Test enum")
 
         assertThat(prop.key).isEqualTo("test")
-        assertThat(prop.schema).isEqualTo(A2uiEnumSchema(emptyList(), "Test enum"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    description = "Test enum",
+                    keywords = listOf(A2uiSchemaKeyword.Enum(emptyList<Number>())),
+                )
+            )
     }
 
     @Test
@@ -461,7 +479,13 @@ class A2uiPropertyTest {
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
-        assertThat(prop.schema).isEqualTo(A2uiEnumSchema(enumValues, "Test number enum"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    description = "Test number enum",
+                    keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+                )
+            )
     }
 
     @Test

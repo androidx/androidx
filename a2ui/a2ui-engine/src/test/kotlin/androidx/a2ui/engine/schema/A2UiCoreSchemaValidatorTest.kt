@@ -24,19 +24,15 @@ import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiExecutionContext
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiAnyOfSchema
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
-import androidx.a2ui.model.schema.A2uiConstSchema
-import androidx.a2ui.model.schema.A2uiEnumSchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -252,7 +248,8 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingStringValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf("a", "b", "c"))
+        val schema =
+            A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf("a", "b", "c"))))
         validator.validateSchema("a", schema)
         validator.validateSchema("b", schema)
         validator.validateSchema("c", schema)
@@ -260,7 +257,8 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingStringValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf("a", "b", "c"))
+        val schema =
+            A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf("a", "b", "c"))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema("d", schema)
@@ -270,7 +268,7 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingNumberValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(1, 2, 3))
+        val schema = A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf(1, 2, 3))))
         validator.validateSchema(1, schema)
         validator.validateSchema(2, schema)
         validator.validateSchema(3, schema)
@@ -278,7 +276,7 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingNumberValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(1, 2, 3))
+        val schema = A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf(1, 2, 3))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(4, schema)
@@ -288,14 +286,15 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingBooleanValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(true, false))
+        val schema =
+            A2uiBooleanSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf(true, false))))
         validator.validateSchema(true, schema)
         validator.validateSchema(false, schema)
     }
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingBooleanValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(true))
+        val schema = A2uiBooleanSchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf(true))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(false, schema)
@@ -305,14 +304,19 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingListValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(listOf("a", "b"), listOf("c", "d")))
+        val schema =
+            A2uiArraySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.Enum(listOf(listOf("a", "b"), listOf("c", "d"))))
+            )
         validator.validateSchema(listOf("a", "b"), schema)
         validator.validateSchema(listOf("c", "d"), schema)
     }
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingListValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(listOf("a", "b")))
+        val schema =
+            A2uiArraySchema(keywords = listOf(A2uiSchemaKeyword.Enum(listOf(listOf("a", "b")))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(listOf("a", "c"), schema)
@@ -322,14 +326,23 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingMapValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(mapOf("key1" to "value"), mapOf("key2" to 1)))
+        val schema =
+            A2uiObjectSchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.Enum(listOf(mapOf("key1" to "value"), mapOf("key2" to 1)))
+                    )
+            )
         validator.validateSchema(mapOf("key1" to "value"), schema)
         validator.validateSchema(mapOf("key2" to 1), schema)
     }
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingMapValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(mapOf("key" to "value")))
+        val schema =
+            A2uiObjectSchema(
+                keywords = listOf(A2uiSchemaKeyword.Enum(listOf(mapOf("key" to "value"))))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(mapOf("key" to "different"), schema)
@@ -339,14 +352,25 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingNestedListValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(listOf(listOf("a", "b")), listOf(listOf(1, 2))))
+        val schema =
+            A2uiArraySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.Enum(
+                            listOf(listOf(listOf("a", "b")), listOf(listOf(1, 2)))
+                        )
+                    )
+            )
         validator.validateSchema(listOf(listOf("a", "b")), schema)
         validator.validateSchema(listOf(listOf(1, 2)), schema)
     }
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingNestedListValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(listOf(listOf("a", "b"))))
+        val schema =
+            A2uiArraySchema(
+                keywords = listOf(A2uiSchemaKeyword.Enum(listOf(listOf(listOf("a", "b")))))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(listOf(listOf("a", "c")), schema)
@@ -356,13 +380,25 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_enumTypeWithMatchingNestedMapValue_succeeds() {
-        val schema = A2uiEnumSchema(listOf(mapOf("outer" to mapOf("inner" to "value"))))
+        val schema =
+            A2uiObjectSchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.Enum(listOf(mapOf("outer" to mapOf("inner" to "value"))))
+                    )
+            )
         validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema)
     }
 
     @Test
     fun validateSchema_enumTypeWithNonMatchingNestedMapValue_throwsValidationException() {
-        val schema = A2uiEnumSchema(listOf(mapOf("outer" to mapOf("inner" to "value"))))
+        val schema =
+            A2uiObjectSchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.Enum(listOf(mapOf("outer" to mapOf("inner" to "value"))))
+                    )
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(mapOf("outer" to mapOf("inner" to "wrong")), schema)
@@ -384,20 +420,32 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_oneOfTypeMatchingExactlyOne_succeeds() {
-        val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.OneOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
         validator.validateSchema("hello", schema)
         validator.validateSchema(123, schema)
     }
 
     @Test
     fun validateSchema_oneOfTypeWithMixedTypesAndStringifiedValue_succeeds() {
-        val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.OneOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
         validator.validateSchema("123", schema)
     }
 
     @Test
     fun validateSchema_oneOfTypeMatchingNone_throwsValidationException() {
-        val schema = A2uiOneOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.OneOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(true, schema)
@@ -408,17 +456,22 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_oneOfTypeMatchingMultiple_throwsValidationException() {
         val schema =
-            A2uiOneOfSchema(
-                listOf(
-                    A2uiObjectSchema(
-                        properties = mapOf("name" to A2uiStringSchema()),
-                        required = setOf("name"),
-                    ),
-                    A2uiObjectSchema(
-                        properties = mapOf("age" to A2uiNumberSchema()),
-                        required = setOf("age"),
-                    ),
-                )
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.OneOf(
+                            listOf(
+                                A2uiObjectSchema(
+                                    properties = mapOf("name" to A2uiStringSchema()),
+                                    required = setOf("name"),
+                                ),
+                                A2uiObjectSchema(
+                                    properties = mapOf("age" to A2uiNumberSchema()),
+                                    required = setOf("age"),
+                                ),
+                            )
+                        )
+                    )
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
@@ -430,17 +483,22 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_allOfTypeMatchingAll_succeeds() {
         val schema =
-            A2uiAllOfSchema(
-                listOf(
-                    A2uiObjectSchema(
-                        properties = mapOf("name" to A2uiStringSchema()),
-                        required = setOf("name"),
-                    ),
-                    A2uiObjectSchema(
-                        properties = mapOf("age" to A2uiNumberSchema()),
-                        required = setOf("age"),
-                    ),
-                )
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                A2uiObjectSchema(
+                                    properties = mapOf("name" to A2uiStringSchema()),
+                                    required = setOf("name"),
+                                ),
+                                A2uiObjectSchema(
+                                    properties = mapOf("age" to A2uiNumberSchema()),
+                                    required = setOf("age"),
+                                ),
+                            )
+                        )
+                    )
             )
         validator.validateSchema(mapOf("name" to "Alice", "age" to 30), schema)
     }
@@ -448,17 +506,22 @@ class A2UiCoreSchemaValidatorTest {
     @Test
     fun validateSchema_allOfTypeMissingOne_throwsValidationException() {
         val schema =
-            A2uiAllOfSchema(
-                listOf(
-                    A2uiObjectSchema(
-                        properties = mapOf("name" to A2uiStringSchema()),
-                        required = setOf("name"),
-                    ),
-                    A2uiObjectSchema(
-                        properties = mapOf("age" to A2uiNumberSchema()),
-                        required = setOf("age"),
-                    ),
-                )
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                A2uiObjectSchema(
+                                    properties = mapOf("name" to A2uiStringSchema()),
+                                    required = setOf("name"),
+                                ),
+                                A2uiObjectSchema(
+                                    properties = mapOf("age" to A2uiNumberSchema()),
+                                    required = setOf("age"),
+                                ),
+                            )
+                        )
+                    )
             )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
@@ -469,14 +532,22 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_anyOfTypeMatchingAtLeastOne_succeeds() {
-        val schema = A2uiAnyOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.AnyOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
         validator.validateSchema("hello", schema) // Matches String
         validator.validateSchema(123, schema) // Matches Number
     }
 
     @Test
     fun validateSchema_anyOfTypeMatchingNone_throwsValidationException() {
-        val schema = A2uiAnyOfSchema(listOf(A2uiStringSchema(), A2uiNumberSchema()))
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.AnyOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(true, schema) // Boolean matches neither
@@ -486,13 +557,13 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingStringValue_succeeds() {
-        val schema = A2uiConstSchema("a")
+        val schema = A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const("a")))
         validator.validateSchema("a", schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingStringValue_throwsValidationException() {
-        val schema = A2uiConstSchema("a")
+        val schema = A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const("a")))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema("b", schema)
@@ -502,13 +573,13 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingNumberValue_succeeds() {
-        val schema = A2uiConstSchema(123)
+        val schema = A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Const(123)))
         validator.validateSchema(123, schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingNumberValue_throwsValidationException() {
-        val schema = A2uiConstSchema(123)
+        val schema = A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Const(123)))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(456, schema)
@@ -518,13 +589,13 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingBooleanValue_succeeds() {
-        val schema = A2uiConstSchema(true)
+        val schema = A2uiBooleanSchema(keywords = listOf(A2uiSchemaKeyword.Const(true)))
         validator.validateSchema(true, schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingBooleanValue_throwsValidationException() {
-        val schema = A2uiConstSchema(true)
+        val schema = A2uiBooleanSchema(keywords = listOf(A2uiSchemaKeyword.Const(true)))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(false, schema)
@@ -534,13 +605,15 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingListValue_succeeds() {
-        val schema = A2uiConstSchema(listOf("a", true, 3))
+        val schema =
+            A2uiArraySchema(keywords = listOf(A2uiSchemaKeyword.Const(listOf("a", true, 3))))
         validator.validateSchema(listOf("a", true, 3), schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingListValue_throwsValidationException() {
-        val schema = A2uiConstSchema(listOf("a", "b", 3))
+        val schema =
+            A2uiArraySchema(keywords = listOf(A2uiSchemaKeyword.Const(listOf("a", "b", 3))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(listOf("a", "c", 3), schema)
@@ -550,13 +623,16 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingMapValue_succeeds() {
-        val schema = A2uiConstSchema(mapOf("a" to "b", "c" to 1))
+        val schema =
+            A2uiObjectSchema(
+                keywords = listOf(A2uiSchemaKeyword.Const(mapOf("a" to "b", "c" to 1)))
+            )
         validator.validateSchema(mapOf("a" to "b", "c" to 1), schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingMapValue_throwsValidationException() {
-        val schema = A2uiConstSchema(mapOf("a" to "b"))
+        val schema = A2uiObjectSchema(keywords = listOf(A2uiSchemaKeyword.Const(mapOf("a" to "b"))))
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(mapOf("a" to "c"), schema)
@@ -566,13 +642,19 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingNestedListValue_succeeds() {
-        val schema = A2uiConstSchema(listOf(listOf("a", "b"), listOf(1, 2)))
+        val schema =
+            A2uiArraySchema(
+                keywords = listOf(A2uiSchemaKeyword.Const(listOf(listOf("a", "b"), listOf(1, 2))))
+            )
         validator.validateSchema(listOf(listOf("a", "b"), listOf(1, 2)), schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingNestedListValue_throwsValidationException() {
-        val schema = A2uiConstSchema(listOf(listOf("a", "b"), listOf(1, 2)))
+        val schema =
+            A2uiArraySchema(
+                keywords = listOf(A2uiSchemaKeyword.Const(listOf(listOf("a", "b"), listOf(1, 2))))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(listOf(listOf("a", "c"), listOf(1, 2)), schema)
@@ -582,13 +664,21 @@ class A2UiCoreSchemaValidatorTest {
 
     @Test
     fun validateSchema_constTypeWithMatchingNestedMapValue_succeeds() {
-        val schema = A2uiConstSchema(mapOf("outer" to mapOf("inner" to "value")))
+        val schema =
+            A2uiObjectSchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.Const(mapOf("outer" to mapOf("inner" to "value"))))
+            )
         validator.validateSchema(mapOf("outer" to mapOf("inner" to "value")), schema)
     }
 
     @Test
     fun validateSchema_constTypeWithNonMatchingNestedMapValue_throwsValidationException() {
-        val schema = A2uiConstSchema(mapOf("outer" to mapOf("inner" to "value")))
+        val schema =
+            A2uiObjectSchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.Const(mapOf("outer" to mapOf("inner" to "value"))))
+            )
         val ex =
             assertFailsWith<A2uiException.A2uiValidationException> {
                 validator.validateSchema(mapOf("outer" to mapOf("inner" to "wrong")), schema)

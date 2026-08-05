@@ -18,10 +18,13 @@
 
 package androidx.a2ui.engine.catalog
 
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiConstSchema
+import androidx.a2ui.model.schema.A2uiAnySchema
+import androidx.a2ui.model.schema.A2uiCompositeSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
+import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 
 /**
  * Converts a component definition into an [A2uiSchema].
@@ -36,18 +39,166 @@ internal fun serializeComponentDefinitionToSchema(
     val componentName = componentDefinition.name
     val description = componentDefinition.description
 
-    return when (rawSchema) {
-        is A2uiObjectSchema -> injectComponentMetadata(rawSchema, componentName, description)
-        is A2uiAllOfSchema -> injectComponentMetadata(rawSchema, componentName, description)
+    // As we can't resolve $ref schemas, we'll assume they are referencing an
+    // object schema for our purposes.
+    require(validateIsObjectSchema(rawSchema) != ObjectSchemaValidationResult.NOT_OBJECT) {
+        "Unexpected schema type '${rawSchema::class.simpleName}'. " +
+            "Top-level component schema must be A2uiObjectSchema, A2uiCompositeSchema, A2uiRefSchema, or A2uiAnySchema schema with AllOf, OneOf, or AnyOf keyword."
+    }
+
+    val isObjectWithTopLevelProperties =
+        rawSchema is A2uiObjectSchema && rawSchema.properties.isNotEmpty()
+    var allOfKeyword: A2uiSchemaKeyword.AllOf? = null
+    var hasOneOfOrAnyOf = false
+    for (keyword in rawSchema.keywords) {
+        when (keyword) {
+            is A2uiSchemaKeyword.AllOf -> {
+                allOfKeyword = keyword
+            }
+            is A2uiSchemaKeyword.OneOf,
+            is A2uiSchemaKeyword.AnyOf -> hasOneOfOrAnyOf = true
+            else -> {}
+        }
+        if (allOfKeyword != null && hasOneOfOrAnyOf) break
+    }
+
+    return when {
+        // References are wrapped in allOf to preserve their $ref link
+        rawSchema is A2uiCompositeSchema || rawSchema is A2uiRefSchema ->
+            wrapWithAllOfDiscriminator(rawSchema, componentName, description)
+        // Direct object schemas with properties receive the discriminator directly
+        isObjectWithTopLevelProperties ->
+            injectComponentMetadataIntoProperties(
+                rawSchema as A2uiObjectSchema,
+                componentName,
+                description,
+            )
+        // Union schemas without properties must be intersected via allOf
+        hasOneOfOrAnyOf -> wrapWithAllOfDiscriminator(rawSchema, componentName, description)
+        // AllOf compositions without properties merge the discriminator into the allOf list
+        allOfKeyword != null ->
+            injectComponentMetadataIntoAllOf(rawSchema, allOfKeyword, componentName, description)
+        // Empty object schemas receive the discriminator directly
+        rawSchema is A2uiObjectSchema ->
+            injectComponentMetadataIntoProperties(rawSchema, componentName, description)
         else ->
             throw IllegalArgumentException(
                 "Unexpected schema type '${rawSchema::class.java.simpleName}'. " +
-                    "Top-level component schema must be A2uiObjectSchema or A2uiAllOfSchema."
+                    "Top-level component schema must be A2uiObjectSchema, A2uiCompositeSchema, or a schema with AllOf, OneOf, or AnyOf keyword."
             )
     }
 }
 
-private fun injectComponentMetadata(
+private fun wrapWithAllOfDiscriminator(
+    schema: A2uiSchema,
+    componentName: String,
+    componentDescription: String,
+): A2uiObjectSchema {
+    val targetDescription = resolveDescription(schema.description, componentDescription)
+    val discriminatorObjectSchema =
+        A2uiObjectSchema(
+            properties =
+                mapOf(
+                    "component" to
+                        A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const(componentName)))
+                ),
+            required = setOf("component"),
+        )
+    val subSchema =
+        when (schema) {
+            is A2uiCompositeSchema,
+            is A2uiRefSchema -> schema
+            is A2uiObjectSchema -> schema.copy(description = null)
+            is A2uiAnySchema -> schema.copy(description = null)
+            else ->
+                throw IllegalArgumentException(
+                    "Unexpected schema type '${schema::class.java.simpleName}' in wrapWithAllOfDiscriminator."
+                )
+        }
+    return A2uiObjectSchema(
+        description = targetDescription,
+        keywords = listOf(A2uiSchemaKeyword.AllOf(listOf(subSchema, discriminatorObjectSchema))),
+    )
+}
+
+private enum class ObjectSchemaValidationResult {
+    IS_OBJECT,
+    NOT_OBJECT,
+    MAYBE_OBJECT,
+}
+
+private fun validateIsObjectSchema(schema: A2uiSchema): ObjectSchemaValidationResult =
+    when {
+        schema is A2uiObjectSchema -> ObjectSchemaValidationResult.IS_OBJECT
+        schema is A2uiCompositeSchema -> validateIsObjectSchema(schema.getDefinition())
+        schema is A2uiRefSchema -> ObjectSchemaValidationResult.MAYBE_OBJECT
+        schema is A2uiAnySchema -> validateAnySchemaIsObjectSchema(schema)
+        else -> ObjectSchemaValidationResult.NOT_OBJECT
+    }
+
+private fun validateAnySchemaIsObjectSchema(schema: A2uiAnySchema): ObjectSchemaValidationResult {
+    val compositionKeywords =
+        schema.keywords.filter {
+            it is A2uiSchemaKeyword.AllOf ||
+                it is A2uiSchemaKeyword.OneOf ||
+                it is A2uiSchemaKeyword.AnyOf
+        }
+    if (compositionKeywords.isEmpty()) {
+        return ObjectSchemaValidationResult.NOT_OBJECT
+    }
+    var maybeObject = false
+    for (keyword in compositionKeywords) {
+        when (validateCompositionKeywordIsObjectSchema(keyword)) {
+            ObjectSchemaValidationResult.NOT_OBJECT ->
+                return ObjectSchemaValidationResult.NOT_OBJECT
+            ObjectSchemaValidationResult.MAYBE_OBJECT -> maybeObject = true
+            ObjectSchemaValidationResult.IS_OBJECT -> {}
+        }
+    }
+    return if (maybeObject) {
+        ObjectSchemaValidationResult.MAYBE_OBJECT
+    } else {
+        ObjectSchemaValidationResult.IS_OBJECT
+    }
+}
+
+private fun validateCompositionKeywordIsObjectSchema(
+    keyword: A2uiSchemaKeyword<Any>
+): ObjectSchemaValidationResult =
+    when (keyword) {
+        is A2uiSchemaKeyword.AllOf -> {
+            var result = ObjectSchemaValidationResult.MAYBE_OBJECT
+            for (subSchema in keyword.schemas) {
+                when (validateIsObjectSchema(subSchema)) {
+                    ObjectSchemaValidationResult.NOT_OBJECT -> {
+                        result = ObjectSchemaValidationResult.NOT_OBJECT
+                        break
+                    }
+                    ObjectSchemaValidationResult.IS_OBJECT ->
+                        result = ObjectSchemaValidationResult.IS_OBJECT
+                    ObjectSchemaValidationResult.MAYBE_OBJECT -> {}
+                }
+            }
+            result
+        }
+        is A2uiSchemaKeyword.OneOf,
+        is A2uiSchemaKeyword.AnyOf -> {
+            val subSchemas =
+                (keyword as? A2uiSchemaKeyword.OneOf)?.schemas
+                    ?: (keyword as A2uiSchemaKeyword.AnyOf).schemas
+            val subSchemasResults = subSchemas.map { validateIsObjectSchema(it) }
+            when {
+                subSchemasResults.any { it == ObjectSchemaValidationResult.IS_OBJECT } ->
+                    ObjectSchemaValidationResult.IS_OBJECT
+                subSchemasResults.any { it == ObjectSchemaValidationResult.MAYBE_OBJECT } ->
+                    ObjectSchemaValidationResult.MAYBE_OBJECT
+                else -> ObjectSchemaValidationResult.NOT_OBJECT
+            }
+        }
+        else -> ObjectSchemaValidationResult.NOT_OBJECT
+    }
+
+private fun injectComponentMetadataIntoProperties(
     schema: A2uiObjectSchema,
     componentName: String,
     componentDescription: String,
@@ -63,47 +214,48 @@ private fun injectObjectDiscriminator(
 ): A2uiObjectSchema {
     val existingComponentProperty = schema.properties["component"]
     if (existingComponentProperty != null) {
-        require(
-            existingComponentProperty is A2uiConstSchema &&
-                existingComponentProperty.value == componentName
-        ) {
-            "Existing 'component' property const '${(existingComponentProperty as? A2uiConstSchema)?.value}' " +
+        val constKeyword =
+            existingComponentProperty.keywords
+                .filterIsInstance<A2uiSchemaKeyword.Const<*>>()
+                .firstOrNull()
+        require(constKeyword != null && constKeyword.value == componentName) {
+            "Existing 'component' property const '${constKeyword?.value}' " +
                 "does not match expected component name '$componentName'"
         }
         if (schema.description == description && schema.required.contains("component")) {
             return schema
         }
-        return A2uiObjectSchema(
+        return schema.copy(
             description = description,
-            properties = schema.properties,
             required =
                 if (schema.required.contains("component")) schema.required
                 else setOf("component") + schema.required,
-            additionalPropertiesSchema = schema.additionalPropertiesSchema,
-            isAdditionalPropertiesAllowed = schema.isAdditionalPropertiesAllowed,
         )
     }
-    val updatedProperties = mapOf("component" to A2uiConstSchema(componentName)) + schema.properties
+    val updatedProperties =
+        mapOf(
+            "component" to
+                A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const(componentName)))
+        ) + schema.properties
     val updatedRequired = setOf("component") + schema.required
-    return A2uiObjectSchema(
+    return schema.copy(
         description = description,
         properties = updatedProperties,
         required = updatedRequired,
-        additionalPropertiesSchema = schema.additionalPropertiesSchema,
-        isAdditionalPropertiesAllowed = schema.isAdditionalPropertiesAllowed,
     )
 }
 
-private fun injectComponentMetadata(
-    schema: A2uiAllOfSchema,
+private fun injectComponentMetadataIntoAllOf(
+    schema: A2uiSchema,
+    allOfKeyword: A2uiSchemaKeyword.AllOf,
     componentName: String,
     componentDescription: String,
-): A2uiAllOfSchema {
+): A2uiSchema {
     val targetDescription = resolveDescription(schema.description, componentDescription)
-    val objectSchemasCount = schema.schemas.count { it is A2uiObjectSchema }
+    val objectSchemasCount = allOfKeyword.schemas.count { it is A2uiObjectSchema }
     val updatedSubSchemas =
         if (objectSchemasCount == 1) {
-            schema.schemas.map { subSchema ->
+            allOfKeyword.schemas.map { subSchema ->
                 if (subSchema is A2uiObjectSchema) {
                     injectObjectDiscriminator(subSchema, componentName)
                 } else {
@@ -113,12 +265,33 @@ private fun injectComponentMetadata(
         } else {
             val discriminatorObjectSchema =
                 A2uiObjectSchema(
-                    properties = mapOf("component" to A2uiConstSchema(componentName)),
+                    properties =
+                        mapOf(
+                            "component" to
+                                A2uiStringSchema(
+                                    keywords = listOf(A2uiSchemaKeyword.Const(componentName))
+                                )
+                        ),
                     required = setOf("component"),
                 )
-            schema.schemas + discriminatorObjectSchema
+            allOfKeyword.schemas + discriminatorObjectSchema
         }
-    return A2uiAllOfSchema(description = targetDescription, schemas = updatedSubSchemas)
+    val updatedKeywords =
+        schema.keywords.map { keyword ->
+            if (keyword === allOfKeyword) A2uiSchemaKeyword.AllOf(updatedSubSchemas) else keyword
+        }
+    return when (schema) {
+        is A2uiObjectSchema -> {
+            @Suppress("UNCHECKED_CAST")
+            val objectKeywords = updatedKeywords as List<A2uiSchemaKeyword<Map<String, Any>>>
+            schema.copy(description = targetDescription, keywords = objectKeywords)
+        }
+        is A2uiAnySchema -> schema.copy(description = targetDescription, keywords = updatedKeywords)
+        else ->
+            throw IllegalArgumentException(
+                "Unexpected schema type '${schema::class.java.simpleName}' in injectComponentMetadataIntoAllOf."
+            )
+    }
 }
 
 private fun resolveDescription(
@@ -133,3 +306,25 @@ private fun resolveDescription(
     }
     return componentDescription.ifBlank { null }
 }
+
+private fun A2uiObjectSchema.copy(
+    properties: Map<String, A2uiSchema> = this.properties,
+    required: Set<String> = this.required,
+    isAdditionalPropertiesAllowed: Boolean = this.isAdditionalPropertiesAllowed,
+    additionalPropertiesSchema: A2uiSchema? = this.additionalPropertiesSchema,
+    description: String? = this.description,
+    keywords: List<A2uiSchemaKeyword<Map<String, Any>>> = this.keywords,
+): A2uiObjectSchema =
+    A2uiObjectSchema(
+        properties = properties,
+        required = required,
+        isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
+        additionalPropertiesSchema = additionalPropertiesSchema,
+        description = description,
+        keywords = keywords,
+    )
+
+private fun A2uiAnySchema.copy(
+    description: String? = this.description,
+    keywords: List<A2uiSchemaKeyword<Any>> = this.keywords,
+): A2uiAnySchema = A2uiAnySchema(description = description, keywords = keywords)
