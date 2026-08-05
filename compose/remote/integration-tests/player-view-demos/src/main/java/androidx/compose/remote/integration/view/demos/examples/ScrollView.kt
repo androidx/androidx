@@ -199,7 +199,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
 @RemoteComposable
 fun ScrollViewDemo() {
     val numElements = 12
-    val scrollState = rememberRemoteScrollState(evenNotches = numElements)
+    val scrollState = rememberRemoteScrollState(notches = numElements)
     val dimensionCard = 280.rdp
     val decimalFormat = remember { DecimalFormat("####0.00") }
     RemoteBox(modifier = RemoteModifier, contentAlignment = RemoteAlignment.BottomEnd) {
