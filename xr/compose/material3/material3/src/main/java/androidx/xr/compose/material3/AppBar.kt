@@ -53,7 +53,7 @@ import androidx.xr.compose.unit.DpVolumeOffset
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3XrApi
 @Composable
-public fun SingleRowTopAppBar(
+public fun SpatialTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -62,7 +62,7 @@ public fun SingleRowTopAppBar(
     colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(),
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    HorizontalOrbiter(LocalSingleRowTopAppBarOrbiterProperties.current) {
+    HorizontalOrbiter(LocalSpatialTopAppBarOrbiterProperties.current) {
         TopAppBar(
             title = title,
             modifier = modifier,
@@ -77,10 +77,10 @@ public fun SingleRowTopAppBar(
 
 /**
  * The default [OrbiterProperties] used by XR `TopAppBar` if none is specified in
- * [LocalSingleRowTopAppBarOrbiterProperties].
+ * [LocalSpatialTopAppBarOrbiterProperties].
  */
 @ExperimentalMaterial3XrApi
-public val DefaultSingleRowTopAppBarOrbiterProperties: OrbiterProperties =
+public val DefaultSpatialTopAppBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         alignment =
             OrbiterAlignment.TopCenter(
@@ -97,9 +97,9 @@ public val DefaultSingleRowTopAppBarOrbiterProperties: OrbiterProperties =
 
 /** The [OrbiterProperties] used by XR [TopAppBar]. */
 @ExperimentalMaterial3XrApi
-public val LocalSingleRowTopAppBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
+public val LocalSpatialTopAppBarOrbiterProperties: ProvidableCompositionLocal<OrbiterProperties> =
     compositionLocalOf {
-        DefaultSingleRowTopAppBarOrbiterProperties
+        DefaultSpatialTopAppBarOrbiterProperties
     }
 
 /**
@@ -120,7 +120,7 @@ public val LocalSingleRowTopAppBarOrbiterProperties: ProvidableCompositionLocal<
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3XrApi
 @Composable
-public fun TwoRowsTopAppBar(
+public fun SpatialTwoRowsTopAppBar(
     title: @Composable (expanded: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     subtitle: (@Composable (expanded: Boolean) -> Unit)? = null,
