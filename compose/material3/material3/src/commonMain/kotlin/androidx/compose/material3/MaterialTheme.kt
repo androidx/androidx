@@ -150,6 +150,9 @@ public object MaterialTheme {
     public val motionScheme: MotionScheme
         @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.motionScheme
 
+    internal val componentProperties: ComponentProperties
+        @Composable @ReadOnlyComposable get() = LocalMaterialTheme.current.componentProperties
+
     /**
      * [CompositionLocal] providing [MaterialTheme] subsystems throughout the hierarchy. You can use
      * properties in the companion object to access specific subsystems, for example [colorScheme].
@@ -202,6 +205,8 @@ public object MaterialTheme {
         public val shapes: Shapes = Shapes(),
         public val motionScheme: MotionScheme = standard(),
     ) {
+        internal val componentProperties: ComponentProperties = ComponentProperties.Default
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
