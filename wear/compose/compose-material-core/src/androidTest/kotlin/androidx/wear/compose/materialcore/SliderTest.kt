@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -346,7 +347,7 @@ public class SliderTest {
             color,
             Offset(position, 0f),
             Offset(position, size.height),
-            strokeWidth = 1.dp.toPx(),
+            strokeWidth = 1.dp.toPx().roundToInt().toFloat(),
         )
     }
 
