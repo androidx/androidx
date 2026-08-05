@@ -700,7 +700,7 @@ public class NotificationManagerCompatTest {
                         .setName("channelGroupTwoName")
                         .setGroup(groupTwo.getId()).build();
         NotificationChannelCompat secondChannelGroupTwo =
-                new NotificationChannelCompat.Builder(secondChannelGroupTwoId, IMPORTANCE_MAX)
+                new NotificationChannelCompat.Builder(secondChannelGroupTwoId, IMPORTANCE_LOW)
                         .setName("secondChannelGroupTwoName")
                         .setGroup(groupTwo.getId())
                         .build();
