@@ -147,29 +147,34 @@ private class SaveableStateRegistryImpl(
     }
 
     override fun performSave(): Map<String, List<Any?>> {
+        // Return early if no restored state and no providers exist.
         if (restored == null && valueProviders == null) {
             return emptyMap()
         }
-        // TODO: Use a MutableScatterMap.asMap(), but we first need to make that map wrapper
-        //  serializable
-        val expectedMapSize = (restored?.size ?: 0) + (valueProviders?.size ?: 0)
-        val map =
-            HashMap<String, List<Any?>>(expectedMapSize).apply {
-                restored?.forEach { k, v -> this[k] = v }
-            }
+
+        // Set initial capacity to prevent map resizing.
+        val size = (restored?.size ?: 0) + (valueProviders?.size ?: 0)
+        val map = MutableScatterMap<String, List<Any?>>(initialCapacity = size)
+
+        // Keep restored state for composables not composed in this cycle.
+        restored?.let { map.putAll(restored) }
+
+        // Evaluate all registered providers to collect current state.
         valueProviders?.forEach { key, list ->
+            // Optimize single-provider case (most common). Prevents list creation
+            // if the single provider returns null.
             if (list.size == 1) {
                 val value = list[0].invoke()
                 if (value != null) {
                     check(canBeSaved(value)) { generateCannotBeSavedErrorMessage(value) }
-                    map[key] = arrayListOf<Any?>(value)
+                    // On JVM, listOf(value) calls Collections.singletonList to
+                    // prevent backing array allocation.
+                    map[key] = listOf(value)
                 }
             } else {
-                // if we have multiple providers we should store null values as well to preserve
-                // the order in which providers were registered. say there were two providers.
-                // the first provider returned null(nothing to save) and the second one returned
-                // "1". when we will be restoring the first provider would restore null (it is the
-                // same as to have nothing to restore) and the second one restore "1".
+                // Keep nulls for multiple providers to preserve order.
+                // Example: First returns null, second returns "1". On restore,
+                // first restores null and second restores "1".
                 map[key] =
                     List(list.size) { index ->
                         val value = list[index].invoke()
@@ -180,6 +185,43 @@ private class SaveableStateRegistryImpl(
                     }
             }
         }
-        return map
+
+        return ScatterMapWrapper(map)
     }
 }
+
+/**
+ * Wraps [MutableScatterMap] as standard [Map].
+ *
+ * Matches `ScatterMap` from [SaveableStateRegistry.performSave] to represent underlying
+ * [MutableScatterMap] state.
+ *
+ * **Note**: Implements [JvmSerializable] to satisfy `canBeSavedToBundle` checks. Android OS
+ * `Parcel.writeValue` matches [Map] interface before `Serializable` or `Parcelable`. It serializes
+ * it as standard JVM `HashMap` (via optimized `writeMapInternal`), bypassing custom `Parcelable`
+ * implementations.
+ */
+@Suppress("AsCollectionCall")
+internal class ScatterMapWrapper(
+    private val base: MutableScatterMap<String, List<Any?>> = MutableScatterMap()
+) : Map<String, List<Any?>> by base.asMap(), JvmSerializable
+
+/**
+ * Platform-agnostic representation of JVM `java.io.Serializable`.
+ *
+ * Resolves to `java.io.Serializable` on JVM and Android. Resolves to empty interface on other
+ * platforms.
+ *
+ * **Rationale**: [SaveableStateRegistry] checks type safety using `canBeSavedToBundle` before
+ * saving. Custom wrappers must implement `Serializable` or `Parcelable` to pass this check.
+ *
+ * Implementing `Serializable` or `Parcelable` on classes implementing `Map` is ignored during
+ * parceling. Android OS `Parcel.writeValue` matches `Map` interface before `Serializable` or
+ * `Parcelable`. Since Bundle marshalling uses `writeValue` for all entries, these classes are
+ * always serialized as standard JVM `HashMap` (via optimized `writeMapInternal`), bypassing custom
+ * `Parcelable` implementations.
+ *
+ * Implementing `JvmSerializable` on [ScatterMapWrapper] satisfies `canBeSaved` check while
+ * acknowledging that custom parceling is bypassed.
+ */
+internal expect interface JvmSerializable
