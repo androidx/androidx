@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +58,7 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun TimePickerSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
@@ -105,7 +106,7 @@ fun TimePickerSample() {
 @Composable
 @Preview
 fun TimeInputSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
@@ -152,11 +153,11 @@ fun TimeInputSample() {
 @Composable
 @Preview
 fun TimePickerSwitchableSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Picker) }
+    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Picker) }
     val snackScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
 
@@ -222,7 +223,7 @@ fun TimePickerSwitchableSample() {
 @Composable
 @Preview
 fun RichTimePickerSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
@@ -265,7 +266,7 @@ fun RichTimePickerSample() {
 @Composable
 @Preview
 fun RichTimeInputSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
@@ -308,11 +309,11 @@ fun RichTimeInputSample() {
 @Composable
 @Preview
 fun RichTimePickerSwitchableSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Picker) }
+    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Picker) }
     val snackScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     Box(propagateMinConstraints = false) {
@@ -375,11 +376,11 @@ fun RichTimePickerSwitchableSample() {
 @Composable
 @Preview
 fun RichTimePickerScrollSample() {
-    var showTimePicker by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     val snackState = remember { SnackbarHostState() }
-    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
+    var displayMode by rememberSaveable { mutableStateOf(TimePickerDisplayMode.Scroll) }
     val snackScope = rememberCoroutineScope()
 
     Box(propagateMinConstraints = false) {
