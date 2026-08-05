@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.checkScrollableContainerConstraints
@@ -29,7 +30,9 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.CacheWindowLogic
 import androidx.compose.foundation.lazy.layout.LazyLayout
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
@@ -81,6 +84,11 @@ internal fun LazyGrid(
     verticalArrangement: Arrangement.Vertical,
     /** The horizontal arrangement for items/lines. */
     horizontalArrangement: Arrangement.Horizontal,
+    /**
+     * cacheWindow specifies the size of the ahead and behind window to be used as per
+     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     */
+    cacheWindow: LazyLayoutCacheWindow,
     /** The content of the grid */
     content: LazyGridScope.() -> Unit,
 ) {
@@ -92,19 +100,54 @@ internal fun LazyGrid(
     val graphicsContext = LocalGraphicsContext.current
     val stickyHeadersEnabled = !LocalScrollCaptureInProgress.current
 
+    val prefetchStrategy =
+        remember(state, cacheWindow) {
+            state.legacyPrefetchStrategy
+                ?: when (cacheWindow) {
+                    is DefaultLazyGridCacheWindow ->
+                        if (ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategy) {
+                            LazyGridCacheWindowPrefetchStrategy(cacheWindow)
+                        } else {
+                            LazyGridPrefetchStrategy()
+                        }
+                    is LazyLayoutCacheWindow -> LazyGridCacheWindowPrefetchStrategy(cacheWindow)
+                }
+        }
+
+    val prefetchState =
+        remember(state, prefetchStrategy) {
+            // If the user has not constructed state using one of the deprecated constructors that
+            // yield a prefetch state, then, at this point, `state.prefetchState` will always be
+            // null.
+            state.legacyPrefetchState
+                ?: run {
+                    @Suppress("DEPRECATION") // b/420551535
+                    LazyLayoutPrefetchState(prefetchStrategy.prefetchScheduler) {
+                        with(prefetchStrategy) {
+                            onNestedPrefetch(
+                                Snapshot.withoutReadObservation { state.firstVisibleItemIndex }
+                            )
+                        }
+                    }
+                }
+        }
+
     val measurePolicy =
         rememberLazyGridMeasurePolicy(
-            itemProviderLambda,
-            state,
-            slots,
-            contentPadding,
-            reverseLayout,
-            isVertical,
-            horizontalArrangement,
-            verticalArrangement,
-            coroutineScope,
-            graphicsContext,
-            if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
+            itemProviderLambda = itemProviderLambda,
+            state = state,
+            slots = slots,
+            contentPadding = contentPadding,
+            reverseLayout = reverseLayout,
+            isVertical = isVertical,
+            horizontalArrangement = horizontalArrangement,
+            verticalArrangement = verticalArrangement,
+            coroutineScope = coroutineScope,
+            graphicsContext = graphicsContext,
+            stickyItemsScrollBehavior =
+                if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
+            prefetchState = prefetchState,
+            prefetchStrategy = prefetchStrategy,
         )
 
     val bringIntoViewSpec =
@@ -150,7 +193,7 @@ internal fun LazyGrid(
                     overscrollEffect = overscrollEffect,
                     bringIntoViewSpec = bringIntoViewSpec,
                 ),
-        prefetchState = state.prefetchState,
+        prefetchState = prefetchState,
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda,
     )
@@ -184,6 +227,10 @@ private fun rememberLazyGridMeasurePolicy(
     graphicsContext: GraphicsContext,
     /** Configures the placement of sticky items */
     stickyItemsScrollBehavior: StickyItemsPlacement?,
+    /** Prefetch state used in our layout */
+    prefetchState: LazyLayoutPrefetchState?,
+    /** Prefetch strategy used in our layout */
+    prefetchStrategy: LazyGridPrefetchStrategy?,
 ) =
     remember(
         state,
@@ -194,6 +241,8 @@ private fun rememberLazyGridMeasurePolicy(
         horizontalArrangement,
         verticalArrangement,
         graphicsContext,
+        prefetchState,
+        prefetchStrategy,
     ) {
         LazyLayoutMeasurePolicy { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -427,10 +476,12 @@ private fun rememberLazyGridMeasurePolicy(
                             placement,
                         )
                     },
+                    prefetchState = prefetchState,
+                    prefetchStrategy = prefetchStrategy,
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
             // apply keep around after updating the strategy with measure result.
-            (state.prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
+            (prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
                 measureResult.orientation,
                 measureResult.visibleItemsInfo,
                 measuredLineProvider,
