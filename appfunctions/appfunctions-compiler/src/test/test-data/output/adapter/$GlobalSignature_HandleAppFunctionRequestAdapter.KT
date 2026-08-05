@@ -1,9 +1,10 @@
 package com.test
 
-import androidx.appfunctions.AppFunctionAdapter
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.HandleAppFunctionRequest
+import androidx.appfunctions.HandleAppFunctionRequestAdapter
 import androidx.appfunctions.SuspendingAppFunction
 import androidx.appfunctions.`internal`.AppFunctionParameterSpec
 import androidx.appfunctions.`internal`.AppFunctionResponseSpec
@@ -11,15 +12,17 @@ import androidx.appfunctions.`internal`.unsafeBuildReturnValue
 import androidx.appfunctions.`internal`.unsafeGetParameterValue
 import javax.`annotation`.processing.Generated
 import kotlin.Int
+import kotlin.OptIn
 import kotlin.String
 import kotlin.Suppress
 
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
-public class `$GlobalSignature_AppFunctionAdapter` : AppFunctionAdapter<GlobalSignature> {
-  override fun getFunctionId(): String = "com.test.GlobalSignature#doSomething"
+@OptIn(ExperimentalAppFunctionsApi::class)
+public class `$GlobalSignature_HandleAppFunctionRequestAdapter` : HandleAppFunctionRequestAdapter<GlobalSignature> {
+  override val functionIdentifier: String = "com.test.GlobalSignature#doSomething"
 
   override fun adapt(instance: GlobalSignature): HandleAppFunctionRequest = HandleAppFunctionRequest(
-    functionIdentifier = getFunctionId(),
+    functionIdentifier = functionIdentifier,
     appFunction = SuspendingAppFunction { request ->
       withExtractedArguments(request) { a, b ->
         val result = instance.doSomething(a, b)

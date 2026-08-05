@@ -21,6 +21,7 @@ package androidx.appfunctions
  *
  * This interface is expected as part of [HandleAppFunctionRequest].
  */
+@ExperimentalAppFunctionsApi
 public fun interface SuspendingAppFunction {
     /**
      * Called when the app function is invoked using [AppFunctionManager.executeAppFunction].

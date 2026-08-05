@@ -52,6 +52,7 @@ import org.junit.Assume.assumeNotNull
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalAppFunctionsApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
 class AppFunctionRuntimeRegistrationTest {
 

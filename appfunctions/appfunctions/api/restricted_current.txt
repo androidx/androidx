@@ -175,10 +175,11 @@ package androidx.appfunctions {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
     method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? getAppFunctionActivityStates(java.util.Set<android.app.appfunctions.AppFunctionActivityId> activityIds, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.AppFunctionActivityState>>);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? getAppFunctionStates(java.util.List<androidx.appfunctions.metadata.AppFunctionName> appFunctionNames, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.AppFunctionState>>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public <T> androidx.appfunctions.HandleAppFunctionRequestAdapter<T> getHandleAppFunctionRequestAdapter(Class<T> interfaceClass);
     method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
-    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunction(androidx.appfunctions.HandleAppFunctionRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
-    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunction(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
-    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunctions(java.util.List<androidx.appfunctions.HandleAppFunctionRequest> requests, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunction(androidx.appfunctions.HandleAppFunctionRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunction(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @androidx.appfunctions.ExperimentalAppFunctionsApi public suspend Object? handleAppFunctions(java.util.List<androidx.appfunctions.HandleAppFunctionRequest> requests, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public kotlinx.coroutines.flow.Flow<androidx.appfunctions.ObserveAppFunctionsEvent> observeAppFunctions();
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? searchAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.metadata.AppFunctionMetadata>>);
     method public suspend Object? setAppFunctionEnabled(String functionId, int newEnabledState, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -383,12 +384,18 @@ package androidx.appfunctions {
     field public static final String SERVICE_INTERFACE = "android.app.appfunctions.AppFunctionService";
   }
 
-  public final class HandleAppFunctionRequest {
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public final class HandleAppFunctionRequest {
     ctor public HandleAppFunctionRequest(String functionIdentifier, androidx.appfunctions.SuspendingAppFunction appFunction);
     method @InaccessibleFromKotlin public androidx.appfunctions.SuspendingAppFunction getAppFunction();
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
     property public androidx.appfunctions.SuspendingAppFunction appFunction;
     property public String functionIdentifier;
+  }
+
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public interface HandleAppFunctionRequestAdapter<T> {
+    method public androidx.appfunctions.HandleAppFunctionRequest adapt(T instance);
+    method @InaccessibleFromKotlin public String getFunctionIdentifier();
+    property public abstract String functionIdentifier;
   }
 
   public abstract class ObserveAppFunctionsEvent {
@@ -406,7 +413,7 @@ package androidx.appfunctions {
     property public java.util.Set<androidx.appfunctions.metadata.AppFunctionName> changedFunctionNames;
   }
 
-  public fun interface SuspendingAppFunction {
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi public fun interface SuspendingAppFunction {
     method public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
   }
 
