@@ -24,48 +24,131 @@ import androidx.compose.ui.unit.dp
 
 internal object CheckboxTokens {
     val ContainerShape = RoundedCornerShape(2.0.dp)
-    val ContainerSize = 18.0.dp
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val IconSize = 18.0.dp
-    val SelectedContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectedDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    val SelectedDisabledContainerOpacity = 0.38f
-    val SelectedDisabledContainerOutlineWidth = 0.0.dp
-    val SelectedDisabledIconColor = ColorSchemeKeyTokens.Surface
-    val SelectedErrorContainerColor = ColorSchemeKeyTokens.Error
-    val SelectedErrorFocusContainerColor = ColorSchemeKeyTokens.Error
-    val SelectedErrorFocusIconColor = ColorSchemeKeyTokens.OnError
-    val SelectedErrorHoverContainerColor = ColorSchemeKeyTokens.Error
-    val SelectedErrorHoverIconColor = ColorSchemeKeyTokens.OnError
-    val SelectedErrorIconColor = ColorSchemeKeyTokens.OnError
-    val SelectedErrorPressedContainerColor = ColorSchemeKeyTokens.Error
-    val SelectedErrorPressedIconColor = ColorSchemeKeyTokens.OnError
-    val SelectedFocusContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectedFocusIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedFocusOutlineWidth = 0.0.dp
-    val SelectedHoverContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectedHoverIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedHoverOutlineWidth = 0.0.dp
-    val SelectedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedOutlineWidth = 0.0.dp
-    val SelectedPressedContainerColor = ColorSchemeKeyTokens.Primary
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.OnPrimary
-    val SelectedPressedOutlineWidth = 0.0.dp
-    val StateLayerShape = ShapeKeyTokens.CornerFull
-    val StateLayerSize = 40.0.dp
-    val UnselectedDisabledContainerOpacity = 0.38f
-    val UnselectedDisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedDisabledOutlineWidth = 2.0.dp
-    val UnselectedErrorFocusOutlineColor = ColorSchemeKeyTokens.Error
-    val UnselectedErrorHoverOutlineColor = ColorSchemeKeyTokens.Error
-    val UnselectedErrorOutlineColor = ColorSchemeKeyTokens.Error
-    val UnselectedErrorPressedOutlineColor = ColorSchemeKeyTokens.Error
-    val UnselectedFocusOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedFocusOutlineWidth = 2.0.dp
-    val UnselectedHoverOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedHoverOutlineWidth = 2.0.dp
-    val UnselectedOutlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedOutlineWidth = 2.0.dp
-    val UnselectedPressedOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val UnselectedPressedOutlineWidth = 2.0.dp
+    inline val ContainerSize: androidx.compose.ui.unit.Dp
+        get() = 18.0.dp
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 18.0.dp
+
+    inline val SelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedDisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val SelectedDisabledContainerOpacity = 0.38f
+    inline val SelectedDisabledContainerOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val SelectedDisabledIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val SelectedErrorContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val SelectedErrorFocusContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val SelectedErrorFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnError
+
+    inline val SelectedErrorHoverContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val SelectedErrorHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnError
+
+    inline val SelectedErrorIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnError
+
+    inline val SelectedErrorPressedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val SelectedErrorPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnError
+
+    inline val SelectedFocusContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedFocusOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val SelectedHoverContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedHoverOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val SelectedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val SelectedPressedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val SelectedPressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnPrimary
+
+    inline val SelectedPressedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val StateLayerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val StateLayerSize: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    const val UnselectedDisabledContainerOpacity = 0.38f
+    inline val UnselectedDisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedDisabledOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val UnselectedErrorFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val UnselectedErrorHoverOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val UnselectedErrorOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val UnselectedErrorPressedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.Error
+
+    inline val UnselectedFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedFocusOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val UnselectedHoverOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedHoverOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val UnselectedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val UnselectedPressedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val UnselectedPressedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
 }

@@ -21,18 +21,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object MediumIconButtonTokens {
-    val ContainerHeight = 56.0.dp
-    val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerLarge
-    val DefaultLeadingSpace = 16.0.dp
-    val DefaultTrailingSpace = 16.0.dp
-    val IconSize = 24.0.dp
-    val NarrowLeadingSpace = 12.0.dp
-    val NarrowTrailingSpace = 12.0.dp
-    val OutlinedOutlineWidth = 1.0.dp
-    val PressedContainerShape = ShapeKeyTokens.CornerMedium
-    val SelectedContainerShapeRound = ShapeKeyTokens.CornerLarge
-    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerFull
-    val WideLeadingSpace = 24.0.dp
-    val WideTrailingSpace = 24.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val ContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val DefaultLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val DefaultTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 12.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val PressedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val SelectedContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val WideLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val WideTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

@@ -19,66 +19,171 @@
 package androidx.compose.material3.tokens
 
 internal object StandardMenuTokens {
-    val ButtonDisabledIconIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ButtonIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ButtonSelectedIconIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val DisabledButtonIconIconColor = ColorSchemeKeyTokens.OnSurface
-    val IconButtonContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val IconButtonSelectedContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val ItemContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ItemDisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemDisabledLabelTextOpacity = 0.38f
-    val ItemDisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val ItemDisabledLeadingIconOpacity = 0.38f
-    val ItemDisabledSupportingTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemDisabledSupportingTextOpacity = 0.38f
-    val ItemDisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    val ItemDisabledTrailingIconOpacity = 0.38f
-    val ItemDisabledTrailingSupportingTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemDisabledTrailingSupportingTextOpacity = 0.38f
-    val ItemFocusedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemFocusedLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemFocusedTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemHoveredLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemHoveredLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemHoveredTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemPressedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemPressedLeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemPressedTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemSelectedContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val ItemSelectedDisabledContainerColor = ColorSchemeKeyTokens.TertiaryContainer
-    val ItemSelectedDisabledContainerOpacity = 0.38f
-    val ItemSelectedDisabledLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedDisabledLabelTextOpacity = 0.38f
-    val ItemSelectedDisabledLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedDisabledLeadingIconOpacity = 0.38f
-    val ItemSelectedDisabledTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedDisabledTrailingIconOpacity = 0.38f
-    val ItemSelectedDisabledTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedFocusedLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedFocusedSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedFocusedTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedFocusedTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedHoveredLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedHoveredSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedHoveredTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedHoveredTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedPressedLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedPressedSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedPressedTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedPressedTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSelectedTrailingSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
-    val ItemSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemTrailingSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val ButtonDisabledIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ButtonIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ButtonSelectedIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val DisabledButtonIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val IconButtonContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val IconButtonSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    inline val ItemContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ItemDisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val ItemDisabledLabelTextOpacity = 0.38f
+    inline val ItemDisabledLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val ItemDisabledLeadingIconOpacity = 0.38f
+    inline val ItemDisabledSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val ItemDisabledSupportingTextOpacity = 0.38f
+    inline val ItemDisabledTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val ItemDisabledTrailingIconOpacity = 0.38f
+    inline val ItemDisabledTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val ItemDisabledTrailingSupportingTextOpacity = 0.38f
+    inline val ItemFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ItemFocusedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemFocusedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ItemHoveredLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemHoveredTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ItemLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ItemPressedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemPressedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemSelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    inline val ItemSelectedDisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.TertiaryContainer
+
+    const val ItemSelectedDisabledContainerOpacity = 0.38f
+    inline val ItemSelectedDisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    const val ItemSelectedDisabledLabelTextOpacity = 0.38f
+    inline val ItemSelectedDisabledLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    const val ItemSelectedDisabledLeadingIconOpacity = 0.38f
+    inline val ItemSelectedDisabledTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    const val ItemSelectedDisabledTrailingIconOpacity = 0.38f
+    inline val ItemSelectedDisabledTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedFocusedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedFocusedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedFocusedSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedFocusedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedFocusedTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedHoveredLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedHoveredLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedHoveredSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedHoveredTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedHoveredTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedPressedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedPressedSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedPressedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedPressedTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSelectedTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnTertiaryContainer
+
+    inline val ItemSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemTrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemTrailingSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

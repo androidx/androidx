@@ -22,22 +22,57 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SecondaryNavigationTabTokens {
-    val ActiveLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ContainerColor = ColorSchemeKeyTokens.Surface
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerHeight = 48.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerNone
-    val DividerColor = ColorSchemeKeyTokens.SurfaceVariant
-    val DividerHeight = 1.0.dp
-    val FocusLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val HoverLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val InactiveLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LabelTextFont = TypographyKeyTokens.TitleSmall
-    val PressedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val ActiveIconColor = ColorSchemeKeyTokens.OnSurface
-    val FocusIconColor = ColorSchemeKeyTokens.OnSurface
-    val HoverIconColor = ColorSchemeKeyTokens.OnSurface
-    val IconSize = 24.0.dp
-    val InactiveIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val PressedIconColor = ColorSchemeKeyTokens.OnSurface
+    inline val ActiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val DividerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceVariant
+
+    inline val DividerHeight: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val FocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.TitleSmall
+
+    inline val PressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ActiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val FocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val HoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val InactiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val PressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
 }

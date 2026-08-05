@@ -21,38 +21,97 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object SuggestionChipTokens {
-    val ContainerHeight = 32.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerSmall
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledLabelTextOpacity = 0.38f
-    val DraggedContainerElevation = ElevationTokens.Level4
-    val DraggedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ElevatedContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ElevatedContainerElevation = ElevationTokens.Level1
-    val ElevatedDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    val ElevatedDisabledContainerElevation = ElevationTokens.Level0
-    val ElevatedDisabledContainerOpacity = 0.12f
-    val ElevatedFocusContainerElevation = ElevationTokens.Level1
-    val ElevatedHoverContainerElevation = ElevationTokens.Level2
-    val ElevatedPressedContainerElevation = ElevationTokens.Level1
-    val FlatContainerElevation = ElevationTokens.Level0
-    val FlatDisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
-    val FlatDisabledOutlineOpacity = 0.12f
-    val FlatFocusOutlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val FlatOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val FlatOutlineWidth = 1.0.dp
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val FocusLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HoverLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LabelTextFont = TypographyKeyTokens.LabelLarge
-    val PressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val DisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledLeadingIconOpacity = 0.38f
-    val DraggedLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val FocusLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val HoverLeadingIconColor = ColorSchemeKeyTokens.Primary
-    val LeadingIconColor = ColorSchemeKeyTokens.Primary
-    val LeadingIconSize = 18.0.dp
-    val PressedLeadingIconColor = ColorSchemeKeyTokens.Primary
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerSmall
+
+    inline val DisabledLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledLabelTextOpacity = 0.38f
+    inline val DraggedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level4
+
+    inline val DraggedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ElevatedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ElevatedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val ElevatedDisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ElevatedDisabledContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    const val ElevatedDisabledContainerOpacity = 0.12f
+    inline val ElevatedFocusContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val ElevatedHoverContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ElevatedPressedContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val FlatContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val FlatDisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val FlatDisabledOutlineOpacity = 0.12f
+    inline val FlatFocusOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val FlatOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val FlatOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 1.0.dp
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val FocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val LabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val PressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val DisabledLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledLeadingIconOpacity = 0.38f
+    inline val DraggedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val FocusLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val HoverLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val LeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val LeadingIconSize: androidx.compose.ui.unit.Dp
+        get() = 18.0.dp
+
+    inline val PressedLeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
 }

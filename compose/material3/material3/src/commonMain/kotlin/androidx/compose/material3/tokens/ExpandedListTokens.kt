@@ -19,12 +19,27 @@
 package androidx.compose.material3.tokens
 
 internal object ExpandedListTokens {
-    val CollapsedItemTrailingIconContainerColor = ColorSchemeKeyTokens.Surface
-    val CollapsedItemTrailingIconIconColor = ColorSchemeKeyTokens.OnSurface
-    val ContainerShape = ShapeKeyTokens.CornerLarge
-    val ExpandedItemContainerColor = ColorSchemeKeyTokens.Surface
-    val ExpandedItemSegmentedContainerColor = ColorSchemeKeyTokens.Surface
-    val ExpandedItemTrailingIconContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ExpandedItemTrailingIconIconColor = ColorSchemeKeyTokens.OnSurface
-    val TrailingIconShape = ShapeKeyTokens.CornerFull
+    inline val CollapsedItemTrailingIconContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val CollapsedItemTrailingIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val ExpandedItemContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ExpandedItemSegmentedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ExpandedItemTrailingIconContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ExpandedItemTrailingIconIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TrailingIconShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
 }

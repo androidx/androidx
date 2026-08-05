@@ -21,11 +21,24 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object CircularProgressIndicatorTokens {
-    val ActiveThickness = 4.0.dp
-    val ActiveWaveAmplitude = 1.6.dp
-    val ActiveWaveWavelength = 15.0.dp
-    val Size = 40.0.dp
-    val TrackActiveSpace = 4.0.dp
-    val TrackThickness = 4.0.dp
-    val WaveSize = 48.0.dp
+    inline val ActiveThickness: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val ActiveWaveAmplitude: androidx.compose.ui.unit.Dp
+        get() = 1.6.dp
+
+    inline val ActiveWaveWavelength: androidx.compose.ui.unit.Dp
+        get() = 15.0.dp
+
+    inline val Size: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val TrackActiveSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val TrackThickness: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val WaveSize: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
 }

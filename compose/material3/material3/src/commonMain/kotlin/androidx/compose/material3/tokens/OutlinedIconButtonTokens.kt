@@ -19,25 +19,62 @@
 package androidx.compose.material3.tokens
 
 internal object OutlinedIconButtonTokens {
-    val DisabledColor = ColorSchemeKeyTokens.OnSurface
-    val DisabledOpacity = 0.38f
-    val DisabledOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val FocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val Color = ColorSchemeKeyTokens.OnSurfaceVariant
-    val OutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val PressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SelectedContainerColor = ColorSchemeKeyTokens.InverseSurface
-    val SelectedDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    val SelectedDisabledContainerOpacity = 0.1f
-    val SelectedFocusedColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedHoveredColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedColor = ColorSchemeKeyTokens.InverseOnSurface
-    val SelectedPressedColor = ColorSchemeKeyTokens.InverseOnSurface
-    val UnselectedDisabledOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedFocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
-    val UnselectedPressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    inline val DisabledColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val DisabledOpacity = 0.38f
+    inline val DisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val FocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val Color: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val OutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val PressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SelectedContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseSurface
+
+    inline val SelectedDisabledContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    const val SelectedDisabledContainerOpacity = 0.1f
+    inline val SelectedFocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedHoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val SelectedPressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.InverseOnSurface
+
+    inline val UnselectedDisabledOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedFocusedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedHoveredColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val UnselectedOutlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OutlineVariant
+
+    inline val UnselectedPressedColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
 }

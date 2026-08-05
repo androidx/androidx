@@ -21,10 +21,21 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ExtendedFabLargeTokens {
-    val ContainerHeight = 96.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val IconLabelSpace = 20.0.dp
-    val IconSize = 32.0.dp
-    val LeadingSpace = 28.0.dp
-    val TrailingSpace = 28.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val IconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 20.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 28.0.dp
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 28.0.dp
 }

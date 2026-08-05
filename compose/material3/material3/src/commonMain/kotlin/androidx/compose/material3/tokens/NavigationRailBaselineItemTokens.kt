@@ -21,13 +21,30 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationRailBaselineItemTokens {
-    val ActiveIndicatorIconLabelSpace = 8.0.dp
-    val ActiveIndicatorLeadingSpace = 16.0.dp
-    val ActiveIndicatorShape = ShapeKeyTokens.CornerFull
-    val ActiveIndicatorTrailingSpace = 16.0.dp
-    val ContainerHeight = 64.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerNone
-    val ContainerVerticalSpace = 6.0.dp
-    val HeaderSpaceMinimum = 40.0.dp
-    val IconSize = 24.0.dp
+    inline val ActiveIndicatorIconLabelSpace: androidx.compose.ui.unit.Dp
+        get() = 8.0.dp
+
+    inline val ActiveIndicatorLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ActiveIndicatorShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ActiveIndicatorTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 64.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val ContainerVerticalSpace: androidx.compose.ui.unit.Dp
+        get() = 6.0.dp
+
+    inline val HeaderSpaceMinimum: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
 }

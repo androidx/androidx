@@ -19,16 +19,39 @@
 package androidx.compose.material3.tokens
 
 internal object RichTooltipTokens {
-    val ActionFocusLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionHoverLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ActionLabelTextFont = TypographyKeyTokens.LabelLarge
-    val ActionPressedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContainerElevation = ElevationTokens.Level2
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val SubheadColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SubheadFont = TypographyKeyTokens.TitleSmall
-    val SupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val SupportingTextFont = TypographyKeyTokens.BodyMedium
+    inline val ActionFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActionLabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val ActionPressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerMedium
+
+    inline val SubheadColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SubheadFont: TypographyToken
+        get() = TypographyKeyTokens.TitleSmall
+
+    inline val SupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val SupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.BodyMedium
 }

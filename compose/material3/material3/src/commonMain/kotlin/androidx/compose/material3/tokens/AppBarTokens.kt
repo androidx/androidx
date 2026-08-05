@@ -22,18 +22,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object AppBarTokens {
-    val AvatarSize = 32.0.dp
-    val ContainerColor = ColorSchemeKeyTokens.Surface
-    val ContainerElevation = ElevationTokens.Level0
-    val ContainerShape = ShapeKeyTokens.CornerNone
-    val IconButtonSpace = 0.0.dp
-    val IconSize = 24.0.dp
-    val LeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val LeadingSpace = 4.0.dp
-    val OnScrollContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val OnScrollContainerElevation = ElevationTokens.Level2
-    val SubtitleColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TitleColor = ColorSchemeKeyTokens.OnSurface
-    val TrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val TrailingSpace = 4.0.dp
+    inline val AvatarSize: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerNone
+
+    inline val IconButtonSpace: androidx.compose.ui.unit.Dp
+        get() = 0.0.dp
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val LeadingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val LeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
+
+    inline val OnScrollContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainer
+
+    inline val OnScrollContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level2
+
+    inline val SubtitleColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TitleColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val TrailingIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val TrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 4.0.dp
 }

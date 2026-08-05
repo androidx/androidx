@@ -19,10 +19,21 @@
 package androidx.compose.material3.tokens
 
 internal object ProgressIndicatorTokens {
-    val ActiveIndicatorColor = ColorSchemeKeyTokens.Primary
-    val ActiveShape = ShapeKeyTokens.CornerFull
-    val StopColor = ColorSchemeKeyTokens.Primary
-    val StopShape = ShapeKeyTokens.CornerFull
-    val TrackColor = ColorSchemeKeyTokens.SecondaryContainer
-    val TrackShape = ShapeKeyTokens.CornerFull
+    inline val ActiveIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val ActiveShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val StopColor: ColorToken
+        get() = ColorSchemeKeyTokens.Primary
+
+    inline val StopShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val TrackColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val TrackShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
 }

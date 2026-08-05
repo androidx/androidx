@@ -21,39 +21,106 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object NavigationDrawerTokens {
-    val ActiveFocusIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActiveFocusLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActiveHoverIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActiveHoverLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActiveIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActiveIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
-    val ActiveIndicatorHeight = 56.0.dp
-    val ActiveIndicatorShape = ShapeKeyTokens.CornerFull
-    val ActiveIndicatorWidth = 336.0.dp
-    val ActiveLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActivePressedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ActivePressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val BottomContainerShape = ShapeKeyTokens.CornerLargeTop
-    val ContainerHeightPercent = 100.0f
-    val ContainerShape = ShapeKeyTokens.CornerLargeEnd
-    val ContainerWidth = 360.0.dp
-    val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
-    val HeadlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeadlineFont = TypographyKeyTokens.TitleSmall
-    val IconSize = 24.0.dp
-    val InactiveFocusIconColor = ColorSchemeKeyTokens.OnSurface
-    val InactiveFocusLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val InactiveHoverIconColor = ColorSchemeKeyTokens.OnSurface
-    val InactiveHoverLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val InactiveIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val InactiveLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val InactivePressedIconColor = ColorSchemeKeyTokens.OnSurface
-    val InactivePressedLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    val LabelTextFont = TypographyKeyTokens.LabelLarge
-    val LargeBadgeLabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LargeBadgeLabelFont = TypographyKeyTokens.LabelLarge
-    val ModalContainerColor = ColorSchemeKeyTokens.SurfaceContainerLow
-    val ModalContainerElevation = ElevationTokens.Level1
-    val StandardContainerColor = ColorSchemeKeyTokens.Surface
-    val StandardContainerElevation = ElevationTokens.Level0
+    inline val ActiveFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActiveFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActiveHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActiveHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActiveIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val ActiveIndicatorHeight: androidx.compose.ui.unit.Dp
+        get() = 56.0.dp
+
+    inline val ActiveIndicatorShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ActiveIndicatorWidth: androidx.compose.ui.unit.Dp
+        get() = 336.0.dp
+
+    inline val ActiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActivePressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ActivePressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val BottomContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLargeTop
+
+    const val ContainerHeightPercent = 100.0f
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLargeEnd
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 360.0.dp
+
+    inline val FocusIndicatorColor: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val HeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.TitleSmall
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 24.0.dp
+
+    inline val InactiveFocusIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactiveFocusLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactiveHoverIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactiveHoverLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactiveIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val InactiveLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val InactivePressedIconColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val InactivePressedLabelTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurface
+
+    inline val LabelTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val LargeBadgeLabelColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val LargeBadgeLabelFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
+
+    inline val ModalContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceContainerLow
+
+    inline val ModalContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level1
+
+    inline val StandardContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val StandardContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level0
 }

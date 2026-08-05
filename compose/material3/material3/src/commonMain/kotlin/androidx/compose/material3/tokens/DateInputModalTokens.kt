@@ -21,16 +21,39 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object DateInputModalTokens {
-    val ContainerColor = ColorSchemeKeyTokens.Surface
-    val ContainerElevation = ElevationTokens.Level3
-    val ContainerHeight = 512.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerExtraLarge
-    val ContainerSurfaceTintLayerColor = ColorSchemeKeyTokens.SurfaceTint
-    val ContainerWidth = 328.0.dp
-    val HeaderContainerHeight = 120.0.dp
-    val HeaderContainerWidth = 328.0.dp
-    val HeaderHeadlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeaderHeadlineFont = TypographyKeyTokens.HeadlineLarge
-    val HeaderSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val HeaderSupportingTextFont = TypographyKeyTokens.LabelLarge
+    inline val ContainerColor: ColorToken
+        get() = ColorSchemeKeyTokens.Surface
+
+    inline val ContainerElevation: androidx.compose.ui.unit.Dp
+        get() = ElevationTokens.Level3
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 512.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val ContainerSurfaceTintLayerColor: ColorToken
+        get() = ColorSchemeKeyTokens.SurfaceTint
+
+    inline val ContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 328.0.dp
+
+    inline val HeaderContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 120.0.dp
+
+    inline val HeaderContainerWidth: androidx.compose.ui.unit.Dp
+        get() = 328.0.dp
+
+    inline val HeaderHeadlineColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeaderHeadlineFont: TypographyToken
+        get() = TypographyKeyTokens.HeadlineLarge
+
+    inline val HeaderSupportingTextColor: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val HeaderSupportingTextFont: TypographyToken
+        get() = TypographyKeyTokens.LabelLarge
 }

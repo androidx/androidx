@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.tokens.ShapeKeyTokens
+import androidx.compose.material3.tokens.ShapeToken
 import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -368,7 +369,7 @@ internal fun CornerBasedShape.end(
  * tokens: ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
+internal fun Shapes.fromToken(value: ShapeToken): Shape {
     return when (value) {
         ShapeKeyTokens.CornerExtraLarge -> extraLarge
         ShapeKeyTokens.CornerExtraLargeIncreased -> extraLargeIncreased
@@ -385,14 +386,11 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
         ShapeKeyTokens.CornerNone -> RectangleShape
         ShapeKeyTokens.CornerSmall -> small
         ShapeKeyTokens.CornerLargeStart -> large.start()
+        else -> RectangleShape
     }
 }
 
-/**
- * Converts a shape token key to the local shape provided by the theme The color is subscribed to
- * [LocalShapes] changes
- */
-internal val ShapeKeyTokens.value: Shape
+internal val ShapeToken.value: Shape
     @Composable @ReadOnlyComposable get() = MaterialTheme.shapes.fromToken(this)
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */

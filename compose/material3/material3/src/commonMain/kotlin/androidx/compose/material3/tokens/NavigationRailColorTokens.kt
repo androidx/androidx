@@ -19,15 +19,36 @@
 package androidx.compose.material3.tokens
 
 internal object NavigationRailColorTokens {
-    val ItemActiveFocusedStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemActiveHoveredStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemActiveIcon = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemActiveIndicator = ColorSchemeKeyTokens.SecondaryContainer
-    val ItemActiveLabelText = ColorSchemeKeyTokens.Secondary
-    val ItemActivePressedStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemInactiveFocusedStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemInactiveHoveredStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemInactiveIcon = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemInactiveLabelText = ColorSchemeKeyTokens.OnSurfaceVariant
-    val ItemInactivePressedStateLayer = ColorSchemeKeyTokens.OnSecondaryContainer
+    inline val ItemActiveFocusedStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemActiveHoveredStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemActiveIcon: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemActiveIndicator: ColorToken
+        get() = ColorSchemeKeyTokens.SecondaryContainer
+
+    inline val ItemActiveLabelText: ColorToken
+        get() = ColorSchemeKeyTokens.Secondary
+
+    inline val ItemActivePressedStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemInactiveFocusedStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemInactiveHoveredStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
+
+    inline val ItemInactiveIcon: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemInactiveLabelText: ColorToken
+        get() = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    inline val ItemInactivePressedStateLayer: ColorToken
+        get() = ColorSchemeKeyTokens.OnSecondaryContainer
 }

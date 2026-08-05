@@ -21,18 +21,45 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object LargeIconButtonTokens {
-    val ContainerHeight = 96.0.dp
-    val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerExtraLarge
-    val IconSize = 32.0.dp
-    val NarrowLeadingSpace = 16.0.dp
-    val NarrowTrailingSpace = 16.0.dp
-    val OutlinedOutlineWidth = 2.0.dp
-    val PressedContainerShape = ShapeKeyTokens.CornerLarge
-    val SelectedContainerShapeRound = ShapeKeyTokens.CornerExtraLarge
-    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerFull
-    val UniformLeadingSpace = 32.0.dp
-    val UniformTrailingSpace = 32.0.dp
-    val WideLeadingSpace = 48.0.dp
-    val WideTrailingSpace = 48.0.dp
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 96.0.dp
+
+    inline val ContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val ContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val IconSize: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val NarrowLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val NarrowTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 16.0.dp
+
+    inline val OutlinedOutlineWidth: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val PressedContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerLarge
+
+    inline val SelectedContainerShapeRound: ShapeToken
+        get() = ShapeKeyTokens.CornerExtraLarge
+
+    inline val SelectedContainerShapeSquare: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
+    inline val UniformLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val UniformTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 32.0.dp
+
+    inline val WideLeadingSpace: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
+
+    inline val WideTrailingSpace: androidx.compose.ui.unit.Dp
+        get() = 48.0.dp
 }

@@ -18,20 +18,24 @@
 
 package androidx.compose.material3.tokens
 
-internal enum class ShapeKeyTokens {
-    CornerExtraExtraLarge,
-    CornerExtraLarge,
-    CornerExtraLargeIncreased,
-    CornerExtraLargeTop,
-    CornerExtraSmall,
-    CornerExtraSmallTop,
-    CornerFull,
-    CornerLarge,
-    CornerLargeEnd,
-    CornerLargeIncreased,
-    CornerLargeStart,
-    CornerLargeTop,
-    CornerMedium,
-    CornerNone,
-    CornerSmall,
+import kotlin.jvm.JvmInline
+
+@JvmInline internal value class ShapeToken(val id: Int)
+
+internal object ShapeKeyTokens {
+    val CornerExtraExtraLarge = ShapeToken(0)
+    val CornerExtraLarge = ShapeToken(1)
+    val CornerExtraLargeIncreased = ShapeToken(2)
+    val CornerExtraLargeTop = ShapeToken(3)
+    val CornerExtraSmall = ShapeToken(4)
+    val CornerExtraSmallTop = ShapeToken(5)
+    val CornerFull = ShapeToken(6)
+    val CornerLarge = ShapeToken(7)
+    val CornerLargeEnd = ShapeToken(8)
+    val CornerLargeIncreased = ShapeToken(9)
+    val CornerLargeStart = ShapeToken(10)
+    val CornerLargeTop = ShapeToken(11)
+    val CornerMedium = ShapeToken(12)
+    val CornerNone = ShapeToken(13)
+    val CornerSmall = ShapeToken(14)
 }

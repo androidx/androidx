@@ -22,10 +22,16 @@ package androidx.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object ConnectedButtonGroupSmallTokens {
-    val BetweenSpace = 2.0.dp
-    val ContainerHeight = 40.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
+    inline val BetweenSpace: androidx.compose.ui.unit.Dp
+        get() = 2.0.dp
+
+    inline val ContainerHeight: androidx.compose.ui.unit.Dp
+        get() = 40.0.dp
+
+    inline val ContainerShape: ShapeToken
+        get() = ShapeKeyTokens.CornerFull
+
     val InnerCornerCornerSize = ShapeTokens.CornerValueSmall
     val PressedInnerCornerCornerSize = ShapeTokens.CornerValueExtraSmall
-    val SelectedInnerCornerCornerSizePercent = 50.0f
+    const val SelectedInnerCornerCornerSizePercent = 50.0f
 }

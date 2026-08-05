@@ -43,7 +43,7 @@ import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
-import androidx.compose.material3.tokens.TypographyKeyTokens
+import androidx.compose.material3.tokens.TypographyToken
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -1215,7 +1215,7 @@ private fun MeasureScope.place(
 @Composable
 private fun ProvideTextStyleFromToken(
     color: Color,
-    textToken: TypographyKeyTokens,
+    textToken: TypographyToken,
     content: @Composable () -> Unit,
 ) =
     ProvideContentColorTextStyle(
@@ -1291,7 +1291,7 @@ private fun verticalPadding(listItemType: ListItemType): Dp =
 private fun LeadingDecorator(
     startPadding: Dp,
     color: Color,
-    textStyle: TypographyKeyTokens,
+    textStyle: TypographyToken,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
@@ -1316,7 +1316,7 @@ private fun LeadingDecorator(
 private fun TrailingDecorator(
     endPadding: Dp,
     color: Color,
-    textStyle: TypographyKeyTokens,
+    textStyle: TypographyToken,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
@@ -1340,7 +1340,7 @@ private fun TrailingDecorator(
 @Composable
 private fun OverlineDecorator(
     color: Color,
-    textStyle: TypographyKeyTokens,
+    textStyle: TypographyToken,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
@@ -1357,7 +1357,7 @@ private fun OverlineDecorator(
 @Composable
 private fun SupportingDecorator(
     color: Color,
-    textStyle: TypographyKeyTokens,
+    textStyle: TypographyToken,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
@@ -1374,7 +1374,7 @@ private fun SupportingDecorator(
 @Composable
 private fun ContentDecorator(
     color: Color,
-    textStyle: TypographyKeyTokens,
+    textStyle: TypographyToken,
     content: @Composable () -> Unit,
 ) {
     Box {
