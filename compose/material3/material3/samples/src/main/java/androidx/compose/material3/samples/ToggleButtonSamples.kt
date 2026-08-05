@@ -35,7 +35,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Sampled
 @Composable
 fun ToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     ToggleButton(checked = checked, onCheckedChange = { checked = it }) { Text("Button") }
 }
 
@@ -52,7 +52,7 @@ fun ToggleButtonSample() {
 @Sampled
 @Composable
 fun ElevatedToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     ElevatedToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Text("Elevated Button")
     }
@@ -62,7 +62,7 @@ fun ElevatedToggleButtonSample() {
 @Sampled
 @Composable
 fun FilledTonalToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     FilledTonalToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Text("Tonal Button")
     }
@@ -72,7 +72,7 @@ fun FilledTonalToggleButtonSample() {
 @Sampled
 @Composable
 fun OutlinedToggleButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     OutlinedToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Text("Outlined Button")
     }
@@ -82,7 +82,7 @@ fun OutlinedToggleButtonSample() {
 @Sampled
 @Composable
 fun ToggleButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     ElevatedToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Icon(
             if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
@@ -99,7 +99,7 @@ fun ToggleButtonWithIconSample() {
 @Sampled
 @Composable
 fun XSmallToggleButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = ButtonDefaults.ExtraSmallContainerHeight
     ToggleButton(
         checked = checked,
@@ -123,7 +123,7 @@ fun XSmallToggleButtonWithIconSample() {
 @Sampled
 @Composable
 fun MediumToggleButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = ButtonDefaults.MediumContainerHeight
     ToggleButton(
         checked = checked,
@@ -147,7 +147,7 @@ fun MediumToggleButtonWithIconSample() {
 @Sampled
 @Composable
 fun LargeToggleButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = ButtonDefaults.LargeContainerHeight
     ToggleButton(
         checked = checked,
@@ -171,7 +171,7 @@ fun LargeToggleButtonWithIconSample() {
 @Sampled
 @Composable
 fun XLargeToggleButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = ButtonDefaults.ExtraLargeContainerHeight
     ToggleButton(
         checked = checked,
