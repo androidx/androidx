@@ -268,6 +268,16 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isCacheWindowLookaheadCheckEnabled: Boolean = true
+
+    /**
+     * This flag controls whether [androidx.compose.foundation.lazy.grid.LazyGrid] prefers using the
+     * default [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] over
+     * [androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy].
+     */
+    // TODO: b/536884365
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isPreferDefaultCacheWindowOverPrefetchStrategy: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
