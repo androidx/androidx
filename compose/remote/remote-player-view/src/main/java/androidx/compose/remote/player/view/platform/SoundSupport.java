@@ -75,9 +75,13 @@ public class SoundSupport {
      */
     public void init(@NonNull Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mAttributionContext = context
-                    .getApplicationContext()
-                    .createAttributionContext("RemoteCompose_audio_support");
+            try {
+                mAttributionContext = context
+                        .getApplicationContext()
+                        .createAttributionContext("RemoteCompose_audio_support");
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to create attribution context", e);
+            }
         }
         AudioManager am = context.getSystemService(AudioManager.class);
         if (am != null) {
@@ -211,7 +215,8 @@ public class SoundSupport {
                         .build())
                 .setBufferSizeInBytes(bufSize)
                 .setTransferMode(AudioTrack.MODE_STATIC);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                && mAttributionContext != null) {
             builder.setContext(mAttributionContext);
         }
         builder.setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
