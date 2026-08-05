@@ -19,6 +19,7 @@
 package androidx.a2ui.engine.catalog
 
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
+import androidx.a2ui.model.protocol.A2uiInlineCatalog
 import androidx.a2ui.model.schema.A2uiSchema
 
 /** A registry of UI components and functions that a client surface can render. */
@@ -46,11 +47,33 @@ public interface A2uiCoreCatalog {
 
     /** The schema this catalog uses to define the theme the is applied over the components. */
     public val themeSchema: A2uiSchema?
+        get() = null
+
+    /**
+     * Indicates whether this catalog's full JSON Schema should be serialized inline as part of the
+     * capabilities advertisement.
+     */
+    public val isInline: Boolean
+        get() = false
 }
 
 /**
- * Serializes this catalog to a JSON Schema string representation.
+ * Creates an [A2uiCoreCatalogSerializer] for this catalog.
  *
- * @return the serialized catalog JSON Schema string
+ * @return a new serializer instance configured for this catalog
  */
-public fun A2uiCoreCatalog.toJsonSchema(): String = serializeCatalogToJsonSchema(this)
+public fun A2uiCoreCatalog.obtainSerializer(): A2uiCoreCatalogSerializer =
+    A2uiCoreCatalogSerializer(this)
+
+/**
+ * Adapts this [A2uiCoreCatalog] into an [A2uiInlineCatalog] for use in client capabilities
+ * advertisement.
+ *
+ * @throws IllegalStateException If [isInline] is false.
+ */
+public fun A2uiCoreCatalog.toInlineCatalog(): A2uiInlineCatalog {
+    check(isInline) {
+        "Cannot adapt A2uiCoreCatalog(id='$id') to A2uiInlineCatalog because isInline is false."
+    }
+    return this as? A2uiInlineCatalog ?: A2uiCoreCatalogInlineAdapter(this)
+}

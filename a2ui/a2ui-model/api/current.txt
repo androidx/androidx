@@ -357,9 +357,13 @@ package androidx.a2ui.model.processor {
 package androidx.a2ui.model.protocol {
 
   public final class A2uiClientCapabilities {
+    ctor @BytecodeOnly public A2uiClientCapabilities(java.util.List!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public A2uiClientCapabilities(java.util.List<java.lang.String> supportedCatalogIds);
+    ctor public A2uiClientCapabilities(java.util.List<java.lang.String> supportedCatalogIds, optional java.util.List<? extends androidx.a2ui.model.protocol.A2uiInlineCatalog> inlineCatalogs);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.protocol.A2uiInlineCatalog> getInlineCatalogs();
     method @InaccessibleFromKotlin public java.util.List<java.lang.String> getSupportedCatalogIds();
     method public java.util.Map<java.lang.String,java.util.Map<java.lang.String,java.lang.Object?>> toPayloadMap();
+    property public java.util.List<androidx.a2ui.model.protocol.A2uiInlineCatalog> inlineCatalogs;
     property public java.util.List<java.lang.String> supportedCatalogIds;
   }
 
@@ -497,6 +501,13 @@ package androidx.a2ui.model.protocol {
     property public String functionName;
     property public String surfaceId;
     property public long timestamp;
+  }
+
+  public interface A2uiInlineCatalog {
+    method @InaccessibleFromKotlin public String getId();
+    method public java.util.Map<java.lang.String,java.lang.Object?> toJsonSchemaMap();
+    method public String toJsonSchemaString();
+    property public abstract String id;
   }
 
   public final class A2uiProtocolConstants {
