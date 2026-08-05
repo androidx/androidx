@@ -265,4 +265,73 @@ class TrackedOutputImageTest {
 
         fakeImageReader.close()
     }
+
+    @Test
+    fun addExternalUseUpdatesEvictableMemoryCorrectly() {
+        val memoryEstimator = MemoryEstimator.create(initialCapacity)
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
+        val expectedBytes =
+            StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
+        val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
+
+        val trackedImage =
+            TrackedOutputImage(
+                imageSource,
+                fakeImage,
+                expectedStreamId,
+                expectedOutputId,
+                memoryEstimator,
+            )
+
+        // Baseline: Evictable
+        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+
+        // Add multiple uses at once
+        trackedImage.addExternalUse(3)
+        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+
+        // Decrement one by one, it should remain non-evictable until the last one
+        trackedImage.decrementExternalUse()
+        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+
+        trackedImage.decrementExternalUse()
+        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+
+        trackedImage.decrementExternalUse()
+        // Finally hits 0 uses, becomes evictable again
+        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+
+        fakeImageReader.close()
+    }
+
+    @Test
+    fun trackedOutputImageStateBitwiseMathIsCorrect() {
+        // 1. Initial State
+        var state = TrackedOutputImageState(0)
+        assertThat(state.isEvictable).isTrue()
+        assertThat(state.isClosed).isFalse()
+        assertThat(state.externalUseCount).isEqualTo(0)
+
+        // 2. Incrementing shifts the use count but keeps closed = false
+        state = state.withIncrementedUse(1)
+        assertThat(state.isEvictable).isFalse()
+        assertThat(state.isClosed).isFalse()
+        assertThat(state.externalUseCount).isEqualTo(1)
+
+        // 3. Adding multiple uses works
+        state = state.withIncrementedUse(4)
+        assertThat(state.externalUseCount).isEqualTo(5)
+        assertThat(state.isClosed).isFalse()
+
+        // 4. Closing the state sets the 0th bit, but preserves the use count
+        state = state.withClosed()
+        assertThat(state.isClosed).isTrue()
+        assertThat(state.externalUseCount).isEqualTo(5)
+
+        // 5. Decrementing preserves the closed bit
+        state = state.withDecrementedUse()
+        assertThat(state.externalUseCount).isEqualTo(4)
+        assertThat(state.isClosed).isTrue() // Must still be true!
+    }
 }
