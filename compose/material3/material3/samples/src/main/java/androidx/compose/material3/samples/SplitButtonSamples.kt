@@ -50,7 +50,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -67,7 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun FilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -183,7 +183,7 @@ fun SplitButtonWithUnCheckableTrailingButtonSample() {
 @Composable
 @Preview
 fun SplitButtonWithDropdownMenuSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().wrapContentSize()) {
         SplitButton(
@@ -275,7 +275,7 @@ fun SplitButtonWithDropdownMenuSample() {
 @Composable
 @Preview
 fun TonalSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -342,7 +342,7 @@ fun TonalSplitButtonSample() {
 @Composable
 @Preview
 fun ElevatedSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -409,7 +409,7 @@ fun ElevatedSplitButtonSample() {
 @Composable
 @Preview
 fun OutlinedSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -476,7 +476,7 @@ fun OutlinedSplitButtonSample() {
 @Composable
 @Preview
 fun SplitButtonWithTextSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -535,7 +535,7 @@ fun SplitButtonWithTextSample() {
 @Composable
 @Preview
 fun SplitButtonWithIconSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -621,7 +621,7 @@ fun SplitButtonWithIconSample() {
 @Composable
 @Preview
 fun XSmallFilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.ExtraSmallContainerHeight
 
     SplitButton(
@@ -695,7 +695,7 @@ fun XSmallFilledSplitButtonSample() {
 @Composable
 @Preview
 fun MediumFilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.MediumContainerHeight
 
     SplitButton(
@@ -769,7 +769,7 @@ fun MediumFilledSplitButtonSample() {
 @Composable
 @Preview
 fun LargeFilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.LargeContainerHeight
 
     SplitButton(
@@ -843,7 +843,7 @@ fun LargeFilledSplitButtonSample() {
 @Composable
 @Preview
 fun ExtraLargeFilledSplitButtonSample() {
-    var checked by remember { mutableStateOf(false) }
+    var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.ExtraLargeContainerHeight
 
     SplitButton(
