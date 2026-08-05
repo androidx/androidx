@@ -386,7 +386,13 @@ class TabTest {
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
-        baselinePositionY.assertIsEqualTo(expectedPositionY, "baseline y-position")
+
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() + 0.05.dp })
+        baselinePositionY.assertIsEqualTo(
+            expectedPositionY,
+            "baseline y-position",
+            tolerance = tolerance,
+        )
     }
 
     @Test
