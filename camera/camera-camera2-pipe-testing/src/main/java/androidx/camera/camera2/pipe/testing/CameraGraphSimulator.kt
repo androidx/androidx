@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope
 
@@ -198,11 +199,14 @@ internal constructor(
         }
     }
 
-    override fun simulateNextFrame(advanceClockByNanos: Long): FrameSimulator =
-        generateNextFrame().also {
-            val clockNanos = frameClockNanos.addAndGet(advanceClockByNanos)
-            it.simulateStarted(clockNanos)
-        }
+    override fun simulateNextFrame(
+        advanceClockByNanos: Long,
+        advanceBarrier: Boolean,
+    ): FrameSimulator {
+        val clockNanos = frameClockNanos.addAndGet(advanceClockByNanos)
+        if (advanceBarrier) testThreadScope?.advanceTimeBy(advanceClockByNanos.nanoseconds)
+        return generateNextFrame().also { it.simulateStarted(clockNanos) }
+    }
 
     private fun generateNextFrame(): FrameSimulator {
         val captureSequenceProcessor = cameraController.currentCaptureSequenceProcessor
