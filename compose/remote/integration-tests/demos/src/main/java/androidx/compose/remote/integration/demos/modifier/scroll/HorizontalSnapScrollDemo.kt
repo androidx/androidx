@@ -55,7 +55,7 @@ fun HorizontalSnapScrollDemo() {
 @RemoteComposable
 private fun HorizontalSnapScrollDemoContent() {
     val itemsQuantity = 50
-    val scrollState = rememberRemoteScrollState(evenNotches = itemsQuantity - 1)
+    val scrollState = rememberRemoteScrollState(notches = itemsQuantity - 1)
     val colors = arrayOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD), Color(0xFF9E9E9E), Color(0xFF757575))
     RemoteRow(
         modifier = RemoteModifier.horizontalScroll(scrollState).fillMaxWidth().fillMaxHeight()

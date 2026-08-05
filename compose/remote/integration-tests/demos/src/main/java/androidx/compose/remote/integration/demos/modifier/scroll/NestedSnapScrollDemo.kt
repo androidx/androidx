@@ -60,12 +60,11 @@ fun NestedSnapScrollDemo() {
 @RemoteComposable
 private fun NestedSnapScrollDemoContent() {
     val itemsQuantity = 10
-    val verticalScrollState = rememberRemoteScrollState(evenNotches = itemsQuantity - 1)
+    val verticalScrollState = rememberRemoteScrollState(notches = itemsQuantity - 1)
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteColumn(modifier = RemoteModifier.fillMaxSize().verticalScroll(verticalScrollState)) {
             repeat(itemsQuantity) { rowIndex ->
-                val horizontalScrollState =
-                    rememberRemoteScrollState(evenNotches = itemsQuantity - 1)
+                val horizontalScrollState = rememberRemoteScrollState(notches = itemsQuantity - 1)
                 RemoteBox(modifier = RemoteModifier.padding(vertical = 8.rdp)) {
                     RemoteRow(
                         modifier =
