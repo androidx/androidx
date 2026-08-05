@@ -20,11 +20,13 @@ package androidx.compose.ui.platform
 
 import android.os.Binder
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
 import android.util.SparseArray
 import android.view.View
+import androidx.collection.MutableScatterMap
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -33,7 +35,11 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.R
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
+import androidx.savedstate.savedState
 import java.io.Serializable
+
+private const val KEY = "androidx.compose.ui.platform.DisposableSaveableStateRegistry"
 
 /** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
 internal fun DisposableSaveableStateRegistry(
@@ -112,76 +118,110 @@ internal class DisposableSaveableStateRegistry(
     }
 }
 
-/** Checks that [value] can be stored inside [Bundle]. */
+/**
+ * Checks if [value] can be stored in a [Bundle].
+ *
+ * **IMPORTANT:** Uses direct type checks instead of reflection to avoid class check overhead at
+ * runtime.
+ */
 private fun canBeSavedToBundle(value: Any): Boolean {
-    // SnapshotMutableStateImpl is Parcelable, but we do extra checks
+    // SnapshotMutableStateImpl is Parcelable, but inner state value might not be saveable.
     if (value is SnapshotMutableState<*>) {
+        // Custom policies are not serializable.
+        val policy = value.policy
         if (
-            value.policy === neverEqualPolicy<Any?>() ||
-                value.policy === structuralEqualityPolicy<Any?>() ||
-                value.policy === referentialEqualityPolicy<Any?>()
+            policy !== neverEqualPolicy<Any?>() &&
+                policy !== structuralEqualityPolicy<Any?>() &&
+                policy !== referentialEqualityPolicy<Any?>()
         ) {
-            val stateValue = value.value
-            return if (stateValue == null) true else canBeSavedToBundle(stateValue)
-        } else {
             return false
         }
+
+        // Must check if inner value is serializable.
+        val stateValue = value.value
+        return stateValue == null || canBeSavedToBundle(stateValue)
     }
-    // lambdas in Kotlin implement Serializable, but will crash if you really try to save them.
-    // we check for both Function and Serializable (see kotlin.jvm.internal.Lambda) to support
-    // custom user defined classes implementing Function interface.
+
+    // Lambdas implement Serializable but crash on save. Check both Function and
+    // Serializable to support custom classes implementing Function.
     if (value is Function<*> && value is Serializable) {
         return false
     }
-    for (cl in AcceptableClasses) {
-        if (cl.isInstance(value)) {
-            return true
-        }
+
+    // Check interface. String is Serializable.
+    if (value is Parcelable || value is Serializable) {
+        return true
     }
+
+    // Check other Bundle supported types. Do not implement Parcelable or Serializable.
+    @Suppress("USELESS_IS_CHECK") // SizeF is not Parcelable before API 31.
+    if (value is Binder || value is Size || value is SizeF || value is SparseArray<*>) {
+        return true
+    }
+
     return false
 }
 
-/**
- * Contains Classes which can be stored inside [Bundle].
- *
- * Some of the classes are not added separately because:
- *
- * This classes implement Serializable:
- * - Arrays (DoubleArray, BooleanArray, IntArray, LongArray, ByteArray, FloatArray, ShortArray,
- *   CharArray, Array<Parcelable, Array<String>)
- * - ArrayList
- * - Primitives (Boolean, Int, Long, Double, Float, Byte, Short, Char) will be boxed when casted to
- *   Any, and all the boxed classes implements Serializable. This class implements Parcelable:
- * - Bundle
- *
- * Note: it is simplified copy of the array from SavedStateHandle (lifecycle-viewmodel-savedstate).
- */
-private val AcceptableClasses =
-    arrayOf(
-        Serializable::class.java,
-        Parcelable::class.java,
-        String::class.java,
-        SparseArray::class.java,
-        Binder::class.java,
-        Size::class.java,
-        SizeF::class.java,
-    )
-
 @Suppress("DEPRECATION")
 private fun Bundle.toMap(): Map<String, List<Any?>> {
-    val map = mutableMapOf<String, List<Any?>>()
-    this.keySet().forEach { key ->
-        val list = getParcelableArrayList<Parcelable?>(key) as ArrayList<Any?>
-        map[key] = list
-    }
-    return map
+    return read { getParcelableOrNull<ParcelableMapHolder>(KEY)?.map } ?: emptyMap()
 }
 
 private fun Map<String, List<Any?>>.toBundle(): Bundle {
-    val bundle = Bundle()
-    forEach { (key, list) ->
-        val arrayList = if (list is ArrayList<Any?>) list else ArrayList(list)
-        bundle.putParcelableArrayList(key, arrayList as ArrayList<Parcelable?>)
+    return savedState { putParcelable(KEY, ParcelableMapHolder(this@toBundle)) }
+}
+
+/**
+ * Holder wrapping [SaveableStateRegistry] state [Map].
+ *
+ * **Rationale**: During configuration changes, [ParcelableMapHolder] is passed by reference in
+ * memory, avoiding collection copies. During process death, it serializes state using custom
+ * parceling.
+ *
+ * Class must not implement [Map] interface. Android OS `Parcel.writeValue` matches [Map] interface
+ * before `Serializable` or `Parcelable`. If class implements [Map], `writeValue` serializes it as
+ * standard JVM `HashMap` (via optimized `writeMapInternal`), bypassing custom `Parcelable`
+ * implementations. Holding [map] reference prevents matching and preserves custom parceling.
+ */
+@Suppress("AsCollectionCall", "BanParcelableUsage")
+internal class ParcelableMapHolder(val map: Map<String, List<Any?>>) : Parcelable {
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(map.size)
+        map.forEach { (key, value) ->
+            parcel.writeString(key)
+            parcel.writeValue(value)
+        }
     }
-    return bundle
+
+    override fun describeContents(): Int = 0
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ParcelableMapHolder> =
+            object : Parcelable.ClassLoaderCreator<ParcelableMapHolder> {
+                override fun createFromParcel(
+                    parcel: Parcel,
+                    loader: ClassLoader?,
+                ): ParcelableMapHolder {
+                    val classLoader = loader ?: ParcelableMapHolder::class.java.classLoader
+                    val size = parcel.readInt()
+                    val map = MutableScatterMap<String, List<Any?>>(initialCapacity = size)
+                    for (i in 0 until size) {
+                        val key = parcel.readString() ?: continue
+                        val value = parcel.readValue(classLoader) as List<Any?>
+                        map[key] = value
+                    }
+                    return ParcelableMapHolder(map.asMap())
+                }
+
+                override fun createFromParcel(parcel: Parcel): ParcelableMapHolder {
+                    return createFromParcel(parcel, loader = null)
+                }
+
+                override fun newArray(size: Int): Array<ParcelableMapHolder?> {
+                    return arrayOfNulls(size)
+                }
+            }
+    }
 }
