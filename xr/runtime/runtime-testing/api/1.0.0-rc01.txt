@@ -1,0 +1,64 @@
+// Signature format: 4.0
+package androidx.xr.runtime.testing {
+
+  public final class SessionTestRule extends org.junit.rules.ExternalResource {
+    ctor public SessionTestRule();
+    method protected void before();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.SessionConfigureResult? getConfigureResult();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.SessionCreateResult? getCreateResult();
+    method @InaccessibleFromKotlin public void setConfigureResult(androidx.xr.runtime.SessionConfigureResult?);
+    method @InaccessibleFromKotlin public void setCreateResult(androidx.xr.runtime.SessionCreateResult?);
+    property public androidx.xr.runtime.SessionConfigureResult? configureResult;
+    property public androidx.xr.runtime.SessionCreateResult? createResult;
+  }
+
+  public final class XrDeviceTestRule extends org.junit.rules.ExternalResource {
+    ctor public XrDeviceTestRule();
+    method protected void before();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getLifecycleState();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.DisplayBlendMode getPreferredDisplayBlendMode();
+    method @InaccessibleFromKotlin public int getSpatialApiVersion();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.DepthEstimationMode> getSupportedDepthEstimationModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.EyeTrackingMode> getSupportedEyeTrackingModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.GeospatialMode> getSupportedGeospatialModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.HandTrackingMode> getSupportedHandTrackingModes();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.RenderingMode> getSupportedRenderingModes();
+    method @InaccessibleFromKotlin public boolean isProjectedServiceAvailable();
+    method @InaccessibleFromKotlin public void setLifecycleState(androidx.lifecycle.Lifecycle.State);
+    method @InaccessibleFromKotlin public void setPreferredDisplayBlendMode(androidx.xr.runtime.DisplayBlendMode);
+    method @InaccessibleFromKotlin public void setProjectedServiceAvailable(boolean);
+    method @InaccessibleFromKotlin public void setSpatialApiVersion(int);
+    method @InaccessibleFromKotlin public void setSupportedDepthEstimationModes(java.util.Set<androidx.xr.runtime.DepthEstimationMode>);
+    method @InaccessibleFromKotlin public void setSupportedEyeTrackingModes(java.util.Set<androidx.xr.runtime.EyeTrackingMode>);
+    method @InaccessibleFromKotlin public void setSupportedGeospatialModes(java.util.Set<androidx.xr.runtime.GeospatialMode>);
+    method @InaccessibleFromKotlin public void setSupportedHandTrackingModes(java.util.Set<androidx.xr.runtime.HandTrackingMode>);
+    method @InaccessibleFromKotlin public void setSupportedRenderingModes(java.util.Set<androidx.xr.runtime.RenderingMode>);
+    property public boolean isProjectedServiceAvailable;
+    property public androidx.lifecycle.Lifecycle.State lifecycleState;
+    property public androidx.xr.runtime.DisplayBlendMode preferredDisplayBlendMode;
+    property public int spatialApiVersion;
+    property public java.util.Set<androidx.xr.runtime.DepthEstimationMode> supportedDepthEstimationModes;
+    property public java.util.Set<androidx.xr.runtime.EyeTrackingMode> supportedEyeTrackingModes;
+    property public java.util.Set<androidx.xr.runtime.GeospatialMode> supportedGeospatialModes;
+    property public java.util.Set<androidx.xr.runtime.HandTrackingMode> supportedHandTrackingModes;
+    property public java.util.Set<androidx.xr.runtime.RenderingMode> supportedRenderingModes;
+  }
+
+}
+
+package androidx.xr.runtime.testing.math {
+
+  public final class MathAssertions {
+    method public static void assertPose(androidx.xr.runtime.math.Pose actual, androidx.xr.runtime.math.Pose expected);
+    method public static void assertPose(androidx.xr.runtime.math.Pose actual, androidx.xr.runtime.math.Pose expected, optional float epsilon);
+    method @BytecodeOnly public static void assertPose$default(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Pose!, float, int, Object!);
+    method public static void assertRotation(androidx.xr.runtime.math.Quaternion actual, androidx.xr.runtime.math.Quaternion expected);
+    method public static void assertRotation(androidx.xr.runtime.math.Quaternion actual, androidx.xr.runtime.math.Quaternion expected, optional float epsilon);
+    method @BytecodeOnly public static void assertRotation$default(androidx.xr.runtime.math.Quaternion!, androidx.xr.runtime.math.Quaternion!, float, int, Object!);
+    method public static void assertVector3(androidx.xr.runtime.math.Vector3 actual, androidx.xr.runtime.math.Vector3 expected);
+    method public static void assertVector3(androidx.xr.runtime.math.Vector3 actual, androidx.xr.runtime.math.Vector3 expected, optional float epsilon);
+    method @BytecodeOnly public static void assertVector3$default(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, float, int, Object!);
+  }
+
+}
+
