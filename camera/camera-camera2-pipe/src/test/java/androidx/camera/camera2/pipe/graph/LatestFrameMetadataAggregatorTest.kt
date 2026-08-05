@@ -377,7 +377,6 @@ class LatestFrameMetadataAggregatorTest {
                 }
             sim.listeners.add(listener)
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain repeating
 
             val frame = sim.simulateNextFrame()
@@ -404,7 +403,6 @@ class LatestFrameMetadataAggregatorTest {
                 }
             }
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             val frame = sim.simulateNextFrame()
@@ -433,7 +431,6 @@ class LatestFrameMetadataAggregatorTest {
                 }
             sim.listeners.add(listener)
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             val frame = sim.simulateNextFrame()
@@ -456,7 +453,6 @@ class LatestFrameMetadataAggregatorTest {
             var latestValue: Long? = null
             val job = launch { sim.subscribeToLatestFrameResult(keyX).collect { latestValue = it } }
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             val frame = sim.simulateNextFrame()
@@ -483,7 +479,6 @@ class LatestFrameMetadataAggregatorTest {
                 }
             sim.listeners.add(listener)
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             val frame = sim.simulateNextFrame()
@@ -507,7 +502,6 @@ class LatestFrameMetadataAggregatorTest {
                 sim.subscribeToLatestFrameResult(metaKeyZ).collect { latestValue = it }
             }
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             val frame = sim.simulateNextFrame()
@@ -536,7 +530,6 @@ class LatestFrameMetadataAggregatorTest {
                 }
             sim.listeners.add(listener)
 
-            advanceUntilIdle()
             sim.simulateNextFrame() // drain
 
             // Frame 1 Partial & Total

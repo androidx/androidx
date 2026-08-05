@@ -83,7 +83,6 @@ class FrameGraphBuffersTest {
                 mapOf(CAPTURE_REQUEST_KEY to 2, TEST_KEY to 5),
                 1,
             )
-            advanceUntilIdle()
 
             val frame = simulator.simulateNextFrame()
             val parameters: Map<CaptureRequest.Key<*>, Any?> = mapOf(CAPTURE_REQUEST_KEY to 2)
@@ -107,7 +106,6 @@ class FrameGraphBuffersTest {
             var parameters: Map<CaptureRequest.Key<*>, Any?> =
                 mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to 42)
             val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
-            advanceUntilIdle()
 
             assertThat(simulator.simulateNextFrame().request.streams)
                 .isEqualTo(listOf(streamId1, streamId2))
@@ -115,7 +113,6 @@ class FrameGraphBuffersTest {
             assertThat(simulator.simulateNextFrame().request.extras).isEqualTo(extras)
 
             frameBuffer1.close()
-            advanceUntilIdle()
 
             parameters = mapOf(TEST_NULLABLE_KEY to 42)
             assertThat(simulator.simulateNextFrame().request.streams).isEqualTo(listOf(streamId2))
