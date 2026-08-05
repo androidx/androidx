@@ -2239,7 +2239,7 @@ private fun ToggleItem(
         ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes.orRich(false, true)
     if (useUpdatedToggle) {
         val toggleButtonColors =
-            ToggleButtonDefaults.toggleButtonColors(
+            ToggleButtonDefaults.colors(
                 containerColor = colors.periodSelectorUnselectedContainerColor,
                 contentColor = colors.periodSelectorUnselectedContentColor,
                 checkedContainerColor = colors.periodSelectorSelectedContainerColor,

@@ -311,6 +311,7 @@ import androidx.compose.material3.samples.TimePickerSwitchableSample
 import androidx.compose.material3.samples.TimeScrollFieldSample
 import androidx.compose.material3.samples.TintedIconButtonSample
 import androidx.compose.material3.samples.ToggleButtonSample
+import androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
 import androidx.compose.material3.samples.ToggleButtonWithIconSample
 import androidx.compose.material3.samples.TonalSplitButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
@@ -2234,6 +2235,14 @@ val ToggleButtonsExamples =
             isExpressive = true,
         ) {
             ToggleButtonWithIconSample()
+        },
+        Example(
+            name = "ToggleButtonWithButtonSizeSample",
+            description = ToggleButtonsExampleDescription,
+            sourceUrl = ToggleButtonsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            ToggleButtonWithButtonSizeSample()
         },
         Example(
             name = "XSmallToggleButtonWithIconSample",
