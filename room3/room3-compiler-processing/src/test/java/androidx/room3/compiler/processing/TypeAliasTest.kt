@@ -99,4 +99,30 @@ class TypeAliasTest {
             }
         }
     }
+
+    @Test
+    fun nestedTypeAlias() {
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
+                package foo.bar
+                class Subject {
+                    typealias MyNestedTypeAlias = String
+                    val prop: MyNestedTypeAlias = "hello"
+                }
+                """
+                    .trimIndent(),
+            )
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-XXLanguage:+NestedTypeAliases"),
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+            subject.getField("prop").type.let { prop ->
+                assertThat(prop.nullability).isEqualTo(XNullability.NONNULL)
+                assertThat(prop.asTypeName()).isEqualTo(XTypeName.STRING)
+            }
+        }
+    }
 }
