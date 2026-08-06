@@ -213,7 +213,8 @@ public final class NavigationScreen extends Screen {
                         getCarContext(),
                         R.drawable.ic_pan_24));
         if (mIsInPanMode) {
-            panIconBuilder.setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build());
+            panIconBuilder = panIconBuilder.setStyle(
+                    new CarIconStyle.Builder().setTint(CarColor.BLUE).build());
         }
 
         builder.setMapActionStrip(new ActionStrip.Builder()
