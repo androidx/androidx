@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.util.Log;
 
@@ -46,9 +47,10 @@ import java.security.InvalidParameterException;
 /** Implementation of the binder {@link ICarApp}. */
 final class CarAppBinder extends ICarApp.Stub {
     private final SessionInfo mCurrentSessionInfo;
+    private volatile int mAuthenticatedUid = -1;
 
-    private @Nullable CarAppService mService;
-    private @Nullable Session mCurrentSession;
+    private volatile @Nullable CarAppService mService;
+    private volatile @Nullable Session mCurrentSession;
     private @Nullable HostValidator mHostValidator;
     private @Nullable HandshakeInfo mHandshakeInfo;
 
@@ -72,20 +74,25 @@ final class CarAppBinder extends ICarApp.Stub {
      * causing a leak. See https://github.com/square/leakcanary/issues/1906 for more context
      * related to this issue.
      */
+    @MainThread
     void destroy() {
         onDestroyLifecycle();
-        mCurrentSession = null;
         mHostValidator = null;
         mHandshakeInfo = null;
         mService = null;
     }
 
+    @MainThread
     void onDestroyLifecycle() {
         Session session = mCurrentSession;
         if (session != null) {
             session.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         }
         mCurrentSession = null;
+    }
+
+    private boolean isValidCaller(int callingUid) {
+        return mAuthenticatedUid != -1 && callingUid == mAuthenticatedUid;
     }
 
     // incompatible argument for parameter context of attachBaseContext.
@@ -100,8 +107,12 @@ final class CarAppBinder extends ICarApp.Stub {
             Intent intent,
             Configuration configuration,
             IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onAppCreate intent: " + intent);
+        }
+        if (onHostCallException("onAppCreate", callback, uid)) {
+            return;
         }
 
         dispatchCallFromHost(callback, "onAppCreate", () -> {
@@ -151,6 +162,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void onAppStart(IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onAppStart", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(), callback,
                 "onAppStart", () -> {
@@ -161,6 +176,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void onAppResume(IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onAppResume", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(), callback,
                 "onAppResume", () -> {
@@ -171,6 +190,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void onAppPause(IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onAppPause", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(), callback, "onAppPause",
                 () -> {
@@ -181,6 +204,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void onAppStop(IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onAppStop", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(), callback, "onAppStop",
                 () -> {
@@ -191,6 +218,10 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void onNewIntent(Intent intent, IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onNewIntent", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(),
                 callback,
@@ -204,6 +235,10 @@ final class CarAppBinder extends ICarApp.Stub {
     @Override
     public void onConfigurationChanged(Configuration configuration,
             IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("onConfigurationChanged", callback, uid)) {
+            return;
+        }
         dispatchCallFromHost(
                 getCurrentLifecycle(),
                 callback,
@@ -218,6 +253,10 @@ final class CarAppBinder extends ICarApp.Stub {
     @Override
     public void getManager(@CarContext.CarServiceType @NonNull String type,
             IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid();
+        if (onHostCallException("getManager", callback, uid)) {
+            return;
+        }
         ThreadUtils.runOnMain(() -> {
             Session session = requireNonNull(mCurrentSession);
             switch (type) {
@@ -246,68 +285,151 @@ final class CarAppBinder extends ICarApp.Stub {
 
     @Override
     public void getAppInfo(IOnDoneCallback callback) {
-        try {
-            CarAppService service = requireNonNull(mService);
-            RemoteUtils.sendSuccessResponseToHost(
-                    callback, "getAppInfo", service.getAppInfo());
-        } catch (IllegalArgumentException e) {
-            // getAppInfo() could fail with the specified API version is invalid.
-            RemoteUtils.sendFailureResponseToHost(callback, "getAppInfo", e);
-        }
+        ThreadUtils.runOnMain(() -> {
+            CarAppService service = mService;
+            if (service == null) {
+                RemoteUtils.sendFailureResponseToHost(callback, "getAppInfo",
+                        new IllegalStateException("Service is null"));
+                return;
+            }
+            try {
+                RemoteUtils.sendSuccessResponseToHost(callback, "getAppInfo", service.getAppInfo());
+            } catch (RuntimeException e) {
+                RemoteUtils.sendFailureResponseToHost(callback, "getAppInfo", e);
+            }
+        });
     }
 
     @Override
-    public void onHandshakeCompleted(Bundleable handshakeInfo,
-            IOnDoneCallback callback) {
-        CarAppService service = requireNonNull(mService);
-        try {
-            HandshakeInfo deserializedHandshakeInfo =
-                    (HandshakeInfo) handshakeInfo.get();
-            String packageName = deserializedHandshakeInfo.getHostPackageName();
-            int uid = Binder.getCallingUid();
-            HostInfo hostInfo = new HostInfo(packageName, uid);
-            if (!getHostValidator().isValidHost(hostInfo)) {
-                RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
-                        new IllegalArgumentException("Unknown host '"
-                                + packageName + "', uid:" + uid));
+    public void onHandshakeCompleted(@NonNull Bundleable handshakeInfo,
+            @NonNull IOnDoneCallback callback) {
+        int uid = Binder.getCallingUid(); // Capture on binder thread
+        ThreadUtils.runOnMain(() -> {
+            if (onHandshakeAlreadyCompletedException("onHandshakeCompleted", callback, uid)) {
                 return;
             }
+            CarAppService service = mService;
+            if (service == null) {
+                RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
+                        new IllegalStateException("Service is null"));
+                return;
+            }
+            try {
+                HandshakeInfo deserializedHandshakeInfo =
+                        (HandshakeInfo) handshakeInfo.get();
+                if (deserializedHandshakeInfo == null) {
+                    throw new IllegalArgumentException("Handshake info is null");
+                }
+                HostInfo hostInfo = verifyHandshakeInfo(service, uid, deserializedHandshakeInfo);
 
-            AppInfo appInfo = service.getAppInfo();
-            int appMinApiLevel = appInfo.getMinCarAppApiLevel();
-            int appMaxApiLevel = appInfo.getLatestCarAppApiLevel();
-            int hostApiLevel = deserializedHandshakeInfo.getHostCarAppApiLevel();
-            if (appMinApiLevel > hostApiLevel) {
-                RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
-                        new IllegalArgumentException(
-                                "Host API level (" + hostApiLevel + ") is "
-                                        + "less than the app's min API level ("
-                                        + appMinApiLevel + ")"));
-                return;
+                service.setHostInfo(hostInfo);
+                mHandshakeInfo = deserializedHandshakeInfo;
+                mAuthenticatedUid = uid;
+                RemoteUtils.sendSuccessResponseToHost(callback, "onHandshakeCompleted", null);
+            } catch (BundlerException | RuntimeException e) {
+                service.setHostInfo(null);
+                mAuthenticatedUid = -1;
+                RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted", e);
             }
-            if (appMaxApiLevel < hostApiLevel) {
-                RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted",
-                        new IllegalArgumentException(
-                                "Host API level (" + hostApiLevel + ") is "
-                                        + "greater than the app's max API level ("
-                                        + appMaxApiLevel + ")"));
-                return;
-            }
+        });
+    }
 
-            service.setHostInfo(hostInfo);
-            mHandshakeInfo = deserializedHandshakeInfo;
-            RemoteUtils.sendSuccessResponseToHost(callback, "onHandshakeCompleted",
-                    null);
-        } catch (BundlerException | IllegalArgumentException e) {
-            service.setHostInfo(null);
-            RemoteUtils.sendFailureResponseToHost(callback, "onHandshakeCompleted", e);
+
+    private boolean onHostCallException(
+            @NonNull String methodName, @NonNull IOnDoneCallback callback, int uid) {
+        if (mService == null) {
+            RemoteUtils.sendFailureResponseToHost(callback, methodName,
+                    new IllegalStateException("Service is null"));
+            return true;
         }
+        if (!isValidCaller(uid)) {
+            RemoteUtils.sendFailureResponseToHost(callback, methodName,
+                    new SecurityException("Calling UID does not match authenticated UID"));
+            return true;
+        }
+        return false;
     }
 
+    private boolean onHandshakeAlreadyCompletedException(
+            @NonNull String methodName, @NonNull IOnDoneCallback callback, int uid) {
+        if (mAuthenticatedUid != -1 && uid != mAuthenticatedUid) {
+            RemoteUtils.sendFailureResponseToHost(
+                    callback, methodName,
+                    new SecurityException("Handshake already completed by another host"));
+            return true;
+        }
+        return false;
+    }
+
+    @NonNull
+    private HostInfo verifyHandshakeInfo(
+            @NonNull CarAppService service, int uid, @NonNull HandshakeInfo handshakeInfo) {
+        PackageManager pm = service.getPackageManager();
+        String[] callingPackages = pm.getPackagesForUid(uid);
+        if (!isValidCallingUid(uid, callingPackages)) {
+            throw new SecurityException("Unrecognized host with uid " + uid);
+        }
+        String packageName = handshakeInfo.getHostPackageName();
+        if (!isValidClaimedPackage(packageName, callingPackages)) {
+            throw new SecurityException("Claimed host package name " + packageName
+                                            + " does not match calling UID " + uid);
+        }
+        HostInfo hostInfo = new HostInfo(packageName, uid);
+        if (!getHostValidator().isValidHost(hostInfo)) {
+            throw new SecurityException("The host is not allowed to call this service");
+        }
+
+        AppInfo appInfo = service.getAppInfo();
+        int appMinApiLevel = appInfo.getMinCarAppApiLevel();
+        int appMaxApiLevel = appInfo.getLatestCarAppApiLevel();
+        int hostApiLevel = handshakeInfo.getHostCarAppApiLevel();
+        if (appMinApiLevel > hostApiLevel) {
+            throw new IllegalArgumentException(
+                    "Host API level (" + hostApiLevel + ") is "
+                            + "less than the app's min API level ("
+                            + appMinApiLevel + ")");
+        }
+        if (appMaxApiLevel < hostApiLevel) {
+            throw new IllegalArgumentException(
+                    "Host API level (" + hostApiLevel + ") is "
+                            + "greater than the app's max API level ("
+                            + appMaxApiLevel + ")");
+        }
+        return hostInfo;
+    }
+
+    @MainThread
+    private boolean isValidCallingUid(int uid, @Nullable String[] callingPackages) {
+        if (callingPackages != null) {
+            for (String pkg : callingPackages) {
+                if (getHostValidator().isValidHost(new HostInfo(pkg, uid))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @MainThread
+    private boolean isValidClaimedPackage(@NonNull String packageName,
+            @Nullable String[] callingPackages) {
+        if (callingPackages != null) {
+            for (String callingPackage : callingPackages) {
+                if (callingPackage.equals(packageName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @MainThread
     private @Nullable Lifecycle getCurrentLifecycle() {
-        return mCurrentSession == null ? null : mCurrentSession.getLifecycle();
+        Session session = mCurrentSession;
+        return session == null ? null : session.getLifecycle();
     }
 
+    @MainThread
     private HostValidator getHostValidator() {
         if (mHostValidator == null) {
             mHostValidator = requireNonNull(mService).createHostValidator();
@@ -349,18 +471,20 @@ final class CarAppBinder extends ICarApp.Stub {
      * Used by tests to verify the different behaviors when the app has different api level than
      * the host.
      */
+    @MainThread
     @VisibleForTesting
     void setHandshakeInfo(@NonNull HandshakeInfo handshakeInfo) {
         int apiLevel = handshakeInfo.getHostCarAppApiLevel();
         if (!CarAppApiLevels.isValid(apiLevel)) {
             throw new IllegalArgumentException("Invalid Car App API level received: " + apiLevel);
         }
-
         mHandshakeInfo = handshakeInfo;
+        mAuthenticatedUid = Binder.getCallingUid();
     }
 
     @VisibleForTesting
-    @Nullable HandshakeInfo getHandshakeInfo() {
+    @Nullable
+    HandshakeInfo getHandshakeInfo() {
         return mHandshakeInfo;
     }
 
