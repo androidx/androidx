@@ -17,6 +17,7 @@
 package androidx.compose.remote.player.view
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.SystemClock
@@ -29,9 +30,11 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.view.platform.SoundSupport
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +54,24 @@ class RemoteComposePlayerTest {
                 override fun isInEditMode(): Boolean = true
             }
         assertTrue("player should be in edit mode", playerInEditMode.isInEditMode)
+    }
+
+    @Test
+    fun init_unimplementedAttributionContext_doesNotCrash() {
+        val baseContext = ApplicationProvider.getApplicationContext<Context>()
+        val contextWithUnimplementedAttribution =
+            object : ContextWrapper(baseContext) {
+                override fun getApplicationContext(): Context = this
+
+                override fun createAttributionContext(attributionTag: String?): Context {
+                    throw RuntimeException("Not implemented. Must override in a subclass.")
+                }
+            }
+        val soundSupport = SoundSupport()
+        soundSupport.init(contextWithUnimplementedAttribution)
+
+        val player = RemoteComposePlayer(contextWithUnimplementedAttribution)
+        assertNotNull(player)
     }
 
     @Test
