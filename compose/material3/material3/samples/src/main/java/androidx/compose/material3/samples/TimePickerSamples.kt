@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimeInputDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerDialog
@@ -299,7 +300,7 @@ fun RichTimeInputSample() {
             },
             dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
         ) {
-            TimeInput(state = state, shapes = TimePickerDefaults.shapes())
+            TimeInput(state = state, shapes = TimeInputDefaults.shapes())
         }
     }
 }

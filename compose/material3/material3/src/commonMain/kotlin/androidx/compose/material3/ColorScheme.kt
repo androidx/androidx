@@ -718,6 +718,10 @@ public class ColorScheme(
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultRichTimePickerColorsCached: TimePickerColors? = null
 
+    internal var defaultTimeInputColorsCached: TimeInputColors? = null
+
+    internal var defaultRichTimeInputColorsCached: TimeInputColors? = null
+
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultScrollFieldColorsCached: ScrollFieldColors? = null
 
