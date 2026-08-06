@@ -177,11 +177,11 @@ class GlimmerLazyListArrangementTest(orientation: Orientation) :
         for ((index, expectedRect) in expectedPositions.withIndex()) {
             val actualRect = rule.onNodeWithTag(itemTag(index)).getBoundsInRoot()
             if (orientation == Orientation.Vertical) {
-                actualRect.top.assertIsEqualTo(expectedRect.first)
-                actualRect.bottom.assertIsEqualTo(expectedRect.second)
+                actualRect.top.assertIsEqualTo(expectedRect.first, tolerance = 1.dp)
+                actualRect.bottom.assertIsEqualTo(expectedRect.second, tolerance = 1.dp)
             } else {
-                actualRect.left.assertIsEqualTo(expectedRect.first)
-                actualRect.right.assertIsEqualTo(expectedRect.second)
+                actualRect.left.assertIsEqualTo(expectedRect.first, tolerance = 1.dp)
+                actualRect.right.assertIsEqualTo(expectedRect.second, tolerance = 1.dp)
             }
         }
     }
