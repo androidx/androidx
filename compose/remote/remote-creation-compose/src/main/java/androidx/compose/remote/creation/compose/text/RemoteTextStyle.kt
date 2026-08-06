@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.TextUnit
  * @param textDecoration The configuration of hyphenation.
  * @param lineBreak The configuration of line break.
  * @param hyphens The configuration of hyphenation.
+ * @param fontVariationSettings The font variation settings to be applied to the text.
  */
 public class RemoteTextStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -63,6 +65,7 @@ constructor(
     public val textDecoration: TextDecoration? = null,
     public val lineBreak: LineBreak = LineBreak.Unspecified,
     public val hyphens: Hyphens = Hyphens.Unspecified,
+    public val fontVariationSettings: FontVariation.Settings? = null,
 ) {
 
     /**
@@ -91,6 +94,7 @@ constructor(
             lineBreak =
                 if (other.lineBreak != LineBreak.Unspecified) other.lineBreak else this.lineBreak,
             hyphens = if (other.hyphens != Hyphens.Unspecified) other.hyphens else this.hyphens,
+            fontVariationSettings = other.fontVariationSettings ?: this.fontVariationSettings,
         )
     }
 
@@ -108,6 +112,7 @@ constructor(
         textDecoration: TextDecoration? = null,
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
+        fontVariationSettings: FontVariation.Settings? = null,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color ?: this.color,
@@ -122,6 +127,7 @@ constructor(
             textDecoration = textDecoration ?: this.textDecoration,
             lineBreak = if (lineBreak != LineBreak.Unspecified) lineBreak else this.lineBreak,
             hyphens = if (hyphens != Hyphens.Unspecified) hyphens else this.hyphens,
+            fontVariationSettings = fontVariationSettings ?: this.fontVariationSettings,
         )
     }
 
@@ -141,6 +147,7 @@ constructor(
         textDecoration: TextDecoration? = this.textDecoration,
         lineBreak: LineBreak = this.lineBreak,
         hyphens: Hyphens = this.hyphens,
+        fontVariationSettings: FontVariation.Settings? = this.fontVariationSettings,
     ): RemoteTextStyle {
         return RemoteTextStyle(
             color = color,
@@ -155,6 +162,7 @@ constructor(
             textDecoration = textDecoration,
             lineBreak = lineBreak,
             hyphens = hyphens,
+            fontVariationSettings = fontVariationSettings,
         )
     }
 
@@ -187,6 +195,7 @@ constructor(
                 textDecoration = style.textDecoration,
                 lineBreak = style.lineBreak,
                 hyphens = style.hyphens,
+                fontVariationSettings = null,
             )
         }
 
