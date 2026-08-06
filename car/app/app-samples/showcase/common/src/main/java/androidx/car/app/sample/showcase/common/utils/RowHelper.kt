@@ -16,13 +16,15 @@
 
 package androidx.car.app.sample.showcase.common.utils
 
+import androidx.annotation.StringRes
+import androidx.car.app.CarContext
+import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarText
 import androidx.car.app.model.OnClickListener
 import androidx.car.app.model.Row
 import androidx.car.app.model.Toggle
-import kotlin.collections.forEach
 
 /**
  * Constructs a [Row] using a clean, declarative Kotlin syntax. Automatically ignores `null`
@@ -32,6 +34,7 @@ fun createRow(
     title: CharSequence? = null,
     titleCarText: CarText? = null,
     image: CarIcon? = null,
+    @Row.RowImageType imageType: Int = Row.IMAGE_TYPE_SMALL,
     firstLine: CharSequence? = null,
     firstLineCarText: CarText? = null,
     secondLine: CharSequence? = null,
@@ -39,12 +42,14 @@ fun createRow(
     actions: List<Action>? = null,
     toggle: Toggle? = null,
     isBrowsable: Boolean? = null,
+    isEnabled: Boolean? = null,
+    numericDecoration: Int? = null,
     clickListener: OnClickListener? = null,
 ): Row {
     val builder = Row.Builder()
 
     titleCarText?.let { builder.setTitle(it) } ?: builder.setTitle(title ?: "")
-    image?.let { builder.setImage(it) }
+    image?.let { builder.setImage(it, imageType) }
     clickListener?.let { builder.setOnClickListener(it) }
 
     firstLineCarText?.let { builder.addText(it) } ?: firstLine?.let { builder.addText(it) }
@@ -55,5 +60,28 @@ fun createRow(
 
     if (isBrowsable == true) builder.setBrowsable(true)
 
+    isEnabled?.let { builder.setEnabled(it) }
+    numericDecoration?.let { builder.setNumericDecoration(it) }
+
     return builder.build()
+}
+
+/**
+ * Constructs a browsable [Row] using a string resource ID [titleResId] that pushes a new [Screen]
+ * created by [screenFactory] when tapped.
+ *
+ * Example usage with constructor references:
+ * ```
+ * addItem(createRowAndPushScreen(R.string.grid_template_demo_title, ::GridTemplateDemoScreen))
+ * ```
+ */
+fun Screen.createRowAndPushScreen(
+    @StringRes titleResId: Int,
+    screenFactory: (CarContext) -> Screen,
+): Row {
+    return createRow(
+        title = carContext.getString(titleResId),
+        isBrowsable = true,
+        clickListener = { screenManager.push(screenFactory(carContext)) },
+    )
 }
