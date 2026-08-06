@@ -92,8 +92,8 @@ public object CameraMath {
     @JvmStatic
     @JvmName("computeSensorRotationToDisplayOrientation")
     public fun computeSensorRotationToDisplayOrientation(
-        displayRotation: Int,
-        sensorOrientation: Int,
+        @DiscreteRotationDegrees displayRotation: Int,
+        @DiscreteRotationDegrees sensorOrientation: Int,
         sensorIsFacingScreen: Boolean,
     ): DiscreteRotation =
         computeSensorRotationToDisplayOrientation(
@@ -147,8 +147,8 @@ public object CameraMath {
     @JvmStatic
     @JvmName("computeSensorRotationToJpegOrientation")
     public fun computeSensorRotationToJpegOrientation(
-        deviceOrientation: Int,
-        sensorOrientation: Int,
+        @DiscreteRotationDegrees deviceOrientation: Int,
+        @DiscreteRotationDegrees sensorOrientation: Int,
         sensorIsFacingScreen: Boolean,
     ): DiscreteRotation =
         computeSensorRotationToJpegOrientation(
@@ -214,7 +214,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): PointF =
         mapUiPointToStreamPoint(
             uiX = uiPoint.x.toFloat(),
@@ -333,7 +333,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): RectF =
         mapUiRectToStreamRect(
             uiLeft = uiRect.left,
@@ -483,7 +483,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         touchToFocusRatio: Float = DEFAULT_POINT_TO_RECT_RATIO,
     ): RectF =
         mapUiPointToStreamRect(
@@ -587,7 +587,7 @@ public object CameraMath {
         size: Size,
         uiSize: Size,
         streamSize: Size,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): SizeF =
         mapUiSizeToStreamSize(
             uiSizeWidth = size.width.toFloat(),
@@ -690,7 +690,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCrop: Rect,
         coerceToCropRegion: Boolean = true,
     ): Point =
@@ -821,7 +821,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCrop: Rect,
         minimumSensorSize: Int = DEFAULT_MIN_SENSOR_PIXELS,
         coerceToCropRegion: Boolean = true,
@@ -980,7 +980,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCrop: Rect,
         minimumSensorSize: Int = DEFAULT_MIN_SENSOR_PIXELS,
         coerceToCropRegion: Boolean = true,
@@ -1114,7 +1114,7 @@ public object CameraMath {
         size: Size,
         uiSize: Size,
         streamSize: Size,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCropWidth: Int,
         sensorCropHeight: Int,
     ): Size =
@@ -1215,7 +1215,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): PointF =
         mapStreamPointToUiPoint(
             streamX = streamPoint.x,
@@ -1328,7 +1328,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): RectF =
         mapStreamRectToUiRect(
             streamLeft = streamRect.left,
@@ -1464,7 +1464,7 @@ public object CameraMath {
         size: Size,
         uiSize: Size,
         streamSize: Size,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
     ): SizeF =
         mapStreamSizeToUiSize(
             streamSizeWidth = size.width.toFloat(),
@@ -1987,7 +1987,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCrop: Rect,
     ): PointF =
         mapSensorPointToUiPoint(
@@ -2101,7 +2101,7 @@ public object CameraMath {
         uiSize: Size,
         streamSize: Size,
         streamMirroring: Boolean,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCrop: Rect,
     ): RectF =
         mapSensorRectToUiRect(
@@ -2223,7 +2223,7 @@ public object CameraMath {
         size: Size,
         uiSize: Size,
         streamSize: Size,
-        sensorRotationToDisplayOrientation: Int,
+        @DiscreteRotationDegrees sensorRotationToDisplayOrientation: Int,
         sensorCropWidth: Int,
         sensorCropHeight: Int,
     ): SizeF =
