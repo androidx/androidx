@@ -89,6 +89,19 @@ fun RemoteTitleCardWithTitleTime() {
 
 @Composable
 @RemoteComposable
+fun RemoteTitleCardWithTwoLineTitle() {
+    RemoteTitleCard(
+        onClick = Action.Empty,
+        title = { RemoteText("First Line Title\nSecond Line Title".rs) },
+        time = { RemoteText("now".rs) },
+        subtitle = { RemoteText("Card Subtitle".rs) },
+    ) {
+        RemoteText("This is a sample Title Card.".rs)
+    }
+}
+
+@Composable
+@RemoteComposable
 private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize().padding(16.rdp),
     content: @Composable @RemoteComposable () -> Unit,
