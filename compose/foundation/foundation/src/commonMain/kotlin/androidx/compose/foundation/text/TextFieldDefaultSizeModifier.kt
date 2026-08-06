@@ -233,7 +233,12 @@ private class TextFieldSizeConstrainerNode(
                         } else {
                             heightPx
                         },
-                    maxHeight = if (height == 0.dp) Constraints.Infinity else heightPx,
+                    maxHeight =
+                        if (height == 0.dp) {
+                            precomputedMaxLinesHeight
+                        } else {
+                            heightPx
+                        },
                 )
             } else {
                 Constraints(
