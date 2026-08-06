@@ -159,7 +159,7 @@ internal class KspProcessingEnv(
     fun wrap(ksTypeArgument: KSTypeArgument): KspTypeArgument = kspResolver.wrap(ksTypeArgument)
 
     /**
-     * Wraps the given KSType into a KspType.
+     * Wraps the given [KSType] into a [KspType].
      *
      * Certain Kotlin types might be primitives in Java but such information cannot be derived just
      * by looking at the type itself. Instead, it is passed in an argument to this function and
@@ -168,7 +168,15 @@ internal class KspProcessingEnv(
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType =
         kspResolver.wrap(ksType, allowPrimitives)
 
-    fun wrapDeclaration(declaration: KSDeclaration): KspElement =
+    /**
+     * Wraps the given [KSDeclaration] into a [KspElement], or returns `null` if the declaration
+     * does not represent an [XElement].
+     *
+     * In particular, [KSTypeAlias] declarations (both top-level and nested) do not have a
+     * corresponding [XElement] representation in XProcessing. Instead, references to these types
+     * get immediately expanded via `KSType.replaceTypeAliases()`.
+     */
+    fun wrapDeclaration(declaration: KSDeclaration): KspElement? =
         kspResolver.wrapDeclaration(declaration)
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspElement =
@@ -352,14 +360,7 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
     fun getElementsFromPackage(packageName: String): List<XElement> {
         return resolver
             .getDeclarationsFromPackage(packageName)
-            .map {
-                when (it) {
-                    is KSClassDeclaration -> wrapClassDeclaration(it)
-                    is KSPropertyDeclaration -> KspPropertyElement.create(env, it)
-                    is KSFunctionDeclaration -> KspMethodElement.create(env, it)
-                    else -> error("Unknown element type")
-                }
-            }
+            .mapNotNull { wrapDeclaration(it) }
             .toList()
     }
 
@@ -452,12 +453,13 @@ private class KspResolver(val env: KspProcessingEnv, val resolver: Resolver) {
         return returnType(type1).isSameType(returnType(type2))
     }
 
-    fun wrapDeclaration(declaration: KSDeclaration): KspElement {
+    fun wrapDeclaration(declaration: KSDeclaration): KspElement? {
         return when (declaration) {
             is KSClassDeclaration -> wrapClassDeclaration(declaration)
             is KSFunctionDeclaration -> wrapFunctionDeclaration(declaration)
             is KSPropertyDeclaration -> wrapPropertyDeclaration(declaration)
-            else -> error("Unsupported $declaration")
+            is KSTypeAlias -> null
+            else -> error("Unsupported $declaration of type ${declaration.javaClass}")
         }
     }
 
