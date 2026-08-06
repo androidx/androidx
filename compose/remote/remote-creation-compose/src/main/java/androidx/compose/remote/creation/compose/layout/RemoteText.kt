@@ -96,6 +96,7 @@ public fun RemoteText(
             textAlign = textAlign ?: TextAlign.Unspecified,
             fontFamily = fontFamily,
             fontStyle = fontStyle,
+            fontVariationSettings = fontVariationSettings,
         )
     val fontSizeUnit = style.fontSize ?: 12.rsp
     // TODO handles dynamic letter spacing and line height in CoreText
@@ -125,7 +126,7 @@ public fun RemoteText(
         lineBreak = style.lineBreak,
         hyphens = style.hyphens,
         textDecoration = style.textDecoration,
-        fontVariationSettings = fontVariationSettings,
+        fontVariationSettings = style.fontVariationSettings,
     )
 }
 
