@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
@@ -69,7 +70,8 @@ internal class Camera2CaptureSequenceTest {
 
     private val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.PRIVATE)
     private val graphConfig = CameraGraph.Config(camera = cameraId, streams = listOf(streamConfig))
-    private val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig, mock(), mock())
+    private val streamGraph =
+        StreamGraphImpl(fakeMetadata, graphConfig, mock(), mock(), MemoryEstimator.create())
     private val streamId = streamGraph.streams.single().id
     private val outputId = streamGraph.outputs.single().id
 
@@ -169,7 +171,8 @@ internal class Camera2CaptureSequenceTest {
         val outputConfig2 = OutputStream.Config.create(Size(1920, 1080), StreamFormat.PRIVATE)
         val streamConfig = CameraStream.Config.create(listOf(outputConfig1, outputConfig2))
         val graphConfig = CameraGraph.Config(camera = cameraId, streams = listOf(streamConfig))
-        val streamGraph = StreamGraphImpl(fakeMetadata, graphConfig, mock(), mock())
+        val streamGraph =
+            StreamGraphImpl(fakeMetadata, graphConfig, mock(), mock(), MemoryEstimator.create())
         val stream = checkNotNull(streamGraph[streamConfig])
         val output1 = stream.outputs[0]
         val output2 = stream.outputs[1]

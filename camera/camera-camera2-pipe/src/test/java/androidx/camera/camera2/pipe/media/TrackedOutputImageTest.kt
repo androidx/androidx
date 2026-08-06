@@ -39,6 +39,8 @@ class TrackedOutputImageTest {
     private val expectedOutputId = OutputId(10)
     private val fakeImageSize = Size(100, 100)
     private val fakeImageFormat = StreamFormat.YUV_420_888
+    private val expectedBytes =
+        StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
 
     // Helper to create a real ImageSource backed by a FakeImageReader
     private fun createTestImageSource(
@@ -55,11 +57,27 @@ class TrackedOutputImageTest {
             )
         val imageSource =
             ImageReaderImageSource(
-                fakeImageReader,
+                imageReader = fakeImageReader,
                 maxImages = 8,
+                usageFlags = null,
                 memoryEstimator = memoryEstimator,
             )
         return Pair(fakeImageReader, imageSource)
+    }
+
+    private fun createTrackedImage(
+        imageSource: ImageReaderImageSource,
+        fakeImage: FakeImage,
+        memoryEstimator: MemoryEstimator,
+        skipMemoryTracking: Boolean = false,
+    ): TrackedOutputImage {
+        return TrackedOutputImage(
+            imageReaderImageSource = imageSource,
+            image = fakeImage,
+            streamId = expectedStreamId,
+            outputId = expectedOutputId,
+            memoryEstimator = memoryEstimator,
+        )
     }
 
     @Test
@@ -69,14 +87,7 @@ class TrackedOutputImageTest {
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         assertThat(trackedImage.streamId).isEqualTo(expectedStreamId)
         assertThat(trackedImage.outputId).isEqualTo(expectedOutputId)
@@ -93,14 +104,7 @@ class TrackedOutputImageTest {
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         // Should unwrap to itself for its own implemented types
         assertThat(trackedImage.unwrapAs(TrackedOutputImage::class.java))
@@ -121,14 +125,7 @@ class TrackedOutputImageTest {
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         assertThat(fakeImage.isClosed).isFalse()
 
@@ -146,44 +143,64 @@ class TrackedOutputImageTest {
         val memoryEstimator = MemoryEstimator.create(initialCapacity)
         val fakeImage =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
-        val expectedBytes =
-            StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
         // 1. Create the image
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         // At birth, external usage is 0, so it should be evictable.
-        assertThat(memoryEstimator.usage.value).isEqualTo(expectedBytes)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
 
         // 2. Simulate the App acquiring it (External Use)
         trackedImage.incrementExternalUse()
 
         // It is no longer evictable!
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
-        assertThat(memoryEstimator.usage.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(expectedBytes)
 
         // 3. Simulate the App dropping it
         trackedImage.decrementExternalUse()
 
         // It becomes evictable again!
-        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
-        assertThat(memoryEstimator.usage.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(expectedBytes)
 
         // 4. Simulate the pipeline permanently destroying it
         trackedImage.close()
 
         // The image is fully closed, so it must be completely removed from all memory math.
-        assertThat(memoryEstimator.usage.value).isEqualTo(0L)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+
+        fakeImageReader.close()
+    }
+
+    @Test
+    fun trackedImageAddExternalUseUpdatesEvictableMemoryCorrectly() {
+        val memoryEstimator = MemoryEstimator.create(initialCapacity)
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
+        val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
+
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
+
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
+
+        // Adding 0 should do nothing
+        trackedImage.addExternalUse(0)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
+
+        // Adding > 0 moves it out of evictable
+        trackedImage.addExternalUse(2)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+
+        // Decrementing should slowly return it back towards evictable state
+        trackedImage.decrementExternalUse()
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+
+        trackedImage.decrementExternalUse()
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
 
         fakeImageReader.close()
     }
@@ -193,34 +210,25 @@ class TrackedOutputImageTest {
         val memoryEstimator = MemoryEstimator.create(initialCapacity)
         val fakeImage =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
-        val expectedBytes =
-            StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         // Baseline: Memory is allocated and evictable
-        assertThat(memoryEstimator.usage.value).isEqualTo(expectedBytes)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
 
         // First close: Memory is freed and returned to capacity
         trackedImage.close()
-        assertThat(memoryEstimator.usage.value).isEqualTo(0L)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         // Second close: Should be completely ignored by the atomic `closed` guard
         trackedImage.close()
 
         // If it wasn't idempotent, capacity would incorrectly jump above initial capacity!
-        assertThat(memoryEstimator.usage.value).isEqualTo(0L)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         fakeImageReader.close()
     }
@@ -230,38 +238,93 @@ class TrackedOutputImageTest {
         val memoryEstimator = MemoryEstimator.create(initialCapacity)
         val fakeImage =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
-        val expectedBytes =
-            StreamFormat.bytesPerImage(fakeImageFormat, fakeImageSize.width, fakeImageSize.height)
         val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
 
-        val trackedImage =
-            TrackedOutputImage(
-                imageSource,
-                fakeImage,
-                expectedStreamId,
-                expectedOutputId,
-                memoryEstimator,
-            )
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
 
         // The App acquires the image. It is removed from the evictable pool.
         trackedImage.incrementExternalUse()
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
-        assertThat(memoryEstimator.usage.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(expectedBytes)
 
         // The image is somehow closed while the app still has it.
         trackedImage.close()
 
         // The memory estimator must instantly return the capacity to max, and evictable
         // usage must safely remain at 0.
-        assertThat(memoryEstimator.usage.value).isEqualTo(0L)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         // Later, the App finally drops the frame.
         trackedImage.decrementExternalUse()
 
         // Should detect the image is already closed and do nothing.
-        assertThat(memoryEstimator.usage.value).isEqualTo(0L)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+
+        fakeImageReader.close()
+    }
+
+    @Test
+    fun trackedImageUpdatesImageSourceEvictableFlow() {
+        val memoryEstimator = MemoryEstimator.create(initialCapacity)
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 1234L)
+        val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
+
+        // Initial state
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(0)
+
+        // 1. Create the image -> Should become evictable
+        val trackedImage = createTrackedImage(imageSource, fakeImage, memoryEstimator)
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(1)
+
+        // 2. App acquires it -> Should no longer be evictable
+        trackedImage.incrementExternalUse()
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(0)
+
+        // 3. App drops it -> Should be evictable again
+        trackedImage.decrementExternalUse()
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(1)
+
+        // 4. Image is closed -> Should be removed from evictable count
+        trackedImage.close()
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(0)
+
+        fakeImageReader.close()
+    }
+
+    @Test
+    fun zeroByteImageDoesNotAffectMemoryEstimatorButUpdatesEvictableFlow() {
+        val memoryEstimator = MemoryEstimator.create(initialCapacity)
+
+        // UNKNOWN format typically evaluates to 0 bytes
+        val unknownFormat = StreamFormat.UNKNOWN
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, unknownFormat.value, 1234L)
+        val (fakeImageReader, imageSource) = createTestImageSource(memoryEstimator)
+
+        val trackedImage =
+            TrackedOutputImage(
+                imageReaderImageSource = imageSource,
+                image = fakeImage,
+                streamId = expectedStreamId,
+                outputId = expectedOutputId,
+                memoryEstimator = memoryEstimator,
+            )
+
+        // 1. Memory estimator must be completely untouched because bytes is 0.
+        assertThat(memoryEstimator.memoryUsage.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
+
+        // 2. However, the ImageSource must still track it as an evictable physical slot.
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(1)
+
+        trackedImage.incrementExternalUse()
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(0)
+
+        trackedImage.close()
+        assertThat(imageSource.evictableImageCountFlow.value).isEqualTo(0)
 
         fakeImageReader.close()
     }
@@ -285,22 +348,22 @@ class TrackedOutputImageTest {
             )
 
         // Baseline: Evictable
-        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
 
         // Add multiple uses at once
         trackedImage.addExternalUse(3)
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         // Decrement one by one, it should remain non-evictable until the last one
         trackedImage.decrementExternalUse()
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         trackedImage.decrementExternalUse()
-        assertThat(memoryEstimator.evictable.value).isEqualTo(0L)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(0L)
 
         trackedImage.decrementExternalUse()
         // Finally hits 0 uses, becomes evictable again
-        assertThat(memoryEstimator.evictable.value).isEqualTo(expectedBytes)
+        assertThat(memoryEstimator.evictableMemory.value).isEqualTo(expectedBytes)
 
         fakeImageReader.close()
     }
