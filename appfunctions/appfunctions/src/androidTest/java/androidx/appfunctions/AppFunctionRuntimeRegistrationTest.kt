@@ -128,6 +128,42 @@ class AppFunctionRuntimeRegistrationTest {
     }
 
     @Test
+    fun getAppFunctionActivityStates_succeeds() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val functionName =
+            androidx.appfunctions.metadata.AppFunctionName(context.packageName, functionId)
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse("result"))
+            }
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+
+            try {
+                val state = appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                val activityId = state.activityIds!!.first()
+
+                val activityStates =
+                    appFunctionManager.getAppFunctionActivityStates(setOf(activityId))
+
+                assertThat(activityStates).hasSize(1)
+                val activityState = activityStates.first()
+                assertThat(activityState.activityId).isEqualTo(activityId)
+                assertThat(activityState.functionNames).contains(functionName)
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    @Test
     fun registerAppFunctions_multipleFunctions_shouldSucceed() {
         val functionId1 =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS

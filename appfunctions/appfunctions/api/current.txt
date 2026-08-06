@@ -9,6 +9,13 @@ package androidx.appfunctions {
     property public abstract boolean isEnabled;
   }
 
+  @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public final class AppFunctionActivityState {
+    method @InaccessibleFromKotlin public android.app.appfunctions.AppFunctionActivityId getActivityId();
+    method @InaccessibleFromKotlin public android.util.ArraySet<androidx.appfunctions.metadata.AppFunctionName> getFunctionNames();
+    property public android.app.appfunctions.AppFunctionActivityId activityId;
+    property public android.util.ArraySet<androidx.appfunctions.metadata.AppFunctionName> functionNames;
+  }
+
   public abstract class AppFunctionAppException extends androidx.appfunctions.AppFunctionException {
   }
 
@@ -166,6 +173,7 @@ package androidx.appfunctions {
 
   public final class AppFunctionManager {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? getAppFunctionActivityStates(java.util.Set<android.app.appfunctions.AppFunctionActivityId> activityIds, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.AppFunctionActivityState>>);
     method @RequiresPermission(anyOf={"android.permission.EXECUTE_APP_FUNCTIONS", "android.permission.DISCOVER_APP_FUNCTIONS", "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM"}, conditional=true) public suspend Object? getAppFunctionStates(java.util.List<androidx.appfunctions.metadata.AppFunctionName> appFunctionNames, kotlin.coroutines.Continuation<? super java.util.List<androidx.appfunctions.AppFunctionState>>);
     method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     method @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public suspend Object? handleAppFunction(androidx.appfunctions.HandleAppFunctionRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);

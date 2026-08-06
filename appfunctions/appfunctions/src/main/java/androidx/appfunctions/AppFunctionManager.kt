@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
 import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
@@ -308,10 +309,10 @@ public constructor(
      * See [android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates] for retrieving
      * the states of app functions associated with a specific activity.
      *
-     * See [searchAppFunctions] on how to retrieve the {@link AppFunctionMetadata} of app functions.
+     * See [searchAppFunctions] on how to retrieve the [AppFunctionMetadata] of app functions.
      *
-     * See [observeAppFunctions] for observing changes to app functions' {@link AppFunctionMetadata}
-     * and {@link AppFunctionState}s.
+     * See [observeAppFunctions] for observing changes to app functions' [AppFunctionMetadata] and
+     * [AppFunctionState]s.
      *
      * @param appFunctionNames The names of the app functions to request the state for.
      * @return the [AppFunctionState]s of the specified app functions.
@@ -329,6 +330,50 @@ public constructor(
         appFunctionNames: List<AppFunctionName>
     ): List<AppFunctionState> {
         return appFunctionReader.getAppFunctionStates(appFunctionNames)
+    }
+
+    /**
+     * Retrieves the registered app functions for the specified activities.
+     *
+     * Each [AppFunctionActivityState] contains the set of registered [AppFunctionName]s associated
+     * with a requested [android.app.appfunctions.AppFunctionActivityId].
+     *
+     * Functions that do not exist or are not visible to the calling application will be silently
+     * omitted from the result. Requested activities that have no registered functions will be
+     * omitted from the result.
+     *
+     * See [android.app.appfunctions.AppFunctionActivityId] for potential usages, including
+     * conversion from [android.service.voice.VoiceInteractionSession.ActivityId].
+     *
+     * This method follows the same permission rules as [searchAppFunctions].
+     *
+     * See [getAppFunctionStates] for retrieving the runtime state of app functions based on their
+     * names.
+     *
+     * See [searchAppFunctions] on how to retrieve the [AppFunctionMetadata] of app functions.
+     *
+     * See [observeAppFunctions] for observing changes to app functions' [AppFunctionMetadata] and
+     * [AppFunctionState]s.
+     *
+     * @param activityIds The set of activity IDs to retrieve function states for.
+     * @return the [AppFunctionActivityState]s of the given
+     *   [android.app.appfunctions.AppFunctionActivityId]s.
+     * @see android.service.voice.VoiceInteractionSession.getAppFunctionActivityId
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @RequiresPermission(
+        anyOf =
+            [
+                "android.permission.EXECUTE_APP_FUNCTIONS",
+                "android.permission.DISCOVER_APP_FUNCTIONS",
+                "android.permission.EXECUTE_APP_FUNCTIONS_SYSTEM",
+            ],
+        conditional = true,
+    )
+    public suspend fun getAppFunctionActivityStates(
+        activityIds: Set<AppFunctionActivityId>
+    ): List<AppFunctionActivityState> {
+        return appFunctionManagerApi.getAppFunctionActivityStates(activityIds)
     }
 
     /**
