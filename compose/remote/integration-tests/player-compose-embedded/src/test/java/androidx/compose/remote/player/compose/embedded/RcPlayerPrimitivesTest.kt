@@ -2035,7 +2035,7 @@ class RcPlayerPrimitivesTest {
                             ) {
                                 androidx.compose.remote.creation.compose.layout.RemoteText(
                                     text = "Priority Content".rs,
-                                    modifier = RemoteModifier.priority(1f),
+                                    modifier = RemoteModifier.collapsiblePriority(1f),
                                 )
                             }
                         },
