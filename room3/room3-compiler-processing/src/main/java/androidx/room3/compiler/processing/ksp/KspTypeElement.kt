@@ -150,7 +150,7 @@ internal sealed class KspTypeElement(
     protected val _enclosedElements: List<KspElement> by lazy {
         env.resolver
             .getDeclarationsInSourceOrder(declaration)
-            .map { env.wrapDeclaration(it) }
+            .mapNotNull { env.wrapDeclaration(it) }
             .toList()
     }
 
