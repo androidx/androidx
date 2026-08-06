@@ -776,10 +776,15 @@ public object MenuDefaults {
 
     /** Default horizontal arrangement for a menu item. */
     public val DropdownMenuItemHorizontalArrangement: Arrangement.Horizontal
-        get() {
-            val spacing = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
-            return MenuArrangement(spacing)
-        }
+        get() = itemHorizontalArrangement()
+
+    internal fun itemHorizontalArrangement(
+        hasLeadingIcon: Boolean = true,
+        hasTrailingIcon: Boolean = true,
+    ): Arrangement.Horizontal {
+        val spacing = if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
+        return MenuArrangement(spacing, hasLeadingIcon, hasTrailingIcon)
+    }
 
     /** Default padding used for [DropdownMenuItem]. */
     public val DropdownMenuItemContentPadding: PaddingValues =
