@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.core.util.keyIterator
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.Highlight
 import androidx.pdf.PdfPoint
 import androidx.pdf.compose.PdfViewerState.Companion.GESTURE_STATE_IDLE
@@ -58,6 +59,7 @@ public interface PdfZoomScrollScope {
 
 /** Creates and remembers a [PdfViewerState]. */
 @Composable
+@ExperimentalPdfApi
 public fun rememberPdfViewerState(): PdfViewerState {
     return remember { PdfViewerState() }
 }
@@ -66,6 +68,7 @@ public fun rememberPdfViewerState(): PdfViewerState {
  * A state object that can be hoisted to observe and control [PdfViewer] zoom, scroll, and content
  * position.
  */
+@ExperimentalPdfApi
 public class PdfViewerState() {
     private val zoomScrollMutex = MutatorMutex()
 
