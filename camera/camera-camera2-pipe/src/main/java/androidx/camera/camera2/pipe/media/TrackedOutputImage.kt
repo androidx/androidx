@@ -66,9 +66,6 @@ internal class TrackedOutputImage(
     private val state = atomic(TrackedOutputImageState(0).value)
 
     init {
-        // Note - right now we are tracking the evictable bytes for Image(s), we should also
-        // consider keeping track of the count of evictable image(s) for a particular stream
-        // irrespective of the byte size of the image.
         if (bytesPerImage > 0) {
             // Acquire memory budget for this image.
             memoryEstimator.incrementUsage(bytesPerImage)
@@ -120,12 +117,14 @@ internal class TrackedOutputImage(
 
     private fun onEvictableStateChanged(isEvictable: Boolean) {
         if (isEvictable) {
+            imageReaderImageSource.incrementEvictableImages()
             if (bytesPerImage > 0) {
-                memoryEstimator.updateEvictable(bytesPerImage)
+                memoryEstimator.incrementEvictableBytes(bytesPerImage)
             }
         } else {
+            imageReaderImageSource.decrementEvictableImages()
             if (bytesPerImage > 0) {
-                memoryEstimator.updateEvictable(-bytesPerImage)
+                memoryEstimator.decrementEvictableBytes(bytesPerImage)
             }
         }
     }

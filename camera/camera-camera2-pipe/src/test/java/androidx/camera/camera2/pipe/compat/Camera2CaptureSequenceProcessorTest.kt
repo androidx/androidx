@@ -26,6 +26,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -93,10 +94,17 @@ internal class Camera2CaptureSequenceProcessorTest {
             sessionMode = CameraGraph.OperatingMode.HIGH_SPEED,
         )
 
-    private val streamGraph = StreamGraphImpl(testCamera.metadata, graphConfig, mock(), mock())
+    private val streamGraph =
+        StreamGraphImpl(testCamera.metadata, graphConfig, mock(), mock(), MemoryEstimator.create())
 
     private val highSpeedStreamGraph =
-        StreamGraphImpl(testCamera.metadata, highSpeedGraphConfig, mock(), mock())
+        StreamGraphImpl(
+            testCamera.metadata,
+            highSpeedGraphConfig,
+            mock(),
+            mock(),
+            MemoryEstimator.create(),
+        )
 
     private val surface1 =
         Surface(

@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
@@ -119,7 +120,13 @@ internal class CameraGraphImplTest {
         CameraControllerSimulator(cameraContext, graphId, graphConfig, fakeGraphProcessor)
     private val cameraControllerProvider: () -> CameraControllerSimulator = { cameraController }
     private val streamGraph =
-        StreamGraphImpl(metadata, graphConfig, imageSources, cameraControllerProvider)
+        StreamGraphImpl(
+            metadata,
+            graphConfig,
+            imageSources,
+            cameraControllerProvider,
+            MemoryEstimator.create(),
+        )
     private val frameDistributor = FrameDistributor(streamGraph, frameCaptureQueue, true, 0L)
     private val surfaceGraph =
         SurfaceGraph(streamGraph, cameraControllerProvider, cameraSurfaceManager, emptyMap())

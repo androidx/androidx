@@ -33,6 +33,11 @@ import androidx.camera.camera2.pipe.core.Threads
 import java.lang.Class
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 
 internal class ImageReaderImageSources
 @Inject
@@ -90,6 +95,11 @@ constructor(
         val executorProvider = { threads.lightweightExecutor }
 
         val imageReaderCapacity = clampImageReaderCapacity(capacity, maxImageReaderCapacity)
+
+        val outputBytesMap =
+            cameraStream.outputs.associate {
+                it.id to StreamFormat.bytesPerImage(it.format, it.size.width, it.size.height)
+            }
 
         if (cameraStream.outputs.size == 1) {
             val output = cameraStream.outputs.single()
@@ -149,7 +159,7 @@ constructor(
             return ImageReaderImageSource.create(imageReader, memoryEstimator)
         }
 
-        // If we reach this point, it's likely the user asked for MultiResolutionImageReader
+        // If we reach this point, it's likely the user asked for MultiResolutionImageReader,
         // but it was not possible to create it due to the SDK the code is running on.
         throw IllegalStateException("Failed to create an ImageSource for $cameraStream!")
     }
@@ -196,7 +206,27 @@ public class ImageReaderImageSource(
     }
 
     private val state = atomic(State.ACTIVE)
-    private val imageCount = atomic(0)
+
+    private val _imageCountFlow = MutableStateFlow(0)
+    override val openImages: StateFlow<Int> = _imageCountFlow.asStateFlow()
+
+    private val _evictableImages = MutableStateFlow(0)
+
+    /**
+     * Flow of the count of images that are not held externally, i.e. only being referenced inside
+     * CameraPipe. These can be evicted if needed.
+     */
+    internal val evictableImageCountFlow: StateFlow<Int> = _evictableImages.asStateFlow()
+
+    private val _primaryOutputIdFlow = MutableStateFlow<OutputId?>(null)
+
+    /**
+     * Flow of the primary OutputId for this ImageSource. It is chosen by picking the first output
+     * in the list of outputs of the associated Stream. As the expected set of outputs change this
+     * value may change if the new expected outputs list doesn't contain the current default output.
+     */
+    internal val primaryOutputIdFlow: StateFlow<OutputId?> = _primaryOutputIdFlow.asStateFlow()
+
     private val ImageWrapper.estimatedBytes: Long
         get() = StreamFormat.bytesPerImage(StreamFormat(format), width, height)
 
@@ -210,8 +240,12 @@ public class ImageReaderImageSource(
             ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
                 onImage(streamId, outputId, image)
             }
+
         imageReader.onExpectedOutputsListener =
             ImageReaderWrapper.OnExpectedOutputsListener { timestamp, outputIds ->
+                if (!outputIds.contains(_primaryOutputIdFlow.value)) {
+                    _primaryOutputIdFlow.value = outputIds.firstOrNull()
+                }
                 expectedOutputsListener?.onExpectedOutputs(timestamp, outputIds)
             }
     }
@@ -250,9 +284,13 @@ public class ImageReaderImageSource(
         imageReader.flush()
     }
 
+    internal fun incrementEvictableImages() = _evictableImages.update { it + 1 }
+
+    internal fun decrementEvictableImages() = _evictableImages.update { it - 1 }
+
     private fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
         // Always increment the imageCount before acquireNextImage
-        val currentImageCount = imageCount.incrementAndGet()
+        val currentImageCount = _imageCountFlow.updateAndGet { it + 1 }
 
         val outputListener = imageListener
         if (outputListener == null) {
@@ -263,7 +301,7 @@ public class ImageReaderImageSource(
 
         val isInactive = state.value != State.ACTIVE
         val isOverCapacity = currentImageCount > maxImages
-        val isLowMemory = !memoryEstimator.canAllocate(image.estimatedBytes)
+        val isLowMemory = !memoryEstimator.canAllocateNow(image.estimatedBytes)
         // If there are too many images that are currently being held or the ImageSource is in
         // a CLOSING or CLOSED state, or we are low of memory budget: close the image, decrement the
         // imageCount, and let the outputListener know that an image was received but that it was
@@ -273,7 +311,7 @@ public class ImageReaderImageSource(
                 isLowMemory ->
                     Log.warn {
                         "Dropping image from $streamId at ${image.timestamp} due to low memory budget. " +
-                            "Usage: ${memoryEstimator.usage.value} bytes, requested: ${image.estimatedBytes} bytes."
+                            "Usage: ${memoryEstimator.memoryUsage.value} bytes, requested: ${image.estimatedBytes} bytes."
                     }
                 isInactive ->
                     Log.warn {
@@ -288,7 +326,7 @@ public class ImageReaderImageSource(
             }
             val outputTimestamp = image.timestamp
             closeAndDecrementImageCount(image)
-            outputListener.onImage(streamId, outputId, outputTimestamp, null)
+            outputListener.onImage(streamId, outputId, outputTimestamp, image = null)
             return
         }
 
@@ -303,9 +341,9 @@ public class ImageReaderImageSource(
     }
 
     internal fun closeAndDecrementImageCount(image: ImageWrapper) {
-        // This must called *exactly* once for each image that is closed.
+        // This must be called *exactly* once for each image that is closed.
         image.close()
-        imageCount.decrementAndGet()
+        _imageCountFlow.updateAndGet { it - 1 }
         if (state.value != State.ACTIVE) {
             flushOrCloseIfEmpty()
         }
@@ -319,7 +357,7 @@ public class ImageReaderImageSource(
 
         // If the imageCount is zero, or has just reached zero, update the state to CLOSED and call
         // close on the imageReader exactly once.
-        if (imageCount.value == 0) {
+        if (_imageCountFlow.value == 0) {
             if (state.compareAndSet(State.CLOSING, State.CLOSED)) {
                 imageReader.close()
             }

@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.StrictMode
@@ -122,6 +123,7 @@ class Camera2CameraControllerTest {
                 fakeGraphConfig,
                 FakeImageSources(fakeImageReaders),
                 { cameraController },
+                MemoryEstimator.create(),
             )
         cameraController =
             Camera2CameraController(
