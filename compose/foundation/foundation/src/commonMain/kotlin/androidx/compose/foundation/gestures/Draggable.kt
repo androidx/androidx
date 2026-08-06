@@ -19,6 +19,7 @@ package androidx.compose.foundation.gestures
 import androidx.annotation.FloatRange
 import androidx.collection.LongSparseArray
 import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ComposeFoundationFlags.isDraggableInitialPassConsumptionFixEnabled
 import androidx.compose.foundation.ComposeFoundationFlags.isDraggableZeroDeltaConsumptionEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.GestureConnection
@@ -766,8 +767,13 @@ internal abstract class DragGestureNode(
             }
     }
 
-    private fun moveToDraggingState(pointerId: PointerId) {
-        currentDragState = draggingState.apply { this.pointerId = pointerId }
+    private fun moveToDraggingState(pointerId: PointerId, hasStartedDragImmediately: Boolean) {
+        currentDragState =
+            draggingState.apply {
+                this.pointerId = pointerId
+                this.consumedOnInitial = false
+                this.hasStartedDragImmediately = hasStartedDragImmediately
+            }
     }
 
     private fun moveToAwaitDownState() {
@@ -854,7 +860,7 @@ internal abstract class DragGestureNode(
             } else if (state.consumedOnInitial) {
                 sendDragStart(firstDown, firstDown, Offset.Zero)
                 sendDragEvent(firstDown, Offset.Zero)
-                moveToDraggingState(firstDown.id)
+                moveToDraggingState(firstDown.id, hasStartedDragImmediately = true)
             }
         }
     }
@@ -989,7 +995,7 @@ internal abstract class DragGestureNode(
                             dragEvent.consume()
                             sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
                             sendDragEvent(dragEvent, postSlopOffset)
-                            moveToDraggingState(dragEvent.id)
+                            moveToDraggingState(dragEvent.id, hasStartedDragImmediately = false)
                         }
                     } else {
                         state.verifyConsumptionInFinalPass = true
@@ -1082,43 +1088,104 @@ internal abstract class DragGestureNode(
         pass: PointerEventPass,
         state: DragDetectionState.Dragging,
     ) {
-        if (pass != PointerEventPass.Main) return
-
-        val pointer = state.pointerId
-        val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == pointer } ?: return
-        if (dragEvent.changedToUpIgnoreConsumed()) {
-            val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
-            if (otherDown == null) {
-                // This is the last "up"
-                if (!dragEvent.isConsumed && dragEvent.changedToUpIgnoreConsumed()) {
-                    sendDragStopped(dragEvent)
-                } else {
-                    sendDragCancelled()
+        if (isDraggableInitialPassConsumptionFixEnabled) {
+            if (pass == PointerEventPass.Initial && state.hasStartedDragImmediately) {
+                val pointer = state.pointerId
+                val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == pointer } ?: return
+                if (!dragEvent.isConsumed) {
+                    dragEvent.consume()
+                    state.consumedOnInitial = true
                 }
-                moveToAwaitDownState()
+                return
+            }
+
+            if (pass != PointerEventPass.Main) return
+
+            val pointer = state.pointerId
+            val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == pointer } ?: return
+            val wasConsumedOnInitial = state.consumedOnInitial
+            val isConsumedByOther = dragEvent.isConsumed && !wasConsumedOnInitial
+            state.consumedOnInitial = false
+            if (dragEvent.changedToUpIgnoreConsumed()) {
+                val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
+                if (otherDown == null) {
+                    // This is the last "up"
+                    if (!isConsumedByOther && dragEvent.changedToUpIgnoreConsumed()) {
+                        sendDragStopped(dragEvent)
+                    } else {
+                        sendDragCancelled()
+                    }
+                    moveToAwaitDownState()
+                } else {
+                    state.pointerId = otherDown.id
+                }
             } else {
-                state.pointerId = otherDown.id
+                if (isConsumedByOther) {
+                    sendDragCancelled()
+                } else {
+                    if (isDraggableZeroDeltaConsumptionEnabled) {
+                        val positionChange =
+                            if (wasConsumedOnInitial) dragEvent.positionChangeIgnoreConsumed()
+                            else dragEvent.positionChange()
+                        sendDragEvent(dragEvent, positionChange)
+                        dragEvent.consume()
+                    } else {
+                        val positionChange = dragEvent.positionChangeIgnoreConsumed()
+
+                        /**
+                         * During the gesture pickup we can pickup events at any direction so
+                         * disable the orientation lock.
+                         */
+                        val motionChange = positionChange.getDistance()
+                        if (motionChange != 0.0f) {
+                            val effectivePositionChange =
+                                if (wasConsumedOnInitial) dragEvent.positionChangeIgnoreConsumed()
+                                else dragEvent.positionChange()
+                            sendDragEvent(dragEvent, effectivePositionChange)
+                            dragEvent.consume()
+                        }
+                    }
+                }
             }
         } else {
-            if (dragEvent.isConsumed) {
-                sendDragCancelled()
-            } else {
-                if (isDraggableZeroDeltaConsumptionEnabled) {
-                    val positionChange = dragEvent.positionChange()
-                    sendDragEvent(dragEvent, positionChange)
-                    dragEvent.consume()
-                } else {
-                    val positionChange = dragEvent.positionChangeIgnoreConsumed()
+            if (pass != PointerEventPass.Main) return
 
-                    /**
-                     * During the gesture pickup we can pickup events at any direction so disable
-                     * the orientation lock.
-                     */
-                    val motionChange = positionChange.getDistance()
-                    if (motionChange != 0.0f) {
+            val pointer = state.pointerId
+            val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == pointer } ?: return
+            if (dragEvent.changedToUpIgnoreConsumed()) {
+                val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
+                if (otherDown == null) {
+                    // This is the last "up"
+                    if (!dragEvent.isConsumed && dragEvent.changedToUpIgnoreConsumed()) {
+                        sendDragStopped(dragEvent)
+                    } else {
+                        sendDragCancelled()
+                    }
+                    moveToAwaitDownState()
+                } else {
+                    state.pointerId = otherDown.id
+                }
+            } else {
+                if (dragEvent.isConsumed) {
+                    sendDragCancelled()
+                } else {
+                    if (isDraggableZeroDeltaConsumptionEnabled) {
                         val positionChange = dragEvent.positionChange()
                         sendDragEvent(dragEvent, positionChange)
                         dragEvent.consume()
+                    } else {
+                        val positionChange = dragEvent.positionChangeIgnoreConsumed()
+
+                        /**
+                         * During the gesture pickup we can pickup events at any direction so
+                         * disable the orientation lock.
+                         */
+                        val motionChange = positionChange.getDistance()
+                        if (motionChange != 0.0f) {
+                            val positionChange = dragEvent.positionChange()
+                            sendDragEvent(dragEvent, positionChange)
+                            dragEvent.consume()
+                        }
                     }
                 }
             }
@@ -1307,7 +1374,11 @@ private sealed class DragDetectionState {
     ) : DragDetectionState()
 
     /** State where dragging is happening. */
-    class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
+    class Dragging(
+        var pointerId: PointerId = PointerId(Long.MAX_VALUE),
+        var consumedOnInitial: Boolean = false,
+        var hasStartedDragImmediately: Boolean = false,
+    ) : DragDetectionState()
 }
 
 /** A specialized [GestureConnection] to allow high level coordination between drag gestures. */
