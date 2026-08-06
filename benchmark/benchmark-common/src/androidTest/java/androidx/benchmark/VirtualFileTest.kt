@@ -16,11 +16,14 @@
 
 package androidx.benchmark
 
+import android.app.Instrumentation
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -132,6 +135,27 @@ class VirtualFileTest(
     fun ls() {
         file1.writeText("text")
         assertThat(file1.ls().first()).isEqualTo(expectedFile1Path)
+    }
+}
+
+@SmallTest
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+class FileAccessibleTest {
+    private val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    @Test
+    fun accessibleTest() {
+        val context = instrumentation.targetContext
+        val packageName = context.packageName
+        val filesDirectory =
+            context.filesDir.absolutePath.replace(
+                oldValue = packageName,
+                newValue = "fakePackageName",
+            )
+        val path = "$filesDirectory/test.txt"
+        val file = VirtualFile.fromPath(path)
+        assertTrue { file is ShellFile }
     }
 }
 
