@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.ControlMode
 import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.FlashMode
-import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
@@ -32,7 +31,6 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.internal.CameraGraphParametersImpl
 import androidx.camera.camera2.pipe.internal.CameraGraphRequestListenersImpl
-import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Deferred
 
@@ -42,7 +40,6 @@ internal class CameraGraphSessionImpl(
     private val token: Token,
     private val graphProcessor: GraphProcessor,
     private val controller3A: Controller3A,
-    private val frameCaptureQueue: FrameCaptureQueue,
     private val parameters: CameraGraphParametersImpl,
     private val listeners: CameraGraphRequestListenersImpl,
 ) : CameraGraph.Session {
@@ -62,18 +59,6 @@ internal class CameraGraphSessionImpl(
         check(!token.released) { "Cannot call submit on $this after close." }
         check(requests.isNotEmpty()) { "Cannot call submit with an empty list of Requests!" }
         graphProcessor.submit(requests)
-    }
-
-    override fun capture(request: Request): FrameCapture {
-        val frameCapture = frameCaptureQueue.enqueue(request)
-        submit(request)
-        return frameCapture
-    }
-
-    override fun capture(requests: List<Request>): List<FrameCapture> {
-        val frameCaptures = frameCaptureQueue.enqueue(requests)
-        submit(requests)
-        return frameCaptures
     }
 
     override fun startRepeating(request: Request) {
