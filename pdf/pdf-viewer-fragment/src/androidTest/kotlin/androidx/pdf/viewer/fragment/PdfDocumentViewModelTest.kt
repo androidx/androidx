@@ -19,6 +19,7 @@ package androidx.pdf.viewer.fragment
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Parcelable
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.ExperimentalPdfApi
@@ -43,6 +44,7 @@ import java.io.IOException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.collections.toTypedArray
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
@@ -350,7 +352,7 @@ class PdfDocumentViewModelTest {
         val localSavedStateHandle =
             SavedStateHandle().also {
                 it["documentUri"] = documentUri
-                it["formEditInfos"] = formEditInfos
+                it["formEditInfos"] = formEditInfos.toTypedArray<Parcelable>()
             }
 
         val pdfDocumentViewModel =
