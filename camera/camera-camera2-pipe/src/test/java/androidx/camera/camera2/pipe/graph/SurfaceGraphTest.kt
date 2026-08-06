@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
@@ -76,6 +77,7 @@ class SurfaceGraphTest {
                 config.graphConfig,
                 mock(),
                 fakeCameraControllerProvider,
+                MemoryEstimator.create(),
             )
             .also { fakeCameraController.streamGraph = it }
 

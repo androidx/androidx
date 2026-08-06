@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
@@ -103,7 +104,7 @@ class CaptureSessionStateTest {
     private val fakeCameraMetadata =
         FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
     private val streamGraph: StreamGraph =
-        StreamGraphImpl(fakeCameraMetadata, graphConfig, mock(), mock())
+        StreamGraphImpl(fakeCameraMetadata, graphConfig, mock(), mock(), MemoryEstimator.create())
 
     private val stream1: StreamId = streamGraph[streamConfig1]!!.id
     private val stream2: StreamId = streamGraph[streamConfig2]!!.id

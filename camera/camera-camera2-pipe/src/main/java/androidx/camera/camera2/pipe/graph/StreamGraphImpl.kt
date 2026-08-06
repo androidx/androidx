@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.streamConfiguration
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.InputStream
 import androidx.camera.camera2.pipe.InputStreamId
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
@@ -42,6 +43,7 @@ import androidx.camera.camera2.pipe.media.ImageSources
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.flow.Flow
 
 /**
  * This object builds an internal graph of inputs and outputs from a graphConfig. It is responsible
@@ -56,8 +58,10 @@ constructor(
     val graphConfig: CameraGraph.Config,
     val imageSources: ImageSources,
     private val cameraControllerProvider: Provider<CameraController>,
+    val memoryEstimator: MemoryEstimator,
 ) : StreamGraph, AutoCloseable {
     private val _streamMap: Map<CameraStream.Config, CameraStream>
+    private val capacityEstimator: StreamGraphCapacity
 
     internal val outputConfigs: List<OutputConfig>
     internal val outputConfigMap: Map<OutputStream, OutputConfig>
@@ -99,6 +103,12 @@ constructor(
     override fun getImageSource(streamId: StreamId): ImageSource? {
         return imageSourceMap[streamId]
     }
+
+    override fun estimateAvailableFramesFlow(streamIds: Set<StreamId>): Flow<Int> =
+        capacityEstimator.estimateAvailableFramesFlow(streamIds)
+
+    override fun estimateAvailableFrames(streamIds: Set<StreamId>): Int =
+        capacityEstimator.estimateAvailableFrames(streamIds)
 
     fun getCameraStreamConfig(streamId: StreamId) =
         _streamMap.entries.firstOrNull { it.value.id == streamId }?.key
@@ -220,6 +230,13 @@ constructor(
                 this[cameraStream.id] = imageSource
             }
         }
+
+        capacityEstimator =
+            StreamGraphCapacity(
+                memoryEstimator = memoryEstimator,
+                imageSourceMap = imageSourceMap,
+                cameraStreams = streamListBuilder,
+            )
     }
 
     class OutputConfig(

@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLega
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLimited
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.ImageSourceConfig
+import androidx.camera.camera2.pipe.MemoryEstimator
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
@@ -111,9 +112,14 @@ internal class StreamGraphImplTest {
         imageSources: ImageSources,
         cameraControllerProvider: Provider<CameraController>,
     ): StreamGraphImpl =
-        StreamGraphImpl(cameraMetadata, graphConfig, imageSources, cameraControllerProvider).also {
-            streamGraphs.add(it)
-        }
+        StreamGraphImpl(
+                cameraMetadata,
+                graphConfig,
+                imageSources,
+                cameraControllerProvider,
+                MemoryEstimator.create(),
+            )
+            .also { streamGraphs.add(it) }
 
     @After
     fun tearDown() {
