@@ -52,14 +52,28 @@ import java.io.OutputStream
 sealed class VirtualFile {
 
     companion object {
-        private const val USER_SPACE_PATH_PREFIX = "/storage/emulated/"
-
-        fun fromPath(path: String): VirtualFile =
-            if (path.startsWith(USER_SPACE_PATH_PREFIX)) {
+        fun fromPath(path: String): VirtualFile {
+            val file = File(path)
+            // It's only a `UserFile` iff we have the ability to write to the path,
+            // or it's parentFile.
+            return if (file.isAccessible()) {
                 UserFile(path)
             } else {
                 ShellFile(path)
             }
+        }
+
+        private tailrec fun File?.isAccessible(): Boolean {
+            if (this == null) return false
+            return if (this.exists()) {
+                when {
+                    this.canRead() && this.canWrite() -> true
+                    else -> false
+                }
+            } else {
+                this.parentFile.isAccessible()
+            }
+        }
     }
 
     abstract val absolutePath: String
