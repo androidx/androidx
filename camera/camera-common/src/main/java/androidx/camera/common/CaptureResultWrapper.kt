@@ -17,6 +17,7 @@
 package androidx.camera.common
 
 import android.hardware.camera2.CaptureResult
+import androidx.annotation.RestrictTo
 
 /**
  * A wrapper interface providing compatibility-focused access to [CaptureResult] and custom
@@ -84,6 +85,28 @@ public interface CaptureResultWrapper : CaptureResultMetadata {
      * @see android.hardware.camera2.CaptureResult.getKeys
      */
     public val keys: List<CaptureResult.Key<*>>
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public object Keys {
+        /**
+         * Key for [LensShadingMapWrapper].
+         *
+         * Use this key to query the compatibility wrapper for
+         * [android.hardware.camera2.params.LensShadingMap].
+         *
+         * ### Example
+         *
+         * ```kotlin
+         * val mapWrapper = captureResult[CaptureResultWrapper.Keys.LENS_SHADING_MAP]
+         * ```
+         *
+         * Prefer using the [CaptureResultWrappers.lensShadingMap] property to access this value.
+         */
+        @JvmField
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val LENS_SHADING_MAP: Metadata.Key<LensShadingMapWrapper> =
+            Metadata.Key("androidx.camera.common.LensShadingMap")
+    }
 }
 
 public object CaptureResultWrappers {
@@ -100,4 +123,28 @@ public object CaptureResultWrappers {
     ): CaptureResultWrapper {
         return AndroidCaptureResult(captureResult, cameraId, captureRequest, metadata)
     }
+
+    /**
+     * Extension property to query [LensShadingMapWrapper] directly.
+     *
+     * This is the preferred way to access the [LensShadingMapWrapper] in Kotlin. It will fallback
+     * to creating a wrapper from the standard
+     * [CaptureResult.STATISTICS_LENS_SHADING_CORRECTION_MAP] if the compatibility key is not
+     * populated, and will return null if the STATISTICS_LENS_SHADING_CORRECTION_MAP is not
+     * available.
+     */
+    @get:JvmStatic
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val CaptureResultMetadata.lensShadingMap: LensShadingMapWrapper?
+        get() {
+            val compatibilityMap = this[CaptureResultWrapper.Keys.LENS_SHADING_MAP]
+            if (compatibilityMap != null) {
+                return compatibilityMap
+            }
+            val camera2Map = this[CaptureResult.STATISTICS_LENS_SHADING_CORRECTION_MAP]
+            if (camera2Map != null) {
+                return AndroidLensShadingMap(camera2Map)
+            }
+            return null
+        }
 }
