@@ -222,6 +222,27 @@ public object RemoteProgressIndicatorDefaults {
     public val IndeterminateStrokeWidth: RemoteDp = 3.rdp
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
+    /** Default start angle for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorStartAngle: RemoteFloat = 135f.rf
+
+    /** Default sweep angle for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorSweepAngle: RemoteFloat = 90f.rf
+
+    /** Default stroke width for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorStrokeWidth: RemoteDp = 8.rdp
+
+    /** Default padding from edge for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorPadding: RemoteDp = 2.rdp
+
+    /** Default gap angle in degrees for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorGapAngleDegrees: RemoteFloat = 2f.rf
+
+    /** Default dot collapse freeze fraction for [RemoteCurvedProgressIndicator]. */
+    public val CurvedIndicatorDotCollapseFreezeFraction: RemoteFloat = 0f.rf
+
+    /** Default animation duration in milliseconds for progress indicators. */
+    public const val AnimationDurationMillis: Int = 125
+
     /** Creates a [RemoteProgressIndicatorColors] with the default colors. */
     @Composable
     @RemoteComposable
