@@ -18,6 +18,7 @@ package androidx.pdf.viewer.fragment
 
 import android.net.Uri
 import android.os.DeadObjectException
+import android.os.Parcelable
 import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.core.os.OperationCanceledException
@@ -267,7 +268,7 @@ public open class PdfDocumentViewModel(
 
     private fun resetFormEditsState() {
         formEditInfos.clear()
-        state.remove<ArrayList<FormEditInfo>>(FORM_EDIT_INFOS_KEY)
+        state.remove<Array<Parcelable>>(FORM_EDIT_INFOS_KEY)
     }
 
     /**
@@ -317,7 +318,7 @@ public open class PdfDocumentViewModel(
                     previousJob?.join()
                     applyEditToDocument(currentState.pdfDocument, formEditInfo)
                     formEditInfos.add(formEditInfo)
-                    state[FORM_EDIT_INFOS_KEY] = formEditInfos
+                    state[FORM_EDIT_INFOS_KEY] = formEditInfos.toTypedArray<Parcelable>()
                 }
         }
     }
@@ -472,7 +473,8 @@ public open class PdfDocumentViewModel(
 
     private suspend fun restoreFormFillingState(document: PdfDocument): Boolean {
         if (document !is EditablePdfDocument) return false
-        val savedFormEdits = state.get<ArrayList<FormEditInfo>>(FORM_EDIT_INFOS_KEY)
+        val savedFormEdits =
+            state.get<Array<Parcelable>>(FORM_EDIT_INFOS_KEY)?.filterIsInstance<FormEditInfo>()
         if (savedFormEdits.isNullOrEmpty()) return true
         try {
             savedFormEdits.forEach {
