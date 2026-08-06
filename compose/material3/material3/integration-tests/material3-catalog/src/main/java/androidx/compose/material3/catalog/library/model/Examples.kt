@@ -233,10 +233,6 @@ import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
 import androidx.compose.material3.samples.RangeSliderWithCustomComponents
-import androidx.compose.material3.samples.RichTimeInputSample
-import androidx.compose.material3.samples.RichTimePickerSample
-import androidx.compose.material3.samples.RichTimePickerScrollSample
-import androidx.compose.material3.samples.RichTimePickerSwitchableSample
 import androidx.compose.material3.samples.RichTooltipSample
 import androidx.compose.material3.samples.RichTooltipWithCaretSample
 import androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
@@ -324,6 +320,10 @@ import androidx.compose.material3.samples.VerticalButtonGroupSample
 import androidx.compose.material3.samples.VerticalCenteredSliderSample
 import androidx.compose.material3.samples.VerticalFloatingToolbarWithFabSample
 import androidx.compose.material3.samples.VerticalSliderSample
+import androidx.compose.material3.samples.VibrantTimeInputSample
+import androidx.compose.material3.samples.VibrantTimePickerSample
+import androidx.compose.material3.samples.VibrantTimePickerScrollSample
+import androidx.compose.material3.samples.VibrantTimePickerSwitchableSample
 import androidx.compose.material3.samples.WideNavigationRailArrangementsSample
 import androidx.compose.material3.samples.WideNavigationRailCollapsedSample
 import androidx.compose.material3.samples.WideNavigationRailExpandedSample
@@ -2704,36 +2704,36 @@ val TimePickerExamples =
             TimePickerSwitchableSample()
         },
         Example(
-            name = "RichTimePickerSample",
+            name = "VibrantTimePickerSample",
             description = TimePickerDescription,
             sourceUrl = TimePickerSourceUrl,
             isExpressive = true,
         ) {
-            RichTimePickerSample()
+            VibrantTimePickerSample()
         },
         Example(
-            name = "RichTimeInputSample",
+            name = "VibrantTimeInputSample",
             description = TimePickerDescription,
             sourceUrl = TimePickerSourceUrl,
             isExpressive = true,
         ) {
-            RichTimeInputSample()
+            VibrantTimeInputSample()
         },
         Example(
-            name = "RichTimePickerSwitchableSample",
+            name = "VibrantTimePickerSwitchableSample",
             description = TimePickerDescription,
             sourceUrl = TimePickerSourceUrl,
             isExpressive = true,
         ) {
-            RichTimePickerSwitchableSample()
+            VibrantTimePickerSwitchableSample()
         },
         Example(
-            name = "RichTimePickerScrollSample",
+            name = "VibrantTimePickerScrollSample",
             description = TimePickerDescription,
             sourceUrl = TimePickerSourceUrl,
             isExpressive = true,
         ) {
-            RichTimePickerScrollSample()
+            VibrantTimePickerScrollSample()
         },
         Example(
             name = "UncontainedTimePickerSample",
