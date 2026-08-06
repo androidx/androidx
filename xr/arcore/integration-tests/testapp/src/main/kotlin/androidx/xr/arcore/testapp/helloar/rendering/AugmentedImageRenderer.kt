@@ -73,7 +73,8 @@ internal class AugmentedImageRenderer {
 
     private fun addImageModel(obj: AugmentedImage, imagesToRender: MutableList<AugmentedImage>) {
         // Make the render job a child of the update job so it completes when the parent completes.
-        _coroutineScope.launch { updateAndRenderImage(obj) }
+        val job = _coroutineScope.launch { updateAndRenderImage(obj) }
+        _runningJobs[obj] = job
 
         imagesToRender.add(obj)
     }
@@ -138,9 +139,11 @@ internal class AugmentedImageRenderer {
         }
 
         // stop rendering dropped images
-        for (renderedImage in imagesToRender) {
+        val iterator = imagesToRender.iterator()
+        while (iterator.hasNext()) {
+            val renderedImage = iterator.next()
             if (images.none { it.hashCode() == renderedImage.hashCode() }) {
-                imagesToRender.remove(renderedImage)
+                iterator.remove()
                 _runningJobs.remove(renderedImage)?.cancel()
             }
         }
