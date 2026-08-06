@@ -4323,6 +4323,44 @@ package androidx.compose.material3 {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 
+  @androidx.compose.runtime.Immutable public final class TimeInputColors {
+    ctor @KotlinOnly public TimeInputColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color periodSelectorBorderColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, androidx.compose.material3.TextFieldColors timeTextFieldColors);
+    ctor @BytecodeOnly public TimeInputColors(long, long, long, long, long, long, androidx.compose.material3.TextFieldColors!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.compose.material3.TimeInputColors copy(optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color periodSelectorBorderColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, optional androidx.compose.material3.TextFieldColors? timeTextFieldColors);
+    method @BytecodeOnly public androidx.compose.material3.TimeInputColors copy-nl4AeYM(long, long, long, long, long, long, androidx.compose.material3.TextFieldColors?);
+    method @BytecodeOnly public static androidx.compose.material3.TimeInputColors! copy-nl4AeYM$default(androidx.compose.material3.TimeInputColors!, long, long, long, long, long, long, androidx.compose.material3.TextFieldColors!, int, Object!);
+    method @BytecodeOnly public long getContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getPeriodSelectorBorderColor-0d7_KjU();
+    method @BytecodeOnly public long getPeriodSelectorSelectedContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getPeriodSelectorSelectedContentColor-0d7_KjU();
+    method @BytecodeOnly public long getPeriodSelectorUnselectedContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getPeriodSelectorUnselectedContentColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.material3.TextFieldColors getTimeTextFieldColors();
+    property public androidx.compose.ui.graphics.Color containerColor;
+    property public androidx.compose.ui.graphics.Color periodSelectorBorderColor;
+    property public androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor;
+    property public androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor;
+    property public androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor;
+    property public androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor;
+    property public androidx.compose.material3.TextFieldColors timeTextFieldColors;
+  }
+
+  @androidx.compose.runtime.Stable public final class TimeInputDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors colors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors colors(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors colors(optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color periodSelectorBorderColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, optional androidx.compose.material3.TextFieldColors? timeTextFieldColors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors colors-mg7eHwg(long, long, long, long, long, long, androidx.compose.material3.TextFieldColors?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors richColors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors richColors(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors richColors(optional androidx.compose.ui.graphics.Color containerColor, optional androidx.compose.ui.graphics.Color periodSelectorBorderColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, optional androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, optional androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, optional androidx.compose.material3.TextFieldColors? timeTextFieldColors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimeInputColors richColors-mg7eHwg(long, long, long, long, long, long, androidx.compose.material3.TextFieldColors?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(optional androidx.compose.ui.graphics.Shape? timeFieldShape, optional androidx.compose.ui.graphics.Shape? periodSelectorShape);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.TimePickerShapes shapes(androidx.compose.ui.graphics.Shape?, androidx.compose.ui.graphics.Shape?, androidx.compose.runtime.Composer?, int, int);
+    field public static final androidx.compose.material3.TimeInputDefaults INSTANCE;
+  }
+
   @androidx.compose.runtime.Immutable public final class TimePickerColors {
     ctor @KotlinOnly public TimePickerColors(androidx.compose.ui.graphics.Color clockDialColor, androidx.compose.ui.graphics.Color selectorColor, androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color periodSelectorBorderColor, androidx.compose.ui.graphics.Color clockDialSelectedContentColor, androidx.compose.ui.graphics.Color clockDialUnselectedContentColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContainerColor, androidx.compose.ui.graphics.Color periodSelectorSelectedContentColor, androidx.compose.ui.graphics.Color periodSelectorUnselectedContentColor, androidx.compose.ui.graphics.Color timeSelectorSelectedContainerColor, androidx.compose.ui.graphics.Color timeSelectorUnselectedContainerColor, androidx.compose.ui.graphics.Color timeSelectorSelectedContentColor, androidx.compose.ui.graphics.Color timeSelectorUnselectedContentColor);
     ctor @BytecodeOnly public TimePickerColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -4420,17 +4458,20 @@ package androidx.compose.material3 {
   }
 
   public final class TimePickerKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimeInputColors colors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimeInputColors?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState!, androidx.compose.material3.TimePickerShapes!, androidx.compose.ui.Modifier!, androidx.compose.material3.TimePickerColors!, androidx.compose.runtime.Composer!, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimeInputColors colors);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimeInputColors?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState!, androidx.compose.ui.Modifier!, androidx.compose.material3.TimePickerColors!, androidx.compose.runtime.Composer!, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional androidx.compose.material3.TimePickerLayoutType layoutType);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional androidx.compose.material3.TimePickerLayoutType layoutType);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimePicker-hudfTfo(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimePicker-mT9BvqQ(androidx.compose.material3.TimePickerState, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, int, androidx.compose.runtime.Composer?, int, int);
-    method public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
-    method @KotlinOnly public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour, androidx.compose.material3.TimePickerSelectionMode initialSelection);
+    method @BytecodeOnly @Deprecated public static androidx.compose.material3.TimePickerState! TimePickerState(int, int, boolean);
+    method @KotlinOnly public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour, optional androidx.compose.material3.TimePickerSelectionMode initialSelection);
     method @BytecodeOnly public static androidx.compose.material3.TimePickerState TimePickerState-15aZ4ps(int, int, boolean, int);
+    method @BytecodeOnly public static androidx.compose.material3.TimePickerState! TimePickerState-15aZ4ps$default(int, int, boolean, int, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeScroll(androidx.compose.material3.TimePickerState state, androidx.compose.material3.TimePickerShapes shapes, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeScroll(androidx.compose.material3.TimePickerState, androidx.compose.material3.TimePickerShapes, androidx.compose.ui.Modifier?, androidx.compose.material3.TimePickerColors?, androidx.compose.runtime.Composer?, int, int);
     method @InaccessibleFromKotlin public static boolean isHourInputValid(androidx.compose.material3.TimePickerState);
