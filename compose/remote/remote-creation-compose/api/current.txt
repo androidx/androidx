@@ -404,6 +404,61 @@ package androidx.compose.remote.creation.compose.modifier {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier drawWithContent(androidx.compose.remote.creation.compose.modifier.RemoteModifier, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.layout.RemoteContentDrawScope,kotlin.Unit> onDraw);
   }
 
+  public final class GraphicsLayerModifierKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleX, optional androidx.compose.remote.creation.compose.state.RemoteFloat scaleY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat rotationZ, optional androidx.compose.remote.creation.compose.state.RemoteFloat shadowElevation, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginX, optional androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginY, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationX, optional androidx.compose.remote.creation.compose.state.RemoteFloat translationY, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.layer.CompositingStrategy compositingStrategy, optional androidx.compose.remote.creation.compose.state.RemoteFloat cameraDistance, optional androidx.compose.remote.creation.compose.modifier.RenderEffect? renderEffect);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer(androidx.compose.remote.creation.compose.modifier.RemoteModifier, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.modifier.GraphicsLayerScope,kotlin.Unit> block);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier graphicsLayer-3oxIIGE(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.ui.graphics.Shape, int, androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.modifier.RenderEffect?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! graphicsLayer-3oxIIGE$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.ui.graphics.Shape!, int, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.modifier.RenderEffect!, int, Object!);
+  }
+
+  public interface GraphicsLayerScope {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getAlpha();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCameraDistance();
+    method @BytecodeOnly public int getCompositingStrategy-ke2Ky5w();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.modifier.RenderEffect? getRenderEffect();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getRotationX();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getRotationY();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getRotationZ();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getScaleX();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getScaleY();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getShadowElevation();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getShape();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTransformOriginX();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTransformOriginY();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTranslationX();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTranslationY();
+    method @InaccessibleFromKotlin public void setAlpha(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setCameraDistance(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @BytecodeOnly public void setCompositingStrategy-Wpw9cng(int);
+    method @InaccessibleFromKotlin public void setRenderEffect(androidx.compose.remote.creation.compose.modifier.RenderEffect?);
+    method @InaccessibleFromKotlin public void setRotationX(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setRotationY(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setRotationZ(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setScaleX(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setScaleY(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setShadowElevation(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setShape(androidx.compose.ui.graphics.Shape);
+    method @InaccessibleFromKotlin public void setTransformOriginX(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setTransformOriginY(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setTranslationX(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    method @InaccessibleFromKotlin public void setTranslationY(androidx.compose.remote.creation.compose.state.RemoteFloat);
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat alpha;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat cameraDistance;
+    property public abstract androidx.compose.ui.graphics.layer.CompositingStrategy compositingStrategy;
+    property public abstract androidx.compose.remote.creation.compose.modifier.RenderEffect? renderEffect;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat rotationX;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat rotationY;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat rotationZ;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat scaleX;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat scaleY;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat shadowElevation;
+    property public abstract androidx.compose.ui.graphics.Shape shape;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginX;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat transformOriginY;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat translationX;
+    property public abstract androidx.compose.remote.creation.compose.state.RemoteFloat translationY;
+  }
+
   public final class HeightInModifierKt {
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier heightIn(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.state.RemoteDp? min, optional androidx.compose.remote.creation.compose.state.RemoteDp? max);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! heightIn$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
