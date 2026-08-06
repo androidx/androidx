@@ -75,7 +75,8 @@ internal constructor(
      *
      * The back stack is evaluated on initial access and caches the result.
      */
-    public val backStack: List<K> by lazy { backStackBuilder(matchResult) }
+    public val backStack: List<K> by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { backStackBuilder(matchResult) }
 }
 
 /**

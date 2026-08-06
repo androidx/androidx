@@ -60,25 +60,31 @@ private class ActualUri(private val uriString: String) : DeepLinkUri() {
         private val FRAGMENT_PATTERN = Regex("#(.+)")
     }
 
-    private val _query: String? by lazy { QUERY_PATTERN.find(uriString)?.groups?.get(1)?.value }
-
-    private val _fragment: String? by lazy {
-        FRAGMENT_PATTERN.find(uriString)?.groups?.get(1)?.value
-    }
-
-    private val schemeSeparatorIndex by lazy { uriString.indexOf(':') }
-
-    private val _pathSegments: List<String> by lazy {
-        val ssi = schemeSeparatorIndex
-        if (ssi > -1) {
-            if (ssi + 1 == uriString.length) return@lazy emptyList()
-            if (uriString.getOrNull(ssi + 1) != '/') return@lazy emptyList()
+    private val _query: String? by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            QUERY_PATTERN.find(uriString)?.groups?.get(1)?.value
         }
 
-        val path = InternalUri.parsePath(uriString, ssi)
+    private val _fragment: String? by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            FRAGMENT_PATTERN.find(uriString)?.groups?.get(1)?.value
+        }
 
-        path.split('/').map { InternalUri.decode(it) }
-    }
+    private val schemeSeparatorIndex by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { uriString.indexOf(':') }
+
+    private val _pathSegments: List<String> by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            val ssi = schemeSeparatorIndex
+            if (ssi > -1) {
+                if (ssi + 1 == uriString.length) return@lazy emptyList()
+                if (uriString.getOrNull(ssi + 1) != '/') return@lazy emptyList()
+            }
+
+            val path = InternalUri.parsePath(uriString, ssi)
+
+            path.split('/').map { InternalUri.decode(it) }
+        }
 
     override fun getFragment(): String? = _fragment
 

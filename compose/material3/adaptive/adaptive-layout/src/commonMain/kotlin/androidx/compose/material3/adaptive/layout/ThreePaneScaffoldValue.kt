@@ -224,30 +224,32 @@ internal constructor(
         currentDestination = null,
     )
 
-    internal val expandedCount by lazy {
-        var count = 0
-        forEach { _, value ->
-            if (value == PaneAdaptedValue.Expanded) {
-                count++
-            }
-        }
-        count
-    }
-
-    public override val paneExpansionStateKey: PaneExpansionStateKey by lazy {
-        if (expandedCount != 2) {
-            PaneExpansionStateKey.Default
-        } else {
-            val expandedPanes = Array<ThreePaneScaffoldRole?>(2) { null }
+    internal val expandedCount by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             var count = 0
-            forEach { role, value ->
+            forEach { _, value ->
                 if (value == PaneAdaptedValue.Expanded) {
-                    expandedPanes[count++] = role
+                    count++
                 }
             }
-            TwoPaneExpansionStateKeyImpl(expandedPanes[0]!!, expandedPanes[1]!!)
+            count
         }
-    }
+
+    public override val paneExpansionStateKey: PaneExpansionStateKey by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            if (expandedCount != 2) {
+                PaneExpansionStateKey.Default
+            } else {
+                val expandedPanes = Array<ThreePaneScaffoldRole?>(2) { null }
+                var count = 0
+                forEach { role, value ->
+                    if (value == PaneAdaptedValue.Expanded) {
+                        expandedPanes[count++] = role
+                    }
+                }
+                TwoPaneExpansionStateKeyImpl(expandedPanes[0]!!, expandedPanes[1]!!)
+            }
+        }
 
     internal inline fun forEach(action: (ThreePaneScaffoldRole, PaneAdaptedValue) -> Unit) {
         action(ThreePaneScaffoldRole.Primary, primary)

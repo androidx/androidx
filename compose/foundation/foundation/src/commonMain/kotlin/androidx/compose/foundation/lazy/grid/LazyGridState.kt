@@ -357,80 +357,84 @@ internal constructor(
             Snapshot.withoutReadObservation { layoutInfoState.value.prefetchStrategy }
                 ?: legacyPrefetchStrategy
 
-    private val prefetchScope: LazyGridPrefetchScope by lazy {
-        object : LazyGridPrefetchScope {
-            override fun scheduleLinePrefetch(
-                lineIndex: Int
-            ): List<LazyLayoutPrefetchState.PrefetchHandle> {
-                return scheduleLinePrefetch(lineIndex, null)
-            }
+    private val prefetchScope: LazyGridPrefetchScope by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            object : LazyGridPrefetchScope {
+                override fun scheduleLinePrefetch(
+                    lineIndex: Int
+                ): List<LazyLayoutPrefetchState.PrefetchHandle> {
+                    return scheduleLinePrefetch(lineIndex, null)
+                }
 
-            @Suppress("PrimitiveInCollection")
-            override fun scheduleLinePrefetch(
-                lineIndex: Int,
-                onPrefetchFinished: (LazyGridPrefetchResultScope.() -> Unit)?,
-            ): List<LazyLayoutPrefetchState.PrefetchHandle> {
-                // Without read observation since this can be triggered from scroll - this will then
-                // cause us to recompose when the measure result changes. We don't care since the
-                // prefetch is best effort.
-                val prefetchHandles = mutableListOf<LazyLayoutPrefetchState.PrefetchHandle>()
-                val itemSizes: MutableList<Int>? =
-                    if (onPrefetchFinished == null) null else mutableListOf()
+                @Suppress("PrimitiveInCollection")
+                override fun scheduleLinePrefetch(
+                    lineIndex: Int,
+                    onPrefetchFinished: (LazyGridPrefetchResultScope.() -> Unit)?,
+                ): List<LazyLayoutPrefetchState.PrefetchHandle> {
+                    // Without read observation since this can be triggered from scroll - this will
+                    // then cause us to recompose when the measure result changes. We don't care
+                    // since the prefetch is best effort.
+                    val prefetchHandles = mutableListOf<LazyLayoutPrefetchState.PrefetchHandle>()
+                    val itemSizes: MutableList<Int>? =
+                        if (onPrefetchFinished == null) null else mutableListOf()
 
-                Snapshot.withoutReadObservation {
-                    val layoutInfo =
-                        if (hasLookaheadOccurred) {
-                            approachLayoutInfo
-                        } else {
-                            layoutInfoState.value
-                        }
+                    Snapshot.withoutReadObservation {
+                        val layoutInfo =
+                            if (hasLookaheadOccurred) {
+                                approachLayoutInfo
+                            } else {
+                                layoutInfoState.value
+                            }
 
-                    layoutInfo?.let { measureResult ->
-                        var completedCount = 1
-                        val itemsInLineInfo = measureResult.prefetchInfoRetriever(lineIndex)
-                        itemsInLineInfo.fastForEach { lineInfo ->
-                            val prefetchHandle =
-                                prefetchState?.schedulePrecompositionAndPremeasure(
-                                    lineInfo.first,
-                                    lineInfo.second,
-                                    executeRequestsInHighPriorityMode,
-                                ) {
-                                    var itemMainAxisItemSize = 0
-                                    repeat(placeablesCount) {
-                                        itemMainAxisItemSize +=
-                                            if (measureResult.orientation == Orientation.Vertical) {
-                                                getSize(it).height
-                                            } else {
-                                                getSize(it).width
-                                            }
-                                    }
-
-                                    itemSizes?.add(itemMainAxisItemSize)
-                                    // all items in this line were prefetched, report the size
-                                    if (completedCount == itemsInLineInfo.size) {
-                                        if (onPrefetchFinished != null && itemSizes != null) {
-                                            onPrefetchFinished.invoke(
-                                                LazyGridPrefetchResultScopeImpl(
-                                                    lineIndex,
-                                                    itemSizes,
-                                                )
-                                            )
+                        layoutInfo?.let { measureResult ->
+                            var completedCount = 1
+                            val itemsInLineInfo = measureResult.prefetchInfoRetriever(lineIndex)
+                            itemsInLineInfo.fastForEach { lineInfo ->
+                                val prefetchHandle =
+                                    prefetchState?.schedulePrecompositionAndPremeasure(
+                                        lineInfo.first,
+                                        lineInfo.second,
+                                        executeRequestsInHighPriorityMode,
+                                    ) {
+                                        var itemMainAxisItemSize = 0
+                                        repeat(placeablesCount) {
+                                            itemMainAxisItemSize +=
+                                                if (
+                                                    measureResult.orientation ==
+                                                        Orientation.Vertical
+                                                ) {
+                                                    getSize(it).height
+                                                } else {
+                                                    getSize(it).width
+                                                }
                                         }
-                                    } else {
-                                        completedCount++
-                                    }
-                                }
 
-                            if (prefetchHandle != null) {
-                                prefetchHandles.add(prefetchHandle)
+                                        itemSizes?.add(itemMainAxisItemSize)
+                                        // all items in this line were prefetched, report the size
+                                        if (completedCount == itemsInLineInfo.size) {
+                                            if (onPrefetchFinished != null && itemSizes != null) {
+                                                onPrefetchFinished.invoke(
+                                                    LazyGridPrefetchResultScopeImpl(
+                                                        lineIndex,
+                                                        itemSizes,
+                                                    )
+                                                )
+                                            }
+                                        } else {
+                                            completedCount++
+                                        }
+                                    }
+
+                                if (prefetchHandle != null) {
+                                    prefetchHandles.add(prefetchHandle)
+                                }
                             }
                         }
                     }
+                    return prefetchHandles
                 }
-                return prefetchHandles
             }
         }
-    }
 
     private val _scrollIndicatorState =
         object : ScrollIndicatorState {
