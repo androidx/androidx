@@ -41,6 +41,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.FrameGraphCoroutineScope
 import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.graph.Controller3A
+import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
 import androidx.camera.camera2.pipe.internal.FrameDistributor
 import java.lang.Class
 import javax.inject.Inject
@@ -60,6 +61,7 @@ constructor(
     @FrameGraphCoroutineScope private val frameGraphCoroutineScope: CoroutineScope,
     private val controller3A: Controller3A,
     private val frameGraphFrameCaptureQueue: FrameGraphFrameCaptureQueue,
+    private val frameCaptureQueue: FrameCaptureQueue,
 ) : FrameGraph, CameraControls3A by cameraGraph {
     init {
         // Wire up the frameStartedListener.
@@ -206,6 +208,11 @@ constructor(
     override fun toString() = cameraGraph.toString()
 
     private fun createSession(cameraGraphSession: CameraGraph.Session): FrameGraph.Session {
-        return FrameGraphSessionImpl(cameraGraphSession, frameGraphBuffers, controller3A)
+        return FrameGraphSessionImpl(
+            cameraGraphSession,
+            frameGraphBuffers,
+            controller3A,
+            frameCaptureQueue,
+        )
     }
 }
