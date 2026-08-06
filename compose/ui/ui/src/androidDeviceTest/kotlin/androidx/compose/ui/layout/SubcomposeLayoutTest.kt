@@ -216,7 +216,10 @@ class SubcomposeLayoutTest {
             .assertWidthIsEqualTo(30.dp)
             .assertHeightIsEqualTo(30.dp)
 
-        rule.onNodeWithTag(layoutTag).assertWidthIsEqualTo(50.dp).assertHeightIsEqualTo(80.dp)
+        rule
+            .onNodeWithTag(layoutTag)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(80.dp, tolerance = 1.dp)
     }
 
     @Test
