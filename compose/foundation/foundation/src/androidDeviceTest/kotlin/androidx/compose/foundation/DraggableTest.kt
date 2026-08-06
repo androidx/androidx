@@ -90,6 +90,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -2592,6 +2593,124 @@ class DraggableTest {
         rule.runOnIdle {
             assertThat(node.getParentDraggableGestureConnection()?.orientation)
                 .isEqualTo(Orientation.Horizontal)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun draggable_nestedDraggable_parentConsumesInitially_childDoesNotSteal() {
+        assumeTrue(ComposeFoundationFlags.isDraggableInitialPassConsumptionFixEnabled)
+        var parentConsumed = 0f
+        var childConsumed = 0f
+        val touchSlop = 10f
+
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box(
+                    Modifier.draggable(Orientation.Horizontal, startDragImmediately = true) { delta
+                        ->
+                        parentConsumed += delta
+                    }
+                ) {
+                    Box(
+                        Modifier.draggable(Orientation.Horizontal, startDragImmediately = false) {
+                                delta ->
+                                childConsumed += delta
+                            }
+                            .testTag(draggableBoxTag)
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            swipe(start = center, end = Offset(center.x + 100f, center.y), durationMillis = 100)
+        }
+
+        rule.runOnIdle {
+            assertThat(parentConsumed).isGreaterThan(0f)
+            assertThat(childConsumed).isEqualTo(0f)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun draggable_nestedDraggable_parentConsumesInitially_childDoesNotSteal_crossAxis() {
+        assumeTrue(ComposeFoundationFlags.isDraggableInitialPassConsumptionFixEnabled)
+        var parentConsumed = 0f
+        var childConsumed = 0f
+        val touchSlop = 10f
+
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box(
+                    Modifier.draggable(Orientation.Horizontal, startDragImmediately = true) { delta
+                        ->
+                        parentConsumed += delta
+                    }
+                ) {
+                    Box(
+                        Modifier.draggable(Orientation.Vertical, startDragImmediately = false) {
+                                delta ->
+                                childConsumed += delta
+                            }
+                            .testTag(draggableBoxTag)
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            // vertical swipe
+            down(center)
+            moveBy(Offset(0f, 100f)) // move vertically
+            moveBy(Offset(100f, 0f)) // move horizontally
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(parentConsumed).isGreaterThan(0f)
+            assertThat(childConsumed).isEqualTo(0f)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun draggable_nestedDraggable_childConsumesInitially_parentDoesNotSteal() {
+        assumeTrue(ComposeFoundationFlags.isDraggableInitialPassConsumptionFixEnabled)
+        var parentConsumed = 0f
+        var childConsumed = 0f
+        val touchSlop = 10f
+
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box(
+                    Modifier.draggable(Orientation.Horizontal, startDragImmediately = false) { delta
+                        ->
+                        parentConsumed += delta
+                    }
+                ) {
+                    Box(
+                        Modifier.draggable(Orientation.Horizontal, startDragImmediately = true) {
+                                delta ->
+                                childConsumed += delta
+                            }
+                            .testTag(draggableBoxTag)
+                            .size(100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            swipe(start = center, end = Offset(center.x + 100f, center.y), durationMillis = 100)
+        }
+
+        rule.runOnIdle {
+            assertThat(childConsumed).isGreaterThan(0f)
+            assertThat(parentConsumed).isEqualTo(0f)
         }
     }
 
