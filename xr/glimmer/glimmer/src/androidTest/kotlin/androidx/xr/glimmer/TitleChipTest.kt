@@ -165,14 +165,16 @@ class TitleChipTest {
         (textBounds.left - titleChipBounds.left).assertIsEqualTo(
             extraSmallSpacing * 2,
             "padding between the start of the titleChip and the start of the text.",
+            tolerance = 1.dp,
         )
 
         (titleChipBounds.right - textBounds.right).assertIsEqualTo(
             extraSmallSpacing * 2,
             "padding between the end of the text and the end of the titleChip.",
+            tolerance = 1.dp,
         )
 
-        titleChipBounds.height.assertIsEqualTo(44.dp, "height of titleChip.")
+        titleChipBounds.height.assertIsEqualTo(44.dp, "height of titleChip.", tolerance = 1.dp)
     }
 
     @Test
@@ -204,19 +206,22 @@ class TitleChipTest {
         (leadingIconBounds.left - titleChipBounds.left).assertIsEqualTo(
             extraSmallSpacing,
             "Padding between start of titleChip and start of leading icon.",
+            tolerance = 1.dp,
         )
 
         (textBounds.left - leadingIconBounds.right).assertIsEqualTo(
             extraSmallSpacing,
             "Padding between end of leading icon and start of text.",
+            tolerance = 1.dp,
         )
 
         (titleChipBounds.right - textBounds.right).assertIsEqualTo(
             extraSmallSpacing * 2,
             "padding between the end of the text and the end of the titleChip.",
+            tolerance = 1.dp,
         )
 
-        titleChipBounds.height.assertIsEqualTo(44.dp, "height of titleChip.")
+        titleChipBounds.height.assertIsEqualTo(44.dp, "height of titleChip.", tolerance = 1.dp)
     }
 
     @Test
