@@ -5084,6 +5084,33 @@ package androidx.compose.material3.carousel {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void HorizontalUncontainedCarousel-VUP9l70(androidx.compose.material3.carousel.CarouselState, float, androidx.compose.ui.Modifier?, float, androidx.compose.foundation.gestures.TargetedFlingBehavior?, boolean, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function4<? super androidx.compose.material3.carousel.CarouselItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class CarouselParallaxScrollEffectItemInfo {
+    ctor public CarouselParallaxScrollEffectItemInfo(float maskStart, float maskEnd, float parallax, @FloatRange(from=0.0, to=1.0) float maskProgress);
+    method @InaccessibleFromKotlin public float getMaskEnd();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getMaskProgress();
+    method @InaccessibleFromKotlin public float getMaskStart();
+    method @InaccessibleFromKotlin public float getParallax();
+    method @InaccessibleFromKotlin public float getSize();
+    property public float maskEnd;
+    property @FloatRange(from=0.0, to=1.0) public float maskProgress;
+    property public float maskStart;
+    property public float parallax;
+    property public float size;
+  }
+
+  @SuppressCompatibility public final class CarouselParallaxScrollEffectKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.material3.carousel.CarouselParallaxScrollEffectState CarouselParallaxScrollEffectState(androidx.compose.foundation.lazy.grid.LazyGridState state);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.material3.carousel.CarouselParallaxScrollEffectState CarouselParallaxScrollEffectState(androidx.compose.foundation.lazy.LazyListState state);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier carouselParallaxScrollEffect(androidx.compose.ui.Modifier, int index, androidx.compose.material3.carousel.CarouselParallaxScrollEffectState state, androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.BorderStroke? border);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier carouselParallaxScrollEffect(androidx.compose.ui.Modifier, int, androidx.compose.material3.carousel.CarouselParallaxScrollEffectState, androidx.compose.ui.graphics.Shape, androidx.compose.foundation.BorderStroke?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface CarouselParallaxScrollEffectState {
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.compose.material3.carousel.CarouselParallaxScrollEffectItemInfo calculateItemInfo(int index);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.gestures.Orientation getOrientation();
+    property public abstract androidx.compose.foundation.gestures.Orientation orientation;
+  }
+
   public final class CarouselState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor @BytecodeOnly public CarouselState(int, float, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public CarouselState(optional int currentItem, optional @FloatRange(from=-0.5, to=0.5) float currentItemOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
@@ -5107,38 +5134,6 @@ package androidx.compose.material3.carousel {
   public final class CarouselStateKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(optional int initialItem, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(int, kotlin.jvm.functions.Function0<java.lang.Integer!>, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed nonexhaustive interface MultiAspectCarouselItemDrawInfo {
-    method @InaccessibleFromKotlin public int getIndex();
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getMaskEnd();
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getMaskStart();
-    method @InaccessibleFromKotlin public float getMaxSize();
-    method @InaccessibleFromKotlin public float getMinSize();
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getParallax();
-    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getSize();
-    method @InaccessibleFromKotlin public boolean isHorizontal();
-    property public abstract int index;
-    property public abstract boolean isHorizontal;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float maskEnd;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float maskStart;
-    property public abstract float maxSize;
-    property public abstract float minSize;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float parallax;
-    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float size;
-  }
-
-  public final class MultiAspectCarouselKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo MultiAspectCarouselItemDrawInfo(int index, androidx.compose.foundation.lazy.grid.LazyGridState state);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo MultiAspectCarouselItemDrawInfo(int index, androidx.compose.foundation.lazy.LazyListState state);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void MultiAspectCarouselScope(kotlin.jvm.functions.Function1<androidx.compose.material3.carousel.MultiAspectCarouselScope,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void MultiAspectCarouselScope(kotlin.jvm.functions.Function3<? super androidx.compose.material3.carousel.MultiAspectCarouselScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-  }
-
-  public interface MultiAspectCarouselScope {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo multiAspectItemDrawInfo);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke, androidx.compose.ui.graphics.Shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo, androidx.compose.runtime.Composer?, int);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.ui.Modifier maskClip(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo multiAspectItemDrawInfo);
   }
 
 }

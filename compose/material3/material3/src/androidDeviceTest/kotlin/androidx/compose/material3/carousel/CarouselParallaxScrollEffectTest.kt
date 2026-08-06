@@ -62,36 +62,40 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class MultiAspectCarouselTest {
+class CarouselParallaxScrollEffectTest {
 
     @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
-    fun carouselRow_default() {
+    fun lazyRow_default() {
         rule.setMaterialContent(lightColorScheme()) {
-            MultiAspectCarouselScope {
-                val state = rememberLazyListState()
-                LazyRow(
-                    state = state,
-                    modifier =
-                        Modifier.width(412.dp).height(221.dp).testTag(MultiAspectCarouselTestTag),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    itemsIndexed(items) { i, item ->
-                        val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
-                        Image(
-                            painter = painterResource(id = item.imageResId),
-                            contentDescription = stringResource(item.contentDescriptionResId),
-                            modifier =
-                                Modifier.width(item.mainAxisSize)
-                                    .height(205.dp)
-                                    .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
+            val state = rememberLazyListState()
+            val effectState = remember(state) { CarouselParallaxScrollEffectState(state) }
+            LazyRow(
+                state = state,
+                modifier =
+                    Modifier.width(412.dp)
+                        .height(221.dp)
+                        .testTag(CarouselParallaxScrollEffectTestTag),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                itemsIndexed(items) { i, item ->
+                    Image(
+                        painter = painterResource(id = item.imageResId),
+                        contentDescription = stringResource(item.contentDescriptionResId),
+                        modifier =
+                            Modifier.width(item.mainAxisSize)
+                                .height(205.dp)
+                                .carouselParallaxScrollEffect(
+                                    i,
+                                    effectState,
+                                    MaterialTheme.shapes.extraLarge,
+                                ),
+                        contentScale = ContentScale.Crop,
+                    )
                 }
             }
         }
@@ -102,28 +106,31 @@ class MultiAspectCarouselTest {
     @Test
     fun horizontalGrid_singleRow() {
         rule.setMaterialContent(lightColorScheme()) {
-            MultiAspectCarouselScope {
-                val state = rememberLazyGridState()
-                LazyHorizontalGrid(
-                    rows = GridCells.Fixed(1),
-                    modifier = Modifier.requiredHeight(221.dp).testTag(MultiAspectCarouselTestTag),
-                    state = state,
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    itemsIndexed(items) { i, item ->
-                        val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
-                        Image(
-                            painter = painterResource(id = item.imageResId),
-                            contentDescription = stringResource(item.contentDescriptionResId),
-                            modifier =
-                                Modifier.width(item.mainAxisSize)
-                                    .height(205.dp)
-                                    .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
+            val state = rememberLazyGridState()
+            val effectState = remember(state) { CarouselParallaxScrollEffectState(state) }
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(1),
+                modifier =
+                    Modifier.requiredHeight(221.dp).testTag(CarouselParallaxScrollEffectTestTag),
+                state = state,
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                itemsIndexed(items) { i, item ->
+                    Image(
+                        painter = painterResource(id = item.imageResId),
+                        contentDescription = stringResource(item.contentDescriptionResId),
+                        modifier =
+                            Modifier.width(item.mainAxisSize)
+                                .height(205.dp)
+                                .carouselParallaxScrollEffect(
+                                    i,
+                                    effectState,
+                                    MaterialTheme.shapes.extraLarge,
+                                ),
+                        contentScale = ContentScale.Crop,
+                    )
                 }
             }
         }
@@ -134,28 +141,30 @@ class MultiAspectCarouselTest {
     @Test
     fun verticalGrid_twoColumns() {
         rule.setMaterialContent(lightColorScheme()) {
-            MultiAspectCarouselScope {
-                val state = rememberLazyGridState()
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.testTag(MultiAspectCarouselTestTag),
-                    state = state,
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    itemsIndexed(items) { i, item ->
-                        val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
-                        Image(
-                            painter = painterResource(id = item.imageResId),
-                            contentDescription = stringResource(item.contentDescriptionResId),
-                            modifier =
-                                Modifier.width(item.mainAxisSize)
-                                    .height(300.dp)
-                                    .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
+            val state = rememberLazyGridState()
+            val effectState = remember(state) { CarouselParallaxScrollEffectState(state) }
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.testTag(CarouselParallaxScrollEffectTestTag),
+                state = state,
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                itemsIndexed(items) { i, item ->
+                    Image(
+                        painter = painterResource(id = item.imageResId),
+                        contentDescription = stringResource(item.contentDescriptionResId),
+                        modifier =
+                            Modifier.width(item.mainAxisSize)
+                                .height(300.dp)
+                                .carouselParallaxScrollEffect(
+                                    i,
+                                    effectState,
+                                    MaterialTheme.shapes.extraLarge,
+                                ),
+                        contentScale = ContentScale.Crop,
+                    )
                 }
             }
         }
@@ -165,9 +174,12 @@ class MultiAspectCarouselTest {
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
         rule
-            .onNodeWithTag(MultiAspectCarouselTestTag)
+            .onNodeWithTag(CarouselParallaxScrollEffectTestTag)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "multi_aspect_carousel_$goldenIdentifier")
+            .assertAgainstGolden(
+                screenshotRule,
+                "carousel_parallax_scroll_effect_$goldenIdentifier",
+            )
     }
 
     private val items =
@@ -212,4 +224,4 @@ class MultiAspectCarouselTest {
     )
 }
 
-internal const val MultiAspectCarouselTestTag = "multi_aspect_carousel"
+internal const val CarouselParallaxScrollEffectTestTag = "carousel_parallax_scroll_effect_tag"
