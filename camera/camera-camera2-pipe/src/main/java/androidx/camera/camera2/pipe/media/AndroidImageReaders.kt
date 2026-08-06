@@ -85,7 +85,13 @@ internal constructor(
         // acquireLatestImage will acquire the most recent image and internally close any image that
         // is older, this call ensures any pending images are closed before calling
         // discardFreeBuffers to ensure we release as much memory as possible.
-        imageReader.acquireLatestImage()?.close()
+        try {
+            imageReader.acquireLatestImage()?.close()
+        } catch (_: IllegalStateException) {
+            Log.debug {
+                "Failed to acquireLatestImage for $this. Expected if invoked after close()."
+            }
+        }
 
         discardFreeBuffers()
     }

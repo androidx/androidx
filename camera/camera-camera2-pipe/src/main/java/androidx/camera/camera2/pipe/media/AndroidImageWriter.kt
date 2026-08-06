@@ -60,8 +60,13 @@ private constructor(
     }
 
     override fun dequeueInputImage(): ImageWrapper {
-        val image = imageWriter.dequeueInputImage()
-        return AndroidImage(image)
+        return try {
+            val image = imageWriter.dequeueInputImage()
+            AndroidImage(image)
+        } catch (e: IllegalStateException) {
+            Log.warn(e) { "Failed to dequeueImage from $this" }
+            throw e
+        }
     }
 
     override fun setOnImageReleasedListener(
