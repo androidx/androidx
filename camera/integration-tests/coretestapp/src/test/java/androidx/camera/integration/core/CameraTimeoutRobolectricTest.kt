@@ -23,21 +23,26 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.util.Size
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -66,6 +71,20 @@ class CameraTimeoutRobolectricTest {
 
     private lateinit var shadowAgent: ShadowCameraAgent
 
+    private lateinit var cameraThread: HandlerThread
+    private lateinit var cameraHandler: Handler
+    private lateinit var cameraExecutor: Executor
+
+    private lateinit var lightweightThread: HandlerThread
+    private lateinit var lightweightHandler: Handler
+    private lateinit var lightweightExecutor: Executor
+
+    private lateinit var blockingThread: HandlerThread
+    private lateinit var blockingHandler: Handler
+    private lateinit var blockingExecutor: Executor
+
+    private lateinit var customCameraPipe: CameraPipe
+
     companion object {
         const val FAKE_CAMERA_ID = "0"
         private val TEST_CAMERA_FRAME_SIZE: Size = Size(1280, 720)
@@ -93,10 +112,48 @@ class CameraTimeoutRobolectricTest {
             )
         ShadowLog.stream = System.out
 
-        // Configure CameraX with default config (which uses CameraPipe under the hood)
-        // and set the custom retry timeout.
+        cameraThread = HandlerThread("CameraThread")
+        cameraThread.start()
+        cameraHandler = Handler(cameraThread.looper)
+        cameraExecutor = Executor { cameraHandler.post(it) }
+
+        lightweightThread = HandlerThread("LightweightThread")
+        lightweightThread.start()
+        lightweightHandler = Handler(lightweightThread.looper)
+        lightweightExecutor = Executor { lightweightHandler.post(it) }
+
+        blockingThread = HandlerThread("BlockingThread")
+        blockingThread.start()
+        blockingHandler = Handler(blockingThread.looper)
+        blockingExecutor = Executor { blockingHandler.post(it) }
+
+        val cameraPipeConfig =
+            CameraPipe.Config(
+                appContext = context,
+                threadConfig =
+                    CameraPipe.ThreadConfig(
+                        defaultLightweightExecutor = lightweightExecutor,
+                        defaultBackgroundExecutor = blockingExecutor,
+                        defaultBlockingExecutor = blockingExecutor,
+                        defaultCameraExecutor = cameraExecutor,
+                        defaultCameraHandler = cameraHandler,
+                    ),
+                cameraInteropConfig =
+                    CameraPipe.CameraInteropConfig(
+                        cameraOpenRetryMaxTimeout = CUSTOM_TIMEOUT_MS.milliseconds
+                    ),
+            )
+        customCameraPipe = CameraPipe(cameraPipeConfig)
+
+        val baseConfig =
+            Camera2Config.from(
+                sharedCameraPipe = customCameraPipe,
+                sharedAppContext = context,
+                sharedThreadConfig =
+                    CameraThreadConfig.create(lightweightExecutor, lightweightHandler),
+            )
         val cameraXConfig =
-            CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
+            CameraXConfig.Builder.fromConfig(baseConfig)
                 .apply { setCameraOpenRetryMaxTimeoutInMillisWhileResuming(CUSTOM_TIMEOUT_MS) }
                 .build()
 
@@ -105,7 +162,7 @@ class CameraTimeoutRobolectricTest {
             "Configured timeout: ${cameraXConfig.getCameraOpenRetryMaxTimeoutInMillisWhileResuming()}",
         )
 
-        shadowAgent = ShadowCameraAgent(mainThreadHandler)
+        shadowAgent = ShadowCameraAgent(cameraHandler)
         ShadowCameraBridge.agent = shadowAgent
 
         cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -115,13 +172,13 @@ class CameraTimeoutRobolectricTest {
         ProcessCameraProvider.configureInstance(cameraXConfig)
         val future = ProcessCameraProvider.getInstance(context)
         while (!future.isDone) {
-            ShadowLooper.idleMainLooper()
+            flushLoopers()
         }
         cameraProvider = future.get()
 
         fakeLifecycleOwner = FakeLifecycleOwner()
         fakeLifecycleOwner.startAndResume()
-        ShadowLooper.idleMainLooper()
+        flushLoopers()
     }
 
     @After
@@ -129,15 +186,31 @@ class CameraTimeoutRobolectricTest {
         val shutdownFuture = cameraProvider?.shutdownAsync()
         if (shutdownFuture != null) {
             while (!shutdownFuture.isDone) {
-                ShadowLooper.idleMainLooper(10, TimeUnit.MILLISECONDS)
+                flushLoopers()
                 runBlocking { delay(10) }
             }
             shutdownFuture.get()
         }
         shadowAgent.closeAllOpenDevices()
-        ShadowLooper.idleMainLooper()
+        flushLoopers()
+        cameraThread.quitSafely()
+        lightweightThread.quitSafely()
+        blockingThread.quitSafely()
         ShadowCameraBridge.agent = null
         ArchTaskExecutor.getInstance().setDelegate(null)
+    }
+
+    private fun flushLoopers() {
+        flushLooper(cameraThread.looper)
+        flushLooper(lightweightThread.looper)
+        flushLooper(blockingThread.looper)
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun flushLooper(looper: Looper?) {
+        if (looper != null && looper.thread.isAlive) {
+            shadowOf(looper).idle()
+        }
     }
 
     @Test
@@ -159,21 +232,17 @@ class CameraTimeoutRobolectricTest {
 
         // Wait for some time to allow retries to start and exceed the timeout (1s).
         // We wait 2s of real and virtual time.
-        Log.d(TAG, "Waiting for 2s...")
         waitRealAndVirtualTime(2000)
 
         val attemptsAfterTimeout = shadowAgent.openAttempts
-        Log.d(TAG, "Attempts after timeout: $attemptsAfterTimeout")
 
         // It should have tried at least 2 times (initial + 1 retry).
         assertThat(attemptsAfterTimeout).isAtLeast(2)
 
         // Wait another 2s to verify it doesn't retry anymore.
-        Log.d(TAG, "Waiting for another 2s...")
         waitRealAndVirtualTime(2000)
 
         val attemptsLater = shadowAgent.openAttempts
-        Log.d(TAG, "Attempts later: $attemptsLater")
 
         // The number of attempts should not have increased.
         assertThat(attemptsLater).isEqualTo(attemptsAfterTimeout)
@@ -188,6 +257,9 @@ class CameraTimeoutRobolectricTest {
         val steps = ms / 10
         for (i in 1..steps) {
             ShadowLooper.idleMainLooper(10, TimeUnit.MILLISECONDS)
+            flushLooper(cameraThread.looper)
+            flushLooper(lightweightThread.looper)
+            flushLooper(blockingThread.looper)
             runBlocking { delay(10) }
         }
     }
