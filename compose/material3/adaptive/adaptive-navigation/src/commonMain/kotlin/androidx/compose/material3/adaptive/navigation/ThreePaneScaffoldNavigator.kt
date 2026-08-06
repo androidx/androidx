@@ -35,6 +35,7 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.calculateThreePaneScaffoldValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -322,27 +323,37 @@ internal fun <T> rememberThreePaneScaffoldNavigator(
     adaptStrategies: ThreePaneScaffoldAdaptStrategies,
     isDestinationHistoryAware: Boolean,
     initialDestinationHistory: List<ThreePaneScaffoldDestinationItem<T>>,
-): ThreePaneScaffoldNavigator<T> =
-    rememberSaveable(
-            saver =
-                DefaultThreePaneScaffoldNavigator.saver(
-                    scaffoldDirective,
-                    adaptStrategies,
-                    isDestinationHistoryAware,
+): ThreePaneScaffoldNavigator<T> {
+    val navigator =
+        rememberSaveable(
+                saver =
+                    DefaultThreePaneScaffoldNavigator.saver(
+                        scaffoldDirective,
+                        adaptStrategies,
+                        isDestinationHistoryAware,
+                    )
+            ) {
+                DefaultThreePaneScaffoldNavigator(
+                    initialDestinationHistory = initialDestinationHistory,
+                    initialScaffoldDirective = scaffoldDirective,
+                    initialAdaptStrategies = adaptStrategies,
+                    initialIsDestinationHistoryAware = isDestinationHistoryAware,
                 )
-        ) {
-            DefaultThreePaneScaffoldNavigator(
-                initialDestinationHistory = initialDestinationHistory,
-                initialScaffoldDirective = scaffoldDirective,
-                initialAdaptStrategies = adaptStrategies,
-                initialIsDestinationHistoryAware = isDestinationHistoryAware,
-            )
+            }
+            .apply {
+                this.scaffoldDirective = scaffoldDirective
+                this.adaptStrategies = adaptStrategies
+                this.isDestinationHistoryAware = isDestinationHistoryAware
+            }
+
+    LaunchedEffect(scaffoldDirective, adaptStrategies, isDestinationHistoryAware) {
+        val targetValue = navigator.scaffoldValue
+        if (navigator.scaffoldState.targetState != targetValue) {
+            navigator.scaffoldState.snapTo(targetValue)
         }
-        .apply {
-            this.scaffoldDirective = scaffoldDirective
-            this.adaptStrategies = adaptStrategies
-            this.isDestinationHistoryAware = isDestinationHistoryAware
-        }
+    }
+    return navigator
+}
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal class DefaultThreePaneScaffoldNavigator<T>(
