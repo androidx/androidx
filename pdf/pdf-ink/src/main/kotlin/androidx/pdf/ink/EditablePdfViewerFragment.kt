@@ -65,8 +65,8 @@ import androidx.pdf.ink.util.toInkBrush
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
-import androidx.pdf.view.annotation.AnnotationToolbar
-import androidx.pdf.view.annotation.draganddrop.ToolbarCoordinator
+import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.view.annotation.draganddrop.AnnotationToolbarCoordinatorView
 import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
@@ -212,9 +212,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     private lateinit var wetStrokesViewTouchHandler: WetStrokesViewTouchHandler
     private lateinit var pdfContentLayoutTouchListener: PdfContentLayoutTouchListener
 
-    @VisibleForTesting internal lateinit var annotationToolbar: AnnotationToolbar
+    @VisibleForTesting internal lateinit var annotationToolbar: AnnotationToolbarView
 
-    private lateinit var toolbarCoordinator: ToolbarCoordinator
+    private lateinit var toolbarCoordinator: AnnotationToolbarCoordinatorView
     private lateinit var pdfLoaderHandle: PdfSandboxHandle
 
     private lateinit var textBoundsProvider: TextBoundsProvider
@@ -327,9 +327,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
             }
         annotationToolbar =
             inflater.inflate(PdfR.layout.annotation_toolbar_layout, null, false)
-                as AnnotationToolbar
+                as AnnotationToolbarView
         toolbarCoordinator =
-            ToolbarCoordinator(requireContext()).apply {
+            AnnotationToolbarCoordinatorView(requireContext()).apply {
                 layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             }
 
@@ -422,7 +422,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    private fun setupToolbarCoordinator(toolbar: AnnotationToolbar) {
+    private fun setupToolbarCoordinator(toolbar: AnnotationToolbarView) {
         toolbarCoordinator.apply { attachToolbar(toolbar) }
     }
 
@@ -595,7 +595,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     private fun setupAnnotationToolbar() {
         annotationToolbar.addOnLayoutChangeListener(toolbarLayoutChangeListener)
         annotationToolbar.setAnnotationToolbarListener(
-            object : AnnotationToolbar.AnnotationToolbarListener {
+            object : AnnotationToolbarView.AnnotationToolbarListener {
                 override fun onToolChanged(toolInfo: AnnotationToolInfo) {
                     documentViewModel.setCurrentToolInfo(toolInfo)
                 }
@@ -660,10 +660,10 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     }
 
     /**
-     * Creates a [android.graphics.Path] that encapsulate [AnnotationToolbar] and set it as a
+     * Creates a [android.graphics.Path] that encapsulate [AnnotationToolbarView] and set it as a
      * [InProgressStrokesView.maskPath] where no ink should be visible.
      *
-     * @return [Path] surrounding [AnnotationToolbar].
+     * @return [Path] surrounding [AnnotationToolbarView].
      */
     private fun createToolbarMaskPath(): Path {
         val toolbarLocation = IntArray(2)

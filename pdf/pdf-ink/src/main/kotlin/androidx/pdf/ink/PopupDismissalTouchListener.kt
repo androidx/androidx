@@ -20,17 +20,17 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.pdf.ExperimentalPdfApi
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 
 /**
  * A [View.OnTouchListener] responsible for detecting touches outside of the toolbar.
  *
- * If a popup on [AnnotationToolbar] is displayed, this listener consumes the touch event and
+ * If a popup on [AnnotationToolbarView] is displayed, this listener consumes the touch event and
  * dismisses the popup, ensuring that the touch does not pass through to underlying views
  * (preventing accidental drawing or scrolling).
  */
 @OptIn(ExperimentalPdfApi::class)
-internal class PopupDismissalTouchListener(private val annotationToolbar: AnnotationToolbar) :
+internal class PopupDismissalTouchListener(private val annotationToolbar: AnnotationToolbarView) :
     View.OnTouchListener {
 
     private var downX = 0f
