@@ -184,7 +184,7 @@ class GlimmerLazyListInputInteroperabilityTest(orientation: Orientation) :
         rule.onListItem(0).assertIsFocused()
 
         // Touch scroll to move Item-0 fully out of viewport
-        rule.onNodeWithTag(LIST_TEST_TAG).touchScrollMainAxisBy(51.dp)
+        rule.onNodeWithTag(LIST_TEST_TAG).touchScrollMainAxisBy(52.dp)
         rule.waitForIdle()
 
         // Focus is still on Item-0 but not being displayed.
@@ -282,7 +282,7 @@ class GlimmerLazyListInputInteroperabilityTest(orientation: Orientation) :
         rule.onListItem(0).assertIsFocused()
 
         // Direct scroll Item-0 out of view. Focus remains on Item-0.
-        rule.onNodeWithTag(LIST_TEST_TAG).touchScrollMainAxisBy(51.dp)
+        rule.onNodeWithTag(LIST_TEST_TAG).touchScrollMainAxisBy(52.dp)
         rule.waitForIdle()
         rule.onListItem(0).assertIsFocused()
         rule.onListItem(0).assertIsNotDisplayed()
