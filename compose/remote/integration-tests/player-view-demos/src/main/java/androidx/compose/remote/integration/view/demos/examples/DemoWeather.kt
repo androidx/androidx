@@ -15,14 +15,13 @@
  */
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to FitBox, RemoteCollapsibleColumn, RemoteCollapsibleRow, RemoteText, background,
+) // Referring to RemoteCollapsibleColumn, RemoteCollapsibleRow,
 
-// height, heightIn, width, widthIn
+// RemoteText, background, height, heightIn, width, widthIn
 
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.BitmapFactory
-import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -30,6 +29,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -71,7 +71,10 @@ fun WeatherDemo() {
             // .background(Color(219, 247, 239).rc)
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
         ) {
-            FitBox(RemoteModifier.fillMaxSize(), verticalArrangement = RemoteArrangement.Top) {
+            RemoteFitBox(
+                RemoteModifier.fillMaxSize(),
+                verticalArrangement = RemoteArrangement.Top,
+            ) {
                 val res = LocalResources.current
                 val image = remember {
                     BitmapFactory.decodeResource(
@@ -258,7 +261,7 @@ fun WeatherDay(day: String, precipitation: String, image: Int, temperature: Stri
     val image = remember {
         BitmapFactory.decodeResource(res, image, BitmapFactory.Options()).asImageBitmap()
     }
-    FitBox(modifier = RemoteModifier.fillMaxWidth()) {
+    RemoteFitBox(modifier = RemoteModifier.fillMaxWidth()) {
         RemoteRow(
             modifier = RemoteModifier.fillMaxWidth().widthIn(min = 200.rdp),
             verticalAlignment = RemoteAlignment.CenterVertically,

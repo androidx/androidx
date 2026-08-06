@@ -24,12 +24,12 @@ import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInf
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
@@ -130,13 +130,12 @@ class RemoteComposeTest {
     }
 
     @Test
-    fun testFitBoxV2() = runTest {
+    fun testRemoteFitBoxV2() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
-                FitBox { RemoteText(text = "Fit Content".rs) }
+                RemoteFitBox { RemoteText(text = "Fit Content".rs) }
             }
-
         assertNotNull(document)
         assertTrue(document.bytes.isNotEmpty())
     }
