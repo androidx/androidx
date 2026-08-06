@@ -123,6 +123,7 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.truth)
+    testImplementation(project(":camera:camera-camera2-pipe"))
 
     // Transitive dependencies
     implementation 'androidx.activity:activity:1.2.3'
