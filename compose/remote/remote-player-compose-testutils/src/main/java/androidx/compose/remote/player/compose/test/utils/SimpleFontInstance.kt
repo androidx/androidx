@@ -16,14 +16,24 @@
 
 package androidx.compose.remote.player.compose.test.utils
 
+import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.compose.remote.player.core.platform.FontInstance
 
 public class SimpleFontInstance(private val typeface: Typeface) : FontInstance {
     override fun getTypeface(): Typeface = typeface
 
-    override fun applyVariationSettings(tags: Array<String>, values: FloatArray): Typeface =
-        typeface
+    override fun applyVariationSettings(tags: Array<String>, values: FloatArray): Typeface {
+        val sb = StringBuilder()
+        for (i in tags.indices) {
+            if (i > 0) sb.append(", ")
+            sb.append("'").append(tags[i]).append("' ").append(values[i])
+        }
+        val paint = Paint()
+        paint.typeface = typeface
+        paint.fontVariationSettings = sb.toString()
+        return paint.typeface ?: typeface
+    }
 
     override fun setOnLoadedListener(listener: Runnable) {
         // No-op
