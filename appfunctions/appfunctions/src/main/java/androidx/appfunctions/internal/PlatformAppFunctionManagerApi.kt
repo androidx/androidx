@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.internal
 
+import android.app.appfunctions.AppFunctionActivityId
 import android.app.appfunctions.AppFunctionManager as PlatformAppFunctionManager
 import android.app.appfunctions.AppFunctionRegistration
 import android.content.Context
@@ -23,6 +24,7 @@ import android.os.Build
 import android.os.CancellationSignal
 import android.os.OutcomeReceiver
 import androidx.annotation.RequiresApi
+import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionException
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DEFAULT
@@ -96,6 +98,43 @@ internal class PlatformAppFunctionManagerApi(
                         cont.resumeWithException(
                             applyMissingRuntimeMetadataExceptionFix(functionId, error)
                         )
+                    }
+                },
+            )
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    override suspend fun getAppFunctionActivityStates(
+        activityIds: Set<AppFunctionActivityId>
+    ): List<AppFunctionActivityState> {
+        return suspendCancellableCoroutine { cont ->
+            appFunctionManager.getAppFunctionActivityStates(
+                activityIds,
+                Runnable::run,
+                object :
+                    OutcomeReceiver<
+                        List<android.app.appfunctions.AppFunctionActivityState>,
+                        Exception,
+                    > {
+                    override fun onResult(
+                        result: List<android.app.appfunctions.AppFunctionActivityState>?
+                    ) {
+                        if (result == null) {
+                            cont.resumeWithException(IllegalStateException("Something went wrong"))
+                        } else {
+                            cont.resume(
+                                result.map {
+                                    AppFunctionActivityState.fromPlatformAppFunctionActivityState(
+                                        it
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    override fun onError(error: Exception) {
+                        cont.resumeWithException(error)
                     }
                 },
             )

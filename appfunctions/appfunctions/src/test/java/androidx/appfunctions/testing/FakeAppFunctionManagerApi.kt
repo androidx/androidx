@@ -42,4 +42,8 @@ class FakeAppFunctionManagerApi : AppFunctionManagerApi {
     override fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration = throw UnsupportedOperationException()
+
+    override suspend fun getAppFunctionActivityStates(
+        activityIds: Set<android.app.appfunctions.AppFunctionActivityId>
+    ): List<androidx.appfunctions.AppFunctionActivityState> = throw UnsupportedOperationException()
 }

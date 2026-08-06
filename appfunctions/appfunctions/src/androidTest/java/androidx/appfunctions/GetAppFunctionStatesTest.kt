@@ -20,6 +20,7 @@ import android.Manifest
 import android.app.UiAutomation
 import android.content.Context
 import android.os.Build
+import android.util.ArraySet
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionNames
 import androidx.appfunctions.internal.runWithActivityAppFunctionManager
@@ -307,6 +308,49 @@ class GetAppFunctionStatesTest {
                         )
                     )
                     .isEqualTo(expectedResult)
+            } finally {
+                registration.unregister()
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun getAppFunctionStates_registerFromActivity_getAppFunctionActivityStateWithSameId_succeeds() {
+        val functionId =
+            AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+        val functionName = AppFunctionName("androidx.appfunctions.test", functionId)
+        val expectedResult = "self_execution_result"
+
+        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+            val callbackAppFunction = CallbackAppFunction { _, _, callback ->
+                callback.accept(createReturnStringResponse(expectedResult))
+            }
+
+            val registration =
+                activityAppFunctionManager.registerAppFunction(
+                    functionId,
+                    activity.mainExecutor,
+                    callbackAppFunction,
+                )
+
+            try {
+                val state = appFunctionManager.getAppFunctionStates(listOf(functionName)).single()
+                assertThat(state.isEnabled).isTrue()
+                assertThat(state.activityIds).isNotNull()
+                assertThat(state.activityIds).hasSize(1)
+
+                val activityState =
+                    appFunctionManager
+                        .getAppFunctionActivityStates(ArraySet(state.activityIds))
+                        .single()
+                assertThat(activityState)
+                    .isEqualTo(
+                        AppFunctionActivityState(
+                            state.activityIds!!.single(),
+                            ArraySet(setOf(functionName)),
+                        )
+                    )
             } finally {
                 registration.unregister()
             }
