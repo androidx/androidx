@@ -176,7 +176,18 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     override fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
-        throw UnsupportedOperationException("Not implemented")
+        throw UnsupportedOperationException(
+            "Only supported on SDK 37+ which does not have extensions lib"
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    override suspend fun getAppFunctionActivityStates(
+        activityIds: Set<android.app.appfunctions.AppFunctionActivityId>
+    ): List<androidx.appfunctions.AppFunctionActivityState> {
+        throw UnsupportedOperationException(
+            "Only supported on SDK 37+ which does not have extensions lib"
+        )
     }
 
     @ExtensionAppFunctionManager.EnabledState
