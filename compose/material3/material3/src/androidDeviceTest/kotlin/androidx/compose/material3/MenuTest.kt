@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isPopup
@@ -172,5 +173,35 @@ class MenuTest {
         rule.onNodeWithTag("MenuItem").performClick()
 
         rule.runOnIdle { assertThat(clicked).isTrue() }
+    }
+
+    @Test
+    fun dropdownMenuItem_noLeadingIcon_trailingIconPosition() {
+        rule.setContent {
+            DropdownMenuItem(
+                text = { Box(Modifier.size(40.dp).testTag("Text")) },
+                trailingIcon = { Box(Modifier.size(20.dp).testTag("TrailingIcon")) },
+                onClick = {},
+                modifier = Modifier.testTag("MenuItem"),
+            )
+        }
+
+        val itemBounds = rule.onNodeWithTag("MenuItem").getUnclippedBoundsInRoot()
+        val textBounds =
+            rule.onNodeWithTag("Text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val trailingIconBounds =
+            rule.onNodeWithTag("TrailingIcon", useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        // Text starts near the beginning of the item
+        assertThat(textBounds.left.value).isLessThan(trailingIconBounds.left.value)
+        // Trailing icon is placed at the end of the item (right edge matches item's right edge
+        // minus padding)
+        val horizontalPadding =
+            MenuDefaults.DropdownMenuSelectableItemContentPadding.calculateLeftPadding(
+                androidx.compose.ui.unit.LayoutDirection.Ltr
+            )
+        assertThat(trailingIconBounds.right.value)
+            .isWithin(2f)
+            .of(itemBounds.right.value - horizontalPadding.value - 4.dp.value)
     }
 }

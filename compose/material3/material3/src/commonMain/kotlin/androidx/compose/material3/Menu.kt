@@ -1866,6 +1866,16 @@ private fun DropdownMenuItemContent(
     val hasLeadingIcon = leadingIcon != null || selectedLeadingIcon != null
     val hasTrailingContent = trailingContent != null
 
+    val horizontalArrangement =
+        if (horizontalArrangement is MenuArrangement) {
+            MenuDefaults.itemHorizontalArrangement(
+                hasLeadingIcon = hasLeadingIcon,
+                hasTrailingIcon = hasTrailingContent,
+            )
+        } else {
+            horizontalArrangement
+        }
+
     Surface(
         selected = selected,
         onClick = onClick,
@@ -2158,11 +2168,21 @@ private fun WrappedLeadingIcon(content: @Composable BoxScope.() -> Unit) {
 internal val MenuVerticalMargin
     get() = 48.dp
 
-internal class MenuArrangement(val leadingSpacing: Dp, val trailingSpacing: Dp) :
-    Arrangement.Horizontal {
+internal class MenuArrangement(
+    val leadingSpacing: Dp,
+    val trailingSpacing: Dp,
+    val hasLeadingIcon: Boolean = true,
+    val hasTrailingIcon: Boolean = true,
+) : Arrangement.Horizontal {
     override val spacing = (leadingSpacing + trailingSpacing) / 2
 
     constructor(spacing: Dp) : this(spacing, spacing)
+
+    constructor(
+        spacing: Dp,
+        hasLeadingIcon: Boolean,
+        hasTrailingIcon: Boolean,
+    ) : this(spacing, spacing, hasLeadingIcon, hasTrailingIcon)
 
     override fun Density.arrange(
         totalSize: Int,
@@ -2172,17 +2192,14 @@ internal class MenuArrangement(val leadingSpacing: Dp, val trailingSpacing: Dp) 
     ) {
         if (sizes.isEmpty()) return
         val spacing1Px = leadingSpacing.roundToPx()
-        val spacing2Px = trailingSpacing.roundToPx()
 
         sizes.forEachIndexed { index, size ->
             val currentX =
-                when (index) {
-                    0 -> 0
-                    1 -> {
-                        val actualSpacing = if (sizes[0] > 0) spacing1Px else spacing2Px
-                        sizes[0] + actualSpacing
-                    }
-                    2 -> totalSize - size
+                when {
+                    index == 0 -> 0
+                    index == 1 && hasLeadingIcon -> sizes[0] + spacing1Px
+                    index == 1 && !hasLeadingIcon && hasTrailingIcon -> totalSize - size
+                    index == 2 -> totalSize - size
                     else -> 0
                 }
 
