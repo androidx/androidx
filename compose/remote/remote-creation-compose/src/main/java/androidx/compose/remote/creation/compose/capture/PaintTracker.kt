@@ -246,14 +246,15 @@ internal class PaintTracker {
             when (targetShader) {
                 is RemoteShader -> {
                     targetShader.apply(creationState, paintBundle)
-                    if (usingShaderMatrix || targetShader.remoteMatrix3x3 != null) {
-                        val remoteMatrix3x3 = targetShader.remoteMatrix3x3
-                        if (remoteMatrix3x3 != null) {
+                    val remoteMatrix3x3 = targetShader.remoteMatrix3x3
+                    when {
+                        !remoteMatrix3x3.isIdentity -> {
                             paintBundle.setShaderMatrix(
                                 remoteMatrix3x3.getFloatIdForCreationState(creationState)
                             )
                             usingShaderMatrix = true
-                        } else {
+                        }
+                        usingShaderMatrix -> {
                             paintBundle.setShaderMatrix(0f)
                             usingShaderMatrix = false
                         }
