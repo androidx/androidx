@@ -555,7 +555,7 @@ private fun RemoteButtonImpl(
 public object RemoteButtonDefaults {
     /** Recommended [RemoteRoundedCornerShape] for [RemoteButton]. */
     public val shape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(16.rdp)
+        get() = RemoteRoundedCornerShape(26.rdp)
 
     /** Recommended [RemoteRoundedCornerShape] for [RemoteCompactButton]. */
     public val compactButtonShape: RemoteRoundedCornerShape
