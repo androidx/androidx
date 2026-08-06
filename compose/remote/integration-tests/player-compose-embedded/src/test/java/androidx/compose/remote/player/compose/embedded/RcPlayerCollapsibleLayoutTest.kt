@@ -69,21 +69,21 @@ class RcPlayerCollapsibleLayoutTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "A".rs }
-                            .priority(10f)
+                            .collapsiblePriority(10f)
                             .size(100.rdp, 40.rdp)
                             .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
-                            .priority(1f)
+                            .collapsiblePriority(1f)
                             .size(100.rdp, 40.rdp)
                             .background(Color(0xFF00AA00).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "C".rs }
-                            .priority(5f)
+                            .collapsiblePriority(5f)
                             .size(100.rdp, 40.rdp)
                             .background(Color(0xFF0000AA).rc)
                 )
@@ -114,14 +114,14 @@ class RcPlayerCollapsibleLayoutTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "A".rs }
-                            .priority(2f)
+                            .collapsiblePriority(2f)
                             .size(100.rdp, 40.rdp)
                             .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
-                            .priority(1f)
+                            .collapsiblePriority(1f)
                             .size(100.rdp, 40.rdp)
                             .background(Color(0xFF00AA00).rc)
                 )
@@ -145,21 +145,21 @@ class RcPlayerCollapsibleLayoutTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "A".rs }
-                            .priority(10f)
+                            .collapsiblePriority(10f)
                             .size(40.rdp, 100.rdp)
                             .background(Color(0xFFAA0000).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
-                            .priority(1f)
+                            .collapsiblePriority(1f)
                             .size(40.rdp, 100.rdp)
                             .background(Color(0xFF00AA00).rc)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "C".rs }
-                            .priority(5f)
+                            .collapsiblePriority(5f)
                             .size(40.rdp, 100.rdp)
                             .background(Color(0xFF0000AA).rc)
                 )
@@ -237,13 +237,13 @@ class RcPlayerCollapsibleLayoutTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "A".rs }
-                            .priority(10f)
+                            .collapsiblePriority(10f)
                             .size(100.rdp, 45.rdp)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
-                            .priority(1f)
+                            .collapsiblePriority(1f)
                             .size(100.rdp, 45.rdp)
                 )
             }
@@ -266,13 +266,13 @@ class RcPlayerCollapsibleLayoutTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "A".rs }
-                            .priority(10f)
+                            .collapsiblePriority(10f)
                             .size(100.rdp, 45.rdp)
                 )
                 RemoteBox(
                     modifier =
                         RemoteModifier.semantics { contentDescription = "B".rs }
-                            .priority(1f)
+                            .collapsiblePriority(1f)
                             .size(100.rdp, 45.rdp)
                 )
             }
