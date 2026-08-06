@@ -24,8 +24,10 @@ import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintChanges
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.AndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
@@ -457,6 +459,69 @@ class PaintTrackerTest {
         assertThat(changes.mColor).isEqualTo(Color.Red.toArgb())
     }
 
+    @Test
+    fun testShaderMatrix_identityMatrix_noShaderMatrixSet() {
+        val paint = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.mShaderMatrix).isNull()
+    }
+
+    @Test
+    fun testShaderMatrix_nonIdentityMatrix_setsShaderMatrix() {
+        val paint = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createRotate(45f.rf)) }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.mShaderMatrix).isNotNull()
+        assertThat(changes.mShaderMatrix).isNotEqualTo(0f)
+    }
+
+    @Test
+    fun testShaderMatrix_transitionFromNonIdentityToIdentity_resetsShaderMatrix() {
+        val paint1 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createRotate(45f.rf)) }
+        val bundle1 = PaintBundle()
+        tracker.updateWithPaint(paint1, bundle1, recordingCanvas)
+
+        val paint2 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val bundle2 = PaintBundle()
+        tracker.updateWithPaint(paint2, bundle2, recordingCanvas)
+
+        val changes = TestPaintChanges()
+        bundle2.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.mShaderMatrix).isEqualTo(0f)
+    }
+
+    @Test
+    fun testShaderMatrix_transitionFromIdentityToIdentity_doesNotSetShaderMatrix() {
+        val paint1 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val bundle1 = PaintBundle()
+        tracker.updateWithPaint(paint1, bundle1, recordingCanvas)
+
+        val paint2 = RemotePaint { shader = DummyShader(RemoteMatrix3x3.createIdentity()) }
+        val bundle2 = PaintBundle()
+        tracker.updateWithPaint(paint2, bundle2, recordingCanvas)
+
+        val changes = TestPaintChanges()
+        bundle2.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.mShaderMatrix).isNull()
+    }
+
+    private class DummyShader(override var remoteMatrix3x3: RemoteMatrix3x3) : RemoteShader() {
+        override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
+            paintBundle.setShader(1)
+        }
+    }
+
     // Helper classes for verification
     class TestPaintChanges : PaintChanges {
         var mColor: Int = 0
@@ -534,9 +599,13 @@ class PaintTrackerTest {
 
         override fun setAntiAlias(aa: Boolean) {}
 
-        override fun setShaderMatrix(matrixId: Float) {}
+        var mShaderMatrix: Float? = null
 
         override fun setColorFilter(color: Int, mode: Int) {}
+
+        override fun setShaderMatrix(matrixId: Float) {
+            this.mShaderMatrix = matrixId
+        }
 
         override fun clear(mask: Long) {}
 

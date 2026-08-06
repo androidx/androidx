@@ -24,6 +24,11 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
+/**
+ * Creates a solid color brush.
+ *
+ * @param color color to apply
+ */
 @Stable
 public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteBrush =
     RemoteSolidColor(color)
@@ -32,17 +37,8 @@ public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteBrush =
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSolidColor(public val color: RemoteColor) : RemoteBrush() {
 
-    override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
-        throw UnsupportedOperationException(
-            "SolidColor not supported for Shader, use Color directly"
-        )
-    }
-
     override fun RemoteStateScope.applyTo(paint: RemotePaint, size: RemoteSize) {
         paint.color = color
         paint.shader = null
     }
-
-    override val hasShader: Boolean
-        get() = false
 }

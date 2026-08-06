@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -23,7 +22,6 @@ import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 
 /** Represents a 3x3 transformation matrix. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteMatrix3x3
 internal constructor(
     private val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
@@ -72,6 +70,9 @@ internal constructor(
 
     override val constantValueOrNull: Any?
         get() = null
+
+    internal val isIdentity: Boolean
+        get() = (cacheKey as? RemoteOperationCacheKey)?.op == OperationKey.IDENTITY
 
     /**
      * Creates a new [RemoteMatrix3x3] that represents the multiplication of this matrix by another.

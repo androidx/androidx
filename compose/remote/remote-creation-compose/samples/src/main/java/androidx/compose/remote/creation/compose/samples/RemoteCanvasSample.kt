@@ -18,9 +18,14 @@ package androidx.compose.remote.creation.compose.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.previews.utils.RemoteComponentPreviewWrapper
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.RemoteShaderBrush
+import androidx.compose.remote.creation.compose.shaders.linearGradient
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -44,8 +49,8 @@ fun RemoteCanvasSample() {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteCanvasAnimationSample() {
-    // This sample uses ContinuousSec which might be restricted in some contexts,
-    // but demonstrates how to create time-based animations on the remote canvas.
+    // This sample uses ContinuousSec, but demonstrates how to create time-based
+    // animations on the remote canvas.
     RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
         val paint = RemotePaint().apply { color = Color.Blue.rc }
 
@@ -57,5 +62,33 @@ fun RemoteCanvasAnimationSample() {
         val radius = 10f.rf + 30f.rf * normalizedSine
 
         drawCircle(paint = paint, radius = radius)
+    }
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteCanvasRectSample() {
+    RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+        val paint = RemotePaint().apply { color = Color.Blue.rc }
+        drawRect(paint = paint)
+    }
+}
+
+@Sampled
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+@Composable
+fun RemoteCanvasShaderMatrixSample() {
+    RemoteCanvas(modifier = RemoteModifier.size(200.rdp)) {
+        val brush: RemoteShaderBrush =
+            RemoteBrush.linearGradient(
+                colors = listOf(Color.Red.rc, Color.Blue.rc),
+                start = RemoteOffset.Zero,
+                end = RemoteOffset(width, height),
+            )
+        val matrix = RemoteMatrix3x3.createRotate(45f.rf)
+        val paint = RemotePaint()
+        with(brush) { applyTo(paint, size, matrix) }
+        drawRect(paint = paint)
     }
 }
