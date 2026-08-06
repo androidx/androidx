@@ -1487,8 +1487,6 @@ internal fun Project.configureTaskTimeouts() {
     // A set of tasks that sometimes take >60 minutes. b/383874664
     val slowTasks =
         setOf(
-            ":docs-public:docs", // b/508392874
-            ":docs-tip-of-tree:docs", // b/508392874
             ":compose:ui:ui:compileReleaseAndroidTestKotlinAndroid",
             ":compose:foundation:foundation:compileReleaseAndroidTestKotlinAndroid",
             ":compose:foundation:foundation:integration-tests:lazy-tests:compileReleaseAndroidTestKotlin",
