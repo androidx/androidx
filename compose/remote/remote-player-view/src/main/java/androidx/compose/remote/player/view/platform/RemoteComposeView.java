@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
@@ -49,6 +50,7 @@ import androidx.compose.remote.core.operations.loom.PatternCallback;
 import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.core.platform.AndroidCustomContext;
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
+import androidx.compose.remote.player.core.platform.FloatsToPath;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -180,7 +182,7 @@ public class RemoteComposeView extends FrameLayout
      * Constructor for RemoteComposeView.
      *
      * @param context The Context the view is running in.
-     * @param attrs The attributes of the XML tag that is inflating the view.
+     * @param attrs   The attributes of the XML tag that is inflating the view.
      */
     public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
@@ -190,10 +192,10 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Constructor for RemoteComposeView.
      *
-     * @param context The Context the view is running in.
-     * @param attrs The attributes of the XML tag that is inflating the view.
+     * @param context      The Context the view is running in.
+     * @param attrs        The attributes of the XML tag that is inflating the view.
      * @param defStyleAttr An attribute in the current theme that contains a reference to a style
-     *     resource that supplies default values for the view.
+     *                     resource that supplies default values for the view.
      */
     public RemoteComposeView(
             @NonNull Context context, @NonNull AttributeSet attrs, int defStyleAttr) {
@@ -205,11 +207,11 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Constructor for RemoteComposeView.
      *
-     * @param context The Context the view is running in.
-     * @param attrs The attributes of the XML tag that is inflating the view.
+     * @param context      The Context the view is running in.
+     * @param attrs        The attributes of the XML tag that is inflating the view.
      * @param defStyleAttr An attribute in the current theme that contains a reference to a style
-     *     resource that supplies default values for the view.
-     * @param clock The {@link Clock} to use for timing.
+     *                     resource that supplies default values for the view.
+     * @param clock        The {@link Clock} to use for timing.
      */
     public RemoteComposeView(
             @NonNull Context context,
@@ -434,7 +436,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * set the color associated with this name.
      *
-     * @param colorName Name of color typically "android.xxx"
+     * @param colorName  Name of color typically "android.xxx"
      * @param colorValue "the argb value"
      */
     public void setColor(@NonNull String colorName, int colorValue) {
@@ -444,7 +446,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * set the value of a long associated with this name.
      *
-     * @param name Name of color typically "android.xxx"
+     * @param name  Name of color typically "android.xxx"
      * @param value the long value
      */
     public void setLong(@NonNull String name, long value) {
@@ -463,7 +465,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Set a local named string
      *
-     * @param name name of the string
+     * @param name    name of the string
      * @param content value of the string
      */
     public void setLocalString(@NonNull String name, @NonNull String content) {
@@ -488,7 +490,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Set a local named int
      *
-     * @param name name of the int
+     * @param name    name of the int
      * @param content value of the int
      */
     public void setLocalInt(@NonNull String name, int content) {
@@ -538,7 +540,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Set a local named float
      *
-     * @param name name of the float
+     * @param name    name of the float
      * @param content value of the float
      */
     public void setLocalFloat(@NonNull String name, @NonNull Float content) {
@@ -563,7 +565,7 @@ public class RemoteComposeView extends FrameLayout
     /**
      * Set a local named bitmap
      *
-     * @param name name of the bitmap
+     * @param name    name of the bitmap
      * @param content value of the bitmap
      */
     public void setLocalBitmap(@NonNull String name, @NonNull Bitmap content) {
@@ -632,6 +634,57 @@ public class RemoteComposeView extends FrameLayout
     }
 
     /**
+     * Get a named float value.
+     *
+     * @param name name of the float
+     * @return the value
+     */
+    public float getNamedFloat(@NonNull String name) {
+        int id = mARContext.getVariableId(name);
+        if (id == -1) {
+            return Float.NaN;
+        }
+        return mARContext.getFloat(id);
+    }
+
+    /**
+     * Get a named string value.
+     *
+     * @param name name of the string
+     * @return the value
+     */
+    public @Nullable String getNamedString(@NonNull String name) {
+        int id = mARContext.getVariableId(name);
+        if (id == -1) {
+            return null;
+        }
+        return mARContext.getText(id);
+    }
+
+    /**
+     * Get a named path value.
+     *
+     * @param name name of the path
+     * @param path path to set
+     * @return true if the path was set
+     */
+    public boolean getNamedPath(@NonNull String name, @NonNull Path path) {
+        int id = mARContext.getVariableId(name);
+        if (id == -1) {
+            return false;
+        }
+        Path preComputed = (Path) mARContext.mRemoteComposeState.getPath(id);
+        if (preComputed != null) {
+            path.set(preComputed);
+            return true;
+        }
+        float[] pathData = mARContext.mRemoteComposeState.getPathData(id);
+        FloatsToPath.genPath(path, pathData, 0, 1);
+
+        return true;
+    }
+
+    /**
      * Update the current document with the data contained in the passed document
      *
      * @param document document containing updates
@@ -667,7 +720,7 @@ public class RemoteComposeView extends FrameLayout
         /**
          * Called to notify the document that something has been clicked on.
          *
-         * @param id The id for component clicked on.
+         * @param id       The id for component clicked on.
          * @param metadata Optional metadata for the event.
          */
         void click(int id, @NonNull String metadata);

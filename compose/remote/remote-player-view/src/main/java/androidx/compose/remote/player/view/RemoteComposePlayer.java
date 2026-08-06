@@ -22,6 +22,7 @@ import static androidx.compose.remote.core.CoreDocument.MINOR_VERSION;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -98,7 +99,8 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     public static final int THEME_DARK = Theme.DARK;
 
     // Expose to subclasses to enable player extensibility.
-    @NonNull protected RemoteComposeView mInner;
+    @NonNull
+    protected RemoteComposeView mInner;
     private StateUpdater mStateUpdater;
 
     private final @NonNull ThemeSupport mThemeSupport = new ThemeSupport();
@@ -591,6 +593,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /**
      * Sets a custom support on the RemoteContext.
+     *
      * @param androidCustomSupport new custom support handler
      */
     public void setCustomSupport(@Nullable AndroidCustomContext androidCustomSupport) {
@@ -624,7 +627,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
          * Called to load system variables.
          *
          * @param rcView the view to setValues on
-         * @param var list of strings
+         * @param var    list of strings
          */
         @RestrictTo(LIBRARY_GROUP)
         void loadSystemVariables(@NonNull RemoteComposeView rcView, String @NonNull [] var);
@@ -643,8 +646,8 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a string resource
      *
-     * @param domain domain (SYSTEM or USER)
-     * @param name name of the string
+     * @param domain  domain (SYSTEM or USER)
+     * @param name    name of the string
      * @param content content of the string
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -657,7 +660,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * Clear the override of the given string
      *
      * @param domain domain (SYSTEM or USER)
-     * @param name name of the string
+     * @param name   name of the string
      */
     @RestrictTo(LIBRARY_GROUP)
     public void clearLocalString(@NonNull String domain, @NonNull String name) {
@@ -667,7 +670,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain string resource
      *
-     * @param name name of the string
+     * @param name    name of the string
      * @param content content of the string
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -678,7 +681,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain int resource
      *
-     * @param name name of the int
+     * @param name  name of the int
      * @param value value of the int
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -689,7 +692,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain int resource
      *
-     * @param name name of the int
+     * @param name  name of the int
      * @param value value of the int
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -700,7 +703,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain float resource
      *
-     * @param name name of the float
+     * @param name  name of the float
      * @param value value of the float
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -711,7 +714,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain float resource
      *
-     * @param name name of the float
+     * @param name  name of the float
      * @param value value of the float
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -728,7 +731,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a user domain int resource
      *
-     * @param name name of the int
+     * @param name  name of the int
      * @param value value of the int
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -789,7 +792,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * Set an override for a system domain string resource
      *
-     * @param name name of the string
+     * @param name    name of the string
      * @param content content of the string
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -836,7 +839,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         /**
          * Callback for on action
          *
-         * @param id the id of the action
+         * @param id       the id of the action
          * @param metadata the metadata of the action
          */
         void onAction(int id, @Nullable String metadata);
@@ -847,11 +850,12 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * document has been loaded.
      *
      * @param callback the callback lambda that will be used when a action is executed
-     *     <p>The parameter of the callback are:
-     *     <ul>
-     *       <li>id : the id of the action
-     *       <li>metadata: a client provided unstructured string associated with that id action
-     *     </ul>
+     *                 <p>The parameter of the callback are:
+     *                 <ul>
+     *                   <li>id : the id of the action
+     *                   <li>metadata: a client provided unstructured string associated with that
+     *                   id action
+     *                 </ul>
      */
     @RestrictTo(LIBRARY_GROUP)
     public void addIdActionListener(@NonNull IdActionCallbacks callback) {
@@ -864,9 +868,11 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * night/light themes (system or app level), not custom themes.
      *
      * @param theme the theme used for playing the document. Possible values for theme are: -
-     *     Theme.UNSPECIFIED -- all instructions in the document will be executed - Theme.DARK --
-     *     only executed NON Light theme instructions - Theme.LIGHT -- only executed NON Dark theme
-     *     instructions
+     *              Theme.UNSPECIFIED -- all instructions in the document will be executed -
+     *              Theme.DARK --
+     *              only executed NON Light theme instructions - Theme.LIGHT -- only executed NON
+     *              Dark theme
+     *              instructions
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setTheme(int theme) {
@@ -919,7 +925,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * This sets a color based on its name. Overriding the color set in the document.
      *
-     * @param colorName Name of the color
+     * @param colorName  Name of the color
      * @param colorValue The new color value
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -930,7 +936,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * This sets long based on its name.
      *
-     * @param name Name of the color
+     * @param name  Name of the color
      * @param value The new long value
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -1026,4 +1032,39 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         }
         setDocument(doc.getOriginalDoc());
     }
+
+    /**
+     * Get a named float value.
+     *
+     * @param name name of the float
+     * @return the value
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public float getNamedFloat(@NonNull String name) {
+        return mInner.getNamedFloat(name);
+    }
+
+    /**
+     * Get a named string value.
+     *
+     * @param name name of the string
+     * @return the value
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public @Nullable String getNamedString(@NonNull String name) {
+        return mInner.getNamedString(name);
+    }
+
+    /**
+     * Get a named path value.
+     *
+     * @param name name of the path
+     * @param path path to set
+     * @return true if the path was set
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public boolean getNamedPath(@NonNull String name, @NonNull Path path) {
+        return mInner.getNamedPath(name, path);
+    }
+
 }
