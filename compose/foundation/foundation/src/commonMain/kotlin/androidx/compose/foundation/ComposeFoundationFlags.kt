@@ -196,6 +196,16 @@ public object ComposeFoundationFlags {
     public var isDragNodeOffsetDoubleCountingFixEnabled: Boolean = true
 
     /**
+     * This flag controls the fix where we prioritize consumption on initial pass in Draggable. If a
+     * drag gesture started immediately, it should block subsequent nested gestures because the
+     * initial down was consumed.
+     */
+    // TODO: Remove this flag once it has soaked (b/518770709)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isDraggableInitialPassConsumptionFixEnabled: Boolean = true
+
+    /**
      * This flag controls whether selecting text in
      * [androidx.compose.foundation.text.selection.SelectionContainer] causes scrollable ancestors
      * of the text to be scrolled when the selecting pointer is dragged outside the scrollable's
