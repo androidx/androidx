@@ -21,6 +21,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.Frame.Companion.isFrameInfoAvailable
+import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -117,23 +118,24 @@ class FrameCaptureTests {
                 ),
         )
 
-    private val cameraGraphSimulator = cameraPipeSimulator.createCameraGraphSimulator(graphConfig)
-    private val cameraGraph: CameraGraph = cameraGraphSimulator
+    private val frameGraphSimulator: FrameGraphSimulator =
+        cameraPipeSimulator.createFrameGraph(FrameGraph.Config(graphConfig))
+    private val frameGraph: FrameGraph = frameGraphSimulator
 
-    private val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
-    private val jpegStream = cameraGraph.streams[jpegStreamConfig]!!
-    private val rawStream = cameraGraph.streams[rawStreamConfig]!!
-    private val concurrentRawStream = cameraGraph.streams[concurrentRawStreamConfig]!!
+    private val viewfinderStream = frameGraph.streams[viewfinderStreamConfig]!!
+    private val jpegStream = frameGraph.streams[jpegStreamConfig]!!
+    private val rawStream = frameGraph.streams[rawStreamConfig]!!
+    private val concurrentRawStream = frameGraph.streams[concurrentRawStreamConfig]!!
 
-    private suspend fun startCameraGraph() {
-        assertThat(cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
+    private suspend fun startFrameGraph() {
+        assertThat(frameGraph.graphState.value).isEqualTo(GraphStateStopped)
 
-        cameraGraph.start() // Tell the cameraGraph to start
-        assertThat(cameraGraph.graphState.value).isEqualTo(GraphStateStarting)
+        frameGraph.start() // Tell the frameGraph to start
+        assertThat(frameGraph.graphState.value).isEqualTo(GraphStateStarting)
 
-        cameraGraphSimulator.initializeSurfaces()
-        cameraGraphSimulator.simulateCameraStarted() // Simulate the camera starting successfully
-        assertThat(cameraGraph.graphState.value).isEqualTo(GraphStateStarted)
+        frameGraphSimulator.initializeSurfaces()
+        frameGraphSimulator.simulateCameraStarted() // Simulate the camera starting successfully
+        assertThat(frameGraph.graphState.value).isEqualTo(GraphStateStarted)
     }
 
     @After
@@ -146,11 +148,11 @@ class FrameCaptureTests {
         testScope.runTest {
             val expectedRawOutputId = rawStream.outputs.last().id
 
-            startCameraGraph()
+            startFrameGraph()
 
-            // Capture an image using the cameraGraph
+            // Capture an image using the frameGraph
             val frameCapture =
-                cameraGraph.useSession { session ->
+                frameGraph.useSession { session ->
                     session.capture(Request(streams = listOf(jpegStream.id, rawStream.id)))
                 }
             advanceUntilIdle()
@@ -201,7 +203,7 @@ class FrameCaptureTests {
             }
 
             // Simulate camera interactions:
-            val frameSimulator = cameraGraphSimulator.simulateNextFrame()
+            val frameSimulator = frameGraphSimulator.simulateNextFrame()
 
             frameSimulator.simulateImage(jpegStream.id)
             frameSimulator.simulateExpectedOutputs(
@@ -213,7 +215,7 @@ class FrameCaptureTests {
 
             advanceUntilIdle()
             assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete
-            cameraGraphSimulator.close()
+            frameGraphSimulator.close()
         }
 
     @Test
@@ -221,11 +223,11 @@ class FrameCaptureTests {
         testScope.runTest {
             val expectedPhysicalCameras = physicalCameraIds.take(2).toSet()
 
-            startCameraGraph()
+            startFrameGraph()
 
-            // Capture an image using the cameraGraph
+            // Capture an image using the frameGraph
             val frameCapture =
-                cameraGraph.useSession { session ->
+                frameGraph.useSession { session ->
                     session.capture(
                         Request(streams = listOf(jpegStream.id, concurrentRawStream.id))
                     )
@@ -287,13 +289,13 @@ class FrameCaptureTests {
             }
 
             // Simulate camera interactions:
-            val frameSimulator = cameraGraphSimulator.simulateNextFrame()
+            val frameSimulator = frameGraphSimulator.simulateNextFrame()
 
             frameSimulator.simulateImages(physicalCameraIds = expectedPhysicalCameras)
             frameSimulator.simulateComplete(emptyMap())
 
             advanceUntilIdle()
             assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete
-            cameraGraphSimulator.close()
+            frameGraphSimulator.close()
         }
 }
