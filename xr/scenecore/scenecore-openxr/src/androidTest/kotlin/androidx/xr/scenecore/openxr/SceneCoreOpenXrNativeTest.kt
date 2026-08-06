@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -83,5 +84,55 @@ class SceneCoreOpenXrNativeTest {
 
         assertThat(instance1.nativeScenecore).isEqualTo(0L)
         assertThat(instance2.nativeScenecore).isEqualTo(0L)
+    }
+
+    @Test
+    fun init_withNullHandles_returnsFalse() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+
+        val success =
+            nativeWrapper.init(xrInstanceHandle = 0L, xrSessionHandle = 0L, gipaHandle = 0L)
+
+        assertThat(success).isFalse()
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun getSpatialContainerHandle_beforeCreate_returnsZero() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+
+        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(0L)
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun getRootSpaceHandle_beforeCreate_returnsZero() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+
+        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(0L)
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun shutdown_whenNotInitialized_isSafe() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+
+        nativeWrapper.shutdown()
+
+        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(0L)
+        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(0L)
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun methods_afterDestroy_throwIllegalStateException() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+        nativeWrapper.destroy()
+        assertThrows(IllegalStateException::class.java) { nativeWrapper.init(1L, 1L, 1L) }
+        assertThrows(IllegalStateException::class.java) { nativeWrapper.createSpatialContainer() }
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.getSpatialContainerHandle()
+        }
+        assertThrows(IllegalStateException::class.java) { nativeWrapper.getRootSpaceHandle() }
     }
 }
