@@ -874,17 +874,18 @@ class RcPlayerInteractivityTest {
         }
     }
 
-    // A FitBox displays only the first child whose natural size fits the available space. In a
+    // A RemoteFitBox displays only the first child whose natural size fits the available space. In
+    // a
     // 100dp box, a 200dp child doesn't fit and a 50dp child does, so only the 50dp child is shown.
     @Test
-    fun fitBoxDisplaysTheChildThatFits() {
+    fun remoteFitBoxDisplaysTheChildThatFits() {
         runBlocking {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val documentBytes =
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            androidx.compose.remote.creation.compose.layout.FitBox(
+                            androidx.compose.remote.creation.compose.layout.RemoteFitBox(
                                 modifier = RemoteModifier.size(100.rdp)
                             ) {
                                 RemoteBox(

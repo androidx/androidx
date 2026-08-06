@@ -16,20 +16,20 @@
 
 @file:Suppress(
     "RestrictedApiAndroidX"
-) // Referring to CUBIC_DECELERATE, FitBox, RemoteText, RemoteTextUnit, background, clamp,
+) // Referring to CUBIC_DECELERATE, RemoteText, RemoteTextUnit,
 
-// interpolateRemoteFloat, remote-core
+// background, clamp, interpolateRemoteFloat, remote-core
 
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.BitmapFactory
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -200,7 +200,7 @@ private fun DogeSlot(
             )
 
             // Text
-            FitBox(modifier = RemoteModifier.padding(horizontal = 24.rdp)) {
+            RemoteFitBox(modifier = RemoteModifier.padding(horizontal = 24.rdp)) {
                 arrayOf(fontSize, 16.rsp, 14.rsp, 12.rsp, 10.rsp).forEach { size ->
                     RemoteText(
                         text = "${entry.time}: ${entry.task}".rs,
