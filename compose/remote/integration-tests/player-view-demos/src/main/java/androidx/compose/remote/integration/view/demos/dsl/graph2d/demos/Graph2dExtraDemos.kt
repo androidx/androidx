@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.view.demos.dsl.graph2d.demos
 
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.Candle
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.DumbbellRow
+import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.GraphTheme
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.Palette
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.PyramidRow
 import androidx.compose.remote.integration.view.demos.dsl.graph2d.lib.SlopeRow
@@ -156,6 +157,30 @@ public fun graph2dCandlestick(): ByteArray {
         }
     return graph2dDoc(860, 520, "Price") {
         candlestickChart(candles, title = "Daily Price", yTitle = "\$")
+    }
+}
+
+/** Candlestick financial chart. */
+public fun graph2dCandlestick2(): ByteArray {
+    var s = 99
+    fun rnd(): Float {
+        s = (s * 1103515245 + 12345) and 0x7fffffff
+        return (s % 1000) / 1000f
+    }
+    var price = 100f
+    val candles =
+        (1..14).map { d ->
+            val open = price
+            val close = open + (rnd() - 0.45f) * 10f
+            val high = maxOf(open, close) + rnd() * 4f
+            val low = minOf(open, close) - rnd() * 4f
+            price = close
+            Candle("D$d", open, high, low, close)
+        }
+    val theme = GraphTheme.Dark
+    theme.labelSize = 80f
+    return graph2dDoc(860, 520, "Price") {
+        candlestickChart(candles, title = "Daily Price", yTitle = "\$", theme = theme)
     }
 }
 
