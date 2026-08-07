@@ -17,21 +17,24 @@
 package androidx.car.app.sample.showcase.common.utils
 
 import androidx.car.app.model.Action
+import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.OnClickListener
 
 /**
- * Constructs an [Action] using a clean, declarative Kotlin syntax.
- * * Automatically ignores `null` parameters, bypassing the need to use [Action.Builder] directly.
+ * Constructs an [Action] using a clean, declarative Kotlin syntax. Automatically ignores `null`
+ * parameters, bypassing the need to use [Action.Builder] directly.
  */
 fun createAction(
     title: String? = null,
+    backgroundColor: CarColor? = null,
     icon: CarIcon? = null,
     flags: Int? = null,
     clickListener: OnClickListener? = null,
 ): Action {
     val builder = Action.Builder()
     title?.let { builder.setTitle(it) }
+    backgroundColor?.let { builder.setBackgroundColor(it) }
     icon?.let { builder.setIcon(it) }
     flags?.let { builder.setFlags(it) }
     clickListener?.let { builder.setOnClickListener(it) }

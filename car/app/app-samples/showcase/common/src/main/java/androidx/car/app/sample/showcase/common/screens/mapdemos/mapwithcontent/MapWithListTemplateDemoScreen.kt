@@ -239,7 +239,12 @@ class MapWithListTemplateDemoScreen(carContext: CarContext) : Screen(carContext)
             makeToast("$clickedRow: ${index ?: ""}").show()
         },
     ): Action {
-        return createAction(title, icon, flags, clickListener)
+        return createAction(
+            title = title,
+            icon = icon,
+            flags = flags,
+            clickListener = clickListener,
+        )
     }
 
     private fun makeSecondLineText(): CarText {
