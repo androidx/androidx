@@ -80,6 +80,8 @@ class RcPlayerSwitchDemoTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test

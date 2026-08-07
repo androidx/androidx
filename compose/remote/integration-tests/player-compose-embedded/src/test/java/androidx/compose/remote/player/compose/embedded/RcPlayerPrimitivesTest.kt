@@ -87,6 +87,8 @@ import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -103,6 +105,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.RemoteButton
 import java.io.ByteArrayInputStream
 import kotlin.OptIn
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -4704,5 +4707,13 @@ class RcPlayerPrimitivesTest {
                 val bounds = rule.onNodeWithText("Click").getUnclippedBoundsInRoot()
             } catch (e: Throwable) {}
         }
+    }
+
+    @OptIn(ExperimentalRemotePlayerApi::class)
+    @Test
+    fun testRcPlayerFailsWhenEmbeddedPlayerDisabled() {
+        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
+        val document = CoreDocument(RemoteClock.SYSTEM)
+        assertFailsWith<IllegalStateException> { rule.setContent { RcPlayer(document = document) } }
     }
 }

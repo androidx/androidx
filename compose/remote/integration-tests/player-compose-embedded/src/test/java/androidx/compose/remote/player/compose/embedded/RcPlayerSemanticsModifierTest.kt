@@ -71,6 +71,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35])
 class RcPlayerSemanticsModifierTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     private fun renderDocument(content: @Composable () -> Unit) {

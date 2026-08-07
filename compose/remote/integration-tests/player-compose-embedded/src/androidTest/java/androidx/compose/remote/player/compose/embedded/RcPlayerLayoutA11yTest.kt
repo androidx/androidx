@@ -64,6 +64,8 @@ class RcPlayerLayoutA11yTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
     private fun captureDocument(content: @Composable @RemoteComposable () -> Unit): CoreDocument {
