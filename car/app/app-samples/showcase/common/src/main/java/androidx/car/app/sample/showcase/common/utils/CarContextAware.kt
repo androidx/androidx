@@ -23,7 +23,9 @@ import androidx.car.app.CarToast
 import androidx.car.app.CarToast.Duration
 import androidx.car.app.CarToast.LENGTH_SHORT
 import androidx.car.app.constraints.ConstraintManager
+import androidx.car.app.constraints.ConstraintManager.ContentLimitType
 import androidx.car.app.model.CarIcon
+import androidx.car.app.model.CarIconStyle
 import androidx.core.graphics.drawable.IconCompat
 import kotlin.math.min
 
@@ -42,9 +44,14 @@ interface CarContextAware {
         return getCarContext().getString(resId)
     }
 
-    /** Converts a standard Android drawable resource into a [CarIcon]. */
-    fun getCarIcon(@DrawableRes resId: Int): CarIcon {
-        return CarIcon.Builder(IconCompat.createWithResource(getCarContext(), resId)).build()
+    /**
+     * Converts a standard Android drawable resource into a [CarIcon], optionally applying a
+     * [CarIconStyle].
+     */
+    fun getCarIcon(@DrawableRes resId: Int, style: CarIconStyle? = null): CarIcon {
+        return CarIcon.Builder(IconCompat.createWithResource(getCarContext(), resId))
+            .also { builder -> style?.let { builder.setStyle(it) } }
+            .build()
     }
 
     /** Creates a [CarToast] with a default short duration, ready to be shown. */
@@ -53,14 +60,17 @@ interface CarContextAware {
     }
 
     /**
-     * Resolves the safe maximum list size by comparing [maxExpectedLength] against the host's
-     * `CONTENT_LIMIT_TYPE_LIST`, guaranteeing a non-negative result.
+     * Resolves the safe maximum content limit by comparing [maxExpectedLength] against the host's
+     * [contentLimitType] constraint, guaranteeing a non-negative result.
      */
-    fun determineListLimit(maxExpectedLength: Int): Int {
+    fun determineListLimit(
+        maxExpectedLength: Int,
+        @ContentLimitType contentLimitType: Int = ConstraintManager.CONTENT_LIMIT_TYPE_LIST,
+    ): Int {
         val systemLimit =
             getCarContext()
                 .getCarService(ConstraintManager::class.java)
-                .getContentLimit(ConstraintManager.CONTENT_LIMIT_TYPE_LIST)
+                .getContentLimit(contentLimitType)
 
         return min(maxExpectedLength, systemLimit).coerceAtLeast(0)
     }
