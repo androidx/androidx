@@ -61,4 +61,16 @@ public object RemoteComposePlayerFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var shouldPlayerWrapContentSize: Boolean = false
+
+    /**
+     * Whether the embedded Compose-native player is enabled and used as the default player in
+     * [RemoteDocumentPlayer].
+     *
+     * When false, the embedded player fails immediately with an [IllegalStateException], and
+     * [RemoteDocumentPlayer] uses the legacy View-based player.
+     */
+    // TODO(b/543837906): Clean up after embedded player migration
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isEmbeddedPlayerEnabled: Boolean = false
 }
