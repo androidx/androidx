@@ -42,7 +42,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import kotlin.math.round
+import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -136,24 +136,24 @@ class StylingOptionsTests {
             assertNotNull(fastScrollDrawer)
 
             assertEquals(
-                round(THUMB_DRAWABLE_HEIGHT.dpToPx(context)).toInt(),
+                THUMB_DRAWABLE_HEIGHT.dpToPx(context).roundToInt(),
                 fastScrollDrawer?.thumbDrawable?.intrinsicHeight,
             )
             assertEquals(
-                round(THUMB_DRAWABLE_WIDTH.dpToPx(context)).toInt(),
+                THUMB_DRAWABLE_WIDTH.dpToPx(context).roundToInt(),
                 fastScrollDrawer?.thumbDrawable?.intrinsicWidth,
             )
             assertEquals(
-                round(THUMB_END_MARGIN.dpToPx(context)).toInt(),
+                THUMB_END_MARGIN.dpToPx(context).roundToInt(),
                 fastScrollDrawer?.thumbMarginEnd,
             )
 
             assertEquals(
-                round(PAGE_INDICATOR_DRAWABLE_HEIGHT.dpToPx(context)).toInt(),
+                PAGE_INDICATOR_DRAWABLE_HEIGHT.dpToPx(context).roundToInt(),
                 fastScrollDrawer?.pageIndicatorBackground?.intrinsicHeight,
             )
             assertEquals(
-                round(PAGE_INDICATOR_END_MARGIN.dpToPx(context)).toInt(),
+                PAGE_INDICATOR_END_MARGIN.dpToPx(context).roundToInt(),
                 fastScrollDrawer?.pageIndicatorMarginEnd,
             )
         }
