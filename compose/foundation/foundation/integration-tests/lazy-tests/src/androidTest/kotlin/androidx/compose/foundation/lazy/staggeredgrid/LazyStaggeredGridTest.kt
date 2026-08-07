@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -62,6 +63,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -2313,6 +2315,36 @@ class LazyStaggeredGridTest(
             rule.mainClock.advanceTimeByFrame()
             assertEquals(0f, state.scrollDeltaBetweenPasses)
             rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun reorderingInLookahead() {
+        var items by mutableStateOf(List(500) { it })
+
+        val itemSizePx = 50f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+
+        rule.setContent {
+            LookaheadScope {
+                LazyStaggeredGrid(lanes = 1, modifier = Modifier.mainAxisSize(itemSize * 2)) {
+                    items(items, key = { it }) {
+                        Box(Modifier.animateItem().mainAxisSize(itemSize)) {
+                            Box { BasicText("Item $it") }
+                        }
+                    }
+                }
+            }
+        }
+
+        val random = Random(42)
+        repeat(20) {
+            val newItems = items.shuffled(random)
+            items = newItems
+            rule.runOnUiThread {
+                Snapshot.sendApplyNotifications()
+                rule.mainClock.advanceTimeByFrame()
+            }
         }
     }
 }

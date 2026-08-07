@@ -280,6 +280,18 @@ public object ComposeFoundationFlags {
     public var isCacheWindowLookaheadCheckEnabled: Boolean = true
 
     /**
+     * This flag controls whether [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     * only executes `keepAroundItems` during non-lookahead (approach) measure passes in
+     * [androidx.compose.foundation.lazy.LazyList],
+     * [androidx.compose.foundation.lazy.grid.LazyGrid], and
+     * [androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGrid].
+     */
+    // TODO: b/543772810
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isKeepAroundDuringLookaheadDisabled: Boolean = true
+
+    /**
      * This flag controls whether [androidx.compose.foundation.lazy.grid.LazyGrid] prefers using the
      * default [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] over
      * [androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy].
