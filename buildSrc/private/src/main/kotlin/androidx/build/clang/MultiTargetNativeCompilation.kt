@@ -16,6 +16,7 @@
 
 package androidx.build.clang
 
+import androidx.build.KonanPrebuiltsSetup
 import com.android.utils.appendCapitalized
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectFactory
@@ -26,6 +27,8 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.listProperty
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
+import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 
@@ -208,6 +211,7 @@ class MultiTargetNativeCompilation(
             val archiveTask =
                 project.tasks.register(archiveTaskName, ClangArchiveTask::class.java) { task ->
                     val target = serializableNativeTarget.asNativeTarget
+                    downloadKonanIfNeeded(project, target)
                     val archiveFileName =
                         listOf(target.staticPrefix, archiveName, ".", target.staticSuffix)
                             .joinToString("")
@@ -234,6 +238,8 @@ class MultiTargetNativeCompilation(
             val compileTask =
                 project.tasks.register(compileTaskName, ClangCompileTask::class.java) { compileTask
                     ->
+                    val target = serializableNativeTarget.asNativeTarget
+                    downloadKonanIfNeeded(project, target)
                     compileTask.usesService(ClangBuildService.obtain(project))
                     compileTask.clangParameters.let { clang ->
                         clang.output.set(
@@ -255,12 +261,12 @@ class MultiTargetNativeCompilation(
             linkedObjects: ConfigurableFileCollection,
             linkerArgs: ListProperty<String>,
         ): TaskProvider<ClangLinkerTask> {
-            val archiveTaskName =
+            val linkerTaskName =
                 taskPrefix.appendCapitalized("runLinker", serializableNativeTarget.name)
-            val archiveTask =
-                project.tasks.register(archiveTaskName, ClangLinkerTask::class.java) { task ->
+            val linkerTask =
+                project.tasks.register(linkerTaskName, ClangLinkerTask::class.java) { task ->
                     val target = serializableNativeTarget.asNativeTarget
-
+                    downloadKonanIfNeeded(project, target)
                     val archiveFileName =
                         if (outputKind == LinkerOutputKind.EXECUTABLE) {
                             archiveName
@@ -282,7 +288,22 @@ class MultiTargetNativeCompilation(
                         clang.sources.from(sources)
                     }
                 }
-            return archiveTask
+            return linkerTask
         }
     }
+}
+
+private fun downloadKonanIfNeeded(project: Project, target: NativeTarget) {
+    if (target.isAndroid) {
+        // For Android, we use the NDK, no need to download Konan.
+        return
+    }
+    check(project.plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
+        "ClangBuildService compiling non-Android targets can only be used in projects that " +
+            "applied the KMP plugin."
+    }
+    check(KonanPrebuiltsSetup.isConfigured(project)) {
+        "Konan prebuilt directories are not configured for project \"${project.path}\""
+    }
+    NativeCompilerDownloader(project).downloadIfNeeded()
 }
