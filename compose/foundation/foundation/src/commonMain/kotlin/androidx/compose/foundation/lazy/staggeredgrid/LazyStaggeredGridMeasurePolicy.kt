@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
@@ -136,7 +137,9 @@ internal fun rememberStaggeredGridMeasurePolicy(
                     cacheWindowLogic = cacheWindowLogic,
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
-            measureResult.cacheWindowLogic?.keepAroundItems(this)
+            if (!ComposeFoundationFlags.isKeepAroundDuringLookaheadDisabled || !isLookingAhead) {
+                measureResult.cacheWindowLogic?.keepAroundItems(this)
+            }
             measureResult
         }
     }
