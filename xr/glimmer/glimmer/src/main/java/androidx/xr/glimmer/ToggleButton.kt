@@ -19,7 +19,6 @@ package androidx.xr.glimmer
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.xr.glimmer.internal.color.withToneAndChroma
 
 /**
  * A Jetpack Compose Glimmer toggle button that changes its appearance depending on the [checked]
@@ -95,7 +95,6 @@ import androidx.compose.ui.util.lerp
  *   details.
  * @param colors the [ToggleButtonColors] that will be used to resolve the container and content
  *   colors based on the toggle button state.
- * @param border the border to draw around this button.
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -115,7 +114,6 @@ public fun ToggleButton(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = ToggleButtonDefaults.animatedShape(checked),
     colors: ToggleButtonColors = ToggleButtonDefaults.colors(),
-    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = ToggleButtonDefaults.contentPadding(buttonSize),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
@@ -133,16 +131,20 @@ public fun ToggleButton(
 
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
+    val color = colors.resolveBackgroundColor(checked)
+    val contentColor = colors.resolveContentColor(checked)
+
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
         Row(
             modifier
                 .surface(
                     enabled = enabled,
                     shape = shape,
-                    color = colors.resolveBackgroundColor(checked),
-                    contentColor = colors.resolveContentColor(checked),
+                    color = color,
+                    focusedColor = color,
+                    contentColor = contentColor,
+                    focusedContentColor = contentColor,
                     depthEffect = depth,
-                    border = border,
                     interactionSource = internalInteractionSource,
                 )
                 .toggleable(
@@ -231,7 +233,7 @@ public object ToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = GlimmerTheme.colors.outline,
+        checkedBackgroundColor: Color = checkedBackgroundColor(GlimmerTheme.colors.primary),
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): ToggleButtonColors =
@@ -241,6 +243,20 @@ public object ToggleButtonDefaults {
             contentColor = contentColor,
             checkedContentColor = checkedContentColor,
         )
+
+    /**
+     * Calculates the checked background color for a [ToggleButton] derived from [color].
+     *
+     * @param color the base color to derive the checked background color from
+     */
+    public fun checkedBackgroundColor(color: Color): Color =
+        color.withToneAndChroma(
+            newTone = CheckedBackgroundColorTone,
+            newChroma = CheckedBackgroundColorChroma,
+        )
+
+    private const val CheckedBackgroundColorTone = 70f
+    private const val CheckedBackgroundColorChroma = 50f
 
     /** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
     public val CheckedShape: Shape = RoundedCornerShape(20.dp)
