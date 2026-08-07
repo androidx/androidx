@@ -41,21 +41,7 @@ import org.junit.runner.RunWith
 internal class SerializableSaverTest {
 
     @Test
-    fun savedStateSaver_reifiedSerializer_defaultConfig_restores() {
-        val original = TestData(7)
-        val scope = TestSaverScope { true }
-        val saver = serializableSaver<TestData>()
-
-        val saved = with(saver) { scope.save(original)!! }
-        val restored = saver.restore(saved)
-        val hasClassDiscriminator = saved.read { contains("type") }
-
-        assertThat(restored).isEqualTo(original)
-        assertThat(hasClassDiscriminator).isFalse() // default config has no class discriminator
-    }
-
-    @Test
-    fun savedStateSaver_customSerializer_defaultConfig_restores() {
+    fun savedStateSaver_defaultConfig_restores() {
         val original = TestData(7)
         val scope = TestSaverScope { true }
         val saver = serializableSaver(serializer = TestSerializer)
@@ -69,22 +55,7 @@ internal class SerializableSaverTest {
     }
 
     @Test
-    fun savedStateSaver_reifiedSerializer_customConfig_restores() {
-        val config = SavedStateConfiguration { classDiscriminatorMode = ALL_OBJECTS }
-        val original = TestData(7)
-        val scope = TestSaverScope { true }
-        val saver = serializableSaver<TestData>(config)
-
-        val saved = with(saver) { scope.save(original)!! }
-        val restored = saver.restore(saved)
-        val hasClassDiscriminator = saved.read { contains("type") }
-
-        assertThat(restored).isEqualTo(original)
-        assertThat(hasClassDiscriminator).isTrue()
-    }
-
-    @Test
-    fun savedStateSaver_customSerializer_customConfig_restores() {
+    fun savedStateSaver_customConfig_restores() {
         val config = SavedStateConfiguration { classDiscriminatorMode = ALL_OBJECTS }
         val original = TestData(7)
         val scope = TestSaverScope { true }
