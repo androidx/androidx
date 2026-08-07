@@ -33,9 +33,9 @@ internal object HctUtils {
     /**
      * Converts a color from RGB components to ARGB format.
      *
-     * @param[red] the red component, in the range [0, 255]
-     * @param[green] the green component, in the range [0, 255]
-     * @param[blue] the blue component, in the range [0, 255]
+     * @param red the red component, in the range [0, 255]
+     * @param green the green component, in the range [0, 255]
+     * @param blue the blue component, in the range [0, 255]
      * @return the ARGB representation of the color
      */
     @ColorInt
@@ -45,7 +45,7 @@ internal object HctUtils {
     /**
      * Converts a color from linear RGB components to ARGB format.
      *
-     * @param[linrgb] the linear RGB components
+     * @param linrgb the linear RGB components
      * @return the ARGB representation of the color
      */
     @ColorInt
@@ -55,7 +55,7 @@ internal object HctUtils {
     /**
      * Converts an L* value to an ARGB representation.
      *
-     * @param[lstar] L* in L*a*b*
+     * @param lstar L* in L*a*b*
      * @return ARGB representation of grayscale color with lightness matching L*
      */
     @ColorInt
@@ -73,7 +73,7 @@ internal object HctUtils {
      * L* measures perceptual luminance, a linear scale. Y in XYZ measures relative luminance, a
      * logarithmic scale.
      *
-     * @param[lstar] L* in L*a*b*
+     * @param lstar L* in L*a*b*
      * @return Y in XYZ
      */
     fun yFromLstar(lstar: Double): Double = 100.0 * labInvf((lstar + 16.0) / 116.0)
@@ -81,7 +81,7 @@ internal object HctUtils {
     /**
      * Linearizes an RGB component.
      *
-     * @param[rgbComponent] 0 <= rgb_component <= 255, represents R/G/B channel
+     * @param rgbComponent 0 <= rgb_component <= 255, represents R/G/B channel
      * @return 0.0 <= output <= 100.0, color channel converted to linear RGB space
      */
     fun linearized(rgbComponent: Int): Double {
@@ -96,7 +96,7 @@ internal object HctUtils {
     /**
      * Delinearizes an RGB component.
      *
-     * @param[rgbComponent] 0.0 <= rgb_component <= 100.0, represents linear R/G/B channel
+     * @param rgbComponent 0.0 <= rgb_component <= 100.0, represents linear R/G/B channel
      * @return 0 <= output <= 255, color channel converted to regular RGB space
      */
     fun delinearized(rgbComponent: Double): Int {
@@ -113,19 +113,17 @@ internal object HctUtils {
     /**
      * Inverse of the labF function.
      *
-     * @param[ft] a value in the L*a*b* color space
+     * @param ft a value in the L*a*b* color space
      */
     fun labInvf(ft: Double): Double {
-        val e = 216.0 / 24389.0
-        val kappa = 24389.0 / 27.0
         val ft3 = ft * ft * ft
-        return if (ft3 > e) ft3 else (116 * ft - 16) / kappa
+        return if (ft3 > Epsilon) ft3 else (116.0 * ft - 16.0) / Kappa
     }
 
     /**
      * Sanitizes a degree measure as a floating-point number.
      *
-     * @param[degrees] the degree measure to sanitize.
+     * @param degrees the degree measure to sanitize.
      * @return a degree measure between 0.0 (inclusive) and 360.0 (exclusive).
      */
     fun sanitizeDegrees(degrees: Double): Double {
@@ -137,9 +135,9 @@ internal object HctUtils {
     /**
      * Multiplies a 1x3 row vector with a 3x3 matrix.
      *
-     * @param[row] the row vector
-     * @param[matrix] the matrix
-     * @param[dest] destination array to store the result, avoiding allocation on every call
+     * @param row the row vector
+     * @param matrix the matrix
+     * @param dest destination array to store the result, avoiding allocation on every call
      * @return the resulting row vector
      */
     fun matrixMultiply(
@@ -159,11 +157,11 @@ internal object HctUtils {
     /**
      * Multiplies 3 vector components with a 3x3 matrix.
      *
-     * @param[r] the first component of the row vector
-     * @param[g] the second component of the row vector
-     * @param[b] the third component of the row vector
-     * @param[matrix] the matrix
-     * @param[dest] destination array to store the result, avoiding allocation on every call
+     * @param r the first component of the row vector
+     * @param g the second component of the row vector
+     * @param b the third component of the row vector
+     * @param matrix the matrix
+     * @param dest destination array to store the result, avoiding allocation on every call
      * @return the resulting row vector
      */
     fun matrixMultiply(
@@ -230,4 +228,42 @@ internal object HctUtils {
         val atanDegrees = Math.toDegrees(atan2)
         return sanitizeDegrees(atanDegrees)
     }
+
+    /**
+     * Translates an ARGB integer directly into L* (tone) in HCT color space.
+     *
+     * @param argb ARGB representation of a color.
+     * @return the L* (tone) value.
+     */
+    fun argbToTone(@ColorInt argb: Int): Double {
+        val red = argb and 0x00ff0000 shr 16
+        val green = argb and 0x0000ff00 shr 8
+        val blue = argb and 0x000000ff
+        val redL = linearized(red)
+        val greenL = linearized(green)
+        val blueL = linearized(blue)
+        val y = 0.2126 * redL + 0.7152 * greenL + 0.0722 * blueL
+        return lstarFromY(y)
+    }
+
+    /**
+     * Converts Y in XYZ relative luminance to L* perceptual lightness.
+     *
+     * @param y Y in XYZ
+     * @return L* in L*a*b*
+     */
+    fun lstarFromY(y: Double): Double {
+        val yNormalized = y / 100.0
+        return if (yNormalized <= Epsilon) {
+            Kappa * yNormalized
+        } else {
+            Math.cbrt(yNormalized) * 116.0 - 16.0
+        }
+    }
 }
+
+/** Threshold separating linear and cube-root luminance response curves. */
+private const val Epsilon = 216.0 / 24389.0
+
+/** Slope constant for perceptual lightness near zero luminance. */
+private const val Kappa = 24389.0 / 27.0

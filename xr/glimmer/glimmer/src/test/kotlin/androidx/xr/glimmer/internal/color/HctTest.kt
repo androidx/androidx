@@ -17,6 +17,7 @@
 package androidx.xr.glimmer.internal.color
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,7 +44,7 @@ class HctTest {
             )
 
         for (case in testCases) {
-            val resolved = case.input.withToneAndMaxChroma(case.tone)
+            val resolved = case.input.withToneAndChroma(newTone = case.tone)
 
             assertEquals(
                 "Color mismatch for case ${case.input} at tone ${case.tone}.",
@@ -54,10 +55,39 @@ class HctTest {
     }
 
     @Test
-    fun withToneAndMaxChroma_preservesAlpha() {
+    fun withToneAndChroma_defaultMaxChroma_preservesAlpha() {
         val originalColor = Color.Red.copy(alpha = 0.45f)
-        val resolved = originalColor.withToneAndMaxChroma(60.0f)
+        val resolved = originalColor.withToneAndChroma(newTone = 60.0f)
         assertEquals(originalColor.alpha, resolved.alpha, 0.001f)
+    }
+
+    @Test
+    fun withToneAndChroma_resolvesToCorrectColor() {
+        val originalColor = Color(0xFF9BBFFF) // Primary color default
+        val resolved = originalColor.withToneAndChroma(newChroma = 29.0f, newTone = 33.0f)
+        // Ensure hue is preserved while chroma is changed to 29 and tone is set to 33
+        val argb = resolved.toArgb()
+        val originalHue = HctUtils.argbToHue(originalColor.toArgb())
+        val resolvedHue = HctUtils.argbToHue(argb)
+        val resolvedTone = HctUtils.argbToTone(argb)
+
+        assertEquals("Hue should be preserved within tolerance", originalHue, resolvedHue, 1.0)
+        assertEquals("Tone should match 33 within tolerance", 33.0, resolvedTone, 1.0)
+    }
+
+    @Test
+    fun withToneAndChroma_preservesAlpha() {
+        val originalColor = Color(0xFF9BBFFF).copy(alpha = 0.6f)
+        val resolved = originalColor.withToneAndChroma(newChroma = 29.0f, newTone = 33.0f)
+        assertEquals(originalColor.alpha, resolved.alpha, 0.001f)
+    }
+
+    @Test
+    fun withToneAndChroma_specificColor_resolvesToExpectedColor() {
+        val input = Color(0xFF34E0A1)
+        val expected = Color(0xFF245740)
+        val resolved = input.withToneAndChroma(newChroma = 29.0f, newTone = 33.0f)
+        assertEquals(expected, resolved)
     }
 
     private data class ColorCase(val input: Color, val tone: Float, val expected: Color)

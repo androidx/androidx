@@ -16,7 +16,6 @@
 
 package androidx.xr.glimmer
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +74,6 @@ import androidx.compose.ui.unit.dp
  * @param color background color of this button
  * @param contentColor content color used by components inside [content], [leadingIcon], and
  *   [trailingIcon].
- * @param border the border to draw around this button
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -95,7 +93,6 @@ public fun Button(
     shape: Shape = GlimmerTheme.shapes.large,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
-    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = ButtonDefaults.contentPadding(buttonSize),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
@@ -122,7 +119,6 @@ public fun Button(
                     color = color,
                     contentColor = contentColor,
                     depthEffect = depth,
-                    border = border,
                     interactionSource = internalInteractionSource,
                 )
                 .clickable(

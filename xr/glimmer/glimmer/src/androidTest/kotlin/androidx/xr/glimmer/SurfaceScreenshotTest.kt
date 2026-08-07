@@ -15,14 +15,12 @@
  */
 package androidx.xr.glimmer
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
@@ -37,6 +35,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.xr.glimmer.samples.SurfaceSample
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +50,16 @@ class SurfaceScreenshotTest {
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_DIRECTORY)
 
+    @Before
+    fun setUp() {
+        rule.mainClock.autoAdvance = false
+    }
+
+    @After
+    fun tearDown() {
+        rule.mainClock.autoAdvance = true
+    }
+
     @Test
     fun surface() {
         rule.setGlimmerThemeContent { SurfaceSample() }
@@ -57,8 +67,17 @@ class SurfaceScreenshotTest {
     }
 
     @Test
-    fun surface_focused_defaultRoundRectBorder() {
-        rule.mainClock.autoAdvance = false
+    fun surface_unfocused_default() {
+        rule.setGlimmerThemeContent {
+            Box(Modifier.surface().padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text("This is a surface")
+            }
+        }
+        rule.assertRootAgainstGolden("surface_unfocused_default", screenshotRule)
+    }
+
+    @Test
+    fun surface_focused_default() {
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(interactionSource = AlwaysFocusedInteractionSource)
@@ -67,14 +86,13 @@ class SurfaceScreenshotTest {
                 Text("This is a surface")
             }
         }
-        // Advance past the animation
-        rule.mainClock.advanceTimeBy(10000)
-        rule.assertRootAgainstGolden("surface_focused_defaultBorder", screenshotRule)
+        // Advance past focus enter animation (800ms) before ambient motion initial delay (1800ms)
+        rule.mainClock.advanceTimeBy(1000)
+        rule.assertRootAgainstGolden("surface_focused_default", screenshotRule)
     }
 
     @Test
-    fun surface_focused_defaultRoundRectBorder_animation() {
-        rule.mainClock.autoAdvance = false
+    fun surface_focused_default_ambientAnimation_25() {
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(interactionSource = AlwaysFocusedInteractionSource)
@@ -83,13 +101,181 @@ class SurfaceScreenshotTest {
                 Text("This is a surface")
             }
         }
-        rule.mainClock.advanceTimeBy(1800)
-        rule.assertRootAgainstGolden("surface_focused_defaultBorder_animation", screenshotRule)
+        // 1800ms initial delay + 25% of 2000ms ambient animation (500ms) = 2300ms
+        rule.mainClock.advanceTimeBy(2300)
+        rule.assertRootAgainstGolden("surface_focused_default_ambientAnimation_25", screenshotRule)
     }
 
     @Test
-    fun surface_focused_rectBorder() {
-        rule.mainClock.autoAdvance = false
+    fun surface_focused_default_ambientAnimation_50() {
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(interactionSource = AlwaysFocusedInteractionSource)
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 50% of 2000ms ambient animation (1000ms) = 2800ms
+        rule.mainClock.advanceTimeBy(2800)
+        rule.assertRootAgainstGolden("surface_focused_default_ambientAnimation_50", screenshotRule)
+    }
+
+    @Test
+    fun surface_focused_default_ambientAnimation_75() {
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(interactionSource = AlwaysFocusedInteractionSource)
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 75% of 2000ms ambient animation (1500ms) = 3300ms
+        rule.mainClock.advanceTimeBy(3300)
+        rule.assertRootAgainstGolden("surface_focused_default_ambientAnimation_75", screenshotRule)
+    }
+
+    @Test
+    fun surface_focused_default_ambientAnimationCompleted() {
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(interactionSource = AlwaysFocusedInteractionSource)
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 2000ms ambient motion animation
+        rule.mainClock.advanceTimeBy(3800)
+        rule.assertRootAgainstGolden(
+            "surface_focused_default_ambientAnimationCompleted",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun surface_focused_customFocusedColor() {
+        val customFocusedColor = Color(0xFF245740)
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(
+                        focusedColor = customFocusedColor,
+                        interactionSource = AlwaysFocusedInteractionSource,
+                    )
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // Advance past focus enter animation (800ms) before ambient motion initial delay (1800ms)
+        rule.mainClock.advanceTimeBy(1000)
+        rule.assertRootAgainstGolden("surface_focused_customFocusedColor", screenshotRule)
+    }
+
+    @Test
+    fun surface_focused_customFocusedColor_ambientAnimation_25() {
+        val customFocusedColor = Color(0xFF245740)
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(
+                        focusedColor = customFocusedColor,
+                        interactionSource = AlwaysFocusedInteractionSource,
+                    )
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 25% of 2000ms ambient animation (500ms) = 2300ms
+        rule.mainClock.advanceTimeBy(2300)
+        rule.assertRootAgainstGolden(
+            "surface_focused_customFocusedColor_ambientAnimation_progress25",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun surface_focused_customFocusedColor_ambientAnimation_50() {
+        val customFocusedColor = Color(0xFF245740)
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(
+                        focusedColor = customFocusedColor,
+                        interactionSource = AlwaysFocusedInteractionSource,
+                    )
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 50% of 2000ms ambient animation (1000ms) = 2800ms
+        rule.mainClock.advanceTimeBy(2800)
+        rule.assertRootAgainstGolden(
+            "surface_focused_customFocusedColor_ambientAnimation_progress50",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun surface_focused_customFocusedColor_ambientAnimation_75() {
+        val customFocusedColor = Color(0xFF245740)
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(
+                        focusedColor = customFocusedColor,
+                        interactionSource = AlwaysFocusedInteractionSource,
+                    )
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 75% of 2000ms ambient animation (1500ms) = 3300ms
+        rule.mainClock.advanceTimeBy(3300)
+        rule.assertRootAgainstGolden(
+            "surface_focused_customFocusedColor_ambientAnimation_progress75",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun surface_focused_customFocusedColor_ambientAnimationCompleted() {
+        val customFocusedColor = Color(0xFF245740)
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(
+                        focusedColor = customFocusedColor,
+                        interactionSource = AlwaysFocusedInteractionSource,
+                    )
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        // 1800ms initial delay + 100% of 2000ms ambient animation (2000ms) = 3800ms
+        rule.mainClock.advanceTimeBy(3800)
+        rule.assertRootAgainstGolden(
+            "surface_focused_customFocusedColor_ambientAnimation_progress100",
+            screenshotRule,
+        )
+    }
+
+    @Test
+    fun surface_rectShape() {
+        rule.setGlimmerThemeContent {
+            Box(
+                Modifier.surface(shape = RectangleShape)
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+            ) {
+                Text("This is a surface")
+            }
+        }
+        rule.assertRootAgainstGolden("surface_rectShape", screenshotRule)
+    }
+
+    @Test
+    fun surface_focused_rectShape() {
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(
@@ -101,64 +287,9 @@ class SurfaceScreenshotTest {
                 Text("This is a surface")
             }
         }
-        // Advance past the animation
-        rule.mainClock.advanceTimeBy(10000)
-        rule.assertRootAgainstGolden("surface_focused_rectBorder", screenshotRule)
-    }
-
-    @Test
-    fun surface_focused_rectBorder_animation() {
-        rule.mainClock.autoAdvance = false
-        rule.setGlimmerThemeContent {
-            Box(
-                Modifier.surface(
-                        shape = RectangleShape,
-                        interactionSource = AlwaysFocusedInteractionSource,
-                    )
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-            ) {
-                Text("This is a surface")
-            }
-        }
-        rule.mainClock.advanceTimeBy(1800)
-        rule.assertRootAgainstGolden("surface_focused_rectBorder_animation", screenshotRule)
-    }
-
-    @Test
-    fun surface_focused_genericBorder() {
-        rule.mainClock.autoAdvance = false
-        rule.setGlimmerThemeContent {
-            Box(
-                Modifier.size(100.dp)
-                    .surface(
-                        shape = DoubleTriangleShape,
-                        interactionSource = AlwaysFocusedInteractionSource,
-                    )
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                contentAlignment = Alignment.Center,
-            ) {}
-        }
-        // Advance past the animation
-        rule.mainClock.advanceTimeBy(10000)
-        rule.assertRootAgainstGolden("surface_focused_genericBorder", screenshotRule)
-    }
-
-    @Test
-    fun surface_focused_genericBorder_animation() {
-        rule.mainClock.autoAdvance = false
-        rule.setGlimmerThemeContent {
-            Box(
-                Modifier.size(100.dp)
-                    .surface(
-                        shape = DoubleTriangleShape,
-                        interactionSource = AlwaysFocusedInteractionSource,
-                    )
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                contentAlignment = Alignment.Center,
-            ) {}
-        }
-        rule.mainClock.advanceTimeBy(1800)
-        rule.assertRootAgainstGolden("surface_focused_genericBorder_animation", screenshotRule)
+        // Advance past focus enter animation (800ms) before ambient motion initial delay (1800ms)
+        rule.mainClock.advanceTimeBy(1000)
+        rule.assertRootAgainstGolden("surface_focused_rectShape", screenshotRule)
     }
 
     /**
@@ -168,7 +299,6 @@ class SurfaceScreenshotTest {
      */
     @Test
     fun surface_pressed() {
-        rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
@@ -189,7 +319,6 @@ class SurfaceScreenshotTest {
      */
     @Test
     fun surface_pressed_animation() {
-        rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(interactionSource = AlwaysPressedInteractionSource)
@@ -205,7 +334,6 @@ class SurfaceScreenshotTest {
 
     @Test
     fun surface_focused_and_pressed() {
-        rule.mainClock.autoAdvance = false
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.surface(interactionSource = AlwaysFocusedAndPressedInteractionSource)
@@ -214,8 +342,8 @@ class SurfaceScreenshotTest {
                 Text("This is a surface")
             }
         }
-        // Advance past the animation
-        rule.mainClock.advanceTimeBy(10000)
+        // Advance past focus enter animation (800ms) before ambient motion initial delay (1800ms)
+        rule.mainClock.advanceTimeBy(1000)
         rule.assertRootAgainstGolden("surface_focused_and_pressed", screenshotRule)
     }
 
@@ -230,19 +358,11 @@ class SurfaceScreenshotTest {
     }
 
     @Test
-    fun custom_surface() {
+    fun surface_custom() {
         rule.setGlimmerThemeContent {
             Box(
                 Modifier.size(100.dp)
-                    .surface(
-                        shape = DoubleTriangleShape,
-                        color = Color.Red,
-                        border =
-                            BorderStroke(
-                                5.dp,
-                                Brush.linearGradient(0f to Color.Blue, 1f to Color.Green),
-                            ),
-                    )
+                    .surface(shape = DoubleTriangleShape, color = Color.Red)
                     .padding(horizontal = 24.dp, vertical = 20.dp),
                 contentAlignment = Alignment.Center,
             ) {
