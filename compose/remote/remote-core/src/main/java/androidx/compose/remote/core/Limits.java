@@ -47,6 +47,12 @@ public class Limits {
     /** Default maximum frames per second for the player */
     public static int DEFAULT_MAX_FPS = 60;
 
+    /** Default ceiling on the sustained average frames per second over the window */
+    public static int DEFAULT_MAX_AVG_FPS = 10;
+
+    /** Default duration of the averaging window in seconds */
+    public static int DEFAULT_WINDOW_SEC = 10;
+
     /** Absolute maximum frames per second for the player */
     public static int MAX_FPS = 120;
 
