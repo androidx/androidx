@@ -1418,30 +1418,30 @@ package androidx.compose.foundation.lazy.grid {
     property public abstract java.util.List<androidx.compose.foundation.lazy.grid.LazyGridItemInfo> visibleItemsInfo;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed nonexhaustive interface LazyGridPrefetchResultScope {
-    method @InaccessibleFromKotlin public int getLineIndex();
-    method @InaccessibleFromKotlin public int getLineItemCount();
-    method public int getMainAxisSize(int itemIndexInLine);
-    property public abstract int lineIndex;
-    property public abstract int lineItemCount;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed nonexhaustive interface LazyGridPrefetchResultScope {
+    method @InaccessibleFromKotlin @Deprecated public int getLineIndex();
+    method @InaccessibleFromKotlin @Deprecated public int getLineItemCount();
+    method @Deprecated public int getMainAxisSize(int itemIndexInLine);
+    property @Deprecated public abstract int lineIndex;
+    property @Deprecated public abstract int lineItemCount;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchScope {
-    method public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle> scheduleLinePrefetch(int lineIndex);
-    method public default java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle> scheduleLinePrefetch(int lineIndex, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.grid.LazyGridPrefetchResultScope,kotlin.Unit>? onPrefetchFinished);
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchScope {
+    method @Deprecated public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle> scheduleLinePrefetch(int lineIndex);
+    method @Deprecated public default java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle> scheduleLinePrefetch(int lineIndex, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.grid.LazyGridPrefetchResultScope,kotlin.Unit>? onPrefetchFinished);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchStrategy {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchStrategy {
     method @InaccessibleFromKotlin @Deprecated public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? getPrefetchScheduler();
-    method public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
-    method public void onScroll(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, float delta, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
-    method public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
+    method @Deprecated public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
+    method @Deprecated public void onScroll(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, float delta, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
+    method @Deprecated public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
     property @Deprecated public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler;
   }
 
   @SuppressCompatibility public final class LazyGridPrefetchStrategyKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy LazyGridPrefetchStrategy(optional int nestedPrefetchItemCount);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy! LazyGridPrefetchStrategy$default(int, int, Object!);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy LazyGridPrefetchStrategy(optional int nestedPrefetchItemCount);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy! LazyGridPrefetchStrategy$default(int, int, Object!);
   }
 
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker public sealed nonexhaustive interface LazyGridScope {
