@@ -35,7 +35,7 @@ internal fun Color.withToneAndChroma(
 ): Color {
     val hue = HctUtils.argbToHue(toArgb())
     val solvedArgb = HctSolver.solveToInt(hue, newChroma.toDouble(), newTone.toDouble())
-    return Color(solvedArgb).copy(alpha = this.alpha)
+    return Color(solvedArgb).copy(alpha = alpha)
 }
 
 internal const val MAX_CHROMA = 200.0f
