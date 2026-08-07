@@ -55,6 +55,13 @@ public fun RemoteModifier.fillParentMaxSize(fraction: Float): RemoteModifier =
 public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     fillMaxWidth(fraction).fillMaxHeight(fraction)
 
+/** Wraps the content width to its intrinsic dimensions. */
+public fun RemoteModifier.wrapContentWidth(): RemoteModifier =
+    then(WidthModifier(Type.WRAP, RemoteFloat(1f)))
+
+/** Wraps the content height to its intrinsic dimensions. */
+public fun RemoteModifier.wrapContentHeight(): RemoteModifier =
+    then(HeightModifier(Type.WRAP, RemoteFloat(1f)))
+
 /** Wraps the content size to its intrinsic dimensions. */
-public fun RemoteModifier.wrapContentSize(): RemoteModifier =
-    then(WidthModifier(Type.WRAP, RemoteFloat(1f))).then(HeightModifier(Type.WRAP, RemoteFloat(1f)))
+public fun RemoteModifier.wrapContentSize(): RemoteModifier = wrapContentWidth().wrapContentHeight()
