@@ -23,27 +23,6 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.serializer
-
-/**
- * The [Saver] implementation which allows to represent your class as a [SavedState] value to be
- * saved and restored using Kotlinx Serialization.
- *
- * This function infers the [KSerializer] for [Serializable] using the provided
- * [SavedStateConfiguration].
- *
- * You can use it as a parameter for [rememberSaveable].
- *
- * @param Serializable The [Serializable] to save and restore.
- * @param configuration The configuration for saving state (defaults to
- *   [SavedStateConfiguration.DEFAULT]).
- * @return A [Saver] for [Serializable].
- */
-internal inline fun <reified Serializable : Any> serializableSaver(
-    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT
-): Saver<Serializable, SavedState> {
-    return serializableSaver(configuration.serializersModule.serializer(), configuration)
-}
 
 /**
  * The [Saver] implementation which allows to represent your class as a [SavedState] value to be
