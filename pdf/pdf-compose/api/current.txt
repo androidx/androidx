@@ -23,7 +23,7 @@ package androidx.pdf.compose {
   }
 
   public final class PdfViewerState {
-    ctor public PdfViewerState(kotlinx.coroutines.CoroutineScope coroutineScope);
+    ctor public PdfViewerState();
     method public void clearCurrentSelection();
     method @InaccessibleFromKotlin public androidx.pdf.selection.Selection? getCurrentSelection();
     method @InaccessibleFromKotlin public int getFirstVisiblePage();
@@ -57,6 +57,11 @@ package androidx.pdf.compose {
     property public static int GESTURE_STATE_IDLE;
     property public static int GESTURE_STATE_INTERACTING;
     property public static int GESTURE_STATE_SETTLING;
+  }
+
+  public final class PdfViewerStateKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.pdf.compose.PdfViewerState rememberPdfViewerState();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.pdf.compose.PdfViewerState rememberPdfViewerState(androidx.compose.runtime.Composer?, int);
   }
 
   public interface PdfZoomScrollScope {

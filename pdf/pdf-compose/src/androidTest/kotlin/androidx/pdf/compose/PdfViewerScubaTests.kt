@@ -23,7 +23,6 @@ import android.graphics.Rect
 import android.util.Size
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
@@ -40,8 +39,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +60,7 @@ class PdfViewerScubaTests {
 
         lateinit var pdfViewerState: PdfViewerState
         composeTestRule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 pdfDocument = pdfDocument,
                 state = pdfViewerState,
@@ -92,7 +89,7 @@ class PdfViewerScubaTests {
 
         lateinit var pdfViewerState: PdfViewerState
         composeTestRule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 pdfDocument = pdfDocument,
                 state = pdfViewerState,
