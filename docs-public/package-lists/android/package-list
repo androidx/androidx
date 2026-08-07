@@ -154,6 +154,7 @@ android.sax
 android.se.omapi
 android.security
 android.security.advancedprotection
+android.security.authenticationpolicy
 android.security.identity
 android.security.keystore
 android.security.net.config
@@ -204,6 +205,7 @@ android.text.style
 android.text.util
 android.transition
 android.util
+android.util.function
 android.util.proto
 android.view
 android.view.accessibility
