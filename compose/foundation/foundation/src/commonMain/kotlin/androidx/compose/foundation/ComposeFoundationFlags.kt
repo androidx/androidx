@@ -288,6 +288,18 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isPreferDefaultCacheWindowOverPrefetchStrategy: Boolean = true
+
+    /**
+     * This flag controls whether lazy list measure passes calculate `firstVisibleIndex` and
+     * `lastVisibleIndex` from layout visible items before item placement animations run, preventing
+     * moving-away items added by [androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator]
+     * from corrupting visible item bounds and causing unwanted composition in prefetch or cache
+     * window strategies.
+     */
+    // TODO: b/543329409
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isLazyListItemAnimatorVisibleBoundsFixEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
