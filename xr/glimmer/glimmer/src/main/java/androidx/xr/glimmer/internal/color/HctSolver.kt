@@ -29,7 +29,9 @@ import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+/** Solves for ARGB colors in the HCT color space. */
 internal object HctSolver {
+    /** Solves for an ARGB color integer from hue, chroma, and tone. */
     @ColorInt
     fun solveToInt(hueDegrees: Double, chroma: Double, lstar: Double): Int {
         if (chroma < 0.0001 || lstar < 0.0001 || lstar > 99.9999) {
@@ -37,12 +39,11 @@ internal object HctSolver {
         }
         val hueRadians = HctUtils.sanitizeDegrees(hueDegrees) / 180.0 * PI
         val y = HctUtils.yFromLstar(lstar)
-        val exactAnswer = findResultByJ(hueRadians, chroma, y)
+        val exactAnswer = findResultByJ(hueRadians, chroma, y, lstar)
         if (exactAnswer != 0) {
             return exactAnswer
         }
-        val linrgb = bisectToLimit(y, hueRadians)
-        return HctUtils.argbFromLinrgb(linrgb)
+        return findResultByBisection(y, hueRadians)
     }
 
     private val SCALED_DISCOUNT_FROM_LINRGB =
@@ -338,14 +339,18 @@ internal object HctSolver {
         return sign(component) * 400.0 * af / (af + 27.13)
     }
 
-    private fun hueOf(linrgb: DoubleArray, dest: DoubleArray = DoubleArray(3)): Double {
-        val scaledDiscount = HctUtils.matrixMultiply(linrgb, SCALED_DISCOUNT_FROM_LINRGB, dest)
-        val rA = chromaticAdaptation(scaledDiscount[0])
-        val gA = chromaticAdaptation(scaledDiscount[1])
-        val bA = chromaticAdaptation(scaledDiscount[2])
-        val a = (11.0 * rA + -12.0 * gA + bA) / 11.0
-        val b = (rA + gA - 2.0 * bA) / 9.0
-        return atan2(b, a)
+    private fun hueOf(r: Double, g: Double, b: Double): Double {
+        val m = SCALED_DISCOUNT_FROM_LINRGB
+        val s0 = r * m[0][0] + g * m[0][1] + b * m[0][2]
+        val s1 = r * m[1][0] + g * m[1][1] + b * m[1][2]
+        val s2 = r * m[2][0] + g * m[2][1] + b * m[2][2]
+        val rA = chromaticAdaptation(s0)
+        val gA = chromaticAdaptation(s1)
+        val bA = chromaticAdaptation(s2)
+        val a = (11.0 * rA - 12.0 * gA + bA) / 11.0
+        val bVal = (rA + gA - 2.0 * bA) / 9.0
+        val atan2 = atan2(bVal, a)
+        return sanitizeRadians(atan2)
     }
 
     private fun areInCyclicOrder(a: Double, b: Double, c: Double): Boolean {
@@ -354,127 +359,145 @@ internal object HctSolver {
         return deltaAB < deltaAC
     }
 
-    private fun intercept(source: Double, mid: Double, target: Double): Double =
-        (mid - source) / (target - source)
-
-    private fun lerpPoint(source: DoubleArray, t: Double, target: DoubleArray): DoubleArray =
-        doubleArrayOf(
-            source[0] + (target[0] - source[0]) * t,
-            source[1] + (target[1] - source[1]) * t,
-            source[2] + (target[2] - source[2]) * t,
-        )
-
-    private fun setCoordinate(
-        source: DoubleArray,
-        coordinate: Double,
-        target: DoubleArray,
-        axis: Int,
-    ): DoubleArray {
-        val t = intercept(source[axis], coordinate, target[axis])
-        return lerpPoint(source, t, target)
-    }
-
     private fun isBounded(x: Double): Boolean = x in 0.0..100.0
 
-    private fun nthVertex(y: Double, n: Int): DoubleArray? {
-        val kR = Y_FROM_LINRGB[0]
-        val kG = Y_FROM_LINRGB[1]
-        val kB = Y_FROM_LINRGB[2]
-        val coordA = if (n % 4 <= 1) 0.0 else 100.0
-        val coordB = if (n % 2 == 0) 0.0 else 100.0
-        return when {
-            n < 4 -> {
-                val g = coordA
-                val b = coordB
-                val r = (y - g * kG - b * kB) / kR
-                if (isBounded(r)) doubleArrayOf(r, g, b) else null
-            }
-            n < 8 -> {
-                val b = coordA
-                val r = coordB
-                val g = (y - r * kR - b * kB) / kG
-                if (isBounded(g)) doubleArrayOf(r, g, b) else null
-            }
-            else -> {
-                val r = coordA
-                val g = coordB
-                val b = (y - r * kR - g * kG) / kB
-                if (isBounded(b)) doubleArrayOf(r, g, b) else null
-            }
-        }
-    }
+    private fun criticalPlaneBelow(x: Double): Int = floor(x - 0.5).toInt()
 
-    private fun bisectToSegment(y: Double, targetHue: Double): Array<DoubleArray> {
-        var left: DoubleArray? = null
-        var right: DoubleArray? = null
+    private fun criticalPlaneAbove(x: Double): Int = ceil(x - 0.5).toInt()
+
+    private fun findResultByBisection(y: Double, targetHue: Double): Int {
+        var leftR = 0.0
+        var leftG = 0.0
+        var leftB = 0.0
+        var rightR = 0.0
+        var rightG = 0.0
+        var rightB = 0.0
         var leftHue = 0.0
         var rightHue = 0.0
         var initialized = false
         var uncut = true
+
+        val kR = Y_FROM_LINRGB[0]
+        val kG = Y_FROM_LINRGB[1]
+        val kB = Y_FROM_LINRGB[2]
+
         for (n in 0..11) {
-            val mid = nthVertex(y, n)
-            if (mid != null) {
-                val midHue = hueOf(mid)
+            val coordA = if (n % 4 <= 1) 0.0 else 100.0
+            val coordB = if (n % 2 == 0) 0.0 else 100.0
+            var vR: Double
+            var vG: Double
+            var vB: Double
+            var valid: Boolean
+
+            when {
+                n < 4 -> {
+                    vG = coordA
+                    vB = coordB
+                    vR = (y - vG * kG - vB * kB) / kR
+                    valid = isBounded(vR)
+                }
+                n < 8 -> {
+                    vB = coordA
+                    vR = coordB
+                    vG = (y - vR * kR - vB * kB) / kG
+                    valid = isBounded(vG)
+                }
+                else -> {
+                    vR = coordA
+                    vG = coordB
+                    vB = (y - vR * kR - vG * kG) / kB
+                    valid = isBounded(vB)
+                }
+            }
+
+            if (valid) {
+                val midHue = hueOf(vR, vG, vB)
                 if (!initialized) {
-                    left = mid
-                    right = mid
+                    leftR = vR
+                    leftG = vG
+                    leftB = vB
+                    rightR = vR
+                    rightG = vG
+                    rightB = vB
                     leftHue = midHue
                     rightHue = midHue
                     initialized = true
                 } else if (uncut || areInCyclicOrder(leftHue, midHue, rightHue)) {
                     uncut = false
                     if (areInCyclicOrder(leftHue, targetHue, midHue)) {
-                        right = mid
+                        rightR = vR
+                        rightG = vG
+                        rightB = vB
                         rightHue = midHue
                     } else {
-                        left = mid
+                        leftR = vR
+                        leftG = vG
+                        leftB = vB
                         leftHue = midHue
                     }
                 }
             }
         }
-        return arrayOf(left!!, right!!)
-    }
 
-    private fun midpoint(a: DoubleArray, b: DoubleArray): DoubleArray =
-        doubleArrayOf((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, (a[2] + b[2]) / 2.0)
-
-    private fun criticalPlaneBelow(x: Double): Int = floor(x - 0.5).toInt()
-
-    private fun criticalPlaneAbove(x: Double): Int = ceil(x - 0.5).toInt()
-
-    private fun bisectToLimit(y: Double, targetHue: Double): DoubleArray {
-        val segment = bisectToSegment(y, targetHue)
-        var left = segment[0]
-        var leftHue = hueOf(left)
-        var right = segment[1]
         for (axis in 0..2) {
-            if (left[axis] != right[axis]) {
+            val leftVal =
+                when (axis) {
+                    0 -> leftR
+                    1 -> leftG
+                    else -> leftB
+                }
+            val rightVal =
+                when (axis) {
+                    0 -> rightR
+                    1 -> rightG
+                    else -> rightB
+                }
+            if (leftVal != rightVal) {
                 var lPlane =
-                    if (left[axis] < right[axis]) {
-                        criticalPlaneBelow(trueDelinearized(left[axis]))
+                    if (leftVal < rightVal) {
+                        criticalPlaneBelow(trueDelinearized(leftVal))
                     } else {
-                        criticalPlaneAbove(trueDelinearized(left[axis]))
+                        criticalPlaneAbove(trueDelinearized(leftVal))
                     }
                 var rPlane =
-                    if (left[axis] < right[axis]) {
-                        criticalPlaneAbove(trueDelinearized(right[axis]))
+                    if (leftVal < rightVal) {
+                        criticalPlaneAbove(trueDelinearized(rightVal))
                     } else {
-                        criticalPlaneBelow(trueDelinearized(right[axis]))
+                        criticalPlaneBelow(trueDelinearized(rightVal))
                     }
                 for (i in 0..7) {
                     if (abs(rPlane - lPlane) <= 1) {
                         break
                     } else {
-                        val mPlane = floor((lPlane + rPlane) / 2.0).toInt()
+                        val mPlane =
+                            ((lPlane + rPlane) shr 1).coerceIn(0, CRITICAL_PLANES.lastIndex)
                         val midPlaneCoordinate = CRITICAL_PLANES[mPlane]
-                        val mid = setCoordinate(left, midPlaneCoordinate, right, axis)
-                        val midHue = hueOf(mid)
+                        val curLeftVal =
+                            when (axis) {
+                                0 -> leftR
+                                1 -> leftG
+                                else -> leftB
+                            }
+                        val curRightVal =
+                            when (axis) {
+                                0 -> rightR
+                                1 -> rightG
+                                else -> rightB
+                            }
+                        val t = (midPlaneCoordinate - curLeftVal) / (curRightVal - curLeftVal)
+                        val bisectMidR = leftR + (rightR - leftR) * t
+                        val bisectMidG = leftG + (rightG - leftG) * t
+                        val bisectMidB = leftB + (rightB - leftB) * t
+                        val midHue = hueOf(bisectMidR, bisectMidG, bisectMidB)
                         if (areInCyclicOrder(leftHue, targetHue, midHue)) {
-                            right = mid
+                            rightR = bisectMidR
+                            rightG = bisectMidG
+                            rightB = bisectMidB
                             rPlane = mPlane
                         } else {
-                            left = mid
+                            leftR = bisectMidR
+                            leftG = bisectMidG
+                            leftB = bisectMidB
                             leftHue = midHue
                             lPlane = mPlane
                         }
@@ -482,24 +505,32 @@ internal object HctSolver {
                 }
             }
         }
-        return midpoint(left, right)
+
+        val destR = (leftR + rightR) * 0.5
+        val destG = (leftG + rightG) * 0.5
+        val destB = (leftB + rightB) * 0.5
+
+        return HctUtils.argbFromRgb(
+            HctUtils.delinearized(destR),
+            HctUtils.delinearized(destG),
+            HctUtils.delinearized(destB),
+        )
     }
 
     private fun inverseChromaticAdaptation(adapted: Double): Double {
         val adaptedAbs = abs(adapted)
         val base = max(0.0, 27.13 * adaptedAbs / (400.0 - adaptedAbs))
-        return Math.signum(adapted) * base.pow(1.0 / 0.42)
+        return sign(adapted) * base.pow(1.0 / 0.42)
     }
 
-    private fun findResultByJ(hueRadians: Double, chroma: Double, y: Double): Int {
-        var j = sqrt(y) * 11.0
+    private fun findResultByJ(hueRadians: Double, chroma: Double, y: Double, lstar: Double): Int {
+        var j = lstar
         val vc = ViewingConditions
         val tInnerCoeff = 1.0 / (1.64 - 0.29.pow(vc.n)).pow(0.73)
         val eHue = 0.25 * (cos(hueRadians + 2.0) + 3.8)
         val p1 = eHue * (50000.0 / 13.0) * vc.nc * vc.ncb
         val hSin = sin(hueRadians)
         val hCos = cos(hueRadians)
-        val linrgb = DoubleArray(3)
         for (iterationRound in 0..4) {
             val jNormalized = j / 100.0
             val alpha = if (chroma == 0.0 || j == 0.0) 0.0 else chroma / sqrt(jNormalized)
@@ -515,28 +546,29 @@ internal object HctSolver {
             val rCScaled = inverseChromaticAdaptation(rA)
             val gCScaled = inverseChromaticAdaptation(gA)
             val bCScaled = inverseChromaticAdaptation(bA)
-            HctUtils.matrixMultiply(
-                rCScaled,
-                gCScaled,
-                bCScaled,
-                LINRGB_FROM_SCALED_DISCOUNT,
-                linrgb,
-            )
+            val m = LINRGB_FROM_SCALED_DISCOUNT
+            val linR = rCScaled * m[0][0] + gCScaled * m[0][1] + bCScaled * m[0][2]
+            val linG = rCScaled * m[1][0] + gCScaled * m[1][1] + bCScaled * m[1][2]
+            val linB = rCScaled * m[2][0] + gCScaled * m[2][1] + bCScaled * m[2][2]
 
-            if (linrgb[0] < 0 || linrgb[1] < 0 || linrgb[2] < 0) {
+            if (linR < 0 || linG < 0 || linB < 0) {
                 return 0
             }
             val kR = Y_FROM_LINRGB[0]
             val kG = Y_FROM_LINRGB[1]
             val kB = Y_FROM_LINRGB[2]
-            val fnj = kR * linrgb[0] + kG * linrgb[1] + kB * linrgb[2]
+            val fnj = kR * linR + kG * linG + kB * linB
             if (fnj <= 0) return 0
 
             if (iterationRound == 4 || abs(fnj - y) < 0.002) {
-                return if (linrgb[0] > 100.01 || linrgb[1] > 100.01 || linrgb[2] > 100.01) {
+                return if (linR > 100.01 || linG > 100.01 || linB > 100.01) {
                     0
                 } else {
-                    HctUtils.argbFromLinrgb(linrgb)
+                    HctUtils.argbFromRgb(
+                        HctUtils.delinearized(linR),
+                        HctUtils.delinearized(linG),
+                        HctUtils.delinearized(linB),
+                    )
                 }
             }
             j -= (fnj - y) * j / (2.0 * fnj)
