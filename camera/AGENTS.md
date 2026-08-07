@@ -43,9 +43,17 @@ feedback.
 
 ## General Instructions:
 
-- **Kotlin Formatting**: When modifying any .kt file, format it using `ktfmt` via the
-  following command: `./gradlew :ktCheckFile --format --file <file>`. If more than one file needs
-  formatting, continue adding `--file <next-file>` to the command.
+- **Kotlin Formatting**: When modifying any .kt file, format it using `ktfmt`
+  via the following command:
+  `./gradlew :ktCheckFile --format --file <file>`.
+  If more than one file needs formatting, continue adding
+  `--file <next-file>` to the command.
+  **CRITICAL**: Only format the files you have modified. Do not perform
+  project-wide or unrelated formatting to keep git diffs clean.
+- **Respect User's Local Changes**: Before modifying or creating any file,
+  check for local uncommitted changes in the workspace. Do not overwrite,
+  revert, or discard the user's modifications without explicit instructions.
+  If your changes might conflict with theirs, seek clarification first.
 - **Public API**: When a public API is changed or when asked to update the public API files,
   execute: `./gradlew <project>:updateApi`. The projects and their root paths can be found in
   `settings.gradle`.
@@ -74,9 +82,27 @@ feedback.
 - **Code Elegance**: After implementing a solution and passing tests, always
   review the code to ensure it is clean, elegant, and readable (e.g., extract
   complex conditional logic into descriptive helper methods).
+- **Dependency & Constructor Simplification**: For lightweight compatibility
+  layers, wrappers, or utility classes, prefer instantiating internal helper
+  dependencies internally (rather than passing them as constructor parameters) to
+  keep the API clean and reduce boilerplate for callers, provided it does not
+  hinder testability. Avoid over-engineering constructors with parameters that are
+  primarily implementation details of the class.
 - **Regression Prevention**: Scan the codebase and analyze the impact of your
   changes on related components to ensure no potential regressions are
   introduced.
+- **Refactoring & Caller Updates**: When modifying the signature or behavior of
+  a class, constructor, or method (especially public or internal APIs used across
+  modules), you **MUST** actively scan the codebase to identify and update all
+  callers and corresponding usages. Verify that all affected modules compile
+  successfully. Be thorough and ensure you update:
+  a. Production code callers.
+  b. Host-side unit tests (typically under `src/test/`).
+  c. Device-side integration/instrumented tests (typically under `src/androidTest/`).
+- **Documentation & KDoc Updates**: When modifying a class, interface, method, or
+  property (especially when changing constructor signatures, parameters, or public/internal
+  behaviors), always review and update its KDoc/JavaDoc. Ensure the documentation
+  accurately reflects the new behavior and signature.
 - **Camera2 API Usage**: When writing code that utilizes Android Camera2 APIs
   (directly or indirectly, including modifying behavior that relies on them),
   always revisit the official [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
@@ -249,9 +275,15 @@ CameraX involves complex hardware interactions, making robust testing essential.
      specific error codes).
   3. **Compare Logs**: Compare the failing log with a passing log from a
      different device to identify differences in HAL behavior or timing.
-  4. **Check Related Devices**: Identify if similar devices (e.g., same
-     manufacturer, chipset, or model family like Fold/Flip series) might share
-     the same HAL characteristics and exhibit the same issue.
+  4. **Check Related Devices & Test Exclusions**:
+     - Identify if similar devices (e.g., same manufacturer, chipset, or model
+       family like Fold/Flip series) might share the same HAL characteristics
+       and exhibit the same issue.
+     - Search the codebase (especially integration tests and existing quirks) to
+       see if other devices have similar manual workarounds, skips, or size
+       exclusions (e.g., check if a test is skipped for a device using
+       `assumeFalse(Build.DEVICE.equals(...))`).
+     - Search the issue tracker for similar failures on other models.
      - *Fallback Strategy*: If the target device (or related devices) is not
        available in the lab or experiences persistent allocation
        timeouts/failures:
@@ -272,6 +304,12 @@ CameraX involves complex hardware interactions, making robust testing essential.
        lenses not supporting reprocessing).
      - Explore if a generic workaround is possible without session
        reconfiguration.
+      - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW capture crashing):
+       a. Check if it's a resolution-specific mismatch (which might be corrected
+          by excluding the buggy size via `ExcludedSupportedSizesQuirk`).
+       b. If the format is fundamentally broken for all sizes (e.g., HAL advertised
+          sizes do not align with physical sensor size required by `DngCreator`),
+          disable the format entirely via `UnsupportedFormatsQuirk`.
      - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
        is possible, add the device model to the corresponding Quirk class
        (e.g., `ZslDisablerQuirk`).
