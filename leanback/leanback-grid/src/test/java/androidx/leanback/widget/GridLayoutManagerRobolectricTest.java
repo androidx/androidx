@@ -747,4 +747,84 @@ public class GridLayoutManagerRobolectricTest {
         assertEquals(1, mSelectedPositions.size());
         assertEquals(1, (int) mSelectedPositions.get(0));
     }
+
+    @Test
+    public void testTouchMode_snapAfterHoverUnaligned() {
+        VerticalGridView gridView = setupGridView(10, null);
+        assertTrue(gridView.isInTouchMode());
+        gridView.setFocusScrollStrategy(BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP);
+
+        // Child 1 is at 550, visible
+        View child1 = gridView.getChildAt(1);
+        assertEquals(550, child1.getTop());
+
+        // Select child 1, it should align to 450
+        gridView.setSelectedPosition(1);
+        measureAndLayout((View) gridView.getParent());
+        assertEquals(450, child1.getTop());
+
+        // Simulate hover on child 2 (at 550 now)
+        View child2 = gridView.getChildAt(2);
+        gridView.setSelectedPositionToUnalignedChild(child2);
+        measureAndLayout((View) gridView.getParent());
+        // It should remain unaligned (at 550)
+        assertEquals(550, child2.getTop());
+
+        // Now simulate drag.
+        GridLayoutManager layoutManager = (GridLayoutManager) gridView.getLayoutManager();
+        layoutManager.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
+
+        // Scroll a bit to simulate drag movement (downwards, so views move up)
+        // Drag by 60 to make child 2 closer to keyline (450) than child 1.
+        // Child 1 will be at 390 (dist 60). Child 2 will be at 490 (dist 40).
+        gridView.scrollBy(0, 60);
+
+        // Stop drag (idle)
+        layoutManager.onScrollStateChanged(RecyclerView.SCROLL_STATE_IDLE);
+        ShadowLooper.idleMainLooper();
+        measureAndLayout((View) gridView.getParent());
+
+        // It should snap to the aligned position of the selected item (child 2).
+        assertEquals(450, child2.getTop());
+    }
+
+    @Test
+    public void testTouchMode_snapAfterHoverUnaligned_smallDrag() {
+        VerticalGridView gridView = setupGridView(10, null);
+        assertTrue(gridView.isInTouchMode());
+        gridView.setFocusScrollStrategy(BaseGridView.FOCUS_SCROLL_ALIGNED_AND_SNAP);
+
+        // Child 1 is at 550, visible
+        View child1 = gridView.getChildAt(1);
+        assertEquals(550, child1.getTop());
+
+        // Select child 1, it should align to 450
+        gridView.setSelectedPosition(1);
+        measureAndLayout((View) gridView.getParent());
+        assertEquals(450, child1.getTop());
+
+        // Simulate hover on child 2 (at 550 now)
+        View child2 = gridView.getChildAt(2);
+        gridView.setSelectedPositionToUnalignedChild(child2);
+        measureAndLayout((View) gridView.getParent());
+        // It should remain unaligned (at 550)
+        assertEquals(550, child2.getTop());
+
+        // Now simulate drag.
+        GridLayoutManager layoutManager = (GridLayoutManager) gridView.getLayoutManager();
+        layoutManager.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
+
+        // Scroll a bit to simulate drag movement (downwards, so views move up)
+        // Drag by 10. Child 1 will be at 440 (dist 10). Child 2 will be at 540 (dist 90).
+        // Child 1 is still closer to 450.
+        gridView.scrollBy(0, 10);
+
+        // Stop drag (idle)
+        layoutManager.onScrollStateChanged(RecyclerView.SCROLL_STATE_IDLE);
+        ShadowLooper.idleMainLooper();
+        measureAndLayout((View) gridView.getParent());
+
+        // It should snap back to the aligned position of child 1.
+        assertEquals(450, child1.getTop());
+    }
 }
