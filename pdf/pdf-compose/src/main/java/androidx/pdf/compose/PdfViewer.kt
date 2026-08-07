@@ -84,13 +84,14 @@ import kotlinx.coroutines.launch
  *   completed.
  */
 @Composable
+@ExperimentalPdfApi
 public fun PdfViewer(
     pdfDocument: PdfDocument?,
     state: PdfViewerState,
     modifier: Modifier = Modifier,
     isFormFillingEnabled: Boolean = false,
     isImageSelectionEnabled: Boolean = false,
-    @OptIn(ExperimentalPdfApi::class) ocrProvider: OcrProvider? = null,
+    ocrProvider: OcrProvider? = null,
     minZoom: Float = PdfView.MIN_PERMISSIBLE_ZOOM,
     maxZoom: Float = PdfView.MAX_PERMISSIBLE_ZOOM,
     verticalAlignment: Int = PdfView.VERTICAL_ALIGNMENT_CENTER,
