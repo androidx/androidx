@@ -18,7 +18,6 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
 import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -78,21 +77,20 @@ import kotlin.math.roundToInt
  * - **Main Axis**: The primary direction along which items are laid out, determined by the
  *   [FlexBoxConfigScope.direction]. Items are placed starting from the **`main-start`** edge and
  *   flowing toward the **`main-end`** edge. Defaults to [FlexDirection.Row].
- *         - For [FlexDirection.Row]: `main-start` is the layout's start edge (left in LTR, right in
- *           RTL) and `main-end` is the end edge (right in LTR, left in RTL).
- *         - For [FlexDirection.RowReverse]: `main-start` is the layout's end edge (right in LTR,
- *           left in
- *     * RTL) and `main-end` is the start edge (left in LTR, right in RTL).
- *         - For [FlexDirection.Column]: `main-start` is the top edge and `main-end` is the bottom edge.
- *         - For [FlexDirection.ColumnReverse]: `main-start` is the bottom edge and `main-end` is
- *           the top edge.
+ *     - For [FlexDirection.Row]: `main-start` is the layout's start edge (left in LTR, right in
+ *       RTL) and `main-end` is the end edge (right in LTR, left in RTL).
+ *     - For [FlexDirection.RowReverse]: `main-start` is the layout's end edge (right in LTR, left
+ *       in RTL) and `main-end` is the start edge (left in LTR, right in RTL).
+ *     - For [FlexDirection.Column]: `main-start` is the top edge and `main-end` is the bottom edge.
+ *     - For [FlexDirection.ColumnReverse]: `main-start` is the bottom edge and `main-end` is the
+ *       top edge.
  * - **Cross Axis**: The axis perpendicular to the main axis. Wrapped lines are added, and items are
  *   aligned within their lines, starting from the **`cross-start`** edge and flowing toward the
  *   **`cross-end`** edge.
- *         - For horizontal directions ([FlexDirection.Row] and [FlexDirection.RowReverse]):
- *           `cross-start` is the top edge and `cross-end` is the bottom edge.
- *         - For vertical directions ([FlexDirection.Column] and [FlexDirection.ColumnReverse]):
- *           `cross-start` is the layout's start edge and `cross-end` is the end edge.
+ *     - For horizontal directions ([FlexDirection.Row] and [FlexDirection.RowReverse]):
+ *       `cross-start` is the top edge and `cross-end` is the bottom edge.
+ *     - For vertical directions ([FlexDirection.Column] and [FlexDirection.ColumnReverse]):
+ *       `cross-start` is the layout's start edge and `cross-end` is the end edge.
  *
  * Children can dictate how they share available space using the [FlexBoxScope.flex] modifier:
  * - [FlexConfigScope.grow]: Defines how much of the remaining positive free space the item should
@@ -1249,7 +1247,6 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
  */
 @LayoutScopeMarker
 @Immutable
-@JvmDefaultWithCompatibility
 public interface FlexBoxScope {
     /**
      * Configures the flex properties of this element within the [FlexBox] using the provided
@@ -2228,33 +2225,33 @@ public fun interface FlexConfig {
 public sealed interface FlexConfigScope : Density {
 
     /**
-     * The maximum size of the FlexBox container along the main axis. Corresponds to
+     * The maximum size of the FlexBox container along the main axis, in pixels. Corresponds to
      * [Constraints.maxWidth] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
      * [Constraints.maxHeight] for [FlexDirection.Column]/[FlexDirection.ColumnReverse]. Use this
      * for responsive item sizing based on the container's available space.
      */
-    public val flexBoxMainAxisMax: Int
+    public val flexBoxMainAxisMaxPx: Int
 
     /**
-     * The minimum size of the FlexBox container along the main axis. Corresponds to
+     * The minimum size of the FlexBox container along the main axis, in pixels. Corresponds to
      * [Constraints.minWidth] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
      * [Constraints.minHeight] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
-    public val flexBoxMainAxisMin: Int
+    public val flexBoxMainAxisMinPx: Int
 
     /**
-     * The maximum size of the FlexBox container along the cross axis. Corresponds to
+     * The maximum size of the FlexBox container along the cross axis, in pixels. Corresponds to
      * [Constraints.maxHeight] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
      * [Constraints.maxWidth] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
-    public val flexBoxCrossAxisMax: Int
+    public val flexBoxCrossAxisMaxPx: Int
 
     /**
-     * The minimum size of the FlexBox container along the cross axis. Corresponds to
+     * The minimum size of the FlexBox container along the cross axis, in pixels. Corresponds to
      * [Constraints.minHeight] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
      * [Constraints.minWidth] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
-    public val flexBoxCrossAxisMin: Int
+    public val flexBoxCrossAxisMinPx: Int
 
     /**
      * Overrides the container's [FlexBoxConfigScope.alignItems] for this specific item.
@@ -2409,16 +2406,16 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
 
     override fun TextUnit.toDp(): Dp = with(_density) { this@toDp.toDp() }
 
-    override var flexBoxMainAxisMax: Int = 0
+    override var flexBoxMainAxisMaxPx: Int = 0
         private set
 
-    override var flexBoxMainAxisMin: Int = 0
+    override var flexBoxMainAxisMinPx: Int = 0
         private set
 
-    override var flexBoxCrossAxisMax: Int = 0
+    override var flexBoxCrossAxisMaxPx: Int = 0
         private set
 
-    override var flexBoxCrossAxisMin: Int = 0
+    override var flexBoxCrossAxisMinPx: Int = 0
         private set
 
     override fun alignSelf(value: FlexAlignSelf) {
@@ -2504,10 +2501,10 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
 
     fun prepare(density: Density, constraints: OrientationIndependentConstraints) {
         this._density = density
-        this.flexBoxMainAxisMax = constraints.mainAxisMax
-        this.flexBoxMainAxisMin = constraints.mainAxisMin
-        this.flexBoxCrossAxisMax = constraints.crossAxisMax
-        this.flexBoxCrossAxisMin = constraints.crossAxisMin
+        this.flexBoxMainAxisMaxPx = constraints.mainAxisMax
+        this.flexBoxMainAxisMinPx = constraints.mainAxisMin
+        this.flexBoxCrossAxisMaxPx = constraints.crossAxisMax
+        this.flexBoxCrossAxisMinPx = constraints.crossAxisMin
     }
 
     // Measurable and measurement state
