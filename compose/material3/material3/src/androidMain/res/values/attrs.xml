@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <declare-styleable name="mc3_palette">
+        <!-- Primary Palette (Material Tones: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100) -->
+        <attr name="mc3_primary_0" format="color" />
+        <attr name="mc3_primary_10" format="color" />
+        <attr name="mc3_primary_20" format="color" />
+        <attr name="mc3_primary_30" format="color" />
+        <attr name="mc3_primary_40" format="color" />
+        <attr name="mc3_primary_50" format="color" />
+        <attr name="mc3_primary_60" format="color" />
+        <attr name="mc3_primary_70" format="color" />
+        <attr name="mc3_primary_80" format="color" />
+        <attr name="mc3_primary_90" format="color" />
+        <attr name="mc3_primary_95" format="color" />
+        <attr name="mc3_primary_99" format="color" />
+        <attr name="mc3_primary_100" format="color" />
+
+        <!-- Secondary Palette -->
+        <attr name="mc3_secondary_0" format="color" />
+        <attr name="mc3_secondary_10" format="color" />
+        <attr name="mc3_secondary_20" format="color" />
+        <attr name="mc3_secondary_30" format="color" />
+        <attr name="mc3_secondary_40" format="color" />
+        <attr name="mc3_secondary_50" format="color" />
+        <attr name="mc3_secondary_60" format="color" />
+        <attr name="mc3_secondary_70" format="color" />
+        <attr name="mc3_secondary_80" format="color" />
+        <attr name="mc3_secondary_90" format="color" />
+        <attr name="mc3_secondary_95" format="color" />
+        <attr name="mc3_secondary_99" format="color" />
+        <attr name="mc3_secondary_100" format="color" />
+
+        <!-- Tertiary Palette -->
+        <attr name="mc3_tertiary_0" format="color" />
+        <attr name="mc3_tertiary_10" format="color" />
+        <attr name="mc3_tertiary_20" format="color" />
+        <attr name="mc3_tertiary_30" format="color" />
+        <attr name="mc3_tertiary_40" format="color" />
+        <attr name="mc3_tertiary_50" format="color" />
+        <attr name="mc3_tertiary_60" format="color" />
+        <attr name="mc3_tertiary_70" format="color" />
+        <attr name="mc3_tertiary_80" format="color" />
+        <attr name="mc3_tertiary_90" format="color" />
+        <attr name="mc3_tertiary_95" format="color" />
+        <attr name="mc3_tertiary_99" format="color" />
+        <attr name="mc3_tertiary_100" format="color" />
+
+        <!-- Neutral Palette -->
+        <attr name="mc3_neutral_0" format="color" />
+        <attr name="mc3_neutral_10" format="color" />
+        <attr name="mc3_neutral_20" format="color" />
+        <attr name="mc3_neutral_30" format="color" />
+        <attr name="mc3_neutral_40" format="color" />
+        <attr name="mc3_neutral_50" format="color" />
+        <attr name="mc3_neutral_60" format="color" />
+        <attr name="mc3_neutral_70" format="color" />
+        <attr name="mc3_neutral_80" format="color" />
+        <attr name="mc3_neutral_90" format="color" />
+        <attr name="mc3_neutral_95" format="color" />
+        <attr name="mc3_neutral_99" format="color" />
+        <attr name="mc3_neutral_100" format="color" />
+
+        <!-- Neutral Variant Palette -->
+        <attr name="mc3_neutral_variant_0" format="color" />
+        <attr name="mc3_neutral_variant_10" format="color" />
+        <attr name="mc3_neutral_variant_20" format="color" />
+        <attr name="mc3_neutral_variant_30" format="color" />
+        <attr name="mc3_neutral_variant_40" format="color" />
+        <attr name="mc3_neutral_variant_50" format="color" />
+        <attr name="mc3_neutral_variant_60" format="color" />
+        <attr name="mc3_neutral_variant_70" format="color" />
+        <attr name="mc3_neutral_variant_80" format="color" />
+        <attr name="mc3_neutral_variant_90" format="color" />
+        <attr name="mc3_neutral_variant_95" format="color" />
+        <attr name="mc3_neutral_variant_99" format="color" />
+        <attr name="mc3_neutral_variant_100" format="color" />
+    </declare-styleable>
+
+    <!-- Styleable for Android 14+ (API 34) dynamic color schemes. -->
+    <declare-styleable name="mc3_scheme">
+        <attr name="mc3_primary" format="color" />
+        <attr name="mc3_on_primary" format="color" />
+        <attr name="mc3_primary_container" format="color" />
+        <attr name="mc3_on_primary_container" format="color" />
+        <attr name="mc3_inverse_primary" format="color" />
+        <attr name="mc3_secondary" format="color" />
+        <attr name="mc3_on_secondary" format="color" />
+        <attr name="mc3_secondary_container" format="color" />
+        <attr name="mc3_on_secondary_container" format="color" />
+        <attr name="mc3_tertiary" format="color" />
+        <attr name="mc3_on_tertiary" format="color" />
+        <attr name="mc3_tertiary_container" format="color" />
+        <attr name="mc3_on_tertiary_container" format="color" />
+        <attr name="mc3_background" format="color" />
+        <attr name="mc3_on_background" format="color" />
+        <attr name="mc3_surface" format="color" />
+        <attr name="mc3_on_surface" format="color" />
+        <attr name="mc3_surface_variant" format="color" />
+        <attr name="mc3_on_surface_variant" format="color" />
+        <attr name="mc3_inverse_surface" format="color" />
+        <attr name="mc3_inverse_on_surface" format="color" />
+        <attr name="mc3_outline" format="color" />
+        <attr name="mc3_outline_variant" format="color" />
+        <attr name="mc3_surface_bright" format="color" />
+        <attr name="mc3_surface_dim" format="color" />
+        <attr name="mc3_surface_container" format="color" />
+        <attr name="mc3_surface_container_high" format="color" />
+        <attr name="mc3_surface_container_highest" format="color" />
+        <attr name="mc3_surface_container_low" format="color" />
+        <attr name="mc3_surface_container_lowest" format="color" />
+        <attr name="mc3_surface_tint" format="color" />
+        <attr name="mc3_primary_fixed" format="color" />
+        <attr name="mc3_primary_fixed_dim" format="color" />
+        <attr name="mc3_on_primary_fixed" format="color" />
+        <attr name="mc3_on_primary_fixed_variant" format="color" />
+        <attr name="mc3_secondary_fixed" format="color" />
+        <attr name="mc3_secondary_fixed_dim" format="color" />
+        <attr name="mc3_on_secondary_fixed" format="color" />
+        <attr name="mc3_on_secondary_fixed_variant" format="color" />
+        <attr name="mc3_tertiary_fixed" format="color" />
+        <attr name="mc3_tertiary_fixed_dim" format="color" />
+        <attr name="mc3_on_tertiary_fixed" format="color" />
+        <attr name="mc3_on_tertiary_fixed_variant" format="color" />
+    </declare-styleable>
+</resources>
