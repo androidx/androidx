@@ -27,14 +27,13 @@ import androidx.a2ui.model.protocol.A2uiUserAction
 /**
  * Creates a [A2uiTestController] that can be used to drive tests.
  *
+ * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
  * @param catalog The [A2uiCatalog] under test.
  * @param theme Simulated theme overrides (e.g., `primaryColor`) from the agent.
  * @param initialComponents A list of [A2uiComponentPayload]s used to initialize the UI hierarchy.
  * @param initialData The initial data tree injected into the data model.
  * @param componentStubs A List of component stubs to override or append to the catalog.
  * @return An unstarted [A2uiTestController].
- *
- * TODO(b/527415570): add samples, including the stubbing APIs.
  */
 public fun A2uiTestController(
     catalog: A2uiCatalog,
@@ -57,6 +56,8 @@ public fun A2uiTestController(
  * It provides access to the underlying [A2uiSurfaceModel] for rendering, tracks outbound actions
  * dispatched by the UI, and exposes synchronous methods to simulate incoming protocol messages
  * (data and component updates) from an agent.
+ *
+ * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
  */
 public interface A2uiTestController {
 
@@ -73,6 +74,8 @@ public interface A2uiTestController {
      *
      * To inspect only the events queued for network transmission to the agent, use
      * [outboundEvents]. Use [clearDispatchedActions] to clear this record.
+     *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerActionsAndEventsSample
      */
     public val dispatchedActions: List<A2uiUserAction>
 
@@ -82,6 +85,8 @@ public interface A2uiTestController {
      *
      * Local function calls are not included in this list. Use [clearOutboundEvents] to clear this
      * record.
+     *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerActionsAndEventsSample
      */
     public val outboundEvents: List<A2uiClientEventMessage>
 
@@ -100,6 +105,7 @@ public interface A2uiTestController {
      *
      * This is expected to be called in a block passed to `runComposeUiTest`.
      *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
      * @return The fully initialized [A2uiSurfaceModel] ready to be mounted in a UI.
      */
     public suspend fun start(): A2uiSurfaceModel
@@ -113,12 +119,15 @@ public interface A2uiTestController {
      * recompose and reflect the new states.
      *
      * This is expected to be called in a block passed to `runComposeUiTest`.
+     *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
      */
     public suspend fun waitForIdle()
 
     /**
      * Simulates the agent sending a data model update to the test surface.
      *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerDataSample
      * @param path The JSON pointer path to update.
      * @param value The new value to place at the specified path.
      */
@@ -127,6 +136,7 @@ public interface A2uiTestController {
     /**
      * Simulates the agent pushing a structural component update to the surface.
      *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
      * @param id The unique identifier of the component.
      * @param type The string type identifier of the component.
      * @param properties The property map representing the component's configuration.
@@ -137,6 +147,7 @@ public interface A2uiTestController {
      * Simulates the agent pushing an incremental property update to an already existing component
      * on the surface, reusing its previously recorded type.
      *
+     * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerSample
      * @param id The unique identifier of the component.
      * @param properties The property map representing the component's configuration.
      * @throws IllegalStateException If no type has been recorded for `id` via `initialComponents`
@@ -174,6 +185,7 @@ public interface A2uiTestController {
  * Reads a value from the underlying data model at the specified JSON pointer path and casts it to
  * the requested type [T].
  *
+ * @sample androidx.a2ui.compose.ui.testing.samples.A2uiTestControllerDataSample
  * @param path The JSON pointer path to read (e.g., `"/user/name"`).
  * @return The data model value cast to [T], or `null` if the path does not exist.
  * @throws ClassCastException if the value at [path] cannot be cast to [T].
