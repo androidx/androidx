@@ -481,11 +481,13 @@ private fun rememberLazyGridMeasurePolicy(
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
             // apply keep around after updating the strategy with measure result.
-            (prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
-                measureResult.orientation,
-                measureResult.visibleItemsInfo,
-                measuredLineProvider,
-            )
+            if (!ComposeFoundationFlags.isKeepAroundDuringLookaheadDisabled || !isLookingAhead) {
+                (prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
+                    measureResult.orientation,
+                    measureResult.visibleItemsInfo,
+                    measuredLineProvider,
+                )
+            }
             measureResult
         }
     }
