@@ -88,7 +88,8 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     }
 
     private fun makeListSection(): RowSection {
-        val primaryAction = createAction(navigateTitle, icNavigate, Action.FLAG_PRIMARY)
+        val primaryAction =
+            createAction(title = navigateTitle, icon = icNavigate, flags = Action.FLAG_PRIMARY)
         val secondaryAction = createAction(title = "", icon = icRoute)
 
         val hovToggle =
