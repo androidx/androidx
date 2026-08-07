@@ -245,15 +245,37 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      */
     public void setDefaultMaxFps(int defaultMaxFps) {
         Limits.DEFAULT_MAX_FPS = defaultMaxFps;
+        mInner.setMaxFps(defaultMaxFps);
     }
 
     /**
-     * Sets the absolute maximum frames per second for the player.
+     * Sets the default sustained average frames per second for the player.
      *
-     * @param maxFps the absolute maximum fps
+     * @param defaultMaxAvgFps the default maximum average fps
+     */
+    public void setDefaultMaxAvgFps(int defaultMaxAvgFps) {
+        Limits.DEFAULT_MAX_AVG_FPS = defaultMaxAvgFps;
+        mInner.setMaxAvgFps(defaultMaxAvgFps);
+    }
+
+    /**
+     * Sets the default duration of the averaging window in seconds.
+     *
+     * @param defaultWindowSec the default window in seconds
+     */
+    public void setDefaultFpsWindow(int defaultWindowSec) {
+        Limits.DEFAULT_WINDOW_SEC = defaultWindowSec;
+        mInner.setFpsWindow(defaultWindowSec);
+    }
+
+    /**
+     * Sets the maximum frames per second for the player.
+     *
+     * @param maxFps the maximum fps
      */
     public void setMaxFps(int maxFps) {
         Limits.MAX_FPS = maxFps;
+        mInner.setMaxFps(maxFps);
     }
 
     private @NonNull RemoteContext getRemoteContext() {
@@ -822,6 +844,36 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     @RestrictTo(LIBRARY_GROUP)
     public void setUseChoreographer(boolean value) {
         mInner.setUseChoreographer(value);
+    }
+
+    /** Returns the instantaneous maximum frame rate. */
+    public int getMaxFps() {
+        return mInner.getMaxFps();
+    }
+
+    /** Set the sustained average frame rate limit over the sliding window (e.g. 10 fps). */
+    public void setMaxAvgFps(int maxAvgFps) {
+        mInner.setMaxAvgFps(maxAvgFps);
+    }
+
+    /** Returns the sustained average frame rate limit. */
+    public int getMaxAvgFps() {
+        return mInner.getMaxAvgFps();
+    }
+
+    /** Set the duration of the rolling average window in seconds. */
+    public void setFpsWindow(int windowSeconds) {
+        mInner.setFpsWindow(windowSeconds);
+    }
+
+    /** Returns the duration of the rolling average window in seconds. */
+    public int getFpsWindow() {
+        return mInner.getFpsWindow();
+    }
+
+    /** Temporarily boost the frame rate back to maxFps (clears window throttling). */
+    public void touchBoost() {
+        mInner.touchBoost();
     }
 
     /** Reload the palette colors */

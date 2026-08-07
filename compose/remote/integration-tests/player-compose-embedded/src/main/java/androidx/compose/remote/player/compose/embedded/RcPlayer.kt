@@ -40,6 +40,7 @@ import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Limiter
 import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
@@ -305,10 +306,12 @@ public fun RcPlayer(
     // instead.
     val hasWakeIn = remember(document) { containsWakeIn(document.getOperationsReflection()) }
 
+    val limiter = remember(document) { Limiter() }
     LaunchedEffect(document, hasAnimations, isTimeDependent, hasParticles, hasWakeIn) {
         val startMillis = withInfiniteAnimationFrameMillis { it }
         while (true) {
             val frameMillis = withInfiniteAnimationFrameMillis { it } - startMillis
+            limiter.recordDrawStart(frameMillis * 1_000_000L)
             // Pure time ticker. Updating currentTimeMillisState is the *only* per-frame work: every
             // reactive path keys off it. Expression display flows through the GraphContext
             // derivedStateOf graph and the float/int/color resolvers (which read this state for
@@ -327,6 +330,11 @@ public fun RcPlayer(
             // TODO: also idle animated documents between animations and re-arm on host-driven
             // variable writes (see HISTORY.md, "Plan 1").
             if (!hasAnimations && !isTimeDependent && !hasParticles && !hasWakeIn) break
+
+            val delayNs = limiter.computeDelay(0L, frameMillis * 1_000_000L)
+            if (delayNs > limiter.minIntervalNs) {
+                kotlinx.coroutines.delay((delayNs - limiter.minIntervalNs) / 1_000_000L)
+            }
         }
     }
 
