@@ -24,6 +24,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.SavedStateConfiguration.Companion.DEFAULT
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
+import kotlin.jvm.JvmName
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
@@ -121,8 +122,52 @@ public fun <T : Any> rememberSerializable(
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithSerializerAndMutableState
  * @see rememberSerializable
  */
+@Deprecated(
+    message =
+        "Use the new 'rememberSerializable' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public inline fun <reified T : Any> rememberSerializable(
+    vararg inputs: Any?,
+    configuration: SavedStateConfiguration = DEFAULT,
+    noinline init: () -> MutableState<T>,
+): MutableState<T> {
+    return rememberSerializable(
+        inputs = inputs,
+        stateSerializer = configuration.serializersModule.serializer<T>(),
+        configuration = configuration,
+        init = init,
+    )
+}
+
+/**
+ * Remember a [MutableState] produced by [init], and persist it across activity or process
+ * recreation using a [KSerializer] from `kotlinx.serialization`.
+ *
+ * This function automatically finds a [KSerializer] for the `reified` type `T`, making it a
+ * convenient way to use [rememberSaveable] with types that are [Serializable].
+ *
+ * This behaves similarly to [remember], but the state will survive configuration changes (like
+ * screen rotations) and process recreation. It is designed for state types that cannot be stored in
+ * a `Bundle` directly but can be serialized.
+ *
+ * This overload is intended for nullable types, while the overload without `@JvmName` is for
+ * non-nullable types.
+ *
+ * @param inputs A set of inputs which, when changed, will cause the stored state to reset and
+ *   [init] to be re-executed. Note that previously saved values are not validated against these
+ *   inputs during restoration.
+ * @param configuration Optional [SavedStateConfiguration] to customize how the serialization is
+ *   handled, such as specifying a custom format (e.g. JSON). Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @param init A factory function to produce the initial `MutableState` to be remembered.
+ * @return The remembered and possibly restored `MutableState`.
+ * @see rememberSerializable
+ */
+@Composable
+@JvmName("rememberSerializableNullable")
+public inline fun <reified T> rememberSerializable(
     vararg inputs: Any?,
     configuration: SavedStateConfiguration = DEFAULT,
     noinline init: () -> MutableState<T>,
@@ -157,6 +202,11 @@ public inline fun <reified T : Any> rememberSerializable(
  * @param init A factory function to produce the initial value to be remembered and saved.
  * @sample androidx.compose.runtime.saveable.samples.RememberSaveableWithSerializerAndMutableState
  */
+@Deprecated(
+    message =
+        "Use the new 'rememberSerializable' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T : Any> rememberSerializable(
     vararg inputs: Any?,
@@ -169,7 +219,44 @@ public fun <T : Any> rememberSerializable(
     return rememberSaveable(*inputs, saver = saver, key = null, init = init)
 }
 
-private fun <Serializable : Any> serializableSaver(
+/**
+ * Remember the value produced by [init], and save it across activity or process recreation using a
+ * [KSerializer] from kotlinx.serialization.
+ *
+ * This behaves similarly to [remember], but the value will survive configuration changes (like
+ * screen rotations) and process recreation by saving it in the instance state using a
+ * serialization-based mechanism.
+ *
+ * This overload is intended for cases where the state type cannot be stored directly in a Bundle,
+ * but can be serialized with [kotlinx.serialization.KSerializer]. This is particularly useful for
+ * custom or complex data types that are `@Serializable`.
+ *
+ * This overload is intended for nullable types, while the overload without `@JvmName` is for
+ * non-nullable types.
+ *
+ * @param inputs A set of inputs such that, when any of them have changed, the state will reset and
+ *   [init] will be rerun. Note: state restoration does NOT validate against inputs used before the
+ *   value was saved.
+ * @param stateSerializer A [KSerializer] used to serialize and deserialize the state value. The
+ *   value must be marked with `@Serializable`.
+ * @param configuration Optional [SavedStateConfiguration] to customize how the serialization is
+ *   handled, such as specifying a custom format (e.g. JSON).
+ * @param init A factory function to produce the initial value to be remembered and saved.
+ */
+@Composable
+@JvmName("rememberSerializableNullable")
+public fun <T> rememberSerializable(
+    vararg inputs: Any?,
+    stateSerializer: KSerializer<T>,
+    configuration: SavedStateConfiguration = DEFAULT,
+    init: () -> MutableState<T>,
+): MutableState<T> {
+    val saver = mutableStateSaver(inner = serializableSaver(stateSerializer, configuration))
+    @Suppress("DEPRECATION")
+    return rememberSaveable(*inputs, saver = saver, key = null, init = init)
+}
+
+private fun <Serializable> serializableSaver(
     serializer: KSerializer<Serializable>,
     configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
 ): Saver<Serializable, SavedState> {
